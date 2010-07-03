@@ -5,7 +5,7 @@
  http://vray.cgdo.ru
 
  Started:       29 Aug 2009
- Last Modified: 29 Jun 2010
+ Last Modified: 18 Apr 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -380,7 +380,6 @@ UNITS= {
 	'WATM'    : 4
 }
 
-
 def	debug(s):
 	if(sce.vray_debug):
 		print("V-Ray/Blender: %s"%(s))
@@ -407,7 +406,7 @@ def p(t):
 
 
 def a(t):
-	return "interpolate((%i,%s))"%(sce.frame_current,p(t))
+	return "interpolate((%i,%s))"%(sce.frame_current, p(t))
 
 
 def transform(m):
@@ -438,15 +437,9 @@ def get_name(data, prefix= None):
 	if(prefix):
 		name= "%s_%s"%(prefix,name)
 	if(data.library):
-		name+= "_%s"%(get_filename(data.library.filepath))
+		name+= "_%s"%(get_filename(data.library.filename))
 	return clean_string(name)
 
-
-def object_on_visible_layers(ob):
-	for l in range(20):
-		if ob.layers[l] and sce.layers[l]:
-			return True
-	return False
 
 
 '''
@@ -482,9 +475,9 @@ def write_geometry():
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 				continue
 
-			if sce.vray_export_active_layers:
-				if not object_on_visible_layers(ob):
-					continue
+			# if sce.vray_export_active_layers:
+			# 	if ob.layers and sce.visible_layers:
+			# 		continue
 
 			me_name= get_name(ob.data, 'Geom')
 
@@ -710,7 +703,7 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 
 
 def write_BitmapBuffer(ofile, tex, tex_name, ob= None):
-	filename= os.path.normpath(bpy.utils.expandpath(tex.image.filepath))
+	filename= os.path.normpath(bpy.utils.expandpath(tex.image.filename))
 
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
@@ -796,24 +789,23 @@ def write_textures(ma, ma_name):
 
 	vraymat= {}
 	vraymat['color']= None
-	vraymat['color_mult']= 0.0
+	vraymat['color_mult']= 1.0
 	vraymat['bump']= None
 	vraymat['bump_amount']= 0.0
 	vraymat['normal']= None
 	vraymat['normal_amount']= 0.0
 	vraymat['reflect']= None
-	vraymat['reflect_mult']= 0.0
+	vraymat['reflect_mult']= 1.0
 	vraymat['reflect_glossiness']= None
-	vraymat['reflect_glossiness_mult']= 0.0
+	vraymat['reflect_glossiness_mult']= 1.0
 	vraymat['hilight_glossiness']= None
-	vraymat['hilight_glossiness_mult']= 0.0
+	vraymat['hilight_glossiness_mult']= 1.0
 	vraymat['refract']= None
-	vraymat['refract_mult']= 0.0
+	vraymat['refract_mult']= 1.0
 	vraymat['refract_glossiness']= None
-	vraymat['refract_glossiness_mult']= 0.0
-	vraymat['roughness_mult']= 0.0
+	vraymat['refract_glossiness_mult']= 1.0
 	vraymat['alpha']= None
-	vraymat['alpha_mult']= 0.0
+	vraymat['alpha_mult']= 1.0
 	vraymat['displace']= None
 	vraymat['displace_amount']= 0.0
 
@@ -886,7 +878,7 @@ def write_textures(ma, ma_name):
 						ofile.write("\n}\n")
 						vraymat[textype]= tex_name
 					if(slot.colordiff_factor < 1.0):
-						tex_name= "TexCombineColor_%s_%s"%(ma_name,vraymat[textype])
+						tex_name= "TexCombineColor_%s_%s"%(ma_namevraymat[textype])
 						ofile.write("\nTexCombineColor %s {"%(tex_name))
 						ofile.write("\n\tcolor= %s;"%(a("AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
 						ofile.write("\n\ttexture= %s;"%(vraymat[textype]))
@@ -1366,7 +1358,7 @@ def write_BRDFLight(ma, ma_name, tex_vray):
 	if(tex_vray['alpha']):
 		ofile.write("\n\ttransparency= %s;"%(a(tex_vray['alpha'])))
 	else:
-		ofile.write("\n\ttransparency= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
+		ofile.write("\n\ttransparency= %s;"%(a(ma.alpha)))
 
 	ofile.write("\n\temitOnBackSide= %s;"%(a(ma.vray_mtl_emitOnBackSide)))
 	ofile.write("\n}\n")
@@ -1649,7 +1641,20 @@ def write_nodes():
 	global exported_nodes
 	exported_nodes= []
 
-	def write_node(ob):
+	ofile= open(filenames['nodes'], 'w')
+	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
+	ofile.write("// Node file\n")
+
+	timer= time.clock()
+
+	for ob in sce.objects:
+		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
+			continue
+
+		# if sce.vray_export_active_layers:
+		# 	if ob.layers and sce.visible_layers:
+		# 		continue
+
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
 
@@ -1660,9 +1665,9 @@ def write_nodes():
 					print("V-Ray/Blender:   Mesh animated: %d"%(1 if ob.data.animation_data else 0))
 			else:
 				if(PLATFORM == "win32"):
-					sys.stdout.write("V-Ray/Blender: [%d] Object: %s                              \r"%(sce.frame_current, ob.name))
+					sys.stdout.write("V-Ray/Blender: Exporting object: %s                              \r"%(ob.name))
 				else:
-					sys.stdout.write("V-Ray/Blender: [%d] Object: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.name))
+					sys.stdout.write("V-Ray/Blender: Exporting object: \033[0;32m%s\033[0m                              \r"%(ob.name))
 				sys.stdout.flush()
 
 			ma_name= "Material_no_material"
@@ -1681,45 +1686,6 @@ def write_nodes():
 			ofile.write("\n\tmaterial= %s;"%(ma_name))
 			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix))))
 			ofile.write("\n}\n")
-
-	ofile= open(filenames['nodes'], 'w')
-	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-	ofile.write("// Node file\n")
-
-	timer= time.clock()
-
-	STATIC_OBJECTS= []
-	DYNAMIC_OBJECTS= []
-
-	for ob in sce.objects:
-		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
-			continue
-
-		if sce.vray_export_active_layers:
-			if not object_on_visible_layers(ob):
-				continue
-
-		if ob.animation_data:
-			DYNAMIC_OBJECTS.append(ob)
-		else:
-			STATIC_OBJECTS.append(ob)
-
-	for ob in STATIC_OBJECTS:
-		write_node(ob)
-
-	if(sce.vray_export_animation):
-		cur_frame= sce.frame_current
-		f= sce.frame_start
-		while(f < sce.frame_end + 1):
-			exported_nodes= []
-			sce.frame_current= f
-			for ob in DYNAMIC_OBJECTS:
-				write_node(ob)
-			f+= sce.frame_step
-		sce.frame_current= cur_frame
-	else:
-		for ob in DYNAMIC_OBJECTS:
-			write_node(ob)
 
 	exported_nodes= []
 
@@ -1790,10 +1756,8 @@ def write_lamps():
 			for param in OBJECT_PARAMS[lamp_type]:
 				ofile.write("\n\t%s= %s;"%(param, a(getattr(lamp, "vray_lamp_%s"%(param)))))
 
-			if lamp_type is not 'SunLight':
-				ofile.write("\n\tcolor= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
-				ofile.write("\n\tunits= %i;"%(UNITS[lamp.vray_lamp_units]))
-			
+			ofile.write("\n\tcolor= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
+			ofile.write("\n\tunits= %i;"%(UNITS[lamp.vray_lamp_units]))
 			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix))))
 			ofile.write("\n}\n")
 
@@ -1915,6 +1879,7 @@ def write_scene():
 				ofile.write("\n\ttype= %d;"%(0))
 			elif(sce.vray_is_type == 'DMC'):
 				ofile.write("\n\ttype= %d;"%(1))
+				# TODO: process 'dmc_treshhold_use_dmc',
 			else:
 				ofile.write("\n\ttype= %d;"%(2))
 		elif(module == 'SettingsColorMapping'):
@@ -2089,239 +2054,6 @@ def write_scene():
 				settingsLC()
 			if(SECONDARY[sce.vray_gi_secondary_engine] == 3):
 				settingsLC()
-
-	passes= sce.render.layers[0]
-
-	if(passes.pass_color or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Color {")
-		ofile.write("\n\tname=\"VRay_Color\";")
-		ofile.write("\n\talias= 101;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_diffuse or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Diffuse {")
-		ofile.write("\n\tname=\"VRay_Diffuse\";")
-		ofile.write("\n\talias= 107;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_specular or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Specular {")
-		ofile.write("\n\tname=\"VRay_Specular\";")
-		ofile.write("\n\talias= 106;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_reflection or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Reflection {")
-		ofile.write("\n\tname=\"VRay_Reflection\";")
-		ofile.write("\n\talias= 102;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Reflection_Filter {")
-		ofile.write("\n\tname=\"VRay_Reflection_Filter\";")
-		ofile.write("\n\talias= 118;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Raw_Reflection {")
-		ofile.write("\n\tname=\"VRay_Raw_Reflection\";")
-		ofile.write("\n\talias= 119;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_refraction or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Refract {")
-		ofile.write("\n\tname=\"VRay_Refract\";")
-		ofile.write("\n\talias= 103;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Refraction_Filter {")
-		ofile.write("\n\tname=\"VRay_Refraction_Filter\";")
-		ofile.write("\n\talias= 120;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Raw_Refraction {")
-		ofile.write("\n\tname=\"VRay_Raw_Refraction\";")
-		ofile.write("\n\talias= 121;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_lightning or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Raw_Lightning {")
-		ofile.write("\n\tname=\"VRay_Raw_Lightning\";")
-		ofile.write("\n\talias= 111;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Total_Lightning {")
-		ofile.write("\n\tname=\"VRay_Total_Lightning\";")
-		ofile.write("\n\talias= 129;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Raw_Total_Lightning {")
-		ofile.write("\n\tname=\"VRay_Raw_Total_Lightning\";")
-		ofile.write("\n\talias= 130;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_shadow or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Shadow {")
-		ofile.write("\n\tname=\"VRay_Shadow\";")
-		ofile.write("\n\talias= 105;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Raw_Shadow {")
-		ofile.write("\n\tname=\"VRay_Raw_Shadow\";")
-		ofile.write("\n\talias= 112;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Matte_Shadow {")
-		ofile.write("\n\tname=\"VRay_Matte_Shadow\";")
-		ofile.write("\n\talias= 128;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_sss or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_SSS {")
-		ofile.write("\n\tname=\"VRay_SSS\";")
-		ofile.write("\n\talias= 133;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_z or sce.vray_passes):
-		ofile.write("\nRenderChannelZDepth {")
-		ofile.write("\n\tname=\"ZDepth\";")
-		ofile.write("\n\tdepth_from_camera = %s;"%(p(sce.vray_zdepth_depth_camera)))
-		ofile.write("\n\tdepth_white= %s;"%(sce.vray_zdepth_depth_white))
-		ofile.write("\n\tdepth_black= %s;"%(sce.vray_zdepth_depth_black))
-		ofile.write("\n\tdepth_clamp= %s;"%(p(sce.vray_zdepth_depth_clamp)))
-		ofile.write("\n}")
-
-	if(passes.pass_vector or sce.vray_passes):
-		ofile.write("\nRenderChannelVelocity {")
-		ofile.write("\n\tname=\"Velocity\";")
-		ofile.write("\n\tdclamp_velocity = %s;"%(p(sce.vray_velocity_clamp_velocity)))
-		ofile.write("\n\tmax_velocity= %s;"%(sce.vray_velocity_max_velocity))
-		ofile.write("\n\tmax_velocity_last_frame= %s;"%(sce.vray_velocity_max_velocity_last_frame))
-		ofile.write("\n\tignore_z= %s;"%(p(sce.vray_velocity_ignore_z)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Velocity {")
-		ofile.write("\n\tname=\"VRay_Velocity\";")
-		ofile.write("\n\talias= 113;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_normal or sce.vray_passes):
-		ofile.write("\nRenderChannelNormals {")
-		ofile.write("\n\tname=\"Normals\";")
-		ofile.write("\n}")
-
-	if(passes.pass_object_index or sce.vray_passes):
-		ofile.write("\nRenderChannelRenderID {")
-		ofile.write("\n\tname=\"RenderID\";")
-		ofile.write("\n}")
-
-	if(passes.pass_emit or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Emit {")
-		ofile.write("\n\tname=\"VRay_Emit\";")
-		ofile.write("\n\talias= 104;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_ao or sce.vray_passes):
-		ofile.write("\nTexDirt TexDirt_ExtraTex_AO {")
-		ofile.write("\n\twhite_color = AColor(1.000,1.000,1.000,1.000);")
-		ofile.write("\n\tsubdivs = 16;")
-		ofile.write("\n\tblack_color= AColor(0.000,0.000,0.000,1.000);")
-		ofile.write("\n\tradius = %s;"%(sce.vray_texdirt_ao_radius))
-		ofile.write("\n\tignore_for_gi = 1;")
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelExtraTex AO {")
-		ofile.write("\n\tname=\"AO\";")
-		ofile.write("\n\tconsider_for_aa = %s;"%(p(sce.vray_extratex_consider_for_aa)))
-		ofile.write("\n\taffect_matte_objects = %s;"%(p(sce.vray_extratex_affect)))
-		ofile.write("\n\ttexmap = TexDirt_ExtraTex_AO;")
-		ofile.write("\n\tfiltering= 1;")
-		ofile.write("\n}")
-
-	if(passes.pass_environment or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Environment {")
-		ofile.write("\n\tname=\"VRay_Environment\";")
-		ofile.write("\n\talias= 124;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(passes.pass_indirect or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_GI {")
-		ofile.write("\n\tname=\"VRay_GI\";")
-		ofile.write("\n\talias= 108;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Raw_GI {")
-		ofile.write("\n\tname=\"VRay_Raw_GI\";")
-		ofile.write("\n\talias= 110;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_bumb or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Bumb_Normal {")
-		ofile.write("\n\tname=\"VRay_Bumb_Normal\";")
-		ofile.write("\n\talias= 131;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_samplerate or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Samplerate {")
-		ofile.write("\n\tname=\"VRay_Samplerate\";")
-		ofile.write("\n\talias= 132;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_multimatte or sce.vray_passes):
-		ofile.write("\nRenderChannelMultiMatte {")
-		ofile.write("\n\tname=\"MultiMatte\";")
-		ofile.write("\n\tred_id = %s;"%(sce.vray_multimatte_red_id))
-		ofile.write("\n\tgreen_id = %s;"%(sce.vray_multimatte_green_id))
-		ofile.write("\n\tblue_id= %s;"%(sce.vray_multimatte_blue_id))
-		ofile.write("\n\tuse_mtl_id= %s;"%(p(sce.vray_multimatte_use_mtl_id)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_caustics or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Caustics {")
-		ofile.write("\n\tname=\"VRay_Caustics\";")
-		ofile.write("\n\talias= 109;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-	if(sce.vray_pass_wirecolor or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Wire_Color {")
-		ofile.write("\n\tname=\"VRay_Wire_Color\";")
-		ofile.write("\n\talias= 127;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Real_Color {")
-		ofile.write("\n\tname=\"VRay_Real_Color\";")
-		ofile.write("\n\talias= 122;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
-
-		ofile.write("\nRenderChannelColor VRay_Alpha {")
-		ofile.write("\n\tname=\"VRay_Real_Alpha\";")
-		ofile.write("\n\talias= 125;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
 
 	ofile.write("\n")
 	ofile.close()

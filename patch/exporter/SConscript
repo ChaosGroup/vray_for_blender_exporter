@@ -1,0 +1,11 @@
+#!/usr/bin/python
+Import('env')
+
+sources= env.Glob('*.c')
+
+incs = '../blenlib ../blenkernel ../blenloader'
+incs+= ' ../makesdna ../makesrna'
+incs+= ' ../windowmanager'
+incs+= ' ../../../intern/guardedalloc'
+
+env.BlenderLib('bf_scene_exporter', sources, Split(incs), [], libtype='core', priority=300)
