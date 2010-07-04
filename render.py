@@ -2394,9 +2394,14 @@ def get_vray_binary():
 	vray_bin= 'vray'
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
+
 	vray_path= vray_bin
 	if(sce.vray_export_compat == 'STD'):
-		vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:], vray_bin)
+		if(PLATFORM == "win32"):
+			vray_path=  os.path.join(os.getenv('VRAY_PATH',''), vray_bin)
+		else:
+			vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:], vray_bin)
+
 	return vray_path
 
 
