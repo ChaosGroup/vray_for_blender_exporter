@@ -43,7 +43,7 @@ EnumProperty= bpy.types.Lamp.EnumProperty
 
 
 EnumProperty(
-	attr="vray_lamp_units",
+	attr="vr_la_units",
 	name="Intensity units",
 	description="Units for the intensity.",
 	items=(
@@ -57,7 +57,7 @@ EnumProperty(
 )
 
 EnumProperty(
-	attr="vray_lamp_direct_type",
+	attr="vr_la_direct_type",
 	name="Direct light subtype",
 	description="Direct light subtype.",
 	items=(
@@ -68,7 +68,7 @@ EnumProperty(
 )
 
 EnumProperty(
-	attr="vray_lamp_spot_type",
+	attr="vr_la_spot_type",
 	name="Spot light subtype",
 	description="Spot light subtype.",
 	items=(
@@ -79,42 +79,42 @@ EnumProperty(
 )
 
 BoolProperty(
-	attr="vray_lamp_enabled",
+	attr="vr_la_enabled",
 	name="Enabled",
 	description="Turns the light on and off",
 	default= True
 )
 
 BoolProperty(
-	attr= "vray_lamp_shadows",
+	attr= "vr_la_shadows",
 	name= "Shadows",
 	description= "TODO.",
 	default= True
 )
 
 BoolProperty(
-	attr= "vray_lamp_affectDiffuse",
+	attr= "vr_la_affectDiffuse",
 	name= "Affect diffuse",
 	description= "Produces diffuse lighting.",
 	default= True
 )
 
 BoolProperty(
-	attr= "vray_lamp_affectSpecular",
+	attr= "vr_la_affectSpecular",
 	name= "Affect specular",
 	description= "Produces specular hilights.",
 	default= True
 )
 
 BoolProperty(
-	attr= "vray_lamp_affectReflections",
+	attr= "vr_la_affectReflections",
 	name= "Affect reflections",
 	description= "Appear in reflections.",
 	default= False
 )
 
 VectorProperty(
-	attr= "vray_lamp_shadowColor",
+	attr= "vr_la_shadowColor",
 	name= "Shadow color",
 	description= "The shadow color. Anything but black is not physically accurate.",
 	subtype= "COLOR",
@@ -126,7 +126,7 @@ VectorProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_shadowBias",
+	attr= "vr_la_shadowBias",
 	name= "Shadow bias",
 	description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces.",
 	min= 0.0,
@@ -138,7 +138,7 @@ FloatProperty(
 )
 
 IntProperty(
-	attr= "vray_lamp_shadowSubdivs",
+	attr= "vr_la_shadowSubdivs",
 	name= "Shadow subdivs",
 	description= "TODO.",
 	min= 0,
@@ -147,7 +147,7 @@ IntProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_shadowRadius",
+	attr= "vr_la_shadowRadius",
 	name= "Shadow radius",
 	description= "TODO.",
 	min= 0.0,
@@ -159,7 +159,7 @@ FloatProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_decay",
+	attr= "vr_la_decay",
 	name= "Decay",
 	description= "TODO.",
 	min= 0.0,
@@ -171,7 +171,7 @@ FloatProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_cutoffThreshold",
+	attr= "vr_la_cutoffThreshold",
 	name= "Cut-off threshold",
 	description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
 	min= 0.0,
@@ -183,7 +183,7 @@ FloatProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_intensity",
+	attr= "vr_la_intensity",
 	name= "Intensity",
 	description= "Light intensity.",
 	min= 0.0,
@@ -195,7 +195,7 @@ FloatProperty(
 )
 
 IntProperty(
-	attr= "vray_lamp_subdivs",
+	attr= "vr_la_subdivs",
 	name= "Subdivs",
 	description= "TODO.",
 	min= 0,
@@ -204,35 +204,35 @@ IntProperty(
 )
 
 BoolProperty(
-	attr= "vray_lamp_storeWithIrradianceMap",
+	attr= "vr_la_storeWithIrradianceMap",
 	name= "Store with irradiance map",
 	description= "TODO.",
 	default= False
 )
 
 BoolProperty(
-	attr= "vray_lamp_invisible",
+	attr= "vr_la_invisible",
 	name= "Invisible",
 	description= "TODO.",
 	default= False
 )
 
 BoolProperty(
-	attr= "vray_lamp_noDecay",
+	attr= "vr_la_noDecay",
 	name= "No decay",
 	description= "TODO.",
 	default= False
 )
 
 BoolProperty(
-	attr= "vray_lamp_doubleSided",
+	attr= "vr_la_doubleSided",
 	name= "Double-sided",
 	description= "TODO.",
 	default= False
 )
 
 EnumProperty(
-	attr="vray_lamp_portal_mode",
+	attr="vr_la_portal_mode",
 	name="Light portal mode",
 	description="Specifies if the light is a portal light.",
 	items=(
@@ -244,7 +244,7 @@ EnumProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_radius",
+	attr= "vr_la_radius",
 	name= "Radius",
 	description= "Sphere light radius.",
 	min= 0.0,
@@ -256,7 +256,7 @@ FloatProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_beamRadius",
+	attr= "vr_la_beamRadius",
 	name= "Beam radius",
 	description= "Direct light beam radius.",
 	min= 0.0,
@@ -268,7 +268,7 @@ FloatProperty(
 )
 
 IntProperty(
-	attr= "vray_lamp_sphere_segments",
+	attr= "vr_la_sphere_segments",
 	name= "Sphere segments",
 	description= "TODO.",
 	min= 0,
@@ -277,14 +277,14 @@ IntProperty(
 )
 
 BoolProperty(
-	attr= "vray_lamp_bumped_below_surface_check",
+	attr= "vr_la_bumped_below_surface_check",
 	name= "Bumped below surface check",
 	description= "If the bumped normal should be used to check if the light dir is below the surface.",
 	default= False
 )
 
 IntProperty(
-	attr= "vray_lamp_nsamples",
+	attr= "vr_la_nsamples",
 	name= "Motion blur samples",
 	description= "Motion blur samples.",
 	min= 0,
@@ -293,7 +293,7 @@ IntProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_diffuse_contribution",
+	attr= "vr_la_diffuse_contribution",
 	name= "Diffuse contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -305,7 +305,7 @@ FloatProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_specular_contribution",
+	attr= "vr_la_specular_contribution",
 	name= "Specular contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -317,28 +317,28 @@ FloatProperty(
 )
 
 BoolProperty(
-	attr= "vray_lamp_areaSpeculars",
+	attr= "vr_la_areaSpeculars",
 	name= "Area speculars",
 	description= "TODO.",
 	default= False
 )
 
 BoolProperty(
-	attr= "vray_lamp_ignoreLightNormals",
+	attr= "vr_la_ignoreLightNormals",
 	name= "Ignore light normals",
 	description= "TODO.",
 	default= True
 )
 
 BoolProperty(
-	attr= "vray_lamp_use_rect_tex",
+	attr= "vr_la_use_rect_tex",
 	name= "Use rect tex",
 	description= "TODO.",
 	default= False
 )
 
 IntProperty(
-	attr= "vray_lamp_tex_resolution",
+	attr= "vr_la_tex_resolution",
 	name= "Tex resolution",
 	description= "TODO.",
 	min= 0,
@@ -347,7 +347,7 @@ IntProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_tex_adaptive",
+	attr= "vr_la_tex_adaptive",
 	name= "Tex adaptive",
 	description= "TODO.",
 	min= 0.0,
@@ -359,7 +359,7 @@ FloatProperty(
 )
 
 IntProperty(
-	attr= "vray_lamp_causticSubdivs",
+	attr= "vr_la_causticSubdivs",
 	name= "Causticsubdivs",
 	description= "TODO.",
 	min= 0,
@@ -368,7 +368,7 @@ IntProperty(
 )
 
 FloatProperty(
-	attr= "vray_lamp_causticMult",
+	attr= "vr_la_causticMult",
 	name= "Causticmult",
 	description= "TODO.",
 	min= 0.0,
@@ -439,7 +439,7 @@ class DATA_PT_vray_light(DataButtonsPanel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vray_lamp_enabled', text="On")
+		col.prop(lamp, 'vr_la_enabled', text="On")
 
 		if(lamp.type == 'AREA'):
 			pass
@@ -458,25 +458,25 @@ class DATA_PT_vray_light(DataButtonsPanel):
 		col= split.column()
 		col.prop(lamp, 'color', text="")
 		if(lamp.type == 'AREA'):
-			col.prop(lamp, 'vray_lamp_portal_mode', text="Mode")
-		if(lamp.vray_lamp_portal_mode == 'NORMAL'):
-			col.prop(lamp, 'vray_lamp_units', text="Units")
-			col.prop(lamp, 'vray_lamp_intensity', text="Intensity")
-		col.prop(lamp, 'vray_lamp_subdivs')
+			col.prop(lamp, 'vr_la_portal_mode', text="Mode")
+		if(lamp.vr_la_portal_mode == 'NORMAL'):
+			col.prop(lamp, 'vr_la_units', text="Units")
+			col.prop(lamp, 'vr_la_intensity', text="Intensity")
+		col.prop(lamp, 'vr_la_subdivs')
 
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vray_lamp_invisible')
-		col.prop(lamp, 'vray_lamp_affectDiffuse')
-		col.prop(lamp, 'vray_lamp_affectSpecular')
-		col.prop(lamp, 'vray_lamp_affectReflections')
-		col.prop(lamp, 'vray_lamp_noDecay')
+		col.prop(lamp, 'vr_la_invisible')
+		col.prop(lamp, 'vr_la_affectDiffuse')
+		col.prop(lamp, 'vr_la_affectSpecular')
+		col.prop(lamp, 'vr_la_affectReflections')
+		col.prop(lamp, 'vr_la_noDecay')
 
 		if(lamp.type == 'AREA'):
-			col.prop(lamp, 'vray_lamp_doubleSided')
+			col.prop(lamp, 'vr_la_doubleSided')
 
-		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and lamp.vray_lamp_radius > 0)):
-			col.prop(lamp, 'vray_lamp_storeWithIrradianceMap')
+		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and lamp.vr_la_radius > 0)):
+			col.prop(lamp, 'vr_la_storeWithIrradianceMap')
 
 
 class DATA_PT_vray_light_shape(DataButtonsPanel):
@@ -500,9 +500,9 @@ class DATA_PT_vray_light_shape(DataButtonsPanel):
 		if(lamp.type == 'AREA'):
 			layout.prop(lamp, 'shape', expand=True)
 		elif(lamp.type == 'SUN'):
-			layout.prop(lamp, 'vray_lamp_direct_type', expand=True)
+			layout.prop(lamp, 'vr_la_direct_type', expand=True)
 		elif(lamp.type == 'SPOT'):
-			layout.prop(lamp, 'vray_lamp_spot_type', expand=True)
+			layout.prop(lamp, 'vr_la_spot_type', expand=True)
 
 		split= layout.split()
 		col= split.column()
@@ -513,16 +513,16 @@ class DATA_PT_vray_light_shape(DataButtonsPanel):
 				col.prop(lamp, 'size', text="Size X")
 				col.prop(lamp, 'size_y')
 		elif(lamp.type == 'POINT'):
-			col.prop(lamp, 'vray_lamp_radius')
-			if(lamp.vray_lamp_radius > 0):
-				col.prop(lamp, 'vray_lamp_sphere_segments')
+			col.prop(lamp, 'vr_la_radius')
+			if(lamp.vr_la_radius > 0):
+				col.prop(lamp, 'vr_la_sphere_segments')
 		elif(lamp.type == 'SUN'):
-			if(lamp.vray_lamp_direct_type == 'DIRECT'):
-				col.prop(lamp, 'vray_lamp_beamRadius')
+			if(lamp.vr_la_direct_type == 'DIRECT'):
+				col.prop(lamp, 'vr_la_beamRadius')
 			else:
 				pass
 		elif(lamp.type == 'SPOT'):
-			if(lamp.vray_lamp_spot_type == 'SPOT'):
+			if(lamp.vr_la_spot_type == 'SPOT'):
 				col.prop(lamp, 'distance')
 				if wide_ui:
 					col= split.column()
@@ -544,7 +544,7 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel):
 
 	def draw_header(self, context):
 		lamp= context.lamp
-		self.layout.prop(lamp, 'vray_lamp_shadows', text="")
+		self.layout.prop(lamp, 'vr_la_shadows', text="")
 
 	def draw(self, context):
 		layout= self.layout
@@ -553,16 +553,16 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel):
 		lamp= context.lamp
 		wide_ui= context.region.width > narrowui
 
-		layout.active = lamp.vray_lamp_shadows
+		layout.active = lamp.vr_la_shadows
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vray_lamp_shadowColor', text="")
+		col.prop(lamp, 'vr_la_shadowColor', text="")
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vray_lamp_shadowBias', text="Bias")
+		col.prop(lamp, 'vr_la_shadowBias', text="Bias")
 		if(lamp.type in ('SPOT','POINT','SUN')):
-			col.prop(lamp, 'vray_lamp_shadowRadius', text="Radius")
+			col.prop(lamp, 'vr_la_shadowRadius', text="Radius")
 
 		split= layout.split()
 		col= split.column()
@@ -600,16 +600,16 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vray_lamp_diffuse_contribution', text="Diffuse cont.")
-		col.prop(lamp, 'vray_lamp_specular_contribution', text="Specular cont.")
-		col.prop(lamp, 'vray_lamp_cutoffThreshold', text="Cut-off")
+		col.prop(lamp, 'vr_la_diffuse_contribution', text="Diffuse cont.")
+		col.prop(lamp, 'vr_la_specular_contribution', text="Specular cont.")
+		col.prop(lamp, 'vr_la_cutoffThreshold', text="Cut-off")
 		
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vray_lamp_nsamples')
-		col.prop(lamp, 'vray_lamp_bumped_below_surface_check', text="Bumped surface check")
-		col.prop(lamp, 'vray_lamp_ignoreLightNormals')
-		col.prop(lamp, 'vray_lamp_areaSpeculars')
+		col.prop(lamp, 'vr_la_nsamples')
+		col.prop(lamp, 'vr_la_bumped_below_surface_check', text="Bumped surface check")
+		col.prop(lamp, 'vr_la_ignoreLightNormals')
+		col.prop(lamp, 'vr_la_areaSpeculars')
 		
 		if(lamp.type == 'AREA'):
 			pass

@@ -1319,7 +1319,7 @@ class RENDER_PT_vray_output(RenderButtonsPanel):
 
         if rd.file_format in ('AVIJPEG', 'JPEG'):
             split = layout.split()
-            split.prop(rd, "quality", slider=True)
+            split.prop(rd, "file_quality", slider=True)
 
         elif rd.file_format == 'OPENEXR':
             split = layout.split()

@@ -726,7 +726,8 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel):
 
 class MATERIAL_PT_vray_preview(MaterialButtonsPanel):
 	bl_label = "Preview"
-	bl_default_closed = True
+	bl_default_closed = False
+	bl_show_header = False
 
 	COMPAT_ENGINES= set(['VRAY_RENDER'])
 
@@ -737,7 +738,7 @@ class MATERIAL_PT_vray_preview(MaterialButtonsPanel):
 class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 	bl_label = 'Parameters'
 	bl_default_closed = False
-	bl_show_header = False
+	bl_show_header = True
 
 	COMPAT_ENGINES= set(['VRAY_RENDER'])
 
@@ -1005,6 +1006,6 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 
 bpy.types.register(MATERIAL_MT_fsss_presets)
 bpy.types.register(MATERIAL_PT_vray_context_material)
-#bpy.types.register(MATERIAL_PT_vray_preview)
+bpy.types.register(MATERIAL_PT_vray_preview)
 bpy.types.register(MATERIAL_PT_vray_basic)
 

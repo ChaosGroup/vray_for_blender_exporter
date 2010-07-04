@@ -35,6 +35,7 @@ import os
 import sys
 import tempfile
 import math
+import subprocess
 import time
 
 ''' Blender modules '''
@@ -1679,7 +1680,7 @@ def write_nodes():
 			ofile.write("\n\tobjectID= %d;"%(ob.pass_index))
 			ofile.write("\n\tgeometry= %s;"%(get_name(ob.data,"Geom")))
 			ofile.write("\n\tmaterial= %s;"%(ma_name))
-			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix))))
+			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix_world))))
 			ofile.write("\n}\n")
 
 	ofile= open(filenames['nodes'], 'w')
@@ -1742,17 +1743,17 @@ def write_lamps():
 			lamp_type= 'LightOmni'
 
 			if(lamp.type == 'POINT'):
-				if(lamp.vray_lamp_radius > 0):
+				if(lamp.vr_la_radius > 0):
 					lamp_type= 'LightSphere'
 				else:
 					lamp_type= 'LightOmni'
 			elif(lamp.type == 'SPOT'):
-				if(lamp.vray_lamp_spot_type == 'SPOT'):
+				if(lamp.vr_la_spot_type == 'SPOT'):
 					lamp_type= 'LightSpot'
 				else:
 					lamp_type= 'LightIES'
 			elif(lamp.type == 'SUN'):
-				if(lamp.vray_lamp_direct_type == 'DIRECT'):
+				if(lamp.vr_la_direct_type == 'DIRECT'):
 					lamp_type= 'LightDirect'
 				else:
 					lamp_type= 'SunLight'
@@ -1788,13 +1789,13 @@ def write_lamps():
 				pass
 
 			for param in OBJECT_PARAMS[lamp_type]:
-				ofile.write("\n\t%s= %s;"%(param, a(getattr(lamp, "vray_lamp_%s"%(param)))))
+				ofile.write("\n\t%s= %s;"%(param, a(getattr(lamp, "vr_la_%s"%(param)))))
 
 			if lamp_type is not 'SunLight':
 				ofile.write("\n\tcolor= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
-				ofile.write("\n\tunits= %i;"%(UNITS[lamp.vray_lamp_units]))
+				ofile.write("\n\tunits= %i;"%(UNITS[lamp.vr_la_units]))
 			
-			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix))))
+			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix_world))))
 			ofile.write("\n}\n")
 
 	ofile.close()
@@ -1823,7 +1824,7 @@ def write_camera():
 		fov= ca.data.angle
 
 		ofile.write("\nRenderView RenderView {")
-		ofile.write("\n\ttransform= %s;"%(a(transform(ca.matrix))))
+		ofile.write("\n\ttransform= %s;"%(a(transform(ca.matrix_world))))
 		ofile.write("\n\tfov= %s;"%(a(fov)))
 		ofile.write("\n\tclipping= 1;")
 		ofile.write("\n\tclipping_near= %s;"%(a(ca.data.clip_start)))
@@ -2374,21 +2375,31 @@ def get_filenames():
 
 	# TODO: move to RNA
 	filenames= {}
-	filenames["name"]= filename
-	filenames["scene"]= basename + ".vrscene"
-	filenames["geometry"]= basename + "_geometry.vrscene"
-	filenames["materials"]= basename + "_materials.vrscene"
-	filenames["lights"]= basename + "_lights.vrscene"
-	filenames["nodes"]= basename + "_nodes.vrscene"
-	filenames["camera"]= basename + "_camera.vrscene"
-	filenames["path"]= basepath
-	filenames["output"]= output_dir
+	filenames['name']= filename
+	filenames['scene']= basename + ".vrscene"
+	filenames['geometry']= basename + "_geometry.vrscene"
+	filenames['materials']= basename + "_materials.vrscene"
+	filenames['lights']= basename + "_lights.vrscene"
+	filenames['nodes']= basename + "_nodes.vrscene"
+	filenames['camera']= basename + "_camera.vrscene"
+	filenames['path']= basepath
+	filenames['output']= output_dir
 
 
 
 '''
   V-Ray Renderer
 '''
+def get_vray_binary():
+	vray_bin= 'vray'
+	if(PLATFORM == "win32"):
+		vray_bin= 'vray.exe'
+	vray_path= vray_bin
+	if(sce.vray_export_compat == 'STD'):
+		vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:], vray_bin)
+	return vray_path
+
+
 class SCENE_OT_vray_export_meshes(bpy.types.Operator):
 	bl_idname = "vray_export_meshes"
 	bl_label = "Export meshes"
@@ -2413,9 +2424,9 @@ bpy.types.register(SCENE_OT_vray_export_meshes)
 
 
 class VRayRenderer(bpy.types.RenderEngine):
-	bl_idname = 'VRAY_RENDER'
-	bl_label  = 'V-Ray'
-
+	bl_idname  = 'VRAY_RENDER'
+	bl_label   = 'V-Ray'
+	
 	def render(self, scene):
 		global sce
 		global rd
@@ -2424,7 +2435,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
-
+		
 		get_filenames()
 
 		if(scene.vray_export_lock):
@@ -2436,20 +2447,12 @@ class VRayRenderer(bpy.types.RenderEngine):
 		write_camera()
 		write_scene()
 
-		if(PLATFORM == "win32"):
-			vray= 'vray.exe'
-			# TODO: check this
-			#if(sce.vray_export_compat == 'STD'):
-			#	vray=  os.path.join(os.environ('VRAY_PATH'), vray)
-		else:
-			vray= 'vray'
-
 		params= '-sceneFile=\"%s\"'%(filenames["scene"])
 
-		if(rd.use_border):
-			wx= rd.resolution_x * rd.resolution_percentage / 100
-			wy= rd.resolution_y * rd.resolution_percentage / 100
+		wx= rd.resolution_x * rd.resolution_percentage / 100
+		wy= rd.resolution_y * rd.resolution_percentage / 100
 
+		if(rd.use_border):
 			x0= wx * rd.border_min_x
 			y0= wy * (1.0 - rd.border_max_y)
 			x1= wx * rd.border_max_x
@@ -2464,6 +2467,12 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 			params+= region
 
+		image_file= os.path.join(filenames['path'], "render.png")
+
+		params+= " -imgFile=\"%s\""%(image_file)
+
+		vray= get_vray_binary()
+		
 		if(PLATFORM == "linux2"):
 			if(sce.vray_export_log_window):
 				cmd = "(xterm -T V-Ray -geometry 90x10 -e \"%s %s\")&"%(vray, params)
@@ -2473,13 +2482,70 @@ class VRayRenderer(bpy.types.RenderEngine):
 			cmd = "start \"dummy\" /b /belownormal \"%s\" %s"%(vray, params)
 		else:
 			cmd = "%s %s"%(vray, params)
-
+		
 		if sce.vray_autorun:
 			print("V-Ray/Blender: Calling: %s"%(cmd))
-			os.system(cmd)												  
+			os.system(cmd)
 		else:
 			print("V-Ray/Blender: Command: %s"%(cmd))
-			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export...")
+			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
-bpy.types.register(VRayRenderer)
+class VRayRendererPreview(bpy.types.RenderEngine):
+	bl_idname  = 'VRAY_RENDER'
+	bl_label   = 'V-Ray (preview)'
+	bl_preview = False
+	
+	def render(self, scene):
+		global sce
+		global rd
+		global wo
+
+		sce= scene
+		rd=  scene.render
+		wo=  scene.world
+		
+		get_filenames()
+
+		write_geometry()
+		write_materials()
+		write_nodes()
+		write_lamps()
+		write_camera()
+		write_scene()
+
+		params= '-sceneFile=\"%s\"'%(filenames["scene"])
+
+		wx= rd.resolution_x * rd.resolution_percentage / 100
+		wy= rd.resolution_y * rd.resolution_percentage / 100
+
+		image_file= os.path.join(filenames['path'], "render.png")
+
+		params+= " -display=0 -imgFile=\"%s\""%(image_file)
+
+		process= subprocess.Popen([get_vray_binary(), params])
+
+		while True:
+			if self.test_break():
+				try:
+					#process.terminate()
+					process.kill()
+				except:
+					pass
+				break
+
+			if process.poll() is not None:
+				try:
+					result= self.begin_result(0, 0, int(wx), int(wy))
+					layer= result.layers[0]
+					layer.load_from_file(image_file)
+					self.end_result(result)
+				except:
+					pass
+				break
+
+			time.sleep(0.05)
+
+
+#bpy.types.register(VRayRenderer)
+bpy.types.register(VRayRendererPreview)
