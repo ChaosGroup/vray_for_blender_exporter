@@ -2398,7 +2398,7 @@ def get_vray_binary():
 	vray_path= vray_bin
 	if(sce.vray_export_compat == 'STD'):
 		if(PLATFORM == "win32"):
-			vray_path=  os.path.join(os.getenv('VRAY_PATH',''), vray_bin)
+			vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:-1], vray_bin)
 		else:
 			vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:], vray_bin)
 
@@ -2528,28 +2528,34 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
 		params+= " -display=0 -imgFile=\"%s\""%(image_file)
 
-		process= subprocess.Popen([get_vray_binary(), params])
+		vray= get_vray_binary()
 
-		while True:
-			if self.test_break():
-				try:
-					#process.terminate()
-					process.kill()
-				except:
-					pass
-				break
+		print("V-Ray/Blender: Command: %s %s"%(vray, params))
+		if sce.vray_autorun:
+			process= subprocess.Popen([vray, params])
 
-			if process.poll() is not None:
-				try:
-					result= self.begin_result(0, 0, int(wx), int(wy))
-					layer= result.layers[0]
-					layer.load_from_file(image_file)
-					self.end_result(result)
-				except:
-					pass
-				break
+			while True:
+				if self.test_break():
+					try:
+						#process.terminate()
+						process.kill()
+					except:
+						pass
+					break
 
-			time.sleep(0.05)
+				if process.poll() is not None:
+					try:
+						result= self.begin_result(0, 0, int(wx), int(wy))
+						layer= result.layers[0]
+						layer.load_from_file(image_file)
+						self.end_result(result)
+					except:
+						pass
+					break
+
+				time.sleep(0.05)
+		else:
+			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
 #bpy.types.register(VRayRenderer)
