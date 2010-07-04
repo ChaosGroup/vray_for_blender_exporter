@@ -2332,6 +2332,9 @@ def get_filenames():
 	global filenames
 
 	default_path= tempfile.gettempdir()
+	if(PLATFORM == "win32"):
+		default_path= os.getenv('TMP','')[1:-1]
+	
 	output_dir= bpy.utils.expandpath(rd.output_path)
 
 	if 0:
@@ -2529,8 +2532,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params+= " -display=0 -imgFile=\"%s\""%(image_file)
 
 		vray= get_vray_binary()
-
 		print("V-Ray/Blender: Command: %s %s"%(vray, params))
+		
 		if sce.vray_autorun:
 			process= subprocess.Popen([vray, params])
 
