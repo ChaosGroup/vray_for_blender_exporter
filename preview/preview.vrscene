@@ -1,0 +1,65 @@
+// V-Ray/Blender 2.5.02
+// Scene file
+
+#include "preview_geometry.vrscene"
+#include "preview_materials.vrscene"
+#include "preview_nodes.vrscene"
+#include "preview_lights.vrscene"
+#include "/tmp/vb25/scene_camera.vrscene"
+
+
+SettingsRegionsGenerator {
+	xc= 32;
+	yc= 32;
+	xymeans= 0;
+	seqtype= 4;
+	reverse= 0;
+}
+
+SettingsUnitsInfo {
+	meters_scale= 1.000000;
+	photometric_scale= 0.002000;
+}
+
+SettingsColorMapping {
+	type= 6;
+	affect_background= 1;
+	dark_mult= 1.000000;
+	bright_mult= 0.650000;
+	gamma= 1.000000;
+	subpixel_mapping= 0;
+	clamp_output= 0;
+	clamp_level= 1.000000;
+	adaptation_only= 0;
+	linearWorkflow= 0;
+}
+
+SettingsImageSampler {
+	type= 2;
+	fixed_subdivs= 1;
+	dmc_minSubdivs= 1;
+	dmc_threshold= 0.010000;
+	dmc_show_samples= 0;
+	subdivision_minRate= -1;
+	subdivision_maxRate= 2;
+	subdivision_threshold= 0.100000;
+	subdivision_edges= 0;
+	subdivision_normals= 0;
+	subdivision_normals_threshold= 0.050000;
+	subdivision_jitter= 1;
+	subdivision_show_samples= 0;
+}
+
+SettingsDMCSampler {
+	time_dependent= 0;
+	adaptive_amount= 0.85;
+	adaptive_threshold= 0.04;
+	adaptive_min_samples= 8;
+	subdivs_mult= 0.25;
+}
+
+SettingsEXR {
+	compression= 0;
+	bits_per_channel= 32;
+}
+

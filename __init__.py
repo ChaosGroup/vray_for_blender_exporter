@@ -1,12 +1,12 @@
-from vray import properties_camera
-from vray import properties_lamp
-from vray import properties_material
-from vray import properties_texture
-from vray import properties_world
-from vray import properties_mesh
-from vray import properties_proxy
-from vray import properties_render
-from vray import render
+from vb25 import properties_camera
+from vb25 import properties_lamp
+from vb25 import properties_material
+from vb25 import properties_texture
+from vb25 import properties_world
+from vb25 import properties_mesh
+from vb25 import properties_proxy
+from vb25 import properties_render
+from vb25 import render
 
 def register():
     pass # TODO

@@ -1,0 +1,21 @@
+// V-Ray/Blender 2.5.02
+// Node file
+
+Node Node_preview {
+	objectID= 0;
+	geometry= Geom_Sphere;
+	material= PREVIEW;
+	transform= interpolate((2,Transform(Matrix(Vector(1.000000, 0.000000, 0.000000),Vector(0.000000, 1.000000, 0.000000),Vector(0.000000, 0.000000, 1.000000)),Vector(0.000000, 0.000000, 1.486360))));
+}
+
+MtlMulti Material_Data_checkers_001 {
+	mtls_list= List(Material_checkerlight,Material_checkerdark);
+	ids_list= ListInt(0,1);
+}
+
+Node Node_checkers_001 {
+	objectID= 0;
+	geometry= Geom_Plane_001;
+	material= Material_Data_checkers_001;
+	transform= interpolate((2,Transform(Matrix(Vector(1.000000, 0.000000, 0.000000),Vector(0.000000, 1.000000, 0.000000),Vector(0.000000, 0.000000, 1.000000)),Vector(0.061070, -5.815505, 3.284238))));
+}

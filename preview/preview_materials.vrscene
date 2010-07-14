@@ -1,0 +1,1770 @@
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}
+
+//
+// Material: checkerdark
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerdark {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.027436,0.027430,0.027430,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerdark {
+	brdf= BRDFVRayMtl_Material_checkerdark;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}
+
+//
+// Material: checkerlight
+//
+BRDFVRayMtl BRDFVRayMtl_Material_checkerlight {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.307808,0.307740,0.307740,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_checkerlight {
+	brdf= BRDFVRayMtl_Material_checkerlight;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}
+
+//
+// Material: texture
+//
+BRDFVRayMtl BRDFVRayMtl_Material_texture {
+	opacity= interpolate((1,0.000000));
+	diffuse= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,1.000000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_texture {
+	brdf= BRDFVRayMtl_Material_texture;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_PREVIEW {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF PREVIEW {
+	brdf= BRDFVRayMtl_PREVIEW;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}
+
+//
+// Material: Yellow.002
+//
+BRDFVRayMtl BRDFVRayMtl_Material_Yellow_002 {
+	opacity= interpolate((1,1.000000));
+	diffuse= interpolate((1,AColor(0.966312,1.000000,0.511010,1.0)));
+	roughness= interpolate((1,0.000000));
+	brdf_type= interpolate((1,1));
+	reflect= interpolate((1,AColor(0.353325,0.353325,0.353325,1.0)));
+	reflect_subdivs= 18;
+	reflect_trace= 1;
+	reflect_depth= 2;
+	reflect_exit_color= interpolate((1,Color(0, 0, 0)));
+	reflect_dim_distance= interpolate((1,0.100000));
+	reflect_dim_distance_on= interpolate((1,0));
+	reflect_dim_distance_falloff= interpolate((1,0));
+	reflect_glossiness= interpolate((1,0.850000));
+	hilight_glossiness= interpolate((1,1.000000));
+	hilight_glossiness_lock= 1;
+	hilight_soften= interpolate((1,0));
+	fresnel= interpolate((1,0));
+	fresnel_ior= interpolate((1,1.600000));
+	fresnel_ior_lock= 0;
+	anisotropy= interpolate((1,0.000000));
+	anisotropy_rotation= interpolate((1,0.000000));
+	anisotropy_derivation= interpolate((1,0));
+	anisotropy_axis= interpolate((1,2));
+	refract= interpolate((1,AColor(0.000000,0.000000,0.000000,1.0)));
+	refract_ior= interpolate((1,1.000000));
+	refract_glossiness= interpolate((1,1.000000));
+	refract_subdivs= interpolate((1,18));
+	refract_trace= 1;
+	refract_depth= interpolate((1,2));
+	refract_exit_color= interpolate((1,Color(0, 0, 0)));
+	refract_exit_color_on= interpolate((1,0));
+	refract_affect_alpha= 0;
+	refract_affect_shadows= 0;
+	fog_color= interpolate((1,AColor(1.000000,1.000000,1.000000,1.0)));
+	fog_mult= interpolate((1,10.000000));
+	fog_bias= interpolate((1,0.000000));
+	translucency= interpolate((1,0));
+	translucency_color= interpolate((1,AColor(1, 1, 1, 1)));
+	translucency_light_mult= interpolate((1,1.000000));
+	translucency_scatter_dir= interpolate((1,0.500000));
+	translucency_scatter_coeff= interpolate((1,0.000000));
+	translucency_thickness= interpolate((1,0.100000));
+	option_double_sided= interpolate((1,1));
+	option_reflect_on_back= interpolate((1,0));
+	option_glossy_rays_as_gi= interpolate((1,1));
+	option_cutoff= interpolate((1,0.001000));
+	option_use_irradiance_map= interpolate((1,1));
+	option_energy_mode= interpolate((1,0));
+	environment_priority= interpolate((1,0));
+}
+
+MtlSingleBRDF Material_Yellow_002 {
+	brdf= BRDFVRayMtl_Material_Yellow_002;
+}

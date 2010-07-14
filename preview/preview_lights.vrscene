@@ -1,0 +1,71 @@
+// V-Ray/Blender 2.5.02
+// Lights file
+
+LightOmni LightOmni_vb25_preview_area_002 {
+	enabled= interpolate((2,1));
+	shadows= interpolate((2,0));
+	shadowColor= interpolate((2,Color(0.000,0.000,0.000)));
+	shadowBias= interpolate((2,0.000000));
+	causticSubdivs= interpolate((2,1000));
+	causticMult= interpolate((2,1.000000));
+	cutoffThreshold= interpolate((2,0.001000));
+	affectDiffuse= interpolate((2,1));
+	affectSpecular= interpolate((2,1));
+	bumped_below_surface_check= interpolate((2,0));
+	nsamples= interpolate((2,0));
+	diffuse_contribution= interpolate((2,1.000000));
+	specular_contribution= interpolate((2,1.000000));
+	intensity= interpolate((2,200.000000));
+	areaSpeculars= interpolate((2,0));
+	shadowSubdivs= interpolate((2,8));
+	decay= interpolate((2,2.000000));
+	color= interpolate((2,Color(1.000000, 1.000000, 1.000000)));
+	units= 0;
+	transform= interpolate((2,Transform(Matrix(Vector(0.656205, -0.754583, 0.000000),Vector(0.091073, 0.079199, 0.992690),Vector(-0.749066, -0.651408, 0.120693)),Vector(-10.868334, -9.451396, 3.967661))));
+}
+
+LightOmni LightOmni_vb25_preview_area_001 {
+	enabled= interpolate((2,1));
+	shadows= interpolate((2,0));
+	shadowColor= interpolate((2,Color(0.000,0.000,0.000)));
+	shadowBias= interpolate((2,0.000000));
+	causticSubdivs= interpolate((2,1000));
+	causticMult= interpolate((2,1.000000));
+	cutoffThreshold= interpolate((2,0.001000));
+	affectDiffuse= interpolate((2,1));
+	affectSpecular= interpolate((2,1));
+	bumped_below_surface_check= interpolate((2,0));
+	nsamples= interpolate((2,0));
+	diffuse_contribution= interpolate((2,1.000000));
+	specular_contribution= interpolate((2,1.000000));
+	intensity= interpolate((2,60.000000));
+	areaSpeculars= interpolate((2,0));
+	shadowSubdivs= interpolate((2,8));
+	decay= interpolate((2,2.000000));
+	color= interpolate((2,Color(1.000000, 1.000000, 1.000000)));
+	units= 0;
+	transform= interpolate((2,Transform(Matrix(Vector(0.493057, 0.869997, 0.000000),Vector(0.148140, -0.083956, 0.985396),Vector(0.857292, -0.485857, -0.170276)),Vector(11.111070, -6.297024, 0.009611))));
+}
+
+LightOmni LightOmni_vb25_preview_area {
+	enabled= interpolate((2,1));
+	shadows= interpolate((2,1));
+	shadowColor= interpolate((2,Color(0.000,0.000,0.000)));
+	shadowBias= interpolate((2,0.000000));
+	causticSubdivs= interpolate((2,1000));
+	causticMult= interpolate((2,1.000000));
+	cutoffThreshold= interpolate((2,0.001000));
+	affectDiffuse= interpolate((2,1));
+	affectSpecular= interpolate((2,1));
+	bumped_below_surface_check= interpolate((2,0));
+	nsamples= interpolate((2,0));
+	diffuse_contribution= interpolate((2,1.000000));
+	specular_contribution= interpolate((2,1.000000));
+	intensity= interpolate((2,100.000000));
+	areaSpeculars= interpolate((2,0));
+	shadowSubdivs= interpolate((2,8));
+	decay= interpolate((2,2.000000));
+	color= interpolate((2,Color(1.000000, 1.000000, 1.000000)));
+	units= 0;
+	transform= interpolate((2,Transform(Matrix(Vector(0.707107, -0.707107, 0.000000),Vector(0.707107, 0.707107, 0.000000),Vector(0.000000, 0.000000, 1.000000)),Vector(0.074232, 1.113483, 12.927895))));
+}

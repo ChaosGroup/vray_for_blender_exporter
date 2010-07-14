@@ -667,18 +667,16 @@ def write_geometry():
 '''
   MATERIALS
 '''
-def write_multi_material(ofile, data):
-	mtl_name= "Material_%s"%(get_name(data,"Data"))
+def write_multi_material(ofile, ob):
+	mtl_name= "Material_%s"%(get_name(ob,"Data"))
 
 	ids_list = ""
 	mtls_list= ""
 	i= 0
 	
-	for ma in data.materials:
-		if(ma):
-			ma_name= get_name(ma, 'Material')
-		else:
-			ma_name= "Material_no_material"
+	for slot in ob.material_slots:
+		print(slot.name)
+		ma_name= get_name(slot.material, 'Material')
 			
 		mtls_list+= "%s,"%(ma_name)
 		ids_list += "%i,"%(i)
@@ -777,7 +775,7 @@ def write_TexBitmap(ofile, ma, slot= None, tex= None, ob= None, env= None, env_t
 	return tex_name
 
 
-def write_textures(ma, ma_name):
+def write_textures(ofile, ma, ma_name):
 	out    = ""
 	out_tex= ""
 
@@ -974,7 +972,7 @@ def write_BRDFBump(base_brdf, tex_vray):
 	return brdf_name
 
 
-def write_BRDFSSS2Complex(ma, ma_name, tex_vray):
+def write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray):
 	SCATTER= {
 		"NONE":   0,
 		"SIMPLE": 1,
@@ -987,14 +985,14 @@ def write_BRDFSSS2Complex(ma, ma_name, tex_vray):
 	ofile.write("\nBRDFSSS2Complex %s {"%(brdf_name))
 	ofile.write("\n\tsingle_scatter= %s;"%(a(SCATTER[ma.vray_fsss_single_scatter])))
 	for param in OBJECT_PARAMS['BRDFSSS2Complex']:
-		ofile.write("\n\t%s= %s;"%(param, a(getattr(ma, "vray_fsss_%s"%(param)))))
+		ofile.write("\n\t%s= %s;"%(param, a(getattr(ofile, ma, "vray_fsss_%s"%(param)))))
 	ofile.write("\n}\n")
 
 	return brdf_name
 
 
 
-def write_BRDFGlossy(ma, ma_name, tex_vray):
+def write_BRDFGlossy(ofile, ma, ma_name, tex_vray):
 	rm= ma.raytrace_mirror
 
 	brdf_name= "BRDFGlossy_%s"%(ma_name)
@@ -1036,7 +1034,7 @@ def write_BRDFGlossy(ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFGlass(ma, ma_name, tex_vray):
+def write_BRDFGlass(ofile, ma, ma_name, tex_vray):
 	rt= ma.raytrace_transparency
 
 	brdf_name= "BRDFGlass_%s"%(ma_name)
@@ -1055,7 +1053,7 @@ def write_BRDFGlass(ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFGlassGlossy(ma, ma_name, tex_vray):
+def write_BRDFGlassGlossy(ofile, ma, ma_name, tex_vray):
 	rt= ma.raytrace_transparency
 
 	brdf_name= "BRDFGlassGlossy_%s"%(ma_name)
@@ -1076,7 +1074,7 @@ def write_BRDFGlassGlossy(ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFVRayMtl(ma, ma_name, tex_vray):
+def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 	BRDFS= {
 		'PHONG': 0,
 		'BLINN': 1,
@@ -1278,7 +1276,7 @@ def write_TexAColorOp(tex, mult, tex_name= None):
 	return brdf_name
 
 
-def write_BRDFMirror(ma, ma_name, tex_vray):
+def write_BRDFMirror(ofile, ma, ma_name, tex_vray):
 	rm= ma.raytrace_mirror
 
 	brdf_name= "BRDFMirror_%s"%(ma_name)
@@ -1325,7 +1323,7 @@ def write_TexInvert(name):
 	return tex_name
 
 
-def write_TexFresnel(ma, ma_name, tex_vray):
+def write_TexFresnel(ofile, ma, ma_name, tex_vray):
 	tex_name= "TexFresnel_%s"%(ma_name)
 
 	ofile.write("\nTexFresnel %s {"%(tex_name))
@@ -1339,7 +1337,7 @@ def write_TexFresnel(ma, ma_name, tex_vray):
 	return tex_name
 
 
-def write_BRDFLight(ma, ma_name, tex_vray):
+def write_BRDFLight(ofile, ma, ma_name, tex_vray):
 	brdf_name= "BRDFLight_%s"%(ma_name)
 
 	if(tex_vray['color']):
@@ -1375,7 +1373,7 @@ def write_BRDFLight(ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFDiffuse(ma, ma_name, tex_vray):
+def write_BRDFDiffuse(ofile, ma, ma_name, tex_vray):
 	brdf_name= "BRDFDiffuse_%s"%(ma_name)
 
 	ofile.write("\nBRDFDiffuse %s {"%(brdf_name))
@@ -1391,7 +1389,7 @@ def write_BRDFDiffuse(ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDF(ma, ma_name, tex_vray):
+def write_BRDF(ofile, ma, ma_name, tex_vray):
 	def bool_color(color, level):
 		for c in color:
 			if c > level:
@@ -1407,22 +1405,22 @@ def write_BRDF(ma, ma_name, tex_vray):
 		tex_vray['reflect']= write_TexInvert(tex_vray['reflect'])
 
 	if(ma.vray_fresnel):
-		tex_vray['reflect']= write_TexFresnel(ma, ma_name, tex_vray)
+		tex_vray['reflect']= write_TexFresnel(ofile, ma, ma_name, tex_vray)
 
 	if(tex_vray['reflect'] or bool_color(ma.vray_reflect_color, 0.0)):
 		if(rm.gloss_factor < 1.0 or tex_vray['reflect_glossiness']):
-			brdf_name= write_BRDFGlossy(ma, ma_name, tex_vray)
+			brdf_name= write_BRDFGlossy(ofile, ma, ma_name, tex_vray)
 		else:
-			brdf_name= write_BRDFMirror(ma, ma_name, tex_vray)
+			brdf_name= write_BRDFMirror(ofile, ma, ma_name, tex_vray)
 		brdfs.append(brdf_name)
 
 	if(tex_vray['refract'] or bool_color(ma.vray_refract_color, 0.0)):
 		if(rt.gloss_factor < 1.0 or tex_vray['refract_glossiness']):
-			brdf_name= write_BRDFGlassGlossy(ma, ma_name, tex_vray)
+			brdf_name= write_BRDFGlassGlossy(ofile, ma, ma_name, tex_vray)
 		else:
-			brdf_name= write_BRDFGlass(ma, ma_name, tex_vray)
+			brdf_name= write_BRDFGlass(ofile, ma, ma_name, tex_vray)
 	else:
-		brdf_name= write_BRDFDiffuse(ma, ma_name, tex_vray)
+		brdf_name= write_BRDFDiffuse(ofile, ma, ma_name, tex_vray)
 	brdfs.append(brdf_name)
 
 	if(len(brdfs) == 1):
@@ -1447,64 +1445,64 @@ def write_BRDF(ma, ma_name, tex_vray):
 
 
 
-def write_materials():
-	def	write_material(ofile, ma):
-		ma_name= get_name(ma,"Material")
+def	write_material(ofile, ma, name= None):
+	ma_name= get_name(ma,"Material")
+	if(name):
+		ma_name= name
 
-		ofile.write("\n//\n// Material: %s\n//"%(ma.name))
+	ofile.write("\n//\n// Material: %s\n//"%(ma.name))
 
-		brdf_name= "BRDFDiffuse_no_material"
+	brdf_name= "BRDFDiffuse_no_material"
 
-		tex_vray= write_textures(ma, ma_name)
+	tex_vray= write_textures(ofile, ma, ma_name)
 
-		if(ma.vray_mtl_type == 'MTL'):
-			if(sce.vray_export_compat == 'DEMO'):
-				brdf_name= write_BRDF(ma, ma_name, tex_vray)
-			else:
-				brdf_name= write_BRDFVRayMtl(ma, ma_name, tex_vray)
-		elif(ma.vray_mtl_type == 'SSS'):
-			if(sce.vray_export_compat == 'STD'):
-				brdf_name= write_BRDFSSS2Complex(ma, ma_name, tex_vray)
-			else:
-				# Add compatible SSS material
-				return
-		elif(ma.vray_mtl_type == 'EMIT'):
-			brdf_name= write_BRDFLight(ma, ma_name, tex_vray)
+	if(ma.vray_mtl_type == 'MTL'):
+		if(sce.vray_export_compat == 'DEMO'):
+			brdf_name= write_BRDF(ofile, ma, ma_name, tex_vray)
 		else:
+			brdf_name= write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray)
+	elif(ma.vray_mtl_type == 'SSS'):
+		if(sce.vray_export_compat == 'STD'):
+			brdf_name= write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray)
+		else:
+			# Add compatible SSS material
 			return
+	elif(ma.vray_mtl_type == 'EMIT'):
+		brdf_name= write_BRDFLight(ofile, ma, ma_name, tex_vray)
+	else:
+		return
 
-		if(not ma.vray_mtl_type == 'EMIT'):
-			if(tex_vray['bump'] or tex_vray['normal']):
-				brdf_name= write_BRDFBump(brdf_name, tex_vray)
+	if(not ma.vray_mtl_type == 'EMIT'):
+		if(tex_vray['bump'] or tex_vray['normal']):
+			brdf_name= write_BRDFBump(brdf_name, tex_vray)
 
-		if(ma.vray_mtl_two_sided):
-			ofile.write("\nMtlSingleBRDF MtlSingleBRDF_%s {"%(ma_name))
-			ofile.write("\n\tbrdf= %s;"%(brdf_name))
-			ofile.write("\n}\n")
-			ofile.write("\nMtl2Sided %s {"%(ma_name))
-			ofile.write("\n\tfront= MtlSingleBRDF_%s;"%(ma_name))
-			ofile.write("\n\tback= MtlSingleBRDF_%s;"%(ma_name))
-			ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(ma.vray_mtlts_translucency,ma.vray_mtlts_translucency,ma.vray_mtlts_translucency))
-			ofile.write("\n\tforce_1sided= 1;")
-			ofile.write("\n}\n")
-		else:
-			ofile.write("\nMtlSingleBRDF %s {"%(ma_name))
-			ofile.write("\n\tbrdf= %s;"%(brdf_name))
-			ofile.write("\n}\n")
+	if(ma.vray_mtl_two_sided):
+		ofile.write("\nMtlSingleBRDF MtlSingleBRDF_%s {"%(ma_name))
+		ofile.write("\n\tbrdf= %s;"%(brdf_name))
+		ofile.write("\n}\n")
+		ofile.write("\nMtl2Sided %s {"%(ma_name))
+		ofile.write("\n\tfront= MtlSingleBRDF_%s;"%(ma_name))
+		ofile.write("\n\tback= MtlSingleBRDF_%s;"%(ma_name))
+		ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(ma.vray_mtlts_translucency,ma.vray_mtlts_translucency,ma.vray_mtlts_translucency))
+		ofile.write("\n\tforce_1sided= 1;")
+		ofile.write("\n}\n")
+	else:
+		ofile.write("\nMtlSingleBRDF %s {"%(ma_name))
+		ofile.write("\n\tbrdf= %s;"%(brdf_name))
+		ofile.write("\n}\n")
 
 
+def write_materials():
 	def get_node_name(nt, node):
 		nt_name= get_name(nt,"NodeTree")
 		node_name= "%s_%s"%(nt_name, clean_string(node.name))
 		return node_name
-
 
 	def find_connected_node(nt, ns):
 		for n in nt.links:
 			if(n.to_socket == ns):
 				return n.from_node
 		return None
-
 
 	def write_node(ofile, ma, nt, no):
 		debug("  Writing node: %s [%s]"%(no.name, no.type))
@@ -1573,7 +1571,6 @@ def write_materials():
 
 		else:
 			debug("Node: %s (unsupported node type: %s)"%(no.name,no.type))
-
 
 	def export_material(ofile, ma):
 		if(ma.use_nodes and hasattr(ma.node_tree, 'links')):
@@ -1667,14 +1664,11 @@ def write_nodes():
 				sys.stdout.flush()
 
 			ma_name= "Material_no_material"
-			if(ob.data.materials):
-				if(len(ob.data.materials) == 1):
-					try:
-						ma_name= get_name(ob.data.materials[0],"Material")
-					except:
-						pass
+			if(len(ob.material_slots) > 0):
+				if(len(ob.material_slots) == 1):
+					ma_name= get_name(ob.material_slots[0].material, "Material")
 				else:
-					ma_name= write_multi_material(ofile, ob.data)
+					ma_name= write_multi_material(ofile, ob)
 
 			ofile.write("\nNode %s {"%(get_name(ob,"Node")))
 			ofile.write("\n\tobjectID= %d;"%(ob.pass_index))
@@ -1803,15 +1797,26 @@ def write_lamps():
 
 
 
-def write_camera():
+def write_camera(camera= None):
 	ca= sce.camera
+	if camera is not None:
+		ca= camera
 
-	if(ca):
+	if ca is not None:
 		print("V-Ray/Blender: Writing camera...")
 		
 		ofile= open(filenames['camera'], 'w')
 		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 		ofile.write("// Camera/view file\n")
+
+
+		wx= rd.resolution_x * rd.resolution_percentage / 100
+		wy= rd.resolution_y * rd.resolution_percentage / 100
+
+		ofile.write("\nSettingsOutput {")
+		ofile.write("\n\timg_width= %s;"%(int(wx)))
+		ofile.write("\n\timg_height= %s;"%(int(wy)))
+		ofile.write("\n}\n")
 
 
 		ofile.write("\nSettingsEnvironment {")
@@ -1875,14 +1880,6 @@ def write_scene():
 
 	for f in ["geometry", "materials", "lights", "nodes", "camera"]:
 		ofile.write("#include \"%s\"\n"%(os.path.basename(filenames[f])))
-
-	wx= rd.resolution_x * rd.resolution_percentage / 100
-	wy= rd.resolution_y * rd.resolution_percentage / 100
-
-	ofile.write("\nSettingsOutput {")
-	ofile.write("\n\timg_width= %s;"%(int(wx)))
-	ofile.write("\n\timg_height= %s;"%(int(wy)))
-	ofile.write("\n}\n")
 
 
 	ofile.write("\nSettingsRegionsGenerator {")
@@ -2324,6 +2321,11 @@ def write_scene():
 		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
 		ofile.write("\n}")
 
+	ofile.write("\nSettingsEXR {")
+	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
+	ofile.write("\n\tbits_per_channel= 32;")
+	ofile.write("\n}\n")
+
 	ofile.write("\n")
 	ofile.close()
 
@@ -2332,8 +2334,6 @@ def get_filenames():
 	global filenames
 
 	default_path= tempfile.gettempdir()
-	if(PLATFORM == "win32"):
-		default_path= os.getenv('TMP','')[1:-1]
 	
 	output_dir= bpy.utils.expandpath(rd.output_path)
 
@@ -2393,18 +2393,27 @@ def get_filenames():
 '''
   V-Ray Renderer
 '''
-def get_vray_binary():
+def vb_script_path():
+	for vb_path in bpy.utils.home_paths('scripts/io/vb25'):
+		if vb_path != '':
+			return vb_path
+	return ''
+
+
+def vb_binary_path():
 	vray_bin= 'vray'
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
-
 	vray_path= vray_bin
+	vray_env_path= os.getenv('VRAY_PATH','')
 	if(sce.vray_export_compat == 'STD'):
 		if(PLATFORM == "win32"):
-			vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:-1], vray_bin)
+			if(vray_env_path[0:1]) == "\""):
+				vray_env_path= vray_env_path[1:-1]
 		else:
-			vray_path=  os.path.join(os.getenv('VRAY_PATH','')[1:], vray_bin)
-
+			if(vray_env_path[0:1]) == ":"):
+				vray_env_path= vray_env_path[1:]
+		vray_path=  os.path.join(vray_env_path, vray_bin)
 	return vray_path
 
 
@@ -2479,7 +2488,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 		params+= " -imgFile=\"%s\""%(image_file)
 
-		vray= get_vray_binary()
+		vray= vb_binary_path()
 		
 		if(PLATFORM == "linux2"):
 			if(sce.vray_export_log_window):
@@ -2499,10 +2508,11 @@ class VRayRenderer(bpy.types.RenderEngine):
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
+
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER'
 	bl_label   = 'V-Ray (preview)'
-	bl_preview = False
+	bl_preview = True
 	
 	def render(self, scene):
 		global sce
@@ -2512,28 +2522,47 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
-		
+
 		get_filenames()
-
-		write_geometry()
-		write_materials()
-		write_nodes()
-		write_lamps()
-		write_camera()
-		write_scene()
-
-		params= '-sceneFile=\"%s\"'%(filenames["scene"])
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
 
-		image_file= os.path.join(filenames['path'], "render.png")
+		vb_path= vb_script_path()
 
-		params+= " -display=0 -imgFile=\"%s\""%(image_file)
+		image_file= os.path.join(filenames['path'], "render.exr")
+		if sce.name == "preview":
+			ofile= open(os.path.join(vb_path, "preview/preview_materials.vrscene"), 'w')
+			for ob in sce.objects:
+				if ob.type in ('LAMP','ARMATURE','EMPTY'):
+					continue
+				if(ob.type == 'CAMERA'):
+					if(ob.name == 'Camera'):
+						write_camera(ob)
+				for ms in ob.material_slots:
+					if ob.name == "preview":
+						write_material(ofile, ms.material, "PREVIEW")
+					else:
+						write_material(ofile, ms.material)
+			ofile.close()
 
-		vray= get_vray_binary()
+			params= '-sceneFile=\"%s\"'%(os.path.join(vb_path, "preview/preview.vrscene"))
+			params+= " -display=0 -imgFile=\"%s\""%(image_file)
+		else:
+			write_geometry()
+			write_materials()
+			write_nodes()
+			write_lamps()
+			write_camera()
+			write_scene()
+
+			params= '-sceneFile=\"%s\"'%(filenames['scene'])
+			params+= " -display=1 -autoclose=1 -imgFile=\"%s\""%(image_file)
+
+
+		vray= vb_binary_path()
 		print("V-Ray/Blender: Command: %s %s"%(vray, params))
-		
+
 		if sce.vray_autorun:
 			process= subprocess.Popen([vray, params])
 
