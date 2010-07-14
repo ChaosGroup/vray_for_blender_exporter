@@ -2388,6 +2388,11 @@ def get_filenames():
 	filenames['path']= basepath
 	filenames['output']= output_dir
 
+	# if(PLATFORM == "win32"):
+	# 	for key in filenames:
+	# 		filenames[key]= filenames[key].replace("\\","/")
+			
+
 
 
 '''
@@ -2410,7 +2415,7 @@ def vb_binary_path():
 		if(PLATFORM == "win32"):
 			if(vray_env_path[0:1] == "\""):
 				vray_env_path= vray_env_path[1:-1]
-			vray_env_path= vray_env_path.replace("\\","/")
+			vray_env_path= vray_env_path
 		else:
 			if(vray_env_path[0:1] == ":"):
 				vray_env_path= vray_env_path[1:]
@@ -2531,6 +2536,9 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
 		vb_path= vb_script_path()
 
+		params= []
+		params.append(vb_binary_path())
+
 		image_file= os.path.join(filenames['path'], "render.exr")
 		if sce.name == "preview":
 			ofile= open(os.path.join(vb_path, "preview/preview_materials.vrscene"), 'w')
@@ -2547,8 +2555,12 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 						write_material(ofile, ms.material)
 			ofile.close()
 
-			params= '-sceneFile=\"%s\"'%(os.path.join(vb_path, "preview/preview.vrscene"))
-			params+= " -display=0 -imgFile=\"%s\""%(image_file)
+			params.append('-sceneFile=')
+			params.append(os.path.join(vb_path, "preview/preview.vrscene"))
+			params.append('-display=')
+			params.append("0")
+			params.append('-imgFile=')
+			params.append(image_file)
 		else:
 			write_geometry()
 			write_materials()
@@ -2557,20 +2569,24 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			write_camera()
 			write_scene()
 
-			params= '-sceneFile=\"%s\"'%(filenames['scene'])
-			params+= " -display=1 -autoclose=1 -imgFile=\"%s\""%(image_file)
+			params.append('-sceneFile=')
+			params.append(filenames['scene'])
+			params.append('-display=')
+			params.append('1')
+			params.append('-autoclose=')
+			params.append('1')
+			params.append('-imgFile=')
+			params.append(image_file)
 
-
-		vray= vb_binary_path()
-		print("V-Ray/Blender: Command: %s %s"%(vray, params))
+		if(sce.vray_debug):
+			print("V-Ray/Blender: Command: %s"%(params))
 
 		if sce.vray_autorun:
-			process= subprocess.Popen([vray, params])
+			process= subprocess.Popen(params)
 
 			while True:
 				if self.test_break():
 					try:
-						#process.terminate()
 						process.kill()
 					except:
 						pass
