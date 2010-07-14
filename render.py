@@ -2405,11 +2405,12 @@ def vb_binary_path():
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
 	vray_path= vray_bin
-	vray_env_path= os.getenv('VRAY_PATH','')
 	if(sce.vray_export_compat == 'STD'):
+		vray_env_path= os.getenv('VRAY_PATH','')
 		if(PLATFORM == "win32"):
 			if(vray_env_path[0:1] == "\""):
 				vray_env_path= vray_env_path[1:-1]
+			vray_env_path= vray_env_path.replace("\\","/")
 		else:
 			if(vray_env_path[0:1] == ":"):
 				vray_env_path= vray_env_path[1:]
