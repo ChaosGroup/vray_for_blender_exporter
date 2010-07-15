@@ -5,7 +5,7 @@
  http://vray.cgdo.ru
 
  Started:       29 Aug 2009
- Last Modified: 29 Jun 2010
+ Last Modified: 15 Jul 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -43,7 +43,7 @@ import bpy
 import mathutils
 
 
-VERSION= '2.5.02'
+VERSION= '2.5.04'
 PLATFORM= sys.platform
 
 TEX_TYPES= ('IMAGE')
@@ -386,7 +386,6 @@ def	debug(s):
 	if(sce.vray_debug):
 		print("V-Ray/Blender: %s"%(s))
 
-
 def p(t):
 	if type(t) == type(True):
 		return "%i"%(t)
@@ -406,10 +405,8 @@ def p(t):
 	else:
 		return "%s"%(t)
 
-
 def a(t):
 	return "interpolate((%i,%s))"%(sce.frame_current,p(t))
-
 
 def transform(m):
 	return "Transform(Matrix(Vector(%f, %f, %f),Vector(%f, %f, %f),Vector(%f, %f, %f)),Vector(%f, %f, %f))"\
@@ -417,7 +414,6 @@ def transform(m):
               m[1][0], m[1][1], m[1][2],\
               m[2][0], m[2][1], m[2][2],\
               m[3][0], m[3][1], m[3][2])
-
 
 def clean_string(s):
 	s= s.replace("+", "p")
@@ -428,11 +424,9 @@ def clean_string(s):
 			s= s.replace(c, "_")
 	return s
 
-
 def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.utils.expandpath(fn))
 	return filename
-
 
 def get_name(data, prefix= None):
 	name= data.name
@@ -441,7 +435,6 @@ def get_name(data, prefix= None):
 	if(data.library):
 		name+= "_%s"%(get_filename(data.library.filepath))
 	return clean_string(name)
-
 
 def object_on_visible_layers(ob):
 	for l in range(20):
@@ -455,6 +448,7 @@ def object_on_visible_layers(ob):
 '''
 def write_geometry():
 	try:
+		# Custom build operator
 	 	bpy.ops.scene.scene_export(vray_geometry_file= filenames['geometry'])
 	except:
 		print("V-Ray/Blender: Exporting meshes...")
@@ -463,22 +457,201 @@ def write_geometry():
 		global exported_meshes
 		exported_meshes= []
 
-		ofile= open(filenames['geometry'], 'w')
-		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-		ofile.write("// Geometry file\n")
-
-		timer= time.clock()
-
-		uv_layer_names= []
-
+		# For getting unique IDs for UV names
+		uv_layers= []
 		for ma in bpy.data.materials:
 			for slot in ma.texture_slots:
 				if(slot):
 					if(slot.texture):
 						if slot.texture.type in TEX_TYPES:
 							if slot.texture_coordinates in ('UV'):
-								uv_layer_names.append(slot.uv_layer)
-		
+								if slot.uv_layer not in uv_layers:
+									uv_layers.append(slot.uv_layer)
+
+		def write_mesh(ob):
+			me= ob.create_mesh(sce, True, 'RENDER')
+
+			me_name= get_name(ob.data, 'Geom')
+
+			if me_name in exported_meshes:
+				return
+
+			exported_meshes.append(me_name)
+
+			if(sce.vray_debug):
+				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
+					  %(sce.frame_current,
+						ob.name,
+						ob.data.name))
+			else:
+				if(PLATFORM == "win32"):
+					sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
+									 %(sce.frame_current, ob.data.name))
+				else:
+					sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
+									 %(sce.frame_current, ob.data.name))
+				sys.stdout.flush()
+
+			ofile.write("\nGeomStaticMesh %s {"%(me_name))
+
+			ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
+			for v in me.verts:
+				if(v.index):
+					ofile.write(",")
+				ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
+			ofile.write(")));")
+
+			ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
+			for f in me.faces:
+				if(f.index):
+					ofile.write(",")
+				if(len(f.verts) == 4):
+					ofile.write("%d,%d,%d,%d,%d,%d"%(
+						f.verts[0], f.verts[1], f.verts[2],
+						f.verts[2], f.verts[3], f.verts[0]))
+				else:
+					ofile.write("%d,%d,%d"%(
+						f.verts[0], f.verts[1], f.verts[2]))
+			ofile.write(")));")
+
+			ofile.write("\n\tface_mtlIDs= ListInt(")
+			for f in me.faces:
+				if(f.index):
+					ofile.write(",")
+				if(len(f.verts) == 4):
+					ofile.write("%d,%d"%(
+						f.material_index, f.material_index))
+				else:
+					ofile.write("%d"%(
+						f.material_index))
+			ofile.write(");")
+
+			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
+			for f in me.faces:
+				if(f.index):
+					ofile.write(",")
+
+				if(len(f.verts) == 4):
+					verts= (0,1,2,2,3,0)
+				else:
+					verts= (0,1,2)
+
+				comma= 0
+				for v in verts:
+					if(comma):
+						ofile.write(",")
+					comma= 1
+
+					if(f.smooth):
+						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+							tuple(me.verts[f.verts[v]].normal)
+							))
+					else:
+						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+							tuple(f.normal)
+							))
+			ofile.write(")));")
+
+			ofile.write("\n\tfaceNormals= ListInt(")
+			k= 0
+			for f in me.faces:
+				if(f.index):
+					ofile.write(",")
+
+				if(len(f.verts) == 4):
+					verts= 6
+				else:
+					verts= 3
+
+				for v in range(verts):
+					if(v):
+						ofile.write(",")
+					ofile.write("%d"%(k))
+					k+= 1
+			ofile.write(");")
+
+			if(len(me.uv_textures)):
+				ofile.write("\n\tmap_channels= List(")
+
+				for uv_texture, uv_texture_idx in zip(me.uv_textures, range(len(me.uv_textures))):
+					if(uv_texture_idx):
+						ofile.write(",")
+
+					uv_layer_index= 1
+					try:
+						uv_layer_index= uv_layers.index(uv_texture.name)
+					except:
+						pass
+
+					ofile.write("\n\t\t// %s"%(uv_texture.name))
+					ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
+
+					for f in range(len(uv_texture.data)):
+						if(f):
+							ofile.write(",")
+
+						face= uv_texture.data[f]
+
+						for i in range(len(face.uv)):
+							if(i):
+								ofile.write(",")
+
+							ofile.write("Vector(%.6f,%.6f,0.0)"%(
+								face.uv[i][0],
+								face.uv[i][1]
+							))
+
+					ofile.write("),ListInt(")
+					u = -1
+					u0= -1
+					for f in range(len(uv_texture.data)):
+						if(f):
+							ofile.write(",")
+
+						face= uv_texture.data[f]
+
+						verts= 3
+						if(len(face.uv) == 4):
+							verts= 6
+							u= u0
+						else:
+							if(len(uv_texture.data[f-1].uv) == 4):
+								u= u0
+
+						for i in range(verts):
+							if(i):
+								ofile.write(",")
+
+							if(verts == 6):
+								if(i == 5):
+									u0= u
+									u-= 4
+								if(i != 3):
+									u+= 1
+							else:
+								u+= 1
+								u0= u
+
+							ofile.write("%d"%(u))
+
+					ofile.write("))")
+
+				ofile.write(");")
+
+			ofile.write("\n}\n")
+
+		ofile= open(filenames['geometry'], 'w')
+		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
+		ofile.write("// Geometry file\n")
+
+		timer= time.clock()
+
+		STATIC_OBJECTS= []
+		DYNAMIC_OBJECTS= []
+
+		cur_frame= sce.frame_current
+		sce.frame_current= sce.frame_start
+
 		for ob in sce.objects:
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 				continue
@@ -487,176 +660,42 @@ def write_geometry():
 				if not object_on_visible_layers(ob):
 					continue
 
-			me_name= get_name(ob.data, 'Geom')
+			dynamic= False
+			if ob.data.animation_data:
+				dynamic= True
+			else:
+				for m in ob.modifiers:
+					if m.type in ('ARMATURE', 'SOFT_BODY'): # Add more modifiers
+						dynamic= True
+						break
 
-			if me_name not in exported_meshes:
-				exported_meshes.append(me_name)
+			if dynamic:
+				DYNAMIC_OBJECTS.append(ob)
+			else:
+				STATIC_OBJECTS.append(ob)
 
-				if(sce.vray_debug):
-					print("V-Ray/Blender: Processing mesh: %s [%s]"
-						  %(ob.data.name,
-							ob.name))
-				else:
-					if(PLATFORM == "win32"):
-						sys.stdout.write("V-Ray/Blender: Writing mesh: %s                              \r"
-										 %(ob.data.name))
-					else:
-						sys.stdout.write("V-Ray/Blender: Writing mesh: \033[0;32m%s\033[0m                              \r"
-										 %(ob.data.name))
-					sys.stdout.flush()
+		for ob in STATIC_OBJECTS:
+			write_mesh(ob)
 
-				me= ob.create_mesh(sce, True, 'RENDER')
+		if sce.vray_export_animation and len(DYNAMIC_OBJECTS):
+			f= sce.frame_start
+			while(f <= sce.frame_end):
+				exported_meshes= []
+				sce.set_frame(f)
+				#sce.frame_current= f
+				for ob in DYNAMIC_OBJECTS:
+					write_mesh(ob)
+				f+= sce.frame_step
+		else:
+			for ob in DYNAMIC_OBJECTS:
+				write_mesh(ob)
 
-				ofile.write("\nGeomStaticMesh %s {"%(me_name))
-
-
-				ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
-				for v in me.verts:
-					if(v.index):
-						ofile.write(",")
-					ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
-				ofile.write(")));")
-
-
-				ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
-				for f in me.faces:
-					if(f.index):
-						ofile.write(",")
-					if(len(f.verts) == 4):
-						ofile.write("%d,%d,%d,%d,%d,%d"%(
-							f.verts[0], f.verts[1], f.verts[2],
-							f.verts[2], f.verts[3], f.verts[0]))
-					else:
-						ofile.write("%d,%d,%d"%(
-							f.verts[0], f.verts[1], f.verts[2]))
-				ofile.write(")));")
-
-
-				ofile.write("\n\tface_mtlIDs= ListInt(")
-				for f in me.faces:
-					if(f.index):
-						ofile.write(",")
-					if(len(f.verts) == 4):
-						ofile.write("%d,%d"%(
-							f.material_index, f.material_index))
-					else:
-						ofile.write("%d"%(
-							f.material_index))
-				ofile.write(");")
-
-
-				ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
-				for f in me.faces:
-					if(f.index):
-						ofile.write(",")
-
-					if(len(f.verts) == 4):
-						verts= (0,1,2,2,3,0)
-					else:
-						verts= (0,1,2)
-
-					comma= 0
-					for v in verts:
-						if(comma):
-							ofile.write(",")
-						comma= 1
-
-						if(f.smooth):
-							ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-								tuple(me.verts[f.verts[v]].normal)
-								))
-						else:
-							ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-								tuple(f.normal)
-								))
-				ofile.write(")));")
-
-
-				ofile.write("\n\tfaceNormals= ListInt(")
-				k= 0
-				for f in me.faces:
-					if(f.index):
-						ofile.write(",")
-
-					if(len(f.verts) == 4):
-						verts= 6
-					else:
-						verts= 3
-
-					for v in range(verts):
-						if(v):
-							ofile.write(",")
-						ofile.write("%d"%(k))
-						k+= 1
-				ofile.write(");")
-
-				if(len(me.uv_textures)):
-					ofile.write("\n\tmap_channels= List(")
-					uv_layer_index= 1
-					for uv_texture, uv_texture_idx in zip(me.uv_textures, range(len(me.uv_textures))):
-						if(uv_texture_idx):
-							ofile.write(",")
-
-						ofile.write("\n\t\t// %s"%(uv_texture.name))
-						ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
-						
-						for f in range(len(uv_texture.data)):
-							if(f):
-								ofile.write(",")
-							
-							face= uv_texture.data[f]
-
-							for i in range(len(face.uv)):
-								if(i):
-									ofile.write(",")
-
-								ofile.write("Vector(%.6f,%.6f,0.0)"%(
-									face.uv[i][0],
-									face.uv[i][1]
-								))
-
-						ofile.write("),ListInt(")
-						u = -1
-						u0= -1
-						for f in range(len(uv_texture.data)):
-							if(f):
-								ofile.write(",")
-							
-							face= uv_texture.data[f]
-
-							verts= 3
-							if(len(face.uv) == 4):
-								verts= 6
-								u= u0
-							else:
-								if(len(uv_texture.data[f-1].uv) == 4):
-									u= u0
-
-							for i in range(verts):
-								if(i):
-									ofile.write(",")
-
-								if(verts == 6):
-									if(i == 5):
-										u0= u
-										u-= 4
-									if(i != 3):
-										u+= 1
-								else:
-									u+= 1
-									u0= u
-
-								ofile.write("%d"%(u))
-									
-						ofile.write("))")
-
-						uv_layer_index+= 1
-
-					ofile.write(");")
-
-				ofile.write("\n}\n")
+		sce.set_frame(cur_frame)
 
 		exported_meshes= []
+
+		STATIC_OBJECTS= []
+		DYNAMIC_OBJECTS= []
 
 		ofile.close()
 		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
@@ -675,7 +714,6 @@ def write_multi_material(ofile, ob):
 	i= 0
 	
 	for slot in ob.material_slots:
-		print(slot.name)
 		ma_name= get_name(slot.material, 'Material')
 			
 		mtls_list+= "%s,"%(ma_name)
@@ -985,7 +1023,7 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray):
 	ofile.write("\nBRDFSSS2Complex %s {"%(brdf_name))
 	ofile.write("\n\tsingle_scatter= %s;"%(a(SCATTER[ma.vray_fsss_single_scatter])))
 	for param in OBJECT_PARAMS['BRDFSSS2Complex']:
-		ofile.write("\n\t%s= %s;"%(param, a(getattr(ofile, ma, "vray_fsss_%s"%(param)))))
+		ofile.write("\n\t%s= %s;"%(param, a(getattr(ma, "vray_fsss_%s"%(param)))))
 	ofile.write("\n}\n")
 
 	return brdf_name
@@ -1683,8 +1721,9 @@ def write_nodes():
 
 	timer= time.clock()
 
-	STATIC_OBJECTS= []
-	DYNAMIC_OBJECTS= []
+	OBJECTS= []
+	# STATIC_OBJECTS= []
+	# DYNAMIC_OBJECTS= []
 
 	for ob in sce.objects:
 		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
@@ -1694,29 +1733,37 @@ def write_nodes():
 			if not object_on_visible_layers(ob):
 				continue
 
-		if ob.animation_data:
-			DYNAMIC_OBJECTS.append(ob)
-		else:
-			STATIC_OBJECTS.append(ob)
+		OBJECTS.append(ob)
+		# if ob.animation_data:
+		# 	DYNAMIC_OBJECTS.append(ob)
+		# else:
+		# 	STATIC_OBJECTS.append(ob)
 
-	for ob in STATIC_OBJECTS:
-		write_node(ob)
+	# for ob in STATIC_OBJECTS:
+	# 	write_node(ob)
 
 	if(sce.vray_export_animation):
-		cur_frame= sce.frame_current
+		selected_frame= sce.frame_current
 		f= sce.frame_start
-		while(f < sce.frame_end + 1):
+		while(f <= sce.frame_end):
 			exported_nodes= []
-			sce.frame_current= f
-			for ob in DYNAMIC_OBJECTS:
+			sce.set_frame(f)
+			#sce.frame_current= f
+			#for ob in DYNAMIC_OBJECTS:
+			for ob in OBJECTS:
 				write_node(ob)
 			f+= sce.frame_step
-		sce.frame_current= cur_frame
+		sce.set_frame(selected_frame)
 	else:
-		for ob in DYNAMIC_OBJECTS:
+		#for ob in DYNAMIC_OBJECTS:
+		for ob in OBJECTS:
 			write_node(ob)
 
 	exported_nodes= []
+
+	OBJECTS= []
+	# STATIC_OBJECTS= []
+	# DYNAMIC_OBJECTS= []
 
 	ofile.close()
 	print("V-Ray/Blender: Writing nodes... done [%s]                    "%(time.clock() - timer))
@@ -1826,43 +1873,57 @@ def write_camera(camera= None):
 		ofile.write("\n}\n")
 
 
-		fov= ca.data.angle
+		def write_ca(ca):
+			fov= ca.data.angle
 
-		ofile.write("\nRenderView RenderView {")
-		ofile.write("\n\ttransform= %s;"%(a(transform(ca.matrix_world))))
-		ofile.write("\n\tfov= %s;"%(a(fov)))
-		ofile.write("\n\tclipping= 1;")
-		ofile.write("\n\tclipping_near= %s;"%(a(ca.data.clip_start)))
-		ofile.write("\n\tclipping_far= %s;"%(a(ca.data.clip_end)))
-		ofile.write("\n}\n")
-
-		if(ca.data.vray_cam_mode == 'PHYSICAL'):
-			PHYS= {
-				"STILL" :     0,
-				"CINEMATIC" : 1,
-				"VIDEO" :     2
-			}
-
-			focus_distance= ca.data.dof_distance
-			if(focus_distance == 0.0):
-				focus_distance= 200.0
-
-			ofile.write("\nCameraPhysical {")
-			ofile.write("\n\ttype= %d;"%(PHYS[ca.data.vray_cam_phys_type]))
-			ofile.write("\n\ttargeted= 0;")
-			ofile.write("\n\tspecify_focus= 1;")
-			ofile.write("\n\tfocus_distance= %s;"%(a(focus_distance)))
-			ofile.write("\n\tspecify_fov= 1;")
+			ofile.write("\nRenderView RenderView {")
+			ofile.write("\n\ttransform= %s;"%(a(transform(ca.matrix_world))))
 			ofile.write("\n\tfov= %s;"%(a(fov)))
-			ofile.write("\n\twhite_balance= %s;"%(a("Color(%.3f,%.3f,%.3f)"%(tuple(ca.data.vray_cam_phys_white_balance)))))
-			for param in OBJECT_PARAMS['CameraPhysical']:
-				ofile.write("\n\t%s= %s;"%(param, a(getattr(ca.data, "vray_cam_phys_%s"%(param)))))
+			ofile.write("\n\tclipping= 1;")
+			ofile.write("\n\tclipping_near= %s;"%(a(ca.data.clip_start)))
+			ofile.write("\n\tclipping_far= %s;"%(a(ca.data.clip_end)))
 			ofile.write("\n}\n")
 
+			if(ca.data.vray_cam_mode == 'PHYSICAL'):
+				PHYS= {
+					"STILL" :     0,
+					"CINEMATIC" : 1,
+					"VIDEO" :     2
+				}
+
+				focus_distance= ca.data.dof_distance
+				if(focus_distance == 0.0):
+					focus_distance= 200.0
+
+				ofile.write("\nCameraPhysical {")
+				ofile.write("\n\ttype= %d;"%(PHYS[ca.data.vray_cam_phys_type]))
+				ofile.write("\n\ttargeted= 0;")
+				ofile.write("\n\tspecify_focus= 1;")
+				ofile.write("\n\tfocus_distance= %s;"%(a(focus_distance)))
+				ofile.write("\n\tspecify_fov= 1;")
+				ofile.write("\n\tfov= %s;"%(a(fov)))
+				ofile.write("\n\twhite_balance= %s;"%(a("Color(%.3f,%.3f,%.3f)"%(tuple(ca.data.vray_cam_phys_white_balance)))))
+				for param in OBJECT_PARAMS['CameraPhysical']:
+					ofile.write("\n\t%s= %s;"%(param, a(getattr(ca.data, "vray_cam_phys_%s"%(param)))))
+				ofile.write("\n}\n")
+
+			else:
+				ofile.write("\nSettingsCamera {")
+				ofile.write("\n\tfov= %s;"%(a(fov)))
+				ofile.write("\n}\n")
+
+		if(sce.vray_export_animation):
+			selected_frame= sce.frame_current
+			f= sce.frame_start
+			while(f <= sce.frame_end):
+				exported_nodes= []
+				sce.set_frame(f)
+				#sce.frame_current= f
+				write_ca(ca)
+				f+= sce.frame_step
+			sce.set_frame(selected_frame)
 		else:
-			ofile.write("\nSettingsCamera {")
-			ofile.write("\n\tfov= %s;"%(a(fov)))
-			ofile.write("\n}\n")
+			write_ca(ca)
 
 		ofile.close()
 		print("V-Ray/Blender: Writing camera... done.")
@@ -2388,22 +2449,16 @@ def get_filenames():
 	filenames['path']= basepath
 	filenames['output']= output_dir
 
-	# if(PLATFORM == "win32"):
-	# 	for key in filenames:
-	# 		filenames[key]= filenames[key].replace("\\","/")
-			
-
 
 
 '''
   V-Ray Renderer
 '''
 def vb_script_path():
-	for vb_path in bpy.utils.home_paths('scripts/io/vb25'):
+	for vb_path in bpy.utils.home_paths(os.path.join('scripts','io','vb25')):
 		if vb_path != '':
 			return vb_path
 	return ''
-
 
 def vb_binary_path():
 	vray_bin= 'vray'
@@ -2449,75 +2504,6 @@ bpy.types.register(SCENE_OT_vray_export_meshes)
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER'
 	bl_label   = 'V-Ray'
-	
-	def render(self, scene):
-		global sce
-		global rd
-		global wo
-
-		sce= scene
-		rd=  scene.render
-		wo=  scene.world
-		
-		get_filenames()
-
-		if(scene.vray_export_lock):
-			write_geometry()
-
-		write_materials()
-		write_nodes()
-		write_lamps()
-		write_camera()
-		write_scene()
-
-		params= '-sceneFile=\"%s\"'%(filenames["scene"])
-
-		wx= rd.resolution_x * rd.resolution_percentage / 100
-		wy= rd.resolution_y * rd.resolution_percentage / 100
-
-		if(rd.use_border):
-			x0= wx * rd.border_min_x
-			y0= wy * (1.0 - rd.border_max_y)
-			x1= wx * rd.border_max_x
-			y1= wy * (1.0 - rd.border_min_y)
-
-			region= ' -region=%i\;%i\;%i\;%i'%(x0,y0,x1,y1)
-			if(rd.crop_to_border):
-				region= ' -crop=%i\;%i\;%i\;%i'%(x0,y0,x1,y1)
-
-			if(PLATFORM == "win32"):
-				region= region.replace("\\","")
-
-			params+= region
-
-		image_file= os.path.join(filenames['path'], "render.png")
-
-		params+= " -imgFile=\"%s\""%(image_file)
-
-		vray= vb_binary_path()
-		
-		if(PLATFORM == "linux2"):
-			if(sce.vray_export_log_window):
-				cmd = "(xterm -T V-Ray -geometry 90x10 -e \"%s %s\")&"%(vray, params)
-			else:
-				cmd = "(%s %s)&"%(vray, params)
-		elif(PLATFORM == "win32"):
-			cmd = "start \"dummy\" /b /belownormal \"%s\" %s"%(vray, params)
-		else:
-			cmd = "%s %s"%(vray, params)
-		
-		if sce.vray_autorun:
-			print("V-Ray/Blender: Calling: %s"%(cmd))
-			os.system(cmd)
-		else:
-			print("V-Ray/Blender: Command: %s"%(cmd))
-			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-
-
-
-class VRayRendererPreview(bpy.types.RenderEngine):
-	bl_idname  = 'VRAY_RENDER'
-	bl_label   = 'V-Ray (preview)'
 	bl_preview = True
 	
 	def render(self, scene):
@@ -2539,9 +2525,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path())
 
-		image_file= os.path.join(filenames['path'], "render.exr")
+		image_file= os.path.join(filenames['path'],"render.exr")
+
+		#if sce not in bpy.data.scenes: # brecht> you can test if the scene is in bpy.data.scenes, if it's not, it's a preview scene
 		if sce.name == "preview":
-			ofile= open(os.path.join(vb_path, "preview/preview_materials.vrscene"), 'w')
+			ofile= open(os.path.join(vb_path, 'preview','preview_materials.vrscene'), 'w')
 			for ob in sce.objects:
 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
 					continue
@@ -2555,19 +2543,34 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 						write_material(ofile, ms.material)
 			ofile.close()
 
+			image_file= os.path.join(filenames['path'],"preview.exr")
+			
 			params.append('-sceneFile=')
-			params.append(os.path.join(vb_path, "preview/preview.vrscene"))
+			params.append(os.path.join(vb_path, 'preview','preview.vrscene'))
 			params.append('-display=')
 			params.append("0")
 			params.append('-imgFile=')
 			params.append(image_file)
 		else:
-			write_geometry()
 			write_materials()
 			write_nodes()
 			write_lamps()
 			write_camera()
 			write_scene()
+
+			if(rd.use_border):
+				x0= wx * rd.border_min_x
+				y0= wy * (1.0 - rd.border_max_y)
+				x1= wx * rd.border_max_x
+				y1= wy * (1.0 - rd.border_min_y)
+
+				region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
+
+				if(rd.crop_to_border):
+					params.append('-crop=')
+				else:
+					params.append('-region=')
+				params.append(region)
 
 			params.append('-sceneFile=')
 			params.append(filenames['scene'])
@@ -2575,6 +2578,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append('1')
 			params.append('-autoclose=')
 			params.append('1')
+
+			if sce.vray_export_animation:
+				params.append('-frames=')
+				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
+
 			params.append('-imgFile=')
 			params.append(image_file)
 
@@ -2592,20 +2600,20 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 						pass
 					break
 
-				if process.poll() is not None:
-					try:
-						result= self.begin_result(0, 0, int(wx), int(wy))
-						layer= result.layers[0]
-						layer.load_from_file(image_file)
-						self.end_result(result)
-					except:
-						pass
-					break
+				if not sce.vray_export_animation:
+					if process.poll() is not None:
+						try:
+							result= self.begin_result(0, 0, int(wx), int(wy))
+							layer= result.layers[0]
+							layer.load_from_file(image_file)
+							self.end_result(result)
+						except:
+							pass
+						break
 
 				time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
-#bpy.types.register(VRayRenderer)
-bpy.types.register(VRayRendererPreview)
+bpy.types.register(VRayRenderer)

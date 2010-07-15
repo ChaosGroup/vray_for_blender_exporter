@@ -44,35 +44,41 @@ VectorProperty= bpy.types.Material.FloatVectorProperty
 '''
   BRDFVRayMtl
 '''
-VectorProperty(	attr="vray_fog_color",
-				name="Fog color",
-				description="Fog color.",
-				subtype="COLOR",
-				min= 0.0,
-				max= 1.0,
-				soft_min= 0.0,
-				soft_max= 1.0,
-				default=(1.0, 1.0, 1.0))
+VectorProperty(
+	attr="vray_fog_color",
+	name="Fog color",
+	description="Fog color.",
+	subtype="COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default=(1.0, 1.0, 1.0)
+)
 
-VectorProperty(	attr="vray_refract_color",
-				name="Refraction color",
-				description="Refraction color.",
-				subtype="COLOR",
-				min= 0.0,
-				max= 1.0,
-				soft_min= 0.0,
-				soft_max= 1.0,
-				default=(0.0, 0.0, 0.0))
+VectorProperty(
+	attr="vray_refract_color",
+	name="Refraction color",
+	description="Refraction color.",
+	subtype="COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default=(0.0, 0.0, 0.0)
+)
 
-VectorProperty(	attr="vray_reflect_color",
-				name="Reflection color",
-				description="Reflection color.",
-				subtype="COLOR",
-				min= 0.0,
-				max= 1.0,
-				soft_min= 0.0,
-				soft_max= 1.0,
-				default=(0.0, 0.0, 0.0))
+VectorProperty(
+	attr="vray_reflect_color",
+	name="Reflection color",
+	description="Reflection color.",
+	subtype="COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default=(0.0, 0.0, 0.0)
+)
 
 BoolProperty(	attr="vray_fresnel",
 				name="Frensnel reflections",
@@ -616,20 +622,20 @@ SSS2= {
 	}
 }
 
-def generate_preset():
-	for preset in SSS2:
-		ofile= open("/home/bdancer/devel/vrayblender/exporter/presets/vray/sss/%s.py"%(preset), 'w')
-		for param in SSS2[preset]:
-			ps= SSS2[preset][param]
-			if type(ps) == tuple:
-				pss= ""
-				for c in ps:
-					pss+= "%.3f,"%(float(c / 255.0))
-				ps= pss[:-1]
-			s= "bpy.context.active_object.active_material.%s = %s\n"%("vray_fsss_%s"%(param), ps)
-			ofile.write(s.replace(')','').replace('(',''))
-		ofile.write('\n')
-		ofile.close()
+# def generate_preset():
+# 	for preset in SSS2:
+# 		ofile= open("/home/bdancer/devel/vrayblender/exporter/2.5/presets/sss/%s.py"%(preset), 'w')
+# 		for param in SSS2[preset]:
+# 			ps= SSS2[preset][param]
+# 			if type(ps) == tuple:
+# 				pss= ""
+# 				for c in ps:
+# 					pss+= "%.3f,"%(float(c / 255.0))
+# 				ps= pss[:-1]
+# 			s= "bpy.context.active_object.active_material.%s = %s\n"%("vray_fsss_%s"%(param), ps)
+# 			ofile.write(s.replace(')','').replace('(',''))
+# 		ofile.write('\n')
+# 		ofile.close()
 #generate_preset()
 
 
@@ -653,9 +659,9 @@ narrowui= 200
 
 
 class MATERIAL_MT_fsss_presets(bpy.types.Menu):
-	bl_label = "SSS Presets"
-	preset_subdir = os.path.join("vray", "sss")
-	preset_operator = "script.python_file_run"
+	bl_label= "SSS Presets"
+	preset_subdir= os.path.join("..", "io", "vb25", "presets", "sss")
+	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 
 
