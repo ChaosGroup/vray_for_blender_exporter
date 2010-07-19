@@ -1,11 +1,11 @@
 '''
 
- V-Ray/Blender 2.5.8
+ V-Ray/Blender 2.5
 
  http://vray.cgdo.ru
 
  Started:       29 Aug 2009
- Last Modified: 29 Aug 2009
+ Last Modified: 19 Jul 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -49,11 +49,14 @@ StringProperty( attr="vray_proxy_file",
 				subtype= 'FILE_PATH',
 				description="Proxy file.")
 
-# TODO: replace with EnumProperty
-IntProperty(    attr="vray_proxy_anim_type",
-				name="Type",
-				description="Animated proxy playback type (0 - loop; 1 - once; 2 - ping-pong; 3 - still).",
-				min=0, max=3, default= 0)
+EnumProperty(   attr="vray_proxy_anim_type",
+				name="Animation type",
+				description="This determines the type of BRDF (the shape of the hilight).",
+				items=(("LOOP",     "Loop",      "TODO."),
+					   ("ONCE",     "Once",      "TODO."),
+					   ("PINGPONG", "Ping-pong", "TODO."),
+					   ("STILL",    "Still",     "TODO.")),
+				default= "LOOP")
 
 FloatProperty(  attr="vray_proxy_anim_speed",
 				name="Speed",

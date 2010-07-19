@@ -449,7 +449,8 @@ def object_on_visible_layers(ob):
 def write_geometry():
 	try:
 		# Custom build operator
-	 	bpy.ops.scene.scene_export(vray_geometry_file= filenames['geometry'])
+		print("V-Ray/Blender: Special build detected - using custom operator.c")
+		bpy.ops.scene.scene_export(vray_geometry_file= filenames['geometry'])
 	except:
 		print("V-Ray/Blender: Exporting meshes...")
 
@@ -1689,6 +1690,11 @@ def write_nodes():
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
 
+			if ob.type == 'EMPTY':
+				if ob.vray_proxy:
+					print('vb25: proxy detected')
+				return
+				
 			if(sce.vray_debug):
 				print("V-Ray/Blender: Processing object: %s"%(ob.name))
 				print("V-Ray/Blender:   Animated: %d"%(1 if ob.animation_data else 0))
@@ -1726,7 +1732,7 @@ def write_nodes():
 	# DYNAMIC_OBJECTS= []
 
 	for ob in sce.objects:
-		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
+		if ob.type in ('LAMP','CAMERA','ARMATURE'):
 			continue
 
 		if sce.vray_export_active_layers:
@@ -2455,7 +2461,7 @@ def get_filenames():
   V-Ray Renderer
 '''
 def vb_script_path():
-	for vb_path in bpy.utils.home_paths(os.path.join('scripts','io','vb25')):
+	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
 		if vb_path != '':
 			return vb_path
 	return ''
@@ -2529,7 +2535,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 		#if sce not in bpy.data.scenes: # brecht> you can test if the scene is in bpy.data.scenes, if it's not, it's a preview scene
 		if sce.name == "preview":
-			ofile= open(os.path.join(vb_path, 'preview','preview_materials.vrscene'), 'w')
+			ofile= open(os.path.join(vb_path,'preview','preview_materials.vrscene'), 'w')
 			for ob in sce.objects:
 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
 					continue
@@ -2546,7 +2552,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 			image_file= os.path.join(filenames['path'],"preview.exr")
 			
 			params.append('-sceneFile=')
-			params.append(os.path.join(vb_path, 'preview','preview.vrscene'))
+			params.append(os.path.join(vb_path,'preview','preview.vrscene'))
 			params.append('-display=')
 			params.append("0")
 			params.append('-imgFile=')
