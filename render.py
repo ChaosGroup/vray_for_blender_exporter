@@ -2471,23 +2471,26 @@ def vb_binary_path():
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
 	vray_path= vray_bin
-	vray_env_path= ''
-	
-	if(sce.vray_export_compat == 'STD'):
-		vray_env_path= os.getenv('VRAY_PATH','')
+	vray_env_path= os.getenv('VRAY_PATH')
+
+	if(vray_env_path):
+		sce.vray_export_compat= 'STD'
 	else:
 		for maya in ('2011','2010','2009','2008'):
 			for arch in ('x64','x86'):
-				vray_env_path= os.getenv("VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch),'')
-				if(vray_env_path is not ''):
+				vray_env_path= os.getenv("VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch))
+				if(vray_env_path):
 					break
-			if(vray_env_path is not ''):
+			if(vray_env_path):
 				break
-	if(vray_env_path is not ''):
+		if(vray_env_path):
+			sce.vray_export_compat= 'DEMO'
+			vray_env_path= os.path.join(vray_env_path,'bin')
+
+	if(vray_env_path):
 		if(PLATFORM == "win32"):
 			if(vray_env_path[0:1] == "\""):
 				vray_env_path= vray_env_path[1:-1]
-			vray_env_path= vray_env_path
 		else:
 			if(vray_env_path[0:1] == ":"):
 				vray_env_path= vray_env_path[1:]
