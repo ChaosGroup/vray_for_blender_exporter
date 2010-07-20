@@ -748,6 +748,8 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 
 
 def write_BitmapBuffer(ofile, tex, tex_name, ob= None):
+	global exported_bitmaps
+
 	filename= os.path.normpath(bpy.utils.expandpath(tex.image.filepath))
 
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
