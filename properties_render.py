@@ -1414,9 +1414,6 @@ class RENDER_PT_vray_render(RenderButtonsPanel):
 		colR.prop(scene, "vray_export_animation")
 		colR.prop(scene, "vray_export_active_layers")
 
-		split= layout.split()
-		split.column().prop(scene, "vray_export_compat")
-
 
 class RENDER_PT_vray_cm(RenderButtonsPanel):
 	bl_label = "Color mapping"
