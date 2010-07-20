@@ -2530,9 +2530,10 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 		image_file= os.path.join(filenames['path'],"render.exr")
 
-		#if sce not in bpy.data.scenes: # brecht> you can test if the scene is in bpy.data.scenes, if it's not, it's a preview scene
 		if sce.name == "preview":
 			ofile= open(os.path.join(vb_path,'preview','preview_materials.vrscene'), 'w')
+			ofile.write("// V-Ray/Blender: Material preview file\n")
+			ofile.write("#include \"%s\"\n"%(filenames['camera']))
 			for ob in sce.objects:
 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
 					continue

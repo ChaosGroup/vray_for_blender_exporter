@@ -5,8 +5,6 @@
 #include "preview_materials.vrscene"
 #include "preview_nodes.vrscene"
 #include "preview_lights.vrscene"
-#include "/tmp/vb25/scene_camera.vrscene"
-
 
 SettingsRegionsGenerator {
 	xc= 32;
