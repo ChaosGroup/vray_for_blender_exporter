@@ -5,7 +5,7 @@
  http://vray.cgdo.ru
 
  Started:       29 Aug 2009
- Last Modified: 15 Jul 2010
+ Last Modified: 19 Jul 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -449,7 +449,7 @@ def object_on_visible_layers(ob):
 def write_geometry():
 	try:
 		# Custom build operator
-		print("V-Ray/Blender: Special build detected - using custom operator.c")
+		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(vray_geometry_file= filenames['geometry'])
 	except:
 		print("V-Ray/Blender: Exporting meshes...")
@@ -2471,8 +2471,19 @@ def vb_binary_path():
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
 	vray_path= vray_bin
+	vray_env_path= ''
+	
 	if(sce.vray_export_compat == 'STD'):
 		vray_env_path= os.getenv('VRAY_PATH','')
+	else:
+		for maya in ('2011','2010','2009','2008'):
+			for arch in ('x64','x86'):
+				vray_env_path= os.getenv("VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch),'')
+				if(vray_env_path is not ''):
+					break
+			if(vray_env_path is not ''):
+				break
+	if(vray_env_path is not ''):
 		if(PLATFORM == "win32"):
 			if(vray_env_path[0:1] == "\""):
 				vray_env_path= vray_env_path[1:-1]
@@ -2481,6 +2492,7 @@ def vb_binary_path():
 			if(vray_env_path[0:1] == ":"):
 				vray_env_path= vray_env_path[1:]
 		vray_path=  os.path.join(vray_env_path, vray_bin)
+
 	return vray_path
 
 
