@@ -740,6 +740,13 @@ BoolProperty(
 	default= 0
 )
 
+BoolProperty(
+	attr= "vray_export_img_to_blender",
+	name= "Image to Blender",
+	description= "",
+	default= 0
+)
+
 BoolProperty(   attr="vray_export_log_window",
                 name="Show log window",
                 description="Show log window (Linux only).",
@@ -1413,7 +1420,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel):
 		colR.label(text="Pipeline:")
 		colR.prop(scene, "vray_export_animation")
 		colR.prop(scene, "vray_export_active_layers")
-
+		colR.prop(scene, "vray_export_img_to_blender")
 
 class RENDER_PT_vray_cm(RenderButtonsPanel):
 	bl_label = "Color mapping"

@@ -5,7 +5,7 @@
  http://vray.cgdo.ru
 
  Started:       29 Aug 2009
- Last Modified: 19 Jul 2010
+ Last Modified: 20 Jul 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -308,6 +308,46 @@ OBJECT_PARAMS= {
 		#'filter_color',
 		#'soft_shadows',
 		#'area_speculars'
+	),
+
+	'LightDome': (
+		'enabled',
+	# 	'color_tex',
+		'shadows',
+		'shadowColor',
+	# 	'shadowColor_tex',
+		'shadowBias',
+	# 	'photonSubdivs',
+		'causticSubdivs',
+	# 	'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+	# 	'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+	# 	'channels',
+	# 	'channels_raw',
+	# 	'channels_diffuse',
+	# 	'channels_specular',
+		'units',
+		'intensity',
+	# 	'intensity_tex',
+		'subdivs',
+	# 	'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+	# 	'dome_tex',
+	# 	'use_dome_tex',
+	# 	'tex_resolution',
+	# 	'dome_targetRadius',
+	# 	'dome_emitRadius',
+	# 	'dome_spherical',
+	# 	'tex_adaptive',
+	# 	'dome_rayDistance',
+	# 	'dome_rayDistanceMode',
 	),
 
 	'LightSpot': (
@@ -1599,7 +1639,7 @@ def write_materials():
 			debug("Node: %s (unsupported node type: %s)"%(no.name,no.type))
 
 	def export_material(ofile, ma):
-		if(ma.use_nodes and hasattr(ma.node_tree, 'links')):
+		if(0 and ma.use_nodes and hasattr(ma.node_tree, 'links')):
 			debug("Writing node material: %s"%(ma.name))
 
 			nt= ma.node_tree
@@ -2530,7 +2570,11 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path())
 
-		image_file= os.path.join(filenames['path'],"render.exr")
+		file_format= rd.file_format
+		if(file_format == 'JPEG'):
+			file_format= 'jpg'
+		
+		image_file= os.path.join(filenames['path'],"render.%s" % file_format.lower())
 
 		if sce.name == "preview":
 			ofile= open(os.path.join(vb_path,'preview','preview_materials.vrscene'), 'w')
@@ -2580,10 +2624,10 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 			params.append('-sceneFile=')
 			params.append(filenames['scene'])
-			params.append('-display=')
-			params.append('1')
-			params.append('-autoclose=')
-			params.append('1')
+
+			if sce.vray_export_img_to_blender:
+				params.append('-autoclose=')
+				params.append('1')
 
 			if sce.vray_export_animation:
 				params.append('-frames=')
