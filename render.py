@@ -2651,15 +2651,16 @@ class VRayRenderer(bpy.types.RenderEngine):
 					break
 
 				if not sce.vray_export_animation:
-					if process.poll() is not None:
-						try:
-							result= self.begin_result(0, 0, int(wx), int(wy))
-							layer= result.layers[0]
-							layer.load_from_file(image_file)
-							self.end_result(result)
-						except:
-							pass
-						break
+					if sce.vray_export_img_to_blender or sce.name == "preview":
+						if process.poll() is not None:
+							try:
+								result= self.begin_result(0, 0, int(wx), int(wy))
+								layer= result.layers[0]
+								layer.load_from_file(image_file)
+								self.end_result(result)
+							except:
+								pass
+							break
 
 				time.sleep(0.05)
 		else:
