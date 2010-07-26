@@ -142,7 +142,7 @@ IntProperty(
 	name= "Shadow subdivs",
 	description= "TODO.",
 	min= 0,
-	max= 10,
+	max= 256,
 	default= 8
 )
 
