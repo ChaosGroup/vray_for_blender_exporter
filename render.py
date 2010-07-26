@@ -755,7 +755,9 @@ def write_multi_material(ofile, ob):
 	i= 0
 	
 	for slot in ob.material_slots:
-		ma_name= get_name(slot.material, 'Material')
+		ma_name= "Material_no_material"
+		if slot.material is not None:
+			ma_name= get_name(slot.material, 'Material')
 			
 		mtls_list+= "%s,"%(ma_name)
 		ids_list += "%i,"%(i)
@@ -1737,7 +1739,8 @@ def write_nodes():
 			ma_name= "Material_no_material"
 			if(len(ob.material_slots) > 0):
 				if(len(ob.material_slots) == 1):
-					ma_name= get_name(ob.material_slots[0].material, "Material")
+					if ob.material_slots[0].material is not None:
+					 	ma_name= get_name(ob.material_slots[0].material, "Material")
 				else:
 					ma_name= write_multi_material(ofile, ob)
 
@@ -2571,8 +2574,14 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params.append(vb_binary_path())
 
 		file_format= rd.file_format
-		if(file_format == 'JPEG'):
+		if file_format in ('JPEG','JPEG2000'):
 			file_format= 'jpg'
+		elif file_format in ('OPEN_EXR','IRIS','CINEON','MULTILAYER'):
+			file_format= 'exr'
+		elif file_format in ('TARGA', 'TARGA_RAW'):
+			file_format= 'tga'
+		else:
+			file_format= 'png'
 		
 		image_file= os.path.join(filenames['path'],"render.%s" % file_format.lower())
 
