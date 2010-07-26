@@ -199,7 +199,7 @@ IntProperty(
 	name= "Subdivs",
 	description= "TODO.",
 	min= 0,
-	max= 10,
+	max= 256,
 	default= 8
 )
 
@@ -362,8 +362,8 @@ IntProperty(
 	attr= "vr_la_causticSubdivs",
 	name= "Causticsubdivs",
 	description= "TODO.",
-	min= 0,
-	max= 10,
+	min= 1,
+	max= 10000,
 	default= 1000
 )
 

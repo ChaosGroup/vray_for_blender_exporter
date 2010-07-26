@@ -2663,10 +2663,10 @@ class VRayRenderer(bpy.types.RenderEngine):
 						pass
 					break
 
-				if not sce.vray_export_animation:
-					if sce.vray_export_img_to_blender or sce.name == "preview":
-						if process.poll() is not None:
-							try:
+				if process.poll() is not None:
+					try:
+						if not sce.vray_export_animation:
+							if sce.vray_export_img_to_blender or sce.name == "preview":
 								# if rd.use_border and not rd.crop_to_border:
 								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
 								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2674,9 +2674,9 @@ class VRayRenderer(bpy.types.RenderEngine):
 								layer= result.layers[0]
 								layer.load_from_file(image_file)
 								self.end_result(result)
-							except:
-								pass
-							break
+					except:
+						pass
+					break
 
 				time.sleep(0.05)
 		else:
