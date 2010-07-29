@@ -4,9 +4,6 @@
 
  http://vray.cgdo.ru
 
- Started:       29 Aug 2009
- Last Modified: 20 Jul 2010
-
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
 
@@ -468,6 +465,17 @@ def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.utils.expandpath(fn))
 	return filename
 
+def get_render_file_format(file_format):
+	if file_format in ('JPEG','JPEG2000'):
+		file_format= 'jpg'
+	elif file_format in ('OPEN_EXR','IRIS','CINEON','MULTILAYER'):
+		file_format= 'exr'
+	elif file_format in ('TARGA', 'TARGA_RAW'):
+		file_format= 'tga'
+	else:
+		file_format= 'png'
+	return file_format.lower()
+	
 def get_name(data, prefix= None):
 	name= data.name
 	if(prefix):
@@ -487,17 +495,16 @@ def object_on_visible_layers(ob):
   MESHES
 '''
 def write_geometry():
-	try:
-		# Custom build operator
+	if getattr(bpy.ops.scene, 'scene_export'):
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= filenames['geometry'],
 			vb_active_layers= sce.vray_export_active_layers,
 			vb_animation= sce.vray_export_animation
 		)
-	except:
+	else:
 		print("V-Ray/Blender: Exporting meshes...")
-
+		
 		# Used when exporting dupli, particles etc.
 		global exported_meshes
 		exported_meshes= []
@@ -1896,25 +1903,33 @@ def write_camera(camera= None):
 		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 		ofile.write("// Camera/view file\n")
 
-
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
 
 		ofile.write("\nSettingsOutput {")
 		ofile.write("\n\timg_width= %s;"%(int(wx)))
 		ofile.write("\n\timg_height= %s;"%(int(wy)))
+		if sce.vray_export_animation:
+			ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(ca.name),get_render_file_format(rd.file_format)))
+			ofile.write("\n\timg_dir= \"%s\";"%(filenames['output']))
+			ofile.write("\n\timg_file_needFrameNumber= 1;")
+			ofile.write("\n\tanim_start= %d;"%(sce.frame_start))
+			ofile.write("\n\tanim_end= %d;"%(sce.frame_end))
+			ofile.write("\n\tframe_start= %d;"%(sce.frame_start))
+			ofile.write("\n\tframes_per_second= %d;"%(1.0) )
+			ofile.write("\n\tframes= %d-%d;"%(sce.frame_start, sce.frame_end))
+		ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
+		ofile.write("\n\tframe_stamp_text= \"%s\";"%("V-Ray/Blender 2.5 (git) | V-Ray Standalone %%vraycore | %%rendertime"))
 		ofile.write("\n}\n")
-
-
-		ofile.write("\nSettingsEnvironment {")
-		ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
-		if(wo.vray_env_gi_override):
-			ofile.write("\n\tgi_color= %s;"%(a(wo.vray_env_gi_color)))
-		ofile.write("\n}\n")
-
 
 		def write_ca(ca):
 			fov= ca.data.angle
+
+			ofile.write("\nSettingsEnvironment {")
+			ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
+			if(wo.vray_env_gi_override):
+				ofile.write("\n\tgi_color= %s;"%(a(wo.vray_env_gi_color)))
+			ofile.write("\n}\n")
 
 			ofile.write("\nRenderView RenderView {")
 			ofile.write("\n\ttransform= %s;"%(a(transform(ca.matrix_world))))
@@ -1926,9 +1941,9 @@ def write_camera(camera= None):
 
 			if(ca.data.vray_cam_mode == 'PHYSICAL'):
 				PHYS= {
-					"STILL" :     0,
-					"CINEMATIC" : 1,
-					"VIDEO" :     2
+					"STILL":     0,
+					"CINEMATIC": 1,
+					"VIDEO":     2
 				}
 
 				focus_distance= ca.data.dof_distance
@@ -1949,10 +1964,11 @@ def write_camera(camera= None):
 
 			else:
 				ofile.write("\nSettingsCamera {")
+				ofile.write("\n\ttype= %i;"%(0))
 				ofile.write("\n\tfov= %s;"%(a(fov)))
 				ofile.write("\n}\n")
 
-		if(sce.vray_export_animation):
+		if sce.vray_export_animation:
 			selected_frame= sce.frame_current
 			f= sce.frame_start
 			while(f <= sce.frame_end):
@@ -2452,7 +2468,7 @@ def get_filenames():
 		# DR
 		pass
 	else:
-		basepath= os.path.join(filepath, "vb25")
+		basepath= os.path.join(filepath, 'vb25')
 
 	if not os.path.exists(basepath):
 		print("V-Ray/Blender: Exporting path doesn't exist, trying to create...")
@@ -2466,16 +2482,16 @@ def get_filenames():
 
 	basename= os.path.join(basepath, filename)
 
-	if 0:
-		if not os.path.exists(output_dir):
-			print("V-Ray/Blender: Render autosave path doesn\'t exist, trying to create...")
-			print("V-Ray/Blender: Creating directory %s"%(output_dir))
-			try:
-				os.mkdir(output_dir)
-			except:
-				print("V-Ray/Blender: Creating directory \"%s\" failed!"%(output_dir))
-				output_dir= default_path
-				print("V-Ray/Blender: Using default render output path: %s"%(output_dir))
+	output_dir= os.path.join(basepath, 'render')
+	if not os.path.exists(output_dir):
+		print("V-Ray/Blender: Render autosave path doesn\'t exist, trying to create...")
+		print("V-Ray/Blender: Creating directory %s"%(output_dir))
+		try:
+			os.mkdir(output_dir)
+		except:
+			print("V-Ray/Blender: Creating directory \"%s\" failed!"%(output_dir))
+			output_dir= default_path
+			print("V-Ray/Blender: Using default render output path: %s"%(output_dir))
 
 	# TODO: move to RNA
 	filenames= {}
@@ -2577,18 +2593,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path())
 
-		file_format= rd.file_format
-		if file_format in ('JPEG','JPEG2000'):
-			file_format= 'jpg'
-		elif file_format in ('OPEN_EXR','IRIS','CINEON','MULTILAYER'):
-			file_format= 'exr'
-		elif file_format in ('TARGA', 'TARGA_RAW'):
-			file_format= 'tga'
-		else:
-			file_format= 'png'
+		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(rd.file_format))
 		
-		image_file= os.path.join(filenames['path'],"render.%s" % file_format.lower())
-
 		if sce.name == "preview":
 			ofile= open(os.path.join(vb_path,'preview','preview_materials.vrscene'), 'w')
 			ofile.write("// V-Ray/Blender: Material preview file\n")
@@ -2606,7 +2612,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 						write_material(ofile, ms.material)
 			ofile.close()
 
-			image_file= os.path.join(filenames['path'],"preview.exr")
+			image_file= os.path.join(filenames['output'],"preview.exr")
 			
 			params.append('-sceneFile=')
 			params.append(os.path.join(vb_path,'preview','preview.vrscene'))
