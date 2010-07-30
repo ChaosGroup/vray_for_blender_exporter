@@ -40,6 +40,18 @@ EnumProperty= bpy.types.Object.EnumProperty
 VectorProperty= bpy.types.Object.FloatVectorProperty
 
 
+
+'''
+  Plugin: MtlRenderStats
+'''
+# TODO
+
+
+
+'''
+  Plugin: MtlWrapper
+'''
+
 FloatProperty(
 	attr= "vray_node_generate_gi",
 	name= "Generate GI",
@@ -342,6 +354,55 @@ BoolProperty(
 
 
 
+'''
+  Plugin: GeomMeshFile
+'''
+BoolProperty(
+	attr="vray_proxy",
+	name="Proxy",
+	description="",
+	default= False
+)
+
+StringProperty(
+	attr="vray_proxy_file",
+	name="File",
+	subtype= 'FILE_PATH',
+	description="Proxy file."
+)
+
+EnumProperty(
+	attr="vray_proxy_anim_type",
+	name="Animation type",
+	description="This determines the type of BRDF (the shape of the hilight).",
+	items=(("LOOP",     "Loop",      "TODO."),
+		   ("ONCE",     "Once",      "TODO."),
+		   ("PINGPONG", "Ping-pong", "TODO."),
+		   ("STILL",    "Still",     "TODO.")),
+	default= "LOOP"
+)
+
+FloatProperty(
+	attr="vray_proxy_anim_speed",
+	name="Speed",
+	description="Animated proxy playback speed.",
+	min=0.0, max=1000.0,
+	soft_min=0.0, soft_max=1.0,
+	default= 1.0
+)
+
+FloatProperty(
+	attr="vray_proxy_anim_offset",
+	name="Offset",
+	description="Animated proxy initial frame offset.",
+	min=0.0, max=1000.0, soft_min=0.0, soft_max=1.0, default= 0.0
+)
+
+
+
+'''
+  GUI
+'''
 import properties_data_mesh
 properties_data_mesh.DATA_PT_context_mesh.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_data_mesh.DATA_PT_normals.COMPAT_ENGINES.add('VRAY_RENDER')
@@ -383,4 +444,37 @@ class DATA_PT_vray_node(DataButtonsPanel):
 		col.prop(ob, "vray_node_generate_gi")
 
 
+class DATA_PT_vray_proxy(DataButtonsPanel):
+	bl_label = "Proxy"
+	bl_default_closed = True
+	
+	COMPAT_ENGINES = set(['VRAY_RENDER'])
+
+	def draw_header(self, context):
+		ob= context.object
+		self.layout.prop(ob, "vray_proxy", text="")
+
+	def draw(self, context):
+		layout= self.layout
+		
+		ob= context.object
+
+		layout.active= ob.vray_proxy
+
+		split= layout.split()
+		colL= split.column()
+		colL.prop(ob, "vray_proxy_file")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(ob, "vray_proxy_anim_type")
+		split= layout.split()
+		col= split.column()
+		col.prop(ob, "vray_proxy_anim_speed")
+		col= split.column()
+		col.prop(ob, "vray_proxy_anim_offset")
+
+
+
+bpy.types.register(DATA_PT_vray_proxy)
 bpy.types.register(DATA_PT_vray_node)

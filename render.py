@@ -495,32 +495,32 @@ def object_on_visible_layers(ob):
   MESHES
 '''
 def write_geometry():
-	if getattr(bpy.ops.scene, 'scene_export'):
+	# For getting unique IDs for UV names
+	uv_layers= []
+	for ma in bpy.data.materials:
+		for slot in ma.texture_slots:
+			if(slot):
+				if(slot.texture):
+					if slot.texture.type in TEX_TYPES:
+						if slot.texture_coordinates in ('UV'):
+							if slot.uv_layer not in uv_layers:
+								uv_layers.append(slot.uv_layer)
+
+	try:
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= filenames['geometry'],
 			vb_active_layers= sce.vray_export_active_layers,
 			vb_animation= sce.vray_export_animation
 		)
-	else:
+
+	except:
 		print("V-Ray/Blender: Exporting meshes...")
 		
 		# Used when exporting dupli, particles etc.
-		global exported_meshes
 		exported_meshes= []
 
-		# For getting unique IDs for UV names
-		uv_layers= []
-		for ma in bpy.data.materials:
-			for slot in ma.texture_slots:
-				if(slot):
-					if(slot.texture):
-						if slot.texture.type in TEX_TYPES:
-							if slot.texture_coordinates in ('UV'):
-								if slot.uv_layer not in uv_layers:
-									uv_layers.append(slot.uv_layer)
-
-		def write_mesh(ob):
+		def write_mesh(exported_meshes, ob):
 			me= ob.create_mesh(sce, True, 'RENDER')
 
 			me_name= get_name(ob.data, 'Geom')
@@ -727,7 +727,7 @@ def write_geometry():
 				STATIC_OBJECTS.append(ob)
 
 		for ob in STATIC_OBJECTS:
-			write_mesh(ob)
+			write_mesh(exported_meshes,ob)
 
 		if sce.vray_export_animation and len(DYNAMIC_OBJECTS):
 			f= sce.frame_start
@@ -736,11 +736,11 @@ def write_geometry():
 				sce.set_frame(f)
 				#sce.frame_current= f
 				for ob in DYNAMIC_OBJECTS:
-					write_mesh(ob)
+					write_mesh(exported_meshes,ob)
 				f+= sce.frame_step
 		else:
 			for ob in DYNAMIC_OBJECTS:
-				write_mesh(ob)
+				write_mesh(exported_meshes,ob)
 
 		sce.set_frame(cur_frame)
 
@@ -751,6 +751,44 @@ def write_geometry():
 
 		ofile.close()
 		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
+
+
+def write_mesh_displace(ofile, obj):
+	obj_name= stripName(obj.data.name)
+	out_name= "GeomDisp_%s"%(obj_name)
+	s("vray_geometry_name", out_name, obj)
+
+	amount= g("vray_displace_amount",obj) * g("vray_displace_amount_delim",obj)
+	if(g("vray_displace_use_dispfac",obj)):
+		amount= g("vray_displace_dispfac",obj) * g("vray_displace_amount_delim",obj)
+	
+	ofile.write("\nGeomDisplacedMesh %s {"%(out_name))
+	ofile.write("\n\tmesh= %s;"%("Geom_%s"%(obj_name)))
+	ofile.write("\n\tdisplacement_tex_color= %s;"%(g("vray_displace_tex",obj)))
+	ofile.write("\n\tdisplacement_amount= %.5f;"%(amount))
+	ofile.write("\n\tdisplacement_shift= %.6f;"%(g("vray_displace_shift",obj)))
+	ofile.write("\n\tuse_globals= %d;"%(g("vray_displace_use_globals",obj)))
+	ofile.write("\n\tview_dep= %d;"%(g("vray_displace_view_dep",obj)))
+	ofile.write("\n\tedge_length= %.6f;"%(g("vray_displace_edgeLength",obj)))
+	ofile.write("\n\tmax_subdivs= %d;"%(g("vray_displace_maxSubdivs",obj)))
+	ofile.write("\n\tkeep_continuity= %d;"%(g("vray_displace_keep_continuity",obj)))
+	ofile.write("\n\twater_level= %.6f;"%(g("vray_displace_water_level",obj)))
+	ofile.write("\n}\n")
+
+
+def write_mesh_file(ofile, exported_proxy, ob):
+	filename= os.path.basename(ob.vray_proxy_file)
+	proxy_name= "Proxy_%s" % clean_string(filename)
+
+	if(filename not in exported_proxy):
+		exported_proxy.append(filename)
+		out+= "\nGeomMeshFile %s {"%(out_name)
+		out+= "\n\tfile= \"%s\";"%(getPath(g("vray_object_proxy_file",obj)))
+		out+= "\n\tanim_speed= %i;"%(g("vray_object_proxy_anim_speed",obj))
+		out+= "\n\tanim_type= %i;"%(g("vray_object_proxy_anim_type",obj))
+		out+= "\n\tanim_offset= %i;"%(g("vray_object_proxy_anim_offset",obj))
+		out+= "\n}\n"
+	return proxy_name
 
 
 
@@ -800,11 +838,8 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 	return uvw_name
 
 
-def write_BitmapBuffer(ofile, tex, tex_name, ob= None):
-	global exported_bitmaps
-
+def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 	filename= os.path.normpath(bpy.utils.expandpath(tex.image.filepath))
-
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
 	if not os.path.exists(filename):
@@ -832,7 +867,7 @@ def write_BitmapBuffer(ofile, tex, tex_name, ob= None):
 	return bitmap_name
 
 
-def write_TexBitmap(ofile, ma, slot= None, tex= None, ob= None, env= None, env_type= None):
+def write_TexBitmap(ofile, exported_bitmaps, ma, slot= None, tex= None, ob= None, env= None, env_type= None):
 	if(slot):
 		tex= slot.texture
 
@@ -845,7 +880,7 @@ def write_TexBitmap(ofile, ma, slot= None, tex= None, ob= None, env= None, env_t
 			tex_name= "%s_%s"%(get_name(ma,"Material"), get_name(tex, "Texture"))
 
 			uv_name= write_UVWGenChannel(ofile, tex, tex_name, ob)
-			bitmap_name= write_BitmapBuffer(ofile, tex, tex_name, ob)
+			bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
 			if(bitmap_name):
 				ofile.write("\nTexBitmap %s {"%(tex_name))
@@ -869,7 +904,7 @@ def write_TexBitmap(ofile, ma, slot= None, tex= None, ob= None, env= None, env_t
 	return tex_name
 
 
-def write_textures(ofile, ma, ma_name):
+def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	out    = ""
 	out_tex= ""
 
@@ -949,10 +984,10 @@ def write_textures(ofile, ma, ma_name):
 						vraytex['displace'].append(slot)
 						vraymat['displace_amount']+= slot.displacement_factor
 
-	def write_texture(ofile, ma, slot):
+	def write_texture(ofile, exported_bitmaps, ma, slot):
 		tex_name= "Texture_no_texture"
 		if slot.texture.type == 'IMAGE':
-			tex_name= write_TexBitmap(ofile, ma, slot)
+			tex_name= write_TexBitmap(ofile, exported_bitmaps, ma, slot)
 		else:
 			pass
 		return tex_name
@@ -966,7 +1001,7 @@ def write_textures(ofile, ma, ma_name):
 				debug("  Slot: %s"%(textype))
 				debug("    Texture: %s"%(tex.name))
 
-				vraymat[textype]= write_texture(ofile, ma, slot)
+				vraymat[textype]= write_texture(ofile, exported_bitmaps, ma, slot)
 
 				if(textype == 'color'):
 					if(slot.stencil):
@@ -1014,7 +1049,7 @@ def write_textures(ofile, ma, ma_name):
 				for slot in vraytex[textype]:
 					tex= slot.texture
 
-					tex_name= write_texture(ofile, ma, slot)
+					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
 
 					texlayered_names.append(tex_name) # For stencil
 					texlayered_modes.append(slot.blend_type)
@@ -1049,7 +1084,7 @@ def write_textures(ofile, ma, ma_name):
 	return vraymat
 
 
-def write_BRDFBump(base_brdf, tex_vray):
+def write_BRDFBump(ofile, base_brdf, tex_vray):
 	brdf_name= "BRDFBump_%s"%(base_brdf)
 	ofile.write("\nBRDFBump %s {"%(brdf_name))
 	ofile.write("\n\tbase_brdf= %s;"%(base_brdf))
@@ -1531,7 +1566,7 @@ def write_BRDFLight(ofile, ma, ma_name, tex_vray):
 
 
 
-def	write_material(ofile, ma, name= None):
+def	write_material(ofile, exported_bitmaps, ma, name= None):
 	ma_name= get_name(ma,"Material")
 	if(name):
 		ma_name= name
@@ -1540,7 +1575,7 @@ def	write_material(ofile, ma, name= None):
 
 	brdf_name= "BRDFDiffuse_no_material"
 
-	tex_vray= write_textures(ofile, ma, ma_name)
+	tex_vray= write_textures(ofile, exported_bitmaps, ma, ma_name)
 
 	if(ma.vray_mtl_type == 'MTL'):
 		brdf_name= write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray)
@@ -1553,7 +1588,7 @@ def	write_material(ofile, ma, name= None):
 
 	if(not ma.vray_mtl_type == 'EMIT'):
 		if(tex_vray['bump'] or tex_vray['normal']):
-			brdf_name= write_BRDFBump(brdf_name, tex_vray)
+			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	if(ma.vray_mtl_two_sided):
 		ofile.write("\nMtlSingleBRDF MtlSingleBRDF_%s {"%(ma_name))
@@ -1651,7 +1686,7 @@ def write_materials():
 		else:
 			debug("Node: %s (unsupported node type: %s)"%(no.name,no.type))
 
-	def export_material(ofile, ma):
+	def export_material(ofile, exported_bitmaps, ma):
 		if(0 and ma.use_nodes and hasattr(ma.node_tree, 'links')):
 			debug("Writing node material: %s"%(ma.name))
 
@@ -1664,13 +1699,11 @@ def write_materials():
 					debug("Node: %s (unsupported node type: %s)"%(n.name, n.type))
 
 		else:
-			write_material(ofile, ma)
+			write_material(ofile, exported_bitmaps, ma)
 		
 
 	print("V-Ray/Blender: Writing materials...")
 
-	global ofile
-	
 	ofile= open(filenames['materials'], 'w')
 	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 	ofile.write("// Materials file\n\n")
@@ -1697,15 +1730,12 @@ def write_materials():
 	ofile.write("\n\tbrdf= BRDFDiffuse_no_material;")
 	ofile.write("\n}\n")
 
-	global exported_bitmaps
-	global exported_nodes
-
 	exported_bitmaps= []
 	exported_nodes= []
 
 	for ma in bpy.data.materials:
 		if(ma.users or ma.fake_user):
-			export_material(ofile, ma)
+			export_material(ofile, exported_bitmaps, ma)
 
 	exported_bitmaps= []
 	exported_nodes= []
@@ -2596,6 +2626,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(rd.file_format))
 		
 		if sce.name == "preview":
+			exported_bitmaps= []
 			ofile= open(os.path.join(vb_path,'preview','preview_materials.vrscene'), 'w')
 			ofile.write("// V-Ray/Blender: Material preview file\n")
 			ofile.write("#include \"%s\"\n"%(filenames['camera']))
@@ -2607,10 +2638,11 @@ class VRayRenderer(bpy.types.RenderEngine):
 						write_camera(ob)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
-						write_material(ofile, ms.material, "PREVIEW")
+						write_material(ofile, exported_bitmaps, ms.material, "PREVIEW")
 					else:
-						write_material(ofile, ms.material)
+						write_material(ofile, exported_bitmaps, ms.material)
 			ofile.close()
+			exported_bitmaps= []
 
 			image_file= os.path.join(filenames['output'],"preview.exr")
 			
