@@ -1,11 +1,8 @@
 '''
 
- V-Ray/Blender 2.5.9
+ V-Ray/Blender 2.5
 
  http://vray.cgdo.ru
-
- Started:       29 Aug 2009
- Last Modified: 29 Jul 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -312,6 +309,7 @@ BoolProperty(   attr="vray_im_check_sample_visibility",
 
 StringProperty( attr="vray_im_file",
                 name="Irradiance map file name",
+				subtype= 'FILE_PATH',
                 description="Irradiance map file name.")
 
 BoolProperty(   attr="vray_im_auto_save",
@@ -321,6 +319,7 @@ BoolProperty(   attr="vray_im_auto_save",
 
 StringProperty( attr="vray_im_auto_save_file",
                 name="Irradiance map auto save file",
+				subtype= 'FILE_PATH',
                 description="Irradiance map auto save file.")
 
 
@@ -433,6 +432,7 @@ BoolProperty(   attr="vray_lc_use_for_glossy_rays",
 
 StringProperty( attr="vray_lc_file",
                 name="Light cache file name",
+				subtype= 'FILE_PATH',
                 description="Light cache file name.")
 
 BoolProperty(   attr="vray_lc_auto_save",
@@ -442,7 +442,8 @@ BoolProperty(   attr="vray_lc_auto_save",
 
 StringProperty( attr="vray_lc_auto_save_file",
                 name="Light cache auto save file",
-                description="Light cache auto save file.")
+				subtype= 'FILE_PATH',
+				description="Light cache auto save file.")
 
 
 
@@ -1807,7 +1808,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel):
 		rd= scene.render
 		rl = rd.layers[rd.active_layer_index]
 		row = layout.row()
-		row.prop(scene,"vray_passes",text="All Passes:")
+		row.prop(scene,"vray_passes",text="All Passes")
 		row.prop(scene,"vray_color_mapping",text="Color Mapping")
 		row = layout.row()
 		split = row.split()
@@ -1891,4 +1892,4 @@ bpy.types.register(RENDER_PT_vray_gi)
 bpy.types.register(RENDER_PT_vray_gi_im)
 bpy.types.register(RENDER_PT_vray_gi_lc)
 bpy.types.register(RENDER_PT_vray_gi_bf)
-bpy.types.register(RENDER_PT_vray_about)
+#bpy.types.register(RENDER_PT_vray_about)

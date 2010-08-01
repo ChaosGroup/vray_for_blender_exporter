@@ -1,11 +1,8 @@
 '''
 
- V-Ray/Blender
+ V-Ray/Blender 2.5
 
  http://vray.cgdo.ru
-
- Started:       29 Aug 2009
- Last Modified: 10 Mar 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -28,6 +25,7 @@
  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
 
 '''
+
 
 import os
 import bpy
@@ -110,30 +108,10 @@ BoolProperty(	attr="vray_hilightGlossiness_lock",
 				description="",
 				default= True)
 
-BoolProperty(	attr="vray_double_sided",
-				name="Double-sided",
-				description="",
-				default= True)
-
-BoolProperty(	attr="vray_back_side",
-				name="Reflect on back side",
-				description="",
-				default= False)
-
 BoolProperty(	attr="vray_affect_shadows",
 				name="Affect shadows",
 				description="",
 				default= False)
-
-BoolProperty(	attr="vray_trace_refractions",
-				name="Trace refractions",
-				description="",
-				default= True)
-
-BoolProperty(	attr="vray_trace_reflections",
-				name="Trace reflections",
-				description="",
-				default= True)
 
 BoolProperty(	attr="vray_affect_alpha",
 				name="Affect alpha",
@@ -174,6 +152,225 @@ EnumProperty(   attr="vray_brdf",
 				default= "BLINN")
 
 
+BoolProperty(
+	attr="vray_trace_refractions",
+	name="Trace refractions",
+	description="",
+	default= True
+)
+
+BoolProperty(
+	attr="vray_trace_reflections",
+	name="Trace reflections",
+	description="",
+	default= True
+)
+
+BoolProperty(
+	attr="vray_back_side",
+	name="Reflect on back side",
+	description="",
+	default= False
+)
+
+BoolProperty(
+	attr="vray_double_sided",
+	name="Double-sided",
+	description="",
+	default= True
+)
+
+# option_glossy_rays_as_gi: integer (Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always)
+EnumProperty(
+	attr= 'vb_mtl_glossy_rays_as_gi',
+	name= 'Glossy rays as GI',
+	description= "Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always",
+	items=(("ALWAYS", "Always", ""),
+		   ("GI",     "Only for GI rays",  ""),
+		   ("NEVER",  "Never",  "")),
+	default= 'GI'
+)
+
+# option_cutoff: float (Specifies a cutoff threshold for tracing reflections/refractions)
+FloatProperty(
+	attr= 'vb_mtl_cutoff',
+	name= 'Cutoff',
+	description= "Specifies a cutoff threshold for tracing reflections/refractions",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 0.001
+)
+
+# option_use_irradiance_map: bool (false to perform local brute-force GI calculatons and true to use the current GI engine)
+BoolProperty(
+	attr= 'vb_mtl_use_irradiance_map',
+	name= 'Use irradiance map',
+	description= "false to perform local brute-force GI calculatons and true to use the current GI engine",
+	default= True
+)
+
+# option_energy_mode: integer (Energy preservation mode for reflections and refractions (0 - color, 1 - monochrome))
+EnumProperty(
+	attr= 'vb_mtl_energy_mode',
+	name= 'Energy mode',
+	description= "Energy preservation mode for reflections and refractions.",
+	items=(("MONO",  "Monochrome", ""),
+		   ("COLOR", "Color",      "")),
+	default= 'COLOR'
+)
+
+# environment_override: acolor texture (Environment override texture)
+
+# environment_priority: integer (Environment override priority (used when several materials override it along a ray path))
+IntProperty(
+	attr= 'vb_mtl_environment_priority',
+	name= 'Environment priority',
+	description= "Environment override priority (used when several materials override it along a ray path)",
+	min= 0,
+	max= 10,
+	default= 0
+)
+
+# translucency: integer (Translucency mode (0 - none))
+EnumProperty(
+	attr= 'vray_translucency',
+	name= 'Translucency',
+	description= "Translucency mode",
+	items=(("HYBRID", "Hybrid model", ""),
+		   ("SOFT",   "Soft (water) model", ""),
+		   ("HARD",   "Hard (wax) model", ""),
+		   ("NONE",   "None",   "")),
+	default= 'NONE'
+)
+
+# translucency_color: acolor texture (Filter color for the translucency effect) = AColor(1, 1, 1, 1)
+VectorProperty(
+	attr= 'vray_translucency_color',
+	name= 'Translucency_color',
+	description= "Filter color for the translucency effect.",
+	subtype= "COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.0, 0.0, 0.0)
+)
+
+# translucency_light_mult: float (A multiplier for the calculated lighting for the translucency effect)
+FloatProperty(
+	attr= 'vray_translucency_light_mult',
+	name= 'Translucency light mult',
+	description= "A multiplier for the calculated lighting for the translucency effect",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# translucency_scatter_dir: float (Scatter direction (0.0f is backward, 1.0f is forward))
+FloatProperty(
+	attr= 'vray_translucency_scatter_dir',
+	name= 'Translucency scatter dir',
+	description= "Scatter direction (0.0 is backward, 1.0 is forward)",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 0.5
+)
+
+# translucency_scatter_coeff: float (Scattering cone (0.0f - no scattering, 1.0f - full scattering)
+FloatProperty(
+	attr= 'vray_translucency_scatter_coeff',
+	name= 'Translucency scatter coeff',
+	description= "Scattering cone (0.0 - no scattering, 1.0 - full scattering",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 0
+)
+
+# translucency_thickness: float (Maximum distance to trace inside the object)
+FloatProperty(
+	attr= 'vray_translucency_thickness',
+	name= 'Translucency thickness',
+	description= "Maximum distance to trace inside the object",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1e+18
+)
+
+
+
+'''
+  Plugin: MtlRenderStats
+'''
+# base_mtl: plugin (Base material)
+
+# camera_visibility: bool
+BoolProperty(
+	attr= 'vb_mrs_camera_visibility',
+	name= 'Camera visibility',
+	description= "TODO.",
+	default= True
+)
+
+# reflections_visibility: bool
+BoolProperty(
+	attr= 'vb_mrs_reflections_visibility',
+	name= 'Reflections visibility',
+	description= "TODO.",
+	default= True
+)
+
+# refractions_visibility: bool
+BoolProperty(
+	attr= 'vb_mrs_refractions_visibility',
+	name= 'Refractions visibility',
+	description= "TODO.",
+	default= True
+)
+
+# gi_visibility: bool
+BoolProperty(
+	attr= 'vb_mrs_gi_visibility',
+	name= 'GI visibility',
+	description= "TODO.",
+	default= True
+)
+
+# shadows_visibility: bool
+BoolProperty(
+	attr= 'vb_mrs_shadows_visibility',
+	name= 'Shadows visibility',
+	description= "TODO.",
+	default= True
+)
+
+# visibility: float (Overall visibility)
+BoolProperty(
+	attr= 'vb_mrs_visibility',
+	name= 'Overall visibility',
+	description= "TODO.",
+	default= True
+)
+
+
+
+'''
+  Plugin: BRDFLight
+'''
 BoolProperty( 
 	attr= "vray_mtl_emitOnBackSide", 
 	name= "Emit on back side", 
@@ -191,9 +388,8 @@ BoolProperty(
 
 
 
-
 '''
-  BRDFSSS2Complex
+  Plugin: BRDFSSS2Complex
 '''
 IntProperty( 
 	attr= "vray_fsss_prepass_rate",
@@ -273,7 +469,7 @@ VectorProperty(
 	max= 1.0, 
 	soft_min= 0.0, 
 	soft_max= 1.0, 
-	default= (1, 1, 1)
+	default= (1.0, 1.0, 1.0)
 )
 
 VectorProperty( 
@@ -333,7 +529,7 @@ VectorProperty(
 	max= 1.0, 
 	soft_min= 0.0, 
 	soft_max= 1.0, 
-	default= (1, 1, 1)
+	default= (1.0, 1.0, 1.0)
 )
 
 IntProperty( 
@@ -504,6 +700,225 @@ FloatProperty(
 	default= 0.5
 )
 
+BoolProperty(
+	attr='vray_mtl_use_wrapper',
+	name='Use material wrapper',
+	description='Use material wrapper options.',
+	default= False
+)
+
+
+'''
+  Plugin: MtlWrapper
+'''
+# base_material: plugin (The base material)
+# generate_gi: float (Controls the GI generated by the material.)
+FloatProperty(
+	attr= 'vb_mwrap_generate_gi',
+	name= 'Generate GI',
+	description= "Controls the GI generated by the material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# receive_gi: float (Controls the GI received by the material.)
+FloatProperty(
+	attr= 'vb_mwrap_receive_gi',
+	name= 'Receive GI',
+	description= "Controls the GI received by the material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# generate_caustics: float (Controls the caustics generated by the material.)
+FloatProperty(
+	attr= 'vb_mwrap_generate_caustics',
+	name= 'Generate caustics',
+	description= "Controls the caustics generated by the material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# receive_caustics: float (Controls the caustics received by the material.)
+FloatProperty(
+	attr= 'vb_mwrap_receive_caustics',
+	name= 'Receive caustics',
+	description= "Controls the caustics received by the material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# alpha_contribution: float (The contribution of the resulting color to the alpha channel.)
+FloatProperty(
+	attr= 'vb_mwrap_alpha_contribution',
+	name= 'Alpha contribution',
+	description= "The contribution of the resulting color to the alpha channel.",
+	min= -1.0,
+	max= 1.0,
+	soft_min= -1.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# matte_surface: bool (Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.)
+BoolProperty(
+	attr= 'vb_mwrap_matte_surface',
+	name= 'Matte surface',
+	description= "Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.",
+	default= False
+)
+
+# shadows: bool (Turn this on to make shadow visible on the matter surface.)
+BoolProperty(
+	attr= 'vb_mwrap_shadows',
+	name= 'Shadows',
+	description= "Turn this on to make shadow visible on the matter surface.",
+	default= False
+)
+
+# affect_alpha: bool (Turn this on to make shadows affect the alpha contribution of the matte surface.)
+BoolProperty(
+	attr= 'vb_mwrap_affect_alpha',
+	name= 'Affect alpha',
+	description= "Turn this on to make shadows affect the alpha contribution of the matte surface.",
+	default= False
+)
+
+# shadow_tint_color: color (Tint for the shadows on the matte surface.) = Color(0, 0, 0)
+VectorProperty( 
+	attr= "vb_mwrap_shadow_tint_color", 
+	name= "Shadow tint color", 
+	description= 'Tint for the shadows on the matte surface.', 
+	subtype= "COLOR", 
+	min= 0.0, 
+	max= 1.0, 
+	soft_min= 0.0, 
+	soft_max= 1.0, 
+	default= (0.0, 0.0, 0.0)
+)
+
+# shadow_brightness: float (An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.)
+FloatProperty(
+	attr= 'vb_mwrap_shadow_brightness',
+	name= 'Shadow brightness',
+	description= "An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# reflection_amount: float (Shows the reflections of the base material.)
+FloatProperty(
+	attr= 'vb_mwrap_reflection_amount',
+	name= 'Reflection amount',
+	description= "Shows the reflections of the base material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# refraction_amount: float (Shows the refractions of the base material.)
+FloatProperty(
+	attr= 'vb_mwrap_refraction_amount',
+	name= 'Refraction amount',
+	description= "Shows the refractions of the base material.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# gi_amount: float (Determines the amount of gi shadows.)
+FloatProperty(
+	attr= 'vb_mwrap_gi_amount',
+	name= 'GI amount',
+	description= "Determines the amount of gi shadows.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# no_gi_on_other_mattes: bool (This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.)
+BoolProperty(
+	attr= 'vb_mwrap_no_gi_on_other_mattes',
+	name= 'No gi on other mattes',
+	description= "This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.",
+	default= True
+)
+
+# matte_for_secondary_rays: bool (Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc))
+BoolProperty(
+	attr= 'vb_mwrap_matte_for_sec_rays',
+	name= 'Matte for secondary rays',
+	description= "Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc)",
+	default= False
+)
+
+# gi_surface_id: integer (If two objects have different GI surface ids, the light cache samples of the two objects will not be blended)
+IntProperty(
+	attr= 'vb_mwrap_gi_surface_id',
+	name= 'GI surface id',
+	description= "If two objects have different GI surface ids, the light cache samples of the two objects will not be blended",
+	min= 0,
+	max= 10,
+	default= 0
+)
+
+# gi_quality_multiplier: float (A multiplier for GI quality)
+FloatProperty(
+	attr= 'vb_mwrap_gi_quality_multiplier',
+	name= 'GI quality multiplier',
+	description= "A multiplier for GI quality",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# reflection_filter_tex: acolor texture = AColor(1, 1, 1, 1)
+
+# trace_depth: integer (The maximum reflection depth (-1 is controlled by the global options))
+IntProperty(
+	attr= 'vb_mwrap_trace_depth',
+	name= 'Trace depth',
+	description= "The maximum reflection depth (-1 is controlled by the global options)",
+	min= -1,
+	max= 1000,
+	default= -1
+)
+
+# channels: plugin (Render channels the result of this BRDF will be written to), unlimited list
+
 
 
 '''
@@ -636,8 +1051,14 @@ SSS2= {
 # 			ofile.write(s.replace(')','').replace('(',''))
 # 		ofile.write('\n')
 # 		ofile.close()
-#generate_preset()
+# generate_preset()
 
+
+
+'''
+  GUI
+'''
+narrowui= 200
 
 def active_node_mat(mat):
     if mat:
@@ -647,15 +1068,6 @@ def active_node_mat(mat):
         else:
             return mat
     return None
-
-
-
-'''
-  GUI
-'''
-
-
-narrowui= 200
 
 
 class MATERIAL_MT_fsss_presets(bpy.types.Menu):
@@ -820,25 +1232,22 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 			colR.prop(mat, "vray_affect_shadows")
 
 			row= layout.row()
-			colL= row.column()
-			colL.label(text="Options")
-
-			row= layout.row()
-			colL= row.column()
-			colL.prop(mat, "vray_trace_reflections")
-			colL.prop(mat, "vray_trace_refractions")
-			colR= row.column()
-			colR.prop(mat, "vray_double_sided")
-			colR.prop(mat, "vray_back_side")
-
-			row= layout.row()
-			colL= row.column()
-			colL.label(text="Advanced")
+			col= row.column()
+			col.prop(mat, 'vray_translucency')
+			if(mat.vray_translucency != 'NONE'):
+				row= layout.row()
+				col= row.column()
+				col.prop(mat, 'vray_translucency_color', text="")
+				col.prop(mat, 'vray_translucency_thickness', text="Thickness")
+				if(wide_ui):
+					col= row.column()
+				col.prop(mat, 'vray_translucency_scatter_coeff', text="Scatter coeff")
+				col.prop(mat, 'vray_translucency_scatter_dir', text="Fwd/Bck coeff")
+				col.prop(mat, 'vray_translucency_light_mult', text="Light multiplier")
 
 			row= layout.row()
 			colL= row.column()
 			colR= row.column()
-
 			colL.prop(mat, "vray_mtl_two_sided")
 			if(mat.vray_mtl_two_sided):
 				colR.prop(mat, "vray_mtlts_translucency", slider=True)
@@ -868,31 +1277,26 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 				col.prop(mat, "emit", text="Intensity")
 
 			if(mat.vray_mtl_emitter == 'MESH'):
-				if(sce.vray_export_compat == 'DEMO'):
-					row= layout.row()
-					col= row.column()
-					col.label(text='Mesh light is only available in V-Ray Standalone :(')
-				else:
-					split= layout.split()
+				split= layout.split()
+				col= split.column()
+				col.prop(ob, 'vray_lamp_portal_mode', text="Mode")
+				if(ob.vray_lamp_portal_mode == 'NORMAL'):
+					col.prop(ob, 'vray_lamp_units', text="Units")
+					col.prop(ob, 'vray_lamp_intensity', text="Intensity")
+				col.prop(ob, 'vray_lamp_subdivs')
+
+				if wide_ui:
 					col= split.column()
-					col.prop(ob, 'vray_lamp_portal_mode', text="Mode")
-					if(ob.vray_lamp_portal_mode == 'NORMAL'):
-						col.prop(ob, 'vray_lamp_units', text="Units")
-						col.prop(ob, 'vray_lamp_intensity', text="Intensity")
-					col.prop(ob, 'vray_lamp_subdivs')
+				col.prop(ob, 'vray_lamp_invisible')
+				col.prop(ob, 'vray_lamp_affectDiffuse')
+				col.prop(ob, 'vray_lamp_affectSpecular')
+				col.prop(ob, 'vray_lamp_affectReflections')
+				col.prop(ob, 'vray_lamp_noDecay')
 
-					if wide_ui:
-						col= split.column()
-					col.prop(ob, 'vray_lamp_invisible')
-					col.prop(ob, 'vray_lamp_affectDiffuse')
-					col.prop(ob, 'vray_lamp_affectSpecular')
-					col.prop(ob, 'vray_lamp_affectReflections')
-					col.prop(ob, 'vray_lamp_noDecay')
+				col.prop(ob, 'vray_lamp_doubleSided')
+				col.prop(ob, 'vray_lamp_storeWithIrradianceMap')
 
-					col.prop(ob, 'vray_lamp_doubleSided')
-					col.prop(ob, 'vray_lamp_storeWithIrradianceMap')
-
-					ob.vray_node_meshlight= True
+				ob.vray_node_meshlight= True
 			else:
 				ob.vray_node_meshlight= False
 				
@@ -902,116 +1306,255 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 				colL.prop(mat, "vray_mtl_compensateExposure")
 
 		else: # SSS
-			if(sce.vray_export_compat == 'STD'):
-				row= layout.row()
-				col= row.column()
-				col.label(text='General')
+			row= layout.row()
+			col= row.column()
+			col.label(text='General')
 
-				row= layout.row()
-				col= row.column()
-				col.menu("MATERIAL_MT_fsss_presets", text="Presets")
+			row= layout.row()
+			col= row.column()
+			col.menu("MATERIAL_MT_fsss_presets", text="Presets")
 
-				row= layout.row()
-				colL= row.column()
-				colR= row.column()
+			row= layout.row()
+			colL= row.column()
+			colR= row.column()
 
-				colL.prop(mat, 'vray_fsss_prepass_rate')
-				colL.prop(mat, 'vray_fsss_scale')
-				colR.prop(mat, 'vray_fsss_ior')
-				colR.prop(mat, 'vray_fsss_interpolation_accuracy', text='Accuracy')
+			colL.prop(mat, 'vray_fsss_prepass_rate')
+			colL.prop(mat, 'vray_fsss_scale')
+			colR.prop(mat, 'vray_fsss_ior')
+			colR.prop(mat, 'vray_fsss_interpolation_accuracy', text='Accuracy')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='Overall color')
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_overall_color', text='')
+			col= row.column()
+			col.prop(mat, 'vray_fsss_phase_function')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='Diffuse color')
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_diffuse_color', text='')
+			col= row.column()
+			col.prop(mat, 'vray_fsss_diffuse_amount')
+
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_sub_surface_color')
+			col= row.column()
+			col.label(text='')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='Scatter color')
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_scatter_radius', text='')
+			col= row.column()
+			col.prop(mat, 'vray_fsss_scatter_radius_mult')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='Specular layer')
+
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_specular_color', text='')
+			col.prop(mat, 'vray_fsss_specular_subdivs', text='Subdivs')
+			col= row.column()
+			col.prop(mat, 'vray_fsss_specular_amount', text='Amount')
+			col.prop(mat, 'vray_fsss_specular_glossiness', text='Glossiness')
+
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_trace_reflections')
+			if(mat.vray_fsss_trace_reflections):
+				col= row.column()
+				col.prop(mat, 'vray_fsss_reflection_depth')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='')
+
+			row= layout.row()
+			col= row.column()
+			col.label(text='Options')
+			row= layout.row()
+			col= row.column()
+			col.prop(mat, 'vray_fsss_single_scatter', text='Type')
+			col.prop(mat, 'vray_fsss_subdivs')
+			col.prop(mat, 'vray_fsss_refraction_depth')
+			col.prop(mat, 'vray_fsss_cutoff_threshold')
+			col= row.column()
+			col.prop(mat, 'vray_fsss_front_scatter')
+			col.prop(mat, 'vray_fsss_back_scatter')
+			col.prop(mat, 'vray_fsss_scatter_gi')
+			col.prop(mat, 'vray_fsss_prepass_blur')
 
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='')
+class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel):
+	bl_label = "Wrapper"
+	bl_default_closed = True
+	
+	COMPAT_ENGINES = set(['VRAY_RENDER'])
+
+	def draw_header(self, context):
+		mat= active_node_mat(context.material)
+		self.layout.prop(mat, "vray_mtl_use_wrapper", text="")
+
+	def draw(self, context):
+		ob= context.object
+		mat= active_node_mat(context.material)
+
+		layout= self.layout
+		layout.active= mat.vray_mtl_use_wrapper
+
+		wide_ui= context.region.width > 200
+
+		split= layout.split()
+		col= split.column()
+		col.prop(mat, 'vb_mwrap_generate_gi')
+		col.prop(mat, 'vb_mwrap_receive_gi')
+		if(wide_ui):
+			col= split.column()
+		col.prop(mat, 'vb_mwrap_generate_caustics')
+		col.prop(mat, 'vb_mwrap_receive_caustics')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(mat, 'vb_mwrap_gi_quality_multiplier')
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Matte properties")
+
+		split= layout.split()
+		colL= split.column()
+		colL.prop(mat, 'vb_mwrap_matte_surface')
+		if(wide_ui):
+			colR= split.column()
+		else:
+			colR= colL
+		colR.prop(mat, 'vb_mwrap_alpha_contribution')
+		if(mat.vb_mwrap_matte_surface):
+			colR.prop(mat, 'vb_mwrap_reflection_amount')
+			colR.prop(mat, 'vb_mwrap_refraction_amount')
+			colR.prop(mat, 'vb_mwrap_gi_amount')
+			colR.prop(mat, 'vb_mwrap_no_gi_on_other_mattes')
+
+			colL.prop(mat, 'vb_mwrap_affect_alpha')
+			colL.prop(mat, 'vb_mwrap_shadows')
+			if(mat.vb_mwrap_shadows):
+				colL.prop(mat, 'vb_mwrap_shadow_tint_color')
+				colL.prop(mat, 'vb_mwrap_shadow_brightness')
+			
+		#col.prop(mat, 'vb_mwrap_alpha_contribution_tex')
+		#col.prop(mat, 'vb_mwrap_shadow_brightness_tex')
+		#col.prop(mat, 'vb_mwrap_reflection_filter_tex')
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Miscellaneous")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(mat, 'vb_mwrap_gi_surface_id')
+		col.prop(mat, 'vb_mwrap_trace_depth')
+		if(wide_ui):
+			col= split.column()
+		col.prop(mat, 'vb_mwrap_matte_for_sec_rays')
 
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='Overall color')
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_overall_color', text='')
-				col= row.column()
-				col.prop(mat, 'vray_fsss_phase_function')
+class MATERIAL_PT_vray_options(MaterialButtonsPanel):
+	bl_label = "Options"
+	bl_default_closed = True
+	
+	COMPAT_ENGINES = set(['VRAY_RENDER'])
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='Diffuse color')
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_diffuse_color', text='')
-				col= row.column()
-				col.prop(mat, 'vray_fsss_diffuse_amount')
+	def draw(self, context):
+		ob= context.object
+		mat= active_node_mat(context.material)
 
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_sub_surface_color')
-				col= row.column()
-				col.label(text='')
+		layout= self.layout
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='Scatter color')
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_scatter_radius', text='')
-				col= row.column()
-				col.prop(mat, 'vray_fsss_scatter_radius_mult')
+		wide_ui= context.region.width > 200
 
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, "vray_trace_reflections")
+		col.prop(mat, "vray_trace_refractions")
+		if(wide_ui):
+			col= row.column()
+		col.prop(mat, "vray_double_sided")
+		col.prop(mat, "vray_back_side")
+		col.prop(mat, 'vb_mtl_use_irradiance_map')
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='')
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, 'vb_mtl_glossy_rays_as_gi')
+		col.prop(mat, 'vb_mtl_energy_mode')
+
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, 'vb_mtl_cutoff')
+		if(wide_ui):
+			col= row.column()
+		col.prop(mat, 'vb_mtl_environment_priority')
 
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='Specular layer')
+class MATERIAL_PT_vray_render(MaterialButtonsPanel):
+	bl_label = "Render"
+	bl_default_closed = True
+	
+	COMPAT_ENGINES = set(['VRAY_RENDER'])
 
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_specular_color', text='')
-				col.prop(mat, 'vray_fsss_specular_subdivs', text='Subdivs')
-				col= row.column()
-				col.prop(mat, 'vray_fsss_specular_amount', text='Amount')
-				col.prop(mat, 'vray_fsss_specular_glossiness', text='Glossiness')
+	def draw(self, context):
+		ob= context.object
+		mat= active_node_mat(context.material)
 
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_trace_reflections')
-				if(mat.vray_fsss_trace_reflections):
-					col= row.column()
-					col.prop(mat, 'vray_fsss_reflection_depth')
+		layout= self.layout
 
+		wide_ui= context.region.width > 200
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='')
+		split= layout.split()
+		col= split.column()
+		col.prop(mat, 'vb_mrs_visibility', text="Visible")
 
+		split= layout.split()
+		col= split.column()
+		col.label(text="Visible to:")
 
-				row= layout.row()
-				col= row.column()
-				col.label(text='Options')
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'vray_fsss_single_scatter', text='Type')
-				col.prop(mat, 'vray_fsss_subdivs')
-				col.prop(mat, 'vray_fsss_refraction_depth')
-				col.prop(mat, 'vray_fsss_cutoff_threshold')
-				col= row.column()
-				col.prop(mat, 'vray_fsss_front_scatter')
-				col.prop(mat, 'vray_fsss_back_scatter')
-				col.prop(mat, 'vray_fsss_scatter_gi')
-				col.prop(mat, 'vray_fsss_prepass_blur')
-			else:
-				row= layout.row()
-				col= row.column()
-				col.label(text='Only available in V-Ray Standalone :(')
+		split= layout.split()
+		sub= split.column()
+		sub.active= mat.vb_mrs_visibility
+		sub.prop(mat, 'vb_mrs_camera_visibility', text="Camera")
+		sub.prop(mat, 'vb_mrs_gi_visibility', text="GI")
+		sub.prop(mat, 'vb_mrs_shadows_visibility', text="Shadows")
+		if(wide_ui):
+			sub= split.column()
+			sub.active= mat.vb_mrs_visibility
+		sub.prop(mat, 'vb_mrs_reflections_visibility', text="Reflections")
+		sub.prop(mat, 'vb_mrs_refractions_visibility', text="Refractions")
+
 
 
 bpy.types.register(MATERIAL_MT_fsss_presets)
 bpy.types.register(MATERIAL_PT_vray_context_material)
 bpy.types.register(MATERIAL_PT_vray_preview)
 bpy.types.register(MATERIAL_PT_vray_basic)
+bpy.types.register(MATERIAL_PT_vray_options)
+bpy.types.register(MATERIAL_PT_vray_wrapper)
+bpy.types.register(MATERIAL_PT_vray_render)
+
 

@@ -4,9 +4,6 @@
 
  http://vray.cgdo.ru
 
- Started:       29 Aug 2009
- Last Modified: 21 Apr 2009
-
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
 
@@ -150,20 +147,33 @@ FloatProperty(  attr="vray_refract_gloss_factor",
 				description="",
 				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
 
-FloatProperty(  attr="vray_disp_amount",
-				name="Displacement Amount",
-				description="",
-				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_disp_amount",
+	name="Displacement Amount",
+	description="",
+	min=0.0, max=100.0,
+	soft_min=0.0, soft_max=1.0,
+	precision= 4,
+	default= 1.0
+)
 
-FloatProperty(  attr="vray_disp_shift",
-				name="Displacement Shift",
-				description="",
-				min=-1.0, max=1.0, soft_min=-1.0, soft_max=1.0, default = 0.0)
+FloatProperty(
+	attr="vray_disp_shift",
+	name="Displacement Shift",
+	description="",
+	min=-1.0, max=1.0,
+	soft_min=-1.0, soft_max=1.0,
+	precision= 4,
+	default= 0.0
+)
 
-FloatProperty(  attr="vray_disp_water",
-				name="Displacement Water",
-				description="",
-				min=-1.0, max=1.0, soft_min=-1.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_disp_water",
+	name="Displacement Water",
+	description="",
+	min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
+	default= 0.0
+)
 
 
 import properties_texture
