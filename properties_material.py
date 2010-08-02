@@ -1058,7 +1058,10 @@ SSS2= {
 '''
   GUI
 '''
+
+
 narrowui= bpy.context.user_preferences.view.properties_width_check
+
 
 def active_node_mat(mat):
     if mat:

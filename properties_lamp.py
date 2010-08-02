@@ -378,6 +378,98 @@ FloatProperty(
 
 
 
+'''
+  Plugin: SunLight
+'''
+# turbidity: float
+FloatProperty(
+	attr= 'vb_sun_turbidity',
+	name= 'Turbidity',
+	description= "TODO.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 3
+)
+
+# ozone: float
+FloatProperty(
+	attr= 'vb_sun_ozone',
+	name= 'Ozone',
+	description= "TODO.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 0.35
+)
+
+# water_vapour: float
+FloatProperty(
+	attr= 'vb_sun_water_vapour',
+	name= 'Water vapour',
+	description= "TODO.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 2
+)
+
+# size_multiplier: float
+FloatProperty(
+	attr= 'vb_sun_size_multiplier',
+	name= 'Size',
+	description= "TODO.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1
+)
+
+# up_vector: vector = Color(0, 0, 0)
+# invisible: bool
+BoolProperty(
+	attr= 'vb_sun_invisible',
+	name= 'Invisible',
+	description= "TODO.",
+	default= False
+)
+
+# horiz_illum: float
+FloatProperty(
+	attr= 'vb_sun_horiz_illum',
+	name= 'Horiz illumination',
+	description= "TODO.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 25000
+)
+
+# sky_model: integer
+EnumProperty(
+	attr= 'vb_sun_sky_model',
+	name= 'Sky model',
+	description= "Sky model.",
+	items=(
+		('CIEOVER',  "CIE Overcast",       ""),
+		('CIECLEAR', "CIE Clear",          ""),
+		('PREETH',   "Preetham et al.",    "")
+	),
+	default= 'PREETH'
+)
+
+
+
 narrowui= bpy.context.user_preferences.view.properties_width_check
 
 
@@ -461,9 +553,8 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		col.prop(lamp, 'color', text="")
 		if(lamp.type == 'AREA'):
 			col.prop(lamp, 'vr_la_portal_mode', text="Mode")
-		if(lamp.vr_la_portal_mode == 'NORMAL'):
-			col.prop(lamp, 'vr_la_units', text="Units")
-			col.prop(lamp, 'vr_la_intensity', text="Intensity")
+		col.prop(lamp, 'vr_la_units', text="Units")
+		col.prop(lamp, 'vr_la_intensity', text="Intensity")
 		col.prop(lamp, 'vr_la_subdivs')
 
 		if wide_ui:
@@ -514,15 +605,31 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 			else:
 				col.prop(lamp, 'size', text="Size X")
 				col.prop(lamp, 'size_y')
+
 		elif(lamp.type == 'POINT'):
 			col.prop(lamp, 'vr_la_radius')
 			if(lamp.vr_la_radius > 0):
 				col.prop(lamp, 'vr_la_sphere_segments')
+
 		elif(lamp.type == 'SUN'):
 			if(lamp.vr_la_direct_type == 'DIRECT'):
 				col.prop(lamp, 'vr_la_beamRadius')
 			else:
-				pass
+				split= layout.split()
+				col= split.column()
+				col.prop(lamp, 'vb_sun_sky_model')
+				
+				split= layout.split()
+				col= split.column()
+				col.prop(lamp, 'vb_sun_turbidity')
+				col.prop(lamp, 'vb_sun_ozone')
+				col.prop(lamp, 'vb_sun_size_multiplier')
+				if(wide_ui):
+					col= split.column()
+				col.prop(lamp, 'vb_sun_invisible')
+				col.prop(lamp, 'vb_sun_horiz_illum')
+				col.prop(lamp, 'vb_sun_water_vapour')
+
 		elif(lamp.type == 'SPOT'):
 			if(lamp.vr_la_spot_type == 'SPOT'):
 				col.prop(lamp, 'distance')
@@ -531,8 +638,10 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 				col.prop(lamp, 'spot_size', text="Size")
 			else:
 				pass
+
 		elif(lamp.type == 'HEMI'):
 			pass
+
 		else:
 			pass
 

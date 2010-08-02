@@ -1389,10 +1389,9 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	def draw(self, context):
 		scene= context.scene
 		rd= scene.render
+		wide_ui= context.region.width > narrowui
 
 		layout= self.layout
-
-		wide_ui= context.region.width > narrowui
 
 		split= layout.split()
 		col= split.column()
@@ -1421,39 +1420,42 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(scene, "vray_export_active_layers")
 		col.prop(scene, "vray_export_img_to_blender")
 
+
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
 
 	def draw(self, context):
-		layout= self.layout
 		scene= context.scene
 		rd= scene.render
+		wide_ui= context.region.width > narrowui
+
+		layout= self.layout
 		
 		split= layout.split()
-		colL= split.column()
-		colR= split.column()
-
-		colL.prop(scene, "vray_cm_type", text="Type")
+		col= split.column()
+		col.prop(scene, "vray_cm_type", text="Type")
 		if(scene.vray_cm_type == 'REIN'):
-			colL.prop(scene, "vray_dark_mult", text="Multiplier")
-			colL.prop(scene, "vray_bright_mult",  text="Burn")
+			col.prop(scene, "vray_dark_mult", text="Multiplier")
+			col.prop(scene, "vray_bright_mult",  text="Burn")
 		elif(scene.vray_cm_type in ('GCOR', 'GINT')):
-			colL.prop(scene, "vray_bright_mult", text="Multiplier")
-			colL.prop(scene, "vray_dark_mult", text="Inverse gamma")
+			col.prop(scene, "vray_bright_mult", text="Multiplier")
+			col.prop(scene, "vray_dark_mult", text="Inverse gamma")
 		else:
-			colL.prop(scene, "vray_bright_mult")
-			colL.prop(scene, "vray_dark_mult")
-		colL.prop(scene, "vray_gamma")
+			col.prop(scene, "vray_bright_mult")
+			col.prop(scene, "vray_dark_mult")
+		col.prop(scene, "vray_gamma")
 
-		colR.prop(scene, "vray_affect_background")
-		colR.prop(scene, "vray_subpixel_mapping")
-		colR.prop(scene, "vray_adaptation_only")
-		colR.prop(scene, "vray_linearWorkflow")
-		colR.prop(scene, "vray_clamp_output")
+		if(wide_ui):
+			col= split.column()
+		col.prop(scene, "vray_affect_background")
+		col.prop(scene, "vray_subpixel_mapping")
+		col.prop(scene, "vray_adaptation_only")
+		col.prop(scene, "vray_linearWorkflow")
+		col.prop(scene, "vray_clamp_output")
 		if(scene.vray_clamp_output):
-			colR.prop(scene, "vray_clamp_level")
+			col.prop(scene, "vray_clamp_level")
 
 
 
