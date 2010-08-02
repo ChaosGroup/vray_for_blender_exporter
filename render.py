@@ -465,6 +465,9 @@ def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.utils.expandpath(fn))
 	return filename
 
+def get_full_filepath(filepath):
+	return os.path.normpath(bpy.utils.expandpath(filepath))
+
 def get_render_file_format(file_format):
 	if file_format in ('JPEG','JPEG2000'):
 		file_format= 'jpg'
@@ -708,6 +711,9 @@ def write_geometry():
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 				continue
 
+			if ob.data.vray_proxy:
+				continue
+
 			if sce.vray_export_active_layers:
 				if not object_on_visible_layers(ob):
 					continue
@@ -777,19 +783,24 @@ def write_mesh_displace(ofile, obj):
 
 
 def write_mesh_file(ofile, exported_proxy, ob):
-	filename= os.path.basename(ob.vray_proxy_file)
-	proxy_name= "Proxy_%s" % clean_string(filename)
+	ANIM_TYPE= {
+		'LOOP'     : 0,
+		'ONCE'     : 1,
+		'PINGPONG' : 2,
+		'STILL'    : 3
+	}
+	
+	proxy_name= "Proxy_%s" % clean_string(os.path.basename(ob.data.vray_proxy_file))
 
-	if(filename not in exported_proxy):
-		exported_proxy.append(filename)
-		out+= "\nGeomMeshFile %s {"%(out_name)
-		out+= "\n\tfile= \"%s\";"%(getPath(g("vray_object_proxy_file",obj)))
-		out+= "\n\tanim_speed= %i;"%(g("vray_object_proxy_anim_speed",obj))
-		out+= "\n\tanim_type= %i;"%(g("vray_object_proxy_anim_type",obj))
-		out+= "\n\tanim_offset= %i;"%(g("vray_object_proxy_anim_offset",obj))
-		out+= "\n}\n"
+	if(proxy_name not in exported_proxy):
+		exported_proxy.append(proxy_name)
+		ofile.write("\nGeomMeshFile %s {"%(proxy_name))
+		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(ob.data.vray_proxy_file)))
+		ofile.write("\n\tanim_speed= %i;"%(ob.data.vray_proxy_anim_speed))
+		ofile.write("\n\tanim_type= %i;"%(ANIM_TYPE[ob.data.vray_proxy_anim_type]))
+		ofile.write("\n\tanim_offset= %i;"%(ob.data.vray_proxy_anim_offset))
+		ofile.write("\n}\n")
 	return proxy_name
-
 
 
 
@@ -839,7 +850,7 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 
 
 def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
-	filename= os.path.normpath(bpy.utils.expandpath(tex.image.filepath))
+	filename= get_full_filepath(tex.image.filepath)
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
 	if not os.path.exists(filename):
@@ -1754,17 +1765,14 @@ def write_nodes():
 
 	# Used when exporting dupli, particles etc.
 	global exported_nodes
+	global exported_proxy
 	exported_nodes= []
+	exported_proxy= []
 
-	def write_node(ob):
+	def write_node(ob, matrix= None):
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
 
-			if ob.type == 'EMPTY':
-				if ob.vray_proxy:
-					print('vb25: proxy detected')
-				return
-				
 			if(sce.vray_debug):
 				print("V-Ray/Blender: Processing object: %s"%(ob.name))
 				print("V-Ray/Blender:   Animated: %d"%(1 if ob.animation_data else 0))
@@ -1777,6 +1785,16 @@ def write_nodes():
 					sys.stdout.write("V-Ray/Blender: [%d] Object: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.name))
 				sys.stdout.flush()
 
+			node_geometry= get_name(ob.data,"Geom")
+			if(hasattr(ob.data,'vray_proxy')):
+				if ob.data.vray_proxy:
+					node_geometry= write_mesh_file(ofile, exported_proxy, ob)
+
+			if(matrix):
+				node_matrix= matrix
+			else:
+				node_matrix= ob.matrix_world
+
 			ma_name= "Material_no_material"
 			if(len(ob.material_slots) > 0):
 				if(len(ob.material_slots) == 1):
@@ -1787,9 +1805,9 @@ def write_nodes():
 
 			ofile.write("\nNode %s {"%(get_name(ob,"Node")))
 			ofile.write("\n\tobjectID= %d;"%(ob.pass_index))
-			ofile.write("\n\tgeometry= %s;"%(get_name(ob.data,"Geom")))
+			ofile.write("\n\tgeometry= %s;"%(node_geometry))
 			ofile.write("\n\tmaterial= %s;"%(ma_name))
-			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix_world))))
+			ofile.write("\n\ttransform= %s;"%(a(transform(node_matrix))))
 			ofile.write("\n}\n")
 
 	ofile= open(filenames['nodes'], 'w')
@@ -1803,7 +1821,7 @@ def write_nodes():
 	# DYNAMIC_OBJECTS= []
 
 	for ob in sce.objects:
-		if ob.type in ('LAMP','CAMERA','ARMATURE'):
+		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 			continue
 
 		if sce.vray_export_active_layers:
@@ -1837,6 +1855,7 @@ def write_nodes():
 			write_node(ob)
 
 	exported_nodes= []
+	exported_proxy= []
 
 	OBJECTS= []
 	# STATIC_OBJECTS= []
@@ -2597,6 +2616,32 @@ class SCENE_OT_vray_export_meshes(bpy.types.Operator):
 		return{'FINISHED'}
 
 bpy.types.register(SCENE_OT_vray_export_meshes)
+
+
+class SCENE_OT_vray_create_proxy(bpy.types.Operator):
+	bl_idname = "vray_create_proxy"
+	bl_label = "Create proxy"
+	bl_description = "Creates proxy from selection."
+
+	def invoke(self, context, event):
+		print("V-Ray/Blender: Proxy Creator is in progress...")
+
+		return{'FINISHED'}
+
+bpy.types.register(SCENE_OT_vray_create_proxy)
+
+
+class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
+	bl_idname = "vray_replace_with_proxy"
+	bl_label = "Replace with proxy"
+	bl_description = "Create proxy and replace current object\'s mesh by simple mesh."
+
+	def invoke(self, context, event):
+		print("V-Ray/Blender: Proxy Creator is in progress...")
+
+		return{'FINISHED'}
+
+bpy.types.register(SCENE_OT_vray_replace_proxy)
 
 
 class VRayRenderer(bpy.types.RenderEngine):

@@ -30,7 +30,7 @@
 import bpy
 
 
-narrowui= 200
+narrowui= bpy.context.user_preferences.view.properties_width_check
 
 
 FloatProperty= bpy.types.Scene.FloatProperty
@@ -1238,10 +1238,7 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 #                 min=, max=, soft_min=, soft_max=, default=0.05)
 
 
-narrowui = 180
-
-
-class RenderButtonsPanel(bpy.types.Panel):
+class RenderButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'render'
@@ -1253,7 +1250,7 @@ class RenderButtonsPanel(bpy.types.Panel):
 		return (rd.use_game_engine == False) and (engine in self.COMPAT_ENGINES)
 
 
-class RENDER_PT_vray_dimensions(RenderButtonsPanel):
+class RENDER_PT_vray_dimensions(RenderButtonsPanel, bpy.types.Panel):
     bl_label = "Dimensions"
     COMPAT_ENGINES = {'VRAY_RENDER'}
 
@@ -1301,7 +1298,7 @@ class RENDER_PT_vray_dimensions(RenderButtonsPanel):
         sub.prop(rd, "fps_base", text="/")
 
 
-class RENDER_PT_vray_output(RenderButtonsPanel):
+class RENDER_PT_vray_output(RenderButtonsPanel, bpy.types.Panel):
     bl_label = "Output"
 
     COMPAT_ENGINES = {'VRAY_RENDER'}
@@ -1384,46 +1381,47 @@ class RENDER_PT_vray_output(RenderButtonsPanel):
             col.prop(rd, "quicktime_codec_spatial_quality", text="Quality")
 
 
-class RENDER_PT_vray_render(RenderButtonsPanel):
+class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
 
 	def draw(self, context):
-		layout= self.layout
 		scene= context.scene
 		rd= scene.render
 
-		split= layout.split()
+		layout= self.layout
 
-		colL= split.column()
-		if 'render' in dir(bpy.ops.screen):
-			colL.operator("screen.render", text="Image", icon='RENDER_STILL')
-		else:
-			colL.operator("render.render", text="Image", icon='RENDER_STILL')
+		wide_ui= context.region.width > narrowui
+
+		split= layout.split()
+		col= split.column()
+		col.operator("render.render", text="Image", icon='RENDER_STILL')
 
 		if not scene.vray_export_lock:
-			colR= split.column()
-			colR.operator("vray_export_meshes", icon='OUTLINER_OB_MESH')
+			if(wide_ui):
+				col= split.column()
+			col.operator("vray_export_meshes", icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
-		colL= split.column()
-		colL.label(text="Globals:")
-		colL.prop(scene, "vray_gi_on", text="GI")
-		colL.prop(scene, "vray_caustics_enable", text="Caustics")
+		col= split.column()
+		col.label(text="Globals:")
+		col.prop(scene, "vray_gi_on", text="GI")
+		col.prop(scene, "vray_caustics_enable", text="Caustics")
 
-		colL.label(text="Exporter:")
-		colL.prop(scene, "vray_autorun")
-		colL.prop(scene, "vray_debug")
-		colL.prop(scene, "vray_export_lock")
+		col.label(text="Exporter:")
+		col.prop(scene, "vray_autorun")
+		col.prop(scene, "vray_debug")
+		col.prop(scene, "vray_export_lock")
 
-		colR= split.column()
-		colR.label(text="Pipeline:")
-		colR.prop(scene, "vray_export_animation")
-		colR.prop(scene, "vray_export_active_layers")
-		colR.prop(scene, "vray_export_img_to_blender")
+		if(wide_ui):
+			col= split.column()
+		col.label(text="Pipeline:")
+		col.prop(scene, "vray_export_animation")
+		col.prop(scene, "vray_export_active_layers")
+		col.prop(scene, "vray_export_img_to_blender")
 
-class RENDER_PT_vray_cm(RenderButtonsPanel):
+class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1459,7 +1457,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel):
 
 
 
-class RENDER_PT_vray_aa(RenderButtonsPanel):
+class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1487,7 +1485,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel):
 			colL.prop(scene, "vray_dmc_maxSubdivs")
 
 			colR= split.column()
-			colR.prop(scene, "vray_dmc_treshhold_use_dmc")
+			colR.prop(scene, "vray_dmc_treshhold_use_dmc", text= "Use DMC sampler thresh.")
 			if(not scene.vray_dmc_treshhold_use_dmc):
 				colR.prop(scene, "vray_dmc_threshold")
 			colR.prop(scene, "vray_dmc_show_samples")
@@ -1513,7 +1511,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel):
 			colR.prop(scene, "vray_filter_size")
 		
 
-class RENDER_PT_vray_dmc(RenderButtonsPanel):
+class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "DMC Sampler"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1538,7 +1536,7 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel):
 		col.prop(scene, "vray_adaptive_min_samples")
 
 
-class RENDER_PT_vray_gi(RenderButtonsPanel):
+class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1585,7 +1583,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel):
 		colR.prop(scene, "vray_gi_secondary_engine", text="")
 		
 
-class RENDER_PT_vray_gi_im(RenderButtonsPanel):
+class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1686,7 +1684,7 @@ class RENDER_PT_vray_gi_im(RenderButtonsPanel):
 			colR.prop(scene,"vray_im_auto_save_file", text="")
 
 
-class RENDER_PT_vray_gi_bf(RenderButtonsPanel):
+class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1707,7 +1705,7 @@ class RENDER_PT_vray_gi_bf(RenderButtonsPanel):
 			split.column().prop(scene, "vray_dmcgi_depth")
 
 
-class RENDER_PT_vray_gi_lc(RenderButtonsPanel):
+class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1778,7 +1776,7 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel):
 			colR.prop(scene,"vray_lc_auto_save_file", text="")
 				
 
-class RENDER_PT_vray_about(RenderButtonsPanel):
+class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "About"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
@@ -1796,7 +1794,7 @@ class RENDER_PT_vray_about(RenderButtonsPanel):
 		col.label()
 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
 
-class RENDER_PT_vray_Layers(RenderButtonsPanel):
+class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Layers"
 	bl_default_closed = True
 

@@ -327,7 +327,9 @@ IntProperty(    attr="vray_cam_phys_subdivs",
 				min=1, max=100, default=6)
 
 
-narrowui= 200
+
+narrowui= bpy.context.user_preferences.view.properties_width_check
+
 
 
 import properties_data_camera
@@ -336,7 +338,7 @@ properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add('VRAY_RENDER')
 del properties_data_camera
 
 
-class DataButtonsPanel(bpy.types.Panel):
+class DataButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
@@ -347,7 +349,7 @@ class DataButtonsPanel(bpy.types.Panel):
 		return (context.camera) and (engine in self.COMPAT_ENGINES)
 
 
-class DATA_PT_vray_camera(DataButtonsPanel):
+class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 	bl_label = "Parameters"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])

@@ -1058,7 +1058,7 @@ SSS2= {
 '''
   GUI
 '''
-narrowui= 200
+narrowui= bpy.context.user_preferences.view.properties_width_check
 
 def active_node_mat(mat):
     if mat:
@@ -1077,7 +1077,7 @@ class MATERIAL_MT_fsss_presets(bpy.types.Menu):
 	draw = bpy.types.Menu.draw_preset
 
 
-class MaterialButtonsPanel(bpy.types.Panel):
+class MaterialButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'material'
@@ -1087,7 +1087,7 @@ class MaterialButtonsPanel(bpy.types.Panel):
 		return (context.material) and (engine in self.COMPAT_ENGINES)
 
 
-class MATERIAL_PT_vray_context_material(MaterialButtonsPanel):
+class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_show_header = False
 
@@ -1142,7 +1142,7 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel):
 			layout.prop(mat, "vray_mtl_type", expand=True)
 
 
-class MATERIAL_PT_vray_preview(MaterialButtonsPanel):
+class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Preview"
 	bl_default_closed = False
 	bl_show_header = False
@@ -1153,7 +1153,7 @@ class MATERIAL_PT_vray_preview(MaterialButtonsPanel):
 		self.layout.template_preview(context.material)
 
 
-class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
+class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = 'Parameters'
 	bl_default_closed = False
 	bl_show_header = True
@@ -1403,7 +1403,7 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel):
 			col.prop(mat, 'vray_fsss_prepass_blur')
 
 
-class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel):
+class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
 	
@@ -1476,7 +1476,7 @@ class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel):
 		col.prop(mat, 'vb_mwrap_matte_for_sec_rays')
 
 
-class MATERIAL_PT_vray_options(MaterialButtonsPanel):
+class MATERIAL_PT_vray_options(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Options"
 	bl_default_closed = True
 	
@@ -1513,7 +1513,7 @@ class MATERIAL_PT_vray_options(MaterialButtonsPanel):
 		col.prop(mat, 'vb_mtl_environment_priority')
 
 
-class MATERIAL_PT_vray_render(MaterialButtonsPanel):
+class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
