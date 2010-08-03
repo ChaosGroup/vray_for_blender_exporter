@@ -43,7 +43,7 @@ import mathutils
 VERSION= '2.5.04'
 PLATFORM= sys.platform
 
-TEX_TYPES= ('IMAGE')
+TEX_TYPES= ('IMAGE', 'PLUGIN')
 
 none_matrix= mathutils.Matrix( [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0] )
 
@@ -259,20 +259,20 @@ OBJECT_PARAMS= {
 	),
 
 	'SunLight': (
-		#'turbidity',
-		#'ozone',
-		#'water_vapour',
-		#'intensity_multiplier',
-		#'size_multiplier',
+		'turbidity',
+		'ozone',
+		'water_vapour',
+		'intensity_multiplier',
+		'size_multiplier',
 		#'up_vector',
-		#'invisible',
-		#'horiz_illum',
+		'invisible',
+		'horiz_illum',
 		#'sky_model',
-		#'shadows',
+		'shadows',
 		#'atmos_shadows',
 		'shadowBias',
-		#'shadow_subdivs',
-		#'shadow_color',
+		'shadow_subdivs',
+		'shadow_color',
 		#'shadow_color_tex',
 		#'photon_radius',
 		#'photonSubdivs',
@@ -388,6 +388,21 @@ OBJECT_PARAMS= {
 		# 'endDistance2',
 		# 'startDistance3',
 		# 'endDistance3'
+	),
+
+	'TexSky': (
+		#'transform',
+		#'target_transform',
+		'turbidity',
+		'ozone',
+		'water_vapour',
+		'intensity_multiplier',
+		'size_multiplier',
+		#'up_vector',
+		'invisible',
+		'horiz_illum',
+		'sky_model',
+		'sun'
 	)
 }
 
@@ -416,6 +431,12 @@ UNITS= {
 	'LUMM'    : 2,
 	'WATTSM'  : 3,
 	'WATM'    : 4
+}
+
+SKY_MODEL= {
+	'CIEOVER'  : 2,
+	'CIECLEAR' : 1,
+	'PREETH'   : 0
 }
 
 
@@ -878,11 +899,11 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 	return bitmap_name
 
 
-def write_TexBitmap(ofile, exported_bitmaps, ma, slot= None, tex= None, ob= None, env= None, env_type= None):
+def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
+	tex_name= "Texture_no_texture"
+
 	if(slot):
 		tex= slot.texture
-
-	tex_name= "Texture_no_texture"
 
 	if(tex.image):
 		if(env):
@@ -912,6 +933,59 @@ def write_TexBitmap(ofile, exported_bitmaps, ma, slot= None, tex= None, ob= None
 	else:
 		debug("Error! Image file is not set! (%s)"%(tex.name))
 
+	return tex_name
+
+
+def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
+	VB_TEX_TYPES= (
+		'TEXFRESNEL',
+		'TEXSKY'
+	)
+
+	tex_name= "Texture_no_texture"
+
+	if slot:
+		tex= slot.texture
+
+	if tex:
+		if tex.vb_tex_type in VB_TEX_TYPES:
+			if tex.vb_tex_type == 'TEXSKY':
+				vb_tex_type= 'TexSky'
+				prefix= 'vb_tsky'
+
+				sun_light= None
+				for la in bpy.data.lamps:
+					if la.name in sce.objects:
+						if la.type == 'SUN' and la.vr_la_direct_type == 'SUN':
+							sun_light= "SunLight_%s" % clean_string(la.name)
+							
+			elif tex.vb_tex_type == 'TEXFRESNEL':
+				vb_tex_type= 'TexFresnel'
+				prefix= 'vb_tfres'
+
+			tex_name= "%s"%(get_name(tex, "Texture"))
+			ofile.write("\n%s %s {"%(vb_tex_type, tex_name))
+			for param in OBJECT_PARAMS[vb_tex_type]:
+				if param == 'sky_model':
+					ofile.write("\n\t%s= %s;"%(param, SKY_MODEL[tex.vb_tsky_sky_model]))
+				elif param == 'sun':
+					if(sun_light):
+						ofile.write("\n\t%s= %s;"%(param, sun_light))
+				else:
+					ofile.write("\n\t%s= %s;"%(param, a(getattr(tex, "%s_%s"%(prefix,param)))))
+			ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None):
+	tex_name= "Texture_no_texture"
+	if slot.texture.type == 'IMAGE':
+		tex_name= write_TexBitmap(ofile, exported_bitmaps, ma, slot)
+	elif slot.texture.type == 'PLUGIN':
+		tex_name= write_TexPlugin(ofile, slot= slot)
+	else:
+		pass
 	return tex_name
 
 
@@ -994,14 +1068,6 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					if(slot.map_displacement):
 						vraytex['displace'].append(slot)
 						vraymat['displace_amount']+= slot.displacement_factor
-
-	def write_texture(ofile, exported_bitmaps, ma, slot):
-		tex_name= "Texture_no_texture"
-		if slot.texture.type == 'IMAGE':
-			tex_name= write_TexBitmap(ofile, exported_bitmaps, ma, slot)
-		else:
-			pass
-		return tex_name
 
 	for textype in vraytex:
 		if(len(vraytex[textype])):
@@ -1926,9 +1992,16 @@ def write_lamps():
 				pass
 
 			for param in OBJECT_PARAMS[lamp_type]:
-				ofile.write("\n\t%s= %s;"%(param, a(getattr(lamp, "vr_la_%s"%(param)))))
+				if param == 'shadow_subdivs':
+					ofile.write("\n\tshadow_subdivs= %s;"%(a(lamp.vr_la_subdivs)))
+				elif param == 'shadow_color':
+					ofile.write("\n\tshadow_color= %s;"%(a(lamp.vr_la_shadowColor)))
+				else:
+					ofile.write("\n\t%s= %s;"%(param, a(getattr(lamp, "vr_la_%s"%(param)))))
 
-			if lamp_type is not 'SunLight':
+			if lamp_type == 'SunLight':
+				ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[lamp.vr_la_sky_model]))
+			else:
 				ofile.write("\n\tcolor= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
 				ofile.write("\n\tunits= %i;"%(UNITS[lamp.vr_la_units]))
 			
@@ -1974,10 +2047,54 @@ def write_camera(camera= None):
 		def write_ca(ca):
 			fov= ca.data.angle
 
+			bg_tex= None
+			gi_tex= None
+			reflect_tex= None
+			refract_tex= None
+
+			bg_tex_mult= 1.0
+			gi_tex_mult= 1.0
+			reflect_tex_mult= 1.0
+			refract_tex_mult= 1.0
+
+			for slot in wo.texture_slots:
+				if(slot):
+					if(slot.texture):
+						if slot.texture.type in TEX_TYPES:
+							if slot.map_blend:
+								bg_tex= write_texture(ofile, slot= slot)
+								bg_tex_mult= slot.blend_factor
+							if slot.map_horizon:
+								gi_tex= write_texture(ofile, slot= slot)
+								gi_tex_mult= slot.horizon_factor
+							if slot.map_zenith_up:
+								reflect_tex= write_texture(ofile, slot= slot)
+								reflect_tex_mult= slot.zenith_up_factor
+							if slot.map_zenith_down:
+								refract_tex= write_texture(ofile, slot= slot)
+								refract_tex_mult= slot.zenith_down_factor
+
 			ofile.write("\nSettingsEnvironment {")
-			ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
+			if(bg_tex):
+				ofile.write("\n\tbg_tex= %s;"%(bg_tex))
+				ofile.write("\n\tbg_tex_mult= %s;"%(a(bg_tex_mult)))
+			else:
+				ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
 			if(wo.vray_env_gi_override):
 				ofile.write("\n\tgi_color= %s;"%(a(wo.vray_env_gi_color)))
+			if(gi_tex):
+				ofile.write("\n\tgi_tex= %s;"%(gi_tex))
+				ofile.write("\n\tgi_tex_mult= %s;"%(a(gi_tex_mult)))
+			if(wo.vray_env_reflection_override):
+				ofile.write("\n\treflect_color= %s;"%(a(wo.vray_env_reflection_color)))
+			if(reflect_tex):
+				ofile.write("\n\treflect_tex= %s;"%(reflect_tex))
+				ofile.write("\n\treflect_tex_mult= %s;"%(a(reflect_tex_mult)))
+			if(wo.vray_env_refraction_override):
+				ofile.write("\n\trefract_color= %s;"%(a(wo.vray_env_refraction_color)))
+			if(refract_tex):
+				ofile.write("\n\trefract_tex= %s;"%(refract_tex))
+				ofile.write("\n\trefract_tex_mult= %s;"%(a(refract_tex_mult)))
 			ofile.write("\n}\n")
 
 			ofile.write("\nRenderView RenderView {")
@@ -2615,8 +2732,6 @@ class SCENE_OT_vray_export_meshes(bpy.types.Operator):
 
 		return{'FINISHED'}
 
-bpy.types.register(SCENE_OT_vray_export_meshes)
-
 
 class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 	bl_idname = "vray_create_proxy"
@@ -2628,8 +2743,6 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 
 		return{'FINISHED'}
 
-bpy.types.register(SCENE_OT_vray_create_proxy)
-
 
 class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
 	bl_idname = "vray_replace_with_proxy"
@@ -2640,8 +2753,6 @@ class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
 		print("V-Ray/Blender: Proxy Creator is in progress...")
 
 		return{'FINISHED'}
-
-bpy.types.register(SCENE_OT_vray_replace_proxy)
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -2766,4 +2877,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
-bpy.types.register(VRayRenderer)
+# bpy.types.register(SCENE_OT_vray_export_meshes)
+# bpy.types.register(SCENE_OT_vray_create_proxy)
+# bpy.types.register(SCENE_OT_vray_replace_proxy)
+# bpy.types.register(VRayRenderer)

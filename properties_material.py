@@ -1552,12 +1552,10 @@ class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 
 
 
-bpy.types.register(MATERIAL_MT_fsss_presets)
-bpy.types.register(MATERIAL_PT_vray_context_material)
-bpy.types.register(MATERIAL_PT_vray_preview)
-bpy.types.register(MATERIAL_PT_vray_basic)
-bpy.types.register(MATERIAL_PT_vray_options)
-bpy.types.register(MATERIAL_PT_vray_wrapper)
-bpy.types.register(MATERIAL_PT_vray_render)
-
-
+# bpy.types.register(MATERIAL_MT_fsss_presets)
+# bpy.types.register(MATERIAL_PT_vray_context_material)
+# bpy.types.register(MATERIAL_PT_vray_preview)
+# bpy.types.register(MATERIAL_PT_vray_basic)
+# bpy.types.register(MATERIAL_PT_vray_options)
+# bpy.types.register(MATERIAL_PT_vray_wrapper)
+# bpy.types.register(MATERIAL_PT_vray_render)

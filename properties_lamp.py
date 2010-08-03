@@ -383,20 +383,33 @@ FloatProperty(
 '''
 # turbidity: float
 FloatProperty(
-	attr= 'vb_sun_turbidity',
+	attr= 'vr_la_turbidity',
 	name= 'Turbidity',
 	description= "TODO.",
+	min= 2.0,
+	max= 100.0,
+	soft_min= 2.0,
+	soft_max= 6.0,
+	precision= 3,
+	default= 3.0
+)
+
+# intensity_multiplier: float
+FloatProperty(
+	attr= 'vr_la_intensity_multiplier',
+	name= 'Intensity multiplier',
+	description= "TODO.",
 	min= 0.0,
-	max= 1.0,
+	max= 100.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	precision= 3,
-	default= 3
+	precision= 2,
+	default= 1.0
 )
 
 # ozone: float
 FloatProperty(
-	attr= 'vb_sun_ozone',
+	attr= 'vr_la_ozone',
 	name= 'Ozone',
 	description= "TODO.",
 	min= 0.0,
@@ -409,20 +422,20 @@ FloatProperty(
 
 # water_vapour: float
 FloatProperty(
-	attr= 'vb_sun_water_vapour',
+	attr= 'vr_la_water_vapour',
 	name= 'Water vapour',
 	description= "TODO.",
 	min= 0.0,
-	max= 1.0,
+	max= 10.0,
 	soft_min= 0.0,
-	soft_max= 1.0,
+	soft_max= 2.0,
 	precision= 3,
 	default= 2
 )
 
 # size_multiplier: float
 FloatProperty(
-	attr= 'vb_sun_size_multiplier',
+	attr= 'vr_la_size_multiplier',
 	name= 'Size',
 	description= "TODO.",
 	min= 0.0,
@@ -436,7 +449,7 @@ FloatProperty(
 # up_vector: vector = Color(0, 0, 0)
 # invisible: bool
 BoolProperty(
-	attr= 'vb_sun_invisible',
+	attr= 'vr_la_invisible',
 	name= 'Invisible',
 	description= "TODO.",
 	default= False
@@ -444,20 +457,20 @@ BoolProperty(
 
 # horiz_illum: float
 FloatProperty(
-	attr= 'vb_sun_horiz_illum',
+	attr= 'vr_la_horiz_illum',
 	name= 'Horiz illumination',
 	description= "TODO.",
 	min= 0.0,
-	max= 1.0,
+	max= 100000.0,
 	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
+	soft_max= 100000.0,
+	precision= 0,
 	default= 25000
 )
 
 # sky_model: integer
 EnumProperty(
-	attr= 'vb_sun_sky_model',
+	attr= 'vr_la_sky_model',
 	name= 'Sky model',
 	description= "Sky model.",
 	items=(
@@ -554,7 +567,9 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		if(lamp.type == 'AREA'):
 			col.prop(lamp, 'vr_la_portal_mode', text="Mode")
 		col.prop(lamp, 'vr_la_units', text="Units")
-		col.prop(lamp, 'vr_la_intensity', text="Intensity")
+
+		if not ((lamp.type == 'SUN' and lamp.vr_la_direct_type == 'SUN') or (lamp.type == 'AREA' and lamp.vr_la_portal_mode != 'NORMAL')):
+			col.prop(lamp, 'vr_la_intensity', text="Intensity")
 		col.prop(lamp, 'vr_la_subdivs')
 
 		if wide_ui:
@@ -617,18 +632,19 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 			else:
 				split= layout.split()
 				col= split.column()
-				col.prop(lamp, 'vb_sun_sky_model')
+				col.prop(lamp, 'vr_la_sky_model')
 				
 				split= layout.split()
 				col= split.column()
-				col.prop(lamp, 'vb_sun_turbidity')
-				col.prop(lamp, 'vb_sun_ozone')
-				col.prop(lamp, 'vb_sun_size_multiplier')
+				col.prop(lamp, 'vr_la_turbidity')
+				col.prop(lamp, 'vr_la_ozone')
+				col.prop(lamp, 'vr_la_intensity_multiplier', text= "Intensity")
+				col.prop(lamp, 'vr_la_size_multiplier', text= "Size")
 				if(wide_ui):
 					col= split.column()
-				col.prop(lamp, 'vb_sun_invisible')
-				col.prop(lamp, 'vb_sun_horiz_illum')
-				col.prop(lamp, 'vb_sun_water_vapour')
+				col.prop(lamp, 'vr_la_invisible')
+				col.prop(lamp, 'vr_la_horiz_illum')
+				col.prop(lamp, 'vr_la_water_vapour')
 
 		elif(lamp.type == 'SPOT'):
 			if(lamp.vr_la_spot_type == 'SPOT'):
@@ -736,9 +752,9 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 			pass
 
 
-bpy.types.register(DATA_PT_context_lamp)
-bpy.types.register(DATA_PT_vray_light)
-bpy.types.register(DATA_PT_vray_light_shape)
-bpy.types.register(DATA_PT_vray_light_shadows)
-bpy.types.register(DATA_PT_vray_light_advanced)
+# bpy.types.register(DATA_PT_context_lamp)
+# bpy.types.register(DATA_PT_vray_light)
+# bpy.types.register(DATA_PT_vray_light_shape)
+# bpy.types.register(DATA_PT_vray_light_shadows)
+# bpy.types.register(DATA_PT_vray_light_advanced)
 

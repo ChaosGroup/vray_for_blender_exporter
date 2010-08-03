@@ -89,13 +89,6 @@ BoolProperty(
 	default= False
 )
 
-BoolProperty(
-	attr="map_myslot",
-	name="My Slot",
-	description="TODO.",
-	default= False
-)
-
 FloatProperty(
 	attr="vray_hilight_mult",
 	name="Hilight multiplier",
@@ -183,6 +176,8 @@ IntProperty= bpy.types.Texture.IntProperty
 BoolProperty= bpy.types.Texture.BoolProperty
 EnumProperty= bpy.types.Texture.EnumProperty
 VectorProperty= bpy.types.Texture.FloatVectorProperty
+CollectionProperty= bpy.types.Texture.CollectionProperty
+
 
 '''
   WORLD
@@ -273,9 +268,9 @@ FloatProperty(
 	name= 'Water vapour',
 	description= "TODO.",
 	min= 0.0,
-	max= 1.0,
+	max= 10.0,
 	soft_min= 0.0,
-	soft_max= 1.0,
+	soft_max= 2.0,
 	precision= 3,
 	default= 2
 )
@@ -322,10 +317,10 @@ FloatProperty(
 	name= 'Horiz illumination',
 	description= "TODO.",
 	min= 0.0,
-	max= 1.0,
+	max= 100000.0,
 	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
+	soft_max= 10000.0,
+	precision= 0,
 	default= 25000
 )
 
@@ -342,6 +337,8 @@ EnumProperty(
 	default= 'PREETH'
 )
 
+# sun: plugin
+
 
 
 '''
@@ -349,7 +346,7 @@ EnumProperty(
 '''
 # fresnel_ior: float (Fresnel ior.)
 FloatProperty(
-	attr= 'vb_TexFresnel_fresnel_ior',
+	attr= 'vb_tfres_fresnel_ior',
 	name= 'Fresnel IOR',
 	description= "Fresnel ior.",
 	min= 0.0,
@@ -362,7 +359,7 @@ FloatProperty(
 
 # refract_ior: float (Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).)
 FloatProperty(
-	attr= 'vb_TexFresnel_refract_ior',
+	attr= 'vb_tfres_refract_ior',
 	name= 'Refract IOR',
 	description= "Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).",
 	min= 0.0,
@@ -375,7 +372,7 @@ FloatProperty(
 
 # white_color: acolor texture (Refraction (front) color)
 VectorProperty(
-	attr= 'vb_TexFresnel_white_color',
+	attr= 'vb_tfres_white_color',
 	name= "Front color",
 	description= "Refraction (front) color.",
 	subtype= 'COLOR',
@@ -388,7 +385,7 @@ VectorProperty(
 
 # black_color: acolor texture (Reflection (side) color)
 VectorProperty(
-	attr= 'vb_TexFresnel_black_color',
+	attr= 'vb_tfres_black_color',
 	name= "Side color",
 	description= "Reflection (side) color.",
 	subtype= 'COLOR',
@@ -411,7 +408,7 @@ narrowui= bpy.context.user_preferences.view.properties_width_check
 
 import properties_texture
 properties_texture.TEXTURE_PT_context_texture.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
+#properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
 del properties_texture
@@ -530,7 +527,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			if(wide_ui):
 				col= split.column()
 			col.label(text="Override:")
-			factor_but(col, tex.map_horizon, "map_horizon",         "horizon_factor",     "GI")
+			factor_but(col, tex.map_horizon,     "map_horizon",     "horizon_factor",     "GI")
 			factor_but(col, tex.map_zenith_up,   "map_zenith_up",   "zenith_up_factor",   "Reflections")
 			factor_but(col, tex.map_zenith_down, "map_zenith_down", "zenith_down_factor", "Refractions")
 		else:
@@ -575,7 +572,9 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 			split.active= not tex.vb_tsky_auto
 			col= split.column()
 			col.prop(tex, 'vb_tsky_sky_model')
-			
+			# if(not tex.vb_tsky_auto):
+			# 	col.prop(tex, 'vb_tsky_sun')
+				
 			split= layout.split()
 			split.active= not tex.vb_tsky_auto
 			col= split.column()
@@ -596,19 +595,19 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(tex, 'vb_TexFresnel_white_color')
-			col.prop(tex, 'vb_TexFresnel_fresnel_ior')
+			col.prop(tex, 'vb_tfres_white_color')
+			col.prop(tex, 'vb_tfres_fresnel_ior')
 			if(wide_ui):
 				col= split.column()
-			col.prop(tex, 'vb_TexFresnel_black_color')
-			col.prop(tex, 'vb_TexFresnel_refract_ior')
+			col.prop(tex, 'vb_tfres_black_color')
+			col.prop(tex, 'vb_tfres_refract_ior')
 
 			split= layout.split()
 			col= split.column()
-			col.label(text="Use \"Nodes\" for advanced control.")
+			col.label(text="(TODO) Use \"Nodes\" for advanced control.")
 
 		else:
 			pass
 
- 
-bpy.types.register(TEXTURE_PT_vray_influence)
+
+# bpy.types.register(TEXTURE_PT_vray_influence)

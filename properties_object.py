@@ -488,5 +488,5 @@ class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
 		sub.prop(ob, 'vb_mrs_refractions_visibility', text="Refractions")
 
 
-bpy.types.register(OBJECT_PT_vray_wrapper)
-bpy.types.register(OBJECT_PT_vray_render)
+# bpy.types.register(OBJECT_PT_vray_wrapper)
+# bpy.types.register(OBJECT_PT_vray_render)

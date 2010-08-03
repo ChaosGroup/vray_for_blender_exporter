@@ -38,6 +38,7 @@ IntProperty= bpy.types.Scene.IntProperty
 BoolProperty= bpy.types.Scene.BoolProperty
 StringProperty= bpy.types.Scene.StringProperty
 EnumProperty= bpy.types.Scene.EnumProperty
+CollectionProperty= bpy.types.Scene.CollectionProperty
 
 
 '''
@@ -984,6 +985,28 @@ IntProperty(    attr="vray_yc",
 
 
 '''
+  RenderChannel
+'''
+class VRayRenderLayer(bpy.types.IDPropertyGroup):
+    pass
+
+CollectionProperty(
+	attr= 'vray_render_layer',
+	type= VRayRenderLayer,
+	name= "",
+	description= ""
+)
+
+IntProperty(
+	attr= 'vray_render_layer_index',
+	default= -1,
+	min= -1,
+	max= 100
+)
+
+
+
+'''
   RenderChannelMultiMatte
 '''
 BoolProperty(   attr="vray_pass_multimatte",
@@ -1796,6 +1819,7 @@ class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 		col.label()
 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
 
+
 class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Layers"
 	bl_default_closed = True
@@ -1805,6 +1829,9 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	def draw(self, context):
 		layout= self.layout
 		scene= context.scene
+
+		#layout.template_list(scene, 'vray_render_layer', scene, 'vray_render_layer_index', rows= 1)
+
 		rd= scene.render
 		rl = rd.layers[rd.active_layer_index]
 		row = layout.row()
@@ -1881,15 +1908,15 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 			rowL.prop(scene,"vray_multimatte_blue_id")
 			rowR.prop(scene,"vray_multimatte_use_mtl_id")
 			
-bpy.types.register(RENDER_PT_vray_render)
-bpy.types.register(RENDER_PT_vray_output)
-bpy.types.register(RENDER_PT_vray_Layers)
-bpy.types.register(RENDER_PT_vray_dimensions)
-bpy.types.register(RENDER_PT_vray_aa)
-bpy.types.register(RENDER_PT_vray_cm)
-bpy.types.register(RENDER_PT_vray_dmc)
-bpy.types.register(RENDER_PT_vray_gi)
-bpy.types.register(RENDER_PT_vray_gi_im)
-bpy.types.register(RENDER_PT_vray_gi_lc)
-bpy.types.register(RENDER_PT_vray_gi_bf)
-#bpy.types.register(RENDER_PT_vray_about)
+# bpy.types.register(RENDER_PT_vray_render)
+# bpy.types.register(RENDER_PT_vray_output)
+# bpy.types.register(RENDER_PT_vray_Layers)
+# bpy.types.register(RENDER_PT_vray_dimensions)
+# bpy.types.register(RENDER_PT_vray_aa)
+# bpy.types.register(RENDER_PT_vray_cm)
+# bpy.types.register(RENDER_PT_vray_dmc)
+# bpy.types.register(RENDER_PT_vray_gi)
+# bpy.types.register(RENDER_PT_vray_gi_im)
+# bpy.types.register(RENDER_PT_vray_gi_lc)
+# bpy.types.register(RENDER_PT_vray_gi_bf)
+# bpy.types.register(RENDER_PT_vray_about)

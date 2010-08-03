@@ -474,4 +474,4 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 
 
 
-bpy.types.register(DATA_PT_vray_camera)
+# bpy.types.register(DATA_PT_vray_camera)

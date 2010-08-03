@@ -1,11 +1,8 @@
 '''
 
- V-Ray/Blender 2.5.8
+ V-Ray/Blender 2.5
 
  http://vray.cgdo.ru
-
- Started:       29 Aug 2009
- Last Modified: 21 Mar 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -32,7 +29,7 @@
 import bpy
 
 
-narrowui = 180
+narrowui= bpy.context.user_preferences.view.properties_width_check
 
 
 FloatProperty= bpy.types.World.FloatProperty
@@ -64,7 +61,7 @@ FloatProperty(
 	min= 0.0, 
 	max= 100.0, 
 	soft_min= 0.0, 
-	soft_max= 10.0, 
+	soft_max= 2.0, 
 	precision= 2, 
 	default= 1.0
 )
@@ -95,14 +92,76 @@ FloatProperty(
 	min= 0.0, 
 	max= 100.0, 
 	soft_min= 0.0, 
-	soft_max= 10.0, 
+	soft_max= 2.0, 
+	precision= 2, 
+	default= 1.0
+)
+
+BoolProperty(
+	attr= "vray_env_reflection_override",
+	name= "Override color for reflection",
+	description= 'Override color for reflection.',
+	default= False
+)
+
+VectorProperty(
+	attr="vray_env_reflection_color",
+	name="REFLECTION color",
+	description="REFLECTION (skylight) color.",
+	subtype="COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default=(0.0, 0.0, 0.0)
+)
+
+FloatProperty(
+	attr= "vray_env_reflection_color_mult", 
+	name= "Reflection color multiplier", 
+	description= 'Reflection color multiplier.', 
+	min= 0.0, 
+	max= 100.0, 
+	soft_min= 0.0, 
+	soft_max= 2.0, 
+	precision= 2, 
+	default= 1.0
+)
+
+BoolProperty(
+	attr= "vray_env_refraction_override",
+	name= "Override color for refraction",
+	description= 'Override color for refraction.',
+	default= False
+)
+
+VectorProperty(
+	attr="vray_env_refraction_color",
+	name="REFRACTION color",
+	description="REFRACTION (skylight) color.",
+	subtype="COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default=(0.0, 0.0, 0.0)
+)
+
+FloatProperty(
+	attr= "vray_env_refraction_color_mult", 
+	name= "Refraction color multiplier", 
+	description= 'Refraction color multiplier.', 
+	min= 0.0, 
+	max= 100.0, 
+	soft_min= 0.0, 
+	soft_max= 2.0, 
 	precision= 2, 
 	default= 1.0
 )
 
 
 
-class WorldButtonsPanel(bpy.types.Panel):
+class WorldButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'world'
@@ -112,39 +171,46 @@ class WorldButtonsPanel(bpy.types.Panel):
 		return (context.world) and (engine in self.COMPAT_ENGINES)
 
 
-class WORLD_PT_vray_environment(WorldButtonsPanel):
+class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 	bl_label = "Environment"
 
 	COMPAT_ENGINES = set(['VRAY_RENDER'])
 
 	def draw(self, context):
 		layout= self.layout
+
+		def factor_but(layout, active, toggle, factor, color, label= None):
+			row= layout.row(align=False)
+			row.prop(wo, toggle, text="")
+			sub= row.row()
+			sub.active= active
+			if(label):
+				sub.prop(wo, factor, slider=True, text=label)
+			else:
+				sub.prop(wo, factor, slider=True)
+			sub.prop(wo, color, text="")
 		
 		wo= context.world
 
 		split= layout.split()
-		colL= split.column()
-		colL.label(text="Background")
+		col= split.column()
+		col.label(text="Background:")
 		
 		split= layout.split()
-		colL= split.column()
-		colL.prop(wo, "vray_env_bg_color_mult", text="Mult")
-
-		colR= split.column()
-		colR.prop(wo, "vray_env_bg_color", text="")
-
-		split= layout.split()
-		colL= split.column()
-		colL.prop(wo, "vray_env_gi_override")
+		col= split.column()
+		col.prop(wo, "vray_env_bg_color_mult", text="Mult", slider=True)
+		col= split.column()
+		col.prop(wo, "vray_env_bg_color", text="")
 
 		split= layout.split()
-		sub= split.row()
-		sub.active= wo.vray_env_gi_override
-		colL= sub.column()
-		colL.prop(wo, "vray_env_gi_color_mult", text="Mult")
-		colR= sub.column()
-		colR.prop(wo, "vray_env_gi_color", text="")
+		col= split.column()
+		col.label(text="Override:")
+
+		split= layout.split()
+		col= split.column()
+		factor_but(col, wo.vray_env_gi_override,         'vray_env_gi_override',         'vray_env_gi_color_mult',         'vray_env_gi_color',         "GI")
+		factor_but(col, wo.vray_env_reflection_override, 'vray_env_reflection_override', 'vray_env_reflection_color_mult', 'vray_env_reflection_color', "Reflection")
+		factor_but(col, wo.vray_env_refraction_override, 'vray_env_refraction_override', 'vray_env_refraction_color_mult', 'vray_env_refraction_color', "Refraction")
 
 
-
-bpy.types.register(WORLD_PT_vray_environment)
+# bpy.types.register(WORLD_PT_vray_environment)
