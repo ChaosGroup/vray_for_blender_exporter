@@ -880,6 +880,31 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 	return uvw_name
 
 
+def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
+	MAPPING_TYPE= {
+		'SPHERE': 'spherical',
+		'VIEW':   'screen',
+		'GLOBAL': 'screen',
+		'OBJECT': 'cubic',
+		'TUBE':   'mirror_ball',
+		'ANGMAP': 'angular'
+	}
+
+	uvw_name= "uv_env_%s_%s"%(tex_name, MAPPING_TYPE[mapping])
+	
+	ofile.write("\nUVWGenEnvironment %s {"%(uvw_name))
+	if(param):
+		ofile.write("\n\tuvw_transform= %s;"%(transform(mathutils.RotationMatrix(params[0], 4, 'Z'))))
+	ofile.write("\n\tmapping_type= \"%s\";"%(MAPPING_TYPE[mapping]))
+	ofile.write("\n\twrap_u= 1;")
+	ofile.write("\n\twrap_v= 1;")
+	ofile.write("\n\tcrop_u= 0;")
+	ofile.write("\n\tcrop_v= 0;")
+	ofile.write("\n}\n")
+	
+	return uvw_name
+
+
 def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 	filename= get_full_filepath(tex.image.filepath)
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
@@ -888,23 +913,25 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 		debug("Error! Image file does not exists! (%s)"%(filename))
 		return None
 
-	if(bitmap_name not in exported_bitmaps):
+	if exported_bitmaps is not None:
+		if bitmap_name in exported_bitmaps:
+			return bitmap_name
 		exported_bitmaps.append(bitmap_name)
 
-		ofile.write("\nBitmapBuffer %s {"%(bitmap_name))
-		ofile.write("\n\tfile= %s;"%(a("\"%s\""%(filename))))
-		ofile.write("\n\tgamma= %.6f;"%(1.0))
-		ofile.write("\n\tfilter_blur= %.3f;"%(tex.filter_size))
+	ofile.write("\nBitmapBuffer %s {"%(bitmap_name))
+	ofile.write("\n\tfile= %s;"%(a("\"%s\""%(filename))))
+	ofile.write("\n\tgamma= %.6f;"%(1.0))
 
-		filter_type= 0
-		if(tex.interpolation):
-			if(tex.filter == 'BOX'):
-				filter_type= 1
-			else:
-				filter_type= 2
-		ofile.write("\n\tfilter_type= %d;"%(filter_type))
+	filter_type= 0
+	if(tex.interpolation):
+		if(tex.filter == 'BOX'):
+			filter_type= 1
+		else:
+			filter_type= 2
+	ofile.write("\n\tfilter_type= %d;"%(filter_type))
+	ofile.write("\n\tfilter_blur= %.3f;"%(tex.filter_size))
 
-		ofile.write("\n}\n")
+	ofile.write("\n}\n")
 
 	return bitmap_name
 
@@ -916,29 +943,32 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 		tex= slot.texture
 
 	if(tex.image):
+		tex_name= get_name(tex,"Texture")
+		if(ma):
+			tex_name= "%s_%s"%(tex_name, get_name(ma,"Material"))
+
 		if(env):
-			pass
+			uv_name= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coordinates)
 		else:
-			tex_name= "%s_%s"%(get_name(ma,"Material"), get_name(tex, "Texture"))
-
 			uv_name= write_UVWGenChannel(ofile, tex, tex_name, ob)
-			bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
-			if(bitmap_name):
-				ofile.write("\nTexBitmap %s {"%(tex_name))
-				ofile.write("\n\tbitmap= %s;"%(bitmap_name))
-				ofile.write("\n\tuvwgen= %s;"%(uv_name))
-				ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
-				if not env:
-					if(tex.extension == 'REPEAT'):
-						ofile.write("\n\ttile= %d;"%(1))
-					else:
-						ofile.write("\n\ttile= %d;"%(0))
-				if(slot):
-					ofile.write("\n\tinvert= %d;"%(slot.negate))
-				ofile.write("\n}\n")
-			else:
-				return "Texture_no_texture"
+		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
+
+		if(bitmap_name):
+			ofile.write("\nTexBitmap %s {"%(tex_name))
+			ofile.write("\n\tbitmap= %s;"%(bitmap_name))
+			ofile.write("\n\tuvwgen= %s;"%(uv_name))
+			ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
+			if not env:
+				if(tex.extension == 'REPEAT'):
+					ofile.write("\n\ttile= %d;"%(1))
+				else:
+					ofile.write("\n\ttile= %d;"%(0))
+			if(slot):
+				ofile.write("\n\tinvert= %d;"%(slot.negate))
+			ofile.write("\n}\n")
+		else:
+			return "Texture_no_texture"
 
 	else:
 		debug("Error! Image file is not set! (%s)"%(tex.name))
@@ -989,12 +1019,12 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	return tex_name
 
 
-def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None):
+def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, env= None):
 	tex_name= "Texture_no_texture"
 	if slot.texture.type == 'IMAGE':
-		tex_name= write_TexBitmap(ofile, exported_bitmaps, ma, slot)
+		tex_name= write_TexBitmap(ofile, exported_bitmaps, ma= ma, slot= slot, env= env)
 	elif slot.texture.type == 'PLUGIN':
-		tex_name= write_TexPlugin(ofile, slot= slot)
+		tex_name= write_TexPlugin(ofile, slot= slot, env= env)
 	else:
 		pass
 	return tex_name
@@ -2073,16 +2103,16 @@ def write_camera(camera= None):
 					if(slot.texture):
 						if slot.texture.type in TEX_TYPES:
 							if slot.map_blend:
-								bg_tex= write_texture(ofile, slot= slot)
+								bg_tex= write_texture(ofile, slot= slot, env=True)
 								bg_tex_mult= slot.blend_factor
 							if slot.map_horizon:
-								gi_tex= write_texture(ofile, slot= slot)
+								gi_tex= write_texture(ofile, slot= slot, env=True)
 								gi_tex_mult= slot.horizon_factor
 							if slot.map_zenith_up:
-								reflect_tex= write_texture(ofile, slot= slot)
+								reflect_tex= write_texture(ofile, slot= slot, env=True)
 								reflect_tex_mult= slot.zenith_up_factor
 							if slot.map_zenith_down:
-								refract_tex= write_texture(ofile, slot= slot)
+								refract_tex= write_texture(ofile, slot= slot, env=True)
 								refract_tex_mult= slot.zenith_down_factor
 
 			ofile.write("\nSettingsEnvironment {")
