@@ -726,19 +726,28 @@ FloatProperty(  attr= "vray_meters_scale",
 '''
   Exporter
 '''
-EnumProperty(   attr="vray_export_compat",
-				name="Compatibility mode",
-				description="Compatibility mode.",
-				items=(
-					("STD",  "V-Ray Standalone", ""),
-					("DEMO", "V-Ray For Maya Demo", "")
-				),
-				default= "STD")
+# EnumProperty(
+# 	attr="vray_export_compat",
+# 	name="Compatibility mode",
+# 	description="Compatibility mode.",
+# 	items=(
+# 		("STD",  "V-Ray Standalone", ""),
+# 		("DEMO", "V-Ray For Maya Demo", "")
+# 	),
+# 	default= "STD"
+# )
 
 BoolProperty(
 	attr= "vray_export_active_layers",
 	name= "Active layers",
 	description= "",
+	default= 0
+)
+
+BoolProperty(
+	attr= "vray_export_use_mat_nodes",
+	name= "Use material nodes",
+	description= "Use material nodes.",
 	default= 0
 )
 
@@ -1439,9 +1448,10 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		if(wide_ui):
 			col= split.column()
 		col.label(text="Pipeline:")
-		col.prop(scene, "vray_export_animation")
-		col.prop(scene, "vray_export_active_layers")
-		col.prop(scene, "vray_export_img_to_blender")
+		col.prop(scene, 'vray_export_animation')
+		col.prop(scene, 'vray_export_active_layers')
+		col.prop(scene, 'vray_export_use_mat_nodes')
+		col.prop(scene, 'vray_export_img_to_blender')
 
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):

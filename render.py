@@ -1019,12 +1019,15 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	return tex_name
 
 
-def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, env= None):
+def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, env= None):
+	if(slot):
+		tex= slot.texture
+		
 	tex_name= "Texture_no_texture"
-	if slot.texture.type == 'IMAGE':
-		tex_name= write_TexBitmap(ofile, exported_bitmaps, ma= ma, slot= slot, env= env)
-	elif slot.texture.type == 'PLUGIN':
-		tex_name= write_TexPlugin(ofile, slot= slot, env= env)
+	if tex.type == 'IMAGE':
+		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
+	elif tex.type == 'PLUGIN':
+		tex_name= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
 	else:
 		pass
 	return tex_name
@@ -1781,7 +1784,7 @@ def write_materials():
 				
 			if(node_fac):
 				if(node_fac.type == 'TEXTURE'):
-					weights= write_TexBitmap(ofile, ma, tex= node_fac.texture)
+					weights= write_texture(ofile, ma= ma, tex= node_fac.texture)
 			else:
 				weights= "weights_%s"%(clean_string(brdf_name))
 				ofile.write("\nTexAColor %s {"%(weights))
@@ -1805,7 +1808,7 @@ def write_materials():
 			debug("Node: %s (unsupported node type: %s)"%(no.name,no.type))
 
 	def export_material(ofile, exported_bitmaps, ma):
-		if(0 and ma.use_nodes and hasattr(ma.node_tree, 'links')):
+		if(sce.vray_export_use_mat_nodes and ma.use_nodes and hasattr(ma.node_tree, 'links')):
 			debug("Writing node material: %s"%(ma.name))
 
 			nt= ma.node_tree
@@ -2116,11 +2119,10 @@ def write_camera(camera= None):
 								refract_tex_mult= slot.zenith_down_factor
 
 			ofile.write("\nSettingsEnvironment {")
+			ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
 			if(bg_tex):
 				ofile.write("\n\tbg_tex= %s;"%(bg_tex))
 				ofile.write("\n\tbg_tex_mult= %s;"%(a(bg_tex_mult)))
-			else:
-				ofile.write("\n\tbg_color= %s;"%(a(wo.vray_env_bg_color)))
 			if(wo.vray_env_gi_override):
 				ofile.write("\n\tgi_color= %s;"%(a(wo.vray_env_gi_color)))
 			if(gi_tex):
