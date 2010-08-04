@@ -966,9 +966,8 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 				sun_light= None
 				for ob in sce.objects:
 					if ob.type == 'LAMP':
-						la= ob.data
-						if la.type == 'SUN' and la.vr_la_direct_type == 'SUN':
-							sun_light= "SunLight_%s" % clean_string(la.name)
+						if ob.data.type == 'SUN' and ob.data.vr_la_direct_type == 'SUN':
+							sun_light= "SunLight_%s" % clean_string(ob.name)
 							break
 							
 			elif tex.vb_tex_type == 'TEXFRESNEL':
