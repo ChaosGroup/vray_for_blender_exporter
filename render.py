@@ -288,6 +288,7 @@ OBJECT_PARAMS= {
 
 	'LightIES': (
 		'enabled',
+		'intensity',
 		#'color_tex',
 		'shadows',
 		'shadowColor',
@@ -305,9 +306,9 @@ OBJECT_PARAMS= {
 		'diffuse_contribution',
 		'specular_contribution',
 		'shadowSubdivs',
-		#'ies_file',
+		'ies_file',
 		#'filter_color',
-		#'soft_shadows',
+		'soft_shadows',
 		#'area_speculars'
 	),
 
@@ -2036,6 +2037,13 @@ def write_lamps():
 				pass
 
 			for param in OBJECT_PARAMS[lamp_type]:
+				if lamp_type == 'LightIES':
+					if param == 'intensity':
+						ofile.write("\n\tpower= %s;"%(a(lamp.vr_la_intensity)))
+						continue
+					elif param == 'ies_file':
+						ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(lamp.vr_la_ies_file)))
+						continue
 				if param == 'shadow_subdivs':
 					ofile.write("\n\tshadow_subdivs= %s;"%(a(lamp.vr_la_subdivs)))
 				elif param == 'shadow_color':
@@ -2047,7 +2055,8 @@ def write_lamps():
 				ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[lamp.vr_la_sky_model]))
 			else:
 				ofile.write("\n\tcolor= %s;"%(a("Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
-				ofile.write("\n\tunits= %i;"%(UNITS[lamp.vr_la_units]))
+				if lamp_type != 'LightIES':
+					ofile.write("\n\tunits= %i;"%(UNITS[lamp.vr_la_units]))
 			
 			ofile.write("\n\ttransform= %s;"%(a(transform(ob.matrix_world))))
 			ofile.write("\n}\n")

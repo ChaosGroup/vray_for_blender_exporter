@@ -37,6 +37,7 @@ IntProperty= bpy.types.Lamp.IntProperty
 BoolProperty= bpy.types.Lamp.BoolProperty
 VectorProperty= bpy.types.Lamp.FloatVectorProperty
 EnumProperty= bpy.types.Lamp.EnumProperty
+StringProperty= bpy.types.Lamp.StringProperty
 
 
 EnumProperty(
@@ -379,6 +380,37 @@ FloatProperty(
 
 
 '''
+  Plugin: LightIES
+'''
+StringProperty(
+	attr="vr_la_ies_file",
+	name="IES file",
+	subtype= 'FILE_PATH',
+	description="IES file."
+)
+
+# FloatProperty(
+# 	attr= "vr_la_power",
+# 	name= "IES power",
+# 	description= "Limuous power (in lm); if zero, the default lumious power from the IES profile is used.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+BoolProperty(
+	attr= "vr_la_soft_shadows",
+	name= "Soft shadows",
+	description= "Use the shape of the light as described in the IES profile.",
+	default= True
+)
+
+
+
+'''
   Plugin: SunLight
 '''
 # turbidity: float
@@ -653,7 +685,8 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 					col= split.column()
 				col.prop(lamp, 'spot_size', text="Size")
 			else:
-				pass
+				col.prop(lamp, 'vr_la_ies_file', text="File")
+				col.prop(lamp, 'vr_la_soft_shadows')
 
 		elif(lamp.type == 'HEMI'):
 			pass
