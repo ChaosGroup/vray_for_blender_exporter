@@ -964,10 +964,12 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 				prefix= 'vb_tsky'
 
 				sun_light= None
-				for la in bpy.data.lamps:
-					if la.name in sce.objects:
+				for ob in sce.objects:
+					if ob.type == 'LAMP':
+						la= ob.data
 						if la.type == 'SUN' and la.vr_la_direct_type == 'SUN':
 							sun_light= "SunLight_%s" % clean_string(la.name)
+							break
 							
 			elif tex.vb_tex_type == 'TEXFRESNEL':
 				vb_tex_type= 'TexFresnel'
