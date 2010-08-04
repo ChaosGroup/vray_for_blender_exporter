@@ -2080,7 +2080,8 @@ def write_camera(camera= None):
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
-
+		aspect= float(wx) / float(wy)
+		
 		ofile.write("\nSettingsOutput {")
 		ofile.write("\n\timg_width= %s;"%(int(wx)))
 		ofile.write("\n\timg_height= %s;"%(int(wy)))
@@ -2099,6 +2100,8 @@ def write_camera(camera= None):
 
 		def write_ca(ca):
 			fov= ca.data.angle
+			if(aspect < 1.0):
+				fov= fov*aspect
 
 			bg_tex= None
 			gi_tex= None
