@@ -47,6 +47,10 @@ TEX_TYPES= ('IMAGE', 'PLUGIN')
 
 none_matrix= mathutils.Matrix( [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0] )
 
+
+'''
+  VRAY MODULES
+'''
 MODULES= {
 	'SettingsUnitsInfo': (
 		'meters_scale',
@@ -309,42 +313,42 @@ OBJECT_PARAMS= {
 
 	'LightDome': (
 		'enabled',
-	# 	'color_tex',
+		#'color_tex',
 		'shadows',
 		'shadowColor',
-	# 	'shadowColor_tex',
+		#'shadowColor_tex',
 		'shadowBias',
-	# 	'photonSubdivs',
+		#'photonSubdivs',
 		'causticSubdivs',
-	# 	'diffuseMult',
+		#'diffuseMult',
 		'causticMult',
 		'cutoffThreshold',
 		'affectDiffuse',
 		'affectSpecular',
-	# 	'bumped_below_surface_check',
+		#'bumped_below_surface_check',
 		'nsamples',
 		'diffuse_contribution',
 		'specular_contribution',
-	# 	'channels',
-	# 	'channels_raw',
-	# 	'channels_diffuse',
-	# 	'channels_specular',
+		#'channels',
+		#'channels_raw',
+		#'channels_diffuse',
+		#'channels_specular',
 		'units',
 		'intensity',
-	# 	'intensity_tex',
+		#'intensity_tex',
 		'subdivs',
-	# 	'storeWithIrradianceMap',
+		#'storeWithIrradianceMap',
 		'invisible',
 		'affectReflections',
-	# 	'dome_tex',
-	# 	'use_dome_tex',
-	# 	'tex_resolution',
-	# 	'dome_targetRadius',
-	# 	'dome_emitRadius',
-	# 	'dome_spherical',
-	# 	'tex_adaptive',
-	# 	'dome_rayDistance',
-	# 	'dome_rayDistanceMode',
+		#'dome_tex',
+		#'use_dome_tex',
+		#'tex_resolution',
+		#'dome_targetRadius',
+		#'dome_emitRadius',
+		#'dome_spherical',
+		#'tex_adaptive',
+		#'dome_rayDistance',
+		#'dome_rayDistanceMode',
 	),
 
 	'LightSpot': (
@@ -376,18 +380,18 @@ OBJECT_PARAMS= {
 		#'dropOff',
 		#'falloffType',
 		'decay',
-		# 'barnDoor',
-		# 'barnDoorLeft',
-		# 'barnDoorRight',
-		# 'barnDoorTop',
-		# 'barnDoorBottom',
-		# 'useDecayRegions',
-		# 'startDistance1',
-		# 'endDistance1',
-		# 'startDistance2',
-		# 'endDistance2',
-		# 'startDistance3',
-		# 'endDistance3'
+		#'barnDoor',
+		#'barnDoorLeft',
+		#'barnDoorRight',
+		#'barnDoorTop',
+		#'barnDoorBottom',
+		#'useDecayRegions',
+		#'startDistance1',
+		#'endDistance1',
+		#'startDistance2',
+		#'endDistance2',
+		#'startDistance3',
+		#'endDistance3'
 	),
 
 	'TexSky': (
@@ -440,6 +444,10 @@ SKY_MODEL= {
 }
 
 
+
+'''
+  USEFUL
+'''
 def	debug(s):
 	if(sce.vray_debug):
 		print("V-Ray/Blender: %s"%(s))
@@ -492,8 +500,10 @@ def get_full_filepath(filepath):
 def get_render_file_format(file_format):
 	if file_format in ('JPEG','JPEG2000'):
 		file_format= 'jpg'
-	elif file_format in ('OPEN_EXR','IRIS','CINEON','MULTILAYER'):
+	elif file_format in ('OPEN_EXR','IRIS','CINEON'):
 		file_format= 'exr'
+	elif file_format == 'MULTILAYER':
+		file_format= 'vrimg'
 	elif file_format in ('TARGA', 'TARGA_RAW'):
 		file_format= 'tga'
 	else:

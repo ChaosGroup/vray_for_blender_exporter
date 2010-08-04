@@ -475,9 +475,6 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				sub.prop(tex, factor, slider=True)
 
 		if type(idblock) == bpy.types.Material:
-			layout.split().row().label(text= "This doesn't work as it should...")
-			layout.split().row().label(text= "We need to wait for some additions from BF.")
-
 			split= layout.split()
 			col= split.column()
 			col.label(text = "Shading:")
@@ -488,8 +485,9 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			factor_but(col, tex.map_emit,        "map_emit",         "emit_factor",       "Emit")
 			factor_but(col, tex.map_alpha,       "map_alpha",        "alpha_factor",      "Alpha")
 
-			col= split.column()
-			col.label(text = "SSS:")
+			if(wide_ui):
+				col= split.column()
+			col.label(text = "(TODO) SSS:")
 			factor_but(col, tex.vray_fsss_overall_on,    "vray_fsss_overall_on",    "vray_fsss_overall_factor")
 			factor_but(col, tex.vray_fsss_diffuse_on,    "vray_fsss_diffuse_on",    "vray_fsss_diffuse_factor")
 			factor_but(col, tex.vray_fsss_subsurface_on, "vray_fsss_subsurface_on", "vray_fsss_subsurface_factor")
@@ -501,7 +499,8 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			factor_but(col, tex.map_normal,       "map_normal",       "normal_factor",       "Bump/Normal")
 			factor_but(col, tex.map_displacement, "map_displacement", "displacement_factor", "Displace")
 
-			col= split.column()
+			if(wide_ui):
+				col= split.column()
 			col.active= tex.map_displacement
 			col.label(text = "Displacement settings:")
 			col.prop(tex,"vray_disp_amount",text="Amount",slider=True)
