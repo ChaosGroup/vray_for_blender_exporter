@@ -404,7 +404,13 @@ properties_data_mesh.MESH_MT_vertex_group_specials.COMPAT_ENGINES.add('VRAY_REND
 del properties_data_mesh
 
 
-narrowui= bpy.context.user_preferences.view.properties_width_check
+narrowui= 200
+
+
+
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.mesh) and (rd.engine in cls.COMPAT_ENGINES)
 
 
 class DataButtonsPanel():
@@ -412,16 +418,16 @@ class DataButtonsPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
-	def poll(self, context):
-		engine= context.scene.render.engine
-		return (context.mesh) and (engine in self.COMPAT_ENGINES)
-
 
 class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 	bl_label = "Proxy"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.mesh

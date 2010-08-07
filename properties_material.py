@@ -118,15 +118,25 @@ BoolProperty(	attr="vray_affect_alpha",
 				description="",
 				default= False)
 
-FloatProperty(  attr="vray_fog_color_mult",
-				name="Fog multiplier",
-				description="",
-				min=0.0, max=10.0, soft_min=0.0, soft_max=1.0, default= 0.1)
+FloatProperty(
+	attr= 'vray_fog_color_mult',
+	name= "Fog multiplier",
+	description= "",
+	min= 0.0, max= 10.0,
+	soft_min= 0.0, soft_max= 1.0,
+	precision= 4,
+	default= 0.1
+)
 
-FloatProperty(  attr="vray_fog_bias",
-				name="Fog bias",
-				description="",
-				min=0.0, max=10.0, soft_min=0.0, soft_max=1.0, default= 0.0)
+FloatProperty(
+	attr= 'vray_fog_bias',
+	name= "Fog bias",
+	description= "",
+	min= -100.0, max= 100.0,
+	soft_min= -1.0, soft_max= 1.0,
+	precision= 4,
+	default= 0.0
+)
 
 FloatProperty(  attr="vray_fog_ior",
 				name="Fog bias",
@@ -707,6 +717,14 @@ BoolProperty(
 	default= False
 )
 
+BoolProperty(
+	attr='vray_mtl_renderstats',
+	name='Use material render options',
+	description='Use material render options.',
+	default= False
+)
+
+
 
 '''
   Plugin: MtlWrapper
@@ -1058,10 +1076,12 @@ SSS2= {
 '''
   GUI
 '''
+narrowui= 200
 
 
-narrowui= bpy.context.user_preferences.view.properties_width_check
-
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.material) and (rd.engine in cls.COMPAT_ENGINES)
 
 def active_node_mat(mat):
     if mat:
@@ -1085,10 +1105,6 @@ class MaterialButtonsPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'material'
 
-	def poll(self, context):
-		engine = context.scene.render.engine
-		return (context.material) and (engine in self.COMPAT_ENGINES)
-
 
 class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = ""
@@ -1096,9 +1112,9 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def poll(self, context):
-		engine = context.scene.render.engine
-		return (context.material or context.object) and (engine in self.COMPAT_ENGINES)
+	@staticmethod
+	def poll(context):
+		return context.object or base_poll(__class__, context)
 
 	def draw(self, context):
 		layout = self.layout
@@ -1145,15 +1161,19 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 			layout.prop(mat, "vray_mtl_type", expand=True)
 
 
-class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Preview"
-	bl_default_closed = False
-	bl_show_header = False
+# class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
+# 	bl_label = "Preview"
+# 	bl_default_closed = False
+# 	bl_show_header = False
 
-	COMPAT_ENGINES= set(['VRAY_RENDER'])
+# 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def draw(self, context):
-		self.layout.template_preview(context.material)
+# 	@staticmethod
+# 	def poll(context):
+# 		return base_poll(__class__, context)
+
+# 	def draw(self, context):
+# 		self.layout.template_preview(context.material)
 
 
 class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
@@ -1161,7 +1181,11 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 	bl_default_closed = False
 	bl_show_header = True
 
-	COMPAT_ENGINES= set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -1298,11 +1322,7 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 				col.prop(ob, 'vray_lamp_doubleSided')
 				col.prop(ob, 'vray_lamp_storeWithIrradianceMap')
-
-				ob.vray_node_meshlight= True
 			else:
-				ob.vray_node_meshlight= False
-				
 				row= layout.row()
 				colL= row.column()
 				colL.prop(mat, "vray_mtl_emitOnBackSide")
@@ -1406,11 +1426,56 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 			col.prop(mat, 'vray_fsss_prepass_blur')
 
 
+class MATERIAL_PT_vray_options(MaterialButtonsPanel, bpy.types.Panel):
+	bl_label = "Options"
+	bl_default_closed = True
+	
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		ob= context.object
+		mat= active_node_mat(context.material)
+
+		layout= self.layout
+
+		wide_ui= context.region.width > 200
+
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, "vray_trace_reflections")
+		col.prop(mat, "vray_trace_refractions")
+		if(wide_ui):
+			col= row.column()
+		col.prop(mat, "vray_double_sided")
+		col.prop(mat, "vray_back_side")
+		col.prop(mat, 'vb_mtl_use_irradiance_map')
+
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, 'vb_mtl_glossy_rays_as_gi')
+		col.prop(mat, 'vb_mtl_energy_mode')
+
+		row= layout.row()
+		col= row.column()
+		col.prop(mat, 'vb_mtl_cutoff')
+		if(wide_ui):
+			col= row.column()
+		col.prop(mat, 'vb_mtl_environment_priority')
+
+
 class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)
@@ -1479,54 +1544,26 @@ class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 		col.prop(mat, 'vb_mwrap_matte_for_sec_rays')
 
 
-class MATERIAL_PT_vray_options(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Options"
-	bl_default_closed = True
-	
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
-
-	def draw(self, context):
-		ob= context.object
-		mat= active_node_mat(context.material)
-
-		layout= self.layout
-
-		wide_ui= context.region.width > 200
-
-		row= layout.row()
-		col= row.column()
-		col.prop(mat, "vray_trace_reflections")
-		col.prop(mat, "vray_trace_refractions")
-		if(wide_ui):
-			col= row.column()
-		col.prop(mat, "vray_double_sided")
-		col.prop(mat, "vray_back_side")
-		col.prop(mat, 'vb_mtl_use_irradiance_map')
-
-		row= layout.row()
-		col= row.column()
-		col.prop(mat, 'vb_mtl_glossy_rays_as_gi')
-		col.prop(mat, 'vb_mtl_energy_mode')
-
-		row= layout.row()
-		col= row.column()
-		col.prop(mat, 'vb_mtl_cutoff')
-		if(wide_ui):
-			col= row.column()
-		col.prop(mat, 'vb_mtl_environment_priority')
-
-
 class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		mat= active_node_mat(context.material)
+		self.layout.prop(mat, "vray_mtl_renderstats", text="")
 
 	def draw(self, context):
 		ob= context.object
 		mat= active_node_mat(context.material)
 
 		layout= self.layout
+		layout.active= mat.vray_mtl_renderstats
 
 		wide_ui= context.region.width > 200
 
@@ -1549,7 +1586,6 @@ class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 			sub.active= mat.vb_mrs_visibility
 		sub.prop(mat, 'vb_mrs_reflections_visibility', text="Reflections")
 		sub.prop(mat, 'vb_mrs_refractions_visibility', text="Refractions")
-
 
 
 # bpy.types.register(MATERIAL_MT_fsss_presets)

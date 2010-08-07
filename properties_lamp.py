@@ -4,9 +4,6 @@
 
  http://vray.cgdo.ru
 
- Started:       29 Aug 2009
- Last Modified: 18 Apr 2010
-
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
 
@@ -515,8 +512,15 @@ EnumProperty(
 
 
 
-narrowui= bpy.context.user_preferences.view.properties_width_check
+'''
+	GUI
+'''
+narrowui= 200
 
+
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.lamp) and (rd.engine in cls.COMPAT_ENGINES)
 
 
 class DataButtonsPanel():
@@ -524,16 +528,16 @@ class DataButtonsPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
-	def poll(self, context):
-		engine = context.scene.render.engine
-		return (context.lamp) and (engine in self.COMPAT_ENGINES)
-
 
 class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_show_header = False
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -567,7 +571,11 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
 	bl_show_header = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -623,12 +631,12 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Shape"
 	bl_show_header = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
+	@staticmethod
+	def poll(context):
 		lamp= context.lamp
-		engine= context.scene.render.engine
-		return (lamp and lamp.type not in ('HEMI')) and (engine in self.COMPAT_ENGINES)
+		return (lamp and lamp.type not in ('HEMI')) and base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -700,7 +708,11 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 	bl_show_header    = True
 	bl_default_closed = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw_header(self, context):
 		lamp= context.lamp
@@ -745,11 +757,11 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 	bl_show_header    = True
 	bl_default_closed = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
-		engine= context.scene.render.engine
-		return (context.lamp and (engine in self.COMPAT_ENGINES))
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout

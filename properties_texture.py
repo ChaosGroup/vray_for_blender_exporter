@@ -401,9 +401,7 @@ VectorProperty(
 '''
   GUI
 '''
-
-
-narrowui= bpy.context.user_preferences.view.properties_width_check
+narrowui= 200
 
 
 import properties_texture
@@ -431,17 +429,18 @@ def context_tex_datablock(context):
     return idblock
 
 
+def base_poll(cls, context):
+	rd= context.scene.render
+	tex= context.texture
+	if not tex or tex == None:
+		return False
+	return (tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES)
+
+
 class TextureButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
-
-	def poll(self, context):
-		tex= context.texture
-		if not tex or tex == None:
-			return False
-		engine= context.scene.render.engine
-		return (tex.type != 'NONE' or tex.use_nodes) and (engine in self.COMPAT_ENGINES)
 
 
 class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
@@ -449,7 +448,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def poll(self, context):
+	def poll(context):
 		if hasattr(context, "texture_slot"):
 			if context.texture_slot:
 				return True
@@ -478,12 +477,13 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			split= layout.split()
 			col= split.column()
 			col.label(text = "Shading:")
-			factor_but(col, tex.map_colordiff,   "map_colordiff",    "colordiff_factor",  "Color")
-			factor_but(col, tex.map_colorspec,   "map_colorspec",    "colorspec_factor",  "Hilight")
-			factor_but(col, tex.map_specular,    "map_specular",     "specular_factor",   "Glossy")
-			factor_but(col, tex.map_raymir,      "map_raymir",       "raymir_factor",     "Reflection")
-			factor_but(col, tex.map_emit,        "map_emit",         "emit_factor",       "Emit")
-			factor_but(col, tex.map_alpha,       "map_alpha",        "alpha_factor",      "Alpha")
+			factor_but(col, tex.map_colordiff,   "map_colordiff",    "colordiff_factor",   "Color")
+			factor_but(col, tex.map_colorspec,   "map_colorspec",    "colorspec_factor",   "Hilight")
+			factor_but(col, tex.map_specular,    "map_specular",     "specular_factor",    "Glossy")
+			factor_but(col, tex.map_raymir,      "map_raymir",       "raymir_factor",      "Reflection")
+			factor_but(col, tex.map_emit,        "map_emit",         "emit_factor",        "Emit")
+			factor_but(col, tex.map_alpha,       "map_alpha",        "alpha_factor",       "Alpha")
+			factor_but(col, tex.map_translucency,"map_translucency", "translucency_factor","Refraction")
 
 			if(wide_ui):
 				col= split.column()
@@ -538,10 +538,10 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def poll(self, context):
+	def poll(context):
 		tex= context.texture
 		engine= context.scene.render.engine
-		return (tex and tex.type == 'PLUGIN' and (engine in self.COMPAT_ENGINES))
+		return (tex and tex.type == 'PLUGIN' and (engine in __class__.COMPAT_ENGINES))
 
 	def draw(self, context):
 		tex= context.texture

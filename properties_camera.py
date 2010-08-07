@@ -1,11 +1,8 @@
 '''
 
- V-Ray/Blender 2.5.8
+ V-Ray/Blender 2.5
 
  http://vray.cgdo.ru
-
- Started:       29 Aug 2009
- Last Modified:  5 Mar 2010
 
  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -31,6 +28,7 @@
 
 
 import bpy
+
 
 BoolProperty= bpy.types.Camera.BoolProperty
 IntProperty= bpy.types.Camera.IntProperty
@@ -327,9 +325,10 @@ IntProperty(    attr="vray_cam_phys_subdivs",
 				min=1, max=100, default=6)
 
 
-
-narrowui= bpy.context.user_preferences.view.properties_width_check
-
+'''
+  GUI
+'''
+narrowui= 200
 
 
 import properties_data_camera
@@ -338,21 +337,25 @@ properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add('VRAY_RENDER')
 del properties_data_camera
 
 
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.camera) and (rd.engine in cls.COMPAT_ENGINES)
+
+
 class DataButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
-	def poll(self, context):
-		rd= context.scene.render
-		engine = rd.engine
-		return (context.camera) and (engine in self.COMPAT_ENGINES)
-
 
 class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 	bl_label = "Parameters"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -471,7 +474,6 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		col.label(text="Depth of Field:")
 		col.prop(cam, "dof_object", text="")
 		col.prop(cam, "dof_distance", text="Distance")
-
 
 
 # bpy.types.register(DATA_PT_vray_camera)

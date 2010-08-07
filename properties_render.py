@@ -1,36 +1,33 @@
 '''
 
- V-Ray/Blender 2.5
+	V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+	http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+	Author: Andrey M. Izrantsev (aka bdancer)
+	E-Mail: izrantsev@gmail.com
 
- This plugin is protected by the GNU General Public License v.2
+	This plugin is protected by the GNU General Public License v.2
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+	This program is free software: you can redioutibute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+	This program is dioutibuted in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
+	All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
 
 '''
 
 
 import bpy
-
-
-narrowui= bpy.context.user_preferences.view.properties_width_check
 
 
 FloatProperty= bpy.types.Scene.FloatProperty
@@ -42,7 +39,7 @@ CollectionProperty= bpy.types.Scene.CollectionProperty
 
 
 '''
-  SettingsGI
+	SettingsGI
 '''
 BoolProperty(	attr="vray_gi_on",
 				name="Enable GI",
@@ -108,7 +105,7 @@ FloatProperty(  attr="vray_gi_contrast_base",
 
 
 '''
-  SettingsDMCSampler
+	SettingsDMCSampler
 '''
 FloatProperty(  attr="vray_adaptive_threshold",
                 name="Noise threshold",
@@ -137,7 +134,7 @@ FloatProperty(  attr="vray_subdivs_mult",
 
 
 '''
-  SettingsDMCGI
+	SettingsDMCGI
 '''
 IntProperty(    attr="vray_dmcgi_depth",
                 name="Secondary bounces",
@@ -151,7 +148,7 @@ IntProperty(    attr="vray_dmcgi_subdivs",
 
 
 '''
-  SettingsIrradianceMap
+	SettingsIrradianceMap
 '''
 EnumProperty(   attr="vray_im_preset",
 				name="Preset",
@@ -325,7 +322,7 @@ StringProperty( attr="vray_im_auto_save_file",
 
 
 '''
-  SettingsLightCache
+	SettingsLightCache
 '''
 EnumProperty(   attr="vray_lc_mode",
 				name="Light cache mode",
@@ -449,7 +446,7 @@ StringProperty( attr="vray_lc_auto_save_file",
 
 
 '''
-  SettingsPhotonMap
+	SettingsPhotonMap
 '''
 BoolProperty(   attr="vray_pm_convex_hull_estimate",
                 name="Convex hull estimate",
@@ -502,7 +499,7 @@ FloatProperty(  attr="vray_pm_max_density",
 
 
 '''
-  SettingsColorMapping
+	SettingsColorMapping
 '''
 EnumProperty(   attr="vray_cm_type",
 				name="Color mapping type",
@@ -565,7 +562,7 @@ BoolProperty(   attr="vray_linearWorkflow",
 
 
 '''
-  SettingsCaustics
+	SettingsCaustics
 '''
 BoolProperty(
 	attr= "vray_caustics_enable",
@@ -576,12 +573,12 @@ BoolProperty(
 
 
 '''
-  SettingsDefaultDisplacement
+	SettingsDefaultDisplacement
 '''
 
 
 '''
-  SettingsImageSampler
+	SettingsImageSampler
 '''
 EnumProperty(   attr="vray_filter_type",
 				name="Filter type",
@@ -686,7 +683,7 @@ IntProperty(    attr="vray_subdivision_maxRate",
 
 
 '''
-  SettingsRaycaster
+	SettingsRaycaster
 '''
 IntProperty(    attr="vray_maxLevels",
                 name="Max. tree depth",
@@ -710,7 +707,7 @@ IntProperty(    attr="vray_dynMemLimit",
 
 
 '''
-  SettingsUnitsInfo
+	SettingsUnitsInfo
 '''
 FloatProperty(  attr= "vray_photometric_scale",
                 name= "Photometric scale",
@@ -724,7 +721,7 @@ FloatProperty(  attr= "vray_meters_scale",
 
 
 '''
-  Exporter
+	Exporter
 '''
 # EnumProperty(
 # 	attr="vray_export_compat",
@@ -828,7 +825,7 @@ BoolProperty(   attr= "vray_debug",
 
 
 '''
-  SettingsOutput
+	SettingsOutput
 '''
 # BoolProperty(   attr="vray_autosave",
 #                 name="vray_autosave",
@@ -848,7 +845,7 @@ BoolProperty(   attr= "vray_debug",
 
 
 '''
-  SettingsOptions
+	SettingsOptions
 '''
 # geom_displacement: bool = true
 # geom_doHidden: bool = true
@@ -957,7 +954,7 @@ BoolProperty(   attr= "vray_debug",
 
 
 '''
-  SettingsRegionsGenerator
+	SettingsRegionsGenerator
 '''
 EnumProperty(   attr="vray_rg_seqtype",
 				name="Sequence type",
@@ -994,7 +991,7 @@ IntProperty(    attr="vray_yc",
 
 
 '''
-  RenderChannel
+	RenderChannel
 '''
 class VRayRenderLayer(bpy.types.IDPropertyGroup):
     pass
@@ -1016,7 +1013,7 @@ IntProperty(
 
 
 '''
-  RenderChannelMultiMatte
+	RenderChannelMultiMatte
 '''
 BoolProperty(   attr="vray_pass_multimatte",
 		name="Multi-matte channel",
@@ -1045,9 +1042,8 @@ BoolProperty(   attr="vray_multimatte_use_mtl_id",
 
 
 '''
-  RenderChannelExtraTex
+	RenderChannelExtraTex
 '''
-
 # StringProperty( attr="vray_extratex_name",
 #                 name="Name",
 #                 description="ExtraTex channel name",
@@ -1070,8 +1066,9 @@ FloatProperty(  attr="vray_texdirt_ao_radius",
 #                 name="Filtering",
 #                 description="",
 #                 default= 1)
+
 '''
-Lightness and SSS pass Bumb and Samplerate
+  Lightness and SSS pass Bumb and Samplerate
 '''
 BoolProperty(   attr="vray_pass_lightning",
 		 name="pass_lightning",
@@ -1114,7 +1111,7 @@ BoolProperty(   attr="vray_color_mapping",
 
 
 '''
-  RenderChannelVelocity
+	RenderChannelVelocity
 '''
 
 BoolProperty(   attr="vray_velocity_ignore_z",
@@ -1136,7 +1133,7 @@ BoolProperty(   attr="vray_velocity_clamp_velocity",
 
 
 '''
-  RenderChannelRenderID
+	RenderChannelRenderID
 '''
 # BoolProperty(   attr="vray_renderid",
 #                 name="Channel Render ID",
@@ -1149,7 +1146,7 @@ BoolProperty(   attr="vray_velocity_clamp_velocity",
 
 
 '''
-  RenderChannelZDepth
+	RenderChannelZDepth
 '''
 
 FloatProperty(  attr="vray_zdepth_depth_black",
@@ -1171,7 +1168,7 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 
 
 '''
-  RenderChannelNormals
+	RenderChannelNormals
 '''
 # BoolProperty(   attr="vray_channel_normals",
 #                 name="Normals channel",
@@ -1188,7 +1185,7 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 
 
 '''
-  RenderChannelColor
+	RenderChannelColor
 '''
 # BoolProperty(   attr="vray_channel_color",
 #                 name="Color channel",
@@ -1213,7 +1210,7 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 
 
 '''
-  SettingsDefaultDisplacement
+	SettingsDefaultDisplacement
 '''
 # BoolProperty(   attr="vray_displace_override_on",
 #                 name="vray_displace_override_on",
@@ -1246,7 +1243,7 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 
 
 '''
-  SettingsCaustics
+	SettingsCaustics
 '''
 # BoolProperty(   attr="vray_caustics_on",
 #                 name="vray_caustics_on",
@@ -1270,153 +1267,171 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 #                 min=, max=, soft_min=, soft_max=, default=0.05)
 
 
+
+'''
+	GUI
+'''
+narrowui= 200
+
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES)
+
+
 class RenderButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'render'
-	
-	def poll(self, context):
-		rd= context.scene.render
-		if not rd: return False
-		engine = rd.engine
-		return (rd.use_game_engine == False) and (engine in self.COMPAT_ENGINES)
 
 
 class RENDER_PT_vray_dimensions(RenderButtonsPanel, bpy.types.Panel):
-    bl_label = "Dimensions"
-    COMPAT_ENGINES = {'VRAY_RENDER'}
+	bl_label = "Dimensions"
 
-    def draw(self, context):
-        layout = self.layout
+	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-        scene = context.scene
-        rd = scene.render
-        wide_ui = context.region.width > narrowui
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
-        row = layout.row().split()
-        sub = row.row(align=True).split(percentage=0.75)
-        sub.menu("RENDER_MT_presets", text="Presets")
-        sub.operator("render.preset_add", text="Add")
+	def draw(self, context):
+		layout = self.layout
 
-        split = layout.split()
+		scene = context.scene
+		rd = scene.render
+		wide_ui = context.region.width > narrowui
 
-        col = split.column()
-        sub = col.column(align=True)
-        sub.label(text="Resolution:")
-        sub.prop(rd, "resolution_x", text="X")
-        sub.prop(rd, "resolution_y", text="Y")
-        sub.prop(rd, "resolution_percentage", text="")
+		row = layout.row().split()
+		sub = row.row(align=True).split(percentage=0.75)
+		sub.menu("RENDER_MT_presets", text="Presets")
+		sub.operator("render.preset_add", text="Add")
 
-        sub.label(text="Aspect Ratio:")
-        sub.prop(rd, "pixel_aspect_x", text="X")
-        sub.prop(rd, "pixel_aspect_y", text="Y")
+		split = layout.split()
 
-        row = col.row()
-        row.prop(rd, "use_border", text="Border")
-        sub = row.row()
-        sub.active = rd.use_border
-        sub.prop(rd, "crop_to_border", text="Crop")
+		col = split.column()
+		sub = col.column(align=True)
+		sub.label(text="Resolution:")
+		sub.prop(rd, "resolution_x", text="X")
+		sub.prop(rd, "resolution_y", text="Y")
+		sub.prop(rd, "resolution_percentage", text="")
 
-        if wide_ui:
-            col = split.column()
-        sub = col.column(align=True)
-        sub.label(text="Frame Range:")
-        sub.prop(scene, "frame_start", text="Start")
-        sub.prop(scene, "frame_end", text="End")
-        sub.prop(scene, "frame_step", text="Step")
+		sub.label(text="Aspect Ratio:")
+		sub.prop(rd, "pixel_aspect_x", text="X")
+		sub.prop(rd, "pixel_aspect_y", text="Y")
 
-        sub.label(text="Frame Rate:")
-        sub.prop(rd, "fps")
-        sub.prop(rd, "fps_base", text="/")
+		row = col.row()
+		row.prop(rd, "use_border", text="Border")
+		sub = row.row()
+		sub.active = rd.use_border
+		sub.prop(rd, "crop_to_border", text="Crop")
+
+		if wide_ui:
+			col = split.column()
+		sub = col.column(align=True)
+		sub.label(text="Frame Range:")
+		sub.prop(scene, "frame_start", text="Start")
+		sub.prop(scene, "frame_end", text="End")
+		sub.prop(scene, "frame_step", text="Step")
+
+		sub.label(text="Frame Rate:")
+		sub.prop(rd, "fps")
+		sub.prop(rd, "fps_base", text="/")
 
 
 class RENDER_PT_vray_output(RenderButtonsPanel, bpy.types.Panel):
-    bl_label = "Output"
+	bl_label = "Output"
 
-    COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-    def draw(self, context):
-        layout = self.layout
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
-        rd = context.scene.render
-        wide_ui = context.region.width > narrowui
+	def draw(self, context):
+		layout = self.layout
 
-        layout.prop(rd, "output_path", text="")
+		rd = context.scene.render
+		wide_ui = context.region.width > narrowui
 
-        split = layout.split()
-        col = split.column()
-        col.prop(rd, "file_format", text="")
-        col.row().prop(rd, "color_mode", text="Color", expand=True)
+		layout.prop(rd, "output_path", text="")
 
-        if wide_ui:
-            col = split.column()
-        col.prop(rd, "use_file_extension")
-        col.prop(rd, "use_overwrite")
-        col.prop(rd, "use_placeholder")
+		split = layout.split()
+		col = split.column()
+		col.prop(rd, "file_format", text="")
+		col.row().prop(rd, "color_mode", text="Color", expand=True)
 
-        if rd.file_format in ('AVIJPEG', 'JPEG'):
-            split = layout.split()
-            split.prop(rd, "file_quality", slider=True)
+		if wide_ui:
+			col = split.column()
+		col.prop(rd, "use_file_extension")
+		col.prop(rd, "use_overwrite")
+		col.prop(rd, "use_placeholder")
 
-        elif rd.file_format == 'OPENEXR':
-            split = layout.split()
+		if rd.file_format in ('AVIJPEG', 'JPEG'):
+			split = layout.split()
+			split.prop(rd, "file_quality", slider=True)
 
-            col = split.column()
-            col.label(text="Codec:")
-            col.prop(rd, "exr_codec", text="")
+		elif rd.file_format == 'OPENEXR':
+			split = layout.split()
 
-            if wide_ui:
-                subsplit = split.split()
-                col = subsplit.column()
-            col.prop(rd, "exr_half")
-            col.prop(rd, "exr_zbuf")
+			col = split.column()
+			col.label(text="Codec:")
+			col.prop(rd, "exr_codec", text="")
 
-            if wide_ui:
-                col = subsplit.column()
-            col.prop(rd, "exr_preview")
+			if wide_ui:
+				subsplit = split.split()
+				col = subsplit.column()
+			col.prop(rd, "exr_half")
+			col.prop(rd, "exr_zbuf")
 
-        elif rd.file_format == 'JPEG2000':
-            split = layout.split()
-            col = split.column()
-            col.label(text="Depth:")
-            col.row().prop(rd, "jpeg2k_depth", expand=True)
+			if wide_ui:
+				col = subsplit.column()
+			col.prop(rd, "exr_preview")
 
-            if wide_ui:
-                col = split.column()
-            col.prop(rd, "jpeg2k_preset", text="")
-            col.prop(rd, "jpeg2k_ycc")
+		elif rd.file_format == 'JPEG2000':
+			split = layout.split()
+			col = split.column()
+			col.label(text="Depth:")
+			col.row().prop(rd, "jpeg2k_depth", expand=True)
 
-        elif rd.file_format in ('CINEON', 'DPX'):
-            split = layout.split()
-            col = split.column()
-            col.prop(rd, "cineon_log", text="Convert to Log")
+			if wide_ui:
+				col = split.column()
+			col.prop(rd, "jpeg2k_preset", text="")
+			col.prop(rd, "jpeg2k_ycc")
 
-            if wide_ui:
-                col = split.column(align=True)
-            col.active = rd.cineon_log
-            col.prop(rd, "cineon_black", text="Black")
-            col.prop(rd, "cineon_white", text="White")
-            col.prop(rd, "cineon_gamma", text="Gamma")
+		elif rd.file_format in ('CINEON', 'DPX'):
+			split = layout.split()
+			col = split.column()
+			col.prop(rd, "cineon_log", text="Convert to Log")
 
-        elif rd.file_format == 'TIFF':
-            split = layout.split()
-            split.prop(rd, "tiff_bit")
+			if wide_ui:
+				col = split.column(align=True)
+			col.active = rd.cineon_log
+			col.prop(rd, "cineon_black", text="Black")
+			col.prop(rd, "cineon_white", text="White")
+			col.prop(rd, "cineon_gamma", text="Gamma")
 
-        elif rd.file_format == 'QUICKTIME_CARBON':
-            split = layout.split()
-            split.operator("scene.render_set_quicktime_codec")
+		elif rd.file_format == 'TIFF':
+			split = layout.split()
+			split.prop(rd, "tiff_bit")
 
-        elif rd.file_format == 'QUICKTIME_QTKIT':
-            split = layout.split()
-            col = split.column()
-            col.prop(rd, "quicktime_codec_type")
-            col.prop(rd, "quicktime_codec_spatial_quality", text="Quality")
+		elif rd.file_format == 'QUICKTIME_CARBON':
+			split = layout.split()
+			split.operator("scene.render_set_quicktime_codec")
+
+		elif rd.file_format == 'QUICKTIME_QTKIT':
+			split = layout.split()
+			col = split.column()
+			col.prop(rd, "quicktime_codec_type")
+			col.prop(rd, "quicktime_codec_spatial_quality", text="Quality")
 
 
 class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		scene= context.scene
@@ -1457,7 +1472,11 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		scene= context.scene
@@ -1465,7 +1484,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 
 		layout= self.layout
-		
+
 		split= layout.split()
 		col= split.column()
 		col.prop(scene, "vray_cm_type", text="Type")
@@ -1495,13 +1514,17 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
 		scene= context.scene
 		rd= scene.render
-		
+
 		split= layout.split()
 		colL= split.column()
 		colL.prop(scene, "vray_is_type", text="Type")
@@ -1544,12 +1567,16 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 		colR.prop(scene, "vray_filter_type", text="")
 		if(not scene.vray_filter_type == 'NONE'):
 			colR.prop(scene, "vray_filter_size")
-		
+
 
 class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "DMC Sampler"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -1574,12 +1601,12 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
+	@staticmethod
+	def poll(context):
 		scene= context.scene
-		engine= scene.render.engine
-		return ((engine in self.COMPAT_ENGINES) and scene.vray_gi_on)
+		return (base_poll(__class__, context) and scene.vray_gi_on)
 
 	def draw(self, context):
 		layout= self.layout
@@ -1616,17 +1643,17 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		colL.prop(scene, "vray_gi_secondary_multiplier", text="Mult")
 		colR= split.column()
 		colR.prop(scene, "vray_gi_secondary_engine", text="")
-		
+
 
 class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
+	@staticmethod
+	def poll(context):
 		scene= context.scene
-		engine= scene.render.engine
-		return ((engine in self.COMPAT_ENGINES) and scene.vray_gi_on and scene.vray_gi_primary_engine == 'IM')
+		return (base_poll(__class__, context) and scene.vray_gi_on and scene.vray_gi_primary_engine == 'IM')
 
 	def draw(self, context):
 		layout= self.layout
@@ -1722,12 +1749,12 @@ class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
+	@staticmethod
+	def poll(context):
 		scene= context.scene
-		engine= scene.render.engine
-		return ((engine in self.COMPAT_ENGINES) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'BF' or scene.vray_gi_secondary_engine == 'BF'))
+		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'BF' or scene.vray_gi_secondary_engine == 'BF'))
 
 	def draw(self, context):
 		layout= self.layout
@@ -1743,12 +1770,12 @@ class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	def poll(self, context):
+	@staticmethod
+	def poll(context):
 		scene= context.scene
-		engine= scene.render.engine
-		return ((engine in self.COMPAT_ENGINES) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'LC' or scene.vray_gi_secondary_engine == 'LC'))
+		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'LC' or scene.vray_gi_secondary_engine == 'LC'))
 
 	def draw(self, context):
 		layout= self.layout
@@ -1809,32 +1836,40 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 			colL.prop(scene,"vray_lc_auto_save", text="Auto save")
 			colR.active= scene.vray_lc_auto_save
 			colR.prop(scene,"vray_lc_auto_save_file", text="")
-				
 
-class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
-	bl_label = "About"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+# class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
+# 	bl_label = "About"
 
-	def draw(self, context):
-		layout= self.layout
-		
-		split= layout.split()
-		col= split.column()
-		col.label(text="V-Ray/Blender 2.5.02")
-		col.label()
-		col.label(text="Author: Andrey M. Izrantsev")
-		col.label(text="URL: http://vray.cgdo.ru")
-		col.label(text="Email: izrantsev@gmail.com")
-		col.label()
-		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
+#     COMPAT_ENGINES= {'VRAY_RENDER'}
+
+# 	@staticmethod
+# 	def poll(context):
+# 		return base_poll(__class__, context)
+
+# 	def draw(self, context):
+# 		layout= self.layout
+
+# 		split= layout.split()
+# 		col= split.column()
+# 		col.label(text="V-Ray/Blender 2.5.02")
+# 		col.label()
+# 		col.label(text="Author: Andrey M. Izrantsev")
+# 		col.label(text="URL: http://vray.cgdo.ru")
+# 		col.label(text="Email: izrantsev@gmail.com")
+# 		col.label()
+# 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
 
 
 class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Layers"
 	bl_default_closed = True
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES= {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -1872,7 +1907,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 		rowR.prop(scene,"vray_pass_multimatte",text="MultiMatte")
 		rowL.prop(scene,"vray_pass_caustics",text="Caustics")
 		rowL.prop(scene,"vray_pass_wirecolor",text="Extra Passes")
-	
+
 		if rl.pass_z:
 			row = layout.row()
 			row.label(text="Z Settings:")
@@ -1917,7 +1952,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 			rowL.prop(scene,"vray_multimatte_green_id")
 			rowL.prop(scene,"vray_multimatte_blue_id")
 			rowR.prop(scene,"vray_multimatte_use_mtl_id")
-			
+
 # bpy.types.register(RENDER_PT_vray_render)
 # bpy.types.register(RENDER_PT_vray_output)
 # bpy.types.register(RENDER_PT_vray_Layers)

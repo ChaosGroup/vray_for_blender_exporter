@@ -365,9 +365,11 @@ FloatProperty(
 '''
   GUI
 '''
+narrowui= 200
 
-
-narrowui= bpy.context.user_preferences.view.properties_width_check
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.object and (context.object.type not in ('LAMP','CAMERA','ARMATURE'))) and (rd.engine in cls.COMPAT_ENGINES)
 
 
 class ObjectButtonsPanel():
@@ -375,16 +377,16 @@ class ObjectButtonsPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'object'
 
-	def poll(self, context):
-		engine= context.scene.render.engine
-		return (context.object and (context.object.type not in ('LAMP','CAMERA','ARMATURE'))) and (engine in self.COMPAT_ENGINES)
-
 
 class OBJECT_PT_vray_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -457,7 +459,11 @@ class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		ob= context.object

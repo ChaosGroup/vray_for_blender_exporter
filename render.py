@@ -408,6 +408,41 @@ OBJECT_PARAMS= {
 		'horiz_illum',
 		'sky_model',
 		'sun'
+	),
+
+	'MtlWrapper': (
+		#'base_material',
+		'generate_gi',
+		'receive_gi',
+		'generate_caustics',
+		'receive_caustics',
+		'alpha_contribution',
+		'matte_surface',
+		'shadows',
+		'affect_alpha',
+		'shadow_tint_color',
+		'shadow_brightness',
+		'reflection_amount',
+		'refraction_amount',
+		'gi_amount',
+		'no_gi_on_other_mattes',
+		'matte_for_secondary_rays',
+		'gi_surface_id',
+		'gi_quality_multiplier',
+		#'alpha_contribution_tex',
+		#'shadow_brightness_tex',
+		#'reflection_filter_tex',
+		'trace_depth',
+		#'channels'
+	),
+
+	'MtlRenderStats': (
+		'camera_visibility',
+		'reflections_visibility',
+		'refractions_visibility',
+		'gi_visibility',
+		'shadows_visibility',
+		'visibility'
 	)
 }
 
@@ -496,7 +531,7 @@ def get_filename(fn):
 	return filename
 
 def get_full_filepath(filepath):
-	return os.path.normpath(bpy.utils.expandpath(filepath))
+	return os.path.normpath(bpy.path.expand(filepath))
 
 def get_render_file_format(file_format):
 	if file_format in ('JPEG','JPEG2000'):
@@ -1693,6 +1728,41 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 	if(name):
 		ma_name= name
 
+	if(ma.vray_mtl_two_sided and ma.vray_mtl_use_wrapper and ma.vray_mtl_renderstats):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		wrap_material= "MtlWrapper_%s"%(ma_name)
+		wrap_base= ts_material
+		rstat_material= ma_name
+		rstat_base= wrap_material
+		
+	elif(ma.vray_mtl_two_sided and ma.vray_mtl_renderstats and not ma.vray_mtl_use_wrapper):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		rstat_base= ts_material
+		rstat_material= ma_name
+	
+	elif(ma.vray_mtl_two_sided and ma.vray_mtl_use_wrapper and not ma.vray_mtl_renderstats):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		wrap_base= ts_material
+		wrap_material= ma_name
+
+	elif(ma.vray_mtl_use_wrapper and ma.vray_mtl_renderstats and not ma.vray_mtl_two_sided):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		wrap_material= "MtlWrapper_%s"%(ma_name)
+		wrap_base= base_material
+		rstat_material= ma_name
+		rstat_base= wrap_material
+
+	elif(ma.vray_mtl_two_sided):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= ma_name
+
+	else:
+		base_material= ma_name
+		
+	
 	ofile.write("\n//\n// Material: %s\n//"%(ma.name))
 
 	brdf_name= "BRDFDiffuse_no_material"
@@ -1713,18 +1783,35 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	if(ma.vray_mtl_two_sided):
-		ofile.write("\nMtlSingleBRDF MtlSingleBRDF_%s {"%(ma_name))
+		ofile.write("\nMtlSingleBRDF %s {"%(base_material))
 		ofile.write("\n\tbrdf= %s;"%(brdf_name))
 		ofile.write("\n}\n")
-		ofile.write("\nMtl2Sided %s {"%(ma_name))
-		ofile.write("\n\tfront= MtlSingleBRDF_%s;"%(ma_name))
-		ofile.write("\n\tback= MtlSingleBRDF_%s;"%(ma_name))
+		ofile.write("\nMtl2Sided %s {"%(ts_material))
+		ofile.write("\n\tfront= MtlSingleBRDF_%s;"%(base_material))
+		ofile.write("\n\tback= MtlSingleBRDF_%s;"%(base_material))
 		ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(ma.vray_mtlts_translucency,ma.vray_mtlts_translucency,ma.vray_mtlts_translucency))
 		ofile.write("\n\tforce_1sided= 1;")
 		ofile.write("\n}\n")
 	else:
-		ofile.write("\nMtlSingleBRDF %s {"%(ma_name))
+		ofile.write("\nMtlSingleBRDF %s {"%(base_material))
 		ofile.write("\n\tbrdf= %s;"%(brdf_name))
+		ofile.write("\n}\n")
+
+	if(ma.vray_mtl_use_wrapper):
+		ofile.write("\nMtlWrapper %s {"%(wrap_material))
+		ofile.write("\n\tbase_material= %s;"%(wrap_base))
+		for param in OBJECT_PARAMS['MtlWrapper']:
+			if(param == 'matte_for_secondary_rays'):
+				ofile.write("\n\t%s= %s;"%(param, a(getattr(ma, 'vb_mwrap_matte_for_sec_rays'))))
+			else:
+				ofile.write("\n\t%s= %s;"%(param, a(getattr(ma, "vb_mwrap_%s"%(param)))))
+		ofile.write("\n}\n")
+		
+	if(ma.vray_mtl_renderstats):
+		ofile.write("\nMtlRenderStats %s {"%(rstat_material))
+		ofile.write("\n\tbase_mtl= %s;"%(rstat_base))
+		for param in OBJECT_PARAMS['MtlRenderStats']:
+			ofile.write("\n\t%s= %s;"%(param, a(getattr(ma, "vb_mrs_%s"%(param)))))
 		ofile.write("\n}\n")
 
 
@@ -1795,7 +1882,7 @@ def write_materials():
 
 			ofile.write("\nBRDFLayered %s {"%(clean_string(brdf_name)))
 			ofile.write("\n\tbrdfs= List(%s, %s);"%(color1, color2))
-			ofile.write("\n\tweights= List(%s, Color(1.0,1.0,1.0));"%(weights))
+			ofile.write("\n\tweights= List(%s, TexAColor_default_blend);"%(weights))
 			#ofile.write("\n\tadditive_mode= 1;") # Shellac
 			ofile.write("\n}\n")
 				
@@ -1851,6 +1938,11 @@ def write_materials():
 	ofile.write("\nMtlSingleBRDF Material_no_material {")
 	ofile.write("\n\tbrdf= BRDFDiffuse_no_material;")
 	ofile.write("\n}\n")
+	ofile.write("\nTexAColor TexAColor_default_blend {")
+	ofile.write("\n\tuvwgen= UVWGenChannel_default;")
+	ofile.write("\n\ttexture= Color(1.0,1.0,1.0);")
+	ofile.write("\n}\n")
+	ofile.write("\n//\n// Materials...\n//")
 
 	exported_bitmaps= []
 	exported_nodes= []
@@ -2673,7 +2765,7 @@ def get_filenames():
 
 	default_path= tempfile.gettempdir()
 	
-	output_dir= bpy.utils.expandpath(rd.output_path)
+	output_dir= bpy.path.expand(rd.output_path)
 
 	if 0:
 		(blendpath, blendname)= os.path.split(bpy.data.filename)

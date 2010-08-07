@@ -26,17 +26,14 @@
 
 '''
 
+
 import bpy
-
-
-narrowui= bpy.context.user_preferences.view.properties_width_check
 
 
 FloatProperty= bpy.types.World.FloatProperty
 IntProperty= bpy.types.World.IntProperty
 BoolProperty= bpy.types.World.BoolProperty
 VectorProperty= bpy.types.World.FloatVectorProperty
-
 
 
 '''
@@ -160,21 +157,31 @@ FloatProperty(
 )
 
 
+'''
+  GUI
+'''
+narrowui= 200
+
+
+def base_poll(cls, context):
+	rd= context.scene.render
+	return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
+
 
 class WorldButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'world'
 
-	def poll(self, context):
-		engine= context.scene.render.engine
-		return (context.world) and (engine in self.COMPAT_ENGINES)
-
 
 class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 	bl_label = "Environment"
 
-	COMPAT_ENGINES = set(['VRAY_RENDER'])
+	COMPAT_ENGINES = {'VRAY_RENDER'}
+
+	@staticmethod
+	def poll(context):
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
