@@ -1112,8 +1112,8 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return context.object or base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1161,19 +1161,19 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 			layout.prop(mat, "vray_mtl_type", expand=True)
 
 
-# class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
-# 	bl_label = "Preview"
-# 	bl_default_closed = False
-# 	bl_show_header = False
+class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
+	bl_label = "Preview"
+	bl_default_closed = False
+	bl_show_header = True
 
-# 	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-# 	@staticmethod
-# 	def poll(context):
-# 		return base_poll(__class__, context)
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
 
-# 	def draw(self, context):
-# 		self.layout.template_preview(context.material)
+	def draw(self, context):
+		self.layout.template_preview(context.material)
 
 
 class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
@@ -1183,8 +1183,8 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1432,8 +1432,8 @@ class MATERIAL_PT_vray_options(MaterialButtonsPanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1473,8 +1473,8 @@ class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw_header(self, context):
@@ -1550,8 +1550,8 @@ class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw_header(self, context):

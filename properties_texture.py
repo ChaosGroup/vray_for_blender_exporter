@@ -448,7 +448,8 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		if hasattr(context, "texture_slot"):
 			if context.texture_slot:
 				return True
@@ -538,7 +539,8 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		tex= context.texture
 		engine= context.scene.render.engine
 		return (tex and tex.type == 'PLUGIN' and (engine in __class__.COMPAT_ENGINES))

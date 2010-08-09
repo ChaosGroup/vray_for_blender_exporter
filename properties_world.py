@@ -179,8 +179,8 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):

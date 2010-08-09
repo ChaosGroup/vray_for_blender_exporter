@@ -527,11 +527,11 @@ def clean_string(s):
 	return s
 
 def get_filename(fn):
-	(filepath, filename)= os.path.split(bpy.utils.expandpath(fn))
+	(filepath, filename)= os.path.split(bpy.path.abspath(fn))
 	return filename
 
 def get_full_filepath(filepath):
-	return os.path.normpath(bpy.path.expand(filepath))
+	return os.path.normpath(bpy.path.abspath(filepath))
 
 def get_render_file_format(file_format):
 	if file_format in ('JPEG','JPEG2000'):
@@ -2756,6 +2756,16 @@ def write_scene():
 	ofile.write("\n\tbits_per_channel= 32;")
 	ofile.write("\n}\n")
 
+	# ofile.write("\nRTEngine {")
+	# ofile.write("\n\tseparate_window= 0;")
+	# ofile.write("\n\ttrace_depth= 3;")
+	# ofile.write("\n\tuse_gi= 1;")
+	# ofile.write("\n\tgi_depth= 3;")
+	# ofile.write("\n\tgi_reflective_caustics= 1;")
+	# ofile.write("\n\tgi_refractive_caustics= 1;")
+	# ofile.write("\n\tuse_opencl= 1;")
+	# ofile.write("\n}\n"	)	
+
 	ofile.write("\n")
 	ofile.close()
 
@@ -2765,7 +2775,7 @@ def get_filenames():
 
 	default_path= tempfile.gettempdir()
 	
-	output_dir= bpy.path.expand(rd.output_path)
+	output_dir= bpy.path.abspath(rd.output_path)
 
 	if 0:
 		(blendpath, blendname)= os.path.split(bpy.data.filename)

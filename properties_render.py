@@ -1289,8 +1289,8 @@ class RENDER_PT_vray_dimensions(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1342,8 +1342,8 @@ class RENDER_PT_vray_output(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1429,8 +1429,8 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1474,8 +1474,8 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1516,8 +1516,8 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1574,8 +1574,8 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -1603,8 +1603,8 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		scene= context.scene
 		return (base_poll(__class__, context) and scene.vray_gi_on)
 
@@ -1650,8 +1650,8 @@ class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		scene= context.scene
 		return (base_poll(__class__, context) and scene.vray_gi_on and scene.vray_gi_primary_engine == 'IM')
 
@@ -1751,8 +1751,8 @@ class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		scene= context.scene
 		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'BF' or scene.vray_gi_secondary_engine == 'BF'))
 
@@ -1772,8 +1772,8 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		scene= context.scene
 		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'LC' or scene.vray_gi_secondary_engine == 'LC'))
 
@@ -1843,8 +1843,8 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 
 #     COMPAT_ENGINES= {'VRAY_RENDER'}
 
-# 	@staticmethod
-# 	def poll(context):
+# 	@classmethod
+# 	def poll(cls, context):
 # 		return base_poll(__class__, context)
 
 # 	def draw(self, context):
@@ -1867,8 +1867,8 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):

@@ -535,8 +535,8 @@ class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -573,8 +573,8 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
@@ -633,8 +633,8 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		lamp= context.lamp
 		return (lamp and lamp.type not in ('HEMI')) and base_poll(__class__, context)
 
@@ -710,8 +710,8 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw_header(self, context):
@@ -759,8 +759,8 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES= {'VRAY_RENDER'}
 
-	@staticmethod
-	def poll(context):
+	@classmethod
+	def poll(cls, context):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
