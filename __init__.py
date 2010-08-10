@@ -27,8 +27,6 @@
 '''
 
 try:
-	init_data
-
 	reload(properties_camera)
 	reload(properties_lamp)
 	reload(properties_material)
@@ -37,6 +35,7 @@ try:
 	reload(properties_object)
 	reload(properties_data)
 	reload(properties_render)
+	reload(plugin_manager)
 	reload(render)
 except:
 	from vb25 import properties_camera
@@ -47,10 +46,11 @@ except:
 	from vb25 import properties_object
 	from vb25 import properties_data
 	from vb25 import properties_render
+	from vb25 import plugin_manager
 	from vb25 import render
 
 def register():
-    pass
+	plugin_manager.add_properties()
 
 def unregister():
-    pass
+	plugin_manager.remove_properties()

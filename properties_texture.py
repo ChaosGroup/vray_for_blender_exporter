@@ -35,7 +35,11 @@ FloatProperty= bpy.types.MaterialTextureSlot.FloatProperty
 
 
 '''
-  BRDFSSS2Complex
+  SLOT
+'''
+
+'''
+  Plugin: BRDFSSS2Complex
 '''
 BoolProperty(	attr="vray_fsss_overall_on",
 				name="Overall Color",
@@ -80,7 +84,7 @@ FloatProperty(  attr="vray_fsss_scatter_factor",
 
 
 '''
-  BRDFVRayMtl
+  Plugin: BRDFVRayMtl
 '''
 BoolProperty(
 	attr="map_vray_hilight",
@@ -100,45 +104,61 @@ FloatProperty(
 	default= 1.0
 )
 
-BoolProperty(	attr="vray_reflect_gloss_on",
-				name="Reflect gloss",
-				description="",
-				default = False)
+BoolProperty(
+	attr="vray_reflect_gloss_on",
+	name="Reflect gloss",
+	description="",
+	default = False
+)
 
-FloatProperty(  attr="vray_reflect_gloss_factor",
-				name="Reflect Gloss multiplier",
-				description="",
-				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_reflect_gloss_factor",
+	name="Reflect Gloss multiplier",
+	description="",
+	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
+)
 
-BoolProperty(	attr="vray_reglect_ior_on",
-				name="reflect ior",
-				description="",
-				default = False)
+BoolProperty(
+	attr="vray_reglect_ior_on",
+	name="reflect ior",
+	description="",
+	default = False
+)
 
-FloatProperty(  attr="vray_reflect_ior_factor",
-				name="reflect factor",
-				description="",
-				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_reflect_ior_factor",
+	name="reflect factor",
+	description="",
+	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
+)
 
-BoolProperty(	attr="vray_refract_ior_on",
-				name="refract ior",
-				description="",
-				default = False)
+BoolProperty(
+	attr="vray_refract_ior_on",
+	name="refract ior",
+	description="",
+	default = False
+)
 
-FloatProperty(  attr="vray_refract_ior_factor",
-				name="Scatter Color",
-				description="",
-				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_refract_ior_factor",
+	name="Scatter Color",
+	description="",
+	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
+)
 
-BoolProperty(	attr="vray_refract_gloss_on",
-				name="refract ior",
-				description="",
-				default = False)
+BoolProperty(
+	attr="vray_refract_gloss_on",
+	name="refract ior",
+	description="",
+	default = False
+)
 
-FloatProperty(  attr="vray_refract_gloss_factor",
-				name="Scatter Color",
-				description="",
-				min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0)
+FloatProperty(
+	attr="vray_refract_gloss_factor",
+	name="Scatter Color",
+	description="",
+	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
+)
 
 FloatProperty(
 	attr="vray_disp_amount",
@@ -168,17 +188,6 @@ FloatProperty(
 	default= 0.0
 )
 
-
-
-
-FloatProperty= bpy.types.Texture.FloatProperty
-IntProperty= bpy.types.Texture.IntProperty
-BoolProperty= bpy.types.Texture.BoolProperty
-EnumProperty= bpy.types.Texture.EnumProperty
-VectorProperty= bpy.types.Texture.FloatVectorProperty
-CollectionProperty= bpy.types.Texture.CollectionProperty
-
-
 '''
   WORLD
 '''
@@ -206,209 +215,19 @@ BoolProperty(
 
 
 '''
-  TEXTURES
-'''
-EnumProperty(
-	attr= 'vb_tex_type',
-	name= "Texture type",
-	description= "V-Ray texture type.",
-	items=(
-		('TEXFRESNEL', "TexFresnel", ""),
-		('TEXSKY',     "VRaySky",    "Procedural Sky texture. Depends on Sun position."),
-		('NONE',       "None",       "")
-	),
-	default= 'NONE'
-)
-
-
-
-'''
-  Plugin: TexSky
-'''
-BoolProperty(
-	attr= 'vb_tsky_auto',
-	name= 'Take settings from Sun',
-	description= "Take settings from Sun automatically.",
-	default= True
-)
-
-# transform: transform
-
-# target_transform: transform
-
-# turbidity: float
-FloatProperty(
-	attr= 'vb_tsky_turbidity',
-	name= 'Turbidity',
-	description= "TODO.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 3
-)
-
-# ozone: float
-FloatProperty(
-	attr= 'vb_tsky_ozone',
-	name= 'Ozone',
-	description= "TODO.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 0.35
-)
-
-# water_vapour: float
-FloatProperty(
-	attr= 'vb_tsky_water_vapour',
-	name= 'Water vapour',
-	description= "TODO.",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 0.0,
-	soft_max= 2.0,
-	precision= 3,
-	default= 2
-)
-
-# intensity_multiplier: float
-FloatProperty(
-	attr= 'vb_tsky_intensity_multiplier',
-	name= 'Intensity mult.',
-	description= "TODO.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1
-)
-
-# size_multiplier: float
-FloatProperty(
-	attr= 'vb_tsky_size_multiplier',
-	name= 'Size mult.',
-	description= "TODO.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1
-)
-
-# up_vector: vector = Color(0, 0, 0)
-
-# invisible: bool
-BoolProperty(
-	attr= 'vb_tsky_invisible',
-	name= 'Invisible',
-	description= "TODO.",
-	default= False
-)
-
-# horiz_illum: float
-FloatProperty(
-	attr= 'vb_tsky_horiz_illum',
-	name= 'Horiz illumination',
-	description= "TODO.",
-	min= 0.0,
-	max= 100000.0,
-	soft_min= 0.0,
-	soft_max= 10000.0,
-	precision= 0,
-	default= 25000
-)
-
-# sky_model: integer
-EnumProperty(
-	attr= 'vb_tsky_sky_model',
-	name= 'Sky model',
-	description= "Sky model.",
-	items=(
-		('CIEOVER',  "CIE Overcast",       ""),
-		('CIECLEAR', "CIE Clear",          ""),
-		('PREETH',   "Preetham et al.",    "")
-	),
-	default= 'PREETH'
-)
-
-# sun: plugin
-
-
-
-'''
-  Plugin: TexFresnel
-'''
-# fresnel_ior: float (Fresnel ior.)
-FloatProperty(
-	attr= 'vb_tfres_fresnel_ior',
-	name= 'Fresnel IOR',
-	description= "Fresnel ior.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1.55
-)
-
-# refract_ior: float (Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).)
-FloatProperty(
-	attr= 'vb_tfres_refract_ior',
-	name= 'Refract IOR',
-	description= "Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1.55
-)
-
-# white_color: acolor texture (Refraction (front) color)
-VectorProperty(
-	attr= 'vb_tfres_white_color',
-	name= "Front color",
-	description= "Refraction (front) color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.0, 0.0, 0.0)
-)
-
-# black_color: acolor texture (Reflection (side) color)
-VectorProperty(
-	attr= 'vb_tfres_black_color',
-	name= "Side color",
-	description= "Reflection (side) color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (1.0, 1.0, 1.0)
-)
-
-
-
-'''
   GUI
 '''
-narrowui= 200
 
+narrowui= 200
 
 import properties_texture
 properties_texture.TEXTURE_PT_context_texture.COMPAT_ENGINES.add('VRAY_RENDER')
-#properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_context_texture.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture
 
 
@@ -446,7 +265,7 @@ class TextureButtonsPanel():
 class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 	bl_label = "Influence"
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -537,7 +356,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 	bl_label = "V-Ray Textures"
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -547,68 +366,12 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		tex= context.texture
+		vtex= tex.vray_texture
+		
 		wide_ui= context.region.width > narrowui
 
 		layout= self.layout
 
 		split= layout.split()
 		col= split.column()
-		col.prop(tex,'vb_tex_type')
-
-		if(tex.vb_tex_type == 'NONE'):
-			split= layout.split()
-			col= split.column()
-			col.label(text="Please, select texture type.")
-
-		elif(tex.vb_tex_type == 'TEXSKY'):
-			split= layout.split()
-			col= split.column()
-			col.label(text="VRaySky:")
-
-			split= layout.split()
-			col= split.column()
-			col.prop(tex, 'vb_tsky_auto')
-
-			split= layout.split()
-			split.active= not tex.vb_tsky_auto
-			col= split.column()
-			col.prop(tex, 'vb_tsky_sky_model')
-			# if(not tex.vb_tsky_auto):
-			# 	col.prop(tex, 'vb_tsky_sun')
-				
-			split= layout.split()
-			split.active= not tex.vb_tsky_auto
-			col= split.column()
-			col.prop(tex, 'vb_tsky_turbidity')
-			col.prop(tex, 'vb_tsky_ozone')
-			col.prop(tex, 'vb_tsky_intensity_multiplier')
-			col.prop(tex, 'vb_tsky_size_multiplier')
-			if(wide_ui):
-				col= split.column()
-			col.prop(tex, 'vb_tsky_invisible')
-			col.prop(tex, 'vb_tsky_horiz_illum')
-			col.prop(tex, 'vb_tsky_water_vapour')
-
-		elif(tex.vb_tex_type == 'TEXFRESNEL'):
-			split= layout.split()
-			col= split.column()
-			col.label(text="Fresnel texture:")
-
-			split= layout.split()
-			col= split.column()
-			col.prop(tex, 'vb_tfres_white_color')
-			col.prop(tex, 'vb_tfres_fresnel_ior')
-			if(wide_ui):
-				col= split.column()
-			col.prop(tex, 'vb_tfres_black_color')
-			col.prop(tex, 'vb_tfres_refract_ior')
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="(TODO) Use \"Nodes\" for advanced control.")
-
-		else:
-			pass
-
-
-# bpy.types.register(TEXTURE_PT_vray_influence)
+		col.prop(vtex,'type')

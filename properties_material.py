@@ -125,7 +125,7 @@ FloatProperty(
 	min= 0.0, max= 10.0,
 	soft_min= 0.0, soft_max= 1.0,
 	precision= 4,
-	default= 0.1
+	default= 0.001
 )
 
 FloatProperty(
@@ -1110,7 +1110,7 @@ class MATERIAL_PT_vray_context_material(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_show_header = False
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1166,7 +1166,7 @@ class MATERIAL_PT_vray_preview(MaterialButtonsPanel, bpy.types.Panel):
 	bl_default_closed = False
 	bl_show_header = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1181,7 +1181,7 @@ class MATERIAL_PT_vray_basic(MaterialButtonsPanel, bpy.types.Panel):
 	bl_default_closed = False
 	bl_show_header = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1430,7 +1430,7 @@ class MATERIAL_PT_vray_options(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Options"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1471,7 +1471,7 @@ class MATERIAL_PT_vray_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1548,7 +1548,7 @@ class MATERIAL_PT_vray_render(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

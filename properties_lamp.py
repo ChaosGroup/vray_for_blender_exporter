@@ -533,7 +533,7 @@ class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_show_header = False
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -571,7 +571,7 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
 	bl_show_header = True
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -631,7 +631,7 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Shape"
 	bl_show_header = True
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -708,7 +708,7 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 	bl_show_header    = True
 	bl_default_closed = True
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -757,7 +757,7 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 	bl_show_header    = True
 	bl_default_closed = True
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

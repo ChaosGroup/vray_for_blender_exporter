@@ -382,7 +382,7 @@ class OBJECT_PT_vray_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -459,7 +459,7 @@ class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

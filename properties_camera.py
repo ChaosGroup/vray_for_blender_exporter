@@ -351,7 +351,7 @@ class DataButtonsPanel():
 class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 	bl_label = "Parameters"
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

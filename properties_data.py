@@ -423,7 +423,7 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 	bl_label = "Proxy"
 	bl_default_closed = True
 	
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

@@ -1287,7 +1287,7 @@ class RenderButtonsPanel():
 class RENDER_PT_vray_dimensions(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Dimensions"
 
-	COMPAT_ENGINES = {'VRAY_RENDER'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1340,7 +1340,7 @@ class RENDER_PT_vray_dimensions(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_output(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Output"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1427,7 +1427,7 @@ class RENDER_PT_vray_output(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1472,7 +1472,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1514,7 +1514,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1572,7 +1572,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "DMC Sampler"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1601,7 +1601,7 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1648,7 +1648,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1749,7 +1749,7 @@ class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1770,7 +1770,7 @@ class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1841,7 +1841,7 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 # class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 # 	bl_label = "About"
 
-#     COMPAT_ENGINES= {'VRAY_RENDER'}
+#     COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 # 	@classmethod
 # 	def poll(cls, context):
@@ -1865,7 +1865,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Layers"
 	bl_default_closed = True
 
-	COMPAT_ENGINES= {'VRAY_RENDER'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
