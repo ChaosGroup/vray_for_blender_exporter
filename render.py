@@ -2815,7 +2815,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 					continue
 				if ob.type == 'CAMERA':
 					if ob.name == "Camera":
-						write_camera(sce,ob, ofile)
+						write_camera(sce,ob,ofile)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
 						write_material(ofile, exported_bitmaps, ms.material, name="PREVIEW")
@@ -2834,7 +2834,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 			write_materials()
 			write_nodes()
 			write_lamps()
-			write_camera(sce,)
+			write_camera(sce)
 			write_scene()
 
 			if(rd.use_border):
@@ -2935,7 +2935,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					continue
 				if ob.type == 'CAMERA':
 					if ob.name == "Camera":
-						write_camera(sce,ob, ofile)
+						write_camera(sce,ob,ofile)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
 						write_material(ofile, exported_bitmaps, ms.material, name="PREVIEW")
@@ -2954,7 +2954,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			write_materials()
 			write_nodes()
 			write_lamps()
-			write_camera()
+			write_camera(sce)
 			write_scene()
 
 			if(rd.use_border):
