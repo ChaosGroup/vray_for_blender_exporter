@@ -27,7 +27,12 @@
 '''
 
 
+''' Blender modules '''
 import bpy
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.plugin_manager import *
 
 
 FloatProperty= bpy.types.Scene.FloatProperty
@@ -1001,10 +1006,15 @@ class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		sce= context.scene
-		render_channels= sce.vray_render_layer
+		vsce= sce.vray_scene
+
+		render_channels= vsce.render_channels
+
 		render_channels.add()
 		render_channels[-1].name= "RenderChannel"
+
 		return{'FINISHED'}
+
 
 class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 	bl_idname=      'render_channels.remove'
@@ -1013,67 +1023,20 @@ class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		sce= context.scene
-		render_channels= sce.vray_render_layer
-		if sce.vray_render_layer_index >= 0:
-		   render_channels.remove(sce.vray_render_layer_index)
-		   sce.vray_render_layer_index-= 1
+		vsce= sce.vray_scene
+		
+		render_channels= vsce.render_channels
+		
+		if vsce.render_channels_index >= 0:
+		   render_channels.remove(vsce.render_channels_index)
+		   vsce.render_channels_index-= 1
+
 		return{'FINISHED'}
-
-class VRayRenderLayer(bpy.types.IDPropertyGroup):
-    pass
-
-CollectionProperty(
-	attr= 'vray_render_layer',
-	type= VRayRenderLayer,
-	name= "Render Passes",
-	description= ""
-)
-
-IntProperty(
-	attr= 'vray_render_layer_index',
-	name= "Render pass index",
-	default= -1,
-	min= -1,
-	max= 100
-)
-
-VRayRenderLayer.EnumProperty(
-	attr= 'type',
-	name= 'Type',
-	description= "Render element type.",
-	items=(
-		('AO',        "Ambient occlusion",  ""),
-		('EXTRATEX',  "ExtraTex",           ""),
-		('NONE',      "None",               "")
-	),
-	default= 'NONE'
-)
-
-VRayRenderLayer.StringProperty(
-	attr= 'name',
-	name= "Render pass",
-	description= "",
-	maxlen= 64,
-	default= ""
-)
-
 
 
 '''
 	RenderChannelMultiMatte
 '''
-BoolProperty(
-	attr="vray_pass_multimatte",
-	name="Multi-matte channel",
-	description="",
-	default= 0
-)
-# StringProperty(
-# 	attr="vray_multimatte_name",
-# 	name="Name",
-# 	description="MultiMatte channel name",
-# 	default="MultiMatte"
-# )
 IntProperty(    attr="vray_multimatte_red_id",
 				name="Red ID",
 				description="",
@@ -1095,28 +1058,35 @@ BoolProperty(   attr="vray_multimatte_use_mtl_id",
 '''
 	RenderChannelExtraTex
 '''
-# StringProperty( attr="vray_extratex_name",
-#                 name="Name",
-#                 description="ExtraTex channel name",
-# 				default="ExtraTexChannel")
-BoolProperty(   attr="vray_extratex_affect",
-		 name="Affect Object",
-		 description="",
-		 default= 1)
-BoolProperty(   attr="vray_extratex_consider_for_aa",
-		 name="Consider for AA",
-		 description="",
-		 default= 1)
+BoolProperty(
+	attr="vray_extratex_affect",
+	name="Affect Object",
+	description="",
+	default= 1
+)
+BoolProperty(
+	attr="vray_extratex_consider_for_aa",
+	name="Consider for AA",
+	description="",
+	default= 1
+)
 
-FloatProperty(  attr="vray_texdirt_ao_radius",
-		 name="Radius",
-		 description="",
-		 min=0, max=10, soft_min=0.1, soft_max=10, default=0.1)
+FloatProperty(
+	attr="vray_texdirt_ao_radius",
+	name="Radius",
+	description="",
+	min=0, max=10,
+	soft_min=0.1,
+	soft_max=10,
+	default=0.1
+)
 
-#BoolProperty(   attr="vray_extratex_filtering",
-#                 name="Filtering",
-#                 description="",
-#                 default= 1)
+BoolProperty(
+	attr="vray_extratex_filtering",
+	name="Filtering",
+	description="",
+	default= 1
+)
 
 '''
   Lightness and SSS pass Bumb and Samplerate
@@ -1889,31 +1859,55 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 			colR.prop(scene,"vray_lc_auto_save_file", text="")
 
 
-# class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
-# 	bl_label = "About"
-
-#     COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-# 	@classmethod
-# 	def poll(cls, context):
-# 		return base_poll(__class__, context)
-
-# 	def draw(self, context):
-# 		layout= self.layout
-
-# 		split= layout.split()
-# 		col= split.column()
-# 		col.label(text="V-Ray/Blender 2.5.02")
-# 		col.label()
-# 		col.label(text="Author: Andrey M. Izrantsev")
-# 		col.label(text="URL: http://vray.cgdo.ru")
-# 		col.label(text="Email: izrantsev@gmail.com")
-# 		col.label()
-# 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
-
-
 class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
-	bl_label = "Render Passes"
+	bl_label = "Channels"
+	bl_default_closed = True
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		wide_ui = context.region.width > narrowui
+		layout= self.layout
+		
+		sce= context.scene
+		vsce= sce.vray_scene
+
+		render_channels= vsce.render_channels
+
+		split= layout.split()
+		row= split.row()
+		row.template_list(vsce, 'render_channels', vsce, 'render_channels_index', rows= 3)
+		col= row.column(align=True)
+		col.operator('render_channels.add',    text="", icon="ZOOMIN")
+		col.operator('render_channels.remove', text="", icon="ZOOMOUT")
+
+		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
+			render_channel= render_channels[vsce.render_channels_index]
+		
+			layout.separator()
+
+			layout.prop(render_channel, 'name')
+			layout.prop(render_channel, 'type', text="Type")
+
+			layout.separator()
+
+			if render_channel.type != 'NONE':
+				plugin= get_plugin(CHANNEL_PLUGINS, render_channel.type)
+				if plugin is not None:
+					render_channel_data= getattr(render_channel,plugin.PLUG)
+
+					if render_channel.name == "" or render_channel.name == "RenderChannel":
+						render_channel.name= render_channel_data.name
+					
+					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
+
+
+class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
+	bl_label = "About"
 	bl_default_closed = True
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1924,128 +1918,16 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		scene= context.scene
-
-		render_channels= scene.vray_render_layer
 
 		split= layout.split()
-		row= split.row()
-		row.template_list(scene, 'vray_render_layer', scene, 'vray_render_layer_index', rows= 3)
-		col= row.column(align=True)
-		col.operator('render_channels.add',    text="", icon="ZOOMIN")
-		col.operator('render_channels.remove', text="", icon="ZOOMOUT")
+		col= split.column()
+		col.label(text="V-Ray/Blender 2.5 (git)")
+		col.separator()
+		col.label(text="Author: Andrey M. Izrantsev")
+		col.label(text="URL: http://vray.cgdo.ru")
+		col.label(text="Email: izrantsev@gmail.com")
+		col.separator()
+		col.label(text="IRC: irc.freenode.net #vrayblender")
+		col.separator()
+		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
 
-		if scene.vray_render_layer_index >= 0 and len(render_channels) > 0:
-			render_channel= render_channels[scene.vray_render_layer_index]
-			layout.separator()
-			layout.prop(render_channel, 'type')
-
-			if render_channel.type == 'AO':
-				render_channel.name= 'AO'
-				row = layout.row()
-				row.label(text="AO Settings:")
-				row = layout.row(align = True)
-				split = row.split()
-				rowL = split.column()
-				rowR = split.column()
-				rowL.prop(scene,"vray_texdirt_ao_radius")
-				rowR.prop(scene,"vray_extratex_affect")
-				rowR.prop(scene,"vray_extratex_consider_for_aa")
-
-			elif render_channel.type == 'EXTRATEX':
-				render_channel.name= 'ExtraTex'
-
-			elif render_channel.type == 'NONE':
-				render_channel.name= 'RenderChannel'
-				
-			else:
-				pass
-
-		# rd= scene.render
-		# rl = rd.layers[rd.active_layer_index]
-		# row = layout.row()
-		# row.prop(scene,"vray_passes",text="All Passes")
-		# row.prop(scene,"vray_color_mapping",text="Color Mapping")
-		# row = layout.row()
-		# split = row.split()
-		# rowL = split.column()
-		# rowR = split.column()
-		# rowR.prop(rl, "pass_z")
-		# rowR.prop(rl, "pass_vector")
-		# rowR.prop(rl, "pass_normal")
-		# rowR.prop(rl, "pass_object_index")
-		# rowL.prop(rl, "pass_color")
-		# rowL.prop(rl, "pass_diffuse")
-		# rowL.prop(rl, "pass_specular")
-		# rowL.prop(rl, "pass_reflection")
-		# rowL.prop(rl, "pass_refraction")
-		# rowL.prop(scene,"vray_pass_lightning",text="Lighting")
-		# rowL.prop(rl, "pass_shadow")
-		# rowL.prop(scene,"vray_pass_sss",text="SSS")
-		# rowL.prop(scene,"vray_pass_bumb",text="Bumb")
-		# rowR.prop(rl, "pass_emit")
-		# rowR.prop(rl, "pass_ao")
-		# rowR.prop(rl, "pass_environment")
-		# rowR.prop(rl, "pass_indirect")
-		# rowR.prop(scene,"vray_pass_samplerate",text="Samplerate")
-		# rowR.prop(scene,"vray_pass_multimatte",text="MultiMatte")
-		# rowL.prop(scene,"vray_pass_caustics",text="Caustics")
-		# rowL.prop(scene,"vray_pass_wirecolor",text="Extra Passes")
-
-		# if rl.pass_z:
-		# 	row = layout.row()
-		# 	row.label(text="Z Settings:")
-		# 	row = layout.row()
-		# 	split = row.split()
-		# 	rowL = split.column()
-		# 	rowR = split.column()
-		# 	rowL.prop(scene,"vray_zdepth_depth_white")
-		# 	rowL.prop(scene,"vray_zdepth_depth_black")
-		# 	rowR.prop(scene,"vray_zdepth_depth_clamp")
-		# 	rowR.prop(scene,"vray_zdepth_depth_camera")
-		# if rl.pass_vector:
-		# 	row = layout.row()
-		# 	row.label(text="Velocity Settings:")
-		# 	row = layout.row()
-		# 	split = row.split()
-		# 	rowL = split.column()
-		# 	rowR = split.column()
-		# 	rowL.prop(scene,"vray_velocity_max_velocity")
-		# 	rowL.prop(scene,"vray_velocity_max_velocity_last_frame")
-		# 	rowR.prop(scene,"vray_velocity_ignore_z")
-		# 	rowR.prop(scene,"vray_velocity_clamp_velocity")
-		# if rl.pass_ao:
-		# 	row = layout.row()
-		# 	row.label(text="AO Settings:")
-		# 	row = layout.row(align = True)
-		# 	split = row.split()
-		# 	rowL = split.column()
-		# 	rowR = split.column()
-		# 	rowL.prop(scene,"vray_texdirt_ao_radius")
-		# 	rowR.prop(scene,"vray_extratex_affect")
-		# 	rowR.prop(scene,"vray_extratex_consider_for_aa")
-
-		# if scene.vray_pass_multimatte:
-		# 	row = layout.row()
-		# 	row.label(text="MultiMatte Settings:")
-		# 	row = layout.row(align = True)
-		# 	split = row.split()
-		# 	rowL = split.column()
-		# 	rowR = split.column()
-		# 	rowL.prop(scene,"vray_multimatte_red_id")
-		# 	rowL.prop(scene,"vray_multimatte_green_id")
-		# 	rowL.prop(scene,"vray_multimatte_blue_id")
-		# 	rowR.prop(scene,"vray_multimatte_use_mtl_id")
-
-# bpy.types.register(RENDER_PT_vray_render)
-# bpy.types.register(RENDER_PT_vray_output)
-# bpy.types.register(RENDER_PT_vray_Layers)
-# bpy.types.register(RENDER_PT_vray_dimensions)
-# bpy.types.register(RENDER_PT_vray_aa)
-# bpy.types.register(RENDER_PT_vray_cm)
-# bpy.types.register(RENDER_PT_vray_dmc)
-# bpy.types.register(RENDER_PT_vray_gi)
-# bpy.types.register(RENDER_PT_vray_gi_im)
-# bpy.types.register(RENDER_PT_vray_gi_lc)
-# bpy.types.register(RENDER_PT_vray_gi_bf)
-# bpy.types.register(RENDER_PT_vray_about)

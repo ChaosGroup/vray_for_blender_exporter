@@ -116,7 +116,7 @@ def add_properties(VRayTexture):
 		soft_min= 0.0,
 		soft_max= 100.0,
 		precision= 3,
-		default= 10.0
+		default= 0.1
 	)
 
 	# distribution: float

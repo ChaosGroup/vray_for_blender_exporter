@@ -154,3 +154,9 @@ def vb_binary_path():
 		vray_path=  os.path.join(vray_env_path, vray_bin)
 
 	return vray_path
+
+def get_plugin(plugins, plugin_type):
+	for plugin in plugins:
+		if plugin.ID == plugin_type:
+			return plugin
+	return None

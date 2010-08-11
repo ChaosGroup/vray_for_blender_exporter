@@ -125,6 +125,61 @@ OBJECT_PARAMS= {
 		'prepass_blur'
 		#'channels'
 	),
+
+	'BRDFVRayMtl': (
+		'opacity',
+		'diffuse',
+		'roughness',
+		'brdf_type',
+		'reflect',
+		'reflect_glossiness',
+		'hilight_glossiness',
+		'hilight_glossiness_lock',
+		'fresnel',
+		'fresnel_ior',
+		'fresnel_ior_lock',
+		'reflect_subdivs',
+		'reflect_trace',
+		'reflect_depth',
+		'reflect_exit_color',
+		'hilight_soften',
+		'reflect_dim_distance',
+		'reflect_dim_distance_on',
+		'reflect_dim_distance_falloff',
+		'anisotropy',
+		'anisotropy_rotation',
+		'anisotropy_derivation',
+		'anisotropy_axis',
+		# 'anisotropy_uvwgen',
+		'refract',
+		'refract_ior',
+		'refract_glossiness',
+		'refract_subdivs',
+		'refract_trace',
+		'refract_depth',
+		'refract_exit_color',
+		'refract_exit_color_on',
+		'refract_affect_alpha',
+		'refract_affect_shadows',
+		'fog_color',
+		'fog_mult',
+		'fog_bias',
+		'fog_unit_scale_on',
+		'translucency',
+		'translucency_color',
+		'translucency_light_mult',
+		'translucency_scatter_dir',
+		'translucency_scatter_coeff',
+		'translucency_thickness',
+		'option_double_sided',
+		'option_reflect_on_back',
+		'option_glossy_rays_as_gi',
+		'option_cutoff',
+		'option_use_irradiance_map',
+		'option_energy_mode',
+		# 'environment_override',
+		'environment_priority',
+	),
 	
 	'CameraPhysical': (
 		'film_width',
@@ -482,12 +537,6 @@ SKY_MODEL= {
 	'PREETH'   : 0
 }
 
-
-def get_tex_plugin(plugin_type):
-	for plugin in TEX_PLUGINS:
-		if plugin.ID == plugin_type:
-			return plugin
-	return None
 
 
 '''
@@ -941,6 +990,41 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	return tex_name
 
 
+def write_TexAColorOp(tex, mult, tex_name= None):
+	brdf_name= "TexAColorOp_%s"%(tex)
+	if(tex_name):
+		brdf_name= "TexAColorOp_%s"%(tex_name)
+
+	ofile.write("\nTexAColorOp %s {"%(brdf_name))
+	ofile.write("\n\tcolor_a= %s;"%(a(sce,tex)))
+	ofile.write("\n\tmult_a= %s;"%(a(sce,mult)))
+	ofile.write("\n}\n")
+
+	return brdf_name
+
+
+def write_TexInvert(name):
+	tex_name= "TexInvert_%s"%(name)
+
+	ofile.write("\nTexInvert %s {"%(tex_name))
+	ofile.write("\n\ttexture= %s;"%(tex))
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_TexCompMax(name, sourceA, sourceB):
+	tex_name= "TexCompMax_%s"%(name)
+
+	ofile.write("\nTexCompMax %s {"%(tex_name))
+	ofile.write("\n\tsourceA= %s;"%(sourceA))
+	ofile.write("\n\tsourceB= %s;"%(sourceB))
+	ofile.write("\n\toperator= %d;"%(3)) # 0:Add, 1:Subtract, 2:Difference, 3:Multiply, 4:Divide, 5:Minimum, 6:Maximum
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
 def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
 	tex_name= "Texture_no_texture"
 
@@ -950,7 +1034,7 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	vtex= tex.vray_texture
 
 	if tex:
-		plugin= get_tex_plugin(vtex.type)
+		plugin= get_plugin(TEX_PLUGINS, vtex.type)
 		if plugin is not None:
 			tex_name= plugin.write(ofile, sce, tex)
 
@@ -958,16 +1042,18 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 
 
 def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, env= None):
-	if(slot):
+	if slot:
 		tex= slot.texture
 		
 	tex_name= "Texture_no_texture"
+
 	if tex.type == 'IMAGE':
 		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
 	elif tex.type == 'PLUGIN':
 		tex_name= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
 	else:
 		pass
+
 	return tex_name
 
 
@@ -1143,6 +1229,121 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	return vraymat
 
 
+def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
+	BRDF_TYPE= {
+		'PHONG': 0,
+		'BLINN': 1,
+		'WARD':  2
+	}
+
+	TRANSLUCENSY= {
+		"HYBRID": 3,
+		"SOFT":   2,
+		"HARD":   1,
+		"NONE":   0
+	}
+
+	rm= ma.raytrace_mirror
+	rt= ma.raytrace_transparency
+	vma= ma.vray_material
+	plug= vma.BRDFVRayMtl
+
+	brdf_name= "BRDFVRayMtl_%s"%(ma_name)
+
+	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
+	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[plug.brdf_type]))) # integer = 1, The BRDF type (0 - Phong, 1 - Blinn, 2 - Ward)
+
+	if(tex_vray['alpha']): # float texture = 1, The opacity of the material
+		ofile.write("\n\topacity= %s::out_intensity;"%(tex_vray['alpha']))
+	else:
+		ofile.write("\n\topacity= %s;"%(a(sce,"%.6f"%(ma.alpha))))
+
+	if(tex_vray['color']): # acolor texture = AColor(0.5, 0.5, 0.5, 1), The diffuse color of the material
+		ofile.write("\n\tdiffuse= %s;"%(tex_vray['color']))
+	else:
+		ofile.write("\n\tdiffuse= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color)))))
+
+	if(tex_vray['reflect']): # acolor texture = AColor(0, 0, 0, 1), The reflection color of the material
+		ofile.write("\n\treflect= %s;"%(tex_vray['reflect']))
+	else:
+		ofile.write("\n\treflect= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(plug.reflect_color)))))
+
+	if(tex_vray['reflect_glossiness']): # float texture = 1, The glossiness of the reflections
+		ofile.write("\n\treflect_glossiness= %s::out_intensity;"%(tex_vray['reflect_glossiness']))
+	else:
+		ofile.write("\n\treflect_glossiness= %s;"%(a(sce,rm.gloss_factor)))
+
+	if(tex_vray['hilight_glossiness']): # float texture = 1, The glossiness of the hilights
+		ofile.write("\n\thilight_glossiness= %s::out_intensity;"%(tex_vray['hilight_glossiness']))
+	else:
+		ofile.write("\n\thilight_glossiness= %s;"%(a(sce,plug.hilight_glossiness)))
+
+	if(tex_vray['refract']): # acolor texture = AColor(0, 0, 0, 1), The refraction color of the material
+		ofile.write("\n\trefract= %s;"%(tex_vray['refract']))
+	else:
+		ofile.write("\n\trefract= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(plug.refract_color)))))
+
+	for param in OBJECT_PARAMS['BRDFVRayMtl']:
+		if param not in ('refract','opacity','diffuse','reflect','reflect_glossiness','hilight_glossiness','refract'):
+			if param == 'refract_ior':
+				value= rt.ior
+			elif param == 'refract_glossiness':
+				value= rt.gloss_factor
+			elif param == 'translucency':
+				value= TRANSLUCENSY[plug.translucency]
+			else:
+				value= getattr(plug,param)
+			ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+	ofile.write("\n}\n")
+
+	# ofile.write("\n\troughness= %s;"%(a(sce,ma.vray_roughness))) # float texture = 0, The roughness of the diffuse part of the material
+	# ofile.write("\n\treflect_subdivs= %s;"%(p(rm.gloss_samples))) # integer = 8, Subdivs for glossy reflectons
+	# ofile.write("\n\treflect_trace= %s;"%(p(ma.vray_trace_reflections))) # bool = true, true to trace reflections and false to only do hilights
+	# ofile.write("\n\treflect_depth= %s;"%(p(rm.depth))) # integer = 5, The maximum depth for reflections
+	# ofile.write("\n\treflect_exit_color= %s;"%(a(sce,"Color(0, 0, 0)"))) # color = Color(0, 0, 0), The color to use when the maximum depth is reached
+	# ofile.write("\n\treflect_dim_distance= %s;"%(a(sce,0.1))) # float = 1e+18, How much to dim reflection as length of rays increases
+	# ofile.write("\n\treflect_dim_distance_on= %s;"%(a(sce,0))) # bool = false, True to enable dim distance
+	# ofile.write("\n\treflect_dim_distance_falloff= %s;"%(a(sce,0))) # float = 0, Fall off for the dim distance
+	# ofile.write("\n\thilight_glossiness_lock= %s;"%(1)) # bool = true, true to use the reflection glossiness also for hilights (hilight_glossiness is ignored)
+	# ofile.write("\n\thilight_soften= %s;"%(a(sce,0))) # float = 0, How much to soften hilights and reflections at grazing light angles
+	# ofile.write("\n\tfresnel= %s;"%(a(sce,ma.vray_fresnel))) # bool = false, true to enable fresnel reflections
+	# ofile.write("\n\tfresnel_ior= %s;"%(a(sce,ma.vray_fresnel_ior))) # float texture = 1.6, The ior for calculating the Fresnel term
+	# ofile.write("\n\tfresnel_ior_lock= %s;"%(a(sce,ma.vray_fresnel_ior_lock))) # bool = true, true to use the refraction ior also for the Fresnel term (fresnel_ior is ignored)
+	# ofile.write("\n\tanisotropy= %s;"%(a(sce,ma.vray_anisotropy))) # bool = true, true to use the refraction ior also for the Fresnel term (fresnel_ior is ignored)
+	# ofile.write("\n\tanisotropy_rotation= %s;"%(a(sce,ma.vray_anisotropy_rotation))) # float texture = 0, The rotation of the anisotropy axes, from 0.0 to 1.0
+	# ofile.write("\n\tanisotropy_derivation= %s;"%(a(sce,0))) # integer = 0, What method to use for deriving anisotropy axes (0 - local object axis; 1 - a specified uvw generator)
+	# ofile.write("\n\tanisotropy_axis= %s;"%(a(sce,2))) # integer = 2, Which local object axis to use when anisotropy_derivation is 0
+	# # ofile.write("\n\tanisotropy_uvwgen= %s;"%(a(sce,))) # plugin, The uvw generator to use for anisotropy when anisotropy_derivation is 1
+	# ofile.write("\n\trefract_ior= %s;"%(a(sce,rt.ior))) # float texture = 1.6, The IOR for refractions
+	# ofile.write("\n\trefract_glossiness= %s;"%(a(sce,rt.gloss_factor))) # float texture = 1, Glossiness for refractions
+	# ofile.write("\n\trefract_subdivs= %s;"%(a(sce,rt.gloss_samples))) # integer = 8, Subdivs for glossy refractions
+	# ofile.write("\n\trefract_trace= %s;"%(p(ma.vray_trace_refractions))) # bool = true, 1 to trace refractions; 0 to disable them
+	# ofile.write("\n\trefract_depth= %s;"%(a(sce,rt.depth))) # integer = 5, The maximum depth for refractions
+	# ofile.write("\n\trefract_exit_color= %s;"%(a(sce,"Color(0, 0, 0)"))) # color = Color(0, 0, 0), The color to use when maximum depth is reached when refract_exit_color_on is true
+	# ofile.write("\n\trefract_exit_color_on= %s;"%(a(sce,0))) # bool = false, If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray
+	# ofile.write("\n\trefract_affect_alpha= %s;"%(p(ma.vray_affect_alpha))) # integer = 0 (0 - opaque alpha; 1 - alpha is taken from refractions; 2 - all channels are propagated
+	# ofile.write("\n\trefract_affect_shadows= %s;"%(p(ma.vray_affect_shadows))) # bool = false, true to enable the refraction to affect the shadows cast by the material (as transparent shadows)
+	# ofile.write("\n\tfog_color= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.vray_fog_color))))) # color = Color(1, 1, 1), The absorption (fog) color
+	# ofile.write("\n\tfog_mult= %s;"%(a(sce,ma.vray_fog_color_mult * 10))) # float = 1, Multiplier for the absorption
+	# ofile.write("\n\tfog_bias= %s;"%(a(sce,ma.vray_fog_bias))) # float = 0, Bias for the absorption
+	# ofile.write("\n\ttranslucency= %s;"%(a(sce,0))) # integer = 0, Translucency mode (0 - none)
+	# ofile.write("\n\ttranslucency_color= %s;"%(a(sce,"AColor(1, 1, 1, 1)"))) # acolor texture = AColor(1, 1, 1, 1), Filter color for the translucency effect
+	# ofile.write("\n\ttranslucency_light_mult= %s;"%(a(sce,1.0))) # float = 1, A multiplier for the calculated lighting for the translucency effect
+	# ofile.write("\n\ttranslucency_scatter_dir= %s;"%(a(sce,0.5))) # float = 0.5, Scatter direction (0.0f is backward, 1.0f is forward)
+	# ofile.write("\n\ttranslucency_scatter_coeff= %s;"%(a(sce,0.0))) # float = 0, Scattering cone (0.0f - no scattering, 1.0f - full scattering
+	# ofile.write("\n\ttranslucency_thickness= %s;"%(a(sce,0.1))) # float = 0, Scattering cone (0.0f - no scattering, 1.0f - full scattering
+	# ofile.write("\n\toption_double_sided= %s;"%(a(sce,ma.vray_double_sided))) # bool = true, true if the material is double-sided
+	# ofile.write("\n\toption_reflect_on_back= %s;"%(a(sce,ma.vray_back_side))) # bool = false, true to compute reflections for back sides of objects
+	# ofile.write("\n\toption_glossy_rays_as_gi= %s;"%(a(sce,1))) # integer = 1, Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always
+	# ofile.write("\n\toption_cutoff= %s;"%(a(sce,0.001))) # float = 0.001, Specifies a cutoff threshold for tracing reflections/refractions
+	# ofile.write("\n\toption_use_irradiance_map= %s;"%(a(sce,1))) # float = 0.001, Specifies a cutoff threshold for tracing reflections/refractions
+	# ofile.write("\n\toption_energy_mode= %s;"%(a(sce,0))) # integer = 0, Energy preservation mode for reflections and refractions (0 - color, 1 - monochrome)
+	# # ofile.write("\n\tenvironment_override= %s;"%(a(sce,))) # acolor texture, Environment override texture
+	# ofile.write("\n\tenvironment_priority= %s;"%(a(sce,0))) # integer = 0, Environment override priority (used when several materials override it along a ray path)
+
+	return brdf_name
+
+
 def write_BRDFBump(ofile, base_brdf, tex_vray):
 	brdf_name= "BRDFBump_%s"%(base_brdf)
 	ofile.write("\nBRDFBump %s {"%(brdf_name))
@@ -1156,372 +1357,35 @@ def write_BRDFBump(ofile, base_brdf, tex_vray):
 	ofile.write("\n\tbump_shadows= 1;")
 	if(tex_vray['normal']):
 		ofile.write("\n\tmap_type= 2;")
+	else:
+		ofile.write("\n\tmap_type= 0;")
 	ofile.write("\n}\n")
 	return brdf_name
 
 
 def write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray):
-	SCATTER= {
-		"NONE":   0,
-		"SIMPLE": 1,
-		"SOLID":  2,
-		"REFR":   3
+	SINGLE_SCATTER= {
+		'NONE':   0,
+		'SIMPLE': 1,
+		'SOLID':  2,
+		'REFR':   3
 	}
+
+	vma= ma.vray_material
+	plug= vma.BRDFSSS2Complex
 
 	brdf_name= "BRDFSSS2Complex_%s"%(ma_name)
 
 	ofile.write("\nBRDFSSS2Complex %s {"%(brdf_name))
-	ofile.write("\n\tsingle_scatter= %s;"%(a(sce,SCATTER[ma.vray_fsss_single_scatter])))
 	for param in OBJECT_PARAMS['BRDFSSS2Complex']:
-		ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma, "vray_fsss_%s"%(param)))))
+		if param == 'single_scatter':
+			value= SINGLE_SCATTER[plug.single_scatter]
+		else:
+			value= getattr(plug,param)
+		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
 	ofile.write("\n}\n")
 
 	return brdf_name
-
-
-# def write_BRDFGlossy(ofile, ma, ma_name, tex_vray):
-# 	rm= ma.raytrace_mirror
-
-# 	brdf_name= "BRDFGlossy_%s"%(ma_name)
-
-# 	if(ma.vray_brdf == 'PHONG'):
-# 		ofile.write("\nBRDFPhong %s {"%(brdf_name))
-# 	elif(ma.vray_brdf == 'WARD'):
-# 		ofile.write("\nBRDFWard %s {"%(brdf_name))
-# 	else:
-# 		ofile.write("\nBRDFBlinn %s {"%(brdf_name))
-
-# 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_reflect_color)))))
-# 	ofile.write("\n\tsubdivs= %i;"%(rm.gloss_samples))
-
-# 	if(tex_vray['reflect']):
-# 		ofile.write("\n\ttransparency= Color(1.0,1.0,1.0);")
-# 		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
-# 	else:
-# 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(
-# 			1.0 - ma.vray_reflect_color[0],
-# 			1.0 - ma.vray_reflect_color[1],
-# 			1.0 - ma.vray_reflect_color[2]))))
-
-# 	ofile.write("\n\treflectionGlossiness= %s;"%(a(sce,rm.gloss_factor)))
-# 	ofile.write("\n\thilightGlossiness= %s;"%(a(sce,ma.vray_hilightGlossiness)))
-# 	if(tex_vray['reflect_glossiness']):
-# 		ofile.write("\n\treflectionGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['reflect_glossiness'])))
-# 	if(tex_vray['hilight_glossiness']):
-# 		ofile.write("\n\thilightGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['hilight_glossiness'])))
-# 	ofile.write("\n\tback_side= %s;"%(a(sce,ma.vray_back_side)))
-# 	ofile.write("\n\ttrace_reflections= %s;"%(p(ma.vray_trace_reflections)))
-# 	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rm.depth)))
-# 	if(not ma.vray_brdf == 'PHONG'):
-# 		ofile.write("\n\tanisotropy= %s;"%(a(sce,ma.vray_anisotropy)))
-# 		ofile.write("\n\tanisotropy_rotation= %s;"%(a(sce,ma.vray_anisotropy_rotation)))
-# 	ofile.write("\n\tcutoff= %s;"%(a(sce,rm.gloss_threshold)))
-# 	ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-# def write_BRDFGlass(ofile, ma, ma_name, tex_vray):
-# 	rt= ma.raytrace_transparency
-
-# 	brdf_name= "BRDFGlass_%s"%(ma_name)
-
-# 	ofile.write("\nBRDFGlass %s {"%(brdf_name))
-# 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_refract_color)))))
-# 	if(tex_vray['refract']):
-# 		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
-# 	ofile.write("\n\tior= %s;"%(a(sce,rt.ior)))
-# 	ofile.write("\n\taffect_shadows= %d;"%(ma.vray_affect_alpha))
-# 	ofile.write("\n\ttrace_refractions= %d;"%(ma.vray_trace_refractions))
-# 	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rt.depth)))
-# 	ofile.write("\n\tcutoff= %s;"%(a(sce,0.001)))
-# 	ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-# def write_BRDFGlassGlossy(ofile, ma, ma_name, tex_vray):
-# 	rt= ma.raytrace_transparency
-
-# 	brdf_name= "BRDFGlassGlossy_%s"%(ma_name)
-
-# 	ofile.write("\nBRDFGlassGlossy %s {"%(brdf_name))
-# 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_refract_color)))))
-# 	if(tex_vray['refract']):
-# 		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
-# 	ofile.write("\n\tglossiness= %s;"%(a(sce,rt.gloss_factor)))
-# 	ofile.write("\n\tsubdivs= %i;"%(rt.gloss_samples))
-# 	ofile.write("\n\tior= %s;"%(a(sce,rt.ior)))
-# 	ofile.write("\n\taffect_shadows= %d;"%(ma.vray_affect_alpha))
-# 	ofile.write("\n\ttrace_refractions= %d;"%(ma.vray_trace_refractions))
-# 	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rt.depth)))
-# 	ofile.write("\n\tcutoff= %s;"%(a(sce,0.001)))
-# 	ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
-	BRDFS= {
-		'PHONG': 0,
-		'BLINN': 1,
-		'WARD':  2
-	}
-
-	rm= ma.raytrace_mirror
-	rt= ma.raytrace_transparency
-
-	brdf_name= "BRDFVRayMtl_%s"%(ma_name)
-
-	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
-
-	# float texture = 1, The opacity of the material
-	if(tex_vray['alpha']):
-		ofile.write("\n\topacity= %s::out_intensity;"%(tex_vray['alpha']))
-	else:
-		ofile.write("\n\topacity= %s;"%(a(sce,"%.6f"%(ma.alpha))))
-
-	# acolor texture = AColor(0.5, 0.5, 0.5, 1), The diffuse color of the material
-	if(tex_vray['color']):
-		ofile.write("\n\tdiffuse= %s;"%(tex_vray['color']))
-	else:
-		ofile.write("\n\tdiffuse= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color)))))
-
-	# float texture = 0, The roughness of the diffuse part of the material
-	ofile.write("\n\troughness= %s;"%(a(sce,ma.vray_roughness)))
-
-	# integer = 1, The BRDF type (0 - Phong, 1 - Blinn, 2 - Ward)
-	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDFS[ma.vray_brdf])))
-
-	# acolor texture = AColor(0, 0, 0, 1), The reflection color of the material
-	if(tex_vray['reflect']):
-		ofile.write("\n\treflect= %s;"%(tex_vray['reflect']))
-	else:
-		ofile.write("\n\treflect= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.vray_reflect_color)))))
-
-	# integer = 8, Subdivs for glossy reflectons
-	ofile.write("\n\treflect_subdivs= %s;"%(p(rm.gloss_samples)))
-
-	# bool = true, true to trace reflections and false to only do hilights
-	ofile.write("\n\treflect_trace= %s;"%(p(ma.vray_trace_reflections)))
-
-	# integer = 5, The maximum depth for reflections
-	ofile.write("\n\treflect_depth= %s;"%(p(rm.depth)))
-
-	# color = Color(0, 0, 0), The color to use when the maximum depth is reached
-	ofile.write("\n\treflect_exit_color= %s;"%(a(sce,"Color(0, 0, 0)")))
-
-	# float = 1e+18, How much to dim reflection as length of rays increases
-	ofile.write("\n\treflect_dim_distance= %s;"%(a(sce,0.1)))
-
-	# bool = false, True to enable dim distance
-	ofile.write("\n\treflect_dim_distance_on= %s;"%(a(sce,0)))
-
-	# float = 0, Fall off for the dim distance
-	ofile.write("\n\treflect_dim_distance_falloff= %s;"%(a(sce,0)))
-	# float texture = 1, The glossiness of the reflections
-	if(tex_vray['reflect_glossiness']):
-		ofile.write("\n\treflect_glossiness= %s::out_intensity;"%(tex_vray['reflect_glossiness']))
-	else:
-		ofile.write("\n\treflect_glossiness= %s;"%(a(sce,rm.gloss_factor)))
-
-	# float texture = 1, The glossiness of the hilights
-	if(tex_vray['hilight_glossiness']):
-		ofile.write("\n\thilight_glossiness= %s::out_intensity;"%(tex_vray['hilight_glossiness']))
-	else:
-		ofile.write("\n\thilight_glossiness= %s;"%(a(sce,ma.vray_hilightGlossiness)))
-
-	# bool = true, true to use the reflection glossiness also for hilights (hilight_glossiness is ignored)
-	ofile.write("\n\thilight_glossiness_lock= %s;"%(1))
-
-	# float = 0, How much to soften hilights and reflections at grazing light angles
-	ofile.write("\n\thilight_soften= %s;"%(a(sce,0)))
-
-	# bool = false, true to enable fresnel reflections
-	ofile.write("\n\tfresnel= %s;"%(a(sce,ma.vray_fresnel)))
-
-	# float texture = 1.6, The ior for calculating the Fresnel term
-	ofile.write("\n\tfresnel_ior= %s;"%(a(sce,ma.vray_fresnel_ior)))
-
-	# bool = true, true to use the refraction ior also for the Fresnel term (fresnel_ior is ignored)
-	#ofile.write("\n\tfresnel_ior_lock= %s;"%(a(sce,ma.vray_fresnel_ior_lock)))
-	ofile.write("\n\tfresnel_ior_lock= %s;"%(0))
-
-	# float texture = 0, The anisotropy for glossy reflections, from -1 to 1 (0.0 is isotropic reflections)
-	ofile.write("\n\tanisotropy= %s;"%(a(sce,ma.vray_anisotropy)))
-
-	# float texture = 0, The rotation of the anisotropy axes, from 0.0 to 1.0
-	ofile.write("\n\tanisotropy_rotation= %s;"%(a(sce,ma.vray_anisotropy_rotation)))
-
-	# integer = 0, What method to use for deriving anisotropy axes (0 - local object axis; 1 - a specified uvw generator)
-	ofile.write("\n\tanisotropy_derivation= %s;"%(a(sce,0)))
-
-	# integer = 2, Which local object axis to use when anisotropy_derivation is 0
-	ofile.write("\n\tanisotropy_axis= %s;"%(a(sce,2)))
-
-	# plugin, The uvw generator to use for anisotropy when anisotropy_derivation is 1
-	#ofile.write("\n\tanisotropy_uvwgen= %s;"%(a(sce,)))
-
-	# acolor texture = AColor(0, 0, 0, 1), The refraction color of the material
-	if(tex_vray['refract']):
-		ofile.write("\n\trefract= %s;"%(tex_vray['refract']))
-	else:
-		ofile.write("\n\trefract= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.vray_refract_color)))))
-
-	# float texture = 1.6, The IOR for refractions
-	ofile.write("\n\trefract_ior= %s;"%(a(sce,rt.ior)))
-
-	# float texture = 1, Glossiness for refractions
-	ofile.write("\n\trefract_glossiness= %s;"%(a(sce,rt.gloss_factor)))
-
-	# integer = 8, Subdivs for glossy refractions
-	ofile.write("\n\trefract_subdivs= %s;"%(a(sce,rt.gloss_samples)))
-
-	# bool = true, 1 to trace refractions; 0 to disable them
-	ofile.write("\n\trefract_trace= %s;"%(p(ma.vray_trace_refractions)))
-
-	# integer = 5, The maximum depth for refractions
-	ofile.write("\n\trefract_depth= %s;"%(a(sce,rt.depth)))
-
-	# color = Color(0, 0, 0), The color to use when maximum depth is reached when refract_exit_color_on is true
-	ofile.write("\n\trefract_exit_color= %s;"%(a(sce,"Color(0, 0, 0)")))
-
-	# bool = false, If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray
-	ofile.write("\n\trefract_exit_color_on= %s;"%(a(sce,0)))
-
-	# integer = 0, Determines how refractions affect the alpha channel (0 - opaque alpha; 1 - alpha is taken from refractions; 2 - all channels are propagated
-	ofile.write("\n\trefract_affect_alpha= %s;"%(p(ma.vray_affect_alpha)))
-
-	# bool = false, true to enable the refraction to affect the shadows cast by the material (as transparent shadows)
-	ofile.write("\n\trefract_affect_shadows= %s;"%(p(ma.vray_affect_shadows)))
-
-	# color = Color(1, 1, 1), The absorption (fog) color
-	ofile.write("\n\tfog_color= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.vray_fog_color)))))
-
-	# float = 1, Multiplier for the absorption
-	ofile.write("\n\tfog_mult= %s;"%(a(sce,ma.vray_fog_color_mult * 10)))
-
-	# float = 0, Bias for the absorption
-	ofile.write("\n\tfog_bias= %s;"%(a(sce,ma.vray_fog_bias)))
-
-	# integer = 0, Translucency mode (0 - none)
-	ofile.write("\n\ttranslucency= %s;"%(a(sce,0)))
-
-	# acolor texture = AColor(1, 1, 1, 1), Filter color for the translucency effect
-	ofile.write("\n\ttranslucency_color= %s;"%(a(sce,"AColor(1, 1, 1, 1)")))
-
-	# float = 1, A multiplier for the calculated lighting for the translucency effect
-	ofile.write("\n\ttranslucency_light_mult= %s;"%(a(sce,1.0)))
-
-	# float = 0.5, Scatter direction (0.0f is backward, 1.0f is forward)
-	ofile.write("\n\ttranslucency_scatter_dir= %s;"%(a(sce,0.5)))
-
-	# float = 0, Scattering cone (0.0f - no scattering, 1.0f - full scattering
-	ofile.write("\n\ttranslucency_scatter_coeff= %s;"%(a(sce,0.0)))
-
-	# float = 1e+18, Maximum distance to trace inside the object
-	ofile.write("\n\ttranslucency_thickness= %s;"%(a(sce,0.1)))
-
-	# bool = true, true if the material is double-sided
-	ofile.write("\n\toption_double_sided= %s;"%(a(sce,ma.vray_double_sided)))
-
-	# bool = false, true to compute reflections for back sides of objects
-	ofile.write("\n\toption_reflect_on_back= %s;"%(a(sce,ma.vray_back_side)))
-
-	# integer = 1, Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always
-	ofile.write("\n\toption_glossy_rays_as_gi= %s;"%(a(sce,1)))
-
-	# float = 0.001, Specifies a cutoff threshold for tracing reflections/refractions
-	ofile.write("\n\toption_cutoff= %s;"%(a(sce,0.001)))
-
-	# bool = true, false to perform local brute-force GI calculatons and true to use the current GI engine
-	ofile.write("\n\toption_use_irradiance_map= %s;"%(a(sce,1)))
-
-	# integer = 0, Energy preservation mode for reflections and refractions (0 - color, 1 - monochrome)
-	ofile.write("\n\toption_energy_mode= %s;"%(a(sce,0)))
-
-	# acolor texture, Environment override texture
-	#ofile.write("\n\tenvironment_override= %s;"%(a(sce,)))
-
-	# integer = 0, Environment override priority (used when several materials override it along a ray path)
-	ofile.write("\n\tenvironment_priority= %s;"%(a(sce,0)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_TexAColorOp(tex, mult, tex_name= None):
-	brdf_name= "TexAColorOp_%s"%(tex)
-	if(tex_name):
-		brdf_name= "TexAColorOp_%s"%(tex_name)
-
-	ofile.write("\nTexAColorOp %s {"%(brdf_name))
-	ofile.write("\n\tcolor_a= %s;"%(a(sce,tex)))
-	ofile.write("\n\tmult_a= %s;"%(a(sce,mult)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-# def write_BRDFMirror(ofile, ma, ma_name, tex_vray):
-# 	rm= ma.raytrace_mirror
-
-# 	brdf_name= "BRDFMirror_%s"%(ma_name)
-
-# 	ofile.write("\nBRDFMirror %s {"%(brdf_name))
-# 	if(tex_vray['color']):
-# 		ofile.write("\n\tcolor= %s;"%(tex_vray['color']))
-# 	else:
-# 		ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color)))))
-# 	if(tex_vray['reflect']):
-# 		ofile.write("\n\ttransparency= Color(1.0, 1.0, 1.0);")
-# 		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
-# 	else:
-# 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple([1.0 - c for c in ma.vray_reflect_color])))))
-# 	ofile.write("\n\tback_side= %d;"%(ma.vray_back_side))
-# 	ofile.write("\n\ttrace_reflections= %s;"%(p(ma.vray_trace_reflections)))
-# 	ofile.write("\n\ttrace_depth= %i;"%(rm.depth))
-# 	ofile.write("\n\tcutoff= %.6f;"%(0.01))
-# 	ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-def write_TexCompMax(name, sourceA, sourceB):
-	tex_name= "TexCompMax_%s"%(name)
-
-	ofile.write("\nTexCompMax %s {"%(tex_name))
-	ofile.write("\n\tsourceA= %s;"%(sourceA))
-	ofile.write("\n\tsourceB= %s;"%(sourceB))
-	# 0:Add, 1:Subtract, 2:Difference, 3:Multiply, 4:Divide, 5:Minimum, 6:Maximum
-	ofile.write("\n\toperator= %d;"%(3)) 
-	ofile.write("\n}\n")
-
-	return tex_name
-
-
-def write_TexInvert(name):
-	tex_name= "TexInvert_%s"%(name)
-
-	ofile.write("\nTexInvert %s {"%(tex_name))
-	ofile.write("\n\ttexture= %s;"%(tex))
-	ofile.write("\n}\n")
-
-	return tex_name
-
-
-def write_TexFresnel(ofile, ma, ma_name, tex_vray):
-	tex_name= "TexFresnel_%s"%(ma_name)
-
-	ofile.write("\nTexFresnel %s {"%(tex_name))
-	if(tex_vray["reflect"]):
-		ofile.write("\n\tblack_color= %s;"%(tex_vray["reflect"]))
-	else:
-		ofile.write("\n\tblack_color= %s;"%(a(sce,"AColor(%.6f, %.6f, %.6f, 1.0)"%(tuple([1.0 - c for c in ma.vray_reflect_color])))))
-	ofile.write("\n\tfresnel_ior= %s;"%(a(sce,ma.vray_fresnel_ior)))
-	ofile.write("\n}\n")
-
-	return tex_name
 
 
 def write_BRDFLight(ofile, ma, ma_name, tex_vray):
@@ -1552,84 +1416,14 @@ def write_BRDFLight(ofile, ma, ma_name, tex_vray):
 	return brdf_name
 
 
-# def write_BRDFDiffuse(ofile, ma, ma_name, tex_vray):
-# 	brdf_name= "BRDFDiffuse_%s"%(ma_name)
-
-# 	ofile.write("\nBRDFDiffuse %s {"%(brdf_name))
-# 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color)))))
-# 	ofile.write("\n\troughness= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(ma.vray_roughness,ma.vray_roughness,ma.vray_roughness))))
-# 	if(tex_vray['color']):
-# 		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['color']))
-# 	ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
-# 	if(tex_vray['alpha']):
-# 		ofile.write("\n\ttransparency_tex= %s;"%(a(sce,tex_vray['alpha'])))
-# 	ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-# def write_BRDF(ofile, ma, ma_name, tex_vray):
-# 	def bool_color(color, level):
-# 		for c in color:
-# 			if c > level:
-# 				return True
-# 		return False
-
-# 	rm= ma.raytrace_mirror
-# 	rt= ma.raytrace_transparency
-
-# 	brdfs= []
-
-# 	if(tex_vray['reflect']):
-# 		tex_vray['reflect']= write_TexInvert(tex_vray['reflect'])
-
-# 	if(ma.vray_fresnel):
-# 		tex_vray['reflect']= write_TexFresnel(ofile, ma, ma_name, tex_vray)
-
-# 	if(tex_vray['reflect'] or bool_color(ma.vray_reflect_color, 0.0)):
-# 		if(rm.gloss_factor < 1.0 or tex_vray['reflect_glossiness']):
-# 			brdf_name= write_BRDFGlossy(ofile, ma, ma_name, tex_vray)
-# 		else:
-# 			brdf_name= write_BRDFMirror(ofile, ma, ma_name, tex_vray)
-# 		brdfs.append(brdf_name)
-
-# 	if(tex_vray['refract'] or bool_color(ma.vray_refract_color, 0.0)):
-# 		if(rt.gloss_factor < 1.0 or tex_vray['refract_glossiness']):
-# 			brdf_name= write_BRDFGlassGlossy(ofile, ma, ma_name, tex_vray)
-# 		else:
-# 			brdf_name= write_BRDFGlass(ofile, ma, ma_name, tex_vray)
-# 	else:
-# 		brdf_name= write_BRDFDiffuse(ofile, ma, ma_name, tex_vray)
-# 	brdfs.append(brdf_name)
-
-# 	if(len(brdfs) == 1):
-# 		brdf_name= brdfs[0]
-# 	else:
-# 		brdf_name= "BRDFLayered_%s"%(ma_name)
-
-# 		ofile.write("\nBRDFLayered %s {"%(brdf_name))
-# 		ofile.write("\n\tbrdfs= List(")
-# 		brdfs_out= ""
-# 		for brdf in brdfs:
-# 			brdfs_out+= "\n\t\t%s,"%(brdf)
-# 		ofile.write(brdfs_out[0:-1])
-# 		ofile.write("\n\t);")
-# 		ofile.write("\n\tadditive_mode= %s;"%(0)); # For shellac
-# 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
-# 		if(tex_vray['alpha']):
-# 			ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['alpha']))
-# 		ofile.write("\n}\n")
-
-# 	return brdf_name
-
-
-
 def	write_material(ofile, exported_bitmaps, ma, name= None):
 	ma_name= get_name(ma,"Material")
 	if(name):
 		ma_name= name
 
-	if(ma.vray_mtl_two_sided and ma.vray_mtl_use_wrapper and ma.vray_mtl_renderstats):
+	vma= ma.vray_material
+
+	if(vma.two_sided and vma.use_wrapper and vma.use_renderstats):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		ts_material= "Mtl2Sided_%s"%(ma_name)
 		wrap_material= "MtlWrapper_%s"%(ma_name)
@@ -1637,26 +1431,26 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		rstat_material= ma_name
 		rstat_base= wrap_material
 		
-	elif(ma.vray_mtl_two_sided and ma.vray_mtl_renderstats and not ma.vray_mtl_use_wrapper):
+	elif(vma.two_sided and vma.use_renderstats and not vma.use_wrapper):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		ts_material= "Mtl2Sided_%s"%(ma_name)
 		rstat_base= ts_material
 		rstat_material= ma_name
 	
-	elif(ma.vray_mtl_two_sided and ma.vray_mtl_use_wrapper and not ma.vray_mtl_renderstats):
+	elif(vma.two_sided and vma.use_wrapper and not vma.use_renderstats):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		ts_material= "Mtl2Sided_%s"%(ma_name)
 		wrap_base= ts_material
 		wrap_material= ma_name
 
-	elif(ma.vray_mtl_use_wrapper and ma.vray_mtl_renderstats and not ma.vray_mtl_two_sided):
+	elif(vma.use_wrapper and vma.use_renderstats and not vma.two_sided):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		wrap_material= "MtlWrapper_%s"%(ma_name)
 		wrap_base= base_material
 		rstat_material= ma_name
 		rstat_base= wrap_material
 
-	elif(ma.vray_mtl_two_sided):
+	elif(vma.two_sided):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		ts_material= ma_name
 
@@ -1670,20 +1464,22 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 
 	tex_vray= write_textures(ofile, exported_bitmaps, ma, ma_name)
 
-	if(ma.vray_mtl_type == 'MTL'):
+	vma= ma.vray_material
+
+	if(vma.type == 'MTL'):
 		brdf_name= write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray)
-	elif(ma.vray_mtl_type == 'SSS'):
+	elif(vma.type == 'SSS'):
 		brdf_name= write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray)
-	elif(ma.vray_mtl_type == 'EMIT'):
+	elif(vma.type == 'EMIT'):
 		brdf_name= write_BRDFLight(ofile, ma, ma_name, tex_vray)
 	else:
 		return
 
-	if(not ma.vray_mtl_type == 'EMIT'):
+	if vma.type != 'EMIT':
 		if(tex_vray['bump'] or tex_vray['normal']):
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
-	if(ma.vray_mtl_two_sided):
+	if(vma.two_sided):
 		ofile.write("\nMtlSingleBRDF %s {"%(base_material))
 		ofile.write("\n\tbrdf= %s;"%(brdf_name))
 		ofile.write("\n}\n")
@@ -1698,7 +1494,7 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		ofile.write("\n\tbrdf= %s;"%(brdf_name))
 		ofile.write("\n}\n")
 
-	if(ma.vray_mtl_use_wrapper):
+	if(vma.use_wrapper):
 		ofile.write("\nMtlWrapper %s {"%(wrap_material))
 		ofile.write("\n\tbase_material= %s;"%(wrap_base))
 		for param in OBJECT_PARAMS['MtlWrapper']:
@@ -1708,7 +1504,7 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 				ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma, "vb_mwrap_%s"%(param)))))
 		ofile.write("\n}\n")
 		
-	if(ma.vray_mtl_renderstats):
+	if(vma.use_renderstats):
 		ofile.write("\nMtlRenderStats %s {"%(rstat_material))
 		ofile.write("\n\tbase_mtl= %s;"%(rstat_base))
 		for param in OBJECT_PARAMS['MtlRenderStats']:
@@ -2206,6 +2002,8 @@ def write_camera(sce,camera= None, ofile= None):
 
 
 def write_scene():
+	vsce= sce.vray_scene
+	
 	ofile= open(filenames['scene'], 'w')
 
 	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
@@ -2421,238 +2219,246 @@ def write_scene():
 			if(SECONDARY[sce.vray_gi_secondary_engine] == 3):
 				settingsLC()
 
-	passes= sce.render.layers[0]
 
-	if(passes.pass_color or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Color {")
-		ofile.write("\n\tname=\"VRay_Color\";")
-		ofile.write("\n\talias= 101;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	render_channels= vsce.render_channels
 
-	if(passes.pass_diffuse or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Diffuse {")
-		ofile.write("\n\tname=\"VRay_Diffuse\";")
-		ofile.write("\n\talias= 107;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	for channel in render_channels:
+		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
+		if plugin is not None:
+			plugin.write(ofile, getattr(channel,plugin.PLUG))
+		
+	# passes= sce.render.layers[0]
 
-	if(passes.pass_specular or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Specular {")
-		ofile.write("\n\tname=\"VRay_Specular\";")
-		ofile.write("\n\talias= 106;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_color or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Color {")
+	# 	ofile.write("\n\tname=\"VRay_Color\";")
+	# 	ofile.write("\n\talias= 101;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_reflection or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Reflection {")
-		ofile.write("\n\tname=\"VRay_Reflection\";")
-		ofile.write("\n\talias= 102;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_diffuse or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Diffuse {")
+	# 	ofile.write("\n\tname=\"VRay_Diffuse\";")
+	# 	ofile.write("\n\talias= 107;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Reflection_Filter {")
-		ofile.write("\n\tname=\"VRay_Reflection_Filter\";")
-		ofile.write("\n\talias= 118;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_specular or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Specular {")
+	# 	ofile.write("\n\tname=\"VRay_Specular\";")
+	# 	ofile.write("\n\talias= 106;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Raw_Reflection {")
-		ofile.write("\n\tname=\"VRay_Raw_Reflection\";")
-		ofile.write("\n\talias= 119;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_reflection or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Reflection {")
+	# 	ofile.write("\n\tname=\"VRay_Reflection\";")
+	# 	ofile.write("\n\talias= 102;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_refraction or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Refract {")
-		ofile.write("\n\tname=\"VRay_Refract\";")
-		ofile.write("\n\talias= 103;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Reflection_Filter {")
+	# 	ofile.write("\n\tname=\"VRay_Reflection_Filter\";")
+	# 	ofile.write("\n\talias= 118;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Refraction_Filter {")
-		ofile.write("\n\tname=\"VRay_Refraction_Filter\";")
-		ofile.write("\n\talias= 120;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_Reflection {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_Reflection\";")
+	# 	ofile.write("\n\talias= 119;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Raw_Refraction {")
-		ofile.write("\n\tname=\"VRay_Raw_Refraction\";")
-		ofile.write("\n\talias= 121;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_refraction or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Refract {")
+	# 	ofile.write("\n\tname=\"VRay_Refract\";")
+	# 	ofile.write("\n\talias= 103;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_lightning or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Raw_Lightning {")
-		ofile.write("\n\tname=\"VRay_Raw_Lightning\";")
-		ofile.write("\n\talias= 111;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Refraction_Filter {")
+	# 	ofile.write("\n\tname=\"VRay_Refraction_Filter\";")
+	# 	ofile.write("\n\talias= 120;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Total_Lightning {")
-		ofile.write("\n\tname=\"VRay_Total_Lightning\";")
-		ofile.write("\n\talias= 129;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_Refraction {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_Refraction\";")
+	# 	ofile.write("\n\talias= 121;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Raw_Total_Lightning {")
-		ofile.write("\n\tname=\"VRay_Raw_Total_Lightning\";")
-		ofile.write("\n\talias= 130;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_lightning or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_Lightning {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_Lightning\";")
+	# 	ofile.write("\n\talias= 111;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_shadow or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Shadow {")
-		ofile.write("\n\tname=\"VRay_Shadow\";")
-		ofile.write("\n\talias= 105;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Total_Lightning {")
+	# 	ofile.write("\n\tname=\"VRay_Total_Lightning\";")
+	# 	ofile.write("\n\talias= 129;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Raw_Shadow {")
-		ofile.write("\n\tname=\"VRay_Raw_Shadow\";")
-		ofile.write("\n\talias= 112;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_Total_Lightning {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_Total_Lightning\";")
+	# 	ofile.write("\n\talias= 130;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Matte_Shadow {")
-		ofile.write("\n\tname=\"VRay_Matte_Shadow\";")
-		ofile.write("\n\talias= 128;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_shadow or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Shadow {")
+	# 	ofile.write("\n\tname=\"VRay_Shadow\";")
+	# 	ofile.write("\n\talias= 105;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_sss or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_SSS {")
-		ofile.write("\n\tname=\"VRay_SSS\";")
-		ofile.write("\n\talias= 133;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_Shadow {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_Shadow\";")
+	# 	ofile.write("\n\talias= 112;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_z or sce.vray_passes):
-		ofile.write("\nRenderChannelZDepth {")
-		ofile.write("\n\tname=\"ZDepth\";")
-		ofile.write("\n\tdepth_from_camera = %s;"%(p(sce.vray_zdepth_depth_camera)))
-		ofile.write("\n\tdepth_white= %s;"%(sce.vray_zdepth_depth_white))
-		ofile.write("\n\tdepth_black= %s;"%(sce.vray_zdepth_depth_black))
-		ofile.write("\n\tdepth_clamp= %s;"%(p(sce.vray_zdepth_depth_clamp)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Matte_Shadow {")
+	# 	ofile.write("\n\tname=\"VRay_Matte_Shadow\";")
+	# 	ofile.write("\n\talias= 128;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_vector or sce.vray_passes):
-		ofile.write("\nRenderChannelVelocity {")
-		ofile.write("\n\tname=\"Velocity\";")
-		ofile.write("\n\tdclamp_velocity = %s;"%(p(sce.vray_velocity_clamp_velocity)))
-		ofile.write("\n\tmax_velocity= %s;"%(sce.vray_velocity_max_velocity))
-		ofile.write("\n\tmax_velocity_last_frame= %s;"%(sce.vray_velocity_max_velocity_last_frame))
-		ofile.write("\n\tignore_z= %s;"%(p(sce.vray_velocity_ignore_z)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_sss or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_SSS {")
+	# 	ofile.write("\n\tname=\"VRay_SSS\";")
+	# 	ofile.write("\n\talias= 133;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Velocity {")
-		ofile.write("\n\tname=\"VRay_Velocity\";")
-		ofile.write("\n\talias= 113;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_z or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelZDepth {")
+	# 	ofile.write("\n\tname=\"ZDepth\";")
+	# 	ofile.write("\n\tdepth_from_camera = %s;"%(p(sce.vray_zdepth_depth_camera)))
+	# 	ofile.write("\n\tdepth_white= %s;"%(sce.vray_zdepth_depth_white))
+	# 	ofile.write("\n\tdepth_black= %s;"%(sce.vray_zdepth_depth_black))
+	# 	ofile.write("\n\tdepth_clamp= %s;"%(p(sce.vray_zdepth_depth_clamp)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_normal or sce.vray_passes):
-		ofile.write("\nRenderChannelNormals {")
-		ofile.write("\n\tname=\"Normals\";")
-		ofile.write("\n}")
+	# if(passes.pass_vector or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelVelocity {")
+	# 	ofile.write("\n\tname=\"Velocity\";")
+	# 	ofile.write("\n\tdclamp_velocity = %s;"%(p(sce.vray_velocity_clamp_velocity)))
+	# 	ofile.write("\n\tmax_velocity= %s;"%(sce.vray_velocity_max_velocity))
+	# 	ofile.write("\n\tmax_velocity_last_frame= %s;"%(sce.vray_velocity_max_velocity_last_frame))
+	# 	ofile.write("\n\tignore_z= %s;"%(p(sce.vray_velocity_ignore_z)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_object_index or sce.vray_passes):
-		ofile.write("\nRenderChannelRenderID {")
-		ofile.write("\n\tname=\"RenderID\";")
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Velocity {")
+	# 	ofile.write("\n\tname=\"VRay_Velocity\";")
+	# 	ofile.write("\n\talias= 113;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_emit or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Emit {")
-		ofile.write("\n\tname=\"VRay_Emit\";")
-		ofile.write("\n\talias= 104;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_normal or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelNormals {")
+	# 	ofile.write("\n\tname=\"Normals\";")
+	# 	ofile.write("\n}")
 
-	if(passes.pass_ao or sce.vray_passes):
-		ofile.write("\nTexDirt TexDirt_ExtraTex_AO {")
-		ofile.write("\n\twhite_color = AColor(1.000,1.000,1.000,1.000);")
-		ofile.write("\n\tsubdivs = 16;")
-		ofile.write("\n\tblack_color= AColor(0.000,0.000,0.000,1.000);")
-		ofile.write("\n\tradius = %s;"%(sce.vray_texdirt_ao_radius))
-		ofile.write("\n\tignore_for_gi = 1;")
-		ofile.write("\n}")
+	# if(passes.pass_object_index or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelRenderID {")
+	# 	ofile.write("\n\tname=\"RenderID\";")
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelExtraTex AO {")
-		ofile.write("\n\tname=\"AO\";")
-		ofile.write("\n\tconsider_for_aa = %s;"%(p(sce.vray_extratex_consider_for_aa)))
-		ofile.write("\n\taffect_matte_objects = %s;"%(p(sce.vray_extratex_affect)))
-		ofile.write("\n\ttexmap = TexDirt_ExtraTex_AO;")
-		ofile.write("\n\tfiltering= 1;")
-		ofile.write("\n}")
+	# if(passes.pass_emit or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Emit {")
+	# 	ofile.write("\n\tname=\"VRay_Emit\";")
+	# 	ofile.write("\n\talias= 104;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(passes.pass_environment or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Environment {")
-		ofile.write("\n\tname=\"VRay_Environment\";")
-		ofile.write("\n\talias= 124;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_ao or sce.vray_passes):
+	# 	ofile.write("\nTexDirt TexDirt_ExtraTex_AO {")
+	# 	ofile.write("\n\twhite_color = AColor(1.000,1.000,1.000,1.000);")
+	# 	ofile.write("\n\tsubdivs = 16;")
+	# 	ofile.write("\n\tblack_color= AColor(0.000,0.000,0.000,1.000);")
+	# 	ofile.write("\n\tradius = %s;"%(sce.vray_texdirt_ao_radius))
+	# 	ofile.write("\n\tignore_for_gi = 1;")
+	# 	ofile.write("\n}")
 
-	if(passes.pass_indirect or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_GI {")
-		ofile.write("\n\tname=\"VRay_GI\";")
-		ofile.write("\n\talias= 108;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelExtraTex AO {")
+	# 	ofile.write("\n\tname=\"AO\";")
+	# 	ofile.write("\n\tconsider_for_aa = %s;"%(p(sce.vray_extratex_consider_for_aa)))
+	# 	ofile.write("\n\taffect_matte_objects = %s;"%(p(sce.vray_extratex_affect)))
+	# 	ofile.write("\n\ttexmap = TexDirt_ExtraTex_AO;")
+	# 	ofile.write("\n\tfiltering= 1;")
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Raw_GI {")
-		ofile.write("\n\tname=\"VRay_Raw_GI\";")
-		ofile.write("\n\talias= 110;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_environment or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Environment {")
+	# 	ofile.write("\n\tname=\"VRay_Environment\";")
+	# 	ofile.write("\n\talias= 124;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_bumb or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Bumb_Normal {")
-		ofile.write("\n\tname=\"VRay_Bumb_Normal\";")
-		ofile.write("\n\talias= 131;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(passes.pass_indirect or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_GI {")
+	# 	ofile.write("\n\tname=\"VRay_GI\";")
+	# 	ofile.write("\n\talias= 108;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_samplerate or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Samplerate {")
-		ofile.write("\n\tname=\"VRay_Samplerate\";")
-		ofile.write("\n\talias= 132;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# 	ofile.write("\nRenderChannelColor VRay_Raw_GI {")
+	# 	ofile.write("\n\tname=\"VRay_Raw_GI\";")
+	# 	ofile.write("\n\talias= 110;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_multimatte or sce.vray_passes):
-		ofile.write("\nRenderChannelMultiMatte {")
-		ofile.write("\n\tname=\"MultiMatte\";")
-		ofile.write("\n\tred_id = %s;"%(sce.vray_multimatte_red_id))
-		ofile.write("\n\tgreen_id = %s;"%(sce.vray_multimatte_green_id))
-		ofile.write("\n\tblue_id= %s;"%(sce.vray_multimatte_blue_id))
-		ofile.write("\n\tuse_mtl_id= %s;"%(p(sce.vray_multimatte_use_mtl_id)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_bumb or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Bumb_Normal {")
+	# 	ofile.write("\n\tname=\"VRay_Bumb_Normal\";")
+	# 	ofile.write("\n\talias= 131;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_caustics or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Caustics {")
-		ofile.write("\n\tname=\"VRay_Caustics\";")
-		ofile.write("\n\talias= 109;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_samplerate or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Samplerate {")
+	# 	ofile.write("\n\tname=\"VRay_Samplerate\";")
+	# 	ofile.write("\n\talias= 132;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-	if(sce.vray_pass_wirecolor or sce.vray_passes):
-		ofile.write("\nRenderChannelColor VRay_Wire_Color {")
-		ofile.write("\n\tname=\"VRay_Wire_Color\";")
-		ofile.write("\n\talias= 127;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_multimatte or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelMultiMatte {")
+	# 	ofile.write("\n\tname=\"MultiMatte\";")
+	# 	ofile.write("\n\tred_id = %s;"%(sce.vray_multimatte_red_id))
+	# 	ofile.write("\n\tgreen_id = %s;"%(sce.vray_multimatte_green_id))
+	# 	ofile.write("\n\tblue_id= %s;"%(sce.vray_multimatte_blue_id))
+	# 	ofile.write("\n\tuse_mtl_id= %s;"%(p(sce.vray_multimatte_use_mtl_id)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Real_Color {")
-		ofile.write("\n\tname=\"VRay_Real_Color\";")
-		ofile.write("\n\talias= 122;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_caustics or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Caustics {")
+	# 	ofile.write("\n\tname=\"VRay_Caustics\";")
+	# 	ofile.write("\n\talias= 109;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
-		ofile.write("\nRenderChannelColor VRay_Alpha {")
-		ofile.write("\n\tname=\"VRay_Real_Alpha\";")
-		ofile.write("\n\talias= 125;")
-		ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
-		ofile.write("\n}")
+	# if(sce.vray_pass_wirecolor or sce.vray_passes):
+	# 	ofile.write("\nRenderChannelColor VRay_Wire_Color {")
+	# 	ofile.write("\n\tname=\"VRay_Wire_Color\";")
+	# 	ofile.write("\n\talias= 127;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
+
+	# 	ofile.write("\nRenderChannelColor VRay_Real_Color {")
+	# 	ofile.write("\n\tname=\"VRay_Real_Color\";")
+	# 	ofile.write("\n\talias= 122;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
+
+	# 	ofile.write("\nRenderChannelColor VRay_Alpha {")
+	# 	ofile.write("\n\tname=\"VRay_Real_Alpha\";")
+	# 	ofile.write("\n\talias= 125;")
+	# 	ofile.write("\n\tcolor_mapping= %s;"%(p(sce.vray_color_mapping)))
+	# 	ofile.write("\n}")
 
 	ofile.write("\nSettingsEXR {")
 	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
