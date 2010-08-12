@@ -646,7 +646,10 @@ LC_MODE= {
 '''
   MESHES
 '''
-def write_geometry():
+def write_geometry(sce):
+	vsce= sce.vray_scene
+	ve= vsce.exporter
+
 	# For getting unique IDs for UV names
 	uv_layers= []
 	for ma in bpy.data.materials:
@@ -1616,7 +1619,10 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		ofile.write("\n}\n")
 
 
-def write_materials():
+def write_materials(sce):
+	vsce= sce.vray_scene
+	ve= vsce.exporter
+	
 	def get_node_name(nt, node):
 		nt_name= get_name(nt,"NodeTree")
 		node_name= "%s_%s"%(nt_name, clean_string(node.name))
@@ -1764,7 +1770,10 @@ def write_materials():
 '''
   NODES
 '''
-def write_nodes():
+def write_nodes(sce):
+	vsce= sce.vray_scene
+	ve= vsce.exporter
+
 	print("V-Ray/Blender: Writing nodes...")
 
 	# Used when exporting dupli, particles etc.
@@ -1869,7 +1878,10 @@ def write_nodes():
 	print("V-Ray/Blender: Writing nodes... done [%s]                    "%(time.clock() - timer))
 
 
-def write_lamps():
+def write_lamps(sce):
+	vsce= sce.vray_scene
+	ve= vsce.exporter
+
 	print("V-Ray/Blender: Writing lights...")
 
 	ofile= open(filenames['lights'], 'w')
@@ -1960,6 +1972,9 @@ def write_lamps():
 
 
 def write_camera(sce,camera= None, ofile= None):
+	vsce= sce.vray_scene
+	ve= vsce.exporter
+
 	ca= sce.camera
 	if camera is not None:
 		ca= camera
@@ -2105,8 +2120,9 @@ def write_camera(sce,camera= None, ofile= None):
 
 
 
-def write_scene():
+def write_scene(sce):
 	vsce= sce.vray_scene
+	ve= vsce.exporter
 	
 	ofile= open(filenames['scene'], 'w')
 
@@ -2116,7 +2132,7 @@ def write_scene():
 	for f in ['geometry', 'materials', 'lights', 'nodes', 'camera']:
 		ofile.write("#include \"%s\"\n"%(os.path.basename(filenames[f])))
 
-	module= vse.SettingsImageSampler
+	module= vsce.SettingsImageSampler
 	if module.filter_type != 'NONE':
 		ofile.write(AA_FILTER_TYPE[module.filter_type])
 		ofile.write("\n\tsize= %.3f;"%(module.filter_size))
@@ -2139,11 +2155,11 @@ def write_scene():
 		ofile.write("\n}\n")
 
 
-	dmc= vse.SettingsDMCSampler
-	gi= vse.SettingsGI
-	im= vse.SettingsGI.SettingsIrradianceMap
-	lc= vse.SettingsGI.SettingsLightCache
-	bf= vse.SettingsGI.SettingsDMCGI
+	dmc= vsce.SettingsDMCSampler
+	gi= vsce.SettingsGI
+	im= vsce.SettingsGI.SettingsIrradianceMap
+	lc= vsce.SettingsGI.SettingsLightCache
+	bf= vsce.SettingsGI.SettingsDMCGI
 	if gi.on:
 		ofile.write("\nSettingsGI {")
 		ofile.write("\n\ton= 1;")
@@ -2236,8 +2252,10 @@ def write_scene():
 	ofile.close()
 
 
-def get_filenames():
+def get_filenames(sce):
 	global filenames
+
+	rd= sce.render
 
 	default_path= tempfile.gettempdir()
 	
@@ -2305,17 +2323,10 @@ class SCENE_OT_vray_export_meshes(bpy.types.Operator):
 	bl_description = "Export Meshes"
 
 	def invoke(self, context, event):
-		global sce
-		global rd
-		global wo
-
 		sce= context.scene
-		rd=  sce.render
-		wo=  sce.world
 
-		get_filenames()
-
-		write_geometry()
+		get_filenames(sce)
+		write_geometry(sce)
 
 		return{'FINISHED'}
 
@@ -2351,17 +2362,15 @@ class VRayRenderer(bpy.types.RenderEngine):
 		global sce
 		global rd
 		global wo
-		global vse
-		global ve
 
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
 
-		vse= sce.vray_scene
-		ve= vse.exporter
+		vsce= sce.vray_scene
+		ve= vsce.exporter
 
-		get_filenames()
+		get_filenames(sce)
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2400,12 +2409,12 @@ class VRayRenderer(bpy.types.RenderEngine):
 			params.append(image_file)
 		else:
 			if ve.auto_meshes:
-				write_geometry()
-			write_materials()
-			write_nodes()
-			write_lamps()
+				write_geometry(sce)
+			write_materials(sce)
+			write_nodes(sce)
+			write_lamps(sce)
 			write_camera(sce)
-			write_scene()
+			write_scene(sce)
 
 			if(rd.use_border):
 				x0= wx * rd.border_min_x
@@ -2478,17 +2487,15 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		global sce
 		global rd
 		global wo
-		global vse
-		global ve
 
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
 
-		vse= sce.vray_scene
-		ve= vse.exporter
+		vsce= sce.vray_scene
+		ve= vsce.exporter
 
-		get_filenames()
+		get_filenames(sce)
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2527,12 +2534,12 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append(image_file)
 		else:
 			if ve.auto_meshes:
-				write_geometry()
-			write_materials()
-			write_nodes()
-			write_lamps()
+				write_geometry(sce)
+			write_materials(sce)
+			write_nodes(sce)
+			write_lamps(sce)
 			write_camera(sce)
-			write_scene()
+			write_scene(sce)
 
 			if(rd.use_border):
 				x0= wx * rd.border_min_x
