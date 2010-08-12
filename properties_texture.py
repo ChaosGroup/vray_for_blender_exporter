@@ -34,6 +34,33 @@ BoolProperty= bpy.types.MaterialTextureSlot.BoolProperty
 FloatProperty= bpy.types.MaterialTextureSlot.FloatProperty
 
 
+# class VRaySlot(bpy.types.IDPropertyGroup):
+# 	pass
+
+# bpy.types.MaterialTextureSlot.PointerProperty(
+# 	attr= 'vray_slot',
+# 	type= VRaySlot,
+# 	name= "Slot",
+# 	description= "V-Ray texture slot"
+# )
+
+# VRaySlot.BoolProperty(
+# 	attr='overall',
+# 	name="Overall Color",
+# 	description="TODO.",
+# 	default=False
+# )
+
+# VRaySlot.FloatProperty(
+# 	attr="overall_factor",
+# 	name="Overall multiplier",
+# 	description="TODO.",
+# 	min=0.0, max=10.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default=1.0
+# )
+
+
 '''
   SLOT
 '''
@@ -224,6 +251,7 @@ import properties_texture
 properties_texture.TEXTURE_PT_context_texture.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+
 properties_texture.TEXTURE_PT_context_texture.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
@@ -281,6 +309,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 		idblock= context_tex_datablock(context)
 
 		tex= context.texture_slot
+		# vslot= context.texture_slot.vray_slot
 		mat= context.material
 		
 		def factor_but(layout, active, toggle, factor, label= None):
@@ -308,6 +337,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			if(wide_ui):
 				col= split.column()
 			col.label(text = "(TODO) SSS:")
+			# factor_but(col, vslot.overall_on, 'overall_on', 'overall_factor')
 			factor_but(col, tex.vray_fsss_overall_on,    "vray_fsss_overall_on",    "vray_fsss_overall_factor")
 			factor_but(col, tex.vray_fsss_diffuse_on,    "vray_fsss_diffuse_on",    "vray_fsss_diffuse_factor")
 			factor_but(col, tex.vray_fsss_subsurface_on, "vray_fsss_subsurface_on", "vray_fsss_subsurface_factor")

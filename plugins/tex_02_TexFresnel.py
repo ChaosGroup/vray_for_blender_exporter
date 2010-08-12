@@ -174,10 +174,17 @@ class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(vtex, 'white_color')
-		col.prop(vtex, 'fresnel_ior')
-		if(wide_ui):
+		if wide_ui:
 			col= split.column()
 		col.prop(vtex, 'black_color')
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(vtex, 'fresnel_ior')
+		if wide_ui:
+			col= split.column()
 		col.prop(vtex, 'refract_ior')
 	
 

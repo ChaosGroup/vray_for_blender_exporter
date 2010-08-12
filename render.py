@@ -1995,7 +1995,7 @@ def write_camera(sce,camera= None, ofile= None):
 		ofile.write("\n\timg_width= %s;"%(int(wx)))
 		ofile.write("\n\timg_height= %s;"%(int(wy)))
 		if ve.animation:
-			ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(ca.name),get_render_file_format(rd.file_format)))
+			ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(ca.name),get_render_file_format(ve,rd.file_format)))
 			ofile.write("\n\timg_dir= \"%s\";"%(filenames['output']))
 			ofile.write("\n\timg_file_needFrameNumber= 1;")
 			ofile.write("\n\tanim_start= %d;"%(sce.frame_start))
@@ -2380,7 +2380,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path())
 
-		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(rd.file_format))
+		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(ve,rd.file_format))
 		
 		if sce.name == "preview":
 			image_file= os.path.join(filenames['output'],"preview.exr")
@@ -2505,7 +2505,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path())
 
-		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(rd.file_format))
+		image_file= os.path.join(filenames['output'],"render.%s" % get_render_file_format(ve,rd.file_format))
 		
 		if sce.name == "preview":
 			image_file= os.path.join(filenames['output'],"preview.exr")

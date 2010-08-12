@@ -122,7 +122,7 @@ def add_properties(VRayTexture):
 	# distribution: float
 	FloatProperty(
 		attr= 'distribution',
-		name= "distribution",
+		name= "Distribution",
 		description= "TODO",
 		min= 0.0,
 		max= 100.0,
@@ -135,7 +135,7 @@ def add_properties(VRayTexture):
 	# falloff: float
 	FloatProperty(
 		attr= 'falloff',
-		name= "falloff",
+		name= "Falloff",
 		description= "TODO",
 		min= 0.0,
 		max= 100.0,
@@ -148,7 +148,7 @@ def add_properties(VRayTexture):
 	# subdivs: integer
 	IntProperty(
 		attr= 'subdivs',
-		name= "subdivs",
+		name= "Subdivs",
 		description= "TODO",
 		min= 0,
 		max= 100,
@@ -160,7 +160,7 @@ def add_properties(VRayTexture):
 	# bias_x: float
 	FloatProperty(
 		attr= 'bias_x',
-		name= "bias x",
+		name= "Bias X",
 		description= "TODO",
 		min= 0.0,
 		max= 100.0,
@@ -173,7 +173,7 @@ def add_properties(VRayTexture):
 	# bias_y: float
 	FloatProperty(
 		attr= 'bias_y',
-		name= "bias y",
+		name= "Bias Y",
 		description= "TODO",
 		min= 0.0,
 		max= 100.0,
@@ -186,7 +186,7 @@ def add_properties(VRayTexture):
 	# bias_z: float
 	FloatProperty(
 		attr= 'bias_z',
-		name= "bias z",
+		name= "Bias Z",
 		description= "TODO",
 		min= 0.0,
 		max= 100.0,
@@ -199,7 +199,7 @@ def add_properties(VRayTexture):
 	# ignore_for_gi: bool
 	BoolProperty(
 		attr= 'ignore_for_gi',
-		name= "ignore for gi",
+		name= "Ignore for GI",
 		description= "TODO",
 		default= True
 	)
@@ -207,7 +207,7 @@ def add_properties(VRayTexture):
 	# consider_same_object_only: bool
 	BoolProperty(
 		attr= 'consider_same_object_only',
-		name= "consider same object only",
+		name= "Consider same object only",
 		description= "TODO",
 		default= False
 	)
@@ -215,7 +215,7 @@ def add_properties(VRayTexture):
 	# invert_normal: bool
 	BoolProperty(
 		attr= 'invert_normal',
-		name= "invert normal",
+		name= "Invert normal",
 		description= "TODO",
 		default= False
 	)
@@ -223,7 +223,7 @@ def add_properties(VRayTexture):
 	# work_with_transparency: bool
 	BoolProperty(
 		attr= 'work_with_transparency',
-		name= "work with transparency",
+		name= "Work with transparency",
 		description= "TODO",
 		default= False
 	)
@@ -231,7 +231,7 @@ def add_properties(VRayTexture):
 	# ignore_self_occlusion: bool
 	BoolProperty(
 		attr= 'ignore_self_occlusion',
-		name= "ignore self occlusion",
+		name= "Ignore self occlusion",
 		description= "TODO",
 		default= False
 	)
@@ -256,7 +256,7 @@ def add_properties(VRayTexture):
 	# environment_occlusion: bool (true to compute the environment for unoccluded samples)
 	BoolProperty(
 		attr= 'environment_occlusion',
-		name= "environment occlusion",
+		name= "Environment occlusion",
 		description= "true to compute the environment for unoccluded samples",
 		default= False
 	)
@@ -264,12 +264,23 @@ def add_properties(VRayTexture):
 	# affect_reflection_elements: bool (true to add the occlusion to relection render elements when mode>0)
 	BoolProperty(
 		attr= 'affect_reflection_elements',
-		name= "affect reflection elements",
+		name= "Affect reflection elements",
 		description= "true to add the occlusion to relection render elements when mode>0",
 		default= False
 	)
 	
 	# glossiness: float texture (A texture for the glossiness when mode>0)
+	FloatProperty(
+		attr= 'glossiness',
+		name= "Glossiness",
+		description= "The spread of the rays traced for reflection occlusion.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1.0
+	)
 
 
 def write(ofile, sce, tex, name= None):
@@ -332,11 +343,48 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 
 		layout= self.layout
 
+		layout.prop(vtex,'mode')
+
 		split= layout.split()
 		col= split.column()
+		col.prop(vtex,'white_color',text="Unoccluded color")
+		if wide_ui:
+			col= split.column()
+		col.prop(vtex,'black_color',text="Occluded color")
 
-		for param in PARAMS:
-			col.prop(vtex, param)
+		split= layout.split()
+		col= split.column()
+		col.prop(vtex,'radius')
+		col.prop(vtex,'distribution')
+		if vtex.mode != 'AO':
+			col.prop(vtex,'glossiness')
+		if wide_ui:
+			col= split.column()
+		col.prop(vtex,'falloff')
+		col.prop(vtex,'subdivs')
+		if vtex.mode != 'AO':
+			col.prop(vtex,'affect_reflection_elements')
+
+		layout.separator()
+
+		split= layout.split()
+		row= split.row(align=True)
+		row.prop(vtex,'bias_x')
+		row.prop(vtex,'bias_y')
+		row.prop(vtex,'bias_z')
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(vtex,'invert_normal')
+		col.prop(vtex,'ignore_for_gi')
+		col.prop(vtex,'ignore_self_occlusion')
+		col.prop(vtex,'consider_same_object_only')
+		if wide_ui:
+			col= split.column()
+		col.prop(vtex,'work_with_transparency')
+		col.prop(vtex,'environment_occlusion')
 		
 		
 bpy.types.register(TEXTURE_PT_TexDirt)

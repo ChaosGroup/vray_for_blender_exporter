@@ -383,9 +383,46 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
+		col.prop(vtex,'color1')
+		if wide_ui:
+			col= split.column()
+		col.prop(vtex,'color2')
 
-		for param in PARAMS:
-			col.prop(vtex, param)
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(vtex,'type')
+		col.prop(vtex,'direction_type')
+
+		split= layout.split()
+		col= split.column()
+		if vtex.type == 'FRES':
+			col.prop(vtex,'fresnel_ior')
+		elif vtex.type == 'DIST':
+			col.prop(vtex,'dist_near')
+			if wide_ui:
+				col= split.column()
+			col.prop(vtex,'dist_far')
+			col.prop(vtex,'dist_extrapolate')
+
+		layout.separator()
+		
+		split= layout.split()
+		col= split.column()
+		col.prop(vtex,'invert')
+		col.prop(vtex,'invert_alpha')
+		col.prop(vtex,'alpha_from_intensity')
+		# col.prop(vtex,'nouvw_color')
+		# col.prop(vtex,'color_mult')
+		# col.prop(vtex,'color_offset')
+		if wide_ui:
+			col= split.column()
+		col.prop(vtex,'alpha_offset')
+		col.prop(vtex,'alpha_mult')
+		# col.prop(vtex,'blend_output')
+		# col.prop(vtex,'use_blend_input')
+		# col.prop(vtex,'blend_input')
 	
 
 bpy.types.register(TEXTURE_PT_TexFalloff)

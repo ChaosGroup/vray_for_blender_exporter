@@ -101,7 +101,9 @@ def get_filename(fn):
 def get_full_filepath(filepath):
 	return os.path.normpath(bpy.path.abspath(filepath))
 
-def get_render_file_format(file_format):
+def get_render_file_format(ve,file_format):
+	if ve.image_to_blender:
+		return 'exr'
 	if file_format in ('JPEG','JPEG2000'):
 		file_format= 'jpg'
 	elif file_format in ('OPEN_EXR','IRIS','CINEON'):
