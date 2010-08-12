@@ -43,12 +43,8 @@ import mathutils
 from vb25.utils import *
 from vb25.plugin_manager import *
 
+
 VERSION= '2.5'
-PLATFORM= sys.platform
-
-TEX_TYPES= ('IMAGE', 'PLUGIN')
-
-none_matrix= mathutils.Matrix( [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0], [0.0,0.0,0.0] )
 
 
 '''
@@ -93,6 +89,14 @@ MODULES= {
 		'clamp_level',
 		'adaptation_only',
 		'linearWorkflow'
+	),
+	
+	'SettingsRegionsGenerator': (
+        'xc',
+        'yc',
+        # 'xymeans',
+        # 'seqtype',
+        'reverse'
 	)
 }
 
@@ -523,6 +527,10 @@ BLEND_TYPE= {
 	'LINEAR LIGHT': 0
 }
 
+TEX_TYPES= ('IMAGE', 'PLUGIN')
+
+# Enum currently doesn't extract value index,
+# so...
 UNITS= {
 	'DEFUALT' : 0,
 	'LUMENS'  : 1,
@@ -535,6 +543,102 @@ SKY_MODEL= {
 	'CIEOVER'  : 2,
 	'CIECLEAR' : 1,
 	'PREETH'   : 0
+}
+
+AA_FILTER_TYPE= {
+	'AREA'     : '\nFilterArea {',
+	'BOX'      : '\nFilterBox {',
+	'TRIANGLE' : '\nFilterTriangle {',
+	'LANC'     : '\nFilterLanczos {',
+	'SINC'     : '\nFilterSinc {',
+	'GAUSS'    : '\nFilterGaussian {',
+	'CATMULL'  : '\nFilterCatmullRom {'
+}
+
+SEQTYPE= {
+	'HILBERT':   5,
+	'TRIANGLE':  4,
+	'IOSPIRAL':  3,
+	'TBCHECKER': 2,
+	'LRWIPE':    1,
+	'TBWIPE':    0
+}
+
+XYMEANS= {
+	'BUCKETS': 1,
+	'SIZE':    0
+}
+
+COLOR_MAPPING_TYPE= {
+	'LNR':  0,
+	'EXP':  1,
+	'HSV':  2,
+	'INT':  3,
+	'GCOR': 4,
+	'GINT': 5,
+	'REIN': 6
+}
+
+IMAGE_SAMPLER_TYPE= {
+	'FXD': 0,
+	'DMC': 1,
+	'SBD': 2
+}
+
+PRIMARY= {
+	"IM":  0,
+	"PM":  1,
+	"BF":  2,
+	"LC":  3
+}
+
+SECONDARY= {
+	"NONE":  0,
+	"PM":    1,
+	"BF":    2,
+	"LC":    3
+}
+
+SCALE= {
+	"SCREEN":  0,
+	"WORLD":   1
+}
+
+IM_MODE= {
+	"SINGLE":    0,
+	"INC":       1,
+	"FILE":      2,
+	"ADD":       3,
+	"ADD_INC":   4,
+	"BUCKET":    5,
+	"ANIM_PRE":  6,
+	"ANIM_REND": 7
+}
+
+INT_MODE= {
+	"VORONOI":   0,
+	"DELONE":    1,
+	"LEAST":     2,
+	"WEIGHTED":  3
+}
+
+LOOK_TYPE= {
+	"QUAD":     0,
+	"NEAREST":  1,
+	"OVERLAP":  2,
+	"DENSITY":  3
+}
+
+LC_FILT= {
+	"NEAREST": 0,
+	"FIXED":   1
+}
+
+LC_MODE= {
+	"SINGLE":  0,
+	"FILE":    1,
+	"FLY":     2,
+	"PPT":     3
 }
 
 
@@ -558,8 +662,8 @@ def write_geometry():
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= filenames['geometry'],
-			vb_active_layers= sce.vray_export_active_layers,
-			vb_animation= sce.vray_export_animation
+			vb_active_layers= ve.active_layers,
+			vb_animation= ve.animation
 		)
 
 	except:
@@ -578,7 +682,7 @@ def write_geometry():
 
 			exported_meshes.append(me_name)
 
-			if(sce.vray_debug):
+			if(ve.debug):
 				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
 					  %(sce.frame_current,
 						ob.name,
@@ -759,7 +863,7 @@ def write_geometry():
 			if ob.data.vray_proxy:
 				continue
 
-			if sce.vray_export_active_layers:
+			if ve.active_layers:
 				if not object_on_visible_layers(sce,ob):
 					continue
 
@@ -780,7 +884,7 @@ def write_geometry():
 		for ob in STATIC_OBJECTS:
 			write_mesh(exported_meshes,ob)
 
-		if sce.vray_export_animation and len(DYNAMIC_OBJECTS):
+		if ve.animation and len(DYNAMIC_OBJECTS):
 			f= sce.frame_start
 			while(f <= sce.frame_end):
 				exported_meshes= []
@@ -1593,7 +1697,7 @@ def write_materials():
 			debug(sce,"Node: %s (unsupported node type: %s)"%(no.name,no.type))
 
 	def export_material(ofile, exported_bitmaps, ma):
-		if(sce.vray_export_use_mat_nodes and ma.use_nodes and hasattr(ma.node_tree, 'links')):
+		if ve.use_material_nodes and ma.use_nodes and hasattr(ma.node_tree, 'links'):
 			debug(sce,"Writing node material: %s"%(ma.name))
 
 			nt= ma.node_tree
@@ -1645,7 +1749,7 @@ def write_materials():
 	exported_nodes= []
 
 	for ma in bpy.data.materials:
-		if(ma.users or ma.fake_user):
+		if ma.users or ma.fake_user:
 			export_material(ofile, exported_bitmaps, ma)
 
 	exported_bitmaps= []
@@ -1673,7 +1777,7 @@ def write_nodes():
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
 
-			if(sce.vray_debug):
+			if(ve.debug):
 				print("V-Ray/Blender: Processing object: %s"%(ob.name))
 				print("V-Ray/Blender:   Animated: %d"%(1 if ob.animation_data else 0))
 				if(ob.data):
@@ -1724,7 +1828,7 @@ def write_nodes():
 		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 			continue
 
-		if sce.vray_export_active_layers:
+		if ve.active_layers:
 			if not object_on_visible_layers(sce,ob):
 				continue
 
@@ -1737,7 +1841,7 @@ def write_nodes():
 	# for ob in STATIC_OBJECTS:
 	# 	write_node(ob)
 
-	if(sce.vray_export_animation):
+	if(ve.animation):
 		selected_frame= sce.frame_current
 		f= sce.frame_start
 		while(f <= sce.frame_end):
@@ -1875,7 +1979,7 @@ def write_camera(sce,camera= None, ofile= None):
 		ofile.write("\nSettingsOutput {")
 		ofile.write("\n\timg_width= %s;"%(int(wx)))
 		ofile.write("\n\timg_height= %s;"%(int(wy)))
-		if sce.vray_export_animation:
+		if ve.animation:
 			ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(ca.name),get_render_file_format(rd.file_format)))
 			ofile.write("\n\timg_dir= \"%s\";"%(filenames['output']))
 			ofile.write("\n\timg_file_needFrameNumber= 1;")
@@ -1979,7 +2083,7 @@ def write_camera(sce,camera= None, ofile= None):
 				ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 				ofile.write("\n}\n")
 
-		if sce.vray_export_animation:
+		if ve.animation:
 			selected_frame= sce.frame_current
 			f= sce.frame_start
 			while(f <= sce.frame_end):
@@ -2009,216 +2113,104 @@ def write_scene():
 	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 	ofile.write("// Scene file\n\n")
 
-	for f in ["geometry", "materials", "lights", "nodes", "camera"]:
+	for f in ['geometry', 'materials', 'lights', 'nodes', 'camera']:
 		ofile.write("#include \"%s\"\n"%(os.path.basename(filenames[f])))
 
-
-	ofile.write("\nSettingsRegionsGenerator {")
-	ofile.write("\n\txc= %s;"%(32))
-	ofile.write("\n\tyc= %s;"%(32))
-	ofile.write("\n\txymeans= 0;")
-	ofile.write("\n\tseqtype= 4;")
-	ofile.write("\n\treverse= 0;")
-	ofile.write("\n}\n")
-
-
-	AA_FILTER= {
-		'AREA'     : '\nFilterArea {',
-		'BOX'      : '\nFilterBox {',
-		'TRIANGLE' : '\nFilterTriangle {',
-		'LANC'     : '\nFilterLanczos {',
-		'SINC'     : '\nFilterSinc {',
-		'GAUSS'    : '\nFilterGaussian {',
-		'CATMULL'  : '\nFilterCatmullRom {'
-	}
-
-	if(not sce.vray_filter_type == 'NONE'):
-		ofile.write(AA_FILTER[sce.vray_filter_type])
-		ofile.write("\n\tsize= %.3f;"%(sce.vray_filter_size))
+	module= vse.SettingsImageSampler
+	if module.filter_type != 'NONE':
+		ofile.write(AA_FILTER_TYPE[module.filter_type])
+		ofile.write("\n\tsize= %.3f;"%(module.filter_size))
 		ofile.write("\n}\n")
 
 	for module in MODULES:
-		ofile.write("\n%s {"%(module))
-		if(module == 'SettingsImageSampler'):
-			if(sce.vray_is_type == 'FXD'):
-				ofile.write("\n\ttype= %d;"%(0))
-			elif(sce.vray_is_type == 'DMC'):
-				ofile.write("\n\ttype= %d;"%(1))
-			else:
-				ofile.write("\n\ttype= %d;"%(2))
-		elif(module == 'SettingsColorMapping'):
-			CM= {
-				'LNR': 0,
-				'EXP':  1,
-				'HSV':  2,
-				'INT':  3,
-				'GCOR': 4,
-				'GINT': 5,
-				'REIN': 6
-			}
-			ofile.write("\n\ttype= %d;"%(CM[sce.vray_cm_type]))
+		vmodule= getattr(vsce, module)
 
-			
+		ofile.write("\n%s {"%(module))
+		if module == 'SettingsImageSampler':
+			ofile.write("\n\ttype= %d;"%(IMAGE_SAMPLER_TYPE[vmodule.type]))
+		elif module == 'SettingsColorMapping':
+			ofile.write("\n\ttype= %d;"%(COLOR_MAPPING_TYPE[vmodule.type]))
+		elif module == 'SettingsRegionsGenerator':
+			ofile.write("\n\tseqtype= %d;"%(SEQTYPE[vmodule.seqtype]))
+			ofile.write("\n\txymeans= %d;"%(XYMEANS[vmodule.xymeans]))
+
 		for param in MODULES[module]:
-			ofile.write("\n\t%s= %s;"%(param, p(getattr(sce, "vray_%s"%(param)))))
+			ofile.write("\n\t%s= %s;"%(param, p(getattr(vmodule, param))))
 		ofile.write("\n}\n")
 
-	if(sce.vray_gi_on):
-		# Enum currently doesn't extract value index, only name,
-		# so...
-		PRIMARY= {
-			"IM":  0,
-			"PM":  1,
-			"BF":  2,
-			"LC":  3
-		}
 
-		SECONDARY= {
-			"NONE":  0,
-			"PM":    1,
-			"BF":    2,
-			"LC":    3
-		}
-
-		SCALE= {
-			"SCREEN":  0,
-			"WORLD":   1
-		}
-
-		IM_MODE= {
-			"SINGLE":    0,
-			"INC":       1,
-			"FILE":      2,
-			"ADD":       3,
-			"ADD_INC":   4,
-			"BUCKET":    5,
-			"ANIM_PRE":  6,
-			"ANIM_REND": 7
-		}
-		
-		INT_MODE= {
-			"VORONOI":   0,
-			"DELONE":    1,
-			"LEAST":     2,
-			"WEIGHTED":  3
-		}
-
-		LOOK_TYPE= {
-			"QUAD":     0,
-			"NEAREST":  1,
-			"OVERLAP":  2,
-			"DENSITY":  3
-		}
-
-		LC_FILT= {
-			"NEAREST": 0,
-			"FIXED":   1
-		}
-
-		LC_MODE= {
-			"SINGLE":  0,
-			"FILE":    1,
-			"FLY":     2,
-			"PPT":     3
-		}
-
-		def settingsIM():
-			ofile.write("\nSettingsIrradianceMap {")
-			ofile.write("\n\tmin_rate= %i;"%(sce.vray_im_min_rate))
-			ofile.write("\n\tmax_rate= %i;"%(sce.vray_im_max_rate))
-			ofile.write("\n\tsubdivs= %i;"%(sce.vray_im_subdivs))
-			ofile.write("\n\tinterp_samples= %i;"%(sce.vray_im_interp_samples))
-			ofile.write("\n\tinterp_frames= %i;"%(sce.vray_im_interp_frames))
-			ofile.write("\n\tcalc_interp_samples= %i;"%(sce.vray_im_calc_interp_samples))
-			ofile.write("\n\tcolor_threshold= %.6f;"%(sce.vray_im_color_threshold))
-			ofile.write("\n\tnormal_threshold= %.6f;"%(sce.vray_im_normal_threshold))
-			ofile.write("\n\tdistance_threshold= %.6f;"%(sce.vray_im_distance_threshold))
-			ofile.write("\n\tdetail_enhancement= %i;"%(sce.vray_im_detail_enhancement))
-			ofile.write("\n\tdetail_radius= %.6f;"%(sce.vray_im_detail_radius))
-			ofile.write("\n\tdetail_subdivs_mult= %.6f;"%(sce.vray_im_detail_subdivs_mult))
-			ofile.write("\n\tdetail_scale= %i;"%(SCALE[sce.vray_im_detail_scale]))
-			ofile.write("\n\tinterpolation_mode= %i;"%(INT_MODE[sce.vray_im_interpolationType]))
-			ofile.write("\n\tlookup_mode= %i;"%(LOOK_TYPE[sce.vray_im_lookupType]))
-			ofile.write("\n\tshow_calc_phase= %i;"%(sce.vray_im_show_calc_phase))
-			ofile.write("\n\tshow_direct_light= %i;"%(sce.vray_im_show_direct_light))
-			ofile.write("\n\tshow_samples= %i;"%(sce.vray_im_show_samples))
-			ofile.write("\n\tmultipass= %i;"%(sce.vray_im_multipass))
-			ofile.write("\n\tcheck_sample_visibility= %i;"%(sce.vray_im_check_sample_visibility))
-			ofile.write("\n\trandomize_samples= %i;"%(sce.vray_im_randomize_samples))
-			ofile.write("\n\tmode= %d;"%(IM_MODE[sce.vray_im_mode]))
-			#ofile.write("\n\tauto_save= %d;"%(sce.vray_im_auto_save))
-			#ofile.write("\n\tauto_save_file= \"%s\";"%(os.path.join(filenames["lmapspath"], sce.vray_im_auto_save_file))
-			#ofile.write("\n\tfile= \"%s\";"%(sce.vray_im_file))
-			ofile.write("\n}\n")
-
-		def settingsBF():
-			ofile.write("\nSettingsDMCGI {")
-			ofile.write("\n\tsubdivs= %i;"%(sce.vray_dmcgi_subdivs))
-			ofile.write("\n\tdepth= %i;"%(sce.vray_dmcgi_depth))
-			ofile.write("\n}\n")
-
-		def settingsLC():
-			ofile.write("\nSettingsLightCache {")
-			ofile.write("\n\tsubdivs= %.0f;"%(sce.vray_lc_subdivs * sce.vray_subdivs_mult))
-			ofile.write("\n\tsample_size= %.6f;"%(sce.vray_lc_sample_size))
-			ofile.write("\n\tnum_passes= %i;"%(sce.vray_lc_num_passes))
-			ofile.write("\n\tdepth= %i;"%(sce.vray_lc_depth))
-			ofile.write("\n\tfilter_type= %i;"%(LC_FILT[sce.vray_lc_filter_type]))
-			ofile.write("\n\tfilter_samples= %i;"%(sce.vray_lc_filter_samples))
-			ofile.write("\n\tfilter_size= %.6f;"%(sce.vray_lc_filter_size))
-			ofile.write("\n\tprefilter= %i;"%(sce.vray_lc_prefilter))
-			ofile.write("\n\tprefilter_samples= %i;"%(sce.vray_lc_prefilter_samples))
-			ofile.write("\n\tshow_calc_phase= %i;"%(sce.vray_lc_show_calc_phase))
-			ofile.write("\n\tstore_direct_light= %i;"%(sce.vray_lc_store_direct_light))
-			ofile.write("\n\tuse_for_glossy_rays= %i;"%(sce.vray_lc_use_for_glossy_rays))
-			ofile.write("\n\tworld_scale= %i;"%(SCALE[sce.vray_lc_scale]))
-			ofile.write("\n\tadaptive_sampling= %i;"%(sce.vray_lc_adaptive_sampling))
-			ofile.write("\n\tmode= %d;"%(LC_MODE[sce.vray_lc_mode]))
-			#ofile.write("\n\tauto_save= %d;"%(sce.vray_lc_auto_save))
-			#ofile.write("\n\tauto_save_file= \"%s\";"%(os.path.join(filenames["lmapspath"], sce.vray_lc_auto_save_file))
-			#ofile.write("\n\tfile= \"%s\";"%(sce.vray_lc_file))
-			ofile.write("\n}\n")
-
+	dmc= vse.SettingsDMCSampler
+	gi= vse.SettingsGI
+	im= vse.SettingsGI.SettingsIrradianceMap
+	lc= vse.SettingsGI.SettingsLightCache
+	bf= vse.SettingsGI.SettingsDMCGI
+	if gi.on:
 		ofile.write("\nSettingsGI {")
 		ofile.write("\n\ton= 1;")
-		ofile.write("\n\tprimary_engine= %s;"%(PRIMARY[sce.vray_gi_primary_engine]))
-		ofile.write("\n\tsecondary_engine= %s;"%(SECONDARY[sce.vray_gi_secondary_engine]))
-		ofile.write("\n\tprimary_multiplier= %s;"%(sce.vray_gi_primary_multiplier))
-		ofile.write("\n\tsecondary_multiplier= %s;"%(sce.vray_gi_secondary_multiplier))
-		ofile.write("\n\treflect_caustics= %s;"%(p(sce.vray_gi_reflect_caustics)))
-		ofile.write("\n\trefract_caustics= %s;"%(p(sce.vray_gi_refract_caustics)))
-		ofile.write("\n\tsaturation= %.6f;"%(sce.vray_gi_saturation))
-		ofile.write("\n\tcontrast= %.6f;"%(sce.vray_gi_contrast))
-		ofile.write("\n\tcontrast_base= %.6f;"%(sce.vray_gi_contrast_base))
+		ofile.write("\n\tprimary_engine= %s;"%(PRIMARY[gi.primary_engine]))
+		ofile.write("\n\tsecondary_engine= %s;"%(SECONDARY[gi.secondary_engine]))
+		ofile.write("\n\tprimary_multiplier= %s;"%(gi.primary_multiplier))
+		ofile.write("\n\tsecondary_multiplier= %s;"%(gi.secondary_multiplier))
+		ofile.write("\n\treflect_caustics= %s;"%(p(gi.reflect_caustics)))
+		ofile.write("\n\trefract_caustics= %s;"%(p(gi.refract_caustics)))
+		ofile.write("\n\tsaturation= %.6f;"%(gi.saturation))
+		ofile.write("\n\tcontrast= %.6f;"%(gi.contrast))
+		ofile.write("\n\tcontrast_base= %.6f;"%(gi.contrast_base))
 		ofile.write("\n}\n")
 
-		if(PRIMARY[sce.vray_gi_primary_engine] == 0):
-			settingsIM()
+		ofile.write("\nSettingsIrradianceMap {")
+		ofile.write("\n\tmin_rate= %i;"%(im.min_rate))
+		ofile.write("\n\tmax_rate= %i;"%(im.max_rate))
+		ofile.write("\n\tsubdivs= %i;"%(im.subdivs))
+		ofile.write("\n\tinterp_samples= %i;"%(im.interp_samples))
+		ofile.write("\n\tinterp_frames= %i;"%(im.interp_frames))
+		ofile.write("\n\tcalc_interp_samples= %i;"%(im.calc_interp_samples))
+		ofile.write("\n\tcolor_threshold= %.6f;"%(im.color_threshold))
+		ofile.write("\n\tnormal_threshold= %.6f;"%(im.normal_threshold))
+		ofile.write("\n\tdistance_threshold= %.6f;"%(im.distance_threshold))
+		ofile.write("\n\tdetail_enhancement= %i;"%(im.detail_enhancement))
+		ofile.write("\n\tdetail_radius= %.6f;"%(im.detail_radius))
+		ofile.write("\n\tdetail_subdivs_mult= %.6f;"%(im.detail_subdivs_mult))
+		ofile.write("\n\tdetail_scale= %i;"%(SCALE[im.detail_scale]))
+		ofile.write("\n\tinterpolation_mode= %i;"%(INT_MODE[im.interpolationType]))
+		ofile.write("\n\tlookup_mode= %i;"%(LOOK_TYPE[im.lookupType]))
+		ofile.write("\n\tshow_calc_phase= %i;"%(im.show_calc_phase))
+		ofile.write("\n\tshow_direct_light= %i;"%(im.show_direct_light))
+		ofile.write("\n\tshow_samples= %i;"%(im.show_samples))
+		ofile.write("\n\tmultipass= %i;"%(im.multipass))
+		ofile.write("\n\tcheck_sample_visibility= %i;"%(im.check_sample_visibility))
+		ofile.write("\n\trandomize_samples= %i;"%(im.randomize_samples))
+		ofile.write("\n\tmode= %d;"%(IM_MODE[im.mode]))
+		#ofile.write("\n\tauto_save= %d;"%(im.auto_save))
+		#ofile.write("\n\tauto_save_file= \"%s\";"%(os.path.join(filenames["lmapspath"], im.auto_save_file))
+		#ofile.write("\n\tfile= \"%s\";"%(im.file))
+		ofile.write("\n}\n")
 
-		if(PRIMARY[sce.vray_gi_primary_engine] == 1 and SECONDARY[sce.vray_gi_secondary_engine] == 1):
-			settingsPM()
-		else:
-			if(PRIMARY[sce.vray_gi_primary_engine] == 1):
-				pass
-			if(SECONDARY[sce.vray_gi_secondary_engine] == 1):
-				pass
+		ofile.write("\nSettingsDMCGI {")
+		ofile.write("\n\tsubdivs= %i;"%(bf.subdivs))
+		ofile.write("\n\tdepth= %i;"%(bf.depth))
+		ofile.write("\n}\n")
 
-		if(PRIMARY[sce.vray_gi_primary_engine] == 2 and SECONDARY[sce.vray_gi_secondary_engine] == 2):
-			settingsBF()
-		else:
-			if(PRIMARY[sce.vray_gi_primary_engine] == 2):
-				settingsBF()
-			if(SECONDARY[sce.vray_gi_secondary_engine] == 2):
-				settingsBF()
-
-		if(PRIMARY[sce.vray_gi_primary_engine] == 3 and SECONDARY[sce.vray_gi_secondary_engine] == 3):
-			settingsLC()
-		else:
-			if(PRIMARY[sce.vray_gi_primary_engine] == 3):
-				settingsLC()
-			if(SECONDARY[sce.vray_gi_secondary_engine] == 3):
-				settingsLC()
-
+		ofile.write("\nSettingsLightCache {")
+		ofile.write("\n\tsubdivs= %.0f;"%(lc.subdivs * dmc.subdivs_mult))
+		ofile.write("\n\tsample_size= %.6f;"%(lc.sample_size))
+		ofile.write("\n\tnum_passes= %i;"%(lc.num_passes))
+		ofile.write("\n\tdepth= %i;"%(lc.depth))
+		ofile.write("\n\tfilter_type= %i;"%(LC_FILT[lc.filter_type]))
+		ofile.write("\n\tfilter_samples= %i;"%(lc.filter_samples))
+		ofile.write("\n\tfilter_size= %.6f;"%(lc.filter_size))
+		ofile.write("\n\tprefilter= %i;"%(lc.prefilter))
+		ofile.write("\n\tprefilter_samples= %i;"%(lc.prefilter_samples))
+		ofile.write("\n\tshow_calc_phase= %i;"%(lc.show_calc_phase))
+		ofile.write("\n\tstore_direct_light= %i;"%(lc.store_direct_light))
+		ofile.write("\n\tuse_for_glossy_rays= %i;"%(lc.use_for_glossy_rays))
+		ofile.write("\n\tworld_scale= %i;"%(SCALE[lc.scale]))
+		ofile.write("\n\tadaptive_sampling= %i;"%(lc.adaptive_sampling))
+		ofile.write("\n\tmode= %d;"%(LC_MODE[lc.mode]))
+		#ofile.write("\n\tauto_save= %d;"%(lc.auto_save))
+		#ofile.write("\n\tauto_save_file= \"%s\";"%(os.path.join(filenames["lmapspath"], lc.auto_save_file))
+		#ofile.write("\n\tfile= \"%s\";"%(lc.file))
+		ofile.write("\n}\n")
 
 	ofile.write("\nSettingsEXR {")
 	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
@@ -2359,10 +2351,15 @@ class VRayRenderer(bpy.types.RenderEngine):
 		global sce
 		global rd
 		global wo
+		global vse
+		global ve
 
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
+
+		vse= sce.vray_scene
+		ve= vse.exporter
 
 		get_filenames()
 
@@ -2402,7 +2399,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 			params.append('-imgFile=')
 			params.append(image_file)
 		else:
-			if sce.vray_export_lock:
+			if ve.auto_meshes:
 				write_geometry()
 			write_materials()
 			write_nodes()
@@ -2427,21 +2424,21 @@ class VRayRenderer(bpy.types.RenderEngine):
 			params.append('-sceneFile=')
 			params.append(filenames['scene'])
 
-			if sce.vray_export_img_to_blender:
+			if ve.image_to_blender:
 				params.append('-autoclose=')
 				params.append('1')
 
-			if sce.vray_export_animation:
+			if ve.animation:
 				params.append('-frames=')
 				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
 
 			params.append('-imgFile=')
 			params.append(image_file)
 
-		if(sce.vray_debug):
+		if ve.debug:
 			print("V-Ray/Blender: Command: %s"%(params))
 
-		if sce.vray_autorun:
+		if ve.autorun:
 			process= subprocess.Popen(params)
 
 			while True:
@@ -2454,8 +2451,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 				if process.poll() is not None:
 					try:
-						if not sce.vray_export_animation:
-							if sce.vray_export_img_to_blender or sce.name == "preview":
+						if not ve.animation:
+							if ve.image_to_blender or sce.name == "preview":
 								# if rd.use_border and not rd.crop_to_border:
 								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
 								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2481,10 +2478,15 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		global sce
 		global rd
 		global wo
+		global vse
+		global ve
 
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
+
+		vse= sce.vray_scene
+		ve= vse.exporter
 
 		get_filenames()
 
@@ -2524,7 +2526,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append('-imgFile=')
 			params.append(image_file)
 		else:
-			if sce.vray_export_lock:
+			if ve.auto_meshes:
 				write_geometry()
 			write_materials()
 			write_nodes()
@@ -2549,21 +2551,21 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append('-sceneFile=')
 			params.append(filenames['scene'])
 
-			if sce.vray_export_img_to_blender:
+			if ve.image_to_blender:
 				params.append('-autoclose=')
 				params.append('1')
 
-			if sce.vray_export_animation:
+			if ve.animation:
 				params.append('-frames=')
 				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
 
 			params.append('-imgFile=')
 			params.append(image_file)
 
-		if(sce.vray_debug):
+		if ve.debug:
 			print("V-Ray/Blender: Command: %s"%(params))
 
-		if sce.vray_autorun:
+		if ve.autorun:
 			process= subprocess.Popen(params)
 
 			while True:
@@ -2576,8 +2578,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
 				if process.poll() is not None:
 					try:
-						if not sce.vray_export_animation:
-							if sce.vray_export_img_to_blender or sce.name == "preview":
+						if not ve.animation:
+							if ve.image_to_blender or sce.name == "preview":
 								# if rd.use_border and not rd.crop_to_border:
 								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
 								# 	wy= rd.resolution_y * rd.resolution_percentage / 100

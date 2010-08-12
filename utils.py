@@ -37,13 +37,21 @@ import time
 
 ''' Blender modules '''
 import bpy
+import mathutils
 
 
 PLATFORM= sys.platform
 
+none_matrix= mathutils.Matrix(
+	[0.0,0.0,0.0],
+	[0.0,0.0,0.0],
+	[0.0,0.0,0.0],
+	[0.0,0.0,0.0]
+)
 
 def	debug(sce, s):
-	if(sce.vray_debug):
+	ve= sce.vray_scene.exporter
+	if ve.debug:
 		print("V-Ray/Blender: %s"%(s))
 
 def p(t):

@@ -339,7 +339,6 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 			col.prop(vtex, param)
 		
 		
-
 bpy.types.register(TEXTURE_PT_TexDirt)
 
 

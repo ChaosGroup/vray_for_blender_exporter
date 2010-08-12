@@ -42,6 +42,8 @@ TEX_PLUGINS_TYPES= []
 CHANNEL_PLUGINS= []
 CHANNEL_PLUGINS_TYPES= []
 
+SETTINGS_PLUGINS= []
+
 base_dir= vb_script_path()
 if base_dir is not None:
 	plugins_dir= os.path.join(base_dir,"plugins")
@@ -60,6 +62,8 @@ if base_dir is not None:
 		elif plugin.TYPE == 'RENDERCHANNEL':
 			CHANNEL_PLUGINS.append(plugin)
 			CHANNEL_PLUGINS_TYPES.append(plugin.ID)
+		elif plugin.TYPE == 'SETTINGS':
+			SETTINGS_PLUGINS.append(plugin)
 		sys.stdout.flush()
 	sys.stdout.write("V-Ray/Blender: Loading modules... done.                    \n")
 
@@ -78,17 +82,20 @@ class VRayRenderChannel(bpy.types.IDPropertyGroup):
 
 
 def add_properties():
-	def load_plugins(plugins, parent_struct):
-		enum_items= []
-		enum_items.append(('NONE',"None",""))
+	def load_plugins(plugins, parent_struct, items= False):
+		if items:
+			enum_items= []
+			enum_items.append(('NONE',"None",""))
 		for plugin in plugins:
 			plugin.add_properties(parent_struct)
-			plugin_desc= []
-			plugin_desc.append(plugin.ID)
-			plugin_desc.append(plugin.NAME)
-			plugin_desc.append(plugin.DESC)
-			enum_items.append(tuple(plugin_desc))
-		return enum_items
+			if items:
+				plugin_desc= []
+				plugin_desc.append(plugin.ID)
+				plugin_desc.append(plugin.NAME)
+				plugin_desc.append(plugin.DESC)
+				enum_items.append(tuple(plugin_desc))
+		if items:
+			return enum_items
 
 	'''
 	  Base types
@@ -100,19 +107,20 @@ def add_properties():
 		description= "V-Ray texture settings."
 	)
 
-	bpy.types.Scene.PointerProperty(
-		attr= 'vray_scene',
-		type= VRayScene,
-		name= "V-Ray Scene Settings",
-		description= "V-Ray scene settings."
-	)
-
 	# bpy.types.Main.PointerProperty(
 	# 	attr= 'vray',
 	# 	type= VRay,
 	# 	name= "V-Ray Settings",
 	# 	description= "V-Ray settings."
 	# )
+
+	bpy.types.Scene.PointerProperty(
+		attr= 'vray_scene',
+		type= VRayScene,
+		name= "V-Ray Settings",
+		description= "V-Ray settings."
+	)
+
 
 	'''
 	  Scene
@@ -139,7 +147,7 @@ def add_properties():
 		attr= 'type',
 		name= "Texture Type",
 		description= "V-Ray texture type.",
-		items= (tuple(load_plugins(TEX_PLUGINS,VRayTexture))),
+		items= (tuple(load_plugins(TEX_PLUGINS,VRayTexture,items= True))),
 		default= 'NONE'
 	)
 
@@ -150,9 +158,12 @@ def add_properties():
 		attr= 'type',
 		name= "Channel Type",
 		description= "Render channel type.",
-		items= (tuple(load_plugins(CHANNEL_PLUGINS,VRayRenderChannel))),
+		items= (tuple(load_plugins(CHANNEL_PLUGINS,VRayRenderChannel,items= True))),
 		default= 'NONE'
 	)
+
+	load_plugins(SETTINGS_PLUGINS,VRayScene)
+	
 
 
 

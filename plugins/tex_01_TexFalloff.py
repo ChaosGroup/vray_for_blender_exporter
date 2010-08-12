@@ -386,8 +386,7 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 
 		for param in PARAMS:
 			col.prop(vtex, param)
-		
-		
+	
 
 bpy.types.register(TEXTURE_PT_TexFalloff)
 

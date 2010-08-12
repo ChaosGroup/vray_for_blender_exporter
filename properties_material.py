@@ -1344,6 +1344,12 @@ MtlWrapper.IntProperty(
 '''
   GUI
 '''
+import properties_material
+properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+del properties_material
+
+
 narrowui= 200
 
 
@@ -1433,19 +1439,19 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 			layout.prop(vray_material, 'type', expand=True)
 
 
-class MATERIAL_PT_VRAY_preview(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Preview"
-	bl_default_closed = False
-	bl_show_header = True
+# class MATERIAL_PT_VRAY_preview(MaterialButtonsPanel, bpy.types.Panel):
+# 	bl_label = "Preview"
+# 	bl_default_closed = False
+# 	bl_show_header = True
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+# 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
-	@classmethod
-	def poll(cls, context):
-		return base_poll(__class__, context)
+# 	@classmethod
+# 	def poll(cls, context):
+# 		return base_poll(__class__, context)
 
-	def draw(self, context):
-		self.layout.template_preview(context.material)
+# 	def draw(self, context):
+# 		self.layout.template_preview(context.material)
 
 
 class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
