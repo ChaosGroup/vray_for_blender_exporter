@@ -236,7 +236,7 @@ BRDFVRayMtl.BoolProperty(
 	attr="fresnel_ior_lock",
 	name="Frensnel reflections lock",
 	description="",
-	default= True
+	default= False
 )
 
 BRDFVRayMtl.FloatProperty(
@@ -481,7 +481,7 @@ BRDFVRayMtl.BoolProperty(
 	attr= "reflect_trace", 
 	name= "Trace reflections", 
 	description= 'TODO.', 
-	default= False
+	default= True
 )
 
 BRDFVRayMtl.BoolProperty(

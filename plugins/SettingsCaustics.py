@@ -41,7 +41,7 @@ PARAMS= (
 	'multiplier',
 	'mode',
 	'file',
-	'dont_delete',
+	# 'dont_delete',
 	'auto_save',
 	'auto_save_file',
 	'show_calc_phase'
@@ -76,9 +76,9 @@ def add_properties(parent_struct):
 		name= "Max photons",
 		description= "TODO.",
 		min= 0,
-		max= 100,
+		max= 10000,
 		soft_min= 0,
-		soft_max= 10,
+		soft_max= 1000,
 		default= 30
 	)
 
@@ -89,9 +89,9 @@ def add_properties(parent_struct):
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 10.0,
+		soft_max= 1.0,
 		precision= 3,
-		default= 1e+18
+		default= 0.1
 	)
 
 	SettingsCaustics.FloatProperty(
@@ -118,15 +118,15 @@ def add_properties(parent_struct):
 		default= 1
 	)
 
-	SettingsCaustics.IntProperty(
+	SettingsCaustics.EnumProperty(
 		attr= 'mode',
 		name= "Mode",
-		description= "TODO.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
+		description= "Caustics computaion mode.",
+		items=(
+			('FILE', "From file",      ""),
+			('NEW',   "New",           "")
+		),
+		default= 'NEW'
 	)
 
 	SettingsCaustics.StringProperty(
@@ -136,12 +136,12 @@ def add_properties(parent_struct):
 		description= "TODO."
 	)
 
-	SettingsCaustics.BoolProperty(
-		attr= 'dont_delete',
-		name= "Don\'t delete",
-		description= "TODO.",
-		default= False
-	)
+	# SettingsCaustics.BoolProperty(
+	# 	attr= 'dont_delete',
+	# 	name= "Don\'t delete",
+	# 	description= "TODO.",
+	# 	default= False
+	# )
 
 	SettingsCaustics.BoolProperty(
 		attr= 'auto_save',
@@ -163,6 +163,28 @@ def add_properties(parent_struct):
 		description= "TODO.",
 		default= False
 	)
+
+
+
+'''
+  OUTPUT
+'''
+def write(ofile, sce, rna_pointer):
+	MODE= {
+		'FILE': 1,
+		'NEW':  0
+	}
+	
+	ofile.write("\n%s {" % PLUG)
+	for param in PARAMS:
+		if param in ('file','auto_save_file'):
+			value= "\"%s\"" % getattr(rna_pointer,param)
+		elif param == 'mode':
+			value= MODE[rna_pointer.mode]
+		else:
+			value= getattr(rna_pointer,param)
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n}\n")
 
 
 
@@ -197,10 +219,33 @@ class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
 		vsce= context.scene.vray_scene
 		vmodule= getattr(vsce, PLUG)
 
-		split= layout.split()
-		col= split.column()
-		for param in PARAMS:
-			col.prop(vmodule, param)
+		layout.prop(vmodule,'mode')
+
+		if vmodule.mode == 'FILE':
+			layout.prop(vmodule,'file')
+		else:
+			split= layout.split()
+			col= split.column()
+			col.prop(vmodule,'multiplier')
+			col.prop(vmodule,'search_distance')
+			if wide_ui:
+				col = split.column()
+			col.prop(vmodule,'max_photons')
+			col.prop(vmodule,'max_density')
+			col.prop(vmodule,'show_calc_phase')
+
+			split= layout.split()
+			split.label(text="Files:")
+			split= layout.split(percentage=0.25)
+			colL= split.column()
+			colR= split.column()
+			if wide_ui:
+				colL.prop(vmodule,"auto_save", text="Auto save")
+			else:
+				colL.prop(vmodule,"auto_save", text="")
+			colR.active= vmodule.auto_save
+			colR.prop(vmodule,"auto_save_file", text="")
+
 		
 		
 		

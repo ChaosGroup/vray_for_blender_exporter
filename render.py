@@ -134,10 +134,10 @@ OBJECT_PARAMS= {
 		'opacity',
 		'diffuse',
 		'roughness',
-		'brdf_type',
-		'reflect',
-		'reflect_glossiness',
-		'hilight_glossiness',
+		# 'brdf_type',
+		# 'reflect',
+		# 'reflect_glossiness',
+		# 'hilight_glossiness',
 		'hilight_glossiness_lock',
 		'fresnel',
 		'fresnel_ior',
@@ -147,7 +147,7 @@ OBJECT_PARAMS= {
 		'reflect_depth',
 		'reflect_exit_color',
 		'hilight_soften',
-		'reflect_dim_distance',
+		# 'reflect_dim_distance',
 		'reflect_dim_distance_on',
 		'reflect_dim_distance_falloff',
 		'anisotropy',
@@ -155,7 +155,7 @@ OBJECT_PARAMS= {
 		'anisotropy_derivation',
 		'anisotropy_axis',
 		# 'anisotropy_uvwgen',
-		'refract',
+		# 'refract',
 		'refract_ior',
 		'refract_glossiness',
 		'refract_subdivs',
@@ -174,7 +174,7 @@ OBJECT_PARAMS= {
 		'translucency_light_mult',
 		'translucency_scatter_dir',
 		'translucency_scatter_coeff',
-		'translucency_thickness',
+		# 'translucency_thickness',
 		'option_double_sided',
 		'option_reflect_on_back',
 		'option_glossy_rays_as_gi',
@@ -1350,6 +1350,17 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 		"NONE":   0
 	}
 
+	GLOSSY_RAYS= {
+		'ALWAYS': 2,
+		'GI':     1,
+		'NEVER':  0
+	}
+
+	ENERGY_MODE= {
+		'MONO':  1,
+		'COLOR': 0
+	}
+
 	rm= ma.raytrace_mirror
 	rt= ma.raytrace_transparency
 	vma= ma.vray_material
@@ -1398,6 +1409,10 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 				value= rt.gloss_factor
 			elif param == 'translucency':
 				value= TRANSLUCENSY[plug.translucency]
+			elif param == 'option_glossy_rays_as_gi':
+				value= GLOSSY_RAYS[plug.option_glossy_rays_as_gi]
+			elif param == 'option_energy_mode':
+				value= ENERGY_MODE[plug.option_energy_mode]
 			else:
 				value= getattr(plug,param)
 			ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
@@ -2154,6 +2169,11 @@ def write_scene(sce):
 			ofile.write("\n\t%s= %s;"%(param, p(getattr(vmodule, param))))
 		ofile.write("\n}\n")
 
+	for plugin in SETTINGS_PLUGINS:
+		if hasattr(vsce,plugin.PLUG):
+			rna_pointer= getattr(vsce,plugin.PLUG)
+			if hasattr(plugin,'write'):
+				plugin.write(ofile,sce,rna_pointer)
 
 	dmc= vsce.SettingsDMCSampler
 	gi= vsce.SettingsGI

@@ -226,7 +226,7 @@ SettingsImageSampler.FloatProperty(
 
 SettingsImageSampler.EnumProperty(
 	attr="type",
-	name="Image sampler type",
+	name="Type",
 	description="Image sampler type.",
 	items=(
 		("FXD",  "Fixed", ""),

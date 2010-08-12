@@ -355,8 +355,8 @@ FloatProperty(
 
 IntProperty(
 	attr= "vr_la_causticSubdivs",
-	name= "Causticsubdivs",
-	description= "TODO.",
+	name= "Caustic subdivs",
+	description= "Caustic subdivs.",
 	min= 1,
 	max= 10000,
 	default= 1000
@@ -611,7 +611,8 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		if not ((lamp.type == 'SUN' and lamp.vr_la_direct_type == 'SUN') or (lamp.type == 'AREA' and lamp.vr_la_portal_mode != 'NORMAL')):
 			col.prop(lamp, 'vr_la_intensity', text="Intensity")
 		col.prop(lamp, 'vr_la_subdivs')
-
+		col.prop(lamp, 'vr_la_causticSubdivs', text="Caustics")
+		
 		if wide_ui:
 			col= split.column()
 		col.prop(lamp, 'vr_la_invisible')
