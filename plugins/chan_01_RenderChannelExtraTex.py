@@ -27,16 +27,16 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'COLOR'
-NAME= 'Color'
-PLUG= 'RenderChannelColor'
+ID=   'EXTRATEX'
+NAME= 'ExtraTex'
+PLUG= 'RenderChannelExtraTex'
 DESC= "TODO."
 
 PARAMS= (
 	'name',
-	'alias',
-	'color_mapping',
 	'consider_for_aa',
+	'affect_matte_objects',
+	'texmap',
 	'filtering'
 )
 
@@ -45,55 +45,51 @@ import bpy
 from vb25.utils import *
 
 
-class RenderChannelColor(bpy.types.IDPropertyGroup):
+class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
 	parent_struct.PointerProperty(
-		attr= 'RenderChannelColor',
-		type=  RenderChannelColor,
-		name= "Color",
-		description= "V-Ray render channel \"Color\" settings."
+		attr= 'RenderChannelExtraTex',
+		type=  RenderChannelExtraTex,
+		name= "ExtraTex",
+		description= "V-Ray render channel \"ExtraTex\" settings."
 	)
 
 	# name: string
-	RenderChannelColor.StringProperty(
+	RenderChannelExtraTex.StringProperty(
 		attr= 'name',
-		name= "name",
+		name= "Name",
 		description= "TODO.",
-		default= "ColorChannel"
+		default= "ExtraTex"
 	)
 
-	# alias: integer
-	RenderChannelColor.IntProperty(
-		attr= 'alias',
-		name= "Alias",
-		description= "TODO.",
-		min= 0,
-		max= 2000,
-		soft_min= 0,
-		soft_max= 2000,
-		default= 1000
-	)
-	
-	# color_mapping: bool (true to apply color mapping to the channel; false otherwise)
-	RenderChannelColor.BoolProperty(
-		attr= 'color_mapping',
-		name= "Color mapping",
-		description= "true to apply color mapping to the channel; false otherwise",
-		default= False
-	)
-	
 	# consider_for_aa: bool
-	RenderChannelColor.BoolProperty(
+	RenderChannelExtraTex.BoolProperty(
 		attr= 'consider_for_aa',
 		name= "Consider for AA",
 		description= "TODO.",
-		default= False
+		default= True
 	)
 	
+	# affect_matte_objects: bool
+	RenderChannelExtraTex.BoolProperty(
+		attr= 'affect_matte_objects',
+		name= "Affect matte objects",
+		description= "TODO.",
+		default= True
+	)
+	
+	# texmap: acolor texture
+	RenderChannelExtraTex.StringProperty(
+		attr= 'texmap',
+		name= "Texture",
+		description= "TODO.",
+		default= ""
+	)
+
 	# filtering: bool
-	RenderChannelColor.BoolProperty(
+	RenderChannelExtraTex.BoolProperty(
 		attr= 'filtering',
 		name= "Filtering",
 		description= "TODO.",
@@ -106,17 +102,20 @@ def add_properties(parent_struct):
   OUTPUT
 '''
 def write(ofile, render_channel, sce= None, name= None):
-	channel_name= "%s"%(clean_string(render_channel.name))
+	channel_name= render_channel.name
 	if name is not None:
 		channel_name= name
 
-	ofile.write("\n%s %s {"%(PLUG, channel_name))
+	if render_channel.texmap == "":
+		return
+	
+	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
 	for param in PARAMS:
 		if param == 'name':
-			value= "\"%s\"" % getattr(render_channel, param)
+			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-	ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
 
@@ -127,10 +126,12 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'alias')
+	col.prop(rna_pointer, 'texmap')
+	split= layout.split()
+	col= split.column()
 	col.prop(rna_pointer, 'filtering')
 	if wide_ui:
 		col = split.column()
-	col.prop(rna_pointer, 'color_mapping')
 	col.prop(rna_pointer, 'consider_for_aa')
+	col.prop(rna_pointer, 'affect_matte_objects')
 

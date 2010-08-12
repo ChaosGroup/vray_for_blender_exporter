@@ -577,7 +577,7 @@ BRDFVRayMtl.FloatVectorProperty(
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default= (0.0, 0.0, 0.0)
+	default= (1.0, 1.0, 1.0)
 )
 
 # translucency_light_mult: BRDFVRayMtl.Float (A multiplier for the calculated lighting for the translucency effect)
@@ -1533,6 +1533,8 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			col.prop(vray_plugin, "refract_affect_alpha")
 			col.prop(vray_plugin, "refract_affect_shadows")
 
+			layout.separator()
+
 			split= layout.split()
 			col= split.column()
 			col.prop(vray_plugin, 'translucency')
@@ -1547,13 +1549,15 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 				col.prop(vray_plugin, 'translucency_scatter_dir', text="Fwd/Bck coeff")
 				col.prop(vray_plugin, 'translucency_light_mult', text="Light multiplier")
 
+			layout.separator()
+
 			split= layout.split()
 			col= split.column()
 			col.prop(vmat, "two_sided")
 			if vmat.two_sided:
 				if wide_ui:
 					col= split.column()
-				col.prop(vmat, "two_sided_translucency", slider=True)
+				col.prop(vmat, "two_sided_translucency", slider=True, text="Translucency")
 
 		elif vmat.type == 'EMIT':
 			row= layout.row()

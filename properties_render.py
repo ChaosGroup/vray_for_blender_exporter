@@ -35,18 +35,18 @@ from vb25.utils import *
 from vb25.plugin_manager import *
 
 
-FloatProperty= bpy.types.Scene.FloatProperty
-IntProperty= bpy.types.Scene.IntProperty
-BoolProperty= bpy.types.Scene.BoolProperty
-StringProperty= bpy.types.Scene.StringProperty
-EnumProperty= bpy.types.Scene.EnumProperty
-CollectionProperty= bpy.types.Scene.CollectionProperty
+FloatProperty= VRayScene.FloatProperty
+IntProperty= VRayScene.IntProperty
+BoolProperty= VRayScene.BoolProperty
+StringProperty= VRayScene.StringProperty
+EnumProperty= VRayScene.EnumProperty
+CollectionProperty= VRayScene.CollectionProperty
 
 
 '''
 	SettingsGI
 '''
-BoolProperty(	attr="vray_gi_on",
+BoolProperty(	attr="enable_gi",
 				name="Enable GI",
 				description="Enable Global Illumination.",
 				default= False)
@@ -570,10 +570,10 @@ BoolProperty(   attr="vray_linearWorkflow",
 	SettingsCaustics
 '''
 BoolProperty(
-	attr= "vray_caustics_enable",
+	attr= "enable_caustics",
 	name= "Enable caustics",
-	description= "TODO.",
-	default= 0
+	description= "Enable caustics computation.",
+	default= False
 )
 
 
@@ -725,54 +725,80 @@ FloatProperty(  attr= "vray_meters_scale",
                 min=0.0, max=100.0, soft_min=0.0, soft_max=10.0, precision=3, default=1.0)
 
 
+
 '''
 	Exporter
 '''
-# EnumProperty(
-# 	attr="vray_export_compat",
-# 	name="Compatibility mode",
-# 	description="Compatibility mode.",
-# 	items=(
-# 		("STD",  "V-Ray Standalone", ""),
-# 		("DEMO", "V-Ray For Maya Demo", "")
-# 	),
-# 	default= "STD"
-# )
+class VRayExporter(bpy.types.IDPropertyGroup):
+	pass
 
-BoolProperty(
-	attr= "vray_export_active_layers",
-	name= "Active layers",
-	description= "",
-	default= 0
+VRayScene.PointerProperty(
+	attr= 'exporter',
+	type= VRayExporter,
+	name= "V-Ray Exporter Settings",
+	description= "V-Ray Exporter settings."
 )
 
-BoolProperty(
-	attr= "vray_export_use_mat_nodes",
-	name= "Use material nodes",
+VRayExporter.BoolProperty(
+	attr= "use_material_nodes",
+	name= "Use Material Nodes",
 	description= "Use material nodes.",
+	default= False
+)
+
+VRayExporter.BoolProperty(
+	attr= "image_to_blender",
+	name= "Image To Blender",
+	description= "Pass image to Blender on render end.",
+	default= False
+)
+
+VRayExporter.BoolProperty(
+	attr="log_window",
+	name="Show Log Window",
+	description="Show log window (Linux).",
 	default= 0
 )
 
-BoolProperty(
-	attr= "vray_export_img_to_blender",
-	name= "Image to Blender",
-	description= "",
+VRayExporter.BoolProperty(
+	attr= 'animation',
+	name= "Animation",
+	description= "Render animation.",
 	default= 0
 )
 
-BoolProperty(   attr="vray_export_log_window",
-                name="Show log window",
-                description="Show log window (Linux only).",
-                default= 0)
+VRayExporter.BoolProperty(
+	attr= 'active_layers',
+	name= "Active Layers",
+	description= "Render objects only from visible layers.",
+	default= False
+)
+
+VRayExporter.BoolProperty(
+	attr= 'auto_meshes',
+	name= "Auto export meshes",
+	description= "Export meshes automatically before render.",
+	default= 0
+)
+
+VRayExporter.BoolProperty(
+	attr= 'autorun',
+	name= "Autorun",
+	description= "Start V-Ray automatically after export.",
+	default= 1
+)
+
+VRayExporter.BoolProperty(
+	attr= 'debug',
+	name= "Debug",
+	description= "Enable script\'s debug output.",
+	default= 0
+)
 
 # BoolProperty(   attr="vray_export_duplibase",
 #                 name="vray_export_duplibase",
 #                 description="",
 #                 default= 0)
-
-# StringProperty( attr="vray_binary path",
-#                 name="V-Ray binary path",
-#                 description="Path to V-Ray's binary file.")
 
 # IntProperty(    attr="vray_verboseLevel",
 #                 name="vray_verboseLevel",
@@ -784,30 +810,10 @@ BoolProperty(   attr="vray_export_log_window",
 #                 description="",
 #                 default= 0)
 
-# BoolProperty(   attr="vray_export_manual",
-#                 name="vray_export_manual",
-#                 description="",
-#                 default= 0)
-
-BoolProperty(   attr="vray_export_animation",
-                name="Animation",
-                description="Render animation.",
-                default= 0)
-
-BoolProperty(   attr= "vray_export_lock",
-                name= "Lock export meshes",
-                description= "Export meshes automatically.",
-                default= 0)
-
 # BoolProperty(   attr="vray_export_bake",
 #                 name="vray_export_bake",
 #                 description="",
 #                 default= 0)
-
-BoolProperty(   attr= "vray_autorun",
-                name= "Autorun",
-                description= "Start V-Ray automatically after export.",
-                default= 1)
 
 # IntProperty(    attr="vray_dr_port",
 #                 name="vray_dr_port",
@@ -817,11 +823,6 @@ BoolProperty(   attr= "vray_autorun",
 # StringProperty( attr="vray_dr_hosts",
 #                 name="vray_dr_hosts",
 #                 description="")
-
-BoolProperty(   attr= "vray_debug",
-                name= "Debug",
-                description= "Enable script\'s debug output ",
-                default= 0)
 
 # BoolProperty(   attr="vray_display",
 #                 name="vray_display",
@@ -995,241 +996,6 @@ IntProperty(    attr="vray_yc",
                 min=1, max=100, default=32)
 
 
-
-'''
-	RenderChannel
-'''
-class RENDER_CHANNELS_OT_add(bpy.types.Operator):
-	bl_idname=      'render_channels.add'
-	bl_label=       "Add render element"
-	bl_description= "Add render element"
-
-	def invoke(self, context, event):
-		sce= context.scene
-		vsce= sce.vray_scene
-
-		render_channels= vsce.render_channels
-
-		render_channels.add()
-		render_channels[-1].name= "RenderChannel"
-
-		return{'FINISHED'}
-
-
-class RENDER_CHANNELS_OT_del(bpy.types.Operator):
-	bl_idname=      'render_channels.remove'
-	bl_label=       "Remove render element"
-	bl_description= "Remove render element"
-
-	def invoke(self, context, event):
-		sce= context.scene
-		vsce= sce.vray_scene
-		
-		render_channels= vsce.render_channels
-		
-		if vsce.render_channels_index >= 0:
-		   render_channels.remove(vsce.render_channels_index)
-		   vsce.render_channels_index-= 1
-
-		return{'FINISHED'}
-
-
-'''
-	RenderChannelMultiMatte
-'''
-IntProperty(    attr="vray_multimatte_red_id",
-				name="Red ID",
-				description="",
-				min=0, max=1000, default=0)
-IntProperty(    attr="vray_multimatte_green_id",
-				name="Green ID",
-				description="",
-				min=0, max=1000, default=0)
-IntProperty(    attr="vray_multimatte_blue_id",
-				name="Blue ID",
-				description="",
-				min=0, max=1000, default=0)
-BoolProperty(   attr="vray_multimatte_use_mtl_id",
-				name="Use material ID",
-				description="",
-				default= 0)
-
-
-'''
-	RenderChannelExtraTex
-'''
-BoolProperty(
-	attr="vray_extratex_affect",
-	name="Affect Object",
-	description="",
-	default= 1
-)
-BoolProperty(
-	attr="vray_extratex_consider_for_aa",
-	name="Consider for AA",
-	description="",
-	default= 1
-)
-
-FloatProperty(
-	attr="vray_texdirt_ao_radius",
-	name="Radius",
-	description="",
-	min=0, max=10,
-	soft_min=0.1,
-	soft_max=10,
-	default=0.1
-)
-
-BoolProperty(
-	attr="vray_extratex_filtering",
-	name="Filtering",
-	description="",
-	default= 1
-)
-
-'''
-  Lightness and SSS pass Bumb and Samplerate
-'''
-BoolProperty(   attr="vray_pass_lightning",
-		 name="pass_lightning",
-		 description="",
-		 default= 0)
-BoolProperty(   attr="vray_pass_sss",
-		 name="pass_sss",
-		 description="",
-		 default= 0)
-BoolProperty(   attr="vray_pass_bumb",
-		 name="pass_bumb",
-		 description="",
-		 default= 0)
-BoolProperty(   attr="vray_pass_samplerate",
-		 name="pass_samplerate",
-		 description="",
-		 default= 0)
-
-BoolProperty(   attr="vray_pass_caustics",
-		 name="pass_samplerate",
-		 description="",
-		 default= 0)
-
-
-
-BoolProperty(   attr="vray_pass_wirecolor",
-		 name="Wire Color",
-		 description="",
-		 default= 0)
-
-BoolProperty(   attr="vray_passes",
-		 name="passes",
-		 description="",
-		 default= 0)
-
-BoolProperty(   attr="vray_color_mapping",
-		 name="Color Mapping",
-		 description="",
-		 default= 0)
-
-
-'''
-	RenderChannelVelocity
-'''
-
-BoolProperty(   attr="vray_velocity_ignore_z",
-		 name="ignore z",
-		 description="",
-		 default= 0)
-IntProperty(    attr="vray_velocity_max_velocity_last_frame",
-		 name="max frame",
-		 description="",
-		 min=0, max=100, default=0)
-FloatProperty(  attr="vray_velocity_max_velocity",
-		 name="velocity",
-		 description="",
-		 min=0, max=100, soft_min=0.1, soft_max=100, default=1.0)
-BoolProperty(   attr="vray_velocity_clamp_velocity",
-		 name="clamp",
-		 description="",
-		 default= 0)
-
-
-'''
-	RenderChannelRenderID
-'''
-# BoolProperty(   attr="vray_renderid",
-#                 name="Channel Render ID",
-#                 description="",
-#                 default= 0)
-# StringProperty( attr="vray_channel_renderid_name",
-#                 name="Name",
-#                 description="RenderID channel name",
-# 				default="RenderID")
-
-
-'''
-	RenderChannelZDepth
-'''
-
-FloatProperty(  attr="vray_zdepth_depth_black",
-		name="Far",
-		description="",
-		min=0, max=1000, soft_min=0.1, soft_max=1000, default=0.0)
-FloatProperty(  attr="vray_zdepth_depth_white",
-		 name="Near",
-		 description="",
-		 min=0, max=1000, soft_min=0.1, soft_max=1000, default=10.0)
-BoolProperty(   attr="vray_zdepth_depth_clamp",
-		 name="clamp",
-		 description="",
-		 default= 1)
-BoolProperty(   attr="vray_zdepth_depth_camera",
-		 name="Depth from camera",
-		 description="",
-		 default= 0)
-
-
-'''
-	RenderChannelNormals
-'''
-# BoolProperty(   attr="vray_channel_normals",
-#                 name="Normals channel",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_channel_normals_filtering",
-#                 name="Filtering",
-#                 description="",
-#                 default= 1)
-# StringProperty( attr="vray_channel_renderid_name",
-#                 name="Name",
-#                 description="RenderID channel name",
-# 				default="RenderID")
-
-
-'''
-	RenderChannelColor
-'''
-# BoolProperty(   attr="vray_channel_color",
-#                 name="Color channel",
-#                 description="",
-# 				default= 0)
-# StringProperty( attr="vray_channel_color_name",
-#                 name="Name",
-#                 description="",
-# 				default="ColorChannel")
-# BoolProperty(   attr="vray_channel_color_color_mapping",
-#                 name="Color mapping",
-#                 description="Apply color mapping to the channel.",
-#                 default= 0)
-# IntProperty(    attr="vray_channel_color_alias",
-#                 name="Alias",
-#                 description="",
-#                 min=1, max=10000, default=100)
-# BoolProperty(   attr="vray_channel_color_consider_for_aa",
-#                 name="Consider for AA",
-#                 description="",
-#                 default= 1)
-
-
 '''
 	SettingsDefaultDisplacement
 '''
@@ -1293,6 +1059,42 @@ BoolProperty(   attr="vray_zdepth_depth_camera",
 	GUI
 '''
 narrowui= 200
+
+
+class RENDER_CHANNELS_OT_add(bpy.types.Operator):
+	bl_idname=      'render_channels.add'
+	bl_label=       "Add Render Channel"
+	bl_description= "Add render channel"
+
+	def invoke(self, context, event):
+		sce= context.scene
+		vsce= sce.vray_scene
+
+		render_channels= vsce.render_channels
+
+		render_channels.add()
+		render_channels[-1].name= "RenderChannel"
+
+		return{'FINISHED'}
+
+
+class RENDER_CHANNELS_OT_del(bpy.types.Operator):
+	bl_idname=      'render_channels.remove'
+	bl_label=       "Remove Render Channel"
+	bl_description= "Remove render channel"
+
+	def invoke(self, context, event):
+		sce= context.scene
+		vsce= sce.vray_scene
+		
+		render_channels= vsce.render_channels
+		
+		if vsce.render_channels_index >= 0:
+		   render_channels.remove(vsce.render_channels_index)
+		   vsce.render_channels_index-= 1
+
+		return{'FINISHED'}
+
 
 def base_poll(cls, context):
 	rd= context.scene.render
@@ -1455,39 +1257,41 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
-		scene= context.scene
-		rd= scene.render
+		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		layout= self.layout
+		vs= context.scene.vray_scene
+		ve= vs.exporter
 
 		split= layout.split()
 		col= split.column()
 		col.operator("render.render", text="Image", icon='RENDER_STILL')
 
-		if not scene.vray_export_lock:
-			if(wide_ui):
+		if not ve.auto_meshes:
+			if wide_ui:
 				col= split.column()
 			col.operator("vray_export_meshes", icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
 		col.label(text="Globals:")
-		col.prop(scene, "vray_gi_on", text="GI")
-		col.prop(scene, "vray_caustics_enable", text="Caustics")
-
-		col.label(text="Exporter:")
-		col.prop(scene, "vray_autorun")
-		col.prop(scene, "vray_debug")
-		col.prop(scene, "vray_export_lock")
-
-		if(wide_ui):
+		col.prop(vs, "enable_gi", text="GI")
+		col.prop(vs, "enable_caustics", text="Caustics")
+		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
-		col.prop(scene, 'vray_export_animation')
-		col.prop(scene, 'vray_export_active_layers')
-		col.prop(scene, 'vray_export_use_mat_nodes')
-		col.prop(scene, 'vray_export_img_to_blender')
+		col.prop(ve, 'animation')
+		col.prop(ve, 'active_layers')
+		col.prop(ve, 'use_material_nodes')
+		col.prop(ve, 'image_to_blender')
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Exporter:")
+		col.prop(ve, "autorun")
+		col.prop(ve, "auto_meshes")
+		col.prop(ve, "debug")
+
 
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
@@ -1500,8 +1304,8 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 		wide_ui= context.region.width > narrowui
 
 		layout= self.layout
@@ -1543,8 +1347,8 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		colL= split.column()
@@ -1604,8 +1408,8 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 
 		wide_ui= context.region.width > narrowui
 
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		col= split.column()
@@ -1626,16 +1430,16 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		scene= context.scene
-		return (base_poll(__class__, context) and scene.vray_gi_on)
+		vs= context.scene.vray_scene
+		return (base_poll(__class__, context) and vs.enable_gi)
 
 	def draw(self, context):
 		layout= self.layout
 
 		wide_ui= context.region.width > narrowui
 
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		colL= split.column()
@@ -1673,13 +1477,13 @@ class RENDER_PT_vray_gi_im(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		scene= context.scene
-		return (base_poll(__class__, context) and scene.vray_gi_on and scene.vray_gi_primary_engine == 'IM')
+		scene= context.scene.vray_scene
+		return (base_poll(__class__, context) and scene.enable_gi and scene.vray_gi_primary_engine == 'IM')
 
 	def draw(self, context):
 		layout= self.layout
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		colR= split.column()
@@ -1774,13 +1578,13 @@ class RENDER_PT_vray_gi_bf(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		scene= context.scene
-		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'BF' or scene.vray_gi_secondary_engine == 'BF'))
+		scene= context.scene.vray_scene
+		return (base_poll(__class__, context) and scene.enable_gi and (scene.vray_gi_primary_engine == 'BF' or scene.vray_gi_secondary_engine == 'BF'))
 
 	def draw(self, context):
 		layout= self.layout
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		split.column().prop(scene, "vray_dmcgi_subdivs")
@@ -1795,13 +1599,13 @@ class RENDER_PT_vray_gi_lc(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		scene= context.scene
-		return (base_poll(__class__, context) and scene.vray_gi_on and (scene.vray_gi_primary_engine == 'LC' or scene.vray_gi_secondary_engine == 'LC'))
+		scene= context.scene.vray_scene
+		return (base_poll(__class__, context) and scene.enable_gi and (scene.vray_gi_primary_engine == 'LC' or scene.vray_gi_secondary_engine == 'LC'))
 
 	def draw(self, context):
 		layout= self.layout
-		scene= context.scene
-		rd= scene.render
+		scene= context.scene.vray_scene
+		rd= context.scene.render
 
 		split= layout.split()
 		colR= split.column()
@@ -1901,7 +1705,12 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 					render_channel_data= getattr(render_channel,plugin.PLUG)
 
 					if render_channel.name == "" or render_channel.name == "RenderChannel":
-						render_channel.name= render_channel_data.name
+						def get_unique_name():
+							for chan in render_channels:
+								if render_channel_data.name == chan.name:
+									return render_channel_data.name + " (enter unique name)"
+							return render_channel_data.name
+						render_channel.name= get_unique_name()
 					
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
 

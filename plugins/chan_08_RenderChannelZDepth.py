@@ -27,70 +27,67 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'VELOCITY'
-NAME= 'Velocity'
-PLUG= 'RenderChannelVelocity'
+
+ID=   'ZDEPTH'
+NAME= 'ZDepth'
+PLUG= 'RenderChannelZDepth'
 DESC= "TODO."
 
 PARAMS= (
 	'name',
-	'clamp_velocity',
-	'max_velocity',
-	'max_velocity_last_frame',
-	'ignore_z',
+	'depth_from_camera',
+	'depth_black',
+	'depth_white',
+	'depth_clamp',
 	'filtering'
 )
+
 
 import bpy
 
 from vb25.utils import *
 
 
-class RenderChannelVelocity(bpy.types.IDPropertyGroup):
-	pass
+class RenderChannelZDepth(bpy.types.IDPropertyGroup):
+    pass
 
 def add_properties(parent_struct):
 	parent_struct.PointerProperty(
-		attr= 'RenderChannelVelocity',
-		type=  RenderChannelVelocity,
-		name= "Velocity",
-		description= "V-Ray render channel \"Velocity\" settings."
+		attr= 'RenderChannelZDepth',
+		type= RenderChannelZDepth,
+		name= "Z-Depth",
+		description= "V-Ray render channel \"Z-Depth\" settings."
 	)
+
+	FloatProperty= RenderChannelZDepth.FloatProperty
+	IntProperty= RenderChannelZDepth.IntProperty
+	BoolProperty= RenderChannelZDepth.BoolProperty
+	EnumProperty= RenderChannelZDepth.EnumProperty
+	FloatVectorProperty= RenderChannelZDepth.FloatVectorProperty
+	StringProperty= RenderChannelZDepth.StringProperty
 
 	# name: string
-	RenderChannelVelocity.StringProperty(
+	StringProperty(
 		attr= 'name',
 		name= "Name",
-		description= "TODO.",
-		default= "Velocity"
+		description= "Render channel name",
+		maxlen= 64,
+		default= "ZDepth"
 	)
 
-	# clamp_velocity: bool
-	RenderChannelVelocity.BoolProperty(
-		attr= 'clamp_velocity',
-		name= "Clamp",
+	# depth_from_camera: bool
+	RenderChannelZDepth.BoolProperty(
+		attr= 'depth_from_camera',
+		name= "From camera",
 		description= "TODO.",
-		default= True
+		default= False
 	)
-	
-	# max_velocity: float
-	RenderChannelVelocity.FloatProperty(
-		attr= 'max_velocity',
-		name= "Max velocity",
-		description= "Max velocity",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-	
-	# max_velocity_last_frame: float
-	RenderChannelVelocity.FloatProperty(
-		attr= 'max_velocity_last_frame',
-		name= "Max velocity last frame",
-		description= "Max velocity last frame",
+
+	# depth_black: float
+	RenderChannelZDepth.FloatProperty(
+		attr= 'depth_black',
+		name= "Black distance",
+		description= "TODO.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -98,40 +95,53 @@ def add_properties(parent_struct):
 		precision= 3,
 		default= 0
 	)
-	
-	# ignore_z: bool
-	RenderChannelVelocity.BoolProperty(
-		attr= 'ignore_z',
-		name= "Ignore Z",
+
+	# depth_white: float
+	RenderChannelZDepth.FloatProperty(
+		attr= 'depth_white',
+		name= "White distance",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1000
+	)
+
+	# depth_clamp: bool
+	RenderChannelZDepth.BoolProperty(
+		attr= 'depth_clamp',
+		name= "Clamp",
 		description= "TODO.",
 		default= True
 	)
-	
+
 	# filtering: bool
-	RenderChannelVelocity.BoolProperty(
+	RenderChannelZDepth.BoolProperty(
 		attr= 'filtering',
 		name= "Filtering",
 		description= "TODO.",
 		default= True
 	)
-	
+
 
 
 '''
   OUTPUT
 '''
 def write(ofile, render_channel, sce= None, name= None):
-	channel_name= "%s"%(clean_string(render_channel.name))
+	channel_name= render_channel.name
 	if name is not None:
 		channel_name= name
 
-	ofile.write("\n%s %s {"%(PLUG, channel_name))
+	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
 	for param in PARAMS:
 		if param == 'name':
-			value= "\"%s\"" % getattr(render_channel, param)
+			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-	ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
 
@@ -142,11 +152,10 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'max_velocity')
-	col.prop(rna_pointer, 'max_velocity_last_frame', text="Max last")
+	col.prop(rna_pointer, 'depth_black', text="Black dist")
+	col.prop(rna_pointer, 'depth_white', text="White dist")
 	if wide_ui:
 		col = split.column()
-	col.prop(rna_pointer, 'clamp_velocity')
-	col.prop(rna_pointer, 'ignore_z')
+	col.prop(rna_pointer, 'depth_from_camera')
+	col.prop(rna_pointer, 'depth_clamp')
 	col.prop(rna_pointer, 'filtering')
-

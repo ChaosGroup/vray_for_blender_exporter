@@ -27,45 +27,52 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'EXTRATEX'
-NAME= 'ExtraTex'
-PLUG= 'RenderChannelExtraTex'
+ID=   'AO'
+NAME= 'Ambient Occlusion'
+PLUG= 'RenderChannelAO'
 DESC= "TODO."
 
 PARAMS= (
 	'name',
 	'consider_for_aa',
 	'affect_matte_objects',
-	'texmap',
 	'filtering'
 )
+
+PARAMS_AO= (
+	'radius',
+	'falloff',
+	'subdivs',
+	'ignore_for_gi'
+)
+
 
 import bpy
 
 from vb25.utils import *
 
 
-class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
+class RenderChannelAO(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
 	parent_struct.PointerProperty(
-		attr= 'RenderChannelExtraTex',
-		type=  RenderChannelExtraTex,
-		name= "ExtraTex",
-		description= "V-Ray render channel \"ExtraTex\" settings."
+		attr= 'RenderChannelAO',
+		type=  RenderChannelAO,
+		name=  NAME,
+		description= "V-Ray render channel \"%s\" settings." % NAME
 	)
 
 	# name: string
-	RenderChannelExtraTex.StringProperty(
+	RenderChannelAO.StringProperty(
 		attr= 'name',
 		name= "Name",
 		description= "TODO.",
-		default= "ExtraTexChannel"
+		default= NAME
 	)
 
 	# consider_for_aa: bool
-	RenderChannelExtraTex.BoolProperty(
+	RenderChannelAO.BoolProperty(
 		attr= 'consider_for_aa',
 		name= "Consider for AA",
 		description= "TODO.",
@@ -73,28 +80,56 @@ def add_properties(parent_struct):
 	)
 	
 	# affect_matte_objects: bool
-	RenderChannelExtraTex.BoolProperty(
+	RenderChannelAO.BoolProperty(
 		attr= 'affect_matte_objects',
 		name= "Affect matte objects",
 		description= "TODO.",
 		default= True
 	)
 	
-	# texmap: acolor texture
-	RenderChannelExtraTex.StringProperty(
-		attr= 'texmap',
-		name= "Texture",
-		description= "TODO.",
-		default= ""
-	)
-
 	# filtering: bool
-	RenderChannelExtraTex.BoolProperty(
+	RenderChannelAO.BoolProperty(
 		attr= 'filtering',
 		name= "Filtering",
 		description= "TODO.",
 		default= True
 	)
+
+	RenderChannelAO.FloatProperty(
+		attr= 'radius',
+		name= "Radius",
+		description= "AO radius.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		precision= 3,
+		default= 0.1
+	)
+
+	RenderChannelAO.FloatProperty(
+		attr= 'falloff',
+		name= "Falloff",
+		description= "The speed of the transition between occluded and unoccluded areas.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		precision= 3,
+		default= 0.0
+	)
+
+	RenderChannelAO.IntProperty(
+		attr= 'subdivs',
+		name= "Subdivs",
+		description= "TODO.",
+		min= 1,
+		max= 256,
+		soft_min= 1,
+		soft_max= 32,
+		default= 8
+	)
+
 	
 
 
@@ -102,17 +137,28 @@ def add_properties(parent_struct):
   OUTPUT
 '''
 def write(ofile, render_channel, sce= None, name= None):
-	channel_name= "%s"%(clean_string(render_channel.name))
+	channel_name= clean_string(render_channel.name)
 	if name is not None:
 		channel_name= name
 
-	ofile.write("\n%s %s {"%(PLUG, channel_name))
+	ao_tex_name= "TexDirt_%s" % clean_string(channel_name)
+
+	ofile.write("\nTexDirt %s {"%(ao_tex_name))
+	ofile.write("\n\twhite_color= AColor(1.0,1.0,1.0, 1.0);")
+	ofile.write("\n\tblack_color= AColor(0.0,0.0,0.0, 1.0);")
+	ofile.write("\n\tradius= %.3f;" % render_channel.radius)
+	ofile.write("\n\tsubdivs= %d;" % render_channel.subdivs)
+	ofile.write("\n\tfalloff= %d;" % render_channel.falloff)
+	ofile.write("\n}\n")
+
+	ofile.write("\nRenderChannelExtraTex %s {"%(clean_string(channel_name)))
 	for param in PARAMS:
 		if param == 'name':
-			value= "\"%s\"" % getattr(render_channel, param)
+			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-	ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n\ttexmap= %s;"%(ao_tex_name))
 	ofile.write("\n}\n")
 
 
@@ -123,12 +169,12 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'texmap')
-	split= layout.split()
-	col= split.column()
-	col.prop(rna_pointer, 'filtering')
+	col.prop(rna_pointer, 'radius')
+	col.prop(rna_pointer, 'subdivs')
+	col.prop(rna_pointer, 'falloff')
 	if wide_ui:
 		col = split.column()
+	col.prop(rna_pointer, 'filtering')
 	col.prop(rna_pointer, 'consider_for_aa')
 	col.prop(rna_pointer, 'affect_matte_objects')
 

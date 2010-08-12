@@ -64,19 +64,23 @@ if base_dir is not None:
 	sys.stdout.write("V-Ray/Blender: Loading modules... done.                    \n")
 
 
+# class VRay(bpy.types.IDPropertyGroup):
+# 	pass
+
 class VRayTexture(bpy.types.IDPropertyGroup):
-    pass
+	pass
 
 class VRayScene(bpy.types.IDPropertyGroup):
-    pass
+	pass
 
 class VRayRenderChannel(bpy.types.IDPropertyGroup):
-    pass
+	pass
 
 
 def add_properties():
 	def load_plugins(plugins, parent_struct):
 		enum_items= []
+		enum_items.append(('NONE',"None",""))
 		for plugin in plugins:
 			plugin.add_properties(parent_struct)
 			plugin_desc= []
@@ -84,7 +88,6 @@ def add_properties():
 			plugin_desc.append(plugin.NAME)
 			plugin_desc.append(plugin.DESC)
 			enum_items.append(tuple(plugin_desc))
-		enum_items.append(('NONE',"None",""))
 		return enum_items
 
 	'''
@@ -101,8 +104,15 @@ def add_properties():
 		attr= 'vray_scene',
 		type= VRayScene,
 		name= "V-Ray Scene Settings",
-		description= "V-Ray scenee settings."
+		description= "V-Ray scene settings."
 	)
+
+	# bpy.types.Main.PointerProperty(
+	# 	attr= 'vray',
+	# 	type= VRay,
+	# 	name= "V-Ray Settings",
+	# 	description= "V-Ray settings."
+	# )
 
 	'''
 	  Scene
@@ -111,12 +121,12 @@ def add_properties():
 		attr= 'render_channels',
 		type= VRayRenderChannel,
 		name= "Render Channels",
-		description= "V-Ray render channels"
+		description= "V-Ray render channels."
 	)
 
 	VRayScene.IntProperty(
 		attr= 'render_channels_index',
-		name= "Render channel index",
+		name= "Render Channel Index",
 		default= -1,
 		min= -1,
 		max= 100
@@ -127,8 +137,8 @@ def add_properties():
 	'''
 	VRayTexture.EnumProperty(
 		attr= 'type',
-		name= "Texture type",
-		description= "V-Ray texture type",
+		name= "Texture Type",
+		description= "V-Ray texture type.",
 		items= (tuple(load_plugins(TEX_PLUGINS,VRayTexture))),
 		default= 'NONE'
 	)
@@ -138,7 +148,7 @@ def add_properties():
 	'''
 	VRayRenderChannel.EnumProperty(
 		attr= 'type',
-		name= "Channel type",
+		name= "Channel Type",
 		description= "Render channel type.",
 		items= (tuple(load_plugins(CHANNEL_PLUGINS,VRayRenderChannel))),
 		default= 'NONE'

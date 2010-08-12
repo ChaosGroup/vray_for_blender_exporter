@@ -66,11 +66,11 @@ def add_properties(parent_struct):
   OUTPUT
 '''
 def write(ofile, render_channel, sce= None, name= None):
-	channel_name= "%s"%(clean_string(render_channel.name))
+	channel_name= render_channel.name
 	if name is not None:
 		channel_name= name
 
-	ofile.write("\n%s %s {"%(PLUG, channel_name))
+	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
 	param= 'name'
 	ofile.write("\n\t%s= \"%s\";"%(param, p(getattr(render_channel, param))))
 	ofile.write("\n}\n")
