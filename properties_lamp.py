@@ -227,7 +227,7 @@ BoolProperty(
 )
 
 EnumProperty(
-	attr="vr_la_portal_mode",
+	attr="vr_la_lightPortal",
 	name="Light portal mode",
 	description="Specifies if the light is a portal light.",
 	items=(
@@ -605,10 +605,10 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(lamp, 'color', text="")
 		if(lamp.type == 'AREA'):
-			col.prop(lamp, 'vr_la_portal_mode', text="Mode")
+			col.prop(lamp, 'vr_la_lightPortal', text="Mode")
 		col.prop(lamp, 'vr_la_units', text="Units")
 
-		if not ((lamp.type == 'SUN' and lamp.vr_la_direct_type == 'SUN') or (lamp.type == 'AREA' and lamp.vr_la_portal_mode != 'NORMAL')):
+		if not ((lamp.type == 'SUN' and lamp.vr_la_direct_type == 'SUN') or (lamp.type == 'AREA' and lamp.vr_la_lightPortal != 'NORMAL')):
 			col.prop(lamp, 'vr_la_intensity', text="Intensity")
 		col.prop(lamp, 'vr_la_subdivs')
 		col.prop(lamp, 'vr_la_causticSubdivs', text="Caustics")

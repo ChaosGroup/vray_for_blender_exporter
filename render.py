@@ -457,6 +457,48 @@ OBJECT_PARAMS= {
 		#'endDistance3'
 	),
 
+	'LightMesh': (
+		'enabled',
+		# 'transform',
+		'color',
+		# 'color_tex',
+		# 'shadows',
+		# 'shadowColor',
+		# 'shadowColor_tex',
+		# 'shadowBias',
+		# 'photonSubdivs',
+		'causticSubdivs',
+		# 'diffuseMult',
+		# 'causticMult',
+		# 'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		# 'bumped_below_surface_check',
+		# 'nsamples',
+		# 'diffuse_contribution',
+		# 'specular_contribution',
+		# 'channels',
+		# 'channels_raw',
+		# 'channels_diffuse',
+		# 'channels_specular',
+		'units',
+		'intensity',
+		# 'intensity_tex',
+		'subdivs',
+		'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay',
+		'doubleSided',
+		'lightPortal',
+		'geometry',
+		# 'ignoreLightNormals',
+		# 'tex',
+		# 'use_tex',
+		# 'tex_resolution',
+		# 'cache_tex'
+	),
+
 	'TexSky': (
 		#'transform',
 		#'target_transform',
@@ -537,6 +579,12 @@ UNITS= {
 	'LUMM'    : 2,
 	'WATTSM'  : 3,
 	'WATM'    : 4
+}
+
+LIGHT_PORTAL= {
+	'NORMAL':  0,
+	'PORTAL':  1,
+	'SPORTAL': 2
 }
 
 SKY_MODEL= {
@@ -863,7 +911,7 @@ def write_geometry(sce):
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 				continue
 
-			if ob.data.vray_proxy:
+			if ob.data.vray.GeomMeshFile.use:
 				continue
 
 			if ve.active_layers:
@@ -941,17 +989,21 @@ def write_mesh_file(ofile, exported_proxy, ob):
 		'PINGPONG' : 2,
 		'STILL'    : 3
 	}
-	
-	proxy_name= "Proxy_%s" % clean_string(os.path.basename(ob.data.vray_proxy_file))
 
-	if(proxy_name not in exported_proxy):
+	proxy= od.data.vray.GeomMeshFile
+	
+	proxy_name= "Proxy_%s" % clean_string(os.path.basename(proxy.file))
+
+	if proxy_name not in exported_proxy:
 		exported_proxy.append(proxy_name)
+		
 		ofile.write("\nGeomMeshFile %s {"%(proxy_name))
-		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(ob.data.vray_proxy_file)))
-		ofile.write("\n\tanim_speed= %i;"%(ob.data.vray_proxy_anim_speed))
-		ofile.write("\n\tanim_type= %i;"%(ANIM_TYPE[ob.data.vray_proxy_anim_type]))
-		ofile.write("\n\tanim_offset= %i;"%(ob.data.vray_proxy_anim_offset))
+		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(proxy.file)))
+		ofile.write("\n\tanim_speed= %i;"%(proxy.anim_speed))
+		ofile.write("\n\tanim_type= %i;"%(ANIM_TYPE[proxy.anim_type]))
+		ofile.write("\n\tanim_offset= %i;"%(proxy.anim_offset))
 		ofile.write("\n}\n")
+
 	return proxy_name
 
 
@@ -1363,7 +1415,7 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 
 	rm= ma.raytrace_mirror
 	rt= ma.raytrace_transparency
-	vma= ma.vray_material
+	vma= ma.vray
 	plug= vma.BRDFVRayMtl
 
 	brdf_name= "BRDFVRayMtl_%s"%(ma_name)
@@ -1493,7 +1545,7 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray):
 		'REFR':   3
 	}
 
-	vma= ma.vray_material
+	vma= ma.vray
 	plug= vma.BRDFSSS2Complex
 
 	brdf_name= "BRDFSSS2Complex_%s"%(ma_name)
@@ -1522,17 +1574,20 @@ def write_BRDFLight(ofile, ma, ma_name, tex_vray):
 		alpha= exportTexInvert(tex_vray['alpha'])
 		color= exportTexCompMax("%s_alpha"%(brdf_name), alpha, color)
 
+	light= ma.vray.BRDFLight
+
 	ofile.write("\nBRDFLight %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,"%s"%(color))))
+	ofile.write("\n\tcolor= %s;"%(a(sce,color)))
 	ofile.write("\n\tcolorMultiplier= %s;"%(a(sce,ma.emit * 10)))
-	ofile.write("\n\tcompensateExposure= %s;"%(a(sce,ma.vray_mtl_compensateExposure)))
+	ofile.write("\n\tcompensateExposure= %s;"%(a(sce,light.compensateExposure)))
+	ofile.write("\n\temitOnBackSide= %s;"%(a(sce,light.emitOnBackSide)))
+	ofile.write("\n\tdoubleSided= %s;"%(a(sce,light.doubleSided)))
 
 	if(tex_vray['alpha']):
 		ofile.write("\n\ttransparency= %s;"%(a(sce,tex_vray['alpha'])))
 	else:
 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
 
-	ofile.write("\n\temitOnBackSide= %s;"%(a(sce,ma.vray_mtl_emitOnBackSide)))
 	ofile.write("\n}\n")
 
 	return brdf_name
@@ -1540,55 +1595,10 @@ def write_BRDFLight(ofile, ma, ma_name, tex_vray):
 
 def	write_material(ofile, exported_bitmaps, ma, name= None):
 	ma_name= get_name(ma,"Material")
-	if(name):
+	if name:
 		ma_name= name
 
-	vma= ma.vray_material
-
-	if(vma.two_sided and vma.use_wrapper and vma.use_renderstats):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		wrap_material= "MtlWrapper_%s"%(ma_name)
-		wrap_base= ts_material
-		rstat_material= ma_name
-		rstat_base= wrap_material
-		
-	elif(vma.two_sided and vma.use_renderstats and not vma.use_wrapper):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		rstat_base= ts_material
-		rstat_material= ma_name
-	
-	elif(vma.two_sided and vma.use_wrapper and not vma.use_renderstats):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		wrap_base= ts_material
-		wrap_material= ma_name
-
-	elif(not vma.two_sided and vma.use_wrapper and vma.use_renderstats):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		wrap_material= "MtlWrapper_%s"%(ma_name)
-		wrap_base= base_material
-		rstat_material= ma_name
-		rstat_base= wrap_material
-
-	elif(not vma.two_sided and vma.use_wrapper and not vma.use_renderstats):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		wrap_base= base_material
-		wrap_material= ma_name
-
-	elif(not vma.two_sided and not vma.use_wrapper and vma.use_renderstats):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		rstat_material= ma_name
-		rstat_base= base_material
-
-	elif(vma.two_sided):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= ma_name
-
-	else:
-		base_material= ma_name
-		
+	vma= ma.vray
 	
 	ofile.write("\n//\n// Material: %s\n//"%(ma.name))
 
@@ -1596,48 +1606,84 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 
 	tex_vray= write_textures(ofile, exported_bitmaps, ma, ma_name)
 
-	vma= ma.vray_material
-
-	if(vma.type == 'MTL'):
+	if vma.type == 'MTL':
 		brdf_name= write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray)
-	elif(vma.type == 'SSS'):
+	elif vma.type == 'SSS':
 		brdf_name= write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray)
-	elif(vma.type == 'EMIT'):
-		brdf_name= write_BRDFLight(ofile, ma, ma_name, tex_vray)
+	elif vma.type == 'EMIT':
+		if vma.emitter_type == 'MESH':
+			return
+		else:
+			brdf_name= write_BRDFLight(ofile, ma, ma_name, tex_vray)
 	else:
 		return
 
 	if vma.type != 'EMIT':
-		if(tex_vray['bump'] or tex_vray['normal']):
+		if tex_vray['bump'] or tex_vray['normal']:
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
-	if(vma.two_sided):
-		ofile.write("\nMtlSingleBRDF %s {"%(base_material))
-		ofile.write("\n\tbrdf= %s;"%(brdf_name))
-		ofile.write("\n}\n")
+	# Very ugly :(
+	if(vma.two_sided and vma.MtlWrapper.use and vma.MtlRenderStats.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		wrap_material= "MtlWrapper_%s"%(ma_name)
+		wrap_base= ts_material
+		rstat_material= ma_name
+		rstat_base= wrap_material
+	elif(vma.two_sided and vma.MtlRenderStats.use and not vma.MtlWrapper.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		rstat_base= ts_material
+		rstat_material= ma_name
+	elif(vma.two_sided and vma.MtlWrapper.use and not vma.MtlRenderStats.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= "Mtl2Sided_%s"%(ma_name)
+		wrap_base= ts_material
+		wrap_material= ma_name
+	elif(not vma.two_sided and vma.MtlWrapper.use and vma.MtlRenderStats.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		wrap_material= "MtlWrapper_%s"%(ma_name)
+		wrap_base= base_material
+		rstat_material= ma_name
+		rstat_base= wrap_material
+	elif(not vma.two_sided and vma.MtlWrapper.use and not vma.MtlRenderStats.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		wrap_base= base_material
+		wrap_material= ma_name
+	elif(not vma.two_sided and not vma.MtlWrapper.use and vma.MtlRenderStats.use):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		rstat_material= ma_name
+		rstat_base= base_material
+	elif(vma.two_sided):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		ts_material= ma_name
+	else:
+		base_material= ma_name
+
+	ofile.write("\nMtlSingleBRDF %s {"%(base_material))
+	ofile.write("\n\tbrdf= %s;"%(brdf_name))
+	ofile.write("\n}\n")
+
+	if vma.two_sided:
 		ofile.write("\nMtl2Sided %s {"%(ts_material))
 		ofile.write("\n\tfront= %s;"%(base_material))
 		ofile.write("\n\tback= %s;"%(base_material))
 		ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(vma.two_sided_translucency,vma.two_sided_translucency,vma.two_sided_translucency))
 		ofile.write("\n\tforce_1sided= 1;")
 		ofile.write("\n}\n")
-	else:
-		ofile.write("\nMtlSingleBRDF %s {"%(base_material))
-		ofile.write("\n\tbrdf= %s;"%(brdf_name))
-		ofile.write("\n}\n")
 
-	if(vma.use_wrapper):
+	if vma.MtlWrapper.use:
 		ofile.write("\nMtlWrapper %s {"%(wrap_material))
 		ofile.write("\n\tbase_material= %s;"%(wrap_base))
 		for param in OBJECT_PARAMS['MtlWrapper']:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma.vray_material.MtlWrapper,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vma.MtlWrapper,param))))
 		ofile.write("\n}\n")
 		
-	if(vma.use_renderstats):
+	if vma.MtlRenderStats.use:
 		ofile.write("\nMtlRenderStats %s {"%(rstat_material))
 		ofile.write("\n\tbase_mtl= %s;"%(rstat_base))
 		for param in OBJECT_PARAMS['MtlRenderStats']:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma.vray_material.MtlRenderStats,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vma.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 
 
@@ -1712,7 +1758,7 @@ def write_materials(sce):
 			ofile.write("\nBRDFLayered %s {"%(clean_string(brdf_name)))
 			ofile.write("\n\tbrdfs= List(%s, %s);"%(color1, color2))
 			ofile.write("\n\tweights= List(%s, TexAColor_default_blend);"%(weights))
-			#ofile.write("\n\tadditive_mode= 1;") # Shellac
+			ofile.write("\n\tadditive_mode= 1;") # Shellac
 			ofile.write("\n}\n")
 				
 		elif(no.type == 'TEXTURE'):
@@ -1771,7 +1817,7 @@ def write_materials(sce):
 	ofile.write("\n\tuvwgen= UVWGenChannel_default;")
 	ofile.write("\n\ttexture= Color(1.0,1.0,1.0);")
 	ofile.write("\n}\n")
-	ofile.write("\n//\n// Materials...\n//")
+	ofile.write("\n//\n// Materials\n//")
 
 	exported_bitmaps= []
 	exported_nodes= []
@@ -1787,6 +1833,40 @@ def write_materials(sce):
 	print("V-Ray/Blender: Writing materials... done.")
 
 
+def detect_meshlight(ob):
+	if len(ob.material_slots) > 0:
+		for slot in ob.material_slots:
+			vma= slot.material.vray
+			if vma.type == 'EMIT' and vma.emitter_type == 'MESH':
+				return (True, slot.material)
+	return (False, None)
+
+def write_LightMesh(ofile, ob, ma, name, geometry):
+	# TMP!
+	exported_bitmaps= []
+	tex_vray= write_textures(ofile, exported_bitmaps, ma, name)
+	exported_bitmaps= []
+
+	plugin= 'LightMesh'
+
+	light= getattr(ma.vray,'LightMesh')
+
+	ofile.write("\n%s %s {" % (plugin,name))
+	for param in OBJECT_PARAMS[plugin]:
+		if param == 'color':
+			if tex_vray['color']:
+				ofile.write("\n\tcolor= %s;"%(tex_vray['color']))
+			else:
+				ofile.write("\n\tcolor= %s;"%(a(sce,ma.diffuse_color)))
+		elif param == 'geometry':
+			ofile.write("\n\t%s= %s;"%(param, geometry))
+		elif param == 'units':
+			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
+		elif param == 'lightPortal':
+			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
+		else:
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(light,param))))
+	ofile.write("\n}\n")
 
 
 '''
@@ -1804,9 +1884,12 @@ def write_nodes(sce):
 	exported_nodes= []
 	exported_proxy= []
 
-	def write_node(ob, matrix= None):
+	def write_node(ob, matrix= None, visible= True):
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
+
+			vo= ob.vray
+			vd= ob.data.vray
 
 			if ve.debug:
 				print("V-Ray/Blender: Processing object: %s"%(ob.name))
@@ -1820,12 +1903,15 @@ def write_nodes(sce):
 					sys.stdout.write("V-Ray/Blender: [%d] Object: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.name))
 				sys.stdout.flush()
 
+			node_name= get_name(ob,"Node")
+
 			node_geometry= get_name(ob.data,"Geom")
-			if hasattr(ob.data,'vray_proxy'):
-				if ob.data.vray_proxy:
+
+			if hasattr(vd,'GeomMeshFile'):
+				if vd.GeomMeshFile.use:
 					node_geometry= write_mesh_file(ofile, exported_proxy, ob)
 
-			if(matrix):
+			if matrix:
 				node_matrix= matrix
 			else:
 				node_matrix= ob.matrix_world
@@ -1838,12 +1924,17 @@ def write_nodes(sce):
 				else:
 					ma_name= write_multi_material(ofile, ob)
 
-			ofile.write("\nNode %s {"%(get_name(ob,"Node")))
-			ofile.write("\n\tobjectID= %d;"%(ob.pass_index))
-			ofile.write("\n\tgeometry= %s;"%(node_geometry))
-			ofile.write("\n\tmaterial= %s;"%(ma_name))
-			ofile.write("\n\ttransform= %s;"%(a(sce,transform(node_matrix))))
-			ofile.write("\n}\n")
+			(meshlight,meshlight_material)= detect_meshlight(ob)
+			if meshlight:
+				write_LightMesh(ofile, ob, meshlight_material, node_name, node_geometry)
+			else:
+				ofile.write("\nNode %s {"%(node_name))
+				ofile.write("\n\tobjectID= %d;"%(ob.pass_index))
+				ofile.write("\n\tgeometry= %s;"%(node_geometry))
+				ofile.write("\n\tmaterial= %s;"%(ma_name))
+				ofile.write("\n\tvisible= %s;"%(a(sce,visible)))
+				ofile.write("\n\ttransform= %s;"%(a(sce,transform(node_matrix))))
+				ofile.write("\n}\n")
 
 	ofile= open(filenames['nodes'], 'w')
 	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
@@ -1853,15 +1944,36 @@ def write_nodes(sce):
 
 	OBJECTS= []
 
-	# HIDE_FROM_VIEW= []
 	ca= sce.camera
+	vca= ca.data.VRayCamera
 
+	HIDE_FROM_VIEW= []
+
+	if vca.hide_from_view:
+		if vca.hide_from_everything:
+			if vca.everything_auto:
+				auto_group= 'hidefrom_%s' % ca.name
+				try:
+					for group_ob in bpy.data.groups[auto_group].objects:
+						HIDE_FROM_VIEW.append(group_ob.name)
+				except:
+					debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
+			else:
+				HIDE_FROM_VIEW= vca.everything_objects.split(';')
+				for gr in vca.everything_groups.split(';'):
+					try:
+						for group_ob in bpy.data.groups[gr].objects:
+							HIDE_FROM_VIEW.append(group_ob.name)
+					except:
+						debug(sce,"Group \"%s\" doesn\'t exist" % gr)
+				debug(sce,"Hide from view \"%s\": %s" % (ca.name,HIDE_FROM_VIEW))
+		else:
+			pass
 
 	for ob in sce.objects:
 		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 			continue
-		# if ob in HIDE_FROM_VIEW:
-		# 	continue
+
 		if ve.active_layers:
 			if not object_on_visible_layers(sce,ob):
 				continue
@@ -1875,12 +1987,24 @@ def write_nodes(sce):
 			exported_nodes= []
 			sce.set_frame(f)
 			for ob in OBJECTS:
-				write_node(ob)
+				visible= True
+				if vca.hide_from_view:
+					if vca.hide_from_everything:
+						if ob.name in HIDE_FROM_VIEW:
+							visible= False
+
+				write_node(ob, visible= visible)
 			f+= sce.frame_step
 		sce.set_frame(selected_frame)
 	else:
 		for ob in OBJECTS:
-			write_node(ob)
+			visible= True
+			if vca.hide_from_view:
+				if vca.hide_from_everything:
+					if ob.name in HIDE_FROM_VIEW:
+						visible= False
+
+			write_node(ob, visible= visible)
 
 	exported_nodes= []
 	exported_proxy= []
@@ -1904,6 +2028,10 @@ def write_lamps(sce):
 
 	for ob in sce.objects:
 		if ob.type == 'LAMP':
+			if ve.active_layers:
+				if not object_on_visible_layers(sce,ob):
+					continue
+		
 			lamp= ob.data
 			la_name= clean_string(ob.name)
 
@@ -1952,6 +2080,7 @@ def write_lamps(sce):
 				else:
 					ofile.write("\n\tu_size= %s;"%(a(sce,lamp.size/2)))
 					ofile.write("\n\tv_size= %s;"%(a(sce,lamp.size/2)))
+				ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[lamp.vr_la_lightPortal]))
 			elif(lamp_type == 'LightDome'):
 				pass
 
@@ -1982,7 +2111,6 @@ def write_lamps(sce):
 
 	ofile.close()
 	print("V-Ray/Blender: Writing lights... done.")
-
 
 
 def write_camera(sce,camera= None, ofile= None):
