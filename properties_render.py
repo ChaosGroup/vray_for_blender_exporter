@@ -454,14 +454,21 @@ VRayExporter.BoolProperty(
 	attr="log_window",
 	name="Show Log Window",
 	description="Show log window (Linux).",
-	default= 0
+	default= False
 )
 
 VRayExporter.BoolProperty(
 	attr= 'animation',
 	name= "Animation",
 	description= "Render animation.",
-	default= 0
+	default= False
+)
+
+VRayExporter.BoolProperty(
+	attr= 'camera_loop',
+	name= "Camera loop",
+	description= "Render views from all cameras.",
+	default= False
 )
 
 VRayExporter.BoolProperty(
@@ -963,7 +970,6 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		sub= col.column()
 		sub.prop(module, "reflect_caustics", text="Reflect")
 		sub.prop(module, "refract_caustics", text="Refract")
-
 		if wide_ui:
 			col= split.column()
 		col.label(text="Post-processing:")
@@ -973,7 +979,10 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		sub.prop(module, "contrast_base")
 
 		layout.label(text="Primary engine:")
-		split= layout.split(percentage=0.35)
+		if wide_ui:
+			split= layout.split(percentage=0.35)
+		else:
+			split= layout.split()
 		col= split.column()
 		col.prop(module, "primary_multiplier", text="Mult")
 		if wide_ui:
@@ -981,7 +990,10 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(module, "primary_engine", text="")
 
 		layout.label(text="Secondary engine:")
-		split= layout.split(percentage=0.35)
+		if wide_ui:
+			split= layout.split(percentage=0.35)
+		else:
+			split= layout.split()
 		col= split.column()
 		col.prop(module, "secondary_multiplier", text="Mult")
 		if wide_ui:
@@ -1019,31 +1031,40 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 			split.label(text="Basic parameters:")
 
 			split= layout.split()
-			colL= split.column(align=True)
-			colL.prop(module,"min_rate")
-			colL.prop(module,"max_rate")
-			colL.prop(module,"subdivs", text= "HSph. subdivs")
-			colM= split.column(align=True)
-			colM.prop(module,"color_threshold", text="Clr thresh", slider=True)
-			colM.prop(module,"normal_threshold", text="Nrm thresh", slider=True)
-			colM.prop(module,"distance_threshold", text="Dist thresh", slider=True)
+			col= split.column(align=True)
+			col.prop(module,"min_rate")
+			col.prop(module,"max_rate")
+			col.prop(module,"subdivs", text= "HSph. subdivs")
+			if wide_ui:
+				col= split.column(align=True)
+			else:
+				split= layout.split()
+				col= split.column(align=True)
+			col.prop(module,"color_threshold", text="Clr thresh", slider=True)
+			col.prop(module,"normal_threshold", text="Nrm thresh", slider=True)
+			col.prop(module,"distance_threshold", text="Dist thresh", slider=True)
 
 			split= layout.split()
 			split.column().prop(module,"interp_samples", text= "Interp. samples")
-			split.column()
+			if wide_ui:
+				split.column()
 
 			split= layout.split()
 			split.label(text="Advanced parameters:")
 
-			split= layout.split(percentage=0.7)
-			colL= split.column()
-			colL.prop(module,"interpolationType", text="Interp. type")
-			colL.prop(module,"lookupType")
-			colL.prop(module,"calc_interp_samples")
-			colR= split.column()
-			colR.prop(module,"multipass")
-			colR.prop(module,"randomize_samples", text="Randomize")
-			colR.prop(module,"check_sample_visibility", text="Check sample")
+			if wide_ui:
+				split= layout.split(percentage=0.7)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.prop(module,"interpolationType", text="Interp. type")
+			col.prop(module,"lookupType")
+			col.prop(module,"calc_interp_samples")
+			if wide_ui:
+				col= split.column()
+			col.prop(module,"multipass")
+			col.prop(module,"randomize_samples", text="Randomize")
+			col.prop(module,"check_sample_visibility", text="Check sample")
 
 		elif module.mode == 'ANIM_REND':
 			split= layout.split()
@@ -1139,19 +1160,24 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 
 		if not module.mode == 'FILE':
 			layout.label(text="Calculation parameters:")
-			split= layout.split(percentage=0.6)
-			colL= split.column()
-			colL.prop(module, "subdivs")
-			colL.prop(module, "sample_size")
-			colL.prop(module, "scale", text="Sample scale")
+			if wide_ui:
+				split= layout.split(percentage=0.6)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.prop(module, "subdivs")
+			col.prop(module, "sample_size")
+			col.prop(module, "scale", text="Sample scale")
 			if not module.num_passes_auto:
-				colL.prop(module, "num_passes")
-			colL.prop(module, "depth", slider= True)
-			colR= split.column()
-			colR.prop(module, "store_direct_light")
-			colR.prop(module, "adaptive_sampling")
-			colR.prop(module, "show_calc_phase")
-			colR.prop(module, "num_passes_auto")
+				col.prop(module, "num_passes")
+			col.prop(module, "depth", slider= True)
+			
+			if wide_ui:
+				col= split.column()
+			col.prop(module, "store_direct_light")
+			col.prop(module, "adaptive_sampling")
+			col.prop(module, "show_calc_phase")
+			col.prop(module, "num_passes_auto")
 
 		layout.label(text="Reconstruction parameters:")
 		if not module.mode == 'FILE':

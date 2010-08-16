@@ -27,7 +27,93 @@
 '''
 
 
+''' Blender modules '''
 import bpy
+
+''' vb modules '''
+from vb25.utils import *
+
+
+class VRayCamera(bpy.types.IDPropertyGroup):
+	pass
+
+bpy.types.Camera.PointerProperty(
+	attr= 'VRayCamera',
+	type=  VRayCamera,
+	name= "Camera",
+	description= "Camera settings."
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_view',
+	name= "Hide From View",
+	description= "Hide objects from current view.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_everything',
+	name= "Hide from everything",
+	description= "Hide objects completely.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'everything_auto',
+	name= "Hide from everything (automatic)",
+	description= "Create group with name \"hidefrom_<camera-name>\".",
+	default= False
+)
+
+VRayCamera.StringProperty(
+	attr= 'everything_objects',
+	name= "Objects",
+	description= "Objects to hide completely: name{;name;etc}",
+	default= ""
+)
+
+VRayCamera.StringProperty(
+	attr= 'everything_groups',
+	name= "Groups",
+	description= "Groups to hide completely: name{;name;etc}",
+	default= ""
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_camera',
+	name= "Hide from camera",
+	description= "Hide objects from camera.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_gi',
+	name= "Hide from GI",
+	description= "Hide objects from GI.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_reflect',
+	name= "Hide from reflections",
+	description= "Hide objects from reflections.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_refract',
+	name= "Hide from refractions",
+	description= "Hide objects from refractions.",
+	default= False
+)
+
+VRayCamera.BoolProperty(
+	attr= 'hide_from_shadows',
+	name= "Hide from shadows",
+	description= "Hide objects from shadows.",
+	default= False
+)
+
 
 
 BoolProperty= bpy.types.Camera.BoolProperty
@@ -181,19 +267,21 @@ FloatProperty(	attr="vray_cam_phys_f_number",
 				description="Determines the width of the camera aperture and, indirectly, exposure.",
 				min=0.0, max=1000.0, soft_min=0.0, soft_max=10.0, default= 8.0)
 
-FloatVectorProperty(  attr= "vray_cam_phys_white_balance",
-					  name= "White balance",
-					  description="",
-					  default= (1.0, 1.0, 1.0),
-					  min= 0.0,
-					  max= 1.0,
-					  soft_min= 0.0,
-					  soft_max= 1.0,
-					  step= 3,
-					  precision= 3,
-					  options= {'ANIMATABLE'},
-					  subtype= 'COLOR',
-					  size= 3)
+VRayCamera.FloatVectorProperty(
+	attr= "white_balance",
+	name= "White balance",
+	description= "White balance.",
+	default= (1.0, 1.0, 1.0),
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	step= 3,
+	precision= 3,
+	options= {'ANIMATABLE'},
+	subtype= 'COLOR',
+	size= 3
+)
 
 FloatProperty(  attr="vray_cam_phys_latency",
 				name="Latency",
@@ -361,6 +449,7 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 
 		cam= context.camera
+		ca= context.camera.VRayCamera
 
 		wide_ui= context.region.width > narrowui
 
@@ -382,6 +471,8 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(cam, "lens_unit", text="")
+
+		layout.separator()
 
 		if cam.vray_cam_mode == 'PHYSICAL':
 			if cam.type == 'ORTHO':
@@ -417,6 +508,14 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 				else:
 					col.prop(cam, "vray_cam_phys_latency")
 				col.prop(cam, "vray_cam_phys_ISO")
+
+			split= layout.split()
+			col= split.column()
+			sub= col.row()
+			sub.label(text="White balance")
+			sub.prop(ca, 'white_balance',text="")
+			if wide_ui:
+				col= split.column()
 
 			split= layout.split()
 			colL= split.column()
@@ -476,4 +575,46 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		col.prop(cam, "dof_distance", text="Distance")
 
 
-# bpy.types.register(DATA_PT_vray_camera)
+class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
+	bl_label = "Hide objects"
+	bl_default_closed = True
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		ca= context.camera.VRayCamera
+		self.layout.prop(ca, "hide_from_view", text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		sce= context.scene
+		ca= context.camera.VRayCamera
+
+		layout= self.layout
+		layout.active= ca.hide_from_view
+
+		split= layout.split()
+		col= split.column()
+		col.prop(ca,'hide_from_everything', text="Completely")
+		if ca.hide_from_everything:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(ca,'everything_auto',text="Auto")
+			sub= split.column()
+			sub.active= not ca.everything_auto
+			sub.prop(ca,'everything_objects')
+			sub.prop(ca,'everything_groups')
+		else:
+			col.prop(ca,'hide_from_camera', text="From camera")
+			col.prop(ca,'hide_from_gi', text="From GI")
+			col.prop(ca,'hide_from_reflect', text="From reflections")
+			col.prop(ca,'hide_from_refract', text="From refractions")
+			col.prop(ca,'hide_from_shadows', text="From shadows")
+		
+
+

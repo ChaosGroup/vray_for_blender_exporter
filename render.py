@@ -1565,12 +1565,22 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		wrap_base= ts_material
 		wrap_material= ma_name
 
-	elif(vma.use_wrapper and vma.use_renderstats and not vma.two_sided):
+	elif(not vma.two_sided and vma.use_wrapper and vma.use_renderstats):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		wrap_material= "MtlWrapper_%s"%(ma_name)
 		wrap_base= base_material
 		rstat_material= ma_name
 		rstat_base= wrap_material
+
+	elif(not vma.two_sided and vma.use_wrapper and not vma.use_renderstats):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		wrap_base= base_material
+		wrap_material= ma_name
+
+	elif(not vma.two_sided and not vma.use_wrapper and vma.use_renderstats):
+		base_material= "MtlSingleBRDF_%s"%(ma_name)
+		rstat_material= ma_name
+		rstat_base= base_material
 
 	elif(vma.two_sided):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
@@ -1606,9 +1616,9 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		ofile.write("\n\tbrdf= %s;"%(brdf_name))
 		ofile.write("\n}\n")
 		ofile.write("\nMtl2Sided %s {"%(ts_material))
-		ofile.write("\n\tfront= MtlSingleBRDF_%s;"%(base_material))
-		ofile.write("\n\tback= MtlSingleBRDF_%s;"%(base_material))
-		ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(ma.vray_mtlts_translucency,ma.vray_mtlts_translucency,ma.vray_mtlts_translucency))
+		ofile.write("\n\tfront= %s;"%(base_material))
+		ofile.write("\n\tback= %s;"%(base_material))
+		ofile.write("\n\ttranslucency= Color(%.3f, %.3f, %.3f);"%(vma.two_sided_translucency,vma.two_sided_translucency,vma.two_sided_translucency))
 		ofile.write("\n\tforce_1sided= 1;")
 		ofile.write("\n}\n")
 	else:
@@ -1620,17 +1630,14 @@ def	write_material(ofile, exported_bitmaps, ma, name= None):
 		ofile.write("\nMtlWrapper %s {"%(wrap_material))
 		ofile.write("\n\tbase_material= %s;"%(wrap_base))
 		for param in OBJECT_PARAMS['MtlWrapper']:
-			if(param == 'matte_for_secondary_rays'):
-				ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma, 'vb_mwrap_matte_for_sec_rays'))))
-			else:
-				ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma, "vb_mwrap_%s"%(param)))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma.vray_material.MtlWrapper,param))))
 		ofile.write("\n}\n")
 		
 	if(vma.use_renderstats):
 		ofile.write("\nMtlRenderStats %s {"%(rstat_material))
 		ofile.write("\n\tbase_mtl= %s;"%(rstat_base))
 		for param in OBJECT_PARAMS['MtlRenderStats']:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma, "vb_mrs_%s"%(param)))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ma.vray_material.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 
 
@@ -1801,20 +1808,20 @@ def write_nodes(sce):
 		if ob.name not in exported_nodes:
 			exported_nodes.append(ob.name)
 
-			if(ve.debug):
+			if ve.debug:
 				print("V-Ray/Blender: Processing object: %s"%(ob.name))
 				print("V-Ray/Blender:   Animated: %d"%(1 if ob.animation_data else 0))
-				if(ob.data):
+				if ob.data:
 					print("V-Ray/Blender:   Mesh animated: %d"%(1 if ob.data.animation_data else 0))
 			else:
-				if(PLATFORM == "win32"):
+				if PLATFORM == "win32":
 					sys.stdout.write("V-Ray/Blender: [%d] Object: %s                              \r"%(sce.frame_current, ob.name))
 				else:
 					sys.stdout.write("V-Ray/Blender: [%d] Object: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.name))
 				sys.stdout.flush()
 
 			node_geometry= get_name(ob.data,"Geom")
-			if(hasattr(ob.data,'vray_proxy')):
+			if hasattr(ob.data,'vray_proxy'):
 				if ob.data.vray_proxy:
 					node_geometry= write_mesh_file(ofile, exported_proxy, ob)
 
@@ -1845,40 +1852,33 @@ def write_nodes(sce):
 	timer= time.clock()
 
 	OBJECTS= []
-	# STATIC_OBJECTS= []
-	# DYNAMIC_OBJECTS= []
+
+	# HIDE_FROM_VIEW= []
+	ca= sce.camera
+
 
 	for ob in sce.objects:
 		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
 			continue
-
+		# if ob in HIDE_FROM_VIEW:
+		# 	continue
 		if ve.active_layers:
 			if not object_on_visible_layers(sce,ob):
 				continue
 
 		OBJECTS.append(ob)
-		# if ob.animation_data:
-		# 	DYNAMIC_OBJECTS.append(ob)
-		# else:
-		# 	STATIC_OBJECTS.append(ob)
 
-	# for ob in STATIC_OBJECTS:
-	# 	write_node(ob)
-
-	if(ve.animation):
+	if ve.animation:
 		selected_frame= sce.frame_current
 		f= sce.frame_start
 		while(f <= sce.frame_end):
 			exported_nodes= []
 			sce.set_frame(f)
-			#sce.frame_current= f
-			#for ob in DYNAMIC_OBJECTS:
 			for ob in OBJECTS:
 				write_node(ob)
 			f+= sce.frame_step
 		sce.set_frame(selected_frame)
 	else:
-		#for ob in DYNAMIC_OBJECTS:
 		for ob in OBJECTS:
 			write_node(ob)
 
@@ -1886,8 +1886,7 @@ def write_nodes(sce):
 	exported_proxy= []
 
 	OBJECTS= []
-	# STATIC_OBJECTS= []
-	# DYNAMIC_OBJECTS= []
+	# HIDE_FROM_VIEW= []
 
 	ofile.close()
 	print("V-Ray/Blender: Writing nodes... done [%s]                    "%(time.clock() - timer))
@@ -2102,7 +2101,7 @@ def write_camera(sce,camera= None, ofile= None):
 				ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
 				ofile.write("\n\tspecify_fov= 1;")
 				ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-				ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(ca.data.vray_cam_phys_white_balance)))))
+				ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(ca.data.VRayCamera.white_balance)))))
 				for param in OBJECT_PARAMS['CameraPhysical']:
 					ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ca.data, "vray_cam_phys_%s"%(param)))))
 				ofile.write("\n}\n")
@@ -2387,6 +2386,10 @@ class VRayRenderer(bpy.types.RenderEngine):
 		rd=  scene.render
 		wo=  scene.world
 
+		# TEMP
+		if rd.display_mode != 'AREA':
+			rd.display_mode= 'AREA'
+
 		vsce= sce.vray_scene
 		ve= vsce.exporter
 
@@ -2486,8 +2489,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
 								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
 								result= self.begin_result(0, 0, int(wx), int(wy))
-								layer= result.layers[0]
-								layer.load_from_file(image_file)
+								result.layers[0].load_from_file(image_file)
 								self.end_result(result)
 					except:
 						pass
@@ -2511,6 +2513,10 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
+
+		# TEMP
+		if rd.display_mode != 'AREA':
+			rd.display_mode= 'AREA'
 
 		vsce= sce.vray_scene
 		ve= vsce.exporter

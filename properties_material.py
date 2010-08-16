@@ -1345,7 +1345,7 @@ MtlWrapper.IntProperty(
   GUI
 '''
 import properties_material
-properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
+#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_material
 
