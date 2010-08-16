@@ -1306,7 +1306,7 @@ LightMesh.BoolProperty(
 
 LightMesh.BoolProperty(
 	attr= 'storeWithIrradianceMap',
-	name= "Wtore with Irradiance Map",
+	name= "Store with Irradiance Map",
 	description= "TODO.",
 	default= False
 )
