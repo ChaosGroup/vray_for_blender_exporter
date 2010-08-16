@@ -1904,8 +1904,8 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)
-		vray_plugin= mat.vray.MtlWrapper
-		self.layout.prop(vray_plugin, 'use', text="")
+		plugin= mat.vray.MtlWrapper
+		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
@@ -1917,7 +1917,7 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 		vray_plugin= vmat.MtlWrapper
 		
 		layout= self.layout
-		layout.active= vmat.use_wrapper
+		layout.active= vray_plugin.use
 
 		split= layout.split()
 		col= split.column()
@@ -1956,10 +1956,6 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 				colL.prop(vray_plugin, 'shadow_tint_color')
 				colL.prop(vray_plugin, 'shadow_brightness')
 			
-		#col.prop(vray_plugin, 'alpha_contribution_tex')
-		#col.prop(vray_plugin, 'shadow_brightness_tex')
-		#col.prop(vray_plugin, 'reflection_filter_tex')
-
 		split= layout.split()
 		col= split.column()
 		col.label(text="Miscellaneous")
@@ -1985,8 +1981,8 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)
-		vray_plugin= mat.vray.MtlRenderStats
-		self.layout.prop(vray_plugin, 'use', text="")
+		plugin= mat.vray.MtlRenderStats
+		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
@@ -1994,14 +1990,14 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 		ob= context.object
 		mat= active_node_mat(context.material)
 		vmat= mat.vray
-		rsmat= mat.vray.MtlRenderStats
+		plugin= mat.vray.MtlRenderStats
 
 		layout= self.layout
-		layout.active= vmat.use_renderstats
+		layout.active= plugin.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(rsmat, 'visibility', text="Visible")
+		col.prop(plugin, 'visibility', text="Visible")
 
 		split= layout.split()
 		col= split.column()
@@ -2009,12 +2005,12 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		sub= split.column()
-		sub.active= rsmat.visibility
-		sub.prop(rsmat, 'camera_visibility', text="Camera")
-		sub.prop(rsmat, 'gi_visibility', text="GI")
-		sub.prop(rsmat, 'shadows_visibility', text="Shadows")
+		sub.active= plugin.visibility
+		sub.prop(plugin, 'camera_visibility', text="Camera")
+		sub.prop(plugin, 'gi_visibility', text="GI")
+		sub.prop(plugin, 'shadows_visibility', text="Shadows")
 		if wide_ui:
 			sub= split.column()
-			sub.active= rsmat.visibility
-		sub.prop(rsmat, 'reflections_visibility', text="Reflections")
-		sub.prop(rsmat, 'refractions_visibility', text="Refractions")
+			sub.active= plugin.visibility
+		sub.prop(plugin, 'reflections_visibility', text="Reflections")
+		sub.prop(plugin, 'refractions_visibility', text="Refractions")
