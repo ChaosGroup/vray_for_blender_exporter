@@ -339,10 +339,10 @@ class ObjectButtonsPanel():
 	bl_context     = 'object'
 
 
-class OBJECT_PT_vray_wrapper(ObjectButtonsPanel, bpy.types.Panel):
+class OBJECT_PT_VRAY_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_default_closed = True
-
+	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -351,29 +351,30 @@ class OBJECT_PT_vray_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 
 	def draw_header(self, context):
 		ob= context.object
-		self.layout.prop(ob, "vray_node_use_wrapper", text="")
+		plugin= ob.vray.MtlWrapper
+		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
+		wide_ui= context.region.width > 200
+
 		ob= context.object
-		me= context.mesh
-
+		plugin= ob.vray.MtlWrapper
+		
 		layout= self.layout
-		layout.active= ob.vray_node_use_wrapper
-
-		wide_ui= context.region.width > narrowui
+		layout.active= plugin.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ob, 'vb_mwrap_generate_gi')
-		col.prop(ob, 'vb_mwrap_receive_gi')
-		if(wide_ui):
+		col.prop(plugin, 'generate_gi')
+		col.prop(plugin, 'receive_gi')
+		if wide_ui:
 			col= split.column()
-		col.prop(ob, 'vb_mwrap_generate_caustics')
-		col.prop(ob, 'vb_mwrap_receive_caustics')
+		col.prop(plugin, 'generate_caustics')
+		col.prop(plugin, 'receive_caustics')
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ob, 'vb_mwrap_gi_quality_multiplier')
+		col.prop(plugin, 'gi_quality_multiplier')
 
 		split= layout.split()
 		col= split.column()
@@ -381,42 +382,38 @@ class OBJECT_PT_vray_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		colL= split.column()
-		colL.prop(ob, 'vb_mwrap_matte_surface')
-		if(wide_ui):
+		colL.prop(plugin, 'matte_surface')
+		if wide_ui:
 			colR= split.column()
 		else:
 			colR= colL
-		colR.prop(ob, 'vb_mwrap_alpha_contribution')
-		if(ob.vb_mwrap_matte_surface):
-			colR.prop(ob, 'vb_mwrap_reflection_amount')
-			colR.prop(ob, 'vb_mwrap_refraction_amount')
-			colR.prop(ob, 'vb_mwrap_gi_amount')
-			colR.prop(ob, 'vb_mwrap_no_gi_on_other_mattes')
+		colR.prop(plugin, 'alpha_contribution')
+		if plugin.matte_surface:
+			colR.prop(plugin, 'reflection_amount')
+			colR.prop(plugin, 'refraction_amount')
+			colR.prop(plugin, 'gi_amount')
+			colR.prop(plugin, 'no_gi_on_other_mattes')
 
-			colL.prop(ob, 'vb_mwrap_affect_alpha')
-			colL.prop(ob, 'vb_mwrap_shadows')
-			if(ob.vb_mwrap_shadows):
-				colL.prop(ob, 'vb_mwrap_shadow_tint_color')
-				colL.prop(ob, 'vb_mwrap_shadow_brightness')
+			colL.prop(plugin, 'affect_alpha')
+			colL.prop(plugin, 'shadows')
+			if plugin.shadows:
+				colL.prop(plugin, 'shadow_tint_color')
+				colL.prop(plugin, 'shadow_brightness')
 			
-		#col.prop(ob, 'vb_mwrap_alpha_contribution_tex')
-		#col.prop(ob, 'vb_mwrap_shadow_brightness_tex')
-		#col.prop(ob, 'vb_mwrap_reflection_filter_tex')
-
 		split= layout.split()
 		col= split.column()
 		col.label(text="Miscellaneous")
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ob, 'vb_mwrap_gi_surface_id')
-		col.prop(ob, 'vb_mwrap_trace_depth')
-		if(wide_ui):
+		col.prop(plugin, 'gi_surface_id')
+		col.prop(plugin, 'trace_depth')
+		if wide_ui:
 			col= split.column()
-		col.prop(ob, 'vb_mwrap_matte_for_sec_rays')
+		col.prop(plugin, 'matte_for_secondary_rays')
 
 
-class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
+class OBJECT_PT_VRAY_render(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_default_closed = True
 	
@@ -426,17 +423,23 @@ class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
 	def poll(cls, context):
 		return base_poll(__class__, context)
 
-	def draw(self, context):
+	def draw_header(self, context):
 		ob= context.object
-		me= context.mesh
+		plugin= ob.vray.MtlRenderStats
+		self.layout.prop(plugin, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > 200
+
+		ob= context.object
+		plugin= ob.vray.MtlRenderStats
 
 		layout= self.layout
-
-		wide_ui= context.region.width > narrowui
+		layout.active= plugin.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ob, 'vb_mrs_visibility', text="Visible")
+		col.prop(plugin, 'visibility', text="Visible")
 
 		split= layout.split()
 		col= split.column()
@@ -444,16 +447,12 @@ class OBJECT_PT_vray_render(ObjectButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		sub= split.column()
-		sub.active= ob.vb_mrs_visibility
-		sub.prop(ob, 'vb_mrs_camera_visibility', text="Camera")
-		sub.prop(ob, 'vb_mrs_gi_visibility', text="GI")
-		sub.prop(ob, 'vb_mrs_shadows_visibility', text="Shadows")
-		if(wide_ui):
+		sub.active= plugin.visibility
+		sub.prop(plugin, 'camera_visibility', text="Camera")
+		sub.prop(plugin, 'gi_visibility', text="GI")
+		sub.prop(plugin, 'shadows_visibility', text="Shadows")
+		if wide_ui:
 			sub= split.column()
-			sub.active= ob.vb_mrs_visibility
-		sub.prop(ob, 'vb_mrs_reflections_visibility', text="Reflections")
-		sub.prop(ob, 'vb_mrs_refractions_visibility', text="Refractions")
-
-
-# bpy.types.register(OBJECT_PT_vray_wrapper)
-# bpy.types.register(OBJECT_PT_vray_render)
+			sub.active= plugin.visibility
+		sub.prop(plugin, 'reflections_visibility', text="Reflections")
+		sub.prop(plugin, 'refractions_visibility', text="Refractions")

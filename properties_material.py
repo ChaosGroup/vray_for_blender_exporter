@@ -1873,7 +1873,7 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 		col= row.column()
 		col.prop(vray_plugin, "reflect_trace")
 		col.prop(vray_plugin, "refract_trace")
-		if(wide_ui):
+		if wide_ui:
 			col= row.column()
 		col.prop(vray_plugin, "option_double_sided")
 		col.prop(vray_plugin, "option_reflect_on_back")
@@ -1887,7 +1887,7 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 		row= layout.row()
 		col= row.column()
 		col.prop(vray_plugin, 'option_cutoff')
-		if(wide_ui):
+		if wide_ui:
 			col= row.column()
 		col.prop(vray_plugin, 'environment_priority')
 
@@ -1914,23 +1914,23 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 
 		mat= active_node_mat(context.material)
 		vmat= mat.vray
-		vray_plugin= vmat.MtlWrapper
+		plugin= vmat.MtlWrapper
 		
 		layout= self.layout
-		layout.active= vray_plugin.use
+		layout.active= plugin.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vray_plugin, 'generate_gi')
-		col.prop(vray_plugin, 'receive_gi')
-		if(wide_ui):
+		col.prop(plugin, 'generate_gi')
+		col.prop(plugin, 'receive_gi')
+		if wide_ui:
 			col= split.column()
-		col.prop(vray_plugin, 'generate_caustics')
-		col.prop(vray_plugin, 'receive_caustics')
+		col.prop(plugin, 'generate_caustics')
+		col.prop(plugin, 'receive_caustics')
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vray_plugin, 'gi_quality_multiplier')
+		col.prop(plugin, 'gi_quality_multiplier')
 
 		split= layout.split()
 		col= split.column()
@@ -1938,23 +1938,23 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		colL= split.column()
-		colL.prop(vray_plugin, 'matte_surface')
+		colL.prop(plugin, 'matte_surface')
 		if wide_ui:
 			colR= split.column()
 		else:
 			colR= colL
-		colR.prop(vray_plugin, 'alpha_contribution')
-		if vray_plugin.matte_surface:
-			colR.prop(vray_plugin, 'reflection_amount')
-			colR.prop(vray_plugin, 'refraction_amount')
-			colR.prop(vray_plugin, 'gi_amount')
-			colR.prop(vray_plugin, 'no_gi_on_other_mattes')
+		colR.prop(plugin, 'alpha_contribution')
+		if plugin.matte_surface:
+			colR.prop(plugin, 'reflection_amount')
+			colR.prop(plugin, 'refraction_amount')
+			colR.prop(plugin, 'gi_amount')
+			colR.prop(plugin, 'no_gi_on_other_mattes')
 
-			colL.prop(vray_plugin, 'affect_alpha')
-			colL.prop(vray_plugin, 'shadows')
-			if(mat.shadows):
-				colL.prop(vray_plugin, 'shadow_tint_color')
-				colL.prop(vray_plugin, 'shadow_brightness')
+			colL.prop(plugin, 'affect_alpha')
+			colL.prop(plugin, 'shadows')
+			if plugin.shadows:
+				colL.prop(plugin, 'shadow_tint_color')
+				colL.prop(plugin, 'shadow_brightness')
 			
 		split= layout.split()
 		col= split.column()
@@ -1962,11 +1962,11 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vray_plugin, 'gi_surface_id')
-		col.prop(vray_plugin, 'trace_depth')
-		if(wide_ui):
+		col.prop(plugin, 'gi_surface_id')
+		col.prop(plugin, 'trace_depth')
+		if wide_ui:
 			col= split.column()
-		col.prop(vray_plugin, 'matte_for_secondary_rays')
+		col.prop(plugin, 'matte_for_secondary_rays')
 
 
 class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):

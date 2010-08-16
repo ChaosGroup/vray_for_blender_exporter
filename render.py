@@ -1947,8 +1947,9 @@ def write_nodes(sce):
 	ca= sce.camera
 	vca= ca.data.VRayCamera
 
-
-	HIDE_FROM_VIEW= []
+	render_stats= {
+		
+	}
 
 	if vca.hide_from_view:
 		if vca.hide_from_everything:
