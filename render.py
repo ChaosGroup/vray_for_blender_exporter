@@ -2367,7 +2367,7 @@ def write_settings(sce,ofile):
 	ofile.write("\n\timg_width= %s;"%(int(wx)))
 	ofile.write("\n\timg_height= %s;"%(int(wy)))
 	if ve.animation:
-		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(ca.name),get_render_file_format(ve,rd.file_format)))
+		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
 		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(sce,'output')))
 		ofile.write("\n\timg_file_needFrameNumber= 1;")
 		ofile.write("\n\tanim_start= %d;"%(sce.frame_start))
