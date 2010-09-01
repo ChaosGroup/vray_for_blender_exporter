@@ -1304,7 +1304,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				if slot.texture.type in TEX_TYPES:
 					if(slot.use_map_color_diffuse):
 						vraytex['color'].append(slot)
-						vraymat['color_mult']+= slot.colordiff_factor
+						vraymat['color_mult']+= slot.diffuse_color_factor
 					if(slot.use_map_emit):
 						vraytex['emit'].append(slot)
 						vraymat['emit_mult']+= slot.emit_factor
@@ -1348,8 +1348,8 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 
 				vraymat[textype]= write_texture(ofile, exported_bitmaps, ma, slot)
 
-				if(textype == 'color'):
-					if(slot.stencil):
+				if textype == 'color':
+					if slot.stencil:
 						tex_name= "TexBlend_%s_%s"%(ma_name,vraymat[textype])
 						ofile.write("\nTexBlend %s {"%(tex_name))
 						ofile.write("\n\tcolor_a= %s;"%(a(sce,"AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
@@ -1358,7 +1358,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						ofile.write("\n\tcomposite= %d;"%(0))
 						ofile.write("\n}\n")
 						vraymat[textype]= tex_name
-					if(slot.colordiff_factor < 1.0):
+					if slot.diffuse_color_factor < 1.0:
 						tex_name= "TexCombineColor_%s_%s"%(ma_name,vraymat[textype])
 						ofile.write("\nTexCombineColor %s {"%(tex_name))
 						ofile.write("\n\tcolor= %s;"%(a(sce,"AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
@@ -2145,19 +2145,19 @@ def write_environment(ofile, volumes= None):
 	refract_tex_mult= 1.0
 
 	for slot in wo.texture_slots:
-		if(slot):
-			if(slot.texture):
+		if slot:
+			if slot.texture:
 				if slot.texture.type in TEX_TYPES:
-					if slot.map_blend:
+					if slot.use_map_blend:
 						bg_tex= write_texture(ofile, slot= slot, env=True)
 						bg_tex_mult= slot.blend_factor
-					if slot.map_horizon:
+					if slot.use_map_horizon:
 						gi_tex= write_texture(ofile, slot= slot, env=True)
 						gi_tex_mult= slot.horizon_factor
-					if slot.map_zenith_up:
+					if slot.use_map_zenith_up:
 						reflect_tex= write_texture(ofile, slot= slot, env=True)
 						reflect_tex_mult= slot.zenith_up_factor
-					if slot.map_zenith_down:
+					if slot.use_map_zenith_down:
 						refract_tex= write_texture(ofile, slot= slot, env=True)
 						refract_tex_mult= slot.zenith_down_factor
 
