@@ -1349,7 +1349,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				vraymat[textype]= write_texture(ofile, exported_bitmaps, ma, slot)
 
 				if textype == 'color':
-					if slot.stencil:
+					if slot.use_stencil:
 						tex_name= "TexBlend_%s_%s"%(ma_name,vraymat[textype])
 						ofile.write("\nTexBlend %s {"%(tex_name))
 						ofile.write("\n\tcolor_a= %s;"%(a(sce,"AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
@@ -2200,6 +2200,7 @@ def write_EnvironmentFog(ofile,volume,material):
 
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
+	ofile.write("\n\tdensity_tex= Texture_Test_Checker::out_intensity;")
 	for param in volume[material]['params']:
 		value= volume[material]['params'][param]
 		if param == 'light_mode':
@@ -2535,6 +2536,7 @@ def write_scene(sce):
 	files['materials'].write("\n\t);")
 	files['materials'].write("\n}\n")
 	files['materials'].write("\nTexChecker Texture_Test_Checker {")
+	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n}\n")
 	files['materials'].write("\nTexChecker Texture_no_texture {")
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
