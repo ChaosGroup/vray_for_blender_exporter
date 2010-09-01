@@ -1888,7 +1888,10 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 
 		if mat:
 			vray= mat.vray
-			layout.prop(vray, 'type', expand=True)
+			if wide_ui:
+				layout.prop(vray, 'type', expand=True)
+			else:
+				layout.prop(vray, 'type')
 
 
 # class MATERIAL_PT_VRAY_preview(MaterialButtonsPanel, bpy.types.Panel):

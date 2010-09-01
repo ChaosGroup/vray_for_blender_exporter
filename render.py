@@ -2595,7 +2595,7 @@ def write_scene(sce):
 		selected_frame= sce.frame_current
 		f= sce.frame_start
 		while(f <= sce.frame_end):
-			sce.set_frame(frame)
+			sce.set_frame(f)
 			write_frame()
 			f+= sce.frame_step
 		sce.set_frame(selected_frame)
