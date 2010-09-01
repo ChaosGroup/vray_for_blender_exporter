@@ -2682,23 +2682,22 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params.append(vb_binary_path())
 
 		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
+		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
+
+		wx= rd.resolution_x * rd.resolution_percentage / 100
+		wy= rd.resolution_y * rd.resolution_percentage / 100
 
 		if rd.use_border:
-			wx= rd.resolution_x * rd.resolution_percentage / 100
-			wy= rd.resolution_y * rd.resolution_percentage / 100
-			
 			x0= wx * rd.border_min_x
 			y0= wy * (1.0 - rd.border_max_y)
 			x1= wx * rd.border_max_x
 			y1= wy * (1.0 - rd.border_min_y)
 
-			region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
-
 			if rd.use_crop_to_border:
 				params.append('-crop=')
 			else:
 				params.append('-region=')
-			params.append(region)
+			params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
 
 		params.append('-sceneFile=')
 		params.append(get_filenames(sce,'scene'))
@@ -2723,14 +2722,13 @@ class VRayRenderer(bpy.types.RenderEngine):
 				params.append('-portNumber=')
 				params.append(str(dr.port))
 				params.append('-renderhost=')
-				params.append('\"%s\"' % ";".join([n.address for n in dr.nodes]))
-				
+				params.append("\"%s\"" % ';'.join([n.address for n in dr.nodes]))
 				
 		params.append('-imgFile=')
 		params.append(image_file)
 
 		if ve.debug:
-			print("V-Ray/Blender: Command: %s" % " ".join(params))
+			print("V-Ray/Blender: Command: %s" % ' '.join(params))
 
 		if ve.autorun:
 			process= subprocess.Popen(params)
@@ -2745,14 +2743,13 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 				if process.poll() is not None:
 					try:
-						if not ve.animation:
-							if ve.image_to_blender or sce.name == "preview":
-								# if rd.use_border and not rd.use_crop_to_border:
-								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
-								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
-								result= self.begin_result(0, 0, int(wx), int(wy))
-								result.layers[0].load_from_file(image_file)
-								self.end_result(result)
+						if not ve.animation and ve.image_to_blender:
+							# if rd.use_border and not rd.use_crop_to_border:
+							# 	wx= rd.resolution_x * rd.resolution_percentage / 100
+							# 	wy= rd.resolution_y * rd.resolution_percentage / 100
+							result= self.begin_result(0, 0, int(wx), int(wy))
+							result.layers[0].load_from_file(load_file)
+							self.end_result(result)
 					except:
 						pass
 					break
@@ -2790,9 +2787,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params.append(vb_binary_path())
 
 		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
+		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
 		
 		if sce.name == "preview":
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
+			load_file= os.path.join(get_filenames(sce,'output'),"preview.%.4i.exr" % sce.frame_current)
 
 			exported_bitmaps= []
 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
@@ -2884,7 +2883,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
 								result= self.begin_result(0, 0, int(wx), int(wy))
 								layer= result.layers[0]
-								layer.load_from_file(image_file)
+								layer.load_from_file(load_file)
 								self.end_result(result)
 					except:
 						pass
