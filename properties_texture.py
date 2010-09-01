@@ -215,6 +215,8 @@ FloatProperty(
 	default= 0.0
 )
 
+
+
 '''
   WORLD
 '''
@@ -278,8 +280,9 @@ def context_tex_datablock(context):
 
 def base_poll(cls, context):
 	rd= context.scene.render
-	tex= context.texture
-	if not tex or tex == None:
+	try:
+		tex= context.texture_slot.texture
+	except:
 		return False
 	return (tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES)
 
@@ -297,10 +300,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		if hasattr(context, "texture_slot"):
-			if context.texture_slot:
-				return True
-		return False
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -326,13 +326,13 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			split= layout.split()
 			col= split.column()
 			col.label(text = "Shading:")
-			factor_but(col, tex.map_colordiff,   "map_colordiff",    "colordiff_factor",   "Color")
-			factor_but(col, tex.map_colorspec,   "map_colorspec",    "colorspec_factor",   "Hilight")
-			factor_but(col, tex.map_specular,    "map_specular",     "specular_factor",    "Glossy")
-			factor_but(col, tex.map_raymir,      "map_raymir",       "raymir_factor",      "Reflection")
-			factor_but(col, tex.map_emit,        "map_emit",         "emit_factor",        "Emit")
-			factor_but(col, tex.map_alpha,       "map_alpha",        "alpha_factor",       "Alpha")
-			factor_but(col, tex.map_translucency,"map_translucency", "translucency_factor","Refraction")
+			factor_but(col, tex.use_map_color_diffuse, "use_map_color_diffuse", "diffuse_color_factor",   "Color")
+			factor_but(col, tex.use_map_color_spec,    "use_map_color_spec",    "specular_color_factor",  "Hilight")
+			factor_but(col, tex.use_map_specular,    "use_map_specular",     "specular_factor",    "Glossy")
+			factor_but(col, tex.use_map_raymir,      "use_map_raymir",       "raymir_factor",      "Reflection")
+			factor_but(col, tex.use_map_emit,        "use_map_emit",         "emit_factor",        "Emit")
+			factor_but(col, tex.use_map_alpha,       "use_map_alpha",        "alpha_factor",       "Alpha")
+			factor_but(col, tex.use_map_translucency,"use_map_translucency", "translucency_factor","Refraction")
 
 			if(wide_ui):
 				col= split.column()
@@ -346,13 +346,13 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Geometry:")
-			factor_but(col, tex.map_normal,       "map_normal",       "normal_factor",       "Bump/Normal")
-			factor_but(col, tex.map_displacement, "map_displacement", "displacement_factor", "Displace")
+			factor_but(col, tex.use_map_normal,       "use_map_normal",       "normal_factor",       "Bump/Normal")
+			factor_but(col, tex.use_map_displacement, "use_map_displacement", "displacement_factor", "Displace")
 
 			if(wide_ui):
 				col= split.column()
-			col.active= tex.map_displacement
-			col.label(text = "Displacement settings:")
+			col.active= tex.use_map_displacement
+			col.label(text = "(TODO) Displacement settings:")
 			col.prop(tex,"vray_disp_amount",text="Amount",slider=True)
 			col.prop(tex,"vray_disp_shift",text="Shift",slider=True)
 			col.prop(tex,"vray_disp_water",text="Water",slider=True)
@@ -364,21 +364,21 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			pass
 
 		elif type(idblock) == bpy.types.World:
-			# factor_but(col, tex.map_vray_env_gi,   "map_vray_env_gi",   "", "")
-			# factor_but(col, tex.map_vray_env_refl, "map_vray_env_refl", "", "")
-			# factor_but(col, tex.map_vray_env_refr, "map_vray_env_refr", "", "")
+			# factor_but(col, tex.use_map_vray_env_gi,   "use_map_vray_env_gi",   "", "")
+			# factor_but(col, tex.use_map_vray_env_refl, "use_map_vray_env_refl", "", "")
+			# factor_but(col, tex.use_map_vray_env_refr, "use_map_vray_env_refr", "", "")
 
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")
-			factor_but(col, tex.map_blend,   "map_blend", "blend_factor",   "Background")
+			factor_but(col, tex.use_map_blend,   "use_map_blend", "blend_factor",   "Background")
 
 			if(wide_ui):
 				col= split.column()
 			col.label(text="Override:")
-			factor_but(col, tex.map_horizon,     "map_horizon",     "horizon_factor",     "GI")
-			factor_but(col, tex.map_zenith_up,   "map_zenith_up",   "zenith_up_factor",   "Reflections")
-			factor_but(col, tex.map_zenith_down, "map_zenith_down", "zenith_down_factor", "Refractions")
+			factor_but(col, tex.use_map_horizon,     "use_map_horizon",     "horizon_factor",     "GI")
+			factor_but(col, tex.use_map_zenith_up,   "use_map_zenith_up",   "zenith_up_factor",   "Reflections")
+			factor_but(col, tex.use_map_zenith_down, "use_map_zenith_down", "zenith_down_factor", "Refractions")
 		else:
 			pass
 
@@ -392,11 +392,11 @@ class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
 	def poll(cls, context):
 		tex= context.texture
 		engine= context.scene.render.engine
-		return (tex and tex.type == 'PLUGIN' and (engine in __class__.COMPAT_ENGINES))
+		return base_poll(__class__, context) and (tex.type == 'MAGIC' and (engine in __class__.COMPAT_ENGINES))
 
 	def draw(self, context):
 		tex= context.texture
-		vtex= tex.vray_texture
+		vtex= tex.vray
 		
 		wide_ui= context.region.width > narrowui
 

@@ -26,35 +26,68 @@
 
 '''
 
+
+import os
 import bpy
 
+from vb25.utils import *
 
-FloatProperty= bpy.types.Lamp.FloatProperty
-IntProperty= bpy.types.Lamp.IntProperty
-BoolProperty= bpy.types.Lamp.BoolProperty
-VectorProperty= bpy.types.Lamp.FloatVectorProperty
-EnumProperty= bpy.types.Lamp.EnumProperty
-StringProperty= bpy.types.Lamp.StringProperty
+# class MyTest(bpy.types.IDPropertyGroup):
+#     pass
+# bpy.types.Lamp.PointerProperty(
+# 	attr= 'mytest',
+# 	type=  MyTest,
+# 	name= "MyTest Settings",
+# 	description= "MyTest settings"
+# )
 
+class VRayLamp(bpy.types.IDPropertyGroup):
+    pass
 
-EnumProperty(
-	attr="vr_la_units",
-	name="Intensity units",
-	description="Units for the intensity.",
+bpy.types.Lamp.PointerProperty(
+	attr= 'vray',
+	type=  VRayLamp,
+	name= "V-Ray Lamp Settings",
+	description= "V-Ray lamp settings"
+)
+
+VRayLamp.BoolProperty(
+	attr="enabled",
+	name="Enabled",
+	description="Turns the light on and off",
+	default= True
+)
+
+VRayLamp.EnumProperty(
+	attr= 'units',
+	name= "Intensity units",
+	description= "Units for the intensity.",
 	items=(
 		('DEFUALT',  "Default",   ""),
 		('LUMENS',   "Lumens",    ""),
 		('LUMM',     "Lm/m/m/sr", ""),
 		('WATTSM',   "Watts",     ""),
-		('WATM',     "W/m/m/sr", "")
+		('WATM',     "W/m/m/sr",  "")
 	),
 	default= 'DEFAULT'
 )
 
-EnumProperty(
-	attr="vr_la_direct_type",
-	name="Direct light subtype",
-	description="Direct light subtype.",
+VRayLamp.FloatProperty(
+	attr= 'beamRadius',
+	name= "Beam radius",
+	description= "Beam radius, 0.0 if the light has no beam radius.",
+	min= 0.0,
+	max= 10000.0,
+	soft_min= 0.0,
+	soft_max= 100.0,
+	precision= 3,
+	default= 0.0
+)
+
+VRayLamp.EnumProperty(
+	attr= 'direct_type',
+	name= "Direct type",
+	description= "Direct light type.",
 	items=(
 		('DIRECT',  "Direct",  ""),
 		('SUN',     "Sun",     "")
@@ -62,9 +95,10 @@ EnumProperty(
 	default= 'DIRECT'
 )
 
-EnumProperty(
-	attr="vr_la_spot_type",
-	name="Spot light subtype",
+
+VRayLamp.EnumProperty(
+	attr="spot_type",
+	name="Spot type",
 	description="Spot light subtype.",
 	items=(
 		('SPOT',  "Spot",  ""),
@@ -73,43 +107,36 @@ EnumProperty(
 	default= 'DIRECT'
 )
 
-BoolProperty(
-	attr="vr_la_enabled",
-	name="Enabled",
-	description="Turns the light on and off",
-	default= True
-)
-
-BoolProperty(
-	attr= "vr_la_shadows",
+VRayLamp.BoolProperty(
+	attr= "shadows",
 	name= "Shadows",
 	description= "TODO.",
 	default= True
 )
 
-BoolProperty(
-	attr= "vr_la_affectDiffuse",
+VRayLamp.BoolProperty(
+	attr= "affectDiffuse",
 	name= "Affect diffuse",
 	description= "Produces diffuse lighting.",
 	default= True
 )
 
-BoolProperty(
-	attr= "vr_la_affectSpecular",
+VRayLamp.BoolProperty(
+	attr= "affectSpecular",
 	name= "Affect specular",
 	description= "Produces specular hilights.",
 	default= True
 )
 
-BoolProperty(
-	attr= "vr_la_affectReflections",
+VRayLamp.BoolProperty(
+	attr= "affectReflections",
 	name= "Affect reflections",
 	description= "Appear in reflections.",
 	default= False
 )
 
-VectorProperty(
-	attr= "vr_la_shadowColor",
+VRayLamp.FloatVectorProperty(
+	attr= "shadowColor",
 	name= "Shadow color",
 	description= "The shadow color. Anything but black is not physically accurate.",
 	subtype= "COLOR",
@@ -120,8 +147,8 @@ VectorProperty(
 	default= (0.0,0.0,0.0)
 )
 
-FloatProperty(
-	attr= "vr_la_shadowBias",
+VRayLamp.FloatProperty(
+	attr= "shadowBias",
 	name= "Shadow bias",
 	description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces.",
 	min= 0.0,
@@ -132,8 +159,8 @@ FloatProperty(
 	default= 0.0
 )
 
-IntProperty(
-	attr= "vr_la_shadowSubdivs",
+VRayLamp.IntProperty(
+	attr= "shadowSubdivs",
 	name= "Shadow subdivs",
 	description= "TODO.",
 	min= 0,
@@ -141,8 +168,8 @@ IntProperty(
 	default= 8
 )
 
-FloatProperty(
-	attr= "vr_la_shadowRadius",
+VRayLamp.FloatProperty(
+	attr= "shadowRadius",
 	name= "Shadow radius",
 	description= "TODO.",
 	min= 0.0,
@@ -153,8 +180,8 @@ FloatProperty(
 	default= 0
 )
 
-FloatProperty(
-	attr= "vr_la_decay",
+VRayLamp.FloatProperty(
+	attr= "decay",
 	name= "Decay",
 	description= "TODO.",
 	min= 0.0,
@@ -165,8 +192,8 @@ FloatProperty(
 	default= 2
 )
 
-FloatProperty(
-	attr= "vr_la_cutoffThreshold",
+VRayLamp.FloatProperty(
+	attr= "cutoffThreshold",
 	name= "Cut-off threshold",
 	description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
 	min= 0.0,
@@ -177,8 +204,8 @@ FloatProperty(
 	default= 0.001
 )
 
-FloatProperty(
-	attr= "vr_la_intensity",
+VRayLamp.FloatProperty(
+	attr= "intensity",
 	name= "Intensity",
 	description= "Light intensity.",
 	min= 0.0,
@@ -189,8 +216,8 @@ FloatProperty(
 	default= 30
 )
 
-IntProperty(
-	attr= "vr_la_subdivs",
+VRayLamp.IntProperty(
+	attr= "subdivs",
 	name= "Subdivs",
 	description= "TODO.",
 	min= 0,
@@ -198,36 +225,36 @@ IntProperty(
 	default= 8
 )
 
-BoolProperty(
-	attr= "vr_la_storeWithIrradianceMap",
+VRayLamp.BoolProperty(
+	attr= "storeWithIrradianceMap",
 	name= "Store with irradiance map",
 	description= "TODO.",
 	default= False
 )
 
-BoolProperty(
-	attr= "vr_la_invisible",
+VRayLamp.BoolProperty(
+	attr= "invisible",
 	name= "Invisible",
 	description= "TODO.",
 	default= False
 )
 
-BoolProperty(
-	attr= "vr_la_noDecay",
+VRayLamp.BoolProperty(
+	attr= "noDecay",
 	name= "No decay",
 	description= "TODO.",
 	default= False
 )
 
-BoolProperty(
-	attr= "vr_la_doubleSided",
+VRayLamp.BoolProperty(
+	attr= "doubleSided",
 	name= "Double-sided",
 	description= "TODO.",
 	default= False
 )
 
-EnumProperty(
-	attr="vr_la_lightPortal",
+VRayLamp.EnumProperty(
+	attr="lightPortal",
 	name="Light portal mode",
 	description="Specifies if the light is a portal light.",
 	items=(
@@ -238,8 +265,8 @@ EnumProperty(
 	default= 'NORMAL'
 )
 
-FloatProperty(
-	attr= "vr_la_radius",
+VRayLamp.FloatProperty(
+	attr= "radius",
 	name= "Radius",
 	description= "Sphere light radius.",
 	min= 0.0,
@@ -250,20 +277,8 @@ FloatProperty(
 	default= 0.0
 )
 
-FloatProperty(
-	attr= "vr_la_beamRadius",
-	name= "Beam radius",
-	description= "Direct light beam radius.",
-	min= 0.0,
-	max= 10000.0,
-	soft_min= 0.0,
-	soft_max= 100.0,
-	precision= 3,
-	default= 1.0
-)
-
-IntProperty(
-	attr= "vr_la_sphere_segments",
+VRayLamp.IntProperty(
+	attr= "sphere_segments",
 	name= "Sphere segments",
 	description= "TODO.",
 	min= 0,
@@ -271,15 +286,15 @@ IntProperty(
 	default= 20
 )
 
-BoolProperty(
-	attr= "vr_la_bumped_below_surface_check",
+VRayLamp.BoolProperty(
+	attr= "bumped_below_surface_check",
 	name= "Bumped below surface check",
 	description= "If the bumped normal should be used to check if the light dir is below the surface.",
 	default= False
 )
 
-IntProperty(
-	attr= "vr_la_nsamples",
+VRayLamp.IntProperty(
+	attr= "nsamples",
 	name= "Motion blur samples",
 	description= "Motion blur samples.",
 	min= 0,
@@ -287,8 +302,8 @@ IntProperty(
 	default= 0
 )
 
-FloatProperty(
-	attr= "vr_la_diffuse_contribution",
+VRayLamp.FloatProperty(
+	attr= "diffuse_contribution",
 	name= "Diffuse contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -299,8 +314,8 @@ FloatProperty(
 	default= 1
 )
 
-FloatProperty(
-	attr= "vr_la_specular_contribution",
+VRayLamp.FloatProperty(
+	attr= "specular_contribution",
 	name= "Specular contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -311,29 +326,29 @@ FloatProperty(
 	default= 1
 )
 
-BoolProperty(
-	attr= "vr_la_areaSpeculars",
+VRayLamp.BoolProperty(
+	attr= "areaSpeculars",
 	name= "Area speculars",
 	description= "TODO.",
 	default= False
 )
 
-BoolProperty(
-	attr= "vr_la_ignoreLightNormals",
+VRayLamp.BoolProperty(
+	attr= "ignoreLightNormals",
 	name= "Ignore light normals",
 	description= "TODO.",
 	default= True
 )
 
-BoolProperty(
-	attr= "vr_la_use_rect_tex",
+VRayLamp.BoolProperty(
+	attr= "use_rect_tex",
 	name= "Use rect tex",
 	description= "TODO.",
 	default= False
 )
 
-IntProperty(
-	attr= "vr_la_tex_resolution",
+VRayLamp.IntProperty(
+	attr= "tex_resolution",
 	name= "Tex resolution",
 	description= "TODO.",
 	min= 0,
@@ -341,8 +356,8 @@ IntProperty(
 	default= 512
 )
 
-FloatProperty(
-	attr= "vr_la_tex_adaptive",
+VRayLamp.FloatProperty(
+	attr= "tex_adaptive",
 	name= "Tex adaptive",
 	description= "TODO.",
 	min= 0.0,
@@ -353,17 +368,17 @@ FloatProperty(
 	default= 1
 )
 
-IntProperty(
-	attr= "vr_la_causticSubdivs",
+VRayLamp.IntProperty(
+	attr= "causticSubdivs",
 	name= "Caustic subdivs",
 	description= "Caustic subdivs.",
 	min= 1,
-	max= 10000,
+	max= 100000,
 	default= 1000
 )
 
-FloatProperty(
-	attr= "vr_la_causticMult",
+VRayLamp.FloatProperty(
+	attr= "causticMult",
 	name= "Causticmult",
 	description= "TODO.",
 	min= 0.0,
@@ -374,45 +389,22 @@ FloatProperty(
 	default= 1
 )
 
-
-
-'''
-  Plugin: LightIES
-'''
-StringProperty(
-	attr="vr_la_ies_file",
-	name="IES file",
+VRayLamp.StringProperty(
+	attr= 'ies_file',
+	name= "IES file",
 	subtype= 'FILE_PATH',
-	description="IES file."
+	description= "IES file."
 )
 
-# FloatProperty(
-# 	attr= "vr_la_power",
-# 	name= "IES power",
-# 	description= "Limuous power (in lm); if zero, the default lumious power from the IES profile is used.",
-# 	min= 0.0,
-# 	max= 1.0,
-# 	soft_min= 0.0,
-# 	soft_max= 1.0,
-# 	precision= 3,
-# 	default= 1
-# )
-
-BoolProperty(
-	attr= "vr_la_soft_shadows",
+VRayLamp.BoolProperty(
+	attr= 'soft_shadows',
 	name= "Soft shadows",
 	description= "Use the shape of the light as described in the IES profile.",
 	default= True
 )
 
-
-
-'''
-  Plugin: SunLight
-'''
-# turbidity: float
-FloatProperty(
-	attr= 'vr_la_turbidity',
+VRayLamp.FloatProperty(
+	attr= 'turbidity',
 	name= 'Turbidity',
 	description= "TODO.",
 	min= 2.0,
@@ -423,9 +415,8 @@ FloatProperty(
 	default= 3.0
 )
 
-# intensity_multiplier: float
-FloatProperty(
-	attr= 'vr_la_intensity_multiplier',
+VRayLamp.FloatProperty(
+	attr= 'intensity_multiplier',
 	name= 'Intensity multiplier',
 	description= "TODO.",
 	min= 0.0,
@@ -436,9 +427,8 @@ FloatProperty(
 	default= 1.0
 )
 
-# ozone: float
-FloatProperty(
-	attr= 'vr_la_ozone',
+VRayLamp.FloatProperty(
+	attr= 'ozone',
 	name= 'Ozone',
 	description= "TODO.",
 	min= 0.0,
@@ -449,9 +439,8 @@ FloatProperty(
 	default= 0.35
 )
 
-# water_vapour: float
-FloatProperty(
-	attr= 'vr_la_water_vapour',
+VRayLamp.FloatProperty(
+	attr= 'water_vapour',
 	name= 'Water vapour',
 	description= "TODO.",
 	min= 0.0,
@@ -462,9 +451,8 @@ FloatProperty(
 	default= 2
 )
 
-# size_multiplier: float
-FloatProperty(
-	attr= 'vr_la_size_multiplier',
+VRayLamp.FloatProperty(
+	attr= 'size_multiplier',
 	name= 'Size',
 	description= "TODO.",
 	min= 0.0,
@@ -475,18 +463,15 @@ FloatProperty(
 	default= 1
 )
 
-# up_vector: vector = Color(0, 0, 0)
-# invisible: bool
-BoolProperty(
-	attr= 'vr_la_invisible',
+VRayLamp.BoolProperty(
+	attr= 'invisible',
 	name= 'Invisible',
 	description= "TODO.",
 	default= False
 )
 
-# horiz_illum: float
-FloatProperty(
-	attr= 'vr_la_horiz_illum',
+VRayLamp.FloatProperty(
+	attr= 'horiz_illum',
 	name= 'Horiz illumination',
 	description= "TODO.",
 	min= 0.0,
@@ -497,9 +482,8 @@ FloatProperty(
 	default= 25000
 )
 
-# sky_model: integer
-EnumProperty(
-	attr= 'vr_la_sky_model',
+VRayLamp.EnumProperty(
+	attr= 'sky_model',
 	name= 'Sky model',
 	description= "Sky model.",
 	items=(
@@ -531,7 +515,7 @@ class DataButtonsPanel():
 
 class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 	bl_label = ""
-	bl_show_header = False
+	bl_options = {'HIDE_HEADER'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -569,7 +553,6 @@ class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 
 class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
-	bl_show_header = True
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -578,15 +561,16 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
+		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		ob= context.object
 		lamp= context.lamp
-		wide_ui= context.region.width > narrowui
+		vl= lamp.vray
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vr_la_enabled', text="On")
+		col.prop(vl,'enabled', text="On")
 
 		if(lamp.type == 'AREA'):
 			pass
@@ -603,34 +587,32 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'color', text="")
-		if(lamp.type == 'AREA'):
-			col.prop(lamp, 'vr_la_lightPortal', text="Mode")
-		col.prop(lamp, 'vr_la_units', text="Units")
-
-		if not ((lamp.type == 'SUN' and lamp.vr_la_direct_type == 'SUN') or (lamp.type == 'AREA' and lamp.vr_la_lightPortal != 'NORMAL')):
-			col.prop(lamp, 'vr_la_intensity', text="Intensity")
-		col.prop(lamp, 'vr_la_subdivs')
-		col.prop(lamp, 'vr_la_causticSubdivs', text="Caustics")
+		col.prop(lamp,'color', text="")
+		if lamp.type == 'AREA':
+			col.prop(vl,'lightPortal', text="Mode")
+		col.prop(vl,'units', text="Units")
+		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
+			col.prop(vl,'intensity', text="Intensity")
+		col.prop(vl,'subdivs')
+		col.prop(vl,'causticSubdivs', text="Caustics")
 		
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vr_la_invisible')
-		col.prop(lamp, 'vr_la_affectDiffuse')
-		col.prop(lamp, 'vr_la_affectSpecular')
-		col.prop(lamp, 'vr_la_affectReflections')
-		col.prop(lamp, 'vr_la_noDecay')
+		col.prop(vl,'invisible')
+		col.prop(vl,'affectDiffuse')
+		col.prop(vl,'affectSpecular')
+		col.prop(vl,'affectReflections')
+		col.prop(vl,'noDecay')
 
 		if(lamp.type == 'AREA'):
-			col.prop(lamp, 'vr_la_doubleSided')
+			col.prop(vl,'doubleSided')
 
-		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and lamp.vr_la_radius > 0)):
-			col.prop(lamp, 'vr_la_storeWithIrradianceMap')
+		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and vl.radius > 0)):
+			col.prop(vl,'storeWithIrradianceMap')
 
 
 class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 	bl_label       = "Shape"
-	bl_show_header = True
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -640,62 +622,63 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 		return (lamp and lamp.type not in ('HEMI')) and base_poll(__class__, context)
 
 	def draw(self, context):
+		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		ob= context.object
 		lamp= context.lamp
-		wide_ui= context.region.width > narrowui
+		vl= lamp.vray
 
 		if(lamp.type == 'AREA'):
-			layout.prop(lamp, 'shape', expand=True)
+			layout.prop(lamp,'shape', expand=True)
 		elif(lamp.type == 'SUN'):
-			layout.prop(lamp, 'vr_la_direct_type', expand=True)
+			layout.prop(vl,'direct_type', expand=True)
 		elif(lamp.type == 'SPOT'):
-			layout.prop(lamp, 'vr_la_spot_type', expand=True)
+			layout.prop(vl,'spot_type', expand=True)
 
 		split= layout.split()
 		col= split.column()
-		if(lamp.type == 'AREA'):
-			if(lamp.shape == 'SQUARE'):
-				col.prop(lamp, 'size')
+		if lamp.type == 'AREA':
+			if lamp.shape == 'SQUARE':
+				col.prop(lamp,'size')
 			else:
-				col.prop(lamp, 'size', text="Size X")
-				col.prop(lamp, 'size_y')
+				col.prop(lamp,'size', text="Size X")
+				col.prop(lamp,'size_y')
 
-		elif(lamp.type == 'POINT'):
-			col.prop(lamp, 'vr_la_radius')
-			if(lamp.vr_la_radius > 0):
-				col.prop(lamp, 'vr_la_sphere_segments')
+		elif lamp.type == 'POINT':
+			col.prop(vl,'radius')
+			if vl.radius > 0:
+				col.prop(vl,'sphere_segments')
 
-		elif(lamp.type == 'SUN'):
-			if(lamp.vr_la_direct_type == 'DIRECT'):
-				col.prop(lamp, 'vr_la_beamRadius')
+		elif lamp.type == 'SUN':
+			if vl.direct_type == 'DIRECT':
+				col.prop(vl,'beamRadius')
 			else:
 				split= layout.split()
 				col= split.column()
-				col.prop(lamp, 'vr_la_sky_model')
+				col.prop(vl,'sky_model')
 				
 				split= layout.split()
 				col= split.column()
-				col.prop(lamp, 'vr_la_turbidity')
-				col.prop(lamp, 'vr_la_ozone')
-				col.prop(lamp, 'vr_la_intensity_multiplier', text= "Intensity")
-				col.prop(lamp, 'vr_la_size_multiplier', text= "Size")
-				if(wide_ui):
-					col= split.column()
-				col.prop(lamp, 'vr_la_invisible')
-				col.prop(lamp, 'vr_la_horiz_illum')
-				col.prop(lamp, 'vr_la_water_vapour')
-
-		elif(lamp.type == 'SPOT'):
-			if(lamp.vr_la_spot_type == 'SPOT'):
-				col.prop(lamp, 'distance')
+				col.prop(vl,'turbidity')
+				col.prop(vl,'ozone')
+				col.prop(vl,'intensity_multiplier', text= "Intensity")
+				col.prop(vl,'size_multiplier', text= "Size")
 				if wide_ui:
 					col= split.column()
-				col.prop(lamp, 'spot_size', text="Size")
+				col.prop(vl,'invisible')
+				col.prop(vl,'horiz_illum')
+				col.prop(vl,'water_vapour')
+
+		elif lamp.type == 'SPOT':
+			if vl.spot_type == 'SPOT':
+				col.prop(lamp,'distance')
+				if wide_ui:
+					col= split.column()
+				col.prop(lamp,'spot_size', text="Size")
 			else:
-				col.prop(lamp, 'vr_la_ies_file', text="File")
-				col.prop(lamp, 'vr_la_soft_shadows')
+				col.prop(vl,'ies_file', text="File")
+				col.prop(vl,'soft_shadows')
 
 		elif(lamp.type == 'HEMI'):
 			pass
@@ -705,9 +688,8 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 
 
 class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
-	bl_label          = "Shadows"
-	bl_show_header    = True
-	bl_default_closed = True
+	bl_label   = "Shadows"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -716,26 +698,27 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 		return base_poll(__class__, context)
 
 	def draw_header(self, context):
-		lamp= context.lamp
-		self.layout.prop(lamp, 'vr_la_shadows', text="")
+		vl= context.lamp.vray
+		self.layout.prop(vl,'shadows', text="")
 
 	def draw(self, context):
+		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		ob= context.object
 		lamp= context.lamp
-		wide_ui= context.region.width > narrowui
+		vl= lamp.vray
 
-		layout.active = lamp.vr_la_shadows
+		layout.active = vl.shadows
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vr_la_shadowColor', text="")
+		col.prop(vl,'shadowColor', text="")
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vr_la_shadowBias', text="Bias")
+		col.prop(vl,'shadowBias', text="Bias")
 		if(lamp.type in ('SPOT','POINT','SUN')):
-			col.prop(lamp, 'vr_la_shadowRadius', text="Radius")
+			col.prop(vl,'shadowRadius', text="Radius")
 
 		split= layout.split()
 		col= split.column()
@@ -754,9 +737,8 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 
 
 class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
-	bl_label          = "Advanced"
-	bl_show_header    = True
-	bl_default_closed = True
+	bl_label   = "Advanced"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -765,24 +747,25 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 		return base_poll(__class__, context)
 
 	def draw(self, context):
+		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		ob= context.object
 		lamp= context.lamp
-		wide_ui= context.region.width > narrowui
+		vl= lamp.vray
 
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp, 'vr_la_diffuse_contribution', text="Diffuse cont.")
-		col.prop(lamp, 'vr_la_specular_contribution', text="Specular cont.")
-		col.prop(lamp, 'vr_la_cutoffThreshold', text="Cut-off")
+		col.prop(vl,'diffuse_contribution', text="Diffuse cont.")
+		col.prop(vl,'specular_contribution', text="Specular cont.")
+		col.prop(vl,'cutoffThreshold', text="Cut-off")
 		
 		if wide_ui:
 			col= split.column()
-		col.prop(lamp, 'vr_la_nsamples')
-		col.prop(lamp, 'vr_la_bumped_below_surface_check', text="Bumped surface check")
-		col.prop(lamp, 'vr_la_ignoreLightNormals')
-		col.prop(lamp, 'vr_la_areaSpeculars')
+		col.prop(vl,'nsamples')
+		col.prop(vl,'bumped_below_surface_check', text="Bumped surface check")
+		col.prop(vl,'ignoreLightNormals')
+		col.prop(vl,'areaSpeculars')
 		
 		if(lamp.type == 'AREA'):
 			pass

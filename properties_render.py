@@ -438,21 +438,21 @@ VRayScene.PointerProperty(
 
 VRayExporter.BoolProperty(
 	attr= "use_material_nodes",
-	name= "Use Material Nodes",
+	name= "Use material nodes",
 	description= "Use material nodes.",
 	default= False
 )
 
 VRayExporter.BoolProperty(
 	attr= "image_to_blender",
-	name= "Image To Blender",
+	name= "Image to Blender",
 	description= "Pass image to Blender on render end.",
 	default= False
 )
 
 VRayExporter.BoolProperty(
 	attr="log_window",
-	name="Show Log Window",
+	name="Show log window",
 	description="Show log window (Linux).",
 	default= False
 )
@@ -465,6 +465,13 @@ VRayExporter.BoolProperty(
 )
 
 VRayExporter.BoolProperty(
+	attr= 'use_hair',
+	name= "Hair",
+	description= "Render hair.",
+	default= True
+)
+
+VRayExporter.BoolProperty(
 	attr= 'camera_loop',
 	name= "Camera loop",
 	description= "Render views from all cameras.",
@@ -472,10 +479,17 @@ VRayExporter.BoolProperty(
 )
 
 VRayExporter.BoolProperty(
-	attr= 'active_layers',
-	name= "Active Layers",
-	description= "Render objects only from visible layers.",
+	attr= 'compat_mode',
+	name= "Compatibility mode",
+	description= "V-Ray/Blender 2.4 shading compatibility mode.",
 	default= False
+)
+
+VRayExporter.BoolProperty(
+	attr= 'active_layers',
+	name= "Active layers",
+	description= "Render objects only from visible layers.",
+	default= True
 )
 
 VRayExporter.BoolProperty(
@@ -498,6 +512,33 @@ VRayExporter.BoolProperty(
 	description= "Enable script\'s debug output.",
 	default= 0
 )
+
+VRayExporter.EnumProperty(
+	attr= 'output',
+	name= "Exporting directory",
+	description= "Exporting directory.",
+	items=(
+		('USER',  "User-defined directory", ""),
+		('SCENE', "Scene file directory",   ""),
+		('TMP',   "Global TMP directory",  "")
+	),
+	default= 'TMP'
+)
+
+VRayExporter.StringProperty(
+	attr= 'output_dir',
+	name= "Directory",
+	subtype= 'DIR_PATH',
+	description="User-defined output directory."
+)
+
+VRayExporter.BoolProperty(
+	attr= 'output_unique',
+	name= "Use unique file name",
+	description= "Use unique file name.",
+	default= False
+)
+
 
 # BoolProperty(   attr="vray_export_duplibase",
 #                 name="vray_export_duplibase",
@@ -696,10 +737,60 @@ VRayExporter.BoolProperty(
 #                 description="",
 #                 default= 1)
 
+'''
+	Distributed rendering
+'''
+class VRayDR(bpy.types.IDPropertyGroup):
+	pass
+
+VRayScene.PointerProperty(
+	attr= 'VRayDR',
+	type=  VRayDR,
+	name= "Distributed rendering",
+	description= "Distributed rendering settings."
+)
+
+VRayDR.BoolProperty(
+	attr= 'on',
+	name= "Distributed rendering",
+	description= "Distributed rendering.",
+	default= False
+)
+
+VRayDR.IntProperty(
+	attr= 'port',
+	name= "Distributed rendering port",
+	description= "Distributed rendering port.",
+	min= 0,
+	max= 65535,
+	default= 20204
+)
+
+class VRayRenderNode(bpy.types.IDPropertyGroup):
+	pass
+
+VRayDR.CollectionProperty(
+	attr= 'nodes',
+	type=  VRayRenderNode,
+	name= "Render Nodes",
+	description= "V-Ray render nodes."
+)
+
+VRayDR.IntProperty(
+	attr= 'nodes_selected',
+	name= "Render Node Index",
+	default= -1,
+	min= -1,
+	max= 100
+)
+
+VRayRenderNode.StringProperty(
+	attr= 'address',
+	name= "IP/Hostname",
+	description= "Render node IP or hostname."
+)
 
 	
-
-
 
 '''
 	GUI
@@ -722,7 +813,7 @@ class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		sce= context.scene
-		vsce= sce.vray_scene
+		vsce= sce.vray
 
 		render_channels= vsce.render_channels
 
@@ -739,13 +830,44 @@ class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		sce= context.scene
-		vsce= sce.vray_scene
+		vsce= sce.vray
 		
 		render_channels= vsce.render_channels
 		
 		if vsce.render_channels_index >= 0:
 		   render_channels.remove(vsce.render_channels_index)
 		   vsce.render_channels_index-= 1
+
+		return{'FINISHED'}
+
+
+class RENDER_NODES_OT_add(bpy.types.Operator):
+	bl_idname=      'render_nodes.add'
+	bl_label=       "Add Render Node"
+	bl_description= "Add render node"
+
+	def invoke(self, context, event):
+		vs= context.scene.vray
+		module= vs.VRayDR
+
+		module.nodes.add()
+		module.nodes[-1].name= "Render Node"
+
+		return{'FINISHED'}
+
+
+class RENDER_NODES_OT_del(bpy.types.Operator):
+	bl_idname=      'render_nodes.remove'
+	bl_label=       "Remove Render Nodel"
+	bl_description= "Remove render node"
+
+	def invoke(self, context, event):
+		vs= context.scene.vray
+		module= vs.VRayDR
+
+		if module.nodes_selected >= 0:
+		   module.nodes.remove(module.nodes_selected)
+		   module.nodes_selected-= 1
 
 		return{'FINISHED'}
 
@@ -774,38 +896,65 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		ve= vs.exporter
 
 		split= layout.split()
 		col= split.column()
-		col.operator("render.render", text="Image", icon='RENDER_STILL')
+		col.operator('render.render', text="Image", icon='RENDER_STILL')
 
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
-			col.operator("vray_export_meshes", icon='OUTLINER_OB_MESH')
+			col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
 		col.label(text="Globals:")
 		col.prop(vs.SettingsGI, 'on', text="GI")
 		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
+		col.prop(vs.VRayDR, 'on', text="DR")
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
+		col.prop(ve, 'use_hair')
 		col.prop(ve, 'active_layers')
-		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'image_to_blender')
+
+
+class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
+	bl_label   = "Exporter"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		ve= context.scene.vray.exporter
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="Exporter:")
-		col.prop(ve, "autorun")
-		col.prop(ve, "auto_meshes")
-		col.prop(ve, "debug")
+		col.prop(ve, 'autorun')
+		col.prop(ve, 'auto_meshes')
+		col.prop(ve, 'debug')
+		if wide_ui:
+			col= split.column()
+		col.prop(ve, 'use_material_nodes')
+		col.prop(ve, 'compat_mode')
 
+		split= layout.split()
+		col= split.column()
+		col.prop(ve, 'output', text="Export to")
+		if ve.output == 'USER':
+			col.prop(ve, 'output_dir')
+		col.prop(ve, 'output_unique')
 
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
@@ -821,12 +970,12 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		cm= vs.SettingsColorMapping
 
 		split= layout.split()
 		col= split.column()
-		col.prop(cm, "type")
+		col.prop(cm, 'type')
 		if cm.type == 'REIN':
 			col.prop(cm, "dark_mult", text="Multiplier")
 			col.prop(cm, "bright_mult",  text="Burn")
@@ -848,7 +997,6 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(cm, "clamp_level")
 
 
-
 class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
@@ -862,7 +1010,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		module= vs.SettingsImageSampler
 
 		split= layout.split()
@@ -925,7 +1073,7 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		module= vs.SettingsDMCSampler
 
 		split= layout.split()
@@ -947,7 +1095,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		module= vs.SettingsGI
 		return base_poll(__class__, context) and module.on
 
@@ -955,7 +1103,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		module= vs.SettingsGI
 
 		# split= layout.split()
@@ -1008,14 +1156,14 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray_scene.SettingsGI
+		module= context.scene.vray.SettingsGI
 		return base_poll(__class__, context) and module.on and module.primary_engine == 'IM'
 
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		gi= vs.SettingsGI
 		module= gi.SettingsIrradianceMap
 
@@ -1117,14 +1265,14 @@ class RENDER_PT_bf(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray_scene.SettingsGI
+		module= context.scene.vray.SettingsGI
 		return base_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF')
 
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vsce= context.scene.vray_scene
+		vsce= context.scene.vray
 		gi= vsce.SettingsGI
 		module= gi.SettingsDMCGI
 
@@ -1144,14 +1292,14 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray_scene.SettingsGI
+		module= context.scene.vray.SettingsGI
 		return (base_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC'))
 
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray_scene
+		vs= context.scene.vray
 		module= vs.SettingsGI.SettingsLightCache
 
 		split= layout.split()
@@ -1216,8 +1364,8 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 
 
 class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
-	bl_label = "Channels"
-	bl_default_closed = True
+	bl_label   = "Channels"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -1230,7 +1378,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		
 		sce= context.scene
-		vsce= sce.vray_scene
+		vsce= sce.vray
 		render_channels= vsce.render_channels
 
 		split= layout.split()
@@ -1266,9 +1414,52 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
 
 
+class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
+	bl_label = "Distributed rendering"
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		vs= context.scene.vray
+		module= vs.VRayDR
+		return base_poll(__class__, context) and module.on
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		vs= context.scene.vray
+		module= vs.VRayDR
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Port:")
+		if wide_ui:
+			col= split.column()
+		col.prop(module, 'port', text="")
+		
+		layout.separator()
+
+		split= layout.split()
+		row= split.row()
+		row.template_list(module, 'nodes', module, 'nodes_selected', rows= 3)
+		col= row.column(align=True)
+		col.operator('render_nodes.add',    text="", icon="ZOOMIN")
+		col.operator('render_nodes.remove', text="", icon="ZOOMOUT")
+
+		if module.nodes_selected >= 0 and len(module.nodes) > 0:
+			render_node= module.nodes[module.nodes_selected]
+		
+			layout.separator()
+
+			layout.prop(render_node, 'name')
+			layout.prop(render_node, 'address')
+
+
 class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
-	bl_label = "About"
-	bl_default_closed = True
+	bl_label   = "About"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -1285,9 +1476,8 @@ class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 		col.separator()
 		col.label(text="Author: Andrey M. Izrantsev")
 		col.label(text="URL: http://vray.cgdo.ru")
-		col.label(text="Email: izrantsev@gmail.com")
+		col.label(text="Email / Jabber: izrantsev@gmail.com")
 		col.separator()
 		col.label(text="IRC: irc.freenode.net #vrayblender")
 		col.separator()
 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
-

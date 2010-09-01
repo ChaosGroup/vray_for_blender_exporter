@@ -101,8 +101,8 @@ def add_properties():
 	  Base types
 	'''
 	bpy.types.Texture.PointerProperty(
-		attr= 'vray_texture',
-		type= VRayTexture,
+		attr= 'vray',
+		type=  VRayTexture,
 		name= "V-Ray Texture Settings",
 		description= "V-Ray texture settings."
 	)
@@ -115,8 +115,8 @@ def add_properties():
 	# )
 
 	bpy.types.Scene.PointerProperty(
-		attr= 'vray_scene',
-		type= VRayScene,
+		attr= 'vray',
+		type=  VRayScene,
 		name= "V-Ray Settings",
 		description= "V-Ray settings."
 	)
@@ -127,7 +127,7 @@ def add_properties():
 	'''
 	VRayScene.CollectionProperty(
 		attr= 'render_channels',
-		type= VRayRenderChannel,
+		type=  VRayRenderChannel,
 		name= "Render Channels",
 		description= "V-Ray render channels."
 	)
@@ -163,10 +163,22 @@ def add_properties():
 	)
 
 	load_plugins(SETTINGS_PLUGINS,VRayScene)
-	
 
+
+	'''
+	  Blender GUI as is
+	'''
+	import properties_particle
+	for member in dir(properties_particle):
+		subclass= getattr(properties_particle, member)
+		try:
+			subclass.COMPAT_ENGINES.add('VRAY_RENDER')
+			subclass.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+		except:
+			pass
+	del properties_particle
 
 
 def remove_properties():
-	bpy.types.Texture.RemoveProperty('vray_texture')
-	bpy.types.Scene.RemoveProperty('vray_scene')
+	bpy.types.Scene.RemoveProperty('vray')
+	bpy.types.Texture.RemoveProperty('vray')

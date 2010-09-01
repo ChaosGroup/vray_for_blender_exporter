@@ -38,7 +38,7 @@ class VRayMaterial(bpy.types.IDPropertyGroup):
 
 bpy.types.Material.PointerProperty(
 	attr= 'vray',
-	type= VRayMaterial,
+	type=  VRayMaterial,
 	name= "V-Ray Material Settings",
 	description= "V-Ray material settings"
 )
@@ -48,9 +48,10 @@ VRayMaterial.EnumProperty(
 	name= "Type",
 	description= "Material type.",
 	items=(
-		('MTL',  "Basic", "Basic V-Ray material."),
-		('SSS',  "SSS",   "Fast SSS material."),
-		('EMIT', "Light", "Light emitting material.")
+		('MTL',  "Standard", "Standard V-Ray material."),
+		('SSS',  "SSS",      "Fast SSS material."),
+		('EMIT', "Light",    "Light emitting material."),
+		('VOL',  "Volume",   "Volumetric material.")
 	),
 	default= 'MTL'
 )
@@ -170,6 +171,15 @@ BRDFVRayMtl.FloatProperty(
 	default= 1.6
 )
 
+BRDFVRayMtl.FloatProperty(
+	attr= 'refract_ior',
+	name= "Refractions IOR",
+	description= "The IOR for refractions.",
+	min=0.0, max=10.0,
+	soft_min=0.0, soft_max=10.0,
+	default= 1.6
+)
+
 BRDFVRayMtl.IntProperty(
 	attr= 'reflect_subdivs',
 	name= "Reflection subdivs",
@@ -207,18 +217,36 @@ BRDFVRayMtl.IntProperty(
 )
 
 BRDFVRayMtl.FloatProperty(
-	attr="roughness",
-	name="Roughness",
+	attr= 'roughness',
+	name= "Roughness",
 	description="",
 	min=0.0, max=1.0,
 	soft_min=0.0, soft_max=1.0,
-	default= 0.0
+	default=0.0
 )
 
 BRDFVRayMtl.FloatProperty(
-	attr="hilight_glossiness",
-	name="Hilight gloss",
-	description="",
+	attr= 'hilight_glossiness',
+	name= "Hilight glossiness",
+	description= "The glossiness of the hilights.",
+	min=0.0, max=1.0,
+	soft_min=0.0, soft_max=1.0,
+	default= 1.0
+)
+
+BRDFVRayMtl.FloatProperty(
+	attr= 'reflect_glossiness',
+	name= "Reflection glossiness",
+	description= "The glossiness of the reflections.",
+	min=0.0, max=1.0,
+	soft_min=0.0, soft_max=1.0,
+	default= 1.0
+)
+
+BRDFVRayMtl.FloatProperty(
+	attr= 'refract_glossiness',
+	name= "Refraction glossiness",
+	description= "The glossiness of the refractions.",
 	min=0.0, max=1.0,
 	soft_min=0.0, soft_max=1.0,
 	default= 1.0
@@ -564,7 +592,7 @@ class MtlRenderStats(bpy.types.IDPropertyGroup):
 
 VRayMaterial.PointerProperty(
 	attr= 'MtlRenderStats',
-	type= MtlRenderStats,
+	type=  MtlRenderStats,
 	name= "MtlRenderStats",
 	description= "V-Ray MtlRenderStats settings"
 )
@@ -670,7 +698,7 @@ class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
 
 VRayMaterial.PointerProperty(
 	attr= 'BRDFSSS2Complex',
-	type= BRDFSSS2Complex,
+	type=  BRDFSSS2Complex,
 	name= "BRDFSSS2Complex",
 	description= "V-Ray BRDFSSS2Complex settings"
 )
@@ -709,7 +737,7 @@ BRDFSSS2Complex.FloatProperty(
 )
 
 BRDFSSS2Complex.FloatProperty(
-	attr= "ior", 
+	attr= 'ior', 
 	name= "IOR", 
 	description= 'TODO.', 
 	min= 0.0, 
@@ -849,8 +877,6 @@ BRDFSSS2Complex.FloatProperty(
 	default= 0.6
 )
 
-
-
 BRDFSSS2Complex.FloatProperty(
 	attr= "cutoff_threshold", 
 	name= "Cutoff threshold", 
@@ -953,7 +979,7 @@ class MtlWrapper(bpy.types.IDPropertyGroup):
 
 VRayMaterial.PointerProperty(
 	attr= 'MtlWrapper',
-	type= MtlWrapper,
+	type=  MtlWrapper,
 	name= "MtlWrapper",
 	description= "V-Ray MtlWrapper settings"
 )
@@ -1194,7 +1220,7 @@ class MtlOverride(bpy.types.IDPropertyGroup):
 
 VRayMaterial.PointerProperty(
 	attr= 'MtlOverride',
-	type= MtlOverride,
+	type=  MtlOverride,
 	name= "MtlOverride",
 	description= "V-Ray MtlOverride settings"
 )
@@ -1329,6 +1355,301 @@ LightMesh.BoolProperty(
 	attr= 'doubleSided',
 	name= "Double-sided",
 	description= "TODO.",
+	default= False
+)
+
+
+
+'''
+  Plugin: EnvironmentFog
+'''
+class EnvironmentFog(bpy.types.IDPropertyGroup):
+    pass
+
+VRayMaterial.PointerProperty(
+	attr= 'EnvironmentFog',
+	type=  EnvironmentFog,
+	name= "EnvironmentFog",
+	description= "V-Ray EnvironmentFog settings"
+)
+
+# gizmos: plugin (List of gizmos), unlimited list
+
+# emission: color (Fog emission color)
+EnvironmentFog.FloatVectorProperty(
+	attr= 'emission',
+	name= "Emission",
+	description= "Fog emission color",
+	subtype= "COLOR",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0,0,0)
+)
+
+# emission_tex: acolor texture (Fog emission texture)
+
+# color: color (Fog color)
+EnvironmentFog.FloatVectorProperty(
+	attr= 'color',
+	name= "Color",
+	description= "Fog color",
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1.0,1.0,1.0)
+)
+
+# color_tex: acolor texture (Fog texture)
+
+# distance: float (Distance between fog particles)
+EnvironmentFog.FloatProperty(
+	attr= 'distance',
+	name= "Distance",
+	description= "Distance between fog particles",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 10
+)
+	
+# density: float (Fog density)
+EnvironmentFog.FloatProperty(
+	attr= 'density',
+	name= "Density",
+	description= "Fog density",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 1
+)
+	
+# density_tex: float texture (Texture for fog density)
+
+# use_height: bool (Whether or not the height should be taken into account.)
+EnvironmentFog.BoolProperty(
+	attr= 'use_height',
+	name= "Use height",
+	description= "Whether or not the height should be taken into account.",
+	default= True
+)
+	
+# height: float (Fog starting point along the Z-axis.)
+EnvironmentFog.FloatProperty(
+	attr= 'height',
+	name= "Height",
+	description= "Fog starting point along the Z-axis.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 100
+)
+
+# subdivs: integer (Fog subdivision)
+EnvironmentFog.IntProperty(
+	attr= 'subdivs',
+	name= "Subdivs",
+	description= "Fog subdivision",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 8
+)
+	
+# affect_background: bool (Affect background)
+EnvironmentFog.BoolProperty(
+	attr= 'affect_background',
+	name= "Affect background",
+	description= "Affect background",
+	default= False
+)
+
+# yup: bool (if true, y is the up axis, not z)
+EnvironmentFog.BoolProperty(
+	attr= 'yup',
+	name= "Y-up",
+	description= "If true, y is the up axis, not z.",
+	default= False
+)
+	
+# fade_out_mode: integer (fade out mode 0: multiply, 1: substract)
+EnvironmentFog.EnumProperty(
+	attr= 'fade_out_mode',
+	name= "Fade out mode",
+	description= "Fade out mode.",
+	items=(
+		('SUBSTRACT',  "Substract",  ""),
+		('MULT',       "Multiply",   "")
+	),
+	default= 'MULT'
+)
+	
+# fade_out_radius: float (fade out effect for the edges)
+EnvironmentFog.FloatProperty(
+	attr= 'fade_out_radius',
+	name= "Fade out radius",
+	description= "Fade out effect for the edges",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 0
+)
+	
+# per_object_fade_out_radius: bool (fade out effect for the edges per object)
+EnvironmentFog.BoolProperty(
+	attr= 'per_object_fade_out_radius',
+	name= "Per object fade out radius",
+	description= "Fade out effect for the edges per object",
+	default= False
+)
+	
+# use_fade_out_tex: bool (True if the fade_out_tex should be used for fade out computation.)
+EnvironmentFog.BoolProperty(
+	attr= 'use_fade_out_tex',
+	name= "Use fade out tex",
+	description= "True if the fade_out_tex should be used for fade out computation.",
+	default= True
+)
+	
+# fade_out_tex: float texture (If use_fade_out_tex is true and this is specified, it will override the default fade out computation.)
+
+# edge_fade_out: float (Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute)
+EnvironmentFog.FloatProperty(
+	attr= 'edge_fade_out',
+	name= "Edge fade out",
+	description= "Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 0
+)
+
+# fade_out_type: integer (0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;)
+EnvironmentFog.IntProperty(
+	attr= 'fade_out_type',
+	name= "Fade out type",
+	description= "0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 0
+)
+	
+# scatter_gi: bool (Scatter global illumination)
+EnvironmentFog.BoolProperty(
+	attr= 'scatter_gi',
+	name= "Scatter GI",
+	description= "Scatter global illumination",
+	default= False
+)
+
+# scatter_bounces: integer (Number of GI bounces calculated inside the fog)
+EnvironmentFog.IntProperty(
+	attr= 'scatter_bounces',
+	name= "Scatter bounces",
+	description= "Number of GI bounces calculated inside the fog",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 8
+)
+	
+# simplify_gi: bool (Simplify global illumination)
+EnvironmentFog.BoolProperty(
+	attr= 'simplify_gi',
+	name= "Simplify GI",
+	description= "Simplify global illumination",
+	default= False
+)
+	
+# step_size: float (Size of one step through the volume)
+EnvironmentFog.FloatProperty(
+	attr= 'step_size',
+	name= "Step size",
+	description= "Size of one step through the volume",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 1
+)
+	
+# max_steps: integer (Maximum number of steps through the volume)
+EnvironmentFog.IntProperty(
+	attr= 'max_steps',
+	name= "Max steps",
+	description= "Maximum number of steps through the volume",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 1000
+)
+	
+# tex_samples: integer (Number of texture samples for each step through the volume)
+EnvironmentFog.IntProperty(
+	attr= 'tex_samples',
+	name= "Texture samples",
+	description= "Number of texture samples for each step through the volume",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 4
+)
+	
+# cutoff_threshold: float (Controls when the raymarcher will stop traversing the volume.)
+EnvironmentFog.FloatProperty(
+	attr= 'cutoff_threshold',
+	name= "Cutoff",
+	description= "Controls when the raymarcher will stop traversing the volume.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 0.001
+)
+	
+# light_mode: integer (light mode 0: no lights, 1: Use per-gizmo lights, 2: Override per-gizmo lights, 3: Intersect with per-gizmo lights, 4: Add to per-gizmo lights)
+EnvironmentFog.EnumProperty(
+	attr= 'light_mode',
+	name= "Light mode",
+	description= "Light mode.",
+	items=(
+		('ADDGIZMO',    "Add to per-gizmo lights",          ""),
+		('INTERGIZMO',  "Intersect with per-gizmo lights",  ""),
+		('OVERGIZMO',   "Override per-gizmo lights",        ""),
+		('PERGIZMO',    "Use per-gizmo lights",             ""),
+		('NO',          "No lights",                        "")
+	),
+	default= 'PERGIZMO'
+)
+	
+# lights: plugin, unlimited list
+	
+# use_shade_instance: bool (True if the shade instance should be used when sampling textures.)
+EnvironmentFog.BoolProperty(
+	attr= 'use_shade_instance',
+	name= "Use shade instance",
+	description= "True if the shade instance should be used when sampling textures.",
 	default= False
 )
 
@@ -1510,14 +1831,15 @@ class MaterialButtonsPanel():
 
 class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label = ""
-	bl_show_header = False
+	bl_options = {'HIDE_HEADER'}
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		return context.object or base_poll(__class__, context)
-
+		rd= context.scene.render
+		return (context.material or context.object) and (rd.engine in cls.COMPAT_ENGINES)
+	
 	def draw(self, context):
 		layout= self.layout
 
@@ -1548,6 +1870,9 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 			if ob:
 				split.template_ID(ob, "active_material", new="material.new")
 				row = split.row()
+				if mat:
+					row.prop(mat, "use_nodes", icon="NODETREE", text="")
+
 				if slot:
 					row.prop(slot, "link", text="")
 				else:
@@ -1568,7 +1893,7 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 
 # class MATERIAL_PT_VRAY_preview(MaterialButtonsPanel, bpy.types.Panel):
 # 	bl_label = "Preview"
-# 	bl_default_closed = False
+#	bl_options = {'DEFAULT_CLOSED'}
 # 	bl_show_header = True
 
 # 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1582,9 +1907,8 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 
 
 class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = 'Parameters'
-	bl_default_closed = False
-	bl_show_header = True
+	bl_label   = "Parameters"
+	#bl_options = {'HIDE_HEADER'}
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -1597,13 +1921,14 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 
 		sce= context.scene
+		ve= sce.vray.exporter
 		ob= context.object
 
 		mat= active_node_mat(context.material)
-		vmat= mat.vray
+		vma= mat.vray
 				
-		if vmat.type == 'MTL':
-			vray_plugin= vmat.BRDFVRayMtl
+		if vma.type == 'MTL':
+			BRDFVRayMtl= vma.BRDFVRayMtl
 			
 			raym= mat.raytrace_mirror
 			rayt= mat.raytrace_transparency
@@ -1612,132 +1937,127 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			colL= row.column()
 			colL.label(text="Diffuse")
 
-			row= layout.row()
-			colL= row.column()
-			colR= row.column()
-			colL.prop(mat, "diffuse_color", text="")
-
-			colL.prop(mat, "roughness")
-			colR.prop(mat, "alpha")
-
-			row= layout.row()
-			colL= row.column()
-			colL.label(text="Reflection")
-
-			row= layout.row()
-			colL= row.column(align=True)
-			colL.prop(vray_plugin, 'reflect_color', text="")
-			if not vray_plugin.hilight_glossiness_lock:
-				colL.prop(vray_plugin, 'hilight_glossiness', slider=True)
-			colL.prop(raym, "gloss_factor", text="Reflection gloss")
-			colL.prop(vray_plugin, 'reflect_subdivs', text="Subdivs")
-			colL.prop(vray_plugin, 'reflect_depth', text="Depth")
-			colR= row.column()
-			colR.prop(vray_plugin, 'brdf_type', text="")
-			colR.prop(vray_plugin, "hilight_glossiness_lock")
-
-			if not vray_plugin.brdf_type == 'PHONG':
-				colR.prop(vray_plugin, "anisotropy")
-				colR.prop(vray_plugin, "anisotropy_rotation")
-			colR.prop(vray_plugin, "fresnel")
-			if vray_plugin.fresnel:
-				colR.prop(vray_plugin, "fresnel_ior")
+			split= layout.split()
+			col= split.column()
+			col.prop(mat, "diffuse_color", text="")
+			col.prop(BRDFVRayMtl, 'roughness')
+			if wide_ui:
+				col= split.column()
+			col.prop(mat, 'alpha')
 
 			split= layout.split()
 			col= split.column()
-			col.label(text="Refraction")
-			if wide_ui:
-				col= split.column()
-			col.label(text="Fog")
+			col.label(text="Reflections")
 
 			split= layout.split()
 			col= split.column(align=True)
-			col.prop(vray_plugin, "refract_color", text="")
-			col.prop(rayt, "ior")
-			col.prop(rayt, "gloss_factor", text="Glossiness")
-			col.prop(vray_plugin, 'refract_subdivs', text="Subdivs")
-			col.prop(vray_plugin, 'refract_depth', text="Depth")
+			col.prop(BRDFVRayMtl, 'reflect_color', text="")
+			if not BRDFVRayMtl.hilight_glossiness_lock:
+				col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
+			col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness")
+			col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
+			col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFVRayMtl, 'brdf_type', text="")
+			col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
+
+			if not BRDFVRayMtl.brdf_type == 'PHONG':
+				col.prop(BRDFVRayMtl, "anisotropy")
+				col.prop(BRDFVRayMtl, "anisotropy_rotation")
+			col.prop(BRDFVRayMtl, "fresnel")
+			if BRDFVRayMtl.fresnel:
+				col.prop(BRDFVRayMtl, "fresnel_ior")
+
+			split= layout.split()
+			col= split.column(align=True)
+			col.label(text="Refractions")
+			col.prop(BRDFVRayMtl, 'refract_color', text="")
+			col.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
+			col.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness")
+			col.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
+			col.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
 			if wide_ui:
 				col= split.column(align=True)
-			col.prop(vray_plugin, "fog_color", text="")
-			col.prop(vray_plugin, "fog_mult")
-			col.prop(vray_plugin, "fog_bias")
-			col.label(text="")
-			col.prop(vray_plugin, "refract_affect_alpha")
-			col.prop(vray_plugin, "refract_affect_shadows")
+			col.label(text="Fog")
+			col.prop(BRDFVRayMtl, 'fog_color', text="")
+			col.prop(BRDFVRayMtl, 'fog_mult')
+			col.prop(BRDFVRayMtl, 'fog_bias')
+			col.label(text='')
+			col.prop(BRDFVRayMtl, 'refract_affect_alpha')
+			col.prop(BRDFVRayMtl, 'refract_affect_shadows')
 
-			layout.separator()
+			if not ve.compat_mode:
+				layout.separator()
 
-			split= layout.split()
-			col= split.column()
-			col.prop(vray_plugin, 'translucency')
-			if(vray_plugin.translucency != 'NONE'):
 				split= layout.split()
 				col= split.column()
-				col.prop(vray_plugin, 'translucency_color', text="")
-				col.prop(vray_plugin, 'translucency_thickness', text="Thickness")
-				if wide_ui:
+				col.prop(BRDFVRayMtl, 'translucency')
+				if(BRDFVRayMtl.translucency != 'NONE'):
+					split= layout.split()
 					col= split.column()
-				col.prop(vray_plugin, 'translucency_scatter_coeff', text="Scatter coeff")
-				col.prop(vray_plugin, 'translucency_scatter_dir', text="Fwd/Bck coeff")
-				col.prop(vray_plugin, 'translucency_light_mult', text="Light multiplier")
+					col.prop(BRDFVRayMtl, 'translucency_color', text="")
+					col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
+					if wide_ui:
+						col= split.column()
+					col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
+					col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
+					col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
 
 			layout.separator()
 
 			split= layout.split()
 			col= split.column()
-			col.prop(vmat, "two_sided")
-			if vmat.two_sided:
+			col.prop(vma, 'two_sided')
+			if vma.two_sided:
 				if wide_ui:
 					col= split.column()
-				col.prop(vmat, "two_sided_translucency", slider=True, text="Translucency")
+				col.prop(vma, 'two_sided_translucency', slider=True, text="Translucency")
 
-		elif vmat.type == 'EMIT':
+		elif vma.type == 'EMIT':
 			row= layout.row()
 			colL= row.column()
 			colL.label(text="Color")
 
 			row= layout.row()
 			col= row.column()
-			col.prop(mat, "diffuse_color", text="")
+			col.prop(mat, 'diffuse_color', text="")
 			if wide_ui:
 				col= row.column()
-			col.prop(mat, "alpha")
+			if not vma.emitter_type == 'MESH':
+				col.prop(mat, 'alpha')
 
 			layout.separator()
 
 			split= layout.split()
 			col= split.column()
-			col.prop(vmat, 'emitter_type')
-			if not vmat.emitter_type == 'MESH':
-				if wide_ui:
-					col= row.column()
+			col.prop(vma, 'emitter_type')
 
 			layout.separator()
 
-			if vmat.emitter_type == 'MESH':
-				meshlight= vmat.LightMesh
+			if vma.emitter_type == 'MESH':
+				LightMesh= vma.LightMesh
 
 				split= layout.split()
 				col= split.column()
-				col.prop(meshlight, 'enabled', text="On")
-				col.prop(meshlight, 'lightPortal', text="Mode")
-				if meshlight.lightPortal == 'NORMAL':
-					col.prop(meshlight, 'units', text="Units")
-					col.prop(meshlight, 'intensity', text="Intensity")
-				col.prop(meshlight, 'subdivs')
-				col.prop(meshlight, 'causticSubdivs', text="Caustics")
+				col.prop(LightMesh, 'enabled', text="On")
+				col.prop(LightMesh, 'lightPortal', text="Mode")
+				if LightMesh.lightPortal == 'NORMAL':
+					col.prop(LightMesh, 'units', text="Units")
+					col.prop(LightMesh, 'intensity', text="Intensity")
+				col.prop(LightMesh, 'subdivs')
+				col.prop(LightMesh, 'causticSubdivs', text="Caustics")
 				if wide_ui:
 					col= split.column()
-				col.prop(meshlight, 'invisible')
-				col.prop(meshlight, 'affectDiffuse')
-				col.prop(meshlight, 'affectSpecular')
-				col.prop(meshlight, 'affectReflections')
-				col.prop(meshlight, 'noDecay')
-				col.prop(meshlight, 'doubleSided')
-				col.prop(meshlight, 'storeWithIrradianceMap')
+				col.prop(LightMesh, 'invisible')
+				col.prop(LightMesh, 'affectDiffuse')
+				col.prop(LightMesh, 'affectSpecular')
+				col.prop(LightMesh, 'affectReflections')
+				col.prop(LightMesh, 'noDecay')
+				col.prop(LightMesh, 'doubleSided')
+				col.prop(LightMesh, 'storeWithIrradianceMap')
 			else:
-				emit= vmat.BRDFLight
+				emit= vma.BRDFLight
 
 				split= layout.split()
 				col= split.column()
@@ -1745,108 +2065,180 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 				if wide_ui:
 					col= split.column()
 				col.prop(emit, 'emitOnBackSide')
-				col.prop(emit, 'compensateExposure')
+				col.prop(emit, 'compensateExposure', text="Compensate exposure")
 				col.prop(emit, 'doubleSided')
 
-		elif vmat.type == 'SSS':
-			vray_plugin= vmat.BRDFSSS2Complex
-			
-			row= layout.row()
-			col= row.column()
+		elif vma.type == 'SSS':
+			BRDFSSS2Complex= vma.BRDFSSS2Complex
+
+			split= layout.split()
+			col= split.column()
 			col.label(text='General')
 
-			row= layout.row()
-			col= row.column()
-			col.menu("MATERIAL_MT_VRAY_presets", text="Presets")
+			split= layout.split()
+			col= split.column()
+			col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
 
-			row= layout.row()
-			colL= row.column()
-			colR= row.column()
-
-			colL.prop(vray_plugin, 'prepass_rate')
-			colL.prop(vray_plugin, 'scale')
-			colR.prop(vray_plugin, 'ior')
-			colR.prop(vray_plugin, 'interpolation_accuracy', text='Accuracy')
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'prepass_rate')
+			col.prop(BRDFSSS2Complex, 'scale')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'ior')
+			col.prop(BRDFSSS2Complex, 'interpolation_accuracy', text='Accuracy')
 
 			layout.separator()
 
-			row= layout.row()
-			col= row.column()
+			split= layout.split()
+			col= split.column()
 			col.label(text='Overall color')
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'overall_color', text='')
-			col= row.column()
-			col.prop(vray_plugin, 'phase_function')
 
-			row= layout.row()
-			col= row.column()
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'overall_color', text='')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'phase_function')
+
+			split= layout.split()
+			col= split.column()
 			col.label(text='Diffuse color')
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'diffuse_color', text='')
-			col= row.column()
-			col.prop(vray_plugin, 'diffuse_amount')
 
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'sub_surface_color')
-			col= row.column()
-			col.label(text='')
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'diffuse_color', text='')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'diffuse_amount')
 
-			row= layout.row()
-			col= row.column()
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'sub_surface_color')
+			if wide_ui:
+				col= split.column()
+
+			split= layout.split()
+			col= split.column()
 			col.label(text='Scatter color')
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'scatter_radius', text='')
-			col= row.column()
-			col.prop(vray_plugin, 'scatter_radius_mult')
+
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'scatter_radius', text='')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'scatter_radius_mult')
 
 			layout.separator()
 
-			row= layout.row()
-			col= row.column()
+			split= layout.split()
+			col= split.column()
 			col.label(text='Specular layer')
 
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'specular_color', text='')
-			col.prop(vray_plugin, 'specular_subdivs', text='Subdivs')
-			col= row.column()
-			col.prop(vray_plugin, 'specular_amount', text='Amount')
-			col.prop(vray_plugin, 'specular_glossiness', text='Glossiness')
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'specular_color', text='')
+			col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
+			col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
 
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'trace_reflections')
-			if(vray_plugin.trace_reflections):
-				col= row.column()
-				col.prop(vray_plugin, 'reflection_depth')
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'trace_reflections')
+			if BRDFSSS2Complex.trace_reflections:
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'reflection_depth')
 
 			layout.separator()
 
-			row= layout.row()
-			col= row.column()
+			split= layout.split()
+			col= split.column()
 			col.label(text='Options:')
-			row= layout.row()
-			col= row.column()
-			col.prop(vray_plugin, 'single_scatter', text='Type')
-			col.prop(vray_plugin, 'subdivs')
-			col.prop(vray_plugin, 'refraction_depth')
-			col.prop(vray_plugin, 'cutoff_threshold')
-			col= row.column()
-			col.prop(vray_plugin, 'front_scatter')
-			col.prop(vray_plugin, 'back_scatter')
-			col.prop(vray_plugin, 'scatter_gi')
-			col.prop(vray_plugin, 'prepass_blur')
+
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFSSS2Complex, 'single_scatter', text='Type')
+			col.prop(BRDFSSS2Complex, 'subdivs')
+			col.prop(BRDFSSS2Complex, 'refraction_depth')
+			col.prop(BRDFSSS2Complex, 'cutoff_threshold')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFSSS2Complex, 'front_scatter')
+			col.prop(BRDFSSS2Complex, 'back_scatter')
+			col.prop(BRDFSSS2Complex, 'scatter_gi')
+			col.prop(BRDFSSS2Complex, 'prepass_blur')
+
+		elif vma.type == 'VOL':
+			EnvironmentFog= vma.EnvironmentFog
+
+			split= layout.split()
+			col= split.column()
+			col.prop(EnvironmentFog, 'color')
+			if wide_ui:
+				col= split.column()
+			col.prop(EnvironmentFog, 'emission')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.prop(EnvironmentFog, 'distance')
+			col.prop(EnvironmentFog, 'density')
+			col.prop(EnvironmentFog, 'subdivs')
+			col.prop(EnvironmentFog, 'scatter_gi')
+			if EnvironmentFog.scatter_gi:
+				col.prop(EnvironmentFog, 'scatter_bounces')
+			col.prop(EnvironmentFog, 'use_height')
+			if EnvironmentFog.use_height:
+				col.prop(EnvironmentFog, 'height')
+			if wide_ui:
+				col= split.column()
+			#col.prop(EnvironmentFog, 'fade_out_type')
+			col.prop(EnvironmentFog, 'fade_out_radius')
+			col.prop(EnvironmentFog, 'affect_background')
+			col.prop(EnvironmentFog, 'use_shade_instance')
+			col.prop(EnvironmentFog, 'simplify_gi')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.prop(EnvironmentFog, 'light_mode')
+			col.prop(EnvironmentFog, 'fade_out_mode')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.prop(EnvironmentFog, 'step_size')
+			col.prop(EnvironmentFog, 'max_steps')
+			if wide_ui:
+				col= split.column()
+			col.prop(EnvironmentFog, 'tex_samples')
+			col.prop(EnvironmentFog, 'cutoff_threshold')
+
+			# We have per material setup
+			#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
+
+			#col.prop(EnvironmentFog, 'emission_tex')
+			#col.prop(EnvironmentFog, 'color_tex')
+			#col.prop(EnvironmentFog, 'density_tex')
+
+			#col.prop(EnvironmentFog, 'use_fade_out_tex')
+			#col.prop(EnvironmentFog, 'fade_out_tex')
+			#col.prop(EnvironmentFog, 'edge_fade_out')
+
+			#col.prop(EnvironmentFog, 'yup')
 		else:
 			pass
 
 
 class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Options"
-	bl_default_closed = True
+	bl_label   = "Options"
+	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -1855,82 +2247,87 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 		active_ma= active_node_mat(context.material)
 		if active_ma is None:
 			return False
-		ma= active_ma.vray
-		return base_poll(__class__, context) and (ma.type == 'MTL')
+		vma= active_ma.vray
+		return base_poll(__class__, context) and (vma.type == 'MTL')
 
 	def draw(self, context):
-		ob= context.object
-
-		mat= active_node_mat(context.material)
-		vmat= mat.vray
-		vray_plugin= vmat.BRDFVRayMtl
-
 		layout= self.layout
-
 		wide_ui= context.region.width > 200
+		
+		ve= context.scene.vray.exporter
+		ob= context.object
+		ma= active_node_mat(context.material)
+		
+		BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-		row= layout.row()
-		col= row.column()
-		col.prop(vray_plugin, "reflect_trace")
-		col.prop(vray_plugin, "refract_trace")
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'reflect_trace')
+		col.prop(BRDFVRayMtl, 'refract_trace')
+		if ve.compat_mode:
+			col.prop(BRDFVRayMtl, 'option_cutoff')
 		if wide_ui:
-			col= row.column()
-		col.prop(vray_plugin, "option_double_sided")
-		col.prop(vray_plugin, "option_reflect_on_back")
-		col.prop(vray_plugin, 'option_use_irradiance_map')
+			col= split.column()
+		col.prop(BRDFVRayMtl, 'option_double_sided')
+		col.prop(BRDFVRayMtl, 'option_reflect_on_back')
+		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
 
-		row= layout.row()
-		col= row.column()
-		col.prop(vray_plugin, 'option_glossy_rays_as_gi')
-		col.prop(vray_plugin, 'option_energy_mode')
+		if not ve.compat_mode:
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
+			col.prop(BRDFVRayMtl, 'option_energy_mode')
 
-		row= layout.row()
-		col= row.column()
-		col.prop(vray_plugin, 'option_cutoff')
-		if wide_ui:
-			col= row.column()
-		col.prop(vray_plugin, 'environment_priority')
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFVRayMtl, 'option_cutoff')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFVRayMtl, 'environment_priority')
 
 
 class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Wrapper"
-	bl_default_closed = True
+	bl_label   = "Wrapper"
+	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		vma= active_ma.vray
+		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)
-		plugin= mat.vray.MtlWrapper
-		self.layout.prop(plugin, 'use', text="")
+		MtlWrapper= mat.vray.MtlWrapper
+		self.layout.prop(MtlWrapper, 'use', text="")
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
 
 		ob= context.object
+		ma= active_node_mat(context.material)
 
-		mat= active_node_mat(context.material)
-		vmat= mat.vray
-		plugin= vmat.MtlWrapper
+		MtlWrapper= ma.vray.MtlWrapper
 		
 		layout= self.layout
-		layout.active= plugin.use
+		layout.active= MtlWrapper.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(plugin, 'generate_gi')
-		col.prop(plugin, 'receive_gi')
+		col.prop(MtlWrapper, 'generate_gi')
+		col.prop(MtlWrapper, 'receive_gi')
 		if wide_ui:
 			col= split.column()
-		col.prop(plugin, 'generate_caustics')
-		col.prop(plugin, 'receive_caustics')
+		col.prop(MtlWrapper, 'generate_caustics')
+		col.prop(MtlWrapper, 'receive_caustics')
 
 		split= layout.split()
 		col= split.column()
-		col.prop(plugin, 'gi_quality_multiplier')
+		col.prop(MtlWrapper, 'gi_quality_multiplier')
 
 		split= layout.split()
 		col= split.column()
@@ -1938,66 +2335,70 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		colL= split.column()
-		colL.prop(plugin, 'matte_surface')
+		colL.prop(MtlWrapper, 'matte_surface')
 		if wide_ui:
 			colR= split.column()
 		else:
 			colR= colL
-		colR.prop(plugin, 'alpha_contribution')
-		if plugin.matte_surface:
-			colR.prop(plugin, 'reflection_amount')
-			colR.prop(plugin, 'refraction_amount')
-			colR.prop(plugin, 'gi_amount')
-			colR.prop(plugin, 'no_gi_on_other_mattes')
+		colR.prop(MtlWrapper, 'alpha_contribution')
+		if MtlWrapper.matte_surface:
+			colL.prop(MtlWrapper, 'affect_alpha')
+			colL.prop(MtlWrapper, 'shadows')
+			if MtlWrapper.shadows:
+				colL.prop(MtlWrapper, 'shadow_tint_color')
+				colL.prop(MtlWrapper, 'shadow_brightness')
 
-			colL.prop(plugin, 'affect_alpha')
-			colL.prop(plugin, 'shadows')
-			if plugin.shadows:
-				colL.prop(plugin, 'shadow_tint_color')
-				colL.prop(plugin, 'shadow_brightness')
-			
+			colR.prop(MtlWrapper, 'reflection_amount')
+			colR.prop(MtlWrapper, 'refraction_amount')
+			colR.prop(MtlWrapper, 'gi_amount')
+			colR.prop(MtlWrapper, 'no_gi_on_other_mattes')
+
 		split= layout.split()
 		col= split.column()
 		col.label(text="Miscellaneous")
 
 		split= layout.split()
 		col= split.column()
-		col.prop(plugin, 'gi_surface_id')
-		col.prop(plugin, 'trace_depth')
+		col.prop(MtlWrapper, 'gi_surface_id')
+		col.prop(MtlWrapper, 'trace_depth')
 		if wide_ui:
 			col= split.column()
-		col.prop(plugin, 'matte_for_secondary_rays')
+		col.prop(MtlWrapper, 'matte_for_secondary_rays')
 
 
 class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
-	bl_label = "Render"
-	bl_default_closed = True
+	bl_label   = "Render"
+	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		vma= active_ma.vray
+		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
 
 	def draw_header(self, context):
-		mat= active_node_mat(context.material)
-		plugin= mat.vray.MtlRenderStats
-		self.layout.prop(plugin, 'use', text="")
+		ma= active_node_mat(context.material)
+		MtlRenderStats= ma.vray.MtlRenderStats
+		self.layout.prop(MtlRenderStats, 'use', text="")
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
 
 		ob= context.object
-		mat= active_node_mat(context.material)
-		vmat= mat.vray
-		plugin= mat.vray.MtlRenderStats
+		ma= active_node_mat(context.material)
+
+		MtlRenderStats= ma.vray.MtlRenderStats
 
 		layout= self.layout
-		layout.active= plugin.use
+		layout.active= MtlRenderStats.use
 
 		split= layout.split()
 		col= split.column()
-		col.prop(plugin, 'visibility', text="Visible")
+		col.prop(MtlRenderStats, 'visibility', text="Visible")
 
 		split= layout.split()
 		col= split.column()
@@ -2005,12 +2406,12 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		sub= split.column()
-		sub.active= plugin.visibility
-		sub.prop(plugin, 'camera_visibility', text="Camera")
-		sub.prop(plugin, 'gi_visibility', text="GI")
-		sub.prop(plugin, 'shadows_visibility', text="Shadows")
+		sub.active= MtlRenderStats.visibility
+		sub.prop(MtlRenderStats, 'camera_visibility', text="Camera")
+		sub.prop(MtlRenderStats, 'gi_visibility', text="GI")
+		sub.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
 		if wide_ui:
 			sub= split.column()
-			sub.active= plugin.visibility
-		sub.prop(plugin, 'reflections_visibility', text="Reflections")
-		sub.prop(plugin, 'refractions_visibility', text="Refractions")
+			sub.active= MtlRenderStats.visibility
+		sub.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
+		sub.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")

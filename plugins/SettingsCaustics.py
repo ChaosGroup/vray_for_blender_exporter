@@ -209,14 +209,14 @@ class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
 	def poll(cls, context):
 		sce= context.scene
 		rd= sce.render
-		show= sce.vray_scene.SettingsCaustics.on
+		show= sce.vray.SettingsCaustics.on
 		return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES) and (show)
 	
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
-		vsce= context.scene.vray_scene
+		vsce= context.scene.vray
 		vmodule= getattr(vsce, PLUG)
 
 		layout.prop(vmodule,'mode')

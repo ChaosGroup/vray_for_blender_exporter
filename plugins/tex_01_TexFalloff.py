@@ -331,7 +331,7 @@ def write(ofile, sce, tex, name= None):
 	if name is not None:
 		tex_name= name
 
-	vtex= getattr(tex.vray_texture, PLUG)
+	vtex= getattr(tex.vray, PLUG)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
@@ -369,13 +369,13 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 		tex= context.texture
 		if not tex:
 			return False
-		vtex= tex.vray_texture
+		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'PLUGIN' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'MAGIC' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture
-		vtex= getattr(tex.vray_texture, PLUG)
+		vtex= getattr(tex.vray, PLUG)
 		
 		wide_ui= context.region.width > narrowui
 

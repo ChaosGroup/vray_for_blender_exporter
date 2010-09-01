@@ -50,7 +50,7 @@ none_matrix= mathutils.Matrix(
 )
 
 def	debug(sce, s):
-	ve= sce.vray_scene.exporter
+	ve= sce.vray.exporter
 	if ve.debug:
 		print("V-Ray/Blender: %s"%(s))
 
@@ -170,3 +170,56 @@ def get_plugin(plugins, plugin_id):
 		if plugin.ID == plugin_id:
 			return plugin
 	return None
+
+def get_filenames(sce, filetype):
+	def create_dir(directory):
+		if not os.path.exists(directory):
+			print("V-Ray/Blender: Path doesn't exist, trying to create...")
+			print("V-Ray/Blender: Creating directory: %s"%(directory))
+			try:
+				os.mkdir(directory)
+			except:
+				print("V-Ray/Blender: Creating directory \"%s\" failed!"%(directory))
+				directory= tempfile.gettempdir()
+				print("V-Ray/Blender: Using default exporting path: \"%s\""%(directory))
+		return directory
+
+	ve= sce.vray.exporter
+
+	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
+
+	default_dir= tempfile.gettempdir()
+	export_dir= default_dir
+
+	export_file= 'scene'
+	if ve.output_unique:
+		export_file= blendfile_name[:-6]
+
+	if ve.output == 'USER':
+		if ve.output_dir == "":
+			export_dir= default_dir
+		else:
+			export_dir= bpy.path.abspath(ve.output_dir)
+	elif ve.output == 'SCENE':
+		export_dir= blendfile_path
+
+	if ve.output != 'USER':
+		export_dir= os.path.join(export_dir,"vb25")
+
+	filepath= export_dir
+
+	if filetype in ('scene', 'geometry', 'materials', 'lights', 'nodes', 'camera'):
+		filepath= os.path.join(create_dir(export_dir), "%s_%s.vrscene" % (export_file,filetype))
+
+	elif filetype == 'lightmaps':
+		filepath= create_dir(os.path.join(export_dir,filetype))
+
+	elif filetype == 'output':
+		if blendfile_name == 'startup.blend':
+			filepath= create_dir(export_dir)
+		else:
+			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
+
+	debug(sce,"Filepath (%s): %s" % (filetype,filepath))
+
+	return filepath
