@@ -27,62 +27,60 @@
 '''
 
 
-import os
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
 class VRayMaterial(bpy.types.IDPropertyGroup):
     pass
 
-bpy.types.Material.PointerProperty(
-	attr= 'vray',
-	type=  VRayMaterial,
+bpy.types.Material.vray= PointerProperty(
 	name= "V-Ray Material Settings",
+	type=  VRayMaterial,
 	description= "V-Ray material settings"
 )
 
-VRayMaterial.EnumProperty(
-	attr= 'type',
+
+VRayMaterial.type= EnumProperty(
 	name= "Type",
 	description= "Material type.",
-	items=(
-		('MTL',  "Standard", "Standard V-Ray material."),
-		('SSS',  "SSS",      "Fast SSS material."),
-		('EMIT', "Light",    "Light emitting material."),
-		('VOL',  "Volume",   "Volumetric material.")
+	items= (
+		('MTL',"Standard","Standard V-Ray material."),
+		('SSS',"SSS","Fast SSS material."),
+		('EMIT',"Light","Light emitting material."),
+		('VOL',"Volume","Volumetric material.")
 	),
 	default= 'MTL'
 )
 
-VRayMaterial.EnumProperty(
-	attr= 'emitter_type',
+VRayMaterial.emitter_type= EnumProperty(
 	name= "Emitter type",
 	description= "This determines the type of BRDF (the shape of the hilight).",
-	items=(
-		('MTL',  "Material",    ""),
-		('MESH', "Mesh light",  "")
+	items= (
+		('MTL',"Material",""),
+		('MESH',"Mesh light","")
 	),
 	default= 'MTL'
 )
 
-VRayMaterial.BoolProperty(
-	attr= 'two_sided',
+VRayMaterial.two_sided= BoolProperty(
 	name= "Two sided material",
 	description= "Simple \"Two sided\" material. Use nodes for advanced control.",
 	default= False
 )
 
-VRayMaterial.FloatProperty(
-	attr= 'two_sided_translucency',
+VRayMaterial.two_sided_translucency= FloatProperty(
 	name= "Two sided translucency",
 	description= "Translucency between front and back.",
 	min= 0.0,
 	max= 1.0,
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	precision= 3, 
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
 	default= 0.5
 )
 
@@ -93,95 +91,571 @@ VRayMaterial.FloatProperty(
 class BRDFVRayMtl(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'BRDFVRayMtl',
-	type= BRDFVRayMtl,
+VRayMaterial.BRDFVRayMtl= PointerProperty(
 	name= "BRDFVRayMtl",
+	type=  BRDFVRayMtl,
 	description= "V-Ray BRDFVRayMtl settings"
 )
 
-BRDFVRayMtl.FloatVectorProperty(
-	attr="fog_color",
-	name="Fog color",
-	description="Fog color.",
-	subtype="COLOR",
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr="fog_color",
+# 	name="Fog color",
+# 	description="Fog color.",
+# 	subtype="COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default=(1.0, 1.0, 1.0)
+# )
+
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr="refract_color",
+# 	name="Refraction color",
+# 	description="Refraction color.",
+# 	subtype="COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default=(0.0, 0.0, 0.0)
+# )
+
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr="reflect_color",
+# 	name="Reflection color",
+# 	description="Reflection color.",
+# 	subtype="COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default=(0.0, 0.0, 0.0)
+# )
+
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr='reflect_exit_color',
+# 	name="Reflection exit color",
+# 	description="Reflection exit color.",
+# 	subtype="COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default=(0.0, 0.0, 0.0)
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="fresnel",
+# 	name="Frensnel reflections",
+# 	description="Enable frensnel reflections.",
+# 	default= False
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="fresnel_ior_lock",
+# 	name="Frensnel reflections lock",
+# 	description="",
+# 	default= False
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr="fresnel_ior",
+# 	name="Fresnel IOR",
+# 	description="",
+# 	min=0.0, max=10.0,
+# 	soft_min=0.0, soft_max=10.0,
+# 	default= 1.6
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'refract_ior',
+# 	name= "Refractions IOR",
+# 	description= "The IOR for refractions.",
+# 	min=0.0, max=10.0,
+# 	soft_min=0.0, soft_max=10.0,
+# 	default= 1.6
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'reflect_subdivs',
+# 	name= "Reflection subdivs",
+# 	description= "Subdivs for glossy reflections",
+# 	min= 1,
+# 	max= 256,
+# 	default= 8
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'reflect_depth',
+# 	name= "Reflections depth",
+# 	description= "The maximum depth for reflections.",
+# 	min= 1,
+# 	max= 256,
+# 	default= 5
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'refract_depth',
+# 	name= "Refractions depth",
+# 	description= "The maximum depth for refractions.",
+# 	min= 1,
+# 	max= 256,
+# 	default= 5
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'refract_subdivs',
+# 	name= "Refraction subdivs",
+# 	description= "Subdivs for glossy refractions",
+# 	min= 1,
+# 	max= 256,
+# 	default= 8
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'roughness',
+# 	name= "Roughness",
+# 	description="",
+# 	min=0.0, max=1.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default=0.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'hilight_glossiness',
+# 	name= "Hilight glossiness",
+# 	description= "The glossiness of the hilights.",
+# 	min=0.0, max=1.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 1.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'reflect_glossiness',
+# 	name= "Reflection glossiness",
+# 	description= "The glossiness of the reflections.",
+# 	min=0.0, max=1.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 1.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'refract_glossiness',
+# 	name= "Refraction glossiness",
+# 	description= "The glossiness of the refractions.",
+# 	min=0.0, max=1.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 1.0
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="hilight_glossiness_lock",
+# 	name="Hilight glossiness lock",
+# 	description="",
+# 	default= True
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'hilight_soften',
+# 	name= "Hilight soften",
+# 	description= "How much to soften hilights and reflections at grazing light angles",
+# 	min= 0.0, max=1.0,
+# 	soft_min= 0.0, soft_max=1.0,
+# 	default= 0.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'reflect_dim_distance',
+# 	name= "reflect dim distance",
+# 	description= "How much to dim reflection as length of rays increases",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 1e+18
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr= 'reflect_dim_distance_on',
+# 	name= "reflect dim distance on",
+# 	description= "True to enable dim distance",
+# 	default= False
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'reflect_dim_distance_falloff',
+# 	name= "reflect dim distance falloff",
+# 	description= "Fall off for the dim distance",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 0
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'anisotropy_derivation',
+# 	name= "anisotropy derivation",
+# 	description= "What method to use for deriving anisotropy axes (0 - local object axis; 1 - a specified uvw generator)",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 0
+# )
+
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'anisotropy_axis',
+# 	name= "anisotropy axis",
+# 	description= "Which local object axis to use when anisotropy_derivation is 0",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 2
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="refract_affect_shadows",
+# 	name="Affect shadows",
+# 	description="",
+# 	default= False
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="refract_affect_alpha",
+# 	name="Affect alpha",
+# 	description="",
+# 	default= False
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'fog_mult',
+# 	name= "Fog multiplier",
+# 	description= "",
+# 	min= 0.0, max= 10.0,
+# 	soft_min= 0.0, soft_max= 1.0,
+# 	precision= 4,
+# 	default= 0.001
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr='fog_unit_scale_on',
+# 	name="Fog unit scale",
+# 	description="Enable unit scale multiplication, when calculating absorption",
+# 	default= True
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'fog_bias',
+# 	name= "Fog bias",
+# 	description= "",
+# 	min= -100.0, max= 100.0,
+# 	soft_min= -1.0, soft_max= 1.0,
+# 	precision= 4,
+# 	default= 0.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr="fog_ior",
+# 	name="Fog bias",
+# 	description="",
+# 	min=0.0, max=10.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 1.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr="anisotropy",
+# 	name="Anisotropy",
+# 	description="",
+# 	min=-1.0, max=1.0,
+# 	soft_min=-1.0, soft_max=1.0,
+# 	default= 0.0
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr="anisotropy_rotation",
+# 	name="Rotation",
+# 	description="Anisotropy rotation",
+# 	min=0.0, max=1.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 0.0
+# )
+
+# BRDFVRayMtl.EnumProperty(
+# 	attr='brdf_type',
+# 	name="BRDF type",
+# 	description="This determines the type of BRDF (the shape of the hilight).",
+# 	items=(
+# 		("PHONG", "Phong", "Phong hilight/reflections."),
+# 		("BLINN", "Blinn", "Blinn hilight/reflections."),
+# 		("WARD",  "Ward",  "Ward hilight/reflections.")
+# 	),
+# 	default= 'BLINN'
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="refract_trace",
+# 	name="Trace refractions",
+# 	description="",
+# 	default= True
+# )
+
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr= 'refract_exit_color',
+# 	name= "refract exit color",
+# 	description= "The color to use when maximum depth is reached when refract_exit_color_on is true",
+# 	subtype= "COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default= (0,0,0)
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr= 'refract_exit_color_on',
+# 	name= "refract exit color on",
+# 	description= "If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray",
+# 	default= False
+# )
+
+# BRDFVRayMtl.BoolProperty( 
+# 	attr= "reflect_trace", 
+# 	name= "Trace reflections", 
+# 	description= 'TODO.', 
+# 	default= True
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="option_reflect_on_back",
+# 	name="Reflect on back side",
+# 	description="",
+# 	default= False
+# )
+
+# BRDFVRayMtl.BoolProperty(
+# 	attr="option_double_sided",
+# 	name="Double-sided",
+# 	description="",
+# 	default= True
+# )
+
+# # option_option_glossy_rays_as_gi: integer (Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always)
+# BRDFVRayMtl.EnumProperty(
+# 	attr= 'option_glossy_rays_as_gi',
+# 	name= 'Glossy rays as GI',
+# 	description= "Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always",
+# 	items=(
+# 		("ALWAYS", "Always",            ""),
+# 		("GI",     "Only for GI rays",  ""),
+# 		("NEVER",  "Never",             "")
+# 	),
+# 	default= 'GI'
+# )
+
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'option_cutoff',
+# 	name= 'Cutoff',
+# 	description= "Specifies a cutoff threshold for tracing reflections/refractions",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 0.001
+# )
+
+# # option_option_use_irradiance_map: BRDFVRayMtl.Bool (false to perform local brute-force GI calculatons and true to use the current GI engine)
+# BRDFVRayMtl.BoolProperty(
+# 	attr= 'option_use_irradiance_map',
+# 	name= 'Use irradiance map',
+# 	description= "false to perform local brute-force GI calculatons and true to use the current GI engine",
+# 	default= True
+# )
+
+# # option_option_energy_mode: integer (Energy preservation mode for reflections and refractions (0 - color, 1 - monochrome))
+# BRDFVRayMtl.EnumProperty(
+# 	attr= 'option_energy_mode',
+# 	name= 'Energy mode',
+# 	description= "Energy preservation mode for reflections and refractions.",
+# 	items=(("MONO",  "Monochrome", ""),
+# 		   ("COLOR", "Color",      "")),
+# 	default= 'COLOR'
+# )
+
+# # environment_override: acolor texture (Environment override texture)
+
+# # environment_priority: integer (Environment override priority (used when several materials override it along a ray path))
+# BRDFVRayMtl.IntProperty(
+# 	attr= 'environment_priority',
+# 	name= "Environment priority",
+# 	description= "Environment override priority (used when several materials override it along a ray path)",
+# 	min= 0,
+# 	max= 10,
+# 	default= 0
+# )
+
+# # translucency: integer (Translucency mode (0 - none))
+# BRDFVRayMtl.EnumProperty(
+# 	attr= 'translucency',
+# 	name= "Translucency",
+# 	description= "Translucency mode",
+# 	items=(
+# 		("HYBRID", "Hybrid model",       ""),
+# 		("SOFT",   "Soft (water) model", ""),
+# 		("HARD",   "Hard (wax) model",   ""),
+# 		("NONE",   "None",               "")
+# 	),
+# 	default= 'NONE'
+# )
+
+# # translucency_color: acolor texture (Filter color for the translucency effect) = AColor(1, 1, 1, 1)
+# BRDFVRayMtl.FloatVectorProperty(
+# 	attr= 'translucency_color',
+# 	name= 'Translucency_color',
+# 	description= "Filter color for the translucency effect.",
+# 	subtype= "COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default= (1.0, 1.0, 1.0)
+# )
+
+# # translucency_light_mult: BRDFVRayMtl.Float (A multiplier for the calculated lighting for the translucency effect)
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'translucency_light_mult',
+# 	name= 'Translucency light mult',
+# 	description= "A multiplier for the calculated lighting for the translucency effect",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # translucency_scatter_dir: BRDFVRayMtl.Float (Scatter direction (0.0f is backward, 1.0f is forward))
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'translucency_scatter_dir',
+# 	name= 'Translucency scatter dir',
+# 	description= "Scatter direction (0.0 is backward, 1.0 is forward)",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 0.5
+# )
+
+# # translucency_scatter_coeff: BRDFVRayMtl.Float (Scattering cone (0.0f - no scattering, 1.0f - full scattering)
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'translucency_scatter_coeff',
+# 	name= 'Translucency scatter coeff',
+# 	description= "Scattering cone (0.0 - no scattering, 1.0 - full scattering",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 0
+# )
+
+# # translucency_thickness: BRDFVRayMtl.Float (Maximum distance to trace inside the object)
+# BRDFVRayMtl.FloatProperty(
+# 	attr= 'translucency_thickness',
+# 	name= 'Translucency thickness',
+# 	description= "Maximum distance to trace inside the object",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1e+18
+# )
+
+BRDFVRayMtl.fog_color= FloatVectorProperty(
+	name= "Fog color",
+	description= "Fog color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(1.0, 1.0, 1.0)
+	default= (1.0,1.0,1.0)
 )
 
-BRDFVRayMtl.FloatVectorProperty(
-	attr="refract_color",
-	name="Refraction color",
-	description="Refraction color.",
-	subtype="COLOR",
+BRDFVRayMtl.refract_color= FloatVectorProperty(
+	name= "Refraction color",
+	description= "Refraction color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-BRDFVRayMtl.FloatVectorProperty(
-	attr="reflect_color",
-	name="Reflection color",
-	description="Reflection color.",
-	subtype="COLOR",
+BRDFVRayMtl.reflect_color= FloatVectorProperty(
+	name= "Reflection color",
+	description= "Reflection color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-BRDFVRayMtl.FloatVectorProperty(
-	attr='reflect_exit_color',
-	name="Reflection exit color",
-	description="Reflection exit color.",
-	subtype="COLOR",
+BRDFVRayMtl.reflect_exit_color= FloatVectorProperty(
+	name= "Reflection exit color",
+	description= "Reflection exit color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="fresnel",
-	name="Frensnel reflections",
-	description="Enable frensnel reflections.",
+BRDFVRayMtl.fresnel= BoolProperty(
+	name= "Frensnel reflections",
+	description= "Enable frensnel reflections.",
 	default= False
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="fresnel_ior_lock",
-	name="Frensnel reflections lock",
-	description="",
+BRDFVRayMtl.fresnel_ior_lock= BoolProperty(
+	name= "Frensnel reflections lock",
+	description= "",
 	default= False
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr="fresnel_ior",
-	name="Fresnel IOR",
-	description="",
-	min=0.0, max=10.0,
-	soft_min=0.0, soft_max=10.0,
+BRDFVRayMtl.fresnel_ior= FloatProperty(
+	name= "Fresnel IOR",
+	description= "",
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
 	default= 1.6
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'refract_ior',
+BRDFVRayMtl.refract_ior= FloatProperty(
 	name= "Refractions IOR",
 	description= "The IOR for refractions.",
-	min=0.0, max=10.0,
-	soft_min=0.0, soft_max=10.0,
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
 	default= 1.6
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'reflect_subdivs',
+BRDFVRayMtl.reflect_subdivs= IntProperty(
 	name= "Reflection subdivs",
 	description= "Subdivs for glossy reflections",
 	min= 1,
@@ -189,8 +663,7 @@ BRDFVRayMtl.IntProperty(
 	default= 8
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'reflect_depth',
+BRDFVRayMtl.reflect_depth= IntProperty(
 	name= "Reflections depth",
 	description= "The maximum depth for reflections.",
 	min= 1,
@@ -198,8 +671,7 @@ BRDFVRayMtl.IntProperty(
 	default= 5
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'refract_depth',
+BRDFVRayMtl.refract_depth= IntProperty(
 	name= "Refractions depth",
 	description= "The maximum depth for refractions.",
 	min= 1,
@@ -207,8 +679,7 @@ BRDFVRayMtl.IntProperty(
 	default= 5
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'refract_subdivs',
+BRDFVRayMtl.refract_subdivs= IntProperty(
 	name= "Refraction subdivs",
 	description= "Subdivs for glossy refractions",
 	min= 1,
@@ -216,79 +687,69 @@ BRDFVRayMtl.IntProperty(
 	default= 8
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'roughness',
+BRDFVRayMtl.roughness= FloatProperty(
 	name= "Roughness",
-	description="",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.0
-)
-
-BRDFVRayMtl.FloatProperty(
-	attr= 'hilight_glossiness',
-	name= "Hilight glossiness",
-	description= "The glossiness of the hilights.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default= 1.0
-)
-
-BRDFVRayMtl.FloatProperty(
-	attr= 'reflect_glossiness',
-	name= "Reflection glossiness",
-	description= "The glossiness of the reflections.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default= 1.0
-)
-
-BRDFVRayMtl.FloatProperty(
-	attr= 'refract_glossiness',
-	name= "Refraction glossiness",
-	description= "The glossiness of the refractions.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default= 1.0
-)
-
-BRDFVRayMtl.BoolProperty(
-	attr="hilight_glossiness_lock",
-	name="Hilight glossiness lock",
-	description="",
-	default= True
-)
-
-BRDFVRayMtl.FloatProperty(
-	attr= 'hilight_soften',
-	name= "Hilight soften",
-	description= "How much to soften hilights and reflections at grazing light angles",
-	min= 0.0, max=1.0,
-	soft_min= 0.0, soft_max=1.0,
+	description= "",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	default= 0.0
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'reflect_dim_distance',
-	name= "reflect dim distance",
-	description= "How much to dim reflection as length of rays increases",
+BRDFVRayMtl.hilight_glossiness= FloatProperty(
+	name= "Hilight glossiness",
+	description= "The glossiness of the hilights.",
 	min= 0.0,
-	max= 100.0,
+	max= 1.0,
 	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 3,
-	default= 1e+18
+	soft_max= 1.0,
+	default= 1.0
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr= 'reflect_dim_distance_on',
+BRDFVRayMtl.reflect_glossiness= FloatProperty(
+	name= "Reflection glossiness",
+	description= "The glossiness of the reflections.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
+)
+
+BRDFVRayMtl.refract_glossiness= FloatProperty(
+	name= "Refraction glossiness",
+	description= "The glossiness of the refractions.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
+)
+
+BRDFVRayMtl.hilight_glossiness_lock= BoolProperty(
+	name= "Hilight glossiness lock",
+	description= "",
+	default= True
+)
+
+BRDFVRayMtl.hilight_soften= FloatProperty(
+	name= "Hilight soften",
+	description= "How much to soften hilights and reflections at grazing light angles",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.0
+)
+
+BRDFVRayMtl.reflect_dim_distance_on= BoolProperty(
 	name= "reflect dim distance on",
 	description= "True to enable dim distance",
 	default= False
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'reflect_dim_distance_falloff',
+BRDFVRayMtl.reflect_dim_distance_falloff= FloatProperty(
 	name= "reflect dim distance falloff",
 	description= "Fall off for the dim distance",
 	min= 0.0,
@@ -299,8 +760,7 @@ BRDFVRayMtl.FloatProperty(
 	default= 0
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'anisotropy_derivation',
+BRDFVRayMtl.anisotropy_derivation= IntProperty(
 	name= "anisotropy derivation",
 	description= "What method to use for deriving anisotropy axes (0 - local object axis; 1 - a specified uvw generator)",
 	min= 0,
@@ -310,8 +770,7 @@ BRDFVRayMtl.IntProperty(
 	default= 0
 )
 
-BRDFVRayMtl.IntProperty(
-	attr= 'anisotropy_axis',
+BRDFVRayMtl.anisotropy_axis= IntProperty(
 	name= "anisotropy axis",
 	description= "Which local object axis to use when anisotropy_derivation is 0",
 	min= 0,
@@ -321,98 +780,97 @@ BRDFVRayMtl.IntProperty(
 	default= 2
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="refract_affect_shadows",
-	name="Affect shadows",
-	description="",
+BRDFVRayMtl.refract_affect_shadows= BoolProperty(
+	name= "Affect shadows",
+	description= "",
 	default= False
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="refract_affect_alpha",
-	name="Affect alpha",
-	description="",
+BRDFVRayMtl.refract_affect_alpha= BoolProperty(
+	name= "Affect alpha",
+	description= "",
 	default= False
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'fog_mult',
+BRDFVRayMtl.fog_mult= FloatProperty(
 	name= "Fog multiplier",
 	description= "",
-	min= 0.0, max= 10.0,
-	soft_min= 0.0, soft_max= 1.0,
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	precision= 4,
 	default= 0.001
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr='fog_unit_scale_on',
-	name="Fog unit scale",
-	description="Enable unit scale multiplication, when calculating absorption",
+BRDFVRayMtl.fog_unit_scale_on= BoolProperty(
+	name= "Fog unit scale",
+	description= "Enable unit scale multiplication, when calculating absorption",
 	default= True
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'fog_bias',
+BRDFVRayMtl.fog_bias= FloatProperty(
 	name= "Fog bias",
 	description= "",
-	min= -100.0, max= 100.0,
-	soft_min= -1.0, soft_max= 1.0,
+	min= -100.0,
+	max= 100.0,
+	soft_min= -1.0,
+	soft_max= 1.0,
 	precision= 4,
 	default= 0.0
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr="fog_ior",
-	name="Fog bias",
-	description="",
-	min=0.0, max=10.0,
-	soft_min=0.0, soft_max=1.0,
+BRDFVRayMtl.fog_ior= FloatProperty(
+	name= "Fog bias",
+	description= "",
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr="anisotropy",
-	name="Anisotropy",
-	description="",
-	min=-1.0, max=1.0,
-	soft_min=-1.0, soft_max=1.0,
+BRDFVRayMtl.anisotropy= FloatProperty(
+	name= "Anisotropy",
+	description= "",
+	min= -1.0,
+	max= 1.0,
+	soft_min= -1.0,
+	soft_max= 1.0,
 	default= 0.0
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr="anisotropy_rotation",
-	name="Rotation",
-	description="Anisotropy rotation",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
+BRDFVRayMtl.anisotropy_rotation= FloatProperty(
+	name= "Rotation",
+	description= "Anisotropy rotation",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	default= 0.0
 )
 
-BRDFVRayMtl.EnumProperty(
-	attr='brdf_type',
-	name="BRDF type",
-	description="This determines the type of BRDF (the shape of the hilight).",
-	items=(
-		("PHONG", "Phong", "Phong hilight/reflections."),
-		("BLINN", "Blinn", "Blinn hilight/reflections."),
-		("WARD",  "Ward",  "Ward hilight/reflections.")
+BRDFVRayMtl.brdf_type= EnumProperty(
+	name= "BRDF type",
+	description= "This determines the type of BRDF (the shape of the hilight).",
+	items= (
+		('PHONG',"Phong","Phong hilight/reflections."),
+		('BLINN',"Blinn","Blinn hilight/reflections."),
+		('WARD',"Ward","Ward hilight/reflections.")
 	),
 	default= 'BLINN'
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="refract_trace",
-	name="Trace refractions",
-	description="",
+BRDFVRayMtl.refract_trace= BoolProperty(
+	name= "Trace refractions",
+	description= "",
 	default= True
 )
 
-BRDFVRayMtl.FloatVectorProperty(
-	attr= 'refract_exit_color',
+BRDFVRayMtl.refract_exit_color= FloatVectorProperty(
 	name= "refract exit color",
 	description= "The color to use when maximum depth is reached when refract_exit_color_on is true",
-	subtype= "COLOR",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -420,50 +878,43 @@ BRDFVRayMtl.FloatVectorProperty(
 	default= (0,0,0)
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr= 'refract_exit_color_on',
+BRDFVRayMtl.refract_exit_color_on= BoolProperty(
 	name= "refract exit color on",
 	description= "If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray",
 	default= False
 )
 
-BRDFVRayMtl.BoolProperty( 
-	attr= "reflect_trace", 
-	name= "Trace reflections", 
-	description= 'TODO.', 
+BRDFVRayMtl.reflect_trace= BoolProperty(
+	name= "Trace reflections",
+	description= 'TODO.',
 	default= True
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="option_reflect_on_back",
-	name="Reflect on back side",
-	description="",
+BRDFVRayMtl.option_reflect_on_back= BoolProperty(
+	name= "Reflect on back side",
+	description= "",
 	default= False
 )
 
-BRDFVRayMtl.BoolProperty(
-	attr="option_double_sided",
-	name="Double-sided",
-	description="",
+BRDFVRayMtl.option_double_sided= BoolProperty(
+	name= "Double-sided",
+	description= "",
 	default= True
 )
 
-# option_option_glossy_rays_as_gi: integer (Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always)
-BRDFVRayMtl.EnumProperty(
-	attr= 'option_glossy_rays_as_gi',
-	name= 'Glossy rays as GI',
+BRDFVRayMtl.option_glossy_rays_as_gi= EnumProperty(
+	name= "Glossy rays as GI",
 	description= "Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always",
-	items=(
-		("ALWAYS", "Always",            ""),
-		("GI",     "Only for GI rays",  ""),
-		("NEVER",  "Never",             "")
+	items= (
+		('ALWAYS',"Always",""),
+		('GI',"Only for GI rays",""),
+		('NEVER',"Never","")
 	),
 	default= 'GI'
 )
 
-BRDFVRayMtl.FloatProperty(
-	attr= 'option_cutoff',
-	name= 'Cutoff',
+BRDFVRayMtl.option_cutoff= FloatProperty(
+	name= "Cutoff",
 	description= "Specifies a cutoff threshold for tracing reflections/refractions",
 	min= 0.0,
 	max= 1.0,
@@ -473,29 +924,23 @@ BRDFVRayMtl.FloatProperty(
 	default= 0.001
 )
 
-# option_option_use_irradiance_map: BRDFVRayMtl.Bool (false to perform local brute-force GI calculatons and true to use the current GI engine)
-BRDFVRayMtl.BoolProperty(
-	attr= 'option_use_irradiance_map',
-	name= 'Use irradiance map',
+BRDFVRayMtl.option_use_irradiance_map= BoolProperty(
+	name= "Use irradiance map",
 	description= "false to perform local brute-force GI calculatons and true to use the current GI engine",
 	default= True
 )
 
-# option_option_energy_mode: integer (Energy preservation mode for reflections and refractions (0 - color, 1 - monochrome))
-BRDFVRayMtl.EnumProperty(
-	attr= 'option_energy_mode',
-	name= 'Energy mode',
+BRDFVRayMtl.option_energy_mode= EnumProperty(
+	name= "Energy mode",
 	description= "Energy preservation mode for reflections and refractions.",
-	items=(("MONO",  "Monochrome", ""),
-		   ("COLOR", "Color",      "")),
+	items= (
+		('MONO',"Monochrome",""),
+		('COLOR',"Color","")
+	),
 	default= 'COLOR'
 )
 
-# environment_override: acolor texture (Environment override texture)
-
-# environment_priority: integer (Environment override priority (used when several materials override it along a ray path))
-BRDFVRayMtl.IntProperty(
-	attr= 'environment_priority',
+BRDFVRayMtl.environment_priority= IntProperty(
 	name= "Environment priority",
 	description= "Environment override priority (used when several materials override it along a ray path)",
 	min= 0,
@@ -503,37 +948,31 @@ BRDFVRayMtl.IntProperty(
 	default= 0
 )
 
-# translucency: integer (Translucency mode (0 - none))
-BRDFVRayMtl.EnumProperty(
-	attr= 'translucency',
+BRDFVRayMtl.translucency= EnumProperty(
 	name= "Translucency",
 	description= "Translucency mode",
-	items=(
-		("HYBRID", "Hybrid model",       ""),
-		("SOFT",   "Soft (water) model", ""),
-		("HARD",   "Hard (wax) model",   ""),
-		("NONE",   "None",               "")
+	items= (
+		('HYBRID',"Hybrid model",""),
+		('SOFT',"Soft (water) model",""),
+		('HARD',"Hard (wax) model",""),
+		('NONE',"None","")
 	),
 	default= 'NONE'
 )
 
-# translucency_color: acolor texture (Filter color for the translucency effect) = AColor(1, 1, 1, 1)
-BRDFVRayMtl.FloatVectorProperty(
-	attr= 'translucency_color',
-	name= 'Translucency_color',
+BRDFVRayMtl.translucency_color= FloatVectorProperty(
+	name= "Translucency_color",
 	description= "Filter color for the translucency effect.",
-	subtype= "COLOR",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default= (1.0, 1.0, 1.0)
+	default= (1.0,1.0,1.0)
 )
 
-# translucency_light_mult: BRDFVRayMtl.Float (A multiplier for the calculated lighting for the translucency effect)
-BRDFVRayMtl.FloatProperty(
-	attr= 'translucency_light_mult',
-	name= 'Translucency light mult',
+BRDFVRayMtl.translucency_light_mult= FloatProperty(
+	name= "Translucency light mult",
 	description= "A multiplier for the calculated lighting for the translucency effect",
 	min= 0.0,
 	max= 1.0,
@@ -543,10 +982,8 @@ BRDFVRayMtl.FloatProperty(
 	default= 1
 )
 
-# translucency_scatter_dir: BRDFVRayMtl.Float (Scatter direction (0.0f is backward, 1.0f is forward))
-BRDFVRayMtl.FloatProperty(
-	attr= 'translucency_scatter_dir',
-	name= 'Translucency scatter dir',
+BRDFVRayMtl.translucency_scatter_dir= FloatProperty(
+	name= "Translucency scatter dir",
 	description= "Scatter direction (0.0 is backward, 1.0 is forward)",
 	min= 0.0,
 	max= 1.0,
@@ -556,10 +993,8 @@ BRDFVRayMtl.FloatProperty(
 	default= 0.5
 )
 
-# translucency_scatter_coeff: BRDFVRayMtl.Float (Scattering cone (0.0f - no scattering, 1.0f - full scattering)
-BRDFVRayMtl.FloatProperty(
-	attr= 'translucency_scatter_coeff',
-	name= 'Translucency scatter coeff',
+BRDFVRayMtl.translucency_scatter_coeff= FloatProperty(
+	name= "Translucency scatter coeff",
 	description= "Scattering cone (0.0 - no scattering, 1.0 - full scattering",
 	min= 0.0,
 	max= 1.0,
@@ -567,19 +1002,6 @@ BRDFVRayMtl.FloatProperty(
 	soft_max= 1.0,
 	precision= 3,
 	default= 0
-)
-
-# translucency_thickness: BRDFVRayMtl.Float (Maximum distance to trace inside the object)
-BRDFVRayMtl.FloatProperty(
-	attr= 'translucency_thickness',
-	name= 'Translucency thickness',
-	description= "Maximum distance to trace inside the object",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1e+18
 )
 
 
@@ -590,66 +1012,50 @@ BRDFVRayMtl.FloatProperty(
 class MtlRenderStats(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'MtlRenderStats',
-	type=  MtlRenderStats,
+VRayMaterial.MtlRenderStats= PointerProperty(
 	name= "MtlRenderStats",
+	type=  MtlRenderStats,
 	description= "V-Ray MtlRenderStats settings"
 )
 
-MtlRenderStats.BoolProperty(
-	attr= 'use',
+MtlRenderStats.use= BoolProperty(
 	name= "Use material render options",
 	description= "Use material render options.",
 	default= False
 )
 
-# base_mtl: plugin (Base material)
-
-# camera_visibility: bool
-MtlRenderStats.BoolProperty(
-	attr= 'camera_visibility',
-	name= 'Camera visibility',
+MtlRenderStats.camera_visibility= BoolProperty(
+	name= "Camera visibility",
 	description= "TODO.",
 	default= True
 )
 
-# reflections_visibility: MtlRenderStats.Bool
-MtlRenderStats.BoolProperty(
-	attr= 'reflections_visibility',
-	name= 'Reflections visibility',
+MtlRenderStats.reflections_visibility= BoolProperty(
+	name= "Reflections visibility",
 	description= "TODO.",
 	default= True
 )
 
-# refractions_visibility: MtlRenderStats.Bool
-MtlRenderStats.BoolProperty(
-	attr= 'refractions_visibility',
-	name= 'Refractions visibility',
+MtlRenderStats.refractions_visibility= BoolProperty(
+	name= "Refractions visibility",
 	description= "TODO.",
 	default= True
 )
 
-# gi_visibility: MtlRenderStats.Bool
-MtlRenderStats.BoolProperty(
-	attr= 'gi_visibility',
-	name= 'GI visibility',
+MtlRenderStats.gi_visibility= BoolProperty(
+	name= "GI visibility",
 	description= "TODO.",
 	default= True
 )
 
-# shadows_visibility: MtlRenderStats.Bool
-MtlRenderStats.BoolProperty(
-	attr= 'shadows_visibility',
-	name= 'Shadows visibility',
+MtlRenderStats.shadows_visibility= BoolProperty(
+	name= "Shadows visibility",
 	description= "TODO.",
 	default= True
 )
 
-# visibility: float (Overall visibility)
-MtlRenderStats.BoolProperty(
-	attr= 'visibility',
-	name= 'Overall visibility',
+MtlRenderStats.visibility= BoolProperty(
+	name= "Overall visibility",
 	description= "TODO.",
 	default= True
 )
@@ -661,31 +1067,27 @@ MtlRenderStats.BoolProperty(
 class BRDFLight(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'BRDFLight',
-	type=  BRDFLight,
+VRayMaterial.BRDFLight= PointerProperty(
 	name= "BRDFLight",
+	type=  BRDFLight,
 	description= "V-Ray BRDFLight settings"
 )
 
-BRDFLight.BoolProperty( 
-	attr= 'doubleSided',
+BRDFLight.doubleSided= BoolProperty(
 	name= "Double-sided",
 	description= "If false, the light color is black for back-facing surfaces.",
 	default= False
 )
 
-BRDFLight.BoolProperty( 
-	attr= "emitOnBackSide", 
-	name= "Emit on back side", 
-	description= 'TODO.', 
+BRDFLight.emitOnBackSide= BoolProperty(
+	name= "Emit on back side",
+	description= 'TODO.',
 	default= False
 )
 
-BRDFLight.BoolProperty( 
-	attr= "compensateExposure", 
-	name= "Compensate camera exposure", 
-	description= 'TODO.', 
+BRDFLight.compensateExposure= BoolProperty(
+	name= "Compensate camera exposure",
+	description= 'TODO.',
 	default= False
 )
 
@@ -696,273 +1098,513 @@ BRDFLight.BoolProperty(
 class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'BRDFSSS2Complex',
-	type=  BRDFSSS2Complex,
+VRayMaterial.BRDFSSS2Complex= PointerProperty(
 	name= "BRDFSSS2Complex",
+	type=  BRDFSSS2Complex,
 	description= "V-Ray BRDFSSS2Complex settings"
 )
 
-BRDFSSS2Complex.IntProperty(
-	attr= "prepass_rate",
-	name= "Prepass rate", 
-	description= "Sampling density for the illumination map.", 
-	min= -10, 
-	max=  10, 
+# BRDFSSS2Complex.IntProperty(
+# 	attr= "prepass_rate",
+# 	name= "Prepass rate", 
+# 	description= "Sampling density for the illumination map.", 
+# 	min= -10, 
+# 	max=  10, 
+# 	default= -1
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "interpolation_accuracy", 
+# 	name= "Interpolation accuracy", 
+# 	description= "Interpolation accuracy for the illumination map; normally 1.0 is fine.", 
+# 	min= 0.0, 
+# 	max= 10.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 10.0, 
+# 	precision= 3, 
+# 	default= 1.0
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "scale", 
+# 	name= "Scale", 
+# 	description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle.", 
+# 	min= 0.0, 
+# 	max= 1000.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1000.0, 
+# 	precision= 4, 
+# 	default= 1
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= 'ior', 
+# 	name= "IOR", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 10.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 10.0, 
+# 	precision= 3, 
+# 	default= 1.5
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "diffuse_amount", 
+# 	name= "Diffuse amount", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 100.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 10.0, 
+# 	precision= 3, 
+# 	default= 0.0
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "scatter_radius_mult", 
+# 	name= "Scatter radius", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 100.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 10.0, 
+# 	precision= 3, 
+# 	default= 1.0
+# )
+
+# BRDFSSS2Complex.FloatVectorProperty( 
+# 	attr= "overall_color", 
+# 	name= "Overall color", 
+# 	description= 'TODO.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (1.0, 1.0, 1.0)
+# )
+
+# BRDFSSS2Complex.FloatVectorProperty( 
+# 	attr= "diffuse_color", 
+# 	name= "Diffuse color", 
+# 	description= 'TODO.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (0.5, 0.5, 0.5)
+# )
+
+# BRDFSSS2Complex.FloatVectorProperty( 
+# 	attr= "sub_surface_color", 
+# 	name= "Sub surface color", 
+# 	description= 'TODO.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (0.5, 0.5, 0.5)
+# )
+
+# BRDFSSS2Complex.FloatVectorProperty( 
+# 	attr= "scatter_radius", 
+# 	name= "Scatter radius", 
+# 	description= 'TODO.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (0.92, 0.52, 0.175)
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "phase_function", 
+# 	name= "Phase function", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	precision= 3, 
+# 	default= 0
+# )
+
+# BRDFSSS2Complex.FloatVectorProperty( 
+# 	attr= "specular_color", 
+# 	name= "Specular color", 
+# 	description= 'TODO.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (1.0, 1.0, 1.0)
+# )
+
+# BRDFSSS2Complex.IntProperty( 
+# 	attr= "specular_subdivs", 
+# 	name= "Specular subdivs", 
+# 	description= 'TODO.', 
+# 	min= 0, 
+# 	max= 10, 
+# 	default= 8
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "specular_amount", 
+# 	name= "Specular amount", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	precision= 3, 
+# 	default= 1
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "specular_glossiness", 
+# 	name= "Specular glossiness", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	precision= 3, 
+# 	default= 0.6
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "cutoff_threshold", 
+# 	name= "Cutoff threshold", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	precision= 3, 
+# 	default= 0.01
+# )
+
+# BRDFSSS2Complex.BoolProperty(
+# 	attr= 'trace_reflections',
+# 	name= "Trace reflections",
+# 	description= "TODO.",
+# 	default= True
+# )
+
+# BRDFSSS2Complex.IntProperty( 
+# 	attr= "reflection_depth", 
+# 	name= "Reflection depth", 
+# 	description= 'TODO.', 
+# 	min= 0, 
+# 	max= 10, 
+# 	default= 5
+# )
+
+# BRDFSSS2Complex.EnumProperty(
+# 	attr="single_scatter",
+# 	name="Single scatter",
+# 	description= 'TODO.', 
+# 	items=(
+# 		("NONE",   "None",                    ""),
+# 		("SIMPLE", "Simple",                  ""),
+# 		("SOLID",  "Raytraced (solid)",       ""),
+# 		("REFR",   "Raytraced (refractive)",  "")
+# 	),
+# 	default= "SIMPLE"
+# )
+
+# BRDFSSS2Complex.IntProperty( 
+# 	attr= "subdivs", 
+# 	name= "Subdivs", 
+# 	description= 'TODO.', 
+# 	min= 0, 
+# 	max= 10, 
+# 	default= 8
+# )
+
+# BRDFSSS2Complex.IntProperty( 
+# 	attr= "refraction_depth", 
+# 	name= "Refraction depth", 
+# 	description= 'TODO.', 
+# 	min= 0, 
+# 	max= 10, 
+# 	default= 5
+# )
+
+# BRDFSSS2Complex.BoolProperty( 
+# 	attr= "front_scatter", 
+# 	name= "Front scatter", 
+# 	description= 'TODO.', 
+# 	default= True
+# )
+
+# BRDFSSS2Complex.BoolProperty( 
+# 	attr= "back_scatter", 
+# 	name= "Back scatter", 
+# 	description= 'TODO.', 
+# 	default= True
+# )
+
+# BRDFSSS2Complex.BoolProperty( 
+# 	attr= "scatter_gi", 
+# 	name= "Scatter GI", 
+# 	description= 'TODO.', 
+# 	default= False
+# )
+
+# BRDFSSS2Complex.FloatProperty(
+# 	attr= "prepass_blur", 
+# 	name= "Prepass blur", 
+# 	description= 'TODO.', 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1.2
+# )
+
+BRDFSSS2Complex.prepass_rate= IntProperty(
+	name= "Prepass rate",
+	description= "Sampling density for the illumination map.",
+	min= -10,
+	max= 10,
 	default= -1
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "interpolation_accuracy", 
-	name= "Interpolation accuracy", 
-	description= "Interpolation accuracy for the illumination map; normally 1.0 is fine.", 
-	min= 0.0, 
-	max= 10.0, 
-	soft_min= 0.0, 
-	soft_max= 10.0, 
-	precision= 3, 
+BRDFSSS2Complex.interpolation_accuracy= FloatProperty(
+	name= "Interpolation accuracy",
+	description= "Interpolation accuracy for the illumination map; normally 1.0 is fine.",
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
 	default= 1.0
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "scale", 
-	name= "Scale", 
-	description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle.", 
-	min= 0.0, 
-	max= 1000.0, 
-	soft_min= 0.0, 
-	soft_max= 1000.0, 
-	precision= 4, 
+BRDFSSS2Complex.scale= FloatProperty(
+	name= "Scale",
+	description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle.",
+	min= 0.0,
+	max= 1000.0,
+	soft_min= 0.0,
+	soft_max= 1000.0,
+	precision= 4,
 	default= 1
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= 'ior', 
-	name= "IOR", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 10.0, 
-	soft_min= 0.0, 
-	soft_max= 10.0, 
-	precision= 3, 
+BRDFSSS2Complex.ior= FloatProperty(
+	name= "IOR",
+	description= 'TODO.',
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
 	default= 1.5
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "diffuse_amount", 
-	name= "Diffuse amount", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 10.0, 
-	precision= 3, 
+BRDFSSS2Complex.diffuse_amount= FloatProperty(
+	name= "Diffuse amount",
+	description= 'TODO.',
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
 	default= 0.0
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "scatter_radius_mult", 
-	name= "Scatter radius", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 10.0, 
-	precision= 3, 
+BRDFSSS2Complex.scatter_radius_mult= FloatProperty(
+	name= "Scatter radius",
+	description= 'TODO.',
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
 	default= 1.0
 )
 
-BRDFSSS2Complex.FloatVectorProperty( 
-	attr= "overall_color", 
-	name= "Overall color", 
-	description= 'TODO.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (1.0, 1.0, 1.0)
+BRDFSSS2Complex.overall_color= FloatVectorProperty(
+	name= "Overall color",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1.0,1.0,1.0)
 )
 
-BRDFSSS2Complex.FloatVectorProperty( 
-	attr= "diffuse_color", 
-	name= "Diffuse color", 
-	description= 'TODO.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (0.5, 0.5, 0.5)
+BRDFSSS2Complex.diffuse_color= FloatVectorProperty(
+	name= "Diffuse color",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.5,0.5,0.5)
 )
 
-BRDFSSS2Complex.FloatVectorProperty( 
-	attr= "sub_surface_color", 
-	name= "Sub surface color", 
-	description= 'TODO.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (0.5, 0.5, 0.5)
+BRDFSSS2Complex.sub_surface_color= FloatVectorProperty(
+	name= "Sub surface color",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.5,0.5,0.5)
 )
 
-BRDFSSS2Complex.FloatVectorProperty( 
-	attr= "scatter_radius", 
-	name= "Scatter radius", 
-	description= 'TODO.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (0.92, 0.52, 0.175)
+BRDFSSS2Complex.scatter_radius= FloatVectorProperty(
+	name= "Scatter radius",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.92,0.52,0.175)
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "phase_function", 
-	name= "Phase function", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	precision= 3, 
+BRDFSSS2Complex.phase_function= FloatProperty(
+	name= "Phase function",
+	description= 'TODO.',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
 	default= 0
 )
 
-BRDFSSS2Complex.FloatVectorProperty( 
-	attr= "specular_color", 
-	name= "Specular color", 
-	description= 'TODO.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (1.0, 1.0, 1.0)
+BRDFSSS2Complex.specular_color= FloatVectorProperty(
+	name= "Specular color",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1.0,1.0,1.0)
 )
 
-BRDFSSS2Complex.IntProperty( 
-	attr= "specular_subdivs", 
-	name= "Specular subdivs", 
-	description= 'TODO.', 
-	min= 0, 
-	max= 10, 
+BRDFSSS2Complex.specular_subdivs= IntProperty(
+	name= "Specular subdivs",
+	description= 'TODO.',
+	min= 0,
+	max= 10,
 	default= 8
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "specular_amount", 
-	name= "Specular amount", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	precision= 3, 
+BRDFSSS2Complex.specular_amount= FloatProperty(
+	name= "Specular amount",
+	description= 'TODO.',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
 	default= 1
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "specular_glossiness", 
-	name= "Specular glossiness", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	precision= 3, 
+BRDFSSS2Complex.specular_glossiness= FloatProperty(
+	name= "Specular glossiness",
+	description= 'TODO.',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
 	default= 0.6
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "cutoff_threshold", 
-	name= "Cutoff threshold", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	precision= 3, 
+BRDFSSS2Complex.cutoff_threshold= FloatProperty(
+	name= "Cutoff threshold",
+	description= 'TODO.',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
 	default= 0.01
 )
 
-BRDFSSS2Complex.BoolProperty(
-	attr= 'trace_reflections',
+BRDFSSS2Complex.trace_reflections= BoolProperty(
 	name= "Trace reflections",
 	description= "TODO.",
 	default= True
 )
 
-BRDFSSS2Complex.IntProperty( 
-	attr= "reflection_depth", 
-	name= "Reflection depth", 
-	description= 'TODO.', 
-	min= 0, 
-	max= 10, 
+BRDFSSS2Complex.reflection_depth= IntProperty(
+	name= "Reflection depth",
+	description= 'TODO.',
+	min= 0,
+	max= 10,
 	default= 5
 )
 
-BRDFSSS2Complex.EnumProperty(
-	attr="single_scatter",
-	name="Single scatter",
-	description= 'TODO.', 
-	items=(
-		("NONE",   "None",                    ""),
-		("SIMPLE", "Simple",                  ""),
-		("SOLID",  "Raytraced (solid)",       ""),
-		("REFR",   "Raytraced (refractive)",  "")
+BRDFSSS2Complex.single_scatter= EnumProperty(
+	name= "Single scatter",
+	description= 'TODO.',
+	items= (
+		('NONE',"None",""),
+		('SIMPLE',"Simple",""),
+		('SOLID',"Raytraced (solid)",""),
+		('REFR',"Raytraced (refractive)","")
 	),
 	default= "SIMPLE"
 )
 
-BRDFSSS2Complex.IntProperty( 
-	attr= "subdivs", 
-	name= "Subdivs", 
-	description= 'TODO.', 
-	min= 0, 
-	max= 10, 
+BRDFSSS2Complex.subdivs= IntProperty(
+	name= "Subdivs",
+	description= 'TODO.',
+	min= 0,
+	max= 10,
 	default= 8
 )
 
-BRDFSSS2Complex.IntProperty( 
-	attr= "refraction_depth", 
-	name= "Refraction depth", 
-	description= 'TODO.', 
-	min= 0, 
-	max= 10, 
+BRDFSSS2Complex.refraction_depth= IntProperty(
+	name= "Refraction depth",
+	description= 'TODO.',
+	min= 0,
+	max= 10,
 	default= 5
 )
 
-BRDFSSS2Complex.BoolProperty( 
-	attr= "front_scatter", 
-	name= "Front scatter", 
-	description= 'TODO.', 
+BRDFSSS2Complex.front_scatter= BoolProperty(
+	name= "Front scatter",
+	description= 'TODO.',
 	default= True
 )
 
-BRDFSSS2Complex.BoolProperty( 
-	attr= "back_scatter", 
-	name= "Back scatter", 
-	description= 'TODO.', 
+BRDFSSS2Complex.back_scatter= BoolProperty(
+	name= "Back scatter",
+	description= 'TODO.',
 	default= True
 )
 
-BRDFSSS2Complex.BoolProperty( 
-	attr= "scatter_gi", 
-	name= "Scatter GI", 
-	description= 'TODO.', 
+BRDFSSS2Complex.scatter_gi= BoolProperty(
+	name= "Scatter GI",
+	description= 'TODO.',
 	default= False
 )
 
-BRDFSSS2Complex.FloatProperty(
-	attr= "prepass_blur", 
-	name= "Prepass blur", 
-	description= 'TODO.', 
-	min= 0.0, 
-	max= 1.0, 
+BRDFSSS2Complex.prepass_blur= FloatProperty(
+	name= "Prepass blur",
+	description= 'TODO.',
+	min= 0.0,
+	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
 	precision= 3,
@@ -977,26 +1619,247 @@ BRDFSSS2Complex.FloatProperty(
 class MtlWrapper(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'MtlWrapper',
-	type=  MtlWrapper,
+VRayMaterial.MtlWrapper= PointerProperty(
 	name= "MtlWrapper",
+	type=  MtlWrapper,
 	description= "V-Ray MtlWrapper settings"
 )
 
-MtlWrapper.BoolProperty(
-	attr= 'use',
+# MtlWrapper.BoolProperty(
+# 	attr= 'use',
+# 	name= "Use material wrapper",
+# 	description= "Use material wrapper options.",
+# 	default= False
+# )
+
+# # base_material: plugin (The base material)
+
+# # generate_gi: float (Controls the GI generated by the material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'generate_gi',
+# 	name= 'Generate GI',
+# 	description= "Controls the GI generated by the material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # receive_gi: float (Controls the GI received by the material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'receive_gi',
+# 	name= 'Receive GI',
+# 	description= "Controls the GI received by the material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # generate_caustics: float (Controls the caustics generated by the material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'generate_caustics',
+# 	name= 'Generate caustics',
+# 	description= "Controls the caustics generated by the material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # receive_caustics: float (Controls the caustics received by the material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'receive_caustics',
+# 	name= 'Receive caustics',
+# 	description= "Controls the caustics received by the material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # alpha_contribution: float (The contribution of the resulting color to the alpha channel.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'alpha_contribution',
+# 	name= 'Alpha contribution',
+# 	description= "The contribution of the resulting color to the alpha channel.",
+# 	min= -1.0,
+# 	max= 1.0,
+# 	soft_min= -1.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # matte_surface: bool (Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.)
+# MtlWrapper.BoolProperty(
+# 	attr= 'matte_surface',
+# 	name= 'Matte surface',
+# 	description= "Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.",
+# 	default= False
+# )
+
+# # shadows: bool (Turn this on to make shadow visible on the matter surface.)
+# MtlWrapper.BoolProperty(
+# 	attr= 'shadows',
+# 	name= 'Shadows',
+# 	description= "Turn this on to make shadow visible on the matter surface.",
+# 	default= False
+# )
+
+# # affect_alpha: bool (Turn this on to make shadows affect the alpha contribution of the matte surface.)
+# MtlWrapper.BoolProperty(
+# 	attr= 'affect_alpha',
+# 	name= 'Affect alpha',
+# 	description= "Turn this on to make shadows affect the alpha contribution of the matte surface.",
+# 	default= False
+# )
+
+# # shadow_tint_color: color (Tint for the shadows on the matte surface.) = Color(0, 0, 0)
+# MtlWrapper.FloatVectorProperty( 
+# 	attr= "shadow_tint_color", 
+# 	name= "Shadow tint color", 
+# 	description= 'Tint for the shadows on the matte surface.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (0.0, 0.0, 0.0)
+# )
+
+# # shadow_brightness: float (An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'shadow_brightness',
+# 	name= 'Shadow brightness',
+# 	description= "An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # reflection_amount: float (Shows the reflections of the base material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'reflection_amount',
+# 	name= 'Reflection amount',
+# 	description= "Shows the reflections of the base material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # refraction_amount: float (Shows the refractions of the base material.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'refraction_amount',
+# 	name= 'Refraction amount',
+# 	description= "Shows the refractions of the base material.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # gi_amount: float (Determines the amount of gi shadows.)
+# MtlWrapper.FloatProperty(
+# 	attr= 'gi_amount',
+# 	name= 'GI amount',
+# 	description= "Determines the amount of gi shadows.",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # no_gi_on_other_mattes: bool (This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.)
+# MtlWrapper.BoolProperty(
+# 	attr= 'no_gi_on_other_mattes',
+# 	name= 'No gi on other mattes',
+# 	description= "This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.",
+# 	default= True
+# )
+
+# # matte_for_secondary_rays: bool (Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc))
+# MtlWrapper.BoolProperty(
+# 	attr= 'matte_for_secondary_rays',
+# 	name= 'Matte for secondary rays',
+# 	description= "Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc)",
+# 	default= False
+# )
+
+# # gi_surface_id: integer (If two objects have different GI surface ids, the light cache samples of the two objects will not be blended)
+# MtlWrapper.IntProperty(
+# 	attr= 'gi_surface_id',
+# 	name= 'GI surface id',
+# 	description= "If two objects have different GI surface ids, the light cache samples of the two objects will not be blended",
+# 	min= 0,
+# 	max= 10,
+# 	default= 0
+# )
+
+# # gi_quality_multiplier: float (A multiplier for GI quality)
+# MtlWrapper.FloatProperty(
+# 	attr= 'gi_quality_multiplier',
+# 	name= 'GI quality multiplier',
+# 	description= "A multiplier for GI quality",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	precision= 3,
+# 	default= 1
+# )
+
+# # reflection_filter_tex: acolor texture = AColor(1, 1, 1, 1)
+# MtlWrapper.FloatVectorProperty( 
+# 	attr= "reflection_filter_tex", 
+# 	name= "Reflection filter",
+# 	description= 'Reflection filter.', 
+# 	subtype= "COLOR", 
+# 	min= 0.0, 
+# 	max= 1.0, 
+# 	soft_min= 0.0, 
+# 	soft_max= 1.0, 
+# 	default= (1.0, 1.0, 1.0)
+# )
+
+# # trace_depth: integer (The maximum reflection depth (-1 is controlled by the global options))
+# MtlWrapper.IntProperty(
+# 	attr= 'trace_depth',
+# 	name= 'Trace depth',
+# 	description= "The maximum reflection depth (-1 is controlled by the global options)",
+# 	min= -1,
+# 	max= 1000,
+# 	default= -1
+# )
+
+# # channels: plugin (Render channels the result of this BRDF will be written to), unlimited list
+
+MtlWrapper.use= BoolProperty(
 	name= "Use material wrapper",
 	description= "Use material wrapper options.",
 	default= False
 )
 
-# base_material: plugin (The base material)
-
-# generate_gi: float (Controls the GI generated by the material.)
-MtlWrapper.FloatProperty(
-	attr= 'generate_gi',
-	name= 'Generate GI',
+MtlWrapper.generate_gi= FloatProperty(
+	name= "Generate GI",
 	description= "Controls the GI generated by the material.",
 	min= 0.0,
 	max= 1.0,
@@ -1006,10 +1869,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# receive_gi: float (Controls the GI received by the material.)
-MtlWrapper.FloatProperty(
-	attr= 'receive_gi',
-	name= 'Receive GI',
+MtlWrapper.receive_gi= FloatProperty(
+	name= "Receive GI",
 	description= "Controls the GI received by the material.",
 	min= 0.0,
 	max= 1.0,
@@ -1019,10 +1880,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# generate_caustics: float (Controls the caustics generated by the material.)
-MtlWrapper.FloatProperty(
-	attr= 'generate_caustics',
-	name= 'Generate caustics',
+MtlWrapper.generate_caustics= FloatProperty(
+	name= "Generate caustics",
 	description= "Controls the caustics generated by the material.",
 	min= 0.0,
 	max= 1.0,
@@ -1032,10 +1891,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# receive_caustics: float (Controls the caustics received by the material.)
-MtlWrapper.FloatProperty(
-	attr= 'receive_caustics',
-	name= 'Receive caustics',
+MtlWrapper.receive_caustics= FloatProperty(
+	name= "Receive caustics",
 	description= "Controls the caustics received by the material.",
 	min= 0.0,
 	max= 1.0,
@@ -1045,10 +1902,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# alpha_contribution: float (The contribution of the resulting color to the alpha channel.)
-MtlWrapper.FloatProperty(
-	attr= 'alpha_contribution',
-	name= 'Alpha contribution',
+MtlWrapper.alpha_contribution= FloatProperty(
+	name= "Alpha contribution",
 	description= "The contribution of the resulting color to the alpha channel.",
 	min= -1.0,
 	max= 1.0,
@@ -1058,47 +1913,37 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# matte_surface: bool (Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.)
-MtlWrapper.BoolProperty(
-	attr= 'matte_surface',
-	name= 'Matte surface',
+MtlWrapper.matte_surface= BoolProperty(
+	name= "Matte surface",
 	description= "Makes the material appear as a matte material, which shows the background, instead of the base material, when viewed directly.",
 	default= False
 )
 
-# shadows: bool (Turn this on to make shadow visible on the matter surface.)
-MtlWrapper.BoolProperty(
-	attr= 'shadows',
-	name= 'Shadows',
+MtlWrapper.shadows= BoolProperty(
+	name= "Shadows",
 	description= "Turn this on to make shadow visible on the matter surface.",
 	default= False
 )
 
-# affect_alpha: bool (Turn this on to make shadows affect the alpha contribution of the matte surface.)
-MtlWrapper.BoolProperty(
-	attr= 'affect_alpha',
-	name= 'Affect alpha',
+MtlWrapper.affect_alpha= BoolProperty(
+	name= "Affect alpha",
 	description= "Turn this on to make shadows affect the alpha contribution of the matte surface.",
 	default= False
 )
 
-# shadow_tint_color: color (Tint for the shadows on the matte surface.) = Color(0, 0, 0)
-MtlWrapper.FloatVectorProperty( 
-	attr= "shadow_tint_color", 
-	name= "Shadow tint color", 
-	description= 'Tint for the shadows on the matte surface.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (0.0, 0.0, 0.0)
+MtlWrapper.shadow_tint_color= FloatVectorProperty(
+	name= "Shadow tint color",
+	description= 'Tint for the shadows on the matte surface.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.0,0.0,0.0)
 )
 
-# shadow_brightness: float (An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.)
-MtlWrapper.FloatProperty(
-	attr= 'shadow_brightness',
-	name= 'Shadow brightness',
+MtlWrapper.shadow_brightness= FloatProperty(
+	name= "Shadow brightness",
 	description= "An optional brightness parameter for the shadows on the matte surface.A value of 0.0 will make the shadows completely invisible, while a value of 1.0 will show the full shadows.",
 	min= 0.0,
 	max= 1.0,
@@ -1108,10 +1953,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# reflection_amount: float (Shows the reflections of the base material.)
-MtlWrapper.FloatProperty(
-	attr= 'reflection_amount',
-	name= 'Reflection amount',
+MtlWrapper.reflection_amount= FloatProperty(
+	name= "Reflection amount",
 	description= "Shows the reflections of the base material.",
 	min= 0.0,
 	max= 1.0,
@@ -1121,10 +1964,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# refraction_amount: float (Shows the refractions of the base material.)
-MtlWrapper.FloatProperty(
-	attr= 'refraction_amount',
-	name= 'Refraction amount',
+MtlWrapper.refraction_amount= FloatProperty(
+	name= "Refraction amount",
 	description= "Shows the refractions of the base material.",
 	min= 0.0,
 	max= 1.0,
@@ -1134,10 +1975,8 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# gi_amount: float (Determines the amount of gi shadows.)
-MtlWrapper.FloatProperty(
-	attr= 'gi_amount',
-	name= 'GI amount',
+MtlWrapper.gi_amount= FloatProperty(
+	name= "GI amount",
 	description= "Determines the amount of gi shadows.",
 	min= 0.0,
 	max= 1.0,
@@ -1147,36 +1986,28 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# no_gi_on_other_mattes: bool (This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.)
-MtlWrapper.BoolProperty(
-	attr= 'no_gi_on_other_mattes',
-	name= 'No gi on other mattes',
+MtlWrapper.no_gi_on_other_mattes= BoolProperty(
+	name= "No gi on other mattes",
 	description= "This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.",
 	default= True
 )
 
-# matte_for_secondary_rays: bool (Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc))
-MtlWrapper.BoolProperty(
-	attr= 'matte_for_secondary_rays',
-	name= 'Matte for secondary rays',
+MtlWrapper.matte_for_secondary_rays= BoolProperty(
+	name= "Matte for secondary rays",
 	description= "Turn this on to make the material act as matte for all secondary rays (reflections, refractions, etc)",
 	default= False
 )
 
-# gi_surface_id: integer (If two objects have different GI surface ids, the light cache samples of the two objects will not be blended)
-MtlWrapper.IntProperty(
-	attr= 'gi_surface_id',
-	name= 'GI surface id',
+MtlWrapper.gi_surface_id= IntProperty(
+	name= "GI surface id",
 	description= "If two objects have different GI surface ids, the light cache samples of the two objects will not be blended",
 	min= 0,
 	max= 10,
 	default= 0
 )
 
-# gi_quality_multiplier: float (A multiplier for GI quality)
-MtlWrapper.FloatProperty(
-	attr= 'gi_quality_multiplier',
-	name= 'GI quality multiplier',
+MtlWrapper.gi_quality_multiplier= FloatProperty(
+	name= "GI quality multiplier",
 	description= "A multiplier for GI quality",
 	min= 0.0,
 	max= 1.0,
@@ -1186,30 +2017,24 @@ MtlWrapper.FloatProperty(
 	default= 1
 )
 
-# reflection_filter_tex: acolor texture = AColor(1, 1, 1, 1)
-MtlWrapper.FloatVectorProperty( 
-	attr= "reflection_filter_tex", 
+MtlWrapper.reflection_filter_tex= FloatVectorProperty(
 	name= "Reflection filter",
-	description= 'Reflection filter.', 
-	subtype= "COLOR", 
-	min= 0.0, 
-	max= 1.0, 
-	soft_min= 0.0, 
-	soft_max= 1.0, 
-	default= (1.0, 1.0, 1.0)
+	description= 'Reflection filter.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1.0,1.0,1.0)
 )
 
-# trace_depth: integer (The maximum reflection depth (-1 is controlled by the global options))
-MtlWrapper.IntProperty(
-	attr= 'trace_depth',
-	name= 'Trace depth',
+MtlWrapper.trace_depth= IntProperty(
+	name= "Trace depth",
 	description= "The maximum reflection depth (-1 is controlled by the global options)",
 	min= -1,
 	max= 1000,
 	default= -1
 )
-
-# channels: plugin (Render channels the result of this BRDF will be written to), unlimited list
 
 
 '''
@@ -1218,15 +2043,13 @@ MtlWrapper.IntProperty(
 class MtlOverride(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'MtlOverride',
-	type=  MtlOverride,
+VRayMaterial.MtlOverride= PointerProperty(
 	name= "MtlOverride",
+	type=  MtlOverride,
 	description= "V-Ray MtlOverride settings"
 )
 
-MtlOverride.BoolProperty(
-	attr= 'use',
+MtlOverride.use= BoolProperty(
 	name= "Use override material",
 	description= "Use override material.",
 	default= False
@@ -1239,48 +2062,155 @@ MtlOverride.BoolProperty(
 class LightMesh(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'LightMesh',
-	type=  LightMesh,
+VRayMaterial.LightMesh= PointerProperty(
 	name= "LightMesh",
+	type=  LightMesh,
 	description= "Mesh light settings"
 )
 
-LightMesh.BoolProperty(
-	attr= 'enabled',
+# LightMesh.BoolProperty(
+# 	attr= 'enabled',
+# 	name= "Enabled",
+# 	description= "Light\'s on/off state.",
+# 	default= True
+# )
+
+# LightMesh.EnumProperty(
+# 	attr= 'lightPortal',
+# 	name= "Light portal mode",
+# 	description= "Specifies if the light is a portal light.",
+# 	items=(
+# 		('NORMAL',  "Normal light",   ""),
+# 		('PORTAL',  "Portal",         ""),
+# 		('SPORTAL', "Simple portal",  "")
+# 	),
+# 	default= 'NORMAL'
+# )
+
+# LightMesh.EnumProperty(
+# 	attr= 'units',
+# 	name= "Intensity units",
+# 	description= "Units for the intensity.",
+# 	items=(
+# 		('DEFUALT',  "Default",   ""),
+# 		('LUMENS',   "Lumens",    ""),
+# 		('LUMM',     "Lm/m/m/sr", ""),
+# 		('WATTSM',   "Watts",     ""),
+# 		('WATM',     "W/m/m/sr", "")
+# 	),
+# 	default= 'DEFAULT'
+# )
+
+# LightMesh.FloatProperty(
+# 	attr= 'intensity',
+# 	name= "Intensity",
+# 	description= "Light intensity.",
+# 	min= 0.0,
+# 	max= 10000000.0,
+# 	soft_min= 0.0,
+# 	soft_max= 100.0,
+# 	precision= 2,
+# 	default= 30
+# )
+
+# LightMesh.IntProperty(
+# 	attr= 'causticSubdivs',
+# 	name= "Caustic subdivs",
+# 	description= "Caustic subdivs.",
+# 	min= 1,
+# 	max= 10000,
+# 	default= 1000
+# )
+
+# LightMesh.IntProperty(
+# 	attr= 'subdivs',
+# 	name= "Subdivs",
+# 	description= "The number of samples V-Ray takes to compute lighting.",
+# 	min= 0,
+# 	max= 256,
+# 	default= 8
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'noDecay',
+# 	name= "No decay",
+# 	description= "TODO.",
+# 	default= False
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'affectReflections',
+# 	name= "Affect reflections",
+# 	description= "true if the light appears in reflections and false otherwise",
+# 	default= True
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'invisible',
+# 	name= "Invisible",
+# 	description= "TODO.",
+# 	default= False
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'storeWithIrradianceMap',
+# 	name= "Store with Irradiance Map",
+# 	description= "TODO.",
+# 	default= False
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'affectDiffuse',
+# 	name= "Affect diffuse",
+# 	description= "true if the light produces diffuse lighting and false otherwise",
+# 	default= True
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'affectSpecular',
+# 	name= "Affect dpecular",
+# 	description= "true if the light produces specular hilights and false otherwise",
+# 	default= True
+# )
+
+# LightMesh.BoolProperty(
+# 	attr= 'doubleSided',
+# 	name= "Double-sided",
+# 	description= "TODO.",
+# 	default= False
+# )
+
+LightMesh.enabled= BoolProperty(
 	name= "Enabled",
 	description= "Light\'s on/off state.",
 	default= True
 )
 
-LightMesh.EnumProperty(
-	attr= 'lightPortal',
+LightMesh.lightPortal= EnumProperty(
 	name= "Light portal mode",
 	description= "Specifies if the light is a portal light.",
-	items=(
-		('NORMAL',  "Normal light",   ""),
-		('PORTAL',  "Portal",         ""),
-		('SPORTAL', "Simple portal",  "")
+	items= (
+		('NORMAL',"Normal light",""),
+		('PORTAL',"Portal",""),
+		('SPORTAL',"Simple portal","")
 	),
 	default= 'NORMAL'
 )
 
-LightMesh.EnumProperty(
-	attr= 'units',
+LightMesh.units= EnumProperty(
 	name= "Intensity units",
 	description= "Units for the intensity.",
-	items=(
-		('DEFUALT',  "Default",   ""),
-		('LUMENS',   "Lumens",    ""),
-		('LUMM',     "Lm/m/m/sr", ""),
-		('WATTSM',   "Watts",     ""),
-		('WATM',     "W/m/m/sr", "")
+	items= (
+		('DEFUALT',"Default",""),
+		('LUMENS',"Lumens",""),
+		('LUMM',"Lm/m/m/sr",""),
+		('WATTSM',"Watts",""),
+		('WATM',"W/m/m/sr","")
 	),
 	default= 'DEFAULT'
 )
 
-LightMesh.FloatProperty(
-	attr= 'intensity',
+LightMesh.intensity= FloatProperty(
 	name= "Intensity",
 	description= "Light intensity.",
 	min= 0.0,
@@ -1291,8 +2221,7 @@ LightMesh.FloatProperty(
 	default= 30
 )
 
-LightMesh.IntProperty(
-	attr= 'causticSubdivs',
+LightMesh.causticSubdivs= IntProperty(
 	name= "Caustic subdivs",
 	description= "Caustic subdivs.",
 	min= 1,
@@ -1300,8 +2229,7 @@ LightMesh.IntProperty(
 	default= 1000
 )
 
-LightMesh.IntProperty(
-	attr= 'subdivs',
+LightMesh.subdivs= IntProperty(
 	name= "Subdivs",
 	description= "The number of samples V-Ray takes to compute lighting.",
 	min= 0,
@@ -1309,50 +2237,43 @@ LightMesh.IntProperty(
 	default= 8
 )
 
-LightMesh.BoolProperty(
-	attr= 'noDecay',
+LightMesh.noDecay= BoolProperty(
 	name= "No decay",
 	description= "TODO.",
 	default= False
 )
 
-LightMesh.BoolProperty(
-	attr= 'affectReflections',
+LightMesh.affectReflections= BoolProperty(
 	name= "Affect reflections",
 	description= "true if the light appears in reflections and false otherwise",
 	default= True
 )
 
-LightMesh.BoolProperty(
-	attr= 'invisible',
+LightMesh.invisible= BoolProperty(
 	name= "Invisible",
 	description= "TODO.",
 	default= False
 )
 
-LightMesh.BoolProperty(
-	attr= 'storeWithIrradianceMap',
+LightMesh.storeWithIrradianceMap= BoolProperty(
 	name= "Store with Irradiance Map",
 	description= "TODO.",
 	default= False
 )
 
-LightMesh.BoolProperty(
-	attr= 'affectDiffuse',
+LightMesh.affectDiffuse= BoolProperty(
 	name= "Affect diffuse",
 	description= "true if the light produces diffuse lighting and false otherwise",
 	default= True
 )
 
-LightMesh.BoolProperty(
-	attr= 'affectSpecular',
+LightMesh.affectSpecular= BoolProperty(
 	name= "Affect dpecular",
 	description= "true if the light produces specular hilights and false otherwise",
 	default= True
 )
 
-LightMesh.BoolProperty(
-	attr= 'doubleSided',
+LightMesh.doubleSided= BoolProperty(
 	name= "Double-sided",
 	description= "TODO.",
 	default= False
@@ -1366,21 +2287,296 @@ LightMesh.BoolProperty(
 class EnvironmentFog(bpy.types.IDPropertyGroup):
     pass
 
-VRayMaterial.PointerProperty(
-	attr= 'EnvironmentFog',
-	type=  EnvironmentFog,
+VRayMaterial.EnvironmentFog= PointerProperty(
 	name= "EnvironmentFog",
+	type=  EnvironmentFog,
 	description= "V-Ray EnvironmentFog settings"
 )
 
-# gizmos: plugin (List of gizmos), unlimited list
+# # gizmos: plugin (List of gizmos), unlimited list
 
-# emission: color (Fog emission color)
-EnvironmentFog.FloatVectorProperty(
-	attr= 'emission',
+# # emission: color (Fog emission color)
+# EnvironmentFog.FloatVectorProperty(
+# 	attr= 'emission',
+# 	name= "Emission",
+# 	description= "Fog emission color",
+# 	subtype= "COLOR",
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default= (0,0,0)
+# )
+
+# # emission_tex: acolor texture (Fog emission texture)
+
+# # color: color (Fog color)
+# EnvironmentFog.FloatVectorProperty(
+# 	attr= 'color',
+# 	name= "Color",
+# 	description= "Fog color",
+# 	subtype= 'COLOR',
+# 	min= 0.0,
+# 	max= 1.0,
+# 	soft_min= 0.0,
+# 	soft_max= 1.0,
+# 	default= (1.0,1.0,1.0)
+# )
+
+# # color_tex: acolor texture (Fog texture)
+
+# # distance: float (Distance between fog particles)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'distance',
+# 	name= "Distance",
+# 	description= "Distance between fog particles",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 0.2
+# )
+	
+# # density: float (Fog density)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'density',
+# 	name= "Density",
+# 	description= "Fog density",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 1
+# )
+	
+# # density_tex: float texture (Texture for fog density)
+
+# # use_height: bool (Whether or not the height should be taken into account.)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'use_height',
+# 	name= "Use height",
+# 	description= "Whether or not the height should be taken into account.",
+# 	default= False
+# )
+	
+# # height: float (Fog starting point along the Z-axis.)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'height',
+# 	name= "Height",
+# 	description= "Fog starting point along the Z-axis.",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 100
+# )
+
+# # subdivs: integer (Fog subdivision)
+# EnvironmentFog.IntProperty(
+# 	attr= 'subdivs',
+# 	name= "Subdivs",
+# 	description= "Fog subdivision",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 8
+# )
+	
+# # affect_background: bool (Affect background)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'affect_background',
+# 	name= "Affect background",
+# 	description= "Affect background",
+# 	default= False
+# )
+
+# # yup: bool (if true, y is the up axis, not z)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'yup',
+# 	name= "Y-up",
+# 	description= "If true, y is the up axis, not z.",
+# 	default= False
+# )
+	
+# # fade_out_mode: integer (fade out mode 0: multiply, 1: substract)
+# EnvironmentFog.EnumProperty(
+# 	attr= 'fade_out_mode',
+# 	name= "Fade out mode",
+# 	description= "Fade out mode.",
+# 	items=(
+# 		('SUBSTRACT',  "Substract",  ""),
+# 		('MULT',       "Multiply",   "")
+# 	),
+# 	default= 'MULT'
+# )
+	
+# # fade_out_radius: float (fade out effect for the edges)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'fade_out_radius',
+# 	name= "Fade out radius",
+# 	description= "Fade out effect for the edges",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 0
+# )
+	
+# # per_object_fade_out_radius: bool (fade out effect for the edges per object)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'per_object_fade_out_radius',
+# 	name= "Per object fade out radius",
+# 	description= "Fade out effect for the edges per object",
+# 	default= False
+# )
+	
+# # use_fade_out_tex: bool (True if the fade_out_tex should be used for fade out computation.)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'use_fade_out_tex',
+# 	name= "Use fade out tex",
+# 	description= "True if the fade_out_tex should be used for fade out computation.",
+# 	default= True
+# )
+	
+# # fade_out_tex: float texture (If use_fade_out_tex is true and this is specified, it will override the default fade out computation.)
+
+# # edge_fade_out: float (Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'edge_fade_out',
+# 	name= "Edge fade out",
+# 	description= "Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 0
+# )
+
+# # fade_out_type: integer (0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;)
+# EnvironmentFog.IntProperty(
+# 	attr= 'fade_out_type',
+# 	name= "Fade out type",
+# 	description= "0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 0
+# )
+	
+# # scatter_gi: bool (Scatter global illumination)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'scatter_gi',
+# 	name= "Scatter GI",
+# 	description= "Scatter global illumination",
+# 	default= True
+# )
+
+# # scatter_bounces: integer (Number of GI bounces calculated inside the fog)
+# EnvironmentFog.IntProperty(
+# 	attr= 'scatter_bounces',
+# 	name= "Scatter bounces",
+# 	description= "Number of GI bounces calculated inside the fog",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 8
+# )
+	
+# # simplify_gi: bool (Simplify global illumination)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'simplify_gi',
+# 	name= "Simplify GI",
+# 	description= "Simplify global illumination",
+# 	default= False
+# )
+	
+# # step_size: float (Size of one step through the volume)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'step_size',
+# 	name= "Step size",
+# 	description= "Size of one step through the volume",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 1
+# )
+	
+# # max_steps: integer (Maximum number of steps through the volume)
+# EnvironmentFog.IntProperty(
+# 	attr= 'max_steps',
+# 	name= "Max steps",
+# 	description= "Maximum number of steps through the volume",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 1000
+# )
+	
+# # tex_samples: integer (Number of texture samples for each step through the volume)
+# EnvironmentFog.IntProperty(
+# 	attr= 'tex_samples',
+# 	name= "Texture samples",
+# 	description= "Number of texture samples for each step through the volume",
+# 	min= 0,
+# 	max= 100,
+# 	soft_min= 0,
+# 	soft_max= 10,
+# 	default= 4
+# )
+	
+# # cutoff_threshold: float (Controls when the raymarcher will stop traversing the volume.)
+# EnvironmentFog.FloatProperty(
+# 	attr= 'cutoff_threshold',
+# 	name= "Cutoff",
+# 	description= "Controls when the raymarcher will stop traversing the volume.",
+# 	min= 0.0,
+# 	max= 100.0,
+# 	soft_min= 0.0,
+# 	soft_max= 10.0,
+# 	precision= 3,
+# 	default= 0.001
+# )
+	
+# # light_mode: integer (light mode 0: no lights, 1: Use per-gizmo lights, 2: Override per-gizmo lights, 3: Intersect with per-gizmo lights, 4: Add to per-gizmo lights)
+# EnvironmentFog.EnumProperty(
+# 	attr= 'light_mode',
+# 	name= "Light mode",
+# 	description= "Light mode.",
+# 	items=(
+# 		('ADDGIZMO',    "Add to per-gizmo lights",          ""),
+# 		('INTERGIZMO',  "Intersect with per-gizmo lights",  ""),
+# 		('OVERGIZMO',   "Override per-gizmo lights",        ""),
+# 		('PERGIZMO',    "Use per-gizmo lights",             ""),
+# 		('NO',          "No lights",                        "")
+# 	),
+# 	default= 'PERGIZMO'
+# )
+	
+# # lights: plugin, unlimited list
+	
+# # use_shade_instance: bool (True if the shade instance should be used when sampling textures.)
+# EnvironmentFog.BoolProperty(
+# 	attr= 'use_shade_instance',
+# 	name= "Use shade instance",
+# 	description= "True if the shade instance should be used when sampling textures.",
+# 	default= False
+# )
+
+EnvironmentFog.emission= FloatVectorProperty(
 	name= "Emission",
 	description= "Fog emission color",
-	subtype= "COLOR",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -1388,11 +2584,7 @@ EnvironmentFog.FloatVectorProperty(
 	default= (0,0,0)
 )
 
-# emission_tex: acolor texture (Fog emission texture)
-
-# color: color (Fog color)
-EnvironmentFog.FloatVectorProperty(
-	attr= 'color',
+EnvironmentFog.color= FloatVectorProperty(
 	name= "Color",
 	description= "Fog color",
 	subtype= 'COLOR',
@@ -1403,11 +2595,7 @@ EnvironmentFog.FloatVectorProperty(
 	default= (1.0,1.0,1.0)
 )
 
-# color_tex: acolor texture (Fog texture)
-
-# distance: float (Distance between fog particles)
-EnvironmentFog.FloatProperty(
-	attr= 'distance',
+EnvironmentFog.distance= FloatProperty(
 	name= "Distance",
 	description= "Distance between fog particles",
 	min= 0.0,
@@ -1415,12 +2603,10 @@ EnvironmentFog.FloatProperty(
 	soft_min= 0.0,
 	soft_max= 10.0,
 	precision= 3,
-	default= 10
+	default= 0.2
 )
-	
-# density: float (Fog density)
-EnvironmentFog.FloatProperty(
-	attr= 'density',
+
+EnvironmentFog.density= FloatProperty(
 	name= "Density",
 	description= "Fog density",
 	min= 0.0,
@@ -1430,20 +2616,14 @@ EnvironmentFog.FloatProperty(
 	precision= 3,
 	default= 1
 )
-	
-# density_tex: float texture (Texture for fog density)
 
-# use_height: bool (Whether or not the height should be taken into account.)
-EnvironmentFog.BoolProperty(
-	attr= 'use_height',
+EnvironmentFog.use_height= BoolProperty(
 	name= "Use height",
 	description= "Whether or not the height should be taken into account.",
-	default= True
+	default= False
 )
-	
-# height: float (Fog starting point along the Z-axis.)
-EnvironmentFog.FloatProperty(
-	attr= 'height',
+
+EnvironmentFog.height= FloatProperty(
 	name= "Height",
 	description= "Fog starting point along the Z-axis.",
 	min= 0.0,
@@ -1454,9 +2634,7 @@ EnvironmentFog.FloatProperty(
 	default= 100
 )
 
-# subdivs: integer (Fog subdivision)
-EnvironmentFog.IntProperty(
-	attr= 'subdivs',
+EnvironmentFog.subdivs= IntProperty(
 	name= "Subdivs",
 	description= "Fog subdivision",
 	min= 0,
@@ -1465,38 +2643,30 @@ EnvironmentFog.IntProperty(
 	soft_max= 10,
 	default= 8
 )
-	
-# affect_background: bool (Affect background)
-EnvironmentFog.BoolProperty(
-	attr= 'affect_background',
+
+EnvironmentFog.affect_background= BoolProperty(
 	name= "Affect background",
 	description= "Affect background",
 	default= False
 )
 
-# yup: bool (if true, y is the up axis, not z)
-EnvironmentFog.BoolProperty(
-	attr= 'yup',
+EnvironmentFog.yup= BoolProperty(
 	name= "Y-up",
 	description= "If true, y is the up axis, not z.",
 	default= False
 )
-	
-# fade_out_mode: integer (fade out mode 0: multiply, 1: substract)
-EnvironmentFog.EnumProperty(
-	attr= 'fade_out_mode',
+
+EnvironmentFog.fade_out_mode= EnumProperty(
 	name= "Fade out mode",
 	description= "Fade out mode.",
-	items=(
-		('SUBSTRACT',  "Substract",  ""),
-		('MULT',       "Multiply",   "")
+	items= (
+		('SUBSTRACT',"Substract",""),
+		('MULT',"Multiply","")
 	),
 	default= 'MULT'
 )
-	
-# fade_out_radius: float (fade out effect for the edges)
-EnvironmentFog.FloatProperty(
-	attr= 'fade_out_radius',
+
+EnvironmentFog.fade_out_radius= FloatProperty(
 	name= "Fade out radius",
 	description= "Fade out effect for the edges",
 	min= 0.0,
@@ -1506,28 +2676,20 @@ EnvironmentFog.FloatProperty(
 	precision= 3,
 	default= 0
 )
-	
-# per_object_fade_out_radius: bool (fade out effect for the edges per object)
-EnvironmentFog.BoolProperty(
-	attr= 'per_object_fade_out_radius',
+
+EnvironmentFog.per_object_fade_out_radius= BoolProperty(
 	name= "Per object fade out radius",
 	description= "Fade out effect for the edges per object",
 	default= False
 )
-	
-# use_fade_out_tex: bool (True if the fade_out_tex should be used for fade out computation.)
-EnvironmentFog.BoolProperty(
-	attr= 'use_fade_out_tex',
+
+EnvironmentFog.use_fade_out_tex= BoolProperty(
 	name= "Use fade out tex",
 	description= "True if the fade_out_tex should be used for fade out computation.",
 	default= True
 )
-	
-# fade_out_tex: float texture (If use_fade_out_tex is true and this is specified, it will override the default fade out computation.)
 
-# edge_fade_out: float (Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute)
-EnvironmentFog.FloatProperty(
-	attr= 'edge_fade_out',
+EnvironmentFog.edge_fade_out= FloatProperty(
 	name= "Edge fade out",
 	description= "Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute",
 	min= 0.0,
@@ -1538,9 +2700,7 @@ EnvironmentFog.FloatProperty(
 	default= 0
 )
 
-# fade_out_type: integer (0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;)
-EnvironmentFog.IntProperty(
-	attr= 'fade_out_type',
+EnvironmentFog.fade_out_type= IntProperty(
 	name= "Fade out type",
 	description= "0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;",
 	min= 0,
@@ -1549,18 +2709,14 @@ EnvironmentFog.IntProperty(
 	soft_max= 10,
 	default= 0
 )
-	
-# scatter_gi: bool (Scatter global illumination)
-EnvironmentFog.BoolProperty(
-	attr= 'scatter_gi',
+
+EnvironmentFog.scatter_gi= BoolProperty(
 	name= "Scatter GI",
 	description= "Scatter global illumination",
-	default= False
+	default= True
 )
 
-# scatter_bounces: integer (Number of GI bounces calculated inside the fog)
-EnvironmentFog.IntProperty(
-	attr= 'scatter_bounces',
+EnvironmentFog.scatter_bounces= IntProperty(
 	name= "Scatter bounces",
 	description= "Number of GI bounces calculated inside the fog",
 	min= 0,
@@ -1569,18 +2725,14 @@ EnvironmentFog.IntProperty(
 	soft_max= 10,
 	default= 8
 )
-	
-# simplify_gi: bool (Simplify global illumination)
-EnvironmentFog.BoolProperty(
-	attr= 'simplify_gi',
+
+EnvironmentFog.simplify_gi= BoolProperty(
 	name= "Simplify GI",
 	description= "Simplify global illumination",
 	default= False
 )
-	
-# step_size: float (Size of one step through the volume)
-EnvironmentFog.FloatProperty(
-	attr= 'step_size',
+
+EnvironmentFog.step_size= FloatProperty(
 	name= "Step size",
 	description= "Size of one step through the volume",
 	min= 0.0,
@@ -1590,10 +2742,8 @@ EnvironmentFog.FloatProperty(
 	precision= 3,
 	default= 1
 )
-	
-# max_steps: integer (Maximum number of steps through the volume)
-EnvironmentFog.IntProperty(
-	attr= 'max_steps',
+
+EnvironmentFog.max_steps= IntProperty(
 	name= "Max steps",
 	description= "Maximum number of steps through the volume",
 	min= 0,
@@ -1602,10 +2752,8 @@ EnvironmentFog.IntProperty(
 	soft_max= 10,
 	default= 1000
 )
-	
-# tex_samples: integer (Number of texture samples for each step through the volume)
-EnvironmentFog.IntProperty(
-	attr= 'tex_samples',
+
+EnvironmentFog.tex_samples= IntProperty(
 	name= "Texture samples",
 	description= "Number of texture samples for each step through the volume",
 	min= 0,
@@ -1614,10 +2762,8 @@ EnvironmentFog.IntProperty(
 	soft_max= 10,
 	default= 4
 )
-	
-# cutoff_threshold: float (Controls when the raymarcher will stop traversing the volume.)
-EnvironmentFog.FloatProperty(
-	attr= 'cutoff_threshold',
+
+EnvironmentFog.cutoff_threshold= FloatProperty(
 	name= "Cutoff",
 	description= "Controls when the raymarcher will stop traversing the volume.",
 	min= 0.0,
@@ -1627,27 +2773,21 @@ EnvironmentFog.FloatProperty(
 	precision= 3,
 	default= 0.001
 )
-	
-# light_mode: integer (light mode 0: no lights, 1: Use per-gizmo lights, 2: Override per-gizmo lights, 3: Intersect with per-gizmo lights, 4: Add to per-gizmo lights)
-EnvironmentFog.EnumProperty(
-	attr= 'light_mode',
+
+EnvironmentFog.light_mode= EnumProperty(
 	name= "Light mode",
 	description= "Light mode.",
-	items=(
-		('ADDGIZMO',    "Add to per-gizmo lights",          ""),
-		('INTERGIZMO',  "Intersect with per-gizmo lights",  ""),
-		('OVERGIZMO',   "Override per-gizmo lights",        ""),
-		('PERGIZMO',    "Use per-gizmo lights",             ""),
-		('NO',          "No lights",                        "")
+	items= (
+		('ADDGIZMO',"Add to per-gizmo lights",""),
+		('INTERGIZMO',"Intersect with per-gizmo lights",""),
+		('OVERGIZMO',"Override per-gizmo lights",""),
+		('PERGIZMO',"Use per-gizmo lights",""),
+		('NO',"No lights","")
 	),
 	default= 'PERGIZMO'
 )
-	
-# lights: plugin, unlimited list
-	
-# use_shade_instance: bool (True if the shade instance should be used when sampling textures.)
-EnvironmentFog.BoolProperty(
-	attr= 'use_shade_instance',
+
+EnvironmentFog.use_shade_instance= BoolProperty(
 	name= "Use shade instance",
 	description= "True if the shade instance should be used when sampling textures.",
 	default= False
@@ -1658,6 +2798,7 @@ EnvironmentFog.BoolProperty(
 # '''
 #   Presets
 # '''
+# import os
 # SSS2= {
 # 	'Skin_brown': {
 # 		'ior':                  1.3,

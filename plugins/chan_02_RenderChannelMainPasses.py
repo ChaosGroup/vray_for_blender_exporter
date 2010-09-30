@@ -69,8 +69,11 @@ PARAM_MAP= {
 }
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -78,52 +81,50 @@ class RenderChannelMainPasses(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelMainPasses',
-		type=  RenderChannelMainPasses,
+	parent_struct.RenderChannelMainPasses= PointerProperty(
+		type= RenderChannelMainPasses,
 		name= NAME,
 		description= "V-Ray main render channels."
 	)
 
-	RenderChannelMainPasses.StringProperty(
-		attr= 'name',
+	RenderChannelMainPasses.name= StringProperty(
 		name= "Name",
 		description= "Channel name.",
 		default= NAME
 	)
 
-	for key in PARAM_MAP:
-		chan_name= key.replace(' ','_')
-		chan_name= chan_name.lower()
-		chan_id= PARAM_MAP[key]
+	# for key in PARAM_MAP:
+	# 	chan_name= key.replace(' ','_')
+	# 	chan_name= chan_name.lower()
+	# 	chan_id= PARAM_MAP[key]
 		
-		RenderChannelMainPasses.BoolProperty(
-			attr= 'channel_%s' % chan_name,
-			name= "%s" % key,
-			description= "%s channel." % key,
-			default= False
-		)
+	# 	RenderChannelMainPasses.BoolProperty(
+	# 		attr= 'channel_%s' % chan_name,
+	# 		name= "%s" % key,
+	# 		description= "%s channel." % key,
+	# 		default= False
+	# 	)
 
-		RenderChannelMainPasses.BoolProperty(
-			attr= '%s_cm' % chan_name,
-			name= "Color mapping",
-			description= "Apply color mapping to \"%s\" channel." % key,
-			default= False
-		)
+	# 	RenderChannelMainPasses.BoolProperty(
+	# 		attr= '%s_cm' % chan_name,
+	# 		name= "Color mapping",
+	# 		description= "Apply color mapping to \"%s\" channel." % key,
+	# 		default= False
+	# 	)
 
-		RenderChannelMainPasses.BoolProperty(
-			attr= '%s_aa' % chan_name,
-			name= "Consider for AA",
-			description= "Apply AA to \"%s\" channel." % key,
-			default= False
-		)
+	# 	RenderChannelMainPasses.BoolProperty(
+	# 		attr= '%s_aa' % chan_name,
+	# 		name= "Consider for AA",
+	# 		description= "Apply AA to \"%s\" channel." % key,
+	# 		default= False
+	# 	)
 
-		RenderChannelMainPasses.BoolProperty(
-			attr= '%s_filt' % chan_name,
-			name= "Filtering",
-			description= "Apply filtering to \"%s\" channel." % key,
-			default= True
-		)
+	# 	RenderChannelMainPasses.BoolProperty(
+	# 		attr= '%s_filt' % chan_name,
+	# 		name= "Filtering",
+	# 		description= "Apply filtering to \"%s\" channel." % key,
+	# 		default= True
+	# 	)
 	
 
 

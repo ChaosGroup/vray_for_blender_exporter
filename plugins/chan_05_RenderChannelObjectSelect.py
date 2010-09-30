@@ -42,8 +42,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -51,32 +54,20 @@ class RenderChannelObjectSelect(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelObjectSelect',
-		type= RenderChannelObjectSelect,
+	parent_struct.RenderChannelObjectSelect= PointerProperty(
 		name= "Object select",
+		type=  RenderChannelObjectSelect,
 		description= "V-Ray render channel \"Object select\" settings."
 	)
 
-	FloatProperty= RenderChannelObjectSelect.FloatProperty
-	IntProperty= RenderChannelObjectSelect.IntProperty
-	BoolProperty= RenderChannelObjectSelect.BoolProperty
-	EnumProperty= RenderChannelObjectSelect.EnumProperty
-	FloatVectorProperty= RenderChannelObjectSelect.FloatVectorProperty
-	StringProperty= RenderChannelObjectSelect.StringProperty
-
-	# name: string = "ObjectSelect"
-	StringProperty(
-		attr= 'name',
+	RenderChannelObjectSelect.name= StringProperty(
 		name= "Name",
 		description= "Render channel name",
 		maxlen= 64,
 		default= "ObjectSelect"
 	)
 
-	# id: integer (The object/material ID that will be extracted)
-	IntProperty(
-		attr= 'id',
+	RenderChannelObjectSelect.id= IntProperty(
 		name= "ID",
 		description= "The object/material ID that will be extracted",
 		min= 0,
@@ -86,25 +77,19 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	# use_mtl_id: bool (true to use the material IDs instead of the object IDs)
-	BoolProperty(
-		attr= 'use_mtl_id',
+	RenderChannelObjectSelect.use_mtl_id= BoolProperty(
 		name= "Use material ID",
 		description= "Use the material IDs instead of the object IDs",
 		default= False
 	)
 
-	# affect_matte_objects: bool (false to not affect Matte Objects)
-	BoolProperty(
-		attr= 'affect_matte_objects',
+	RenderChannelObjectSelect.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
 		description= "False to not affect Matte Objects",
 		default= True
 	)
 
-	# consider_for_aa: bool
-	BoolProperty(
-		attr= 'consider_for_aa',
+	RenderChannelObjectSelect.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
 		description= "TODO.",
 		default= False

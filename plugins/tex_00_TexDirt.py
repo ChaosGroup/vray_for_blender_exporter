@@ -57,8 +57,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -66,26 +69,16 @@ class TexDirt(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(VRayTexture):
-	VRayTexture.PointerProperty(
-		attr= 'TexDirt',
-		type= TexDirt,
+	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",
+		type=  TexDirt,
 		description= "V-Ray TexDirt settings"
 	)
 
-	FloatProperty= TexDirt.FloatProperty
-	IntProperty= TexDirt.IntProperty
-	BoolProperty= TexDirt.BoolProperty
-	EnumProperty= TexDirt.EnumProperty
-	FloatVectorProperty= TexDirt.FloatVectorProperty
-	CollectionProperty= TexDirt.CollectionProperty
-
-	# white_color: acolor texture
-	FloatVectorProperty(
-		attr= 'white_color',
+	TexDirt.white_color= FloatVectorProperty(
 		name= "White color",
 		description= "TODO",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -93,12 +86,10 @@ def add_properties(VRayTexture):
 		default= (1.0,1.0,1.0)
 	)
 
-	# black_color: acolor texture
-	FloatVectorProperty(
-		attr= 'black_color',
+	TexDirt.black_color= FloatVectorProperty(
 		name= "Black color",
 		description= "TODO",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -106,9 +97,7 @@ def add_properties(VRayTexture):
 		default= (0.0,0.0,0.0)
 	)
 
-	# radius: float texture = 10
-	FloatProperty(
-		attr= 'radius',
+	TexDirt.radius= FloatProperty(
 		name= "Radius",
 		description= "TODO",
 		min= 0.0,
@@ -119,9 +108,7 @@ def add_properties(VRayTexture):
 		default= 0.1
 	)
 
-	# distribution: float
-	FloatProperty(
-		attr= 'distribution',
+	TexDirt.distribution= FloatProperty(
 		name= "Distribution",
 		description= "TODO",
 		min= 0.0,
@@ -131,10 +118,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# falloff: float
-	FloatProperty(
-		attr= 'falloff',
+
+	TexDirt.falloff= FloatProperty(
 		name= "Falloff",
 		description= "TODO",
 		min= 0.0,
@@ -144,10 +129,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# subdivs: integer
-	IntProperty(
-		attr= 'subdivs',
+
+	TexDirt.subdivs= IntProperty(
 		name= "Subdivs",
 		description= "TODO",
 		min= 0,
@@ -156,10 +139,8 @@ def add_properties(VRayTexture):
 		soft_max= 10,
 		default= 8
 	)
-	
-	# bias_x: float
-	FloatProperty(
-		attr= 'bias_x',
+
+	TexDirt.bias_x= FloatProperty(
 		name= "Bias X",
 		description= "TODO",
 		min= 0.0,
@@ -169,10 +150,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# bias_y: float
-	FloatProperty(
-		attr= 'bias_y',
+
+	TexDirt.bias_y= FloatProperty(
 		name= "Bias Y",
 		description= "TODO",
 		min= 0.0,
@@ -182,10 +161,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# bias_z: float
-	FloatProperty(
-		attr= 'bias_z',
+
+	TexDirt.bias_z= FloatProperty(
 		name= "Bias Z",
 		description= "TODO",
 		min= 0.0,
@@ -195,83 +172,62 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# ignore_for_gi: bool
-	BoolProperty(
-		attr= 'ignore_for_gi',
+
+	TexDirt.ignore_for_gi= BoolProperty(
 		name= "Ignore for GI",
 		description= "TODO",
 		default= True
 	)
-	
-	# consider_same_object_only: bool
-	BoolProperty(
-		attr= 'consider_same_object_only',
+
+	TexDirt.consider_same_object_only= BoolProperty(
 		name= "Consider same object only",
 		description= "TODO",
 		default= False
 	)
-	
-	# invert_normal: bool
-	BoolProperty(
-		attr= 'invert_normal',
+
+	TexDirt.invert_normal= BoolProperty(
 		name= "Invert normal",
 		description= "TODO",
 		default= False
 	)
-	
-	# work_with_transparency: bool
-	BoolProperty(
-		attr= 'work_with_transparency',
+
+	TexDirt.work_with_transparency= BoolProperty(
 		name= "Work with transparency",
 		description= "TODO",
 		default= False
 	)
-	
-	# ignore_self_occlusion: bool
-	BoolProperty(
-		attr= 'ignore_self_occlusion',
+
+	TexDirt.ignore_self_occlusion= BoolProperty(
 		name= "Ignore self occlusion",
 		description= "TODO",
 		default= False
 	)
-	
-	# render_nodes: plugin, unlimited list
-	# affect_result_nodes: plugin, unlimited list
 
-	# mode: integer (Mode (0 - ambient occlusion; 1 - Phong reflection occlusion; 2 - Blinn reflection occlusion; 3 - Ward reflection occlusion))
-	EnumProperty(
-		attr= 'mode',
+	TexDirt.mode= EnumProperty(
 		name= "Mode",
 		description= "Mode",
-		items=(
-			('AO',    "Ambient occlusion",          ""),
-			('PHONG', "Phong reflection occlusion", ""),
-			('BLINN', "Blinn reflection occlusion", ""),
-			('WARD',  "Ward reflection occlusion",  "")
+		items= (
+			('AO',"Ambient occlusion",""),
+			('PHONG',"Phong reflection occlusion",""),
+			('BLINN',"Blinn reflection occlusion",""),
+			('WARD',"Ward reflection occlusion","")
 		),
 		default= 'AO'
 	)
-	
-	# environment_occlusion: bool (true to compute the environment for unoccluded samples)
-	BoolProperty(
-		attr= 'environment_occlusion',
+
+	TexDirt.environment_occlusion= BoolProperty(
 		name= "Environment occlusion",
 		description= "true to compute the environment for unoccluded samples",
 		default= False
 	)
-	
-	# affect_reflection_elements: bool (true to add the occlusion to relection render elements when mode>0)
-	BoolProperty(
-		attr= 'affect_reflection_elements',
+
+	TexDirt.affect_reflection_elements= BoolProperty(
 		name= "Affect reflection elements",
 		description= "true to add the occlusion to relection render elements when mode>0",
 		default= False
 	)
-	
-	# glossiness: float texture (A texture for the glossiness when mode>0)
-	FloatProperty(
-		attr= 'glossiness',
+
+	TexDirt.glossiness= FloatProperty(
 		name= "Glossiness",
 		description= "The spread of the rays traced for reflection occlusion.",
 		min= 0.0,
@@ -333,7 +289,7 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'MAGIC' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture

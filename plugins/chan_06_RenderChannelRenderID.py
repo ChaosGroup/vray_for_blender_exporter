@@ -36,8 +36,12 @@ PARAMS= (
 	'name'
 )
 
-import bpy
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -45,16 +49,13 @@ class RenderChannelRenderID(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelRenderID',
-		type=  RenderChannelRenderID,
+	parent_struct.RenderChannelRenderID= PointerProperty(
 		name= "RenderID",
+		type=  RenderChannelRenderID,
 		description= "V-Ray render channel \"RenderID\" settings."
 	)
 
-	# name: string
-	RenderChannelRenderID.StringProperty(
-		attr= 'name',
+	RenderChannelRenderID.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
 		default= "RenderID"

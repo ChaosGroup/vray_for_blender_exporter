@@ -27,134 +27,134 @@
 '''
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
 
 
-FloatProperty= bpy.types.World.FloatProperty
-IntProperty= bpy.types.World.IntProperty
-BoolProperty= bpy.types.World.BoolProperty
-VectorProperty= bpy.types.World.FloatVectorProperty
+class VRayWorld(bpy.types.IDPropertyGroup):
+	pass
+
+bpy.types.World.vray= PointerProperty(
+	name= "V-Ray World Settings",
+	type=  VRayWorld,
+	description= "V-Ray world settings."
+)
 
 
 '''
   SettingsEnvironment
 '''
-VectorProperty(
-	attr="vray_env_bg_color",
-	name="Background color",
-	description="Background color.",
-	subtype="COLOR",
+
+VRayWorld.bg_color= FloatVectorProperty(
+	name= "Background color",
+	description= "Background color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-FloatProperty(
-	attr= "vray_env_bg_color_mult", 
-	name= "Background color multiplier", 
-	description= 'Background color multiplier.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 2.0, 
-	precision= 2, 
+VRayWorld.bg_color_mult= FloatProperty(
+	name= "Background color multiplier",
+	description= "Background color multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
+	precision= 2,
 	default= 1.0
 )
 
-BoolProperty( 
-	attr= "vray_env_gi_override", 
-	name= "Override color for GI", 
-	description= 'Override color for GI.', 
+VRayWorld.gi_override= BoolProperty(
+	name= "Override color for GI",
+	description= "Override color for GI.",
 	default= False
 )
 
-VectorProperty(
-	attr="vray_env_gi_color",
-	name="GI color",
-	description="GI (skylight) color.",
-	subtype="COLOR",
+VRayWorld.gi_color= FloatVectorProperty(
+	name= "GI color",
+	description= "GI (skylight) color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-FloatProperty(
-	attr= "vray_env_gi_color_mult", 
-	name= "GI color multiplier", 
-	description= 'GI color multiplier.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 2.0, 
-	precision= 2, 
+VRayWorld.gi_color_mult= FloatProperty(
+	name= "GI color multiplier",
+	description= "GI color multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
+	precision= 2,
 	default= 1.0
 )
 
-BoolProperty(
-	attr= "vray_env_reflection_override",
+VRayWorld.reflection_override= BoolProperty(
 	name= "Override color for reflection",
-	description= 'Override color for reflection.',
+	description= "Override color for reflection.",
 	default= False
 )
 
-VectorProperty(
-	attr="vray_env_reflection_color",
-	name="REFLECTION color",
-	description="REFLECTION (skylight) color.",
-	subtype="COLOR",
+VRayWorld.reflection_color= FloatVectorProperty(
+	name= "Reflection color",
+	description= "Reflection (skylight) color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-FloatProperty(
-	attr= "vray_env_reflection_color_mult", 
-	name= "Reflection color multiplier", 
-	description= 'Reflection color multiplier.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 2.0, 
-	precision= 2, 
+VRayWorld.reflection_color_mult= FloatProperty(
+	name= "Reflection color multiplier",
+	description= "Reflection color multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
+	precision= 2,
 	default= 1.0
 )
 
-BoolProperty(
-	attr= "vray_env_refraction_override",
+VRayWorld.refraction_override= BoolProperty(
 	name= "Override color for refraction",
-	description= 'Override color for refraction.',
+	description= "Override color for refraction.",
 	default= False
 )
 
-VectorProperty(
-	attr="vray_env_refraction_color",
-	name="REFRACTION color",
-	description="REFRACTION (skylight) color.",
-	subtype="COLOR",
+VRayWorld.refraction_color= FloatVectorProperty(
+	name= "Refraction color",
+	description= "Refraction (skylight) color.",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	default=(0.0, 0.0, 0.0)
+	default= (0.0,0.0,0.0)
 )
 
-FloatProperty(
-	attr= "vray_env_refraction_color_mult", 
-	name= "Refraction color multiplier", 
-	description= 'Refraction color multiplier.', 
-	min= 0.0, 
-	max= 100.0, 
-	soft_min= 0.0, 
-	soft_max= 2.0, 
-	precision= 2, 
+VRayWorld.refraction_color_mult= FloatProperty(
+	name= "Refraction color multiplier",
+	description= "Refraction color multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
+	precision= 2,
 	default= 1.0
 )
+
 
 
 '''
@@ -186,6 +186,8 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 	def draw(self, context):
 		layout= self.layout
 
+		wo= context.world.vray
+
 		def factor_but(layout, active, toggle, factor, color, label= None):
 			row= layout.row(align=False)
 			row.prop(wo, toggle, text="")
@@ -196,8 +198,6 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 			else:
 				sub.prop(wo, factor, slider=True)
 			sub.prop(wo, color, text="")
-		
-		wo= context.world
 
 		split= layout.split()
 		col= split.column()
@@ -205,9 +205,9 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 		
 		split= layout.split()
 		col= split.column()
-		col.prop(wo, "vray_env_bg_color_mult", text="Mult", slider=True)
+		col.prop(wo, 'bg_color_mult', text="Mult", slider=True)
 		col= split.column()
-		col.prop(wo, "vray_env_bg_color", text="")
+		col.prop(wo, 'bg_color', text="")
 
 		split= layout.split()
 		col= split.column()
@@ -215,9 +215,6 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		factor_but(col, wo.vray_env_gi_override,         'vray_env_gi_override',         'vray_env_gi_color_mult',         'vray_env_gi_color',         "GI")
-		factor_but(col, wo.vray_env_reflection_override, 'vray_env_reflection_override', 'vray_env_reflection_color_mult', 'vray_env_reflection_color', "Reflection")
-		factor_but(col, wo.vray_env_refraction_override, 'vray_env_refraction_override', 'vray_env_refraction_color_mult', 'vray_env_refraction_color', "Refraction")
-
-
-# bpy.types.register(WORLD_PT_vray_environment)
+		factor_but(col, wo.gi_override,         'gi_override',         'gi_color_mult',         'gi_color',         "GI")
+		factor_but(col, wo.reflection_override, 'reflection_override', 'reflection_color_mult', 'reflection_color', "Reflection")
+		factor_but(col, wo.refraction_override, 'refraction_override', 'refraction_color_mult', 'refraction_color', "Refraction")

@@ -39,8 +39,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -48,24 +51,14 @@ class TexFresnel(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(VRayTexture):
-	VRayTexture.PointerProperty(
-		attr= 'TexFresnel',
-		type= TexFresnel,
+	VRayTexture.TexFresnel= PointerProperty(
 		name= "TexFresnel",
+		type=  TexFresnel,
 		description= "V-Ray TexFresnel settings"
 	)
 
-	FloatProperty= TexFresnel.FloatProperty
-	IntProperty= TexFresnel.IntProperty
-	BoolProperty= TexFresnel.BoolProperty
-	EnumProperty= TexFresnel.EnumProperty
-	VectorProperty= TexFresnel.FloatVectorProperty
-	CollectionProperty= TexFresnel.CollectionProperty
-
-	# fresnel_ior: float (Fresnel ior.)
-	FloatProperty(
-		attr= 'fresnel_ior',
-		name= 'Fresnel IOR',
+	TexFresnel.fresnel_ior= FloatProperty(
+		name= "Fresnel IOR",
 		description= "Fresnel ior.",
 		min= 0.0,
 		max= 10.0,
@@ -74,11 +67,9 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 1.55
 	)
-	
-	# refract_ior: float (Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).)
-	FloatProperty(
-		attr= 'refract_ior',
-		name= 'Refract IOR',
+
+	TexFresnel.refract_ior= FloatProperty(
+		name= "Refract IOR",
 		description= "Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).",
 		min= 0.0,
 		max= 10.0,
@@ -87,10 +78,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 1.55
 	)
-	
-	# white_color: acolor texture (Refraction (front) color)
-	VectorProperty(
-		attr= 'white_color',
+
+	TexFresnel.white_color= FloatVectorProperty(
 		name= "Front color",
 		description= "Refraction (front) color.",
 		subtype= 'COLOR',
@@ -98,12 +87,10 @@ def add_properties(VRayTexture):
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (0.0, 0.0, 0.0)
+		default= (0.0,0.0,0.0)
 	)
 
-	# black_color: acolor texture (Reflection (side) color)
-	VectorProperty(
-		attr= 'black_color',
+	TexFresnel.black_color= FloatVectorProperty(
 		name= "Side color",
 		description= "Reflection (side) color.",
 		subtype= 'COLOR',
@@ -111,7 +98,7 @@ def add_properties(VRayTexture):
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (1.0, 1.0, 1.0)
+		default= (1.0,1.0,1.0)
 	)
 
 
@@ -161,7 +148,7 @@ class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'MAGIC' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture

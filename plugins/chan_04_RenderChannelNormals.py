@@ -37,8 +37,12 @@ PARAMS= (
 	'filtering'
 )
 
-import bpy
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -46,24 +50,19 @@ class RenderChannelNormals(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelNormals',
-		type=  RenderChannelNormals,
+	parent_struct.RenderChannelNormals= PointerProperty(
 		name= "Normals",
+		type=  RenderChannelNormals,
 		description= "V-Ray render channel \"Normals\" settings."
 	)
 
-	# name: string
-	RenderChannelNormals.StringProperty(
-		attr= 'name',
+	RenderChannelNormals.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
 		default= "Normals"
 	)
 
-	# filtering: bool
-	RenderChannelNormals.BoolProperty(
-		attr= 'filtering',
+	RenderChannelNormals.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True

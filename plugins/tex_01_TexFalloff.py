@@ -55,8 +55,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -64,50 +67,34 @@ class TexFalloff(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(VRayTexture):
-	VRayTexture.PointerProperty(
-		attr= 'TexFalloff',
-		type= TexFalloff,
+	VRayTexture.TexFalloff= PointerProperty(
 		name= "TexFalloff",
+		type=  TexFalloff,
 		description= "V-Ray TexFalloff settings"
 	)
 
-	FloatProperty= TexFalloff.FloatProperty
-	IntProperty= TexFalloff.IntProperty
-	BoolProperty= TexFalloff.BoolProperty
-	EnumProperty= TexFalloff.EnumProperty
-	FloatVectorProperty= TexFalloff.FloatVectorProperty
-	CollectionProperty= TexFalloff.CollectionProperty
-
-	# alpha_from_intensity: bool (If true, the resulting alpha is the color intensity; otherwise the alpha is taken from the bitmap alpha)
-	BoolProperty(
-		attr= 'alpha_from_intensity',
+	TexFalloff.alpha_from_intensity= BoolProperty(
 		name= "Alpha from intensity",
 		description= "If true, the resulting alpha is the color intensity; otherwise the alpha is taken from the bitmap alpha",
 		default= False
 	)
-	
-	# invert: bool (If true, the resulting texture color will be inverted)
-	BoolProperty(
-		attr= 'invert',
+
+	TexFalloff.invert= BoolProperty(
 		name= "Invert",
 		description= "If true, the resulting texture color will be inverted",
 		default= False
 	)
-	
-	# invert_alpha: bool (If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted)
-	BoolProperty(
-		attr= 'invert_alpha',
+
+	TexFalloff.invert_alpha= BoolProperty(
 		name= "Invert alpha",
 		description= "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
 		default= True
 	)
-	
-	# color_mult: acolor texture (A multiplier for the texture color)
-	FloatVectorProperty(
-		attr= 'color_mult',
+
+	TexFalloff.color_mult= FloatVectorProperty(
 		name= "Color multiplier",
 		description= "A multiplier for the texture color",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -115,12 +102,10 @@ def add_properties(VRayTexture):
 		default= (1,1,1)
 	)
 
-	# color_offset: acolor texture (An additional offset for the texture color)
-	FloatVectorProperty(
-		attr= 'color_offset',
+	TexFalloff.color_offset= FloatVectorProperty(
 		name= "Color offset",
 		description= "An additional offset for the texture color",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -128,9 +113,7 @@ def add_properties(VRayTexture):
 		default= (0,0,0)
 	)
 
-	# alpha_mult: float texture (A multiplier for the texture alpha) = 1
-	FloatProperty(
-		attr= 'alpha_mult',
+	TexFalloff.alpha_mult= FloatProperty(
 		name= "Alpha multiplier",
 		description= "A multiplier for the texture alpha",
 		min= 0.0,
@@ -141,9 +124,7 @@ def add_properties(VRayTexture):
 		default= 1.0
 	)
 
-	# alpha_offset: float texture (An additional offset for the texture alpha) = 0
-	FloatProperty(
-		attr= 'alpha_offset',
+	TexFalloff.alpha_offset= FloatProperty(
 		name= "Alpha offset",
 		description= "An additional offset for the texture alpha",
 		min= 0.0,
@@ -154,12 +135,10 @@ def add_properties(VRayTexture):
 		default= 0
 	)
 
-	# nouvw_color: acolor texture (The color when there are no valid uvw coordinates)
-	FloatVectorProperty(
-		attr= 'nouvw_color',
+	TexFalloff.nouvw_color= FloatVectorProperty(
 		name= "NoUV color",
 		description= "The color when there are no valid uvw coordinates",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -167,16 +146,10 @@ def add_properties(VRayTexture):
 		default= (0.5,0.5,0.5)
 	)
 
-	# color: output acolor texture (The resulting color)
-	# out_transparency: output acolor texture (The resulting transparency)
-	# out_alpha: output float texture (The resulting alpha)
-	# out_intensity: output float texture (The resulting intensity)
-	# color1: acolor texture (First color)
-	FloatVectorProperty(
-		attr= 'color1',
+	TexFalloff.color1= FloatVectorProperty(
 		name= "Front color",
 		description= "First color",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -184,12 +157,10 @@ def add_properties(VRayTexture):
 		default= (1,1,1)
 	)
 
-	# color2: acolor texture (Second color)
-	FloatVectorProperty(
-		attr= 'color2',
+	TexFalloff.color2= FloatVectorProperty(
 		name= "Side color",
 		description= "Second color",
-		subtype= "COLOR",
+		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -197,44 +168,20 @@ def add_properties(VRayTexture):
 		default= (0,0,0)
 	)
 
-	# type: integer (Type (0 - towards/away, 1 - perpendicular/parallel, 2 - Fresnel, 3 - shadow/light, 4 - distance blend))
-	EnumProperty(
-		attr= 'type',
+	TexFalloff.type= EnumProperty(
 		name= "Type",
 		description= "Falloff type",
-		items=(
-			('TA',   "Towards / Away",           ""),
-			('PP',   "Perpendicular / Parallel", ""),
-			('FRES', "Fresnel",                  ""),
-			('SHAD', "Shadow / Light",           ""),
-			('DIST', "Distance blend",           "")
+		items= (
+			('TA',"Towards / Away",""),
+			('PP',"Perpendicular / Parallel",""),
+			('FRES',"Fresnel",""),
+			('SHAD',"Shadow / Light",""),
+			('DIST',"Distance blend","")
 		),
 		default= 'TA'
 	)
-	
-	# direction_type: integer (Direction type (0 - viewZ, 1 - viewX, 2 - viewY, 3 - explicit, 4 - localX, 5 - localY, 6 - localZ, 7 - worldX, 8 - worldY, 9 - worldZ))
-	EnumProperty(
-		attr= 'direction_type',
-		name= "Direction type",
-		description= "Direction type",
-		items=(
-			('VIEWZ',   "View Z",           ""),
-			('VIEWX',   "View X",           ""),
-			('VIEWY',   "View Y",           ""),
-			('EXPL',    "Explicit",         ""),
-			('LX',      "Local X",          ""),
-			('LY',      "Local Y",          ""),
-			('LZ',      "Local Z",          ""),
-			('WX',      "World X",          ""),
-			('WY',      "World Y",          ""),
-			('WZ',      "World Z",          ""),
-		),
-		default= 'VIEWZ'
-	)
-	
-	# fresnel_ior: float (IOR for the Fresnel falloff type)
-	FloatProperty(
-		attr= 'fresnel_ior',
+
+	TexFalloff.fresnel_ior= FloatProperty(
 		name= "Fresnel IOR",
 		description= "IOR for the Fresnel falloff type",
 		min= 0.0,
@@ -244,18 +191,14 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 1.6
 	)
-	
-	# dist_extrapolate: bool (Extrapolate for the distance blend falloff type)
-	BoolProperty(
-		attr= 'dist_extrapolate',
+
+	TexFalloff.dist_extrapolate= BoolProperty(
 		name= "Extrapolate distance",
 		description= "Extrapolate for the distance blend falloff type",
 		default= False
 	)
-	
-	# dist_near: float (Near distance for the distance blend falloff type)
-	FloatProperty(
-		attr= 'dist_near',
+
+	TexFalloff.dist_near= FloatProperty(
 		name= "Near distance",
 		description= "Near distance for the distance blend falloff type",
 		min= 0.0,
@@ -265,10 +208,8 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 0
 	)
-	
-	# dist_far: float (Far distance for the distance blend falloff type)
-	FloatProperty(
-		attr= 'dist_far',
+
+	TexFalloff.dist_far= FloatProperty(
 		name= "Far distance",
 		description= "Far distance for the distance blend falloff type",
 		min= 0.0,
@@ -278,13 +219,11 @@ def add_properties(VRayTexture):
 		precision= 3,
 		default= 100
 	)
-	
-	# explicit_dir: vector (Direction for the explicit direction type)
-	FloatVectorProperty(
-		attr= 'explicit_dir',
+
+	TexFalloff.explicit_dir= FloatVectorProperty(
 		name= "Explicit direction",
 		description= "Direction for the explicit direction type",
-		subtype= "DIRECTION",
+		subtype= 'DIRECTION',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -292,17 +231,11 @@ def add_properties(VRayTexture):
 		default= (0,0,1)
 	)
 
-	# blend_output: output float texture (The blending amount, based on the parameters)
-
-	# use_blend_input: bool
-	BoolProperty(
-		attr= 'use_blend_input',
+	TexFalloff.use_blend_input= BoolProperty(
 		name= "Use \"blend\" input",
 		description= "TODO",
 		default= False
 	)
-	
-	# blend_input: float texture (If specified and use_blend_input is true, the final blending amount will be taken from this texture) = 0.5
 
 
 def write(ofile, sce, tex, name= None):
@@ -371,7 +304,7 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'MAGIC' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture

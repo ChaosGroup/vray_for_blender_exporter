@@ -607,7 +607,7 @@ TEX_TYPES= ('IMAGE', 'PLUGIN')
 # Enum currently doesn't extract value index,
 # so...
 UNITS= {
-	'DEFUALT' : 0,
+	'DEFAULT' : 0,
 	'LUMENS'  : 1,
 	'LUMM'    : 2,
 	'WATTSM'  : 3,
@@ -1248,7 +1248,7 @@ def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None
 
 	if tex.type == 'IMAGE':
 		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
-	elif tex.type == 'MAGIC':
+	elif tex.type == 'VRAY':
 		tex_name= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
 	else:
 		pass
@@ -1302,44 +1302,44 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 		if ma.use_textures[slot_idx] and slot:
 			if slot.texture:
 				if slot.texture.type in TEX_TYPES:
-					if(slot.use_map_color_diffuse):
+					if slot.use_map_color_diffuse:
 						vraytex['color'].append(slot)
 						vraymat['color_mult']+= slot.diffuse_color_factor
-					if(slot.use_map_emit):
+					if slot.use_map_emit:
 						vraytex['emit'].append(slot)
 						vraymat['emit_mult']+= slot.emit_factor
-					if(slot.use_map_alpha):
+					if slot.use_map_alpha:
 						vraytex['alpha'].append(slot)
 						vraymat['alpha_mult']+= slot.alpha_factor
-					if(slot.use_map_hardness):
+					if slot.use_map_hardness:
 						vraytex['roughness'].append(slot)
 						vraymat['roughness_mult']+= slot.hardness_factor
-					if(slot.use_map_color_spec):
+					if slot.use_map_color_spec:
 						vraytex['reflect_glossiness'].append(slot)
 						vraymat['reflect_glossiness_mult']+= slot.specular_factor
-					if(slot.use_map_specular):
+					if slot.use_map_specular:
 						vraytex['hilight_glossiness'].append(slot)
 						vraymat['hilight_glossiness_mult']+= slot.colorspec_factor
-					if(slot.use_map_raymir):
+					if slot.use_map_raymir:
 						vraytex['reflect'].append(slot)
 						vraymat['reflect_mult']+= slot.raymir_factor
-					if(slot.use_map_translucency):
+					if slot.use_map_translucency:
 						vraytex['refract'].append(slot)
 						vraymat['refract_mult']+= slot.translucency_factor
-					if(slot.use_map_normal):
-						if(slot.texture.use_normal_map):
+					if slot.use_map_normal:
+						if slot.texture.use_normal_map:
 							vraytex['normal'].append(slot)
 							vraymat['normal_amount']+= slot.normal_factor
 						else:
 							vraytex['bump'].append(slot)
 							vraymat['bump_amount']+= slot.normal_factor
-					if(slot.use_map_displacement):
+					if slot.use_map_displacement:
 						vraytex['displace'].append(slot)
 						vraymat['displace_amount']+= slot.displacement_factor
 
 	for textype in vraytex:
-		if(len(vraytex[textype])):
-			if(len(vraytex[textype]) == 1):
+		if len(vraytex[textype]):
+			if len(vraytex[textype]) == 1:
 				slot= vraytex[textype][0]
 				tex= slot.texture
 
@@ -1388,9 +1388,6 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				texlayered_modes= []
 				texlayered_names= []
 
-				out_texlayered      = ""
-				out_texlayered_modes= ""
-
 				for slot in vraytex[textype]:
 					tex= slot.texture
 
@@ -1398,18 +1395,14 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 
 					texlayered_names.append(tex_name) # For stencil
 					texlayered_modes.append(slot.blend_type)
-					out_texlayered += "%s,"%(tex_name)
 
 					debug(sce,"  Slot: %s"%(textype))
 					debug(sce,"    Texture: %s [mode: %s]"%(tex.name, slot.blend_type))
-
-					if(slot.stencil):
+					
+					if slot.use_stencil:
 						stencil= vraytex[textype].index(slot)
 
-				for i in range(1, len(texlayered_modes)):
-					out_texlayered_modes+= "%s,"%(BLEND_TYPE[texlayered_modes[i]])
-
-				if(stencil):
+				if stencil:
 					tex_name= clean_string("Stencil_%s_%s_%s"%(textype, texlayered_names[stencil-1], texlayered_names[stencil+1]))
 					ofile.write("\nTexBlend %s {"%(tex_name))
 					ofile.write("\n\tcolor_a= %s;"%(texlayered_names[stencil-1]))
@@ -1420,8 +1413,8 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				else:
 					tex_name= "TexLayered_%s"%(textype)
 					ofile.write("\nTexLayered %s {"%(tex_name))
-					ofile.write("\n\ttextures= List(%s);"%(out_texlayered[0:-1]))
-					ofile.write("\n\tblend_modes= List(0, %s);"%(out_texlayered_modes[0:-1]))
+					ofile.write("\n\ttextures= List(%s);"%(','.join(texlayered_names)))
+					ofile.write("\n\tblend_modes= List(0, %s);"%(','.join(texlayered_modes)))
 					ofile.write("\n}\n")
 
 				vraymat[textype]= tex_name
@@ -2094,41 +2087,11 @@ def write_object(ob, filters, types, files, matrix= None, visible= True):
 						hair_geom_name= "HAIR_%s" % ps.name
 						hair_node_name= "%s_%s" % (node_name,hair_geom_name)
 						write_GeomMayaHair(ofile,ob,ps,hair_geom_name)
-						write_node(ofile,hair_node_name,hair_geom_name,ma_name,ob.pass_index,visible,node_matrix)
+						write_node(ofile, hair_node_name, hair_geom_name, get_name(ob.material_slots[ps.material].material,"Material"), ob.pass_index, visible, node_matrix)
 			if use_render_emitter:
 				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,visible,node_matrix)
 		else:
 			write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,visible,node_matrix)
-
-	# ca= sce.camera
-	# vca= ca.data.VRayCamera
-
-	# if vca.hide_from_view:
-	# 	if vca.hide_from_everything:
-	# 		if vca.everything_auto:
-	# 			auto_group= 'hidefrom_%s' % ca.name
-	# 			try:
-	# 				for group_ob in bpy.data.groups[auto_group].objects:
-	# 					HIDE_FROM_VIEW.append(group_ob.name)
-	# 			except:
-	# 				debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
-	# 		else:
-	# 			HIDE_FROM_VIEW= vca.everything_objects.split(';')
-	# 			for gr in vca.everything_groups.split(';'):
-	# 				try:
-	# 					for group_ob in bpy.data.groups[gr].objects:
-	# 						HIDE_FROM_VIEW.append(group_ob.name)
-	# 				except:
-	# 					debug(sce,"Group \"%s\" doesn\'t exist" % gr)
-	# 			debug(sce,"Hide from view \"%s\": %s" % (ca.name,HIDE_FROM_VIEW))
-	# 	else:
-	# 		pass
-	# for ob in OBJECTS:
-	# 	visible= True
-	# 	if vca.hide_from_view:
-	# 		if vca.hide_from_everything:
-	# 			if ob.name in HIDE_FROM_VIEW:
-	# 				visible= False
 
 
 def write_environment(ofile, volumes= None):
@@ -2162,22 +2125,22 @@ def write_environment(ofile, volumes= None):
 						refract_tex_mult= slot.zenith_down_factor
 
 	ofile.write("\nSettingsEnvironment {")
-	ofile.write("\n\tbg_color= %s;"%(a(sce,wo.vray_env_bg_color)))
+	ofile.write("\n\tbg_color= %s;"%(a(sce,wo.vray.bg_color)))
 	if bg_tex:
 		ofile.write("\n\tbg_tex= %s;"%(bg_tex))
 		ofile.write("\n\tbg_tex_mult= %s;"%(a(sce,bg_tex_mult)))
-	if wo.vray_env_gi_override:
-		ofile.write("\n\tgi_color= %s;"%(a(sce,wo.vray_env_gi_color)))
+	if wo.vray.gi_override:
+		ofile.write("\n\tgi_color= %s;"%(a(sce,wo.vray.gi_color)))
 	if gi_tex:
 		ofile.write("\n\tgi_tex= %s;"%(gi_tex))
 		ofile.write("\n\tgi_tex_mult= %s;"%(a(sce,gi_tex_mult)))
-	if wo.vray_env_reflection_override:
-		ofile.write("\n\treflect_color= %s;"%(a(sce,wo.vray_env_reflection_color)))
+	if wo.vray.reflection_override:
+		ofile.write("\n\treflect_color= %s;"%(a(sce,wo.vray.reflection_color)))
 	if reflect_tex:
 		ofile.write("\n\treflect_tex= %s;"%(reflect_tex))
 		ofile.write("\n\treflect_tex_mult= %s;"%(a(sce,reflect_tex_mult)))
-	if wo.vray_env_refraction_override:
-		ofile.write("\n\trefract_color= %s;"%(a(sce,wo.vray_env_refraction_color)))
+	if wo.vray.refraction_override:
+		ofile.write("\n\trefract_color= %s;"%(a(sce,wo.vray.refraction_color)))
 	if refract_tex:
 		ofile.write("\n\trefract_tex= %s;"%(refract_tex))
 		ofile.write("\n\trefract_tex_mult= %s;"%(a(sce,refract_tex_mult)))
@@ -2200,7 +2163,7 @@ def write_EnvironmentFog(ofile,volume,material):
 
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
-	ofile.write("\n\tdensity_tex= Texture_Test_Checker::out_intensity;")
+	#ofile.write("\n\tdensity_tex= Texture_Test_Checker::out_intensity;")
 	for param in volume[material]['params']:
 		value= volume[material]['params'][param]
 		if param == 'light_mode':
@@ -2297,6 +2260,10 @@ def write_camera(sce, ofile, camera= None):
 	ca= camera if camera else sce.camera
 
 	if ca is not None:
+		vc= ca.data.vray
+		SettingsCamera= vc.SettingsCamera
+		CameraPhysical= vc.CameraPhysical
+		
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
 
@@ -2314,7 +2281,7 @@ def write_camera(sce, ofile, camera= None):
 		ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
 		ofile.write("\n}\n")
 
-		if ca.data.vray_cam_mode == 'PHYSICAL':
+		if vc.mode == 'PHYSICAL':
 			PHYS= {
 				"STILL":     0,
 				"CINEMATIC": 1,
@@ -2332,9 +2299,9 @@ def write_camera(sce, ofile, camera= None):
 			ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
 			ofile.write("\n\tspecify_fov= 1;")
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(ca.data.VRayCamera.white_balance)))))
+			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(vp.white_balance)))))
 			for param in OBJECT_PARAMS['CameraPhysical']:
-				ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(ca.data, "vray_cam_phys_%s"%(param)))))
+				ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vp,param))))
 			ofile.write("\n}\n")
 
 		else:
@@ -2510,7 +2477,7 @@ def write_scene(sce):
 	vdr= vs.VRayDR
 
 	ca= sce.camera
-	vc= ca.data.VRayCamera
+	vc= ca.data.vray.SettingsCamera
 
 	files= {
 		'lamps':     open(get_filenames(sce,'lights'), 'w'),
@@ -2551,6 +2518,36 @@ def write_scene(sce):
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n\ttexture= Color(1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
+
+	# ca= sce.camera
+	# vca= ca.data.VRayCamera
+
+	# if vca.hide_from_view:
+	# 	if vca.hide_from_everything:
+	# 		if vca.everything_auto:
+	# 			auto_group= 'hidefrom_%s' % ca.name
+	# 			try:
+	# 				for group_ob in bpy.data.groups[auto_group].objects:
+	# 					HIDE_FROM_VIEW.append(group_ob.name)
+	# 			except:
+	# 				debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
+	# 		else:
+	# 			HIDE_FROM_VIEW= vca.everything_objects.split(';')
+	# 			for gr in vca.everything_groups.split(';'):
+	# 				try:
+	# 					for group_ob in bpy.data.groups[gr].objects:
+	# 						HIDE_FROM_VIEW.append(group_ob.name)
+	# 				except:
+	# 					debug(sce,"Group \"%s\" doesn\'t exist" % gr)
+	# 			debug(sce,"Hide from view \"%s\": %s" % (ca.name,HIDE_FROM_VIEW))
+	# 	else:
+	# 		pass
+	# for ob in OBJECTS:
+	# 	visible= True
+	# 	if vca.hide_from_view:
+	# 		if vca.hide_from_everything:
+	# 			if ob.name in HIDE_FROM_VIEW:
+	# 				visible= False
 
 	def write_frame():
 		# Useful when exporting dupli, particles etc.

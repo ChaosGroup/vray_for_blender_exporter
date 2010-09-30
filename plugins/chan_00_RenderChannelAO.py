@@ -47,8 +47,11 @@ PARAMS_AO= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -56,47 +59,37 @@ class RenderChannelAO(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelAO',
-		type=  RenderChannelAO,
-		name=  NAME,
+	parent_struct.RenderChannelAO= PointerProperty(
+		type= RenderChannelAO,
+		name= NAME,
 		description= "V-Ray render channel \"%s\" settings." % NAME
 	)
 
-	# name: string
-	RenderChannelAO.StringProperty(
-		attr= 'name',
+	RenderChannelAO.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
 		default= NAME
 	)
 
-	# consider_for_aa: bool
-	RenderChannelAO.BoolProperty(
-		attr= 'consider_for_aa',
+	RenderChannelAO.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
 		description= "TODO.",
 		default= True
 	)
-	
-	# affect_matte_objects: bool
-	RenderChannelAO.BoolProperty(
-		attr= 'affect_matte_objects',
+
+	RenderChannelAO.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
 		description= "TODO.",
 		default= True
 	)
-	
-	# filtering: bool
-	RenderChannelAO.BoolProperty(
-		attr= 'filtering',
+
+	RenderChannelAO.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True
 	)
 
-	RenderChannelAO.FloatProperty(
-		attr= 'radius',
+	RenderChannelAO.radius= FloatProperty(
 		name= "Radius",
 		description= "AO radius.",
 		min= 0.0,
@@ -107,8 +100,7 @@ def add_properties(parent_struct):
 		default= 0.1
 	)
 
-	RenderChannelAO.FloatProperty(
-		attr= 'falloff',
+	RenderChannelAO.falloff= FloatProperty(
 		name= "Falloff",
 		description= "The speed of the transition between occluded and unoccluded areas.",
 		min= 0.0,
@@ -119,8 +111,7 @@ def add_properties(parent_struct):
 		default= 0.0
 	)
 
-	RenderChannelAO.IntProperty(
-		attr= 'subdivs',
+	RenderChannelAO.subdivs= IntProperty(
 		name= "Subdivs",
 		description= "TODO.",
 		min= 1,
@@ -130,7 +121,6 @@ def add_properties(parent_struct):
 		default= 8
 	)
 
-	
 
 
 '''

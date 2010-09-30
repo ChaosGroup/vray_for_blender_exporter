@@ -41,8 +41,12 @@ PARAMS= (
 	'filtering'
 )
 
-import bpy
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -50,32 +54,25 @@ class RenderChannelVelocity(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelVelocity',
-		type=  RenderChannelVelocity,
+	parent_struct.RenderChannelVelocity= PointerProperty(
 		name= "Velocity",
+		type=  RenderChannelVelocity,
 		description= "V-Ray render channel \"Velocity\" settings."
 	)
 
-	# name: string
-	RenderChannelVelocity.StringProperty(
-		attr= 'name',
+	RenderChannelVelocity.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
 		default= "Velocity"
 	)
 
-	# clamp_velocity: bool
-	RenderChannelVelocity.BoolProperty(
-		attr= 'clamp_velocity',
+	RenderChannelVelocity.clamp_velocity= BoolProperty(
 		name= "Clamp",
 		description= "TODO.",
 		default= True
 	)
-	
-	# max_velocity: float
-	RenderChannelVelocity.FloatProperty(
-		attr= 'max_velocity',
+
+	RenderChannelVelocity.max_velocity= FloatProperty(
 		name= "Max velocity",
 		description= "Max velocity",
 		min= 0.0,
@@ -85,10 +82,8 @@ def add_properties(parent_struct):
 		precision= 3,
 		default= 1
 	)
-	
-	# max_velocity_last_frame: float
-	RenderChannelVelocity.FloatProperty(
-		attr= 'max_velocity_last_frame',
+
+	RenderChannelVelocity.max_velocity_last_frame= FloatProperty(
 		name= "Max velocity last frame",
 		description= "Max velocity last frame",
 		min= 0.0,
@@ -98,18 +93,14 @@ def add_properties(parent_struct):
 		precision= 3,
 		default= 0
 	)
-	
-	# ignore_z: bool
-	RenderChannelVelocity.BoolProperty(
-		attr= 'ignore_z',
+
+	RenderChannelVelocity.ignore_z= BoolProperty(
 		name= "Ignore Z",
 		description= "TODO.",
 		default= True
 	)
-	
-	# filtering: bool
-	RenderChannelVelocity.BoolProperty(
-		attr= 'filtering',
+
+	RenderChannelVelocity.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True

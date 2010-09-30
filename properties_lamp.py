@@ -27,53 +27,47 @@
 '''
 
 
+''' Python modules '''
 import os
-import bpy
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
-# class MyTest(bpy.types.IDPropertyGroup):
-#     pass
-# bpy.types.Lamp.PointerProperty(
-# 	attr= 'mytest',
-# 	type=  MyTest,
-# 	name= "MyTest Settings",
-# 	description= "MyTest settings"
-# )
 
 class VRayLamp(bpy.types.IDPropertyGroup):
     pass
 
-bpy.types.Lamp.PointerProperty(
-	attr= 'vray',
-	type=  VRayLamp,
+bpy.types.Lamp.vray= PointerProperty(
 	name= "V-Ray Lamp Settings",
+	type=  VRayLamp,
 	description= "V-Ray lamp settings"
 )
 
-VRayLamp.BoolProperty(
-	attr="enabled",
-	name="Enabled",
-	description="Turns the light on and off",
+
+VRayLamp.enabled= BoolProperty(
+	name= "Enabled",
+	description= "Turns the light on and off",
 	default= True
 )
 
-VRayLamp.EnumProperty(
-	attr= 'units',
+VRayLamp.units= EnumProperty(
 	name= "Intensity units",
 	description= "Units for the intensity.",
-	items=(
-		('DEFUALT',  "Default",   ""),
-		('LUMENS',   "Lumens",    ""),
-		('LUMM',     "Lm/m/m/sr", ""),
-		('WATTSM',   "Watts",     ""),
-		('WATM',     "W/m/m/sr",  "")
+	items= (
+		('DEFAULT',"Default",""),
+		('LUMENS',"Lumens",""),
+		('LUMM',"Lm/m/m/sr",""),
+		('WATTSM',"Watts",""),
+		('WATM',"W/m/m/sr","")
 	),
 	default= 'DEFAULT'
 )
 
-VRayLamp.FloatProperty(
-	attr= 'beamRadius',
+VRayLamp.beamRadius= FloatProperty(
 	name= "Beam radius",
 	description= "Beam radius, 0.0 if the light has no beam radius.",
 	min= 0.0,
@@ -84,62 +78,54 @@ VRayLamp.FloatProperty(
 	default= 0.0
 )
 
-VRayLamp.EnumProperty(
-	attr= 'direct_type',
+VRayLamp.direct_type= EnumProperty(
 	name= "Direct type",
 	description= "Direct light type.",
-	items=(
-		('DIRECT',  "Direct",  ""),
-		('SUN',     "Sun",     "")
+	items= (
+		('DIRECT',"Direct",""),
+		('SUN',"Sun","")
 	),
 	default= 'DIRECT'
 )
 
-
-VRayLamp.EnumProperty(
-	attr="spot_type",
-	name="Spot type",
-	description="Spot light subtype.",
-	items=(
-		('SPOT',  "Spot",  ""),
-		('IES',   "IES",   "")
+VRayLamp.spot_type= EnumProperty(
+	name= "Spot type",
+	description= "Spot light subtype.",
+	items= (
+		('SPOT',"Spot",""),
+		('IES',"IES","")
 	),
 	default= 'DIRECT'
 )
 
-VRayLamp.BoolProperty(
-	attr= "shadows",
+VRayLamp.shadows= BoolProperty(
 	name= "Shadows",
 	description= "TODO.",
 	default= True
 )
 
-VRayLamp.BoolProperty(
-	attr= "affectDiffuse",
+VRayLamp.affectDiffuse= BoolProperty(
 	name= "Affect diffuse",
 	description= "Produces diffuse lighting.",
 	default= True
 )
 
-VRayLamp.BoolProperty(
-	attr= "affectSpecular",
+VRayLamp.affectSpecular= BoolProperty(
 	name= "Affect specular",
 	description= "Produces specular hilights.",
 	default= True
 )
 
-VRayLamp.BoolProperty(
-	attr= "affectReflections",
+VRayLamp.affectReflections= BoolProperty(
 	name= "Affect reflections",
 	description= "Appear in reflections.",
 	default= False
 )
 
-VRayLamp.FloatVectorProperty(
-	attr= "shadowColor",
+VRayLamp.shadowColor= FloatVectorProperty(
 	name= "Shadow color",
 	description= "The shadow color. Anything but black is not physically accurate.",
-	subtype= "COLOR",
+	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -147,8 +133,7 @@ VRayLamp.FloatVectorProperty(
 	default= (0.0,0.0,0.0)
 )
 
-VRayLamp.FloatProperty(
-	attr= "shadowBias",
+VRayLamp.shadowBias= FloatProperty(
 	name= "Shadow bias",
 	description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces.",
 	min= 0.0,
@@ -159,8 +144,7 @@ VRayLamp.FloatProperty(
 	default= 0.0
 )
 
-VRayLamp.IntProperty(
-	attr= "shadowSubdivs",
+VRayLamp.shadowSubdivs= IntProperty(
 	name= "Shadow subdivs",
 	description= "TODO.",
 	min= 0,
@@ -168,8 +152,7 @@ VRayLamp.IntProperty(
 	default= 8
 )
 
-VRayLamp.FloatProperty(
-	attr= "shadowRadius",
+VRayLamp.shadowRadius= FloatProperty(
 	name= "Shadow radius",
 	description= "TODO.",
 	min= 0.0,
@@ -180,8 +163,7 @@ VRayLamp.FloatProperty(
 	default= 0
 )
 
-VRayLamp.FloatProperty(
-	attr= "decay",
+VRayLamp.decay= FloatProperty(
 	name= "Decay",
 	description= "TODO.",
 	min= 0.0,
@@ -192,8 +174,7 @@ VRayLamp.FloatProperty(
 	default= 2
 )
 
-VRayLamp.FloatProperty(
-	attr= "cutoffThreshold",
+VRayLamp.cutoffThreshold= FloatProperty(
 	name= "Cut-off threshold",
 	description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
 	min= 0.0,
@@ -204,8 +185,7 @@ VRayLamp.FloatProperty(
 	default= 0.001
 )
 
-VRayLamp.FloatProperty(
-	attr= "intensity",
+VRayLamp.intensity= FloatProperty(
 	name= "Intensity",
 	description= "Light intensity.",
 	min= 0.0,
@@ -216,8 +196,7 @@ VRayLamp.FloatProperty(
 	default= 30
 )
 
-VRayLamp.IntProperty(
-	attr= "subdivs",
+VRayLamp.subdivs= IntProperty(
 	name= "Subdivs",
 	description= "TODO.",
 	min= 0,
@@ -225,48 +204,42 @@ VRayLamp.IntProperty(
 	default= 8
 )
 
-VRayLamp.BoolProperty(
-	attr= "storeWithIrradianceMap",
+VRayLamp.storeWithIrradianceMap= BoolProperty(
 	name= "Store with irradiance map",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.BoolProperty(
-	attr= "invisible",
+VRayLamp.invisible= BoolProperty(
 	name= "Invisible",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.BoolProperty(
-	attr= "noDecay",
+VRayLamp.noDecay= BoolProperty(
 	name= "No decay",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.BoolProperty(
-	attr= "doubleSided",
+VRayLamp.doubleSided= BoolProperty(
 	name= "Double-sided",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.EnumProperty(
-	attr="lightPortal",
-	name="Light portal mode",
-	description="Specifies if the light is a portal light.",
-	items=(
-		('NORMAL',  "Normal light",   ""),
-		('PORTAL',  "Portal",         ""),
-		('SPORTAL', "Simple portal",  "")
+VRayLamp.lightPortal= EnumProperty(
+	name= "Light portal mode",
+	description= "Specifies if the light is a portal light.",
+	items= (
+		('NORMAL',"Normal light",""),
+		('PORTAL',"Portal",""),
+		('SPORTAL',"Simple portal","")
 	),
 	default= 'NORMAL'
 )
 
-VRayLamp.FloatProperty(
-	attr= "radius",
+VRayLamp.radius= FloatProperty(
 	name= "Radius",
 	description= "Sphere light radius.",
 	min= 0.0,
@@ -277,8 +250,7 @@ VRayLamp.FloatProperty(
 	default= 0.0
 )
 
-VRayLamp.IntProperty(
-	attr= "sphere_segments",
+VRayLamp.sphere_segments= IntProperty(
 	name= "Sphere segments",
 	description= "TODO.",
 	min= 0,
@@ -286,15 +258,13 @@ VRayLamp.IntProperty(
 	default= 20
 )
 
-VRayLamp.BoolProperty(
-	attr= "bumped_below_surface_check",
+VRayLamp.bumped_below_surface_check= BoolProperty(
 	name= "Bumped below surface check",
 	description= "If the bumped normal should be used to check if the light dir is below the surface.",
 	default= False
 )
 
-VRayLamp.IntProperty(
-	attr= "nsamples",
+VRayLamp.nsamples= IntProperty(
 	name= "Motion blur samples",
 	description= "Motion blur samples.",
 	min= 0,
@@ -302,8 +272,7 @@ VRayLamp.IntProperty(
 	default= 0
 )
 
-VRayLamp.FloatProperty(
-	attr= "diffuse_contribution",
+VRayLamp.diffuse_contribution= FloatProperty(
 	name= "Diffuse contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -314,8 +283,7 @@ VRayLamp.FloatProperty(
 	default= 1
 )
 
-VRayLamp.FloatProperty(
-	attr= "specular_contribution",
+VRayLamp.specular_contribution= FloatProperty(
 	name= "Specular contribution",
 	description= "TODO.",
 	min= 0.0,
@@ -326,29 +294,25 @@ VRayLamp.FloatProperty(
 	default= 1
 )
 
-VRayLamp.BoolProperty(
-	attr= "areaSpeculars",
+VRayLamp.areaSpeculars= BoolProperty(
 	name= "Area speculars",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.BoolProperty(
-	attr= "ignoreLightNormals",
+VRayLamp.ignoreLightNormals= BoolProperty(
 	name= "Ignore light normals",
 	description= "TODO.",
 	default= True
 )
 
-VRayLamp.BoolProperty(
-	attr= "use_rect_tex",
+VRayLamp.use_rect_tex= BoolProperty(
 	name= "Use rect tex",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.IntProperty(
-	attr= "tex_resolution",
+VRayLamp.tex_resolution= IntProperty(
 	name= "Tex resolution",
 	description= "TODO.",
 	min= 0,
@@ -356,8 +320,7 @@ VRayLamp.IntProperty(
 	default= 512
 )
 
-VRayLamp.FloatProperty(
-	attr= "tex_adaptive",
+VRayLamp.tex_adaptive= FloatProperty(
 	name= "Tex adaptive",
 	description= "TODO.",
 	min= 0.0,
@@ -368,8 +331,7 @@ VRayLamp.FloatProperty(
 	default= 1
 )
 
-VRayLamp.IntProperty(
-	attr= "causticSubdivs",
+VRayLamp.causticSubdivs= IntProperty(
 	name= "Caustic subdivs",
 	description= "Caustic subdivs.",
 	min= 1,
@@ -377,8 +339,7 @@ VRayLamp.IntProperty(
 	default= 1000
 )
 
-VRayLamp.FloatProperty(
-	attr= "causticMult",
+VRayLamp.causticMult= FloatProperty(
 	name= "Causticmult",
 	description= "TODO.",
 	min= 0.0,
@@ -389,23 +350,20 @@ VRayLamp.FloatProperty(
 	default= 1
 )
 
-VRayLamp.StringProperty(
-	attr= 'ies_file',
+VRayLamp.ies_file= StringProperty(
 	name= "IES file",
 	subtype= 'FILE_PATH',
 	description= "IES file."
 )
 
-VRayLamp.BoolProperty(
-	attr= 'soft_shadows',
+VRayLamp.soft_shadows= BoolProperty(
 	name= "Soft shadows",
 	description= "Use the shape of the light as described in the IES profile.",
 	default= True
 )
 
-VRayLamp.FloatProperty(
-	attr= 'turbidity',
-	name= 'Turbidity',
+VRayLamp.turbidity= FloatProperty(
+	name= "Turbidity",
 	description= "TODO.",
 	min= 2.0,
 	max= 100.0,
@@ -415,9 +373,8 @@ VRayLamp.FloatProperty(
 	default= 3.0
 )
 
-VRayLamp.FloatProperty(
-	attr= 'intensity_multiplier',
-	name= 'Intensity multiplier',
+VRayLamp.intensity_multiplier= FloatProperty(
+	name= "Intensity multiplier",
 	description= "TODO.",
 	min= 0.0,
 	max= 100.0,
@@ -427,9 +384,8 @@ VRayLamp.FloatProperty(
 	default= 1.0
 )
 
-VRayLamp.FloatProperty(
-	attr= 'ozone',
-	name= 'Ozone',
+VRayLamp.ozone= FloatProperty(
+	name= "Ozone",
 	description= "TODO.",
 	min= 0.0,
 	max= 1.0,
@@ -439,9 +395,8 @@ VRayLamp.FloatProperty(
 	default= 0.35
 )
 
-VRayLamp.FloatProperty(
-	attr= 'water_vapour',
-	name= 'Water vapour',
+VRayLamp.water_vapour= FloatProperty(
+	name= "Water vapour",
 	description= "TODO.",
 	min= 0.0,
 	max= 10.0,
@@ -451,9 +406,8 @@ VRayLamp.FloatProperty(
 	default= 2
 )
 
-VRayLamp.FloatProperty(
-	attr= 'size_multiplier',
-	name= 'Size',
+VRayLamp.size_multiplier= FloatProperty(
+	name= "Size",
 	description= "TODO.",
 	min= 0.0,
 	max= 1.0,
@@ -463,16 +417,14 @@ VRayLamp.FloatProperty(
 	default= 1
 )
 
-VRayLamp.BoolProperty(
-	attr= 'invisible',
-	name= 'Invisible',
+VRayLamp.invisible= BoolProperty(
+	name= "Invisible",
 	description= "TODO.",
 	default= False
 )
 
-VRayLamp.FloatProperty(
-	attr= 'horiz_illum',
-	name= 'Horiz illumination',
+VRayLamp.horiz_illum= FloatProperty(
+	name= "Horiz illumination",
 	description= "TODO.",
 	min= 0.0,
 	max= 100000.0,
@@ -482,14 +434,13 @@ VRayLamp.FloatProperty(
 	default= 25000
 )
 
-VRayLamp.EnumProperty(
-	attr= 'sky_model',
-	name= 'Sky model',
+VRayLamp.sky_model= EnumProperty(
+	name= "Sky model",
 	description= "Sky model.",
-	items=(
-		('CIEOVER',  "CIE Overcast",       ""),
-		('CIECLEAR', "CIE Clear",          ""),
-		('PREETH',   "Preetham et al.",    "")
+	items= (
+		('CIEOVER',"CIE Overcast",""),
+		('CIECLEAR',"CIE Clear",""),
+		('PREETH',"Preetham et al.","")
 	),
 	default= 'PREETH'
 )
@@ -572,25 +523,14 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(vl,'enabled', text="On")
 
-		if(lamp.type == 'AREA'):
-			pass
-		elif(lamp.type == 'POINT'):
-			pass
-		elif(lamp.type == 'SUN'):
-			pass
-		elif(lamp.type == 'SPOT'):
-			pass
-		elif(lamp.type == 'HEMI'):
-			pass
-		else:
-			pass
-
 		split= layout.split()
 		col= split.column()
-		col.prop(lamp,'color', text="")
+		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
+			col.prop(lamp,'color', text="")
 		if lamp.type == 'AREA':
 			col.prop(vl,'lightPortal', text="Mode")
-		col.prop(vl,'units', text="Units")
+		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
+			col.prop(vl,'units', text="Units")
 		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
 			col.prop(vl,'intensity', text="Intensity")
 		col.prop(vl,'subdivs')
@@ -779,11 +719,3 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 			pass
 		else:
 			pass
-
-
-# bpy.types.register(DATA_PT_context_lamp)
-# bpy.types.register(DATA_PT_vray_light)
-# bpy.types.register(DATA_PT_vray_light_shape)
-# bpy.types.register(DATA_PT_vray_light_shadows)
-# bpy.types.register(DATA_PT_vray_light_advanced)
-

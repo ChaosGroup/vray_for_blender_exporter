@@ -27,31 +27,29 @@
 '''
 
 
+''' Python modules '''
+import os
+
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
-
-FloatProperty= bpy.types.Mesh.FloatProperty
-IntProperty= bpy.types.Mesh.IntProperty
-BoolProperty= bpy.types.Mesh.BoolProperty
-EnumProperty= bpy.types.Mesh.EnumProperty
-VectorProperty= bpy.types.Mesh.FloatVectorProperty
-StringProperty= bpy.types.Mesh.StringProperty
+''' vb modules '''
+from vb25.utils import *
 
 
 class VRayData(bpy.types.IDPropertyGroup):
     pass
 
-bpy.types.Mesh.PointerProperty(
-	attr= 'vray',
-	type=  VRayData,
+bpy.types.Mesh.vray= PointerProperty(
 	name= "V-Ray Object Data Settings",
+	type=  VRayData,
 	description= "V-Ray object data settings."
 )
 
-bpy.types.Curve.PointerProperty(
-	attr= 'vray',
-	type=  VRayData,
+bpy.types.Curve.vray= PointerProperty(
 	name= "V-Ray Object Data Settings",
+	type=  VRayData,
 	description= "V-Ray object data settings."
 )
 
@@ -62,76 +60,141 @@ bpy.types.Curve.PointerProperty(
 class GeomMeshFile(bpy.types.IDPropertyGroup):
     pass
 
-VRayData.PointerProperty(
-	attr= 'GeomMeshFile',
-	type=  GeomMeshFile,
+VRayData.GeomMeshFile= PointerProperty(
 	name= "V-Ray Proxy",
-	description= "V-Ray proxy settings"
+	type=  GeomMeshFile,
+	description= "V-Ray proxy settings."
 )
 
-GeomMeshFile.BoolProperty(
-	attr= 'use',
+# GeomMeshFile.BoolProperty(
+# 	attr= 'use',
+# 	name= "Use Proxy",
+# 	description= "Use proxy mesh.",
+# 	default= False
+# )
+
+# GeomMeshFile.StringProperty(
+# 	attr= 'file',
+# 	name= "File",
+# 	subtype= 'FILE_PATH',
+# 	description= "Proxy file."
+# )
+
+# GeomMeshFile.EnumProperty(
+# 	attr= 'anim_type',
+# 	name= "Animation type",
+# 	description= "Proxy animation type.",
+# 	items=(
+# 		("LOOP",     "Loop",      "TODO."),
+# 		("ONCE",     "Once",      "TODO."),
+# 		("PINGPONG", "Ping-pong", "TODO."),
+# 		("STILL",    "Still",     "TODO.")
+# 	),
+# 	default= "LOOP"
+# )
+
+# GeomMeshFile.FloatProperty(
+# 	attr= 'anim_speed',
+# 	name= "Speed",
+# 	description= "Animated proxy playback speed.",
+# 	min=0.0, max=1000.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 1.0
+# )
+
+# GeomMeshFile.FloatProperty(
+# 	attr= 'anim_offset',
+# 	name= "Offset",
+# 	description= "Animated proxy initial frame offset.",
+# 	min=0.0, max=1000.0,
+# 	soft_min=0.0, soft_max=1.0,
+# 	default= 0.0
+# )
+
+# GeomMeshFile.FloatProperty(
+# 	attr= 'scale',
+# 	name= "Scale",
+# 	description= "Size scaling factor.",
+# 	min=0.0, max=1000.0,
+# 	soft_min=0.0, soft_max=2.0,
+# 	default= 1.0
+# )
+
+# GeomMeshFile.BoolProperty(
+# 	attr= 'apply_transforms',
+# 	name= "Apply transform",
+# 	description= "Apply rotation and location.",
+# 	default= False
+# )
+
+# GeomMeshFile.BoolProperty(
+# 	attr= 'apply_scale',
+# 	name= "Apply scale",
+# 	description= "Apply scale.",
+# 	default= True
+# )
+
+GeomMeshFile.use= BoolProperty(
 	name= "Use Proxy",
 	description= "Use proxy mesh.",
 	default= False
 )
 
-GeomMeshFile.StringProperty(
-	attr= 'file',
+GeomMeshFile.file= StringProperty(
 	name= "File",
 	subtype= 'FILE_PATH',
 	description= "Proxy file."
 )
 
-GeomMeshFile.EnumProperty(
-	attr= 'anim_type',
+GeomMeshFile.anim_type= EnumProperty(
 	name= "Animation type",
 	description= "Proxy animation type.",
-	items=(
-		("LOOP",     "Loop",      "TODO."),
-		("ONCE",     "Once",      "TODO."),
-		("PINGPONG", "Ping-pong", "TODO."),
-		("STILL",    "Still",     "TODO.")
+	items= (
+		('LOOP',"Loop","TODO."),
+		('ONCE',"Once","TODO."),
+		('PINGPONG',"Ping-pong","TODO."),
+		('STILL',"Still","TODO.")
 	),
 	default= "LOOP"
 )
 
-GeomMeshFile.FloatProperty(
-	attr= 'anim_speed',
+GeomMeshFile.anim_speed= FloatProperty(
 	name= "Speed",
 	description= "Animated proxy playback speed.",
-	min=0.0, max=1000.0,
-	soft_min=0.0, soft_max=1.0,
+	min= 0.0,
+	max= 1000.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
-GeomMeshFile.FloatProperty(
-	attr= 'anim_offset',
+GeomMeshFile.anim_offset= FloatProperty(
 	name= "Offset",
 	description= "Animated proxy initial frame offset.",
-	min=0.0, max=1000.0,
-	soft_min=0.0, soft_max=1.0,
+	min= 0.0,
+	max= 1000.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
 	default= 0.0
 )
 
-GeomMeshFile.FloatProperty(
-	attr= 'scale',
+GeomMeshFile.scale= FloatProperty(
 	name= "Scale",
 	description= "Size scaling factor.",
-	min=0.0, max=1000.0,
-	soft_min=0.0, soft_max=2.0,
+	min= 0.0,
+	max= 1000.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
 	default= 1.0
 )
 
-GeomMeshFile.BoolProperty(
-	attr= 'apply_transforms',
+GeomMeshFile.apply_transforms= BoolProperty(
 	name= "Apply transform",
 	description= "Apply rotation and location.",
 	default= False
 )
 
-GeomMeshFile.BoolProperty(
-	attr= 'apply_scale',
+GeomMeshFile.apply_scale= BoolProperty(
 	name= "Apply scale",
 	description= "Apply scale.",
 	default= True

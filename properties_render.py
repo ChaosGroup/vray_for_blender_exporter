@@ -29,6 +29,7 @@
 
 ''' Blender modules '''
 import bpy
+from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
@@ -38,152 +39,150 @@ from vb25.plugin_manager import *
 class SettingsDMCSampler(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'SettingsDMCSampler',
-	type=  SettingsDMCSampler,
+VRayScene.SettingsDMCSampler= PointerProperty(
 	name= "DMC Sampler",
+	type=  SettingsDMCSampler,
 	description= "DMC Sampler settings."
 )
 
-SettingsDMCSampler.FloatProperty(
-	attr="adaptive_threshold",
-	name="Noise threshold",
-	description="Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used.",
-	min=0.0, max=1.0,
-	soft_min=0.001, soft_max=0.1,
-	default=0.01,
-	precision=3
+SettingsDMCSampler.adaptive_threshold= FloatProperty(
+	name= "Noise threshold",
+	description= "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.001,
+	soft_max= 0.1,
+	default= 0.01,
+	precision= 3
 )
 
-SettingsDMCSampler.IntProperty(
-    attr="adaptive_min_samples",
-	name="Min samples",
-	description="The minimum number of samples that must be made before the early termination algorithm is used.",
-	min=1, max=100,
-	default=8
+SettingsDMCSampler.adaptive_min_samples= IntProperty(
+	name= "Min samples",
+	description= "The minimum number of samples that must be made before the early termination algorithm is used.",
+	min= 1,
+	max= 100,
+	default= 8
 )
 
-SettingsDMCSampler.FloatProperty(
-	attr="adaptive_amount",
-	name="Adaptive amount",
-	description="A value of 1.0 means full adaptation; a value of 0.0 means no adaptation.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.85,
-	precision=2
+SettingsDMCSampler.adaptive_amount= FloatProperty(
+	name= "Adaptive amount",
+	description= "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.85,
+	precision= 2
 )
 
-SettingsDMCSampler.BoolProperty(
-	attr="time_dependent",
-	name="Time dependent",
-	description="This make the samping pattern change with time.",
+SettingsDMCSampler.time_dependent= BoolProperty(
+	name= "Time dependent",
+	description= "This make the samping pattern change with time.",
 	default= 0
 )
 
-SettingsDMCSampler.FloatProperty(
-	attr="subdivs_mult",
-	name="Subdivs mult",
-	description="This will multiply all subdivs values everywhere during rendering.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=10.0,
-	default=1.0
+SettingsDMCSampler.subdivs_mult= FloatProperty(
+	name= "Subdivs mult",
+	description= "This will multiply all subdivs values everywhere during rendering.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	default= 1.0
 )
 
 
 class SettingsColorMapping(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'SettingsColorMapping',
-	type= SettingsColorMapping,
+VRayScene.SettingsColorMapping= PointerProperty(
 	name= "Color Mapping",
+	type=  SettingsColorMapping,
 	description= "Color mapping settings."
 )
 
-SettingsColorMapping.EnumProperty(
-	attr= 'type',
+SettingsColorMapping.type= EnumProperty(
 	name= "Type",
 	description= "Color mapping type.",
-	items=(
-		("LNR",   "Linear", ""),
-		("EXP",   "Exponential", ""),
-		("HSV",   "HSV exponential", ""),
-		("INT",   "Intensity exponential", ""),
-		("GCOR",  "Gamma correction", ""),
-		("GINT",  "Intensity gamma", ""),
-		("REIN",  "Reinhard", "")
+	items= (
+		('LNR',"Linear",""),
+		('EXP',"Exponential",""),
+		('HSV',"HSV exponential",""),
+		('INT',"Intensity exponential",""),
+		('GCOR',"Gamma correction",""),
+		('GINT',"Intensity gamma",""),
+		('REIN',"Reinhard","")
 	),
 	default= "LNR"
 )
 
-SettingsColorMapping.BoolProperty(
-	attr= 'affect_background',
+SettingsColorMapping.affect_background= BoolProperty(
 	name= "Affect background",
 	description= "Affect colors belonging to the background.",
 	default= True
 )
 
-SettingsColorMapping.FloatProperty(
-	attr= 'dark_mult',
+SettingsColorMapping.dark_mult= FloatProperty(
 	name= "Dark multiplier",
 	description= "Multiplier for dark colors.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=1.0,
-	default=1.0
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
 )
 
-SettingsColorMapping.FloatProperty(
-	attr= 'bright_mult',
+SettingsColorMapping.bright_mult= FloatProperty(
 	name= "Bright multiplier",
 	description= "Multiplier for bright colors.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=1.0,
-	default=1.0
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
 )
 
-SettingsColorMapping.FloatProperty(
-	attr= 'gamma',
+SettingsColorMapping.gamma= FloatProperty(
 	name= "Gamma",
 	description= "Gamma correction for the output image regardless of the color mapping mode.",
-	min=0.0, max=10.0,
-	soft_min=1.0, soft_max=2.2,
-	default=1.0
+	min= 0.0,
+	max= 10.0,
+	soft_min= 1.0,
+	soft_max= 2.2,
+	default= 1.0
 )
 
-SettingsColorMapping.BoolProperty(
-	attr= 'clamp_output',
+SettingsColorMapping.clamp_output= BoolProperty(
 	name= "Clamp output",
 	description= "Clamp colors after color mapping.",
 	default= True
 )
 
-SettingsColorMapping.FloatProperty(
-	attr= 'clamp_level',
+SettingsColorMapping.clamp_level= FloatProperty(
 	name= "Clamp level",
 	description= "The level at which colors will be clamped.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=100.0,
-	default=1.0
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 100.0,
+	default= 1.0
 )
 
-SettingsColorMapping.BoolProperty(
-	attr= 'subpixel_mapping',
+SettingsColorMapping.subpixel_mapping= BoolProperty(
 	name= "Sub-pixel mapping",
 	description= "This option controls whether color mapping will be applied to the final image pixels, or to the individual sub-pixel samples.",
 	default= False
 )
 
-SettingsColorMapping.BoolProperty(
-	attr= 'adaptation_only',
+SettingsColorMapping.adaptation_only= BoolProperty(
 	name= "Adaptation only",
 	description= "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly).",
 	default= False
 )
 
-SettingsColorMapping.BoolProperty(
-	attr= 'linearWorkflow',
+SettingsColorMapping.linearWorkflow= BoolProperty(
 	name= "Linear workflow",
-	description="When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene.",
+	description= "When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene.",
 	default= False
 )
 
@@ -191,349 +190,327 @@ SettingsColorMapping.BoolProperty(
 class SettingsImageSampler(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'SettingsImageSampler',
-	type= SettingsImageSampler,
+VRayScene.SettingsImageSampler= PointerProperty(
 	name= "Image Sampler",
+	type=  SettingsImageSampler,
 	description= "Image Sampler settings."
 )
 
-SettingsImageSampler.EnumProperty(
-	attr="filter_type",
-	name="Filter type",
-	description="Antialiasing filter.",
-	items=(
-		("NONE",      "None",       ""),
-		("GAUSS",     "Gaussian",   ""),
-		("SINC",      "Sinc",       ""),
-		("CATMULL",   "CatmullRom", ""),
-		("LANC",      "Lanczos",    ""),
-		("TRIANGLE",  "Triangle",   ""),
-		("BOX",       "Box",        ""),
-		("AREA",      "Area",       "")
+SettingsImageSampler.filter_type= EnumProperty(
+	name= "Filter type",
+	description= "Antialiasing filter.",
+	items= (
+		('NONE',"None",""),
+		('GAUSS',"Gaussian",""),
+		('SINC',"Sinc",""),
+		('CATMULL',"CatmullRom",""),
+		('LANC',"Lanczos",""),
+		('TRIANGLE',"Triangle",""),
+		('BOX',"Box",""),
+		('AREA',"Area","")
 	),
 	default= "NONE"
 )
 
-SettingsImageSampler.FloatProperty(
-	attr="filter_size",
-	name="Filter size",
-	description="Filter size.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=10.0,
-	default=1.5
+SettingsImageSampler.filter_size= FloatProperty(
+	name= "Filter size",
+	description= "Filter size.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	default= 1.5
 )
 
-SettingsImageSampler.EnumProperty(
-	attr="type",
-	name="Type",
-	description="Image sampler type.",
-	items=(
-		("FXD",  "Fixed", ""),
-		("DMC",  "Adaptive DMC", ""),
-		("SBD",  "Adaptive subdivision", "")
+SettingsImageSampler.type= EnumProperty(
+	name= "Type",
+	description= "Image sampler type.",
+	items= (
+		('FXD',"Fixed",""),
+		('DMC',"Adaptive DMC",""),
+		('SBD',"Adaptive subdivision","")
 	),
 	default= "DMC"
 )
 
-SettingsImageSampler.IntProperty(
-    attr="dmc_minSubdivs",
-	name="Min subdivs",
-	description="The initial (minimum) number of samples taken for each pixel.",
-	min=1, max=100,
-	default=1
-)
-
-SettingsImageSampler.IntProperty(
-    attr="dmc_maxSubdivs",
-	name="Max subdivs",
-	description="The maximum number of samples for a pixel.",
-	min=1, max=100,
-	default=4
-)
-
-SettingsImageSampler.BoolProperty(
-	attr="dmc_treshhold_use_dmc",
-	name="Use DMC sampler threshold",
-	description="Use threshold specified in the \"DMC sampler\"",
-	default=1
-)
-
-SettingsImageSampler.FloatProperty(
-	attr="dmc_threshold",
-	name="Color threshold",
-	description="The threshold that will be used to determine if a pixel needs more samples.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.01
-)
-
-SettingsImageSampler.BoolProperty(
-	attr="dmc_show_samples",
-	name="Show samples",
-	description="Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
-	default=0
-)
-
-SettingsImageSampler.IntProperty(
-    attr="fixed_subdivs",
-	name="Subdivs",
-	description="The number of samples per pixel.",
-	min=1, max=100,
-	default=1
-)
-
-SettingsImageSampler.BoolProperty(
-	attr="subdivision_show_samples",
-	name="Show samples",
-	description="Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
-	default= 0
-)
-
-SettingsImageSampler.BoolProperty(
-	attr="subdivision_normals",
-	name="Normals",
-	description="This will supersample areas with sharply varying normals.",
-	default= 0
-)
-
-SettingsImageSampler.FloatProperty(
-	attr="subdivision_normals_threshold",
-	name="Normals threshold",
-	description="Normals threshold.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.05
-)
-
-SettingsImageSampler.BoolProperty(
-	attr="subdivision_jitter",
-	name="Randomize samples",
-	description="Displaces the samples slightly to produce better antialiasing of nearly horizontal or vertical lines.",
+SettingsImageSampler.dmc_minSubdivs= IntProperty(
+	name= "Min subdivs",
+	description= "The initial (minimum) number of samples taken for each pixel.",
+	min= 1,
+	max= 100,
 	default= 1
 )
 
-SettingsImageSampler.FloatProperty(
-	attr="subdivision_threshold",
-	name="Color threshold",
-	description="Determines the sensitivity of the sampler to changes in pixel intensity.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.1
+SettingsImageSampler.dmc_maxSubdivs= IntProperty(
+	name= "Max subdivs",
+	description= "The maximum number of samples for a pixel.",
+	min= 1,
+	max= 100,
+	default= 4
 )
 
-SettingsImageSampler.BoolProperty(
-	attr="subdivision_edges",
-	name="Object outline",
-	description="This will cause the image sampler to always supersample object edges.",
-	default=0
+SettingsImageSampler.dmc_treshhold_use_dmc= BoolProperty(
+	name= "Use DMC sampler threshold",
+	description= "Use threshold specified in the \"DMC sampler\"",
+	default= 1
 )
 
-SettingsImageSampler.IntProperty(
-    attr="subdivision_minRate",
-	name="Min rate",
-	description="Minimum number of samples per pixel.",
-	min=-10, max=50,
-	default=-1
+SettingsImageSampler.dmc_threshold= FloatProperty(
+	name= "Color threshold",
+	description= "The threshold that will be used to determine if a pixel needs more samples.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.01
 )
 
-SettingsImageSampler.IntProperty(
-    attr="subdivision_maxRate",
-	name="Max rate",
-	description="Maximum number of samples per pixel.",
-	min=-10, max=50,
-	default=2
+SettingsImageSampler.dmc_show_samples= BoolProperty(
+	name= "Show samples",
+	description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
+	default= 0
+)
+
+SettingsImageSampler.fixed_subdivs= IntProperty(
+	name= "Subdivs",
+	description= "The number of samples per pixel.",
+	min= 1,
+	max= 100,
+	default= 1
+)
+
+SettingsImageSampler.subdivision_show_samples= BoolProperty(
+	name= "Show samples",
+	description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
+	default= 0
+)
+
+SettingsImageSampler.subdivision_normals= BoolProperty(
+	name= "Normals",
+	description= "This will supersample areas with sharply varying normals.",
+	default= 0
+)
+
+SettingsImageSampler.subdivision_normals_threshold= FloatProperty(
+	name= "Normals threshold",
+	description= "Normals threshold.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.05
+)
+
+SettingsImageSampler.subdivision_jitter= BoolProperty(
+	name= "Randomize samples",
+	description= "Displaces the samples slightly to produce better antialiasing of nearly horizontal or vertical lines.",
+	default= 1
+)
+
+SettingsImageSampler.subdivision_threshold= FloatProperty(
+	name= "Color threshold",
+	description= "Determines the sensitivity of the sampler to changes in pixel intensity.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.1
+)
+
+SettingsImageSampler.subdivision_edges= BoolProperty(
+	name= "Object outline",
+	description= "This will cause the image sampler to always supersample object edges.",
+	default= 0
+)
+
+SettingsImageSampler.subdivision_minRate= IntProperty(
+	name= "Min rate",
+	description= "Minimum number of samples per pixel.",
+	min= -10,
+	max= 50,
+	default= -1
+)
+
+SettingsImageSampler.subdivision_maxRate= IntProperty(
+	name= "Max rate",
+	description= "Maximum number of samples per pixel.",
+	min= -10,
+	max= 50,
+	default= 2
 )
 
 
 class SettingsRaycaster(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'SettingsRaycaster',
-	type= SettingsRaycaster,
+VRayScene.SettingsRaycaster= PointerProperty(
 	name= "Raycaster",
+	type=  SettingsRaycaster,
 	description= "Raycaster settings."
 )
 
-SettingsRaycaster.IntProperty(
-    attr="maxLevels",
-	name="Max. tree depth",
-	description="Maximum BSP tree depth.",
-	min=50, max=100,
-	default=80
+SettingsRaycaster.maxLevels= IntProperty(
+	name= "Max. tree depth",
+	description= "Maximum BSP tree depth.",
+	min= 50,
+	max= 100,
+	default= 80
 )
 
-SettingsRaycaster.FloatProperty(
-	attr="minLeafSize",
-	name="Min. leaf size",
-	description="Minimum size of a leaf node.",
-	min=0.0, max=1.0,
-	soft_min=0.0, soft_max=1.0,
-	default=0.0
+SettingsRaycaster.minLeafSize= FloatProperty(
+	name= "Min. leaf size",
+	description= "Minimum size of a leaf node.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 0.0
 )
 
-SettingsRaycaster.FloatProperty(
-	attr="faceLevelCoef",
-	name="Face/level",
-	description="Maximum amount of triangles in a leaf node.",
-	min=0.0, max=10.0,
-	soft_min=0.0, soft_max=10.0,
-	default=1.0
+SettingsRaycaster.faceLevelCoef= FloatProperty(
+	name= "Face/level",
+	description= "Maximum amount of triangles in a leaf node.",
+	min= 0.0,
+	max= 10.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	default= 1.0
 )
 
-SettingsRaycaster.IntProperty(
-    attr="dynMemLimit",
-	name="Dynamic memory limit",
-	description="RAM limit for the dynamic raycasters.",
-	min=100, max=100000,
-	default=400
+SettingsRaycaster.dynMemLimit= IntProperty(
+	name= "Dynamic memory limit",
+	description= "RAM limit for the dynamic raycasters.",
+	min= 100,
+	max= 100000,
+	default= 400
 )
 
 
 class SettingsUnitsInfo(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'SettingsUnitsInfo',
-	type= SettingsUnitsInfo,
+VRayScene.SettingsUnitsInfo= PointerProperty(
 	name= "Units",
+	type=  SettingsUnitsInfo,
 	description="Units settings."
 )
 
-SettingsUnitsInfo.FloatProperty(
-	attr= "photometric_scale",
+SettingsUnitsInfo.photometric_scale= FloatProperty(
 	name= "Photometric scale",
 	description= "Photometric scale.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=1.0,
-	precision=4,
-	default=0.002
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 4,
+	default= 0.002
 )
 
-SettingsUnitsInfo.FloatProperty(
-	attr= "meters_scale",
+SettingsUnitsInfo.meters_scale= FloatProperty(
 	name= "Meters scale",
 	description= "Meters scale.",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=10.0,
-	precision=3,
-	default=1.0
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 1.0
 )
 
 
-
-'''
-	Exporter
-'''
 class VRayExporter(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'exporter',
-	type= VRayExporter,
+VRayScene.exporter= PointerProperty(
 	name= "Exporter",
+	type=  VRayExporter,
 	description= "Exporter settings."
 )
 
-VRayExporter.BoolProperty(
-	attr= "use_material_nodes",
+VRayExporter.use_material_nodes= BoolProperty(
 	name= "Use material nodes",
 	description= "Use material nodes.",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr= "image_to_blender",
+VRayExporter.image_to_blender= BoolProperty(
 	name= "Image to Blender",
 	description= "Pass image to Blender on render end.",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr="log_window",
-	name="Show log window",
-	description="Show log window (Linux).",
+VRayExporter.log_window= BoolProperty(
+	name= "Show log window",
+	description= "Show log window (Linux).",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr= 'animation',
+VRayExporter.animation= BoolProperty(
 	name= "Animation",
 	description= "Render animation.",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr= 'use_hair',
+VRayExporter.use_hair= BoolProperty(
 	name= "Hair",
 	description= "Render hair.",
 	default= True
 )
 
-VRayExporter.BoolProperty(
-	attr= 'camera_loop',
+VRayExporter.camera_loop= BoolProperty(
 	name= "Camera loop",
 	description= "Render views from all cameras.",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr= 'compat_mode',
+VRayExporter.compat_mode= BoolProperty(
 	name= "Compatibility mode",
 	description= "V-Ray/Blender 2.4 shading compatibility mode.",
 	default= False
 )
 
-VRayExporter.BoolProperty(
-	attr= 'active_layers',
+VRayExporter.active_layers= BoolProperty(
 	name= "Active layers",
 	description= "Render objects only from visible layers.",
 	default= True
 )
 
-VRayExporter.BoolProperty(
-	attr= 'auto_meshes',
+VRayExporter.auto_meshes= BoolProperty(
 	name= "Auto export meshes",
 	description= "Export meshes automatically before render.",
 	default= 0
 )
 
-VRayExporter.BoolProperty(
-	attr= 'autorun',
+VRayExporter.autorun= BoolProperty(
 	name= "Autorun",
 	description= "Start V-Ray automatically after export.",
 	default= 1
 )
 
-VRayExporter.BoolProperty(
-	attr= 'debug',
+VRayExporter.debug= BoolProperty(
 	name= "Debug",
 	description= "Enable script\'s debug output.",
 	default= 0
 )
 
-VRayExporter.EnumProperty(
-	attr= 'output',
+VRayExporter.output= EnumProperty(
 	name= "Exporting directory",
 	description= "Exporting directory.",
-	items=(
-		('USER',  "User-defined directory", ""),
-		('SCENE', "Scene file directory",   ""),
-		('TMP',   "Global TMP directory",  "")
+	items= (
+		('USER',"User-defined directory",""),
+		('SCENE',"Scene file directory",""),
+		('TMP',"Global TMP directory","")
 	),
 	default= 'TMP'
 )
 
-VRayExporter.StringProperty(
-	attr= 'output_dir',
+VRayExporter.output_dir= StringProperty(
 	name= "Directory",
 	subtype= 'DIR_PATH',
-	description="User-defined output directory."
+	description= "User-defined output directory."
 )
 
-VRayExporter.BoolProperty(
-	attr= 'output_unique',
+VRayExporter.output_unique= BoolProperty(
 	name= "Use unique file name",
 	description= "Use unique file name.",
 	default= False
@@ -743,22 +720,19 @@ VRayExporter.BoolProperty(
 class VRayDR(bpy.types.IDPropertyGroup):
 	pass
 
-VRayScene.PointerProperty(
-	attr= 'VRayDR',
-	type=  VRayDR,
+VRayScene.VRayDR= PointerProperty(
 	name= "Distributed rendering",
+	type=  VRayDR,
 	description= "Distributed rendering settings."
 )
 
-VRayDR.BoolProperty(
-	attr= 'on',
+VRayDR.on= BoolProperty(
 	name= "Distributed rendering",
 	description= "Distributed rendering.",
 	default= False
 )
 
-VRayDR.IntProperty(
-	attr= 'port',
+VRayDR.port= IntProperty(
 	name= "Distributed rendering port",
 	description= "Distributed rendering port.",
 	min= 0,
@@ -766,26 +740,24 @@ VRayDR.IntProperty(
 	default= 20204
 )
 
-class VRayRenderNode(bpy.types.IDPropertyGroup):
-	pass
-
-VRayDR.CollectionProperty(
-	attr= 'nodes',
-	type=  VRayRenderNode,
-	name= "Render Nodes",
-	description= "V-Ray render nodes."
-)
-
-VRayDR.IntProperty(
-	attr= 'nodes_selected',
+VRayDR.nodes_selected= IntProperty(
 	name= "Render Node Index",
 	default= -1,
 	min= -1,
 	max= 100
 )
 
-VRayRenderNode.StringProperty(
-	attr= 'address',
+
+class VRayRenderNode(bpy.types.IDPropertyGroup):
+	pass
+
+VRayDR.nodes= CollectionProperty(
+	name= "Render Nodes",
+	type=  VRayRenderNode,
+	description= "V-Ray render nodes."
+)
+
+VRayRenderNode.address= StringProperty(
 	name= "IP/Hostname",
 	description= "Render node IP or hostname."
 )

@@ -43,8 +43,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -52,40 +55,26 @@ class RenderChannelZDepth(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelZDepth',
-		type= RenderChannelZDepth,
+	parent_struct.RenderChannelZDepth= PointerProperty(
 		name= "Z-Depth",
+		type=  RenderChannelZDepth,
 		description= "V-Ray render channel \"Z-Depth\" settings."
 	)
 
-	FloatProperty= RenderChannelZDepth.FloatProperty
-	IntProperty= RenderChannelZDepth.IntProperty
-	BoolProperty= RenderChannelZDepth.BoolProperty
-	EnumProperty= RenderChannelZDepth.EnumProperty
-	FloatVectorProperty= RenderChannelZDepth.FloatVectorProperty
-	StringProperty= RenderChannelZDepth.StringProperty
-
-	# name: string
-	StringProperty(
-		attr= 'name',
+	RenderChannelZDepth.name= StringProperty(
 		name= "Name",
 		description= "Render channel name",
 		maxlen= 64,
 		default= "ZDepth"
 	)
 
-	# depth_from_camera: bool
-	RenderChannelZDepth.BoolProperty(
-		attr= 'depth_from_camera',
+	RenderChannelZDepth.depth_from_camera= BoolProperty(
 		name= "From camera",
 		description= "TODO.",
 		default= False
 	)
 
-	# depth_black: float
-	RenderChannelZDepth.FloatProperty(
-		attr= 'depth_black',
+	RenderChannelZDepth.depth_black= FloatProperty(
 		name= "Black distance",
 		description= "TODO.",
 		min= 0.0,
@@ -96,9 +85,7 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	# depth_white: float
-	RenderChannelZDepth.FloatProperty(
-		attr= 'depth_white',
+	RenderChannelZDepth.depth_white= FloatProperty(
 		name= "White distance",
 		description= "TODO.",
 		min= 0.0,
@@ -109,17 +96,13 @@ def add_properties(parent_struct):
 		default= 1000
 	)
 
-	# depth_clamp: bool
-	RenderChannelZDepth.BoolProperty(
-		attr= 'depth_clamp',
+	RenderChannelZDepth.depth_clamp= BoolProperty(
 		name= "Clamp",
 		description= "TODO.",
 		default= True
 	)
 
-	# filtering: bool
-	RenderChannelZDepth.BoolProperty(
-		attr= 'filtering',
+	RenderChannelZDepth.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True

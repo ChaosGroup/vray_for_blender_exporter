@@ -48,8 +48,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -57,22 +60,19 @@ class SettingsCaustics(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'SettingsCaustics',
-		type= SettingsCaustics,
+	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
+		type=  SettingsCaustics,
 		description= "Caustics settings."
 	)
 
-	SettingsCaustics.BoolProperty(
-		attr= 'on',
+	SettingsCaustics.on= BoolProperty(
 		name= "On",
 		description= "Enable caustics computation.",
 		default= False
 	)
 
-	SettingsCaustics.IntProperty(
-		attr= 'max_photons',
+	SettingsCaustics.max_photons= IntProperty(
 		name= "Max photons",
 		description= "TODO.",
 		min= 0,
@@ -82,8 +82,7 @@ def add_properties(parent_struct):
 		default= 30
 	)
 
-	SettingsCaustics.FloatProperty(
-		attr= 'search_distance',
+	SettingsCaustics.search_distance= FloatProperty(
 		name= "Search distance",
 		description= "TODO.",
 		min= 0.0,
@@ -93,9 +92,8 @@ def add_properties(parent_struct):
 		precision= 3,
 		default= 0.1
 	)
-
-	SettingsCaustics.FloatProperty(
-		attr= 'max_density',
+	
+	SettingsCaustics.max_density= FloatProperty(
 		name= "Max density",
 		description= "TODO.",
 		min= 0.0,
@@ -106,8 +104,7 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	SettingsCaustics.FloatProperty(
-		attr= 'multiplier',
+	SettingsCaustics.multiplier= FloatProperty(
 		name= "Multiplier",
 		description= "TODO.",
 		min= 0.0,
@@ -118,51 +115,46 @@ def add_properties(parent_struct):
 		default= 1
 	)
 
-	SettingsCaustics.EnumProperty(
-		attr= 'mode',
+	SettingsCaustics.mode= EnumProperty(
 		name= "Mode",
 		description= "Caustics computaion mode.",
-		items=(
-			('FILE', "From file",      ""),
-			('NEW',   "New",           "")
+		items= (
+			('FILE',"From file",""),
+			('NEW',"New","")
 		),
 		default= 'NEW'
 	)
 
-	SettingsCaustics.StringProperty(
-		attr= 'file',
+	SettingsCaustics.file= StringProperty(
 		name= "File",
 		subtype= 'FILE_PATH',
 		description= "TODO."
 	)
-
-	# SettingsCaustics.BoolProperty(
-	# 	attr= 'dont_delete',
-	# 	name= "Don\'t delete",
-	# 	description= "TODO.",
-	# 	default= False
-	# )
-
-	SettingsCaustics.BoolProperty(
-		attr= 'auto_save',
+	
+	SettingsCaustics.auto_save= BoolProperty(
 		name= "Auto save",
 		description= "TODO.",
 		default= False
 	)
 
-	SettingsCaustics.StringProperty(
-		attr= 'auto_save_file',
+	SettingsCaustics.auto_save_file= StringProperty(
 		name= "Auto save file",
 		subtype= 'FILE_PATH',
 		description= "TODO."
 	)
 
-	SettingsCaustics.BoolProperty(
-		attr= 'show_calc_phase',
+	SettingsCaustics.show_calc_phase= BoolProperty(
 		name= "Show calc phase",
 		description= "TODO.",
 		default= False
 	)
+
+	# SettingsCaustics.dont_delete= BoolProperty(
+	# 	name= "Don\'t delete",
+	# 	description= "TODO.",
+	# 	default= False
+	# )
+
 
 
 

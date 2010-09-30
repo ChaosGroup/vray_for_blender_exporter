@@ -40,8 +40,12 @@ PARAMS= (
 	'filtering'
 )
 
-import bpy
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -49,48 +53,37 @@ class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelExtraTex',
-		type=  RenderChannelExtraTex,
+	parent_struct.RenderChannelExtraTex= PointerProperty(
 		name= "ExtraTex",
+		type=  RenderChannelExtraTex,
 		description= "V-Ray render channel \"ExtraTex\" settings."
 	)
 
-	# name: string
-	RenderChannelExtraTex.StringProperty(
-		attr= 'name',
+	RenderChannelExtraTex.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
 		default= "ExtraTex"
 	)
 
-	# consider_for_aa: bool
-	RenderChannelExtraTex.BoolProperty(
-		attr= 'consider_for_aa',
+	RenderChannelExtraTex.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
 		description= "TODO.",
 		default= True
 	)
-	
-	# affect_matte_objects: bool
-	RenderChannelExtraTex.BoolProperty(
-		attr= 'affect_matte_objects',
+
+	RenderChannelExtraTex.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
 		description= "TODO.",
 		default= True
 	)
-	
-	# texmap: acolor texture
-	RenderChannelExtraTex.StringProperty(
-		attr= 'texmap',
+
+	RenderChannelExtraTex.texmap= StringProperty(
 		name= "Texture",
 		description= "TODO.",
 		default= ""
 	)
 
-	# filtering: bool
-	RenderChannelExtraTex.BoolProperty(
-		attr= 'filtering',
+	RenderChannelExtraTex.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True

@@ -42,8 +42,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -51,15 +54,13 @@ class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'SettingsRegionsGenerator',
+	parent_struct.SettingsRegionsGenerator= PointerProperty(
 		type= SettingsRegionsGenerator,
 		name= NAME,
 		description= DESC
 	)
 
-	SettingsRegionsGenerator.EnumProperty(
-		attr= 'seqtype',
+	SettingsRegionsGenerator.seqtype= EnumProperty(
 		name= "Type",
 		description= "Determines the order in which the regions are rendered.",
 		items=(
@@ -73,15 +74,7 @@ def add_properties(parent_struct):
 		default= 'TRIANGLE'
 	)
 
-	SettingsRegionsGenerator.BoolProperty(
-		attr= 'reverse',
-		name= "Reverse",
-		description= "Reverses the region sequence order. ",
-		default= False
-	)
-
-	SettingsRegionsGenerator.EnumProperty(
-		attr= "xymeans",
+	SettingsRegionsGenerator.xymeans= EnumProperty(
 		name= "XY means",
 		description="XY means region width/height or region count.",
 		items=(
@@ -91,18 +84,24 @@ def add_properties(parent_struct):
 		default= 'SIZE'
 	)
 
-	SettingsRegionsGenerator.IntProperty(
-		attr= 'xc',
-		name= "X",
-		description= "Determines the maximum region width in pixels (Region W/H is selected) or the number of regions in the horizontal direction (when Region Count is selected)",
-		min=1, max=100,
-		default=32
+	SettingsRegionsGenerator.reverse= BoolProperty(
+		name= "Reverse",
+		description= "Reverses the region sequence order. ",
+		default= False
 	)
 
-	SettingsRegionsGenerator.IntProperty(
-		attr= 'yc',
+	SettingsRegionsGenerator.xc= IntProperty(
+		name= "X",
+		description= "Determines the maximum region width in pixels (Region W/H is selected) or the number of regions in the horizontal direction (when Region Count is selected)",
+		min= 1,
+		max= 100,
+		default= 32
+	)
+
+	SettingsRegionsGenerator.yc= IntProperty(
 		name= "Y",
 		description= "Determines the maximum region height in pixels (Region W/H is selected) or the number of regions in the vertical direction (when Region Count is selected)",
-		min=1, max=100,
-		default=32
+		min= 1,
+		max= 100,
+		default= 32
 	)

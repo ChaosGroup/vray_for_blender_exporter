@@ -26,28 +26,16 @@
 
 '''
 
-try:
-	reload(properties_camera)
-	reload(properties_lamp)
-	reload(properties_material)
-	reload(properties_texture)
-	reload(properties_world)
-	reload(properties_object)
-	reload(properties_data)
-	reload(properties_render)
-	reload(plugin_manager)
-	reload(render)
-except:
-	from vb25 import properties_camera
-	from vb25 import properties_lamp
-	from vb25 import properties_material
-	from vb25 import properties_texture
-	from vb25 import properties_world
-	from vb25 import properties_object
-	from vb25 import properties_data
-	from vb25 import properties_render
-	from vb25 import plugin_manager
-	from vb25 import render
+from vb25 import properties_camera
+from vb25 import properties_lamp
+from vb25 import properties_material
+from vb25 import properties_texture
+from vb25 import properties_world
+from vb25 import properties_object
+from vb25 import properties_data
+from vb25 import properties_render
+from vb25 import plugin_manager
+from vb25 import render
 
 def register():
 	plugin_manager.add_properties()

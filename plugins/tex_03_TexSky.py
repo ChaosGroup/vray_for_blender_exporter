@@ -50,8 +50,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -59,35 +62,20 @@ class TexSky(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(VRayTexture):
-	VRayTexture.PointerProperty(
-		attr= 'TexSky',
-		type= TexSky,
+	VRayTexture.TexSky= PointerProperty(
 		name= "TexSky",
+		type=  TexSky,
 		description= "V-Ray TexSky settings"
 	)
 
-	FloatProperty= TexSky.FloatProperty
-	IntProperty= TexSky.IntProperty
-	BoolProperty= TexSky.BoolProperty
-	EnumProperty= TexSky.EnumProperty
-	VectorProperty= TexSky.FloatVectorProperty
-	CollectionProperty= TexSky.CollectionProperty
-
-	BoolProperty(
-		attr= 'auto',
-		name= 'Take settings from Sun',
+	TexSky.auto= BoolProperty(
+		name= "Take settings from Sun",
 		description= "Take settings from Sun automatically.",
 		default= True
 	)
-	
-	# transform: transform
 
-	# target_transform: transform
-
-	# turbidity: float
-	FloatProperty(
-		attr= 'turbidity',
-		name= 'Turbidity',
+	TexSky.turbidity= FloatProperty(
+		name= "Turbidity",
 		description= "TODO.",
 		min= 2.0,
 		max= 100.0,
@@ -97,10 +85,8 @@ def add_properties(VRayTexture):
 		default= 3.0
 	)
 
-	# ozone: float
-	FloatProperty(
-		attr= 'ozone',
-		name= 'Ozone',
+	TexSky.ozone= FloatProperty(
+		name= "Ozone",
 		description= "TODO.",
 		min= 0.0,
 		max= 1.0,
@@ -110,10 +96,8 @@ def add_properties(VRayTexture):
 		default= 0.35
 	)
 
-	# water_vapour: float
-	FloatProperty(
-		attr= 'water_vapour',
-		name= 'Water vapour',
+	TexSky.water_vapour= FloatProperty(
+		name= "Water vapour",
 		description= "TODO.",
 		min= 0.0,
 		max= 10.0,
@@ -123,10 +107,8 @@ def add_properties(VRayTexture):
 		default= 2
 	)
 
-	# intensity_multiplier: float
-	FloatProperty(
-		attr= 'intensity_multiplier',
-		name= 'Intensity mult.',
+	TexSky.intensity_multiplier= FloatProperty(
+		name= "Intensity mult.",
 		description= "TODO.",
 		min= 0.0,
 		max= 1.0,
@@ -136,10 +118,8 @@ def add_properties(VRayTexture):
 		default= 1
 	)
 
-	# size_multiplier: float
-	FloatProperty(
-		attr= 'size_multiplier',
-		name= 'Size mult.',
+	TexSky.size_multiplier= FloatProperty(
+		name= "Size mult.",
 		description= "TODO.",
 		min= 0.0,
 		max= 1.0,
@@ -149,20 +129,14 @@ def add_properties(VRayTexture):
 		default= 1
 	)
 
-	# up_vector: vector = Color(0, 0, 0)
-
-	# invisible: bool
-	BoolProperty(
-		attr= 'invisible',
-		name= 'Invisible',
+	TexSky.invisible= BoolProperty(
+		name= "Invisible",
 		description= "TODO.",
 		default= False
 	)
 
-	# horiz_illum: float
-	FloatProperty(
-		attr= 'horiz_illum',
-		name= 'Horiz illumination',
+	TexSky.horiz_illum= FloatProperty(
+		name= "Horiz illumination",
 		description= "TODO.",
 		min= 0.0,
 		max= 100000.0,
@@ -171,21 +145,17 @@ def add_properties(VRayTexture):
 		precision= 0,
 		default= 25000
 	)
-	
-	# sky_model: integer
-	EnumProperty(
-		attr= 'sky_model',
-		name= 'Sky model',
+
+	TexSky.sky_model= EnumProperty(
+		name= "Sky model",
 		description= "Sky model.",
-		items=(
-			('CIEOVER',  "CIE Overcast",       ""),
-			('CIECLEAR', "CIE Clear",          ""),
-			('PREETH',   "Preetham et al.",    "")
+		items= (
+			('CIEOVER',"CIE Overcast",""),
+			('CIECLEAR',"CIE Clear",""),
+			('PREETH',"Preetham et al.","")
 		),
 		default= 'PREETH'
 	)
-
-	# sun: plugin
 
 
 def write(ofile, sce, tex, name= None):
@@ -254,7 +224,7 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'MAGIC' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture

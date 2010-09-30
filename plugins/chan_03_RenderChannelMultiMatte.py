@@ -43,8 +43,11 @@ PARAMS= (
 )
 
 
+''' Blender modules '''
 import bpy
+from bpy.props import *
 
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -52,32 +55,20 @@ class RenderChannelMultiMatte(bpy.types.IDPropertyGroup):
     pass
 
 def add_properties(parent_struct):
-	parent_struct.PointerProperty(
-		attr= 'RenderChannelMultiMatte',
-		type= RenderChannelMultiMatte,
+	parent_struct.RenderChannelMultiMatte= PointerProperty(
 		name= "MultiMatte",
+		type=  RenderChannelMultiMatte,
 		description= "V-Ray render channel \"MultiMatte\" settings."
 	)
 
-	FloatProperty= RenderChannelMultiMatte.FloatProperty
-	IntProperty= RenderChannelMultiMatte.IntProperty
-	BoolProperty= RenderChannelMultiMatte.BoolProperty
-	EnumProperty= RenderChannelMultiMatte.EnumProperty
-	FloatVectorProperty= RenderChannelMultiMatte.FloatVectorProperty
-	StringProperty= RenderChannelMultiMatte.StringProperty
-
-	# name: string
-	StringProperty(
-		attr= 'name',
+	RenderChannelMultiMatte.name= StringProperty(
 		name= "Name",
 		description= "Render channel name",
 		maxlen= 64,
 		default= "MultiMatte"
 	)
 
-	# red_id: integer (The object ID that will be written as the red channel (0 to disable the red channel))
-	RenderChannelMultiMatte.IntProperty(
-		attr= 'red_id',
+	RenderChannelMultiMatte.red_id= IntProperty(
 		name= "Red ID",
 		description= "The object ID that will be written as the red channel (0 to disable the red channel)",
 		min= 0,
@@ -87,9 +78,7 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	# green_id: integer (The object ID that will be written as the green channel (0 to disable the green channel))
-	RenderChannelMultiMatte.IntProperty(
-		attr= 'green_id',
+	RenderChannelMultiMatte.green_id= IntProperty(
 		name= "Green ID",
 		description= "The object ID that will be written as the green channel (0 to disable the green channel)",
 		min= 0,
@@ -99,9 +88,7 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	# blue_id: integer (The object ID that will be written as the blue channel (0 to disable the blue channel))
-	RenderChannelMultiMatte.IntProperty(
-		attr= 'blue_id',
+	RenderChannelMultiMatte.blue_id= IntProperty(
 		name= "Blue ID",
 		description= "The object ID that will be written as the blue channel (0 to disable the blue channel)",
 		min= 0,
@@ -111,17 +98,13 @@ def add_properties(parent_struct):
 		default= 0
 	)
 
-	# use_mtl_id: bool (true to use the material IDs instead of the object IDs)
-	RenderChannelMultiMatte.BoolProperty(
-		attr= 'use_mtl_id',
+	RenderChannelMultiMatte.use_mtl_id= BoolProperty(
 		name= "Use material ID",
 		description= "true to use the material IDs instead of the object IDs",
 		default= False
 	)
 
-	# affect_matte_objects: bool (false to not affect Matte Objects)
-	RenderChannelMultiMatte.BoolProperty(
-		attr= 'affect_matte_objects',
+	RenderChannelMultiMatte.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
 		description= "false to not affect Matte Objects",
 		default= True

@@ -27,12 +27,16 @@
 '''
 
 
-import bpy
-
-import sys
+''' Python modules '''
 import os
+import sys
 import imp
 
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
 from vb25.utils import *
 
 
@@ -100,40 +104,34 @@ def add_properties():
 	'''
 	  Base types
 	'''
-	bpy.types.Texture.PointerProperty(
-		attr= 'vray',
-		type=  VRayTexture,
-		name= "V-Ray Texture Settings",
-		description= "V-Ray texture settings."
-	)
-
-	# bpy.types.Main.PointerProperty(
-	# 	attr= 'vray',
-	# 	type= VRay,
+	# bpy.types.Main.vray= PointerProperty(
 	# 	name= "V-Ray Settings",
+	# 	type=  VRay,
 	# 	description= "V-Ray settings."
 	# )
 
-	bpy.types.Scene.PointerProperty(
-		attr= 'vray',
-		type=  VRayScene,
-		name= "V-Ray Settings",
-		description= "V-Ray settings."
+	bpy.types.Texture.vray= PointerProperty(
+		name= "V-Ray Texture Settings",
+		type=  VRayTexture,
+		description= "V-Ray texture settings."
 	)
 
+	bpy.types.Scene.vray= PointerProperty(
+		name= "V-Ray Settings",
+		type=  VRayScene,
+		description= "V-Ray settings."
+	)
 
 	'''
 	  Scene
 	'''
-	VRayScene.CollectionProperty(
-		attr= 'render_channels',
-		type=  VRayRenderChannel,
+	VRayScene.render_channels= CollectionProperty(
 		name= "Render Channels",
+		type=  VRayRenderChannel,
 		description= "V-Ray render channels."
 	)
 
-	VRayScene.IntProperty(
-		attr= 'render_channels_index',
+	VRayScene.render_channels_index= IntProperty(
 		name= "Render Channel Index",
 		default= -1,
 		min= -1,
@@ -143,8 +141,7 @@ def add_properties():
 	'''
 	  Texture
 	'''
-	VRayTexture.EnumProperty(
-		attr= 'type',
+	VRayTexture.type= EnumProperty(
 		name= "Texture Type",
 		description= "V-Ray texture type.",
 		items= (tuple(load_plugins(TEX_PLUGINS,VRayTexture,items= True))),
@@ -154,8 +151,7 @@ def add_properties():
 	'''
 	  V-Ray: RenderChannel
 	'''
-	VRayRenderChannel.EnumProperty(
-		attr= 'type',
+	VRayRenderChannel.type= EnumProperty(
 		name= "Channel Type",
 		description= "Render channel type.",
 		items= (tuple(load_plugins(CHANNEL_PLUGINS,VRayRenderChannel,items= True))),
@@ -163,7 +159,6 @@ def add_properties():
 	)
 
 	load_plugins(SETTINGS_PLUGINS,VRayScene)
-
 
 	'''
 	  Blender GUI as is
