@@ -39,7 +39,7 @@ class VRayCamera(bpy.types.IDPropertyGroup):
 	pass
 
 bpy.types.Camera.vray= PointerProperty(
-	name= "V-Ray Settings",
+	name= "V-Ray Camera Settings",
 	type=  VRayCamera,
 	description= "V-Ray Camera / DoF / Motion Blur settings."
 )
@@ -610,7 +610,7 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 
 		wide_ui= context.region.width > narrowui
 
-		layout.prop(ca, 'mode', expand=True)
+		layout.prop(VRayCamera, 'mode', expand=True)
 
 		if not VRayCamera.mode == 'PHYSICAL':
 			if wide_ui:
@@ -657,11 +657,11 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column(align=True)
 			col.prop(CameraPhysical, 'exposure')
-			if CameraPhysical.phys_exposure:
+			if CameraPhysical.exposure:
 				col.prop(CameraPhysical, 'f_number')
-				if CameraPhysical.phys_type == 'STILL':
+				if CameraPhysical.type == 'STILL':
 					col.prop(CameraPhysical, 'shutter_speed')
-				elif CameraPhysical.phys_type == 'CINEMATIC':
+				elif CameraPhysical.type == 'CINEMATIC':
 					col.prop(CameraPhysical, 'shutter_angle')
 					col.prop(CameraPhysical, 'shutter_offset')
 				else:
@@ -735,8 +735,8 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Depth of Field:")
-		col.prop(ca, 'object', text="")
-		col.prop(ca, 'distance', text="Distance")
+		col.prop(ca, 'dof_object', text="")
+		col.prop(ca, 'dof_distance', text="Distance")
 
 
 class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
