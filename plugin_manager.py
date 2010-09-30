@@ -104,7 +104,7 @@ def add_properties():
 	'''
 	  Base types
 	'''
-	# bpy.types.Main.vray= PointerProperty(
+	# bpy.types.BlendData.vray= PointerProperty(
 	# 	name= "V-Ray Settings",
 	# 	type=  VRay,
 	# 	description= "V-Ray settings."

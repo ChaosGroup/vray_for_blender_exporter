@@ -93,38 +93,35 @@ def add_properties(parent_struct):
 		default= NAME
 	)
 
-	# for key in PARAM_MAP:
-	# 	chan_name= key.replace(' ','_')
-	# 	chan_name= chan_name.lower()
-	# 	chan_id= PARAM_MAP[key]
-		
-	# 	RenderChannelMainPasses.BoolProperty(
-	# 		attr= 'channel_%s' % chan_name,
-	# 		name= "%s" % key,
-	# 		description= "%s channel." % key,
-	# 		default= False
-	# 	)
+	for key in PARAM_MAP:
+		chan_name= key.replace(' ','_')
+		chan_name= chan_name.lower()
+		chan_id= PARAM_MAP[key]
 
-	# 	RenderChannelMainPasses.BoolProperty(
-	# 		attr= '%s_cm' % chan_name,
-	# 		name= "Color mapping",
-	# 		description= "Apply color mapping to \"%s\" channel." % key,
-	# 		default= False
-	# 	)
+		setattr(RenderChannelMainPasses, 'channel_%s' % chan_name, bpy.props.BoolProperty(
+			attr= 'channel_%s' % chan_name,
+			name= "%s" % key,
+			description= "%s channel." % key,
+			default= False)
+		)
 
-	# 	RenderChannelMainPasses.BoolProperty(
-	# 		attr= '%s_aa' % chan_name,
-	# 		name= "Consider for AA",
-	# 		description= "Apply AA to \"%s\" channel." % key,
-	# 		default= False
-	# 	)
+		setattr(RenderChannelMainPasses, '%s_cm' % chan_name, bpy.props.BoolProperty(
+			name= "Color mapping",
+			description= "Apply color mapping to \"%s\" channel." % key,
+			default= False)
+		)
 
-	# 	RenderChannelMainPasses.BoolProperty(
-	# 		attr= '%s_filt' % chan_name,
-	# 		name= "Filtering",
-	# 		description= "Apply filtering to \"%s\" channel." % key,
-	# 		default= True
-	# 	)
+		setattr(RenderChannelMainPasses, '%s_aa' % chan_name, bpy.props.BoolProperty(
+			name= "Consider for AA",
+			description= "Apply AA to \"%s\" channel." % key,
+			default= False)
+		)
+
+		setattr(RenderChannelMainPasses, '%s_filt' % chan_name, bpy.props.BoolProperty(
+			name= "Filtering",
+			description= "Apply filtering to \"%s\" channel." % key,
+			default= True)
+		)
 	
 
 
