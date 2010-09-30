@@ -1904,7 +1904,7 @@ def write_materials(ofile,ob,filters,object_params):
 			ofile.write("\n}\n")
 
 		elif(no.type in ('MATERIAL','MATERIAL_EXT')):
-			debug(sce,"Node type \"%s\" is currently not implemented."%(no.type))
+			write_material(no.material, filters, object_params, ofile)
 
 		elif(no.type == 'MIX_RGB'):
 			color1= "BRDFDiffuse_no_material"
