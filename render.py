@@ -1022,7 +1022,7 @@ def write_mesh_displace(ofile, mesh, params):
 	return name
 
 
-def write_GeomMayaHair(ofile, ob, ps, yhname):
+def write_GeomMayaHair(ofile, ob, ps, name):
 	num_hair_vertices= []
 	hair_vertices=     []
 	widths=            []
@@ -1041,7 +1041,7 @@ def write_GeomMayaHair(ofile, ob, ps, yhname):
 
 
 def write_mesh_file(ofile, exported_proxy, ob):
-	proxy= od.data.vray.GeomMeshFile
+	proxy= ob.data.vray.GeomMeshFile
 	proxy_name= "Proxy_%s" % clean_string(os.path.basename(proxy.file))
 
 	if proxy_name not in exported_proxy:
@@ -1920,8 +1920,14 @@ def write_object(ob, params, add_params= None):
 				if ve.use_hair:
 					hair_geom_name= "HAIR_%s" % ps.name
 					hair_node_name= "%s_%s" % (node_name,hair_geom_name)
+
+					ps_material= "Material_no_material"
+					ps_material_idx= ps.settings.material
+					if len(ob.material_slots) >= ps_material_idx:
+						ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
+					
 					write_GeomMayaHair(ofile,ob,ps,hair_geom_name)
-					write_node(ofile, hair_node_name, hair_geom_name, get_name(ob.material_slots[ps.material].material,"Material"), ob.pass_index, props['visible'], node_matrix)
+					write_node(ofile, hair_node_name, hair_geom_name, ps_material, ob.pass_index, props['visible'], node_matrix)
 		if use_render_emitter:
 			write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
 	else:
