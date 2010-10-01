@@ -1603,6 +1603,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	# Very ugly :(
+	# TODO: Convert to stack
 	if(vma.two_sided and vma.MtlWrapper.use and vma.MtlRenderStats.use):
 		base_material= "MtlSingleBRDF_%s"%(ma_name)
 		ts_material= "Mtl2Sided_%s"%(ma_name)
@@ -1834,6 +1835,10 @@ def write_object(ob, params, add_params= None):
 	ofile= props['files']['nodes']
 
 	ve= sce.vray.exporter
+
+	# TMP
+	types= props['types']
+	files= props['files']
 	
 	# if ob in props['filters']['exported_nodes']:
 	#  	continue
@@ -2029,9 +2034,9 @@ def write_lamp(ob, params, add_params= None):
 
 	if add_params is not None:
 		if 'dupli_name' in add_params:
-			lamp_name+= add_params['dupli_name']
+			lamp_name= "%s_%s" % (add_params['dupli_name'],lamp_name)
 		if 'matrix' in add_params:
-			lamp_matrix= add_params['matrix'] * lamp_matrix
+			lamp_matrix= add_params['matrix']
 
 	if lamp.type == 'POINT':
 		if vl.radius > 0:
@@ -2379,20 +2384,12 @@ def write_scene(sce):
 	# 				visible= False
 
 	def _write_object_dupli(ob, params, add_params= None):
-		if ob.dupli_type in ('VERTS','FACES'):
-			for dup_ob in ob.dupli_list:
-				_write_object(dup_ob.object, params, {'dupli': True, 'dupli_name': ob.name, 'matrix': dup_ob.matrix_world})
-		elif ob.dupli_type == 'GROUP':
-			dupli_name= ob.name
-			dupli_matrix= ob.matrix_world
-			if add_params is not None:
-				if 'matrix' in add_params:
-					dupli_matrix= add_params['matrix'] * dupli_matrix
-				if 'dupli_name' in add_params:
-					dupli_name+= add_params['dupli_name']
-			for group_ob in ob.dupli_group.objects:
-				_write_object_dupli(group_ob, params, {'dupli_name': dupli_name, 'matrix': dupli_matrix})
-				_write_object(group_ob, params, {'dupli_group': True, 'dupli_name': dupli_name, 'matrix': dupli_matrix})
+		if ob.dupli_type in ('VERTS','FACES','GROUP'):
+			ob.create_dupli_list(sce)
+			for dup_id,dup_ob in enumerate(ob.dupli_list):
+				dup_name= "%s_%s" % (ob.name,dup_id)
+				_write_object(dup_ob.object, params, {'dupli': True, 'dupli_name': dup_name, 'matrix': dup_ob.matrix})
+			ob.free_dupli_list()
 		else:
 			return
 
@@ -2510,7 +2507,7 @@ class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER'
 	bl_label   = 'V-Ray'
-	bl_preview = False
+	bl_use_preview = False
 	
 	def render(self, scene):
 		global sce
@@ -2617,7 +2614,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER_PREVIEW'
 	bl_label   = 'V-Ray (preview)'
-	bl_preview = True
+	bl_use_preview = True
 	
 	def render(self, scene):
 		global sce
@@ -2646,25 +2643,47 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		
 		if sce.name == "preview":
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
-			load_file= os.path.join(get_filenames(sce,'output'),"preview.%.4i.exr" % sce.frame_current)
+			load_file= image_file
 
-			exported_bitmaps= []
+			filters= {
+				'exported_bitmaps':   [],
+				'exported_materials': [],
+				'exported_proxy':     []
+			}
+			object_params= {
+				'meshlight': {
+					'on':       False,
+					'material': None
+				},
+				'displace': {
+					'texture':  None,
+					'params':   None
+				},
+				'volume': None
+			}
+			
 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
+			ofile.write("\nSettingsOutput {")
+			ofile.write("\n\timg_separateAlpha= 0;")
+			ofile.write("\n\timg_width= %s;"%(int(wx)))
+			ofile.write("\n\timg_height= %s;"%(int(wy)))
+			ofile.write("\n}\n")
+
 			for ob in sce.objects:
 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
 					continue
 				if ob.type == 'CAMERA':
 					if ob.name == "Camera":
-						cfile= open(get_filenames(sce,'camera'), 'w')
-						write_camera(sce,ob,cfile)
-						cfile.close()
+						write_camera(sce,ofile,ob)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
-						write_material(ofile, exported_bitmaps, ms.material, name="PREVIEW")
+						write_material(ms.material, filters, object_params, ofile, name="PREVIEW")
 					elif ms.material.name in ("checkerlight","checkerdark"):
-						write_material(ofile, exported_bitmaps, ms.material)
+						write_material(ms.material, filters, object_params, ofile)
+						
 			ofile.close()
-			exported_bitmaps= []
+			del object_params
+			del filters
 		
 			params.append('-sceneFile=')
 			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
@@ -2744,8 +2763,3 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
-
-# bpy.types.register(SCENE_OT_vray_export_meshes)
-# bpy.types.register(SCENE_OT_vray_create_proxy)
-# bpy.types.register(SCENE_OT_vray_replace_proxy)
-# bpy.types.register(VRayRenderer)
