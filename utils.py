@@ -116,11 +116,13 @@ def get_render_file_format(ve,file_format):
 		file_format= 'png'
 	return file_format.lower()
 	
-def get_name(data, prefix= None):
+def get_name(data, prefix= None, dupli_name= None):
 	name= data.name
-	if(prefix):
+	if dupli_name:
+		name= "%s_%s"%(dupli_name,name)
+	if prefix:
 		name= "%s_%s"%(prefix,name)
-	if(data.library):
+	if data.library:
 		name+= "_%s"%(get_filename(data.library.filepath))
 	return clean_string(name)
 

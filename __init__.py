@@ -35,6 +35,7 @@ from vb25 import properties_object
 from vb25 import properties_data
 from vb25 import properties_render
 from vb25 import plugin_manager
+from vb25 import shaders
 from vb25 import render
 
 def register():
