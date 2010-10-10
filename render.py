@@ -952,7 +952,7 @@ def write_geometry(sce, geometry_file):
 		DYNAMIC_OBJECTS= []
 
 		cur_frame= sce.frame_current
-		sce.set_frame(sce.frame_start)
+		sce.frame_set(sce.frame_start)
 
 		for ob in sce.objects:
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
@@ -989,7 +989,7 @@ def write_geometry(sce, geometry_file):
 			f= sce.frame_start
 			while(f <= sce.frame_end):
 				exported_meshes= []
-				sce.set_frame(f)
+				sce.frame_set(f)
 				for ob in DYNAMIC_OBJECTS:
 					write_mesh(exported_meshes,ob)
 				f+= sce.frame_step
@@ -997,7 +997,7 @@ def write_geometry(sce, geometry_file):
 			for ob in DYNAMIC_OBJECTS:
 				write_mesh(exported_meshes,ob)
 
-		sce.set_frame(cur_frame)
+		sce.frame_set(cur_frame)
 
 		exported_meshes= []
 
@@ -2452,10 +2452,10 @@ def write_scene(sce):
 		selected_frame= sce.frame_current
 		f= sce.frame_start
 		while(f <= sce.frame_end):
-			sce.set_frame(f)
+			sce.frame_set(f)
 			write_frame()
 			f+= sce.frame_step
-		sce.set_frame(selected_frame)
+		sce.frame_set(selected_frame)
 	else:
 		write_frame()
 
