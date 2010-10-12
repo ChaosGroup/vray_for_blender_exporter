@@ -742,29 +742,29 @@ LC_MODE= {
   MESHES
 '''
 def write_geometry(sce, geometry_file):
-	vsce= sce.vray
-	ve= vsce.exporter
+	VRayScene= sce.vray
+	VRayExporter= VRayScene.exporter
 
 	# For getting unique IDs for UV names
 	uv_layers= []
 	for ma in bpy.data.materials:
 		for slot in ma.texture_slots:
-			if(slot):
-				if(slot.texture):
+			if slot:
+				if slot.texture:
 					if slot.texture.type in TEX_TYPES:
-						if slot.texture_coords in ('UV'):
+						if slot.texture_coords == 'UV':
 							if slot.uv_layer not in uv_layers:
 								uv_layers.append(slot.uv_layer)
 
-	try:
+
+	if hasattr(bpy.ops.scene, 'scene_export'):
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
-			vb_active_layers= ve.active_layers,
-			vb_animation= ve.animation
+			vb_active_layers= VRayExporter.active_layers,
+			vb_animation= VRayExporter.animation
 		)
-
-	except:
+	else:
 		print("V-Ray/Blender: Exporting meshes...")
 		
 		# Used when exporting dupli, particles etc.
@@ -775,12 +775,12 @@ def write_geometry(sce, geometry_file):
 
 			me_name= get_name(ob.data, 'Geom')
 
-			if me_name in exported_meshes:
-				return
+			if VRayExporter.use_instances:
+				if me_name in exported_meshes:
+					return
+				exported_meshes.append(me_name)
 
-			exported_meshes.append(me_name)
-
-			if ve.debug:
+			if VRayExporter.debug:
 				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
 					  %(sce.frame_current,
 						ob.name,
@@ -961,7 +961,7 @@ def write_geometry(sce, geometry_file):
 			if ob.data.vray.GeomMeshFile.use:
 				continue
 
-			if ve.active_layers:
+			if VRayExporter.active_layers:
 				if not object_on_visible_layers(sce,ob):
 					continue
 
@@ -985,7 +985,7 @@ def write_geometry(sce, geometry_file):
 		for ob in STATIC_OBJECTS:
 			write_mesh(exported_meshes,ob)
 
-		if ve.animation and len(DYNAMIC_OBJECTS):
+		if VRayExporter.animation and len(DYNAMIC_OBJECTS):
 			f= sce.frame_start
 			while(f <= sce.frame_end):
 				exported_meshes= []
@@ -1114,7 +1114,7 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 	uvw_name= "uv_env_%s_%s"%(tex_name, MAPPING_TYPE[mapping])
 	
 	ofile.write("\nUVWGenEnvironment %s {"%(uvw_name))
-	if(param):
+	if param:
 		ofile.write("\n\tuvw_transform= %s;"%(transform(mathutils.RotationMatrix(params[0], 4, 'Z'))))
 	ofile.write("\n\tmapping_type= \"%s\";"%(MAPPING_TYPE[mapping]))
 	ofile.write("\n\twrap_u= 1;")
@@ -1175,17 +1175,17 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 
 		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
-		if(bitmap_name):
+		if bitmap_name:
 			ofile.write("\nTexBitmap %s {"%(tex_name))
 			ofile.write("\n\tbitmap= %s;"%(bitmap_name))
 			ofile.write("\n\tuvwgen= %s;"%(uv_name))
 			ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
 			if not env:
-				if(tex.extension == 'REPEAT'):
+				if tex.extension == 'REPEAT':
 					ofile.write("\n\ttile= %d;"%(1))
 				else:
 					ofile.write("\n\ttile= %d;"%(0))
-			if(slot):
+			if slot:
 				ofile.write("\n\tinvert= %d;"%(slot.invert))
 			ofile.write("\n}\n")
 		else:
@@ -1218,13 +1218,23 @@ def write_TexInvert(ofile, tex):
 	return tex_name
 
 
-def write_TexCompMax(ofile, name, sourceA, sourceB):
+def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
+	OPERATOR= {
+		'Add':        0,
+		'Substract':  1,
+		'Difference': 2,
+		'Multiply':   3,
+		'Divide':     4,
+		'Minimum':    5,
+		'Maximum':    6
+	}
+
 	tex_name= "TexCompMax_%s"%(name)
 
 	ofile.write("\nTexCompMax %s {"%(tex_name))
 	ofile.write("\n\tsourceA= %s;"%(sourceA))
 	ofile.write("\n\tsourceB= %s;"%(sourceB))
-	ofile.write("\n\toperator= %d;"%(3)) # 0:Add, 1:Subtract, 2:Difference, 3:Multiply, 4:Divide, 5:Minimum, 6:Maximum
+	ofile.write("\n\toperator= %d;"%(OPERATOR[operator]))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -1236,8 +1246,8 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	if slot:
 		tex= slot.texture
 
-	vtex= tex.vray_texture
-
+	vtex= tex.vray
+	
 	if tex:
 		plugin= get_plugin(TEX_PLUGINS, vtex.type)
 		if plugin is not None:
@@ -2409,14 +2419,15 @@ def write_scene(sce):
 			write_object(ob,params,add_params)
 
 	def write_frame():
-		params= {}
-		params['files']= files
-		params['filters']= {
-			'exported_bitmaps':   [],
-			'exported_materials': [],
-			'exported_proxy':     []
+		params= {
+			'files': files,
+			'filters': {
+				'exported_bitmaps':   [],
+				'exported_materials': [],
+				'exported_proxy':     []
+			},
+			'types': types
 		}
-		params['types']= types
 
 		write_environment(params['files']['nodes']) # TEMP
 		write_camera(sce,params['files']['camera'])
