@@ -286,6 +286,8 @@ def base_poll(cls, context):
 		tex= context.texture_slot.texture
 	except:
 		return False
+	if tex is None:
+		return False
 	return (tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES)
 
 
