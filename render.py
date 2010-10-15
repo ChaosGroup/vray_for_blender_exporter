@@ -805,9 +805,9 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					ofile.write("%d,%d,%d,%d,%d,%d"%(
 						f.verts[0], f.verts[1], f.verts[2],
 						f.verts[2], f.verts[3], f.verts[0]))
@@ -818,9 +818,9 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tface_mtlIDs= ListInt(")
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					ofile.write("%d,%d"%(
 						f.material_index, f.material_index))
 				else:
@@ -830,21 +830,21 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
 
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					verts= (0,1,2,2,3,0)
 				else:
 					verts= (0,1,2)
 
 				comma= 0
 				for v in verts:
-					if(comma):
+					if comma:
 						ofile.write(",")
 					comma= 1
 
-					if(f.smooth):
+					if f.smooth:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
 							tuple(me.verts[f.verts[v]].normal)
 							))
@@ -857,26 +857,26 @@ def write_geometry(sce, geometry_file):
 			ofile.write("\n\tfaceNormals= ListInt(")
 			k= 0
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
 
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					verts= 6
 				else:
 					verts= 3
 
 				for v in range(verts):
-					if(v):
+					if v:
 						ofile.write(",")
 					ofile.write("%d"%(k))
 					k+= 1
 			ofile.write(");")
 
-			if(len(me.uv_textures)):
+			if len(me.uv_textures):
 				ofile.write("\n\tmap_channels= List(")
 
-				for uv_texture, uv_texture_idx in zip(me.uv_textures, range(len(me.uv_textures))):
-					if(uv_texture_idx):
+				for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
+					if uv_texture_idx:
 						ofile.write(",")
 
 					uv_layer_index= 1
@@ -889,13 +889,13 @@ def write_geometry(sce, geometry_file):
 					ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
 
 					for f in range(len(uv_texture.data)):
-						if(f):
+						if f:
 							ofile.write(",")
 
 						face= uv_texture.data[f]
 
 						for i in range(len(face.uv)):
-							if(i):
+							if i:
 								ofile.write(",")
 
 							ofile.write("Vector(%.6f,%.6f,0.0)"%(
@@ -907,28 +907,28 @@ def write_geometry(sce, geometry_file):
 					u = -1
 					u0= -1
 					for f in range(len(uv_texture.data)):
-						if(f):
+						if f:
 							ofile.write(",")
 
 						face= uv_texture.data[f]
 
 						verts= 3
-						if(len(face.uv) == 4):
+						if len(face.uv) == 4:
 							verts= 6
 							u= u0
 						else:
-							if(len(uv_texture.data[f-1].uv) == 4):
+							if len(uv_texture.data[f-1].uv) == 4:
 								u= u0
 
 						for i in range(verts):
-							if(i):
+							if i:
 								ofile.write(",")
 
-							if(verts == 6):
-								if(i == 5):
+							if verts == 6:
+								if i == 5:
 									u0= u
 									u-= 4
-								if(i != 3):
+								if i != 3:
 									u+= 1
 							else:
 								u+= 1
@@ -2376,9 +2376,9 @@ def write_scene(sce):
 	# ca= sce.camera
 	# VRayCamera= ca.data.vray.VRayCamera
 
-	# if vca.hide_from_view:
-	# 	if vca.hide_from_everything:
-	# 		if vca.everything_auto:
+	# if VRayCamera.hide_from_view:
+	# 	if VRayCamera.hide_from_everything:
+	# 		if VRayCamera.everything_auto:
 	# 			auto_group= 'hidefrom_%s' % ca.name
 	# 			try:
 	# 				for group_ob in bpy.data.groups[auto_group].objects:
@@ -2386,8 +2386,8 @@ def write_scene(sce):
 	# 			except:
 	# 				debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
 	# 		else:
-	# 			HIDE_FROM_VIEW= vca.everything_objects.split(';')
-	# 			for gr in vca.everything_groups.split(';'):
+	# 			HIDE_FROM_VIEW= VRayCamera.everything_objects.split(';')
+	# 			for gr in VRayCamera.everything_groups.split(';'):
 	# 				try:
 	# 					for group_ob in bpy.data.groups[gr].objects:
 	# 						HIDE_FROM_VIEW.append(group_ob.name)
@@ -2398,8 +2398,8 @@ def write_scene(sce):
 	# 		pass
 	# for ob in OBJECTS:
 	# 	visible= True
-	# 	if vca.hide_from_view:
-	# 		if vca.hide_from_everything:
+	# 	if VRayCamera.hide_from_view:
+	# 		if VRayCamera.hide_from_everything:
 	# 			if ob.name in HIDE_FROM_VIEW:
 	# 				visible= False
 

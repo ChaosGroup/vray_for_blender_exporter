@@ -296,7 +296,7 @@ class TextureButtonsPanel():
 
 
 class TEXTURE_PT_context_texture(TextureButtonsPanel, bpy.types.Panel):
-	bl_label = ""
+	bl_label   = ""
 	bl_options = {'HIDE_HEADER'}
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -375,7 +375,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 		idblock= context_tex_datablock(context)
 
 		tex= context.texture_slot
-		# vslot= context.texture_slot.vray
+		#vslot= context.texture_slot.vray
 		mat= context.material
 		
 		def factor_but(layout, active, toggle, factor, label= None):
@@ -383,7 +383,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			row.prop(tex, toggle, text="")
 			sub= row.row()
 			sub.active= active
-			if(label):
+			if label:
 				sub.prop(tex, factor, slider=True, text=label)
 			else:
 				sub.prop(tex, factor, slider=True)

@@ -33,6 +33,7 @@ NAME= 'Sky'
 PLUG= 'TexSky'
 DESC= "TODO."
 
+
 PARAMS= (
 	'auto',
 	#'transform',
@@ -242,7 +243,7 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		split.active= not vtex.auto
 		col= split.column()
 		col.prop(vtex, 'sky_model')
-		# if(not vvtex.auto):
+		# if not vvtex.auto:
 		# 	col.prop(vtex, 'sun')
 
 		split= layout.split()
@@ -252,7 +253,7 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'ozone')
 		col.prop(vtex, 'intensity_multiplier')
 		col.prop(vtex, 'size_multiplier')
-		if(wide_ui):
+		if wide_ui:
 			col= split.column()
 		col.prop(vtex, 'invisible')
 		col.prop(vtex, 'horiz_illum')
