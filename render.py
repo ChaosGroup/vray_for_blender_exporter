@@ -603,7 +603,7 @@ BLEND_TYPE= {
 	'LINEAR LIGHT': 0
 }
 
-TEX_TYPES= ('IMAGE', 'PLUGIN')
+TEX_TYPES= ('IMAGE', 'VRAY')
 
 # Enum currently doesn't extract value index,
 # so...
@@ -2180,6 +2180,10 @@ def write_settings(sce,ofile):
 			
 	wx= rd.resolution_x * rd.resolution_percentage / 100
 	wy= rd.resolution_y * rd.resolution_percentage / 100
+
+	ofile.write("\nSettingsOptions {")
+	ofile.write("\n\tmisc_lowThreadPriority= true;")
+	ofile.write("\n}")
 		
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
@@ -2312,7 +2316,7 @@ def write_settings(sce,ofile):
 	# ofile.write("\n\tgi_reflective_caustics= 1;")
 	# ofile.write("\n\tgi_refractive_caustics= 1;")
 	# ofile.write("\n\tuse_opencl= 0;")
-	# ofile.write("\n}\n"	)	
+	# ofile.write("\n}\n")	
 
 	for channel in VRayScene.render_channels:
 		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
@@ -2370,7 +2374,7 @@ def write_scene(sce):
 	files['materials'].write("\n}\n")
 
 	# ca= sce.camera
-	# vca= ca.data.vray
+	# VRayCamera= ca.data.vray.VRayCamera
 
 	# if vca.hide_from_view:
 	# 	if vca.hide_from_everything:
