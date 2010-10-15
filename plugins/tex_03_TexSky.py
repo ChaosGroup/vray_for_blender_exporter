@@ -176,7 +176,7 @@ def write(ofile, sce, tex, name= None):
 	if vtex.auto:
 		for ob in sce.objects:
 			if ob.type == 'LAMP':
-				if ob.data.type == 'SUN' and ob.data.vr_la_direct_type == 'SUN':
+				if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
 					sun_light= "SunLight_%s" % clean_string(ob.name)
 					break
 
