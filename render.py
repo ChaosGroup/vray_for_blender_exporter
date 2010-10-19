@@ -999,10 +999,10 @@ def write_geometry(sce, geometry_file):
 
 		sce.set_frame(cur_frame)
 
-		exported_meshes= []
+		del exported_meshes
 
-		STATIC_OBJECTS= []
-		DYNAMIC_OBJECTS= []
+		del STATIC_OBJECTS
+		del DYNAMIC_OBJECTS
 
 		ofile.close()
 		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
