@@ -33,6 +33,7 @@ NAME= 'Sky'
 PLUG= 'TexSky'
 DESC= "TODO."
 
+
 PARAMS= (
 	'auto',
 	#'transform',
@@ -176,7 +177,7 @@ def write(ofile, sce, tex, name= None):
 	if vtex.auto:
 		for ob in sce.objects:
 			if ob.type == 'LAMP':
-				if ob.data.type == 'SUN' and ob.data.vr_la_direct_type == 'SUN':
+				if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
 					sun_light= "SunLight_%s" % clean_string(ob.name)
 					break
 
@@ -242,7 +243,7 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		split.active= not vtex.auto
 		col= split.column()
 		col.prop(vtex, 'sky_model')
-		# if(not vvtex.auto):
+		# if not vvtex.auto:
 		# 	col.prop(vtex, 'sun')
 
 		split= layout.split()
@@ -252,7 +253,7 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'ozone')
 		col.prop(vtex, 'intensity_multiplier')
 		col.prop(vtex, 'size_multiplier')
-		if(wide_ui):
+		if wide_ui:
 			col= split.column()
 		col.prop(vtex, 'invisible')
 		col.prop(vtex, 'horiz_illum')

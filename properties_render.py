@@ -457,6 +457,12 @@ VRayExporter.use_hair= BoolProperty(
 	default= True
 )
 
+VRayExporter.use_instances= BoolProperty(
+	name= "Instances",
+	description= "Use instances (saves memory and faster export)",
+	default= False
+)
+
 VRayExporter.camera_loop= BoolProperty(
 	name= "Camera loop",
 	description= "Render views from all cameras.",
@@ -891,6 +897,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
 		col.prop(ve, 'use_hair')
+		col.prop(ve, 'use_instances')
 		col.prop(ve, 'active_layers')
 		col.prop(ve, 'image_to_blender')
 

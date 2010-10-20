@@ -603,7 +603,7 @@ BLEND_TYPE= {
 	'LINEAR LIGHT': 0
 }
 
-TEX_TYPES= ('IMAGE', 'PLUGIN')
+TEX_TYPES= ('IMAGE', 'VRAY')
 
 # Enum currently doesn't extract value index,
 # so...
@@ -742,29 +742,29 @@ LC_MODE= {
   MESHES
 '''
 def write_geometry(sce, geometry_file):
-	vsce= sce.vray
-	ve= vsce.exporter
+	VRayScene= sce.vray
+	VRayExporter= VRayScene.exporter
 
 	# For getting unique IDs for UV names
 	uv_layers= []
 	for ma in bpy.data.materials:
 		for slot in ma.texture_slots:
-			if(slot):
-				if(slot.texture):
+			if slot:
+				if slot.texture:
 					if slot.texture.type in TEX_TYPES:
-						if slot.texture_coords in ('UV'):
+						if slot.texture_coords == 'UV':
 							if slot.uv_layer not in uv_layers:
 								uv_layers.append(slot.uv_layer)
 
-	try:
+
+	if hasattr(bpy.ops.scene, 'scene_export'):
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
-			vb_active_layers= ve.active_layers,
-			vb_animation= ve.animation
+			vb_active_layers= VRayExporter.active_layers,
+			vb_animation= VRayExporter.animation
 		)
-
-	except:
+	else:
 		print("V-Ray/Blender: Exporting meshes...")
 		
 		# Used when exporting dupli, particles etc.
@@ -775,12 +775,12 @@ def write_geometry(sce, geometry_file):
 
 			me_name= get_name(ob.data, 'Geom')
 
-			if me_name in exported_meshes:
-				return
+			if VRayExporter.use_instances:
+				if me_name in exported_meshes:
+					return
+				exported_meshes.append(me_name)
 
-			exported_meshes.append(me_name)
-
-			if ve.debug:
+			if VRayExporter.debug:
 				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
 					  %(sce.frame_current,
 						ob.name,
@@ -805,9 +805,9 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					ofile.write("%d,%d,%d,%d,%d,%d"%(
 						f.verts[0], f.verts[1], f.verts[2],
 						f.verts[2], f.verts[3], f.verts[0]))
@@ -818,9 +818,9 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tface_mtlIDs= ListInt(")
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					ofile.write("%d,%d"%(
 						f.material_index, f.material_index))
 				else:
@@ -830,21 +830,21 @@ def write_geometry(sce, geometry_file):
 
 			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
 
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					verts= (0,1,2,2,3,0)
 				else:
 					verts= (0,1,2)
 
 				comma= 0
 				for v in verts:
-					if(comma):
+					if comma:
 						ofile.write(",")
 					comma= 1
 
-					if(f.smooth):
+					if f.smooth:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
 							tuple(me.verts[f.verts[v]].normal)
 							))
@@ -857,26 +857,26 @@ def write_geometry(sce, geometry_file):
 			ofile.write("\n\tfaceNormals= ListInt(")
 			k= 0
 			for f in me.faces:
-				if(f.index):
+				if f.index:
 					ofile.write(",")
 
-				if(len(f.verts) == 4):
+				if len(f.verts) == 4:
 					verts= 6
 				else:
 					verts= 3
 
 				for v in range(verts):
-					if(v):
+					if v:
 						ofile.write(",")
 					ofile.write("%d"%(k))
 					k+= 1
 			ofile.write(");")
 
-			if(len(me.uv_textures)):
+			if len(me.uv_textures):
 				ofile.write("\n\tmap_channels= List(")
 
-				for uv_texture, uv_texture_idx in zip(me.uv_textures, range(len(me.uv_textures))):
-					if(uv_texture_idx):
+				for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
+					if uv_texture_idx:
 						ofile.write(",")
 
 					uv_layer_index= 1
@@ -889,13 +889,13 @@ def write_geometry(sce, geometry_file):
 					ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
 
 					for f in range(len(uv_texture.data)):
-						if(f):
+						if f:
 							ofile.write(",")
 
 						face= uv_texture.data[f]
 
 						for i in range(len(face.uv)):
-							if(i):
+							if i:
 								ofile.write(",")
 
 							ofile.write("Vector(%.6f,%.6f,0.0)"%(
@@ -907,28 +907,28 @@ def write_geometry(sce, geometry_file):
 					u = -1
 					u0= -1
 					for f in range(len(uv_texture.data)):
-						if(f):
+						if f:
 							ofile.write(",")
 
 						face= uv_texture.data[f]
 
 						verts= 3
-						if(len(face.uv) == 4):
+						if len(face.uv) == 4:
 							verts= 6
 							u= u0
 						else:
-							if(len(uv_texture.data[f-1].uv) == 4):
+							if len(uv_texture.data[f-1].uv) == 4:
 								u= u0
 
 						for i in range(verts):
-							if(i):
+							if i:
 								ofile.write(",")
 
-							if(verts == 6):
-								if(i == 5):
+							if verts == 6:
+								if i == 5:
 									u0= u
 									u-= 4
-								if(i != 3):
+								if i != 3:
 									u+= 1
 							else:
 								u+= 1
@@ -952,7 +952,7 @@ def write_geometry(sce, geometry_file):
 		DYNAMIC_OBJECTS= []
 
 		cur_frame= sce.frame_current
-		sce.set_frame(sce.frame_start)
+		sce.frame_set(sce.frame_start)
 
 		for ob in sce.objects:
 			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
@@ -961,7 +961,7 @@ def write_geometry(sce, geometry_file):
 			if ob.data.vray.GeomMeshFile.use:
 				continue
 
-			if ve.active_layers:
+			if VRayExporter.active_layers:
 				if not object_on_visible_layers(sce,ob):
 					continue
 
@@ -985,11 +985,11 @@ def write_geometry(sce, geometry_file):
 		for ob in STATIC_OBJECTS:
 			write_mesh(exported_meshes,ob)
 
-		if ve.animation and len(DYNAMIC_OBJECTS):
+		if VRayExporter.animation and len(DYNAMIC_OBJECTS):
 			f= sce.frame_start
 			while(f <= sce.frame_end):
 				exported_meshes= []
-				sce.set_frame(f)
+				sce.frame_set(f)
 				for ob in DYNAMIC_OBJECTS:
 					write_mesh(exported_meshes,ob)
 				f+= sce.frame_step
@@ -997,7 +997,7 @@ def write_geometry(sce, geometry_file):
 			for ob in DYNAMIC_OBJECTS:
 				write_mesh(exported_meshes,ob)
 
-		sce.set_frame(cur_frame)
+		sce.frame_set(cur_frame)
 
 		del exported_meshes
 
@@ -1114,7 +1114,7 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 	uvw_name= "uv_env_%s_%s"%(tex_name, MAPPING_TYPE[mapping])
 	
 	ofile.write("\nUVWGenEnvironment %s {"%(uvw_name))
-	if(param):
+	if param:
 		ofile.write("\n\tuvw_transform= %s;"%(transform(mathutils.RotationMatrix(params[0], 4, 'Z'))))
 	ofile.write("\n\tmapping_type= \"%s\";"%(MAPPING_TYPE[mapping]))
 	ofile.write("\n\twrap_u= 1;")
@@ -1175,17 +1175,17 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 
 		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
-		if(bitmap_name):
+		if bitmap_name:
 			ofile.write("\nTexBitmap %s {"%(tex_name))
 			ofile.write("\n\tbitmap= %s;"%(bitmap_name))
 			ofile.write("\n\tuvwgen= %s;"%(uv_name))
 			ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
 			if not env:
-				if(tex.extension == 'REPEAT'):
+				if tex.extension == 'REPEAT':
 					ofile.write("\n\ttile= %d;"%(1))
 				else:
 					ofile.write("\n\ttile= %d;"%(0))
-			if(slot):
+			if slot:
 				ofile.write("\n\tinvert= %d;"%(slot.invert))
 			ofile.write("\n}\n")
 		else:
@@ -1218,13 +1218,23 @@ def write_TexInvert(ofile, tex):
 	return tex_name
 
 
-def write_TexCompMax(ofile, name, sourceA, sourceB):
+def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
+	OPERATOR= {
+		'Add':        0,
+		'Substract':  1,
+		'Difference': 2,
+		'Multiply':   3,
+		'Divide':     4,
+		'Minimum':    5,
+		'Maximum':    6
+	}
+
 	tex_name= "TexCompMax_%s"%(name)
 
 	ofile.write("\nTexCompMax %s {"%(tex_name))
 	ofile.write("\n\tsourceA= %s;"%(sourceA))
 	ofile.write("\n\tsourceB= %s;"%(sourceB))
-	ofile.write("\n\toperator= %d;"%(3)) # 0:Add, 1:Subtract, 2:Difference, 3:Multiply, 4:Divide, 5:Minimum, 6:Maximum
+	ofile.write("\n\toperator= %d;"%(OPERATOR[operator]))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -1236,8 +1246,8 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	if slot:
 		tex= slot.texture
 
-	vtex= tex.vray_texture
-
+	vtex= tex.vray
+	
 	if tex:
 		plugin= get_plugin(TEX_PLUGINS, vtex.type)
 		if plugin is not None:
@@ -2170,6 +2180,10 @@ def write_settings(sce,ofile):
 			
 	wx= rd.resolution_x * rd.resolution_percentage / 100
 	wy= rd.resolution_y * rd.resolution_percentage / 100
+
+	ofile.write("\nSettingsOptions {")
+	ofile.write("\n\tmisc_lowThreadPriority= true;")
+	ofile.write("\n}")
 		
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
@@ -2302,7 +2316,7 @@ def write_settings(sce,ofile):
 	# ofile.write("\n\tgi_reflective_caustics= 1;")
 	# ofile.write("\n\tgi_refractive_caustics= 1;")
 	# ofile.write("\n\tuse_opencl= 0;")
-	# ofile.write("\n}\n"	)	
+	# ofile.write("\n}\n")	
 
 	for channel in VRayScene.render_channels:
 		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
@@ -2360,11 +2374,11 @@ def write_scene(sce):
 	files['materials'].write("\n}\n")
 
 	# ca= sce.camera
-	# vca= ca.data.vray
+	# VRayCamera= ca.data.vray.VRayCamera
 
-	# if vca.hide_from_view:
-	# 	if vca.hide_from_everything:
-	# 		if vca.everything_auto:
+	# if VRayCamera.hide_from_view:
+	# 	if VRayCamera.hide_from_everything:
+	# 		if VRayCamera.everything_auto:
 	# 			auto_group= 'hidefrom_%s' % ca.name
 	# 			try:
 	# 				for group_ob in bpy.data.groups[auto_group].objects:
@@ -2372,8 +2386,8 @@ def write_scene(sce):
 	# 			except:
 	# 				debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
 	# 		else:
-	# 			HIDE_FROM_VIEW= vca.everything_objects.split(';')
-	# 			for gr in vca.everything_groups.split(';'):
+	# 			HIDE_FROM_VIEW= VRayCamera.everything_objects.split(';')
+	# 			for gr in VRayCamera.everything_groups.split(';'):
 	# 				try:
 	# 					for group_ob in bpy.data.groups[gr].objects:
 	# 						HIDE_FROM_VIEW.append(group_ob.name)
@@ -2384,8 +2398,8 @@ def write_scene(sce):
 	# 		pass
 	# for ob in OBJECTS:
 	# 	visible= True
-	# 	if vca.hide_from_view:
-	# 		if vca.hide_from_everything:
+	# 	if VRayCamera.hide_from_view:
+	# 		if VRayCamera.hide_from_everything:
 	# 			if ob.name in HIDE_FROM_VIEW:
 	# 				visible= False
 
@@ -2409,14 +2423,15 @@ def write_scene(sce):
 			write_object(ob,params,add_params)
 
 	def write_frame():
-		params= {}
-		params['files']= files
-		params['filters']= {
-			'exported_bitmaps':   [],
-			'exported_materials': [],
-			'exported_proxy':     []
+		params= {
+			'files': files,
+			'filters': {
+				'exported_bitmaps':   [],
+				'exported_materials': [],
+				'exported_proxy':     []
+			},
+			'types': types
 		}
-		params['types']= types
 
 		write_environment(params['files']['nodes']) # TEMP
 		write_camera(sce,params['files']['camera'])
@@ -2452,10 +2467,10 @@ def write_scene(sce):
 		selected_frame= sce.frame_current
 		f= sce.frame_start
 		while(f <= sce.frame_end):
-			sce.set_frame(f)
+			sce.frame_set(f)
 			write_frame()
 			f+= sce.frame_step
-		sce.set_frame(selected_frame)
+		sce.frame_set(selected_frame)
 	else:
 		write_frame()
 
