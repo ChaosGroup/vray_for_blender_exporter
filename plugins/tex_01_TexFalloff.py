@@ -181,6 +181,24 @@ def add_properties(VRayTexture):
 		default= 'TA'
 	)
 
+	TexFalloff.direction_type= EnumProperty(
+		name= "Direction type",
+		description= "Direction type",
+		items= (
+			('VIEWZ',   "View Z",           ""),
+			('VIEWX',   "View X",           ""),
+			('VIEWY',   "View Y",           ""),
+			('EXPL',    "Explicit",         ""),
+			('LX',      "Local X",          ""),
+			('LY',      "Local Y",          ""),
+			('LZ',      "Local Z",          ""),
+			('WX',      "World X",          ""),
+			('WY',      "World Y",          ""),
+			('WZ',      "World Z",          ""),
+		),
+		default= 'VIEWZ'
+	)
+
 	TexFalloff.fresnel_ior= FloatProperty(
 		name= "Fresnel IOR",
 		description= "IOR for the Fresnel falloff type",
