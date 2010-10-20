@@ -368,7 +368,8 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		idblock= context_tex_datablock(context)
+		return (base_poll(__class__, context) and (type(idblock) in (bpy.types.Material,bpy.types.Lamp,bpy.types.World)))
 
 	def draw(self, context):
 		layout= self.layout
@@ -377,7 +378,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 		idblock= context_tex_datablock(context)
 
 		tex= context.texture_slot
-		#vslot= context.texture_slot.vray
+		#VRaySlot= context.texture_slot.vray
 		mat= context.material
 		
 		def factor_but(layout, active, toggle, factor, label= None):
@@ -401,9 +402,9 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			factor_but(col, tex.use_map_emit,        "use_map_emit",         "emit_factor",        "Emit")
 			factor_but(col, tex.use_map_alpha,       "use_map_alpha",        "alpha_factor",       "Alpha")
 			factor_but(col, tex.use_map_translucency,"use_map_translucency", "translucency_factor","Refraction")
-			# if wide_ui:
-			# 	col= split.column()
-			# col.label(text = "(TODO) SSS:")
+			if wide_ui:
+				col= split.column()
+			col.label(text = "(TODO) SSS:")
 			# # factor_but(col, vslot.overall_on, 'overall_on', 'overall_factor')
 			# factor_but(col, tex.vray_fsss_overall_on,    "vray_fsss_overall_on",    "vray_fsss_overall_factor")
 			# factor_but(col, tex.vray_fsss_diffuse_on,    "vray_fsss_diffuse_on",    "vray_fsss_diffuse_factor")
@@ -419,9 +420,9 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.active= tex.use_map_displacement
 			col.label(text = "(TODO) Displacement settings:")
-			col.prop(tex,"vray_disp_amount",text="Amount",slider=True)
-			col.prop(tex,"vray_disp_shift",text="Shift",slider=True)
-			col.prop(tex,"vray_disp_water",text="Water",slider=True)
+			# col.prop(tex,"vray_disp_amount",text="Amount",slider=True)
+			# col.prop(tex,"vray_disp_shift",text="Shift",slider=True)
+			# col.prop(tex,"vray_disp_water",text="Water",slider=True)
 
 		elif type(idblock) == bpy.types.Lamp:
 			# vray_lamp_intensity_tex
@@ -445,8 +446,6 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			factor_but(col, tex.use_map_horizon,     "use_map_horizon",     "horizon_factor",     "GI")
 			factor_but(col, tex.use_map_zenith_up,   "use_map_zenith_up",   "zenith_up_factor",   "Reflections")
 			factor_but(col, tex.use_map_zenith_down, "use_map_zenith_down", "zenith_down_factor", "Refractions")
-		else:
-			pass
 
 
 # class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
