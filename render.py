@@ -1844,7 +1844,7 @@ def write_object(ob, params, add_params= None):
 
 	ofile= props['files']['nodes']
 
-	ve= sce.vray.exporter
+	VRayExporter= sce.vray.exporter
 
 	# TMP
 	types= props['types']
@@ -1922,24 +1922,42 @@ def write_object(ob, params, add_params= None):
 		ofile.write("\n}\n")
 
 	if len(ob.particle_systems):
-		use_render_emitter= False
 		for ps in ob.particle_systems:
+			ps_material= "Material_no_material"
+			ps_material_idx= ps.settings.material
+			if len(ob.material_slots) >= ps_material_idx:
+				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
+
 			if ps.settings.type == 'HAIR':
-				if ps.settings.use_render_emitter:
-					use_render_emitter= True
-				if ve.use_hair:
+				if VRayExporter.use_hair:
 					hair_geom_name= "HAIR_%s" % ps.name
 					hair_node_name= "%s_%s" % (node_name,hair_geom_name)
 
-					ps_material= "Material_no_material"
-					ps_material_idx= ps.settings.material
-					if len(ob.material_slots) >= ps_material_idx:
-						ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
-					
 					write_GeomMayaHair(ofile,ob,ps,hair_geom_name)
 					write_node(ofile, hair_node_name, hair_geom_name, ps_material, ob.pass_index, props['visible'], node_matrix)
-		if use_render_emitter:
-			write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
+			else:
+				particle_objects= []
+				if ps.settings.render_type == 'OBJECT':
+					particle_objects.append(ps.settings.dupli_object)
+				elif ps.settings.render_type == 'GROUP':
+					particle_objects= ps.settings.dupli_group.objects
+				else:
+					continue
+
+				for p,particle in enumerate(ps.particles):
+					part_transform= mathutils.Matrix.Translation(particle.location) * mathutils.Quaternion(particle.rotation).to_matrix().resize4x4() * mathutils.Matrix.Scale(particle.size, 4)
+
+					for p_ob in particle_objects:
+						part_name= "EMITTER_%s_%s_%s" % (clean_string(ps.name), p, clean_string(p_ob.name))
+						part_geom= get_name(p_ob.data,"Geom")
+						if ps.settings.use_global_dupli:
+							part_transform= p_ob.matrix_world * part_transform
+						part_visibility= True if particle.alive_state == 'ALIVE' else False
+
+						write_node(ofile, part_name, part_geom, ps_material, p_ob.pass_index, part_visibility, part_transform)
+				
+			if ps.settings.use_render_emitter:
+				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
 	else:
 		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
 

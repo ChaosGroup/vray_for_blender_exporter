@@ -35,86 +35,129 @@ from bpy.props import *
 from vb25.utils import *
 
 
-Slot= bpy.types.MaterialTextureSlot
-
+Slot= bpy.types.Texture
 
 class VRaySlot(bpy.types.IDPropertyGroup):
 	pass
 
-Slot.vray= PointerProperty(
+Slot.vray_slot= PointerProperty(
 	name= "V-Ray Material Texture Slot",
 	type=  VRaySlot,
 	description= "V-Ray material texture slot settings."
 )
 
-VRaySlot.overall= BoolProperty(
+
+class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
+	pass
+
+VRaySlot.BRDFSSS2Complex= PointerProperty(
+	name= "BRDFSSS2Complex",
+	type=  BRDFSSS2Complex,
+	description= "BRDFSSS2Complex texture slot settings."
+)
+
+BRDFSSS2Complex.map_overall_color= BoolProperty(
 	name= "Overall Color",
 	description= "TODO.",
 	default= False
 )
 
-VRaySlot.overall_factor= FloatProperty(
-	name= "Overall multiplier",
+BRDFSSS2Complex.overall_color_factor= FloatProperty(
+	name= "Overall Color Multiplier",
 	description= "TODO.",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 1.0
+	min=0.0,
+	max=1.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
 )
 
-
-'''
-  BRDFSSS2Complex
-'''
-Slot.vray_fsss_overall_on= BoolProperty(
-	name= "Overall Color",
-	description= "",
-	default= False
-)
-
-Slot.vray_fsss_overall_factor= FloatProperty(
-	name= "Overall color",
-	description= "",
-	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default=1.0
-)
-
-Slot.vray_fsss_diffuse_on= BoolProperty(
+BRDFSSS2Complex.map_diffuse_color= BoolProperty(
 	name= "Diffuse Color",
-	description= "",
+	description= "TODO.",
 	default= False
 )
 
-Slot.vray_fsss_diffuse_factor= FloatProperty(
-	name= "Diffuse Color",
-	description= "",
-	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default=1.0
+BRDFSSS2Complex.diffuse_color_factor= FloatProperty(
+	name= "Diffuse Color Multiplier",
+	description= "TODO.",
+	min=0.0,
+	max=1.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
 )
 
-Slot.vray_fsss_subsurface_on= BoolProperty(
+BRDFSSS2Complex.map_sub_surface_color= BoolProperty(
 	name= "Subsurface Color",
-	description= "",
+	description= "TODO.",
 	default= False
 )
 
-Slot.vray_fsss_subsurface_factor= FloatProperty(
-	name= "Subsurface Color",
-	description= "",
-	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default=1.0
+BRDFSSS2Complex.sub_surface_color_factor= FloatProperty(
+	name= "Subsurface Color Multiplier",
+	description= "TODO.",
+	min=0.0,
+	max=1.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
 )
 
-Slot.vray_fsss_scatter_on= BoolProperty(
-	name= "Scatter Color",
-	description= "",
+BRDFSSS2Complex.map_scatter_radius= BoolProperty(
+	name= "Scatter Radius",
+	description= "TODO.",
 	default= False
 )
 
-Slot.vray_fsss_scatter_factor= FloatProperty(
-	name= "Scatter Color",
-	description= "",
-	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default=1.0
+BRDFSSS2Complex.scatter_radius_factor= FloatProperty(
+	name= "Scatter Color Multiplier",
+	description= "TODO.",
+	min=0.0,
+	max=1.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
 )
 
+
+class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
+	pass
+
+VRaySlot.GeomDisplacedMesh= PointerProperty(
+	name= "GeomDisplacedMesh",
+	type=  GeomDisplacedMesh,
+	description= "GeomDisplacedMesh texture slot settings."
+)
+
+GeomDisplacedMesh.displacement_amount= FloatProperty(
+	name= "Amount",
+	description= "",
+	min=-100.0,
+	max=100.0,
+	soft_min=-1.0,
+	soft_max=1.0,
+	precision=4,
+	default=1.0
+)
+
+GeomDisplacedMesh.displacement_shift= FloatProperty(
+	name="Shift",
+	description="",
+	min=-100.0,
+	max=100.0,
+	soft_min=-1.0,
+	soft_max=1.0,
+	precision=4,
+	default=0.0
+)
+
+GeomDisplacedMesh.water_level= FloatProperty(
+	name="Water level",
+	description="",
+	min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
+	default=0.0
+)
 
 
 # '''
@@ -193,32 +236,6 @@ Slot.vray_fsss_scatter_factor= FloatProperty(
 # 	description="",
 # 	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
 # )
-
-Slot.vray_disp_amount= FloatProperty(
-	name= "Displacement Amount",
-	description= "",
-	min=0.0, max=100.0,
-	soft_min=0.0, soft_max=1.0,
-	precision=4,
-	default=1.0
-)
-
-Slot.vray_disp_shift= FloatProperty(
-	name="Displacement Shift",
-	description="",
-	min=-1.0, max=1.0,
-	soft_min=-1.0, soft_max=1.0,
-	precision=4,
-	default=0.0
-)
-
-Slot.vray_disp_water= FloatProperty(
-	name="Displacement Water",
-	description="",
-	min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
-	default=0.0
-)
-
 
 
 # '''
@@ -372,101 +389,89 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 		return (base_poll(__class__, context) and (type(idblock) in (bpy.types.Material,bpy.types.Lamp,bpy.types.World)))
 
 	def draw(self, context):
+		def factor_but(layout, slot, toggle, factor, label= None):
+			row= layout.row(align=True)
+			row.prop(slot, toggle, text="")
+			sub= row.row()
+			sub.active= getattr(slot,toggle)
+			if label:
+				sub.prop(slot, factor, slider=True, text=label)
+			else:
+				sub.prop(slot, factor, slider=True)
+
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
 		idblock= context_tex_datablock(context)
 
-		tex= context.texture_slot
-		#VRaySlot= context.texture_slot.vray
+		texture_slot= context.texture_slot
+		texture= texture_slot.texture
+
+		# TEMP! Replace after BF fixes
+		#VRaySlot= texture_slot.vray
+		if texture is not None:
+			VRaySlot= texture.vray_slot
+		
 		mat= context.material
 		
-		def factor_but(layout, active, toggle, factor, label= None):
-			row= layout.row(align=True)
-			row.prop(tex, toggle, text="")
-			sub= row.row()
-			sub.active= active
-			if label:
-				sub.prop(tex, factor, slider=True, text=label)
-			else:
-				sub.prop(tex, factor, slider=True)
-
 		if type(idblock) == bpy.types.Material:
 			split= layout.split()
 			col= split.column()
-			col.label(text = "Shading:")
-			factor_but(col, tex.use_map_color_diffuse, "use_map_color_diffuse", "diffuse_color_factor",   "Color")
-			factor_but(col, tex.use_map_color_spec,    "use_map_color_spec",    "specular_color_factor",  "Hilight")
-			factor_but(col, tex.use_map_specular,    "use_map_specular",     "specular_factor",    "Glossy")
-			factor_but(col, tex.use_map_raymir,      "use_map_raymir",       "raymir_factor",      "Reflection")
-			factor_but(col, tex.use_map_emit,        "use_map_emit",         "emit_factor",        "Emit")
-			factor_but(col, tex.use_map_alpha,       "use_map_alpha",        "alpha_factor",       "Alpha")
-			factor_but(col, tex.use_map_translucency,"use_map_translucency", "translucency_factor","Refraction")
+			col.label(text="Shading:")
+			factor_but(col, texture_slot, 'use_map_color_diffuse', 'diffuse_color_factor',   "Color")
+			factor_but(col, texture_slot, 'use_map_alpha',         'alpha_factor',           "Alpha")
+			factor_but(col, texture_slot, 'use_map_raymir',        'raymir_factor',          "Reflection")
+			factor_but(col, texture_slot, 'use_map_specular',      'specular_factor',        "Glossy")
+			factor_but(col, texture_slot, 'use_map_color_spec',    'specular_color_factor',  "Hilight")
+			factor_but(col, texture_slot, 'use_map_translucency',  'translucency_factor',    "Refraction")
+			factor_but(col, texture_slot, 'use_map_emit',          'emit_factor',            "Emit")
+
 			if wide_ui:
 				col= split.column()
-			col.label(text = "(TODO) SSS:")
-			# # factor_but(col, vslot.overall_on, 'overall_on', 'overall_factor')
-			# factor_but(col, tex.vray_fsss_overall_on,    "vray_fsss_overall_on",    "vray_fsss_overall_factor")
-			# factor_but(col, tex.vray_fsss_diffuse_on,    "vray_fsss_diffuse_on",    "vray_fsss_diffuse_factor")
-			# factor_but(col, tex.vray_fsss_subsurface_on, "vray_fsss_subsurface_on", "vray_fsss_subsurface_factor")
-			# factor_but(col, tex.vray_fsss_scatter_on,    "vray_fsss_scatter_on",    "vray_fsss_scatter_factor")
+
+			if VRaySlot is not None:
+				BRDFSSS2Complex= VRaySlot.BRDFSSS2Complex
+
+				col.label(text="SSS:")
+				factor_but(col, BRDFSSS2Complex, 'map_overall_color',     'overall_color_factor',     "Overall")
+				factor_but(col, BRDFSSS2Complex, 'map_diffuse_color',     'diffuse_color_factor',     "Diffuse")
+				factor_but(col, BRDFSSS2Complex, 'map_sub_surface_color', 'sub_surface_color_factor', "Sub-surface")
+				factor_but(col, BRDFSSS2Complex, 'map_scatter_radius',    'scatter_radius_factor',    "Scatter Radius")
 
 			split= layout.split()
 			col= split.column()
 			col.label(text="Geometry:")
-			factor_but(col, tex.use_map_normal,       "use_map_normal",       "normal_factor",       "Bump/Normal")
-			factor_but(col, tex.use_map_displacement, "use_map_displacement", "displacement_factor", "Displace")
+			factor_but(col, texture_slot, 'use_map_normal',       'normal_factor',       "Bump/Normal")
+			factor_but(col, texture_slot, 'use_map_displacement', 'displacement_factor', "Displace")
+
 			if wide_ui:
 				col= split.column()
-			col.active= tex.use_map_displacement
-			col.label(text = "(TODO) Displacement settings:")
-			# col.prop(tex,"vray_disp_amount",text="Amount",slider=True)
-			# col.prop(tex,"vray_disp_shift",text="Shift",slider=True)
-			# col.prop(tex,"vray_disp_water",text="Water",slider=True)
+
+			if VRaySlot is not None:
+				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+
+				col.active= texture_slot.use_map_displacement
+				col.label(text="Displacement")
+				col.prop(GeomDisplacedMesh,'displacement_amount',text="Amount",slider=True)
+				col.prop(GeomDisplacedMesh,'displacement_shift',text="Shift",slider=True)
+				col.prop(GeomDisplacedMesh,'water_level',text="Water",slider=True)
 
 		elif type(idblock) == bpy.types.Lamp:
-			# vray_lamp_intensity_tex
-			# vray_lamp_shadowColor_tex
-			# vray_lamp_rect_tex
+			# intensity_tex
+			# shadowColor_tex
+			# rect_tex
 			pass
 
 		elif type(idblock) == bpy.types.World:
-			# factor_but(col, tex.use_map_env_gi,   'use_map_env_gi',   "", "")
-			# factor_but(col, tex.use_map_env_refl, 'use_map_env_refl', "", "")
-			# factor_but(col, tex.use_map_env_refr, 'use_map_env_refr', "", "")
-
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")
-			factor_but(col, tex.use_map_blend,   "use_map_blend", "blend_factor",   "Background")
+			factor_but(col, texture_slot, 'use_map_blend',       'blend_factor',       "Background")
 
 			if wide_ui:
 				col= split.column()
+			
 			col.label(text="Override:")
-			factor_but(col, tex.use_map_horizon,     "use_map_horizon",     "horizon_factor",     "GI")
-			factor_but(col, tex.use_map_zenith_up,   "use_map_zenith_up",   "zenith_up_factor",   "Reflections")
-			factor_but(col, tex.use_map_zenith_down, "use_map_zenith_down", "zenith_down_factor", "Refractions")
-
-
-# class TEXTURE_PT_plugin(TextureButtonsPanel, bpy.types.Panel):
-# 	bl_label = "V-Ray Textures"
-
-# 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-# 	@classmethod
-# 	def poll(cls, context):
-# 		tex= context.texture
-# 		engine= context.scene.render.engine
-# 		return base_poll(__class__, context) and (tex.type == 'VRAY' and (engine in __class__.COMPAT_ENGINES))
-
-# 	def draw(self, context):
-# 		tex= context.texture
-# 		vtex= tex.vray
-		
-# 		wide_ui= context.region.width > narrowui
-
-# 		layout= self.layout
-
-# 		split= layout.split()
-# 		col= split.column()
-# 		col.prop(vtex, 'type')
+			factor_but(col, texture_slot, 'use_map_horizon',     'horizon_factor',     "GI")
+			factor_but(col, texture_slot, 'use_map_zenith_up',   'zenith_up_factor',   "Reflections")
+			factor_but(col, texture_slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
