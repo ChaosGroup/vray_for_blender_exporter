@@ -3098,7 +3098,7 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			col.prop(BRDFVRayMtl, 'reflect_color', text="")
 			if not BRDFVRayMtl.hilight_glossiness_lock:
 				col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
-			col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness")
+			col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
 			col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
 			col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
 			if wide_ui:
@@ -3118,7 +3118,7 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			col.label(text="Refractions")
 			col.prop(BRDFVRayMtl, 'refract_color', text="")
 			col.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
-			col.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness")
+			col.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
 			col.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
 			col.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
 			if wide_ui:
