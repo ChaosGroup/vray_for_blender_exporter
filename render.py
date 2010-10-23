@@ -764,6 +764,7 @@ def write_geometry(sce, geometry_file):
 			vb_active_layers= VRayExporter.active_layers,
 			vb_animation= VRayExporter.animation
 		)
+
 	else:
 		print("V-Ray/Blender: Exporting meshes...")
 		
@@ -1912,7 +1913,7 @@ def write_object(ob, params, add_params= None):
 			if len(ob.material_slots) >= ps_material_idx:
 				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
 
-			if ps.settings.type == 'HAIR':
+			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
 					hair_geom_name= "HAIR_%s" % ps.name
 					hair_node_name= "%s_%s" % (node_name,hair_geom_name)
@@ -1929,15 +1930,26 @@ def write_object(ob, params, add_params= None):
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					part_transform= mathutils.Matrix.Translation(particle.location) * mathutils.Quaternion(particle.rotation).to_matrix().resize4x4() * mathutils.Matrix.Scale(particle.size, 4)
+					location= particle.location
+					size= particle.size
+					if ps.settings.type == 'HAIR':
+						location= particle.is_hair[0].co
+						size*= 3
 
+					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
+					part_transform.resize4x4()
+					part_transform[3][0]= location[0]
+					part_transform[3][1]= location[1]
+					part_transform[3][2]= location[2]
+					
 					for p_ob in particle_objects:
 						part_name= "EMITTER_%s_%s_%s" % (clean_string(ps.name), p, clean_string(p_ob.name))
 						part_geom= get_name(p_ob.data,"Geom")
-						# if ps.settings.use_global_dupli:
-						# 	part_transform= p_ob.matrix_world * part_transform
-						part_transform= p_ob.matrix_world * part_transform
-						part_visibility= True if particle.alive_state == 'ALIVE' else False
+						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
+							part_transform= part_transform * p_ob.matrix_world
+						part_visibility= True
+						if ps.settings.type == 'EMITTER':
+							part_visibility= True if particle.alive_state == 'ALIVE' else False
 
 						write_node(ofile, part_name, part_geom, ps_material, p_ob.pass_index, part_visibility, part_transform)
 				
