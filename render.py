@@ -1169,16 +1169,16 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 			tex_name= "%s_%s"%(tex_name, get_name(ma,"Material"))
 
 		if env:
-			uv_name= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
+			uvwgen= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
 		else:
-			uv_name= write_UVWGenChannel(ofile, tex, tex_name, ob)
+			uvwgen= write_UVWGenChannel(ofile, tex, tex_name, ob)
 
 		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
 		if bitmap_name:
 			ofile.write("\nTexBitmap %s {"%(tex_name))
 			ofile.write("\n\tbitmap= %s;"%(bitmap_name))
-			ofile.write("\n\tuvwgen= %s;"%(uv_name))
+			ofile.write("\n\tuvwgen= %s;"%(uvwgen))
 			ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
 			if not env:
 				if tex.extension == 'REPEAT':
@@ -1189,11 +1189,13 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 				ofile.write("\n\tinvert= %d;"%(slot.invert))
 			ofile.write("\n}\n")
 		else:
+			#return {'texture': "Texture_no_texture", 'uvwgen': "UVWGenChannel_default"}
 			return "Texture_no_texture"
 
 	else:
 		debug(sce,"Error! Image file is not set! (%s)"%(tex.name))
 
+	#return {'texture': tex_name, 'uvwgen': uvwgen}
 	return tex_name
 
 
@@ -1246,73 +1248,77 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	if slot:
 		tex= slot.texture
 
-	vtex= tex.vray
+	VRayTexture= tex.vray
 	
 	if tex:
-		plugin= get_plugin(TEX_PLUGINS, vtex.type)
+		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
 		if plugin is not None:
-			tex_name= plugin.write(ofile, sce, tex)
+			texture= plugin.write(ofile, sce, tex)
 
-	return tex_name
+	return texture
 
 
 def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, env= None):
 	if slot:
 		tex= slot.texture
 		
-	tex_name= "Texture_no_texture"
+	# texture= {
+	# 	'texture': "Texture_no_texture",
+	# 	'uvwgen':  "UVWGenChannel_default"
+	# }
 
 	if tex.type == 'IMAGE':
-		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
+		texture= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
 	elif tex.type == 'VRAY':
-		tex_name= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
+		texture= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
 	else:
 		pass
 
-	return tex_name
+	return texture
 
 
 def write_textures(ofile, exported_bitmaps, ma, ma_name):
-	vraytex= {}
-	vraytex['color']= []
-	vraytex['bump']= []
-	vraytex['normal']= []
-	vraytex['reflect']= []
-	vraytex['reflect_glossiness']= []
-	vraytex['hilight_glossiness']= []
-	vraytex['refract']= []
-	vraytex['reflect_glossiness']= []
-	vraytex['alpha']= []
-	vraytex['emit']= []
-	vraytex['displace']= []
-	vraytex['roughness']= []
+	vraytex= {
+		'color': [],
+		'bump': [],
+		'normal': [],
+		'reflect': [],
+		'reflect_glossiness': [],
+		'hilight_glossiness': [],
+		'refract': [],
+		'reflect_glossiness': [],
+		'alpha': [],
+		'emit': [],
+		'displace': [],
+		'roughness': []
+	}
 
-	vraymat= {}
-	vraymat['color']= None
-	vraymat['color_mult']= 0.0
-	vraymat['emit']= None
-	vraymat['emit_mult']= 0.0
-	vraymat['bump']= None
-	vraymat['bump_amount']= 0.0
-	vraymat['normal']= None
-	vraymat['normal_amount']= 0.0
-	vraymat['reflect']= None
-	vraymat['reflect_mult']= 0.0
-	vraymat['roughness']= None
-	vraymat['roughness_mult']= 0.0
-	vraymat['reflect_glossiness']= None
-	vraymat['reflect_glossiness_mult']= 0.0
-	vraymat['hilight_glossiness']= None
-	vraymat['hilight_glossiness_mult']= 0.0
-	vraymat['refract']= None
-	vraymat['refract_mult']= 0.0
-	vraymat['refract_glossiness']= None
-	vraymat['refract_glossiness_mult']= 0.0
-	vraymat['roughness_mult']= 0.0
-	vraymat['alpha']= None
-	vraymat['alpha_mult']= 0.0
-	vraymat['displace']= None
-	vraymat['displace_amount']= 0.0
+	vraymat= {
+		'color':      None,
+		'color_mult': 0.0,
+		'emit':      None,
+		'emit_mult': 0.0,
+		'bump':        None,
+		'bump_amount': 0.0,
+		'normal':        None,
+		'normal_amount': 0.0,
+		'reflect':      None,
+		'reflect_mult': 0.0,
+		'roughness':      None,
+		'roughness_mult': 0.0,
+		'reflect_glossiness':      None,
+		'reflect_glossiness_mult': 0.0,
+		'hilight_glossiness':      None,
+		'hilight_glossiness_mult': 0.0,
+		'refract':      None,
+		'refract_mult': 0.0,
+		'refract_glossiness':      None,
+		'refract_glossiness_mult': 0.0,
+		'alpha':      None,
+		'alpha_mult': 0.0,
+		'displace':        None,
+		'displace_amount': 0.0
+	}
 
 	for slot_idx,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[slot_idx] and slot:
@@ -1335,7 +1341,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						vraymat['reflect_glossiness_mult']+= slot.specular_factor
 					if slot.use_map_specular:
 						vraytex['hilight_glossiness'].append(slot)
-						vraymat['hilight_glossiness_mult']+= slot.colorspec_factor
+						vraymat['hilight_glossiness_mult']+= slot.specular_color_factor
 					if slot.use_map_raymir:
 						vraytex['reflect'].append(slot)
 						vraymat['reflect_mult']+= slot.raymir_factor
@@ -1526,17 +1532,18 @@ def write_BRDFBump(ofile, base_brdf, tex_vray):
 
 	ofile.write("\nBRDFBump %s {"%(brdf_name))
 	ofile.write("\n\tbase_brdf= %s;"%(base_brdf))
-	if(tex_vray['normal']):
+	ofile.write("\n\tbump_shadows= 0;")
+	if tex_vray['normal']:
+		ofile.write("\n\tmap_type= 1;")
+		if True: # if map_type == 1:
+			ofile.write("\n\tnormal_uvwgen= %s;"%("%s_UVWGenChannel_%s"%(tex_name, get_name(tex))))
+			
 		ofile.write("\n\tbump_tex_color= %s;"%(tex_vray['normal']))
 		ofile.write("\n\tbump_tex_mult= %.6f;"%(tex_vray['normal_amount']))
 	else:
+		ofile.write("\n\tmap_type= 0;")
 		ofile.write("\n\tbump_tex_color= %s;"%(tex_vray['bump']))
 		ofile.write("\n\tbump_tex_mult= %.6f;"%(tex_vray['bump_amount']))
-	ofile.write("\n\tbump_shadows= 1;")
-	if(tex_vray['normal']):
-		ofile.write("\n\tmap_type= 2;")
-	else:
-		ofile.write("\n\tmap_type= 0;")
 	ofile.write("\n}\n")
 
 	return brdf_name
@@ -1571,22 +1578,22 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	if name:
 		ma_name= name
 
-	vma= ma.vray
+	VRayMaterial= ma.vray
 	
 	brdf_name= "BRDFDiffuse_no_material"
 
 	tex_vray= write_textures(ofile, filters['exported_bitmaps'], ma, ma_name)
 
-	if vma.type == 'EMIT':
-		if vma.emitter_type == 'MESH':
+	if VRayMaterial.type == 'EMIT':
+		if VRayMaterial.emitter_type == 'MESH':
 			object_params['meshlight']['on']= True
 			object_params['meshlight']['material']= ma
 			object_params['meshlight']['texture']= tex_vray['emit'] if tex_vray['emit'] else tex_vray['color']
 			return
-	elif vma.type == 'VOL':
+	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
 		for param in OBJECT_PARAMS['EnvironmentFog']:
-			object_params['volume'][param]= getattr(vma.EnvironmentFog,param)
+			object_params['volume'][param]= getattr(VRayMaterial.EnvironmentFog,param)
 		return
 
 	if tex_vray['displace']:
@@ -1598,84 +1605,61 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	else:
 		filters['exported_materials'].append(ma)
 
-	if vma.type == 'MTL':
+	if VRayMaterial.type == 'MTL':
 		if sce.vray.exporter.compat_mode:
 		 	brdf_name= write_BRDF(ofile, sce, ma, ma_name, tex_vray)
 		else:
 			brdf_name= write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray)
-	elif vma.type == 'SSS':
+	elif VRayMaterial.type == 'SSS':
 		brdf_name= write_BRDFSSS2Complex(ofile, ma, ma_name, tex_vray)
-	elif vma.type == 'EMIT' and vma.emitter_type == 'MTL':
+	elif VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MTL':
 		brdf_name= write_BRDFLight(ofile, sce, ma, ma_name, tex_vray)
 
-	if vma.type not in ('EMIT','VOL'):
+	if VRayMaterial.type not in ('EMIT','VOL'):
 		if tex_vray['bump'] or tex_vray['normal']:
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
-	# Very ugly :(
-	# TODO: Convert to stack
-	if(vma.two_sided and vma.MtlWrapper.use and vma.MtlRenderStats.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		wrap_material= "MtlWrapper_%s"%(ma_name)
-		wrap_base= ts_material
-		rstat_material= ma_name
-		rstat_base= wrap_material
-	elif(vma.two_sided and vma.MtlRenderStats.use and not vma.MtlWrapper.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		rstat_base= ts_material
-		rstat_material= ma_name
-	elif(vma.two_sided and vma.MtlWrapper.use and not vma.MtlRenderStats.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= "Mtl2Sided_%s"%(ma_name)
-		wrap_base= ts_material
-		wrap_material= ma_name
-	elif(not vma.two_sided and vma.MtlWrapper.use and vma.MtlRenderStats.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		wrap_material= "MtlWrapper_%s"%(ma_name)
-		wrap_base= base_material
-		rstat_material= ma_name
-		rstat_base= wrap_material
-	elif(not vma.two_sided and vma.MtlWrapper.use and not vma.MtlRenderStats.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		wrap_base= base_material
-		wrap_material= ma_name
-	elif(not vma.two_sided and not vma.MtlWrapper.use and vma.MtlRenderStats.use):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		rstat_material= ma_name
-		rstat_base= base_material
-	elif(vma.two_sided):
-		base_material= "MtlSingleBRDF_%s"%(ma_name)
-		ts_material= ma_name
-	else:
-		base_material= ma_name
+	complex_material= []
+	for component in (VRayMaterial.two_sided,VRayMaterial.MtlWrapper.use,VRayMaterial.MtlOverride.use,VRayMaterial.MtlRenderStats.use):
+		if component:
+			complex_material.append("MtlComponent_%.2d_%s"%(len(complex_material), ma_name))
+	complex_material.append(ma_name)
+	complex_material.reverse()
 
-	ofile.write("\nMtlSingleBRDF %s {"%(base_material))
+	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
 	ofile.write("\n\tbrdf= %s;"%(brdf_name))
 	ofile.write("\n}\n")
 
-	if vma.two_sided:
-		ofile.write("\nMtl2Sided %s {"%(ts_material))
+	if VRayMaterial.two_sided:
+		base_material= complex_material.pop()
+		ofile.write("\nMtl2Sided %s {"%(complex_material[-1]))
 		ofile.write("\n\tfront= %s;"%(base_material))
 		ofile.write("\n\tback= %s;"%(base_material))
-		ofile.write("\n\ttranslucency= Color(1.0,1.0,1.0)*%.3f;"%(vma.two_sided_translucency))
+		ofile.write("\n\ttranslucency= Color(1.0,1.0,1.0)*%.3f;"%(VRayMaterial.two_sided_translucency))
 		ofile.write("\n\tforce_1sided= 1;")
 		ofile.write("\n}\n")
 
-	if vma.MtlWrapper.use:
-		ofile.write("\nMtlWrapper %s {"%(wrap_material))
-		ofile.write("\n\tbase_material= %s;"%(wrap_base))
+	if VRayMaterial.MtlWrapper.use:
+		base_material= complex_material.pop()
+		ofile.write("\nMtlWrapper %s {"%(complex_material[-1]))
+		ofile.write("\n\tbase_material= %s;"%(base_material))
 		for param in OBJECT_PARAMS['MtlWrapper']:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vma.MtlWrapper,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(VRayMaterial.MtlWrapper,param))))
 		ofile.write("\n}\n")
-		
-	if vma.MtlRenderStats.use:
-		ofile.write("\nMtlRenderStats %s {"%(rstat_material))
-		ofile.write("\n\tbase_mtl= %s;"%(rstat_base))
+
+	if VRayMaterial.MtlOverride.use:
+		# TODO
+		pass
+
+	if VRayMaterial.MtlRenderStats.use:
+		base_mtl= complex_material.pop()
+		ofile.write("\nMtlRenderStats %s {"%(complex_material[-1]))
+		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
 		for param in OBJECT_PARAMS['MtlRenderStats']:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vma.MtlRenderStats,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(VRayMaterial.MtlRenderStats,param))))
 		ofile.write("\n}\n")
+
+	del complex_material
 
 
 def write_materials(ofile,ob,filters,object_params):
@@ -1950,8 +1934,9 @@ def write_object(ob, params, add_params= None):
 					for p_ob in particle_objects:
 						part_name= "EMITTER_%s_%s_%s" % (clean_string(ps.name), p, clean_string(p_ob.name))
 						part_geom= get_name(p_ob.data,"Geom")
-						if ps.settings.use_global_dupli:
-							part_transform= p_ob.matrix_world * part_transform
+						# if ps.settings.use_global_dupli:
+						# 	part_transform= p_ob.matrix_world * part_transform
+						part_transform= p_ob.matrix_world * part_transform
 						part_visibility= True if particle.alive_state == 'ALIVE' else False
 
 						write_node(ofile, part_name, part_geom, ps_material, p_ob.pass_index, part_visibility, part_transform)
@@ -2134,6 +2119,18 @@ def write_lamp(ob, params, add_params= None):
 def write_camera(sce, ofile, camera= None):
 	ca= camera if camera is not None else sce.camera
 
+	CAMERA_TYPE= {
+		'DEFAULT':            0,
+		'SPHERIFICAL':        1,
+		'CYLINDRICAL_POINT':  2,
+		'CYLINDRICAL_ORTHO':  3,
+		'BOX':                4,
+		'FISH_EYE':           5,
+		'WARPED_SPHERICAL':   6,
+		'ORTHOGONAL':         7,
+		'PINHOLE':            8
+	}
+
 	if ca is not None:
 		VRayCamera= ca.data.vray
 		SettingsCamera= VRayCamera.SettingsCamera
@@ -2175,7 +2172,7 @@ def write_camera(sce, ofile, camera= None):
 
 		else:
 			ofile.write("\nSettingsCamera {")
-			ofile.write("\n\ttype= %i;"%(0))
+			ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 			ofile.write("\n}\n")
 
@@ -2183,7 +2180,7 @@ def write_camera(sce, ofile, camera= None):
 def write_settings(sce,ofile):
 	rd= sce.render
 	
-	VRayScene= sce.vray
+	VRayScene=    sce.vray
 	VRayExporter= VRayScene.exporter
 	VRayDR=       VRayScene.VRayDR
 	
@@ -2367,8 +2364,8 @@ def write_scene(sce):
 	files['materials'].write("\n\tuvw_channel= 1;")
 	files['materials'].write("\n\tuvw_transform= Transform(")
 	files['materials'].write("\n\t\tMatrix(")
-	files['materials'].write("\n\t\t\tVector(1.0,0.0,0.0)*5,")
-	files['materials'].write("\n\t\t\tVector(0.0,1.0,0.0)*5,")
+	files['materials'].write("\n\t\t\tVector(1.0,0.0,0.0)*2,")
+	files['materials'].write("\n\t\t\tVector(0.0,1.0,0.0)*2,")
 	files['materials'].write("\n\t\t\tVector(0.0,0.0,1.0)")
 	files['materials'].write("\n\t\t),")
 	files['materials'].write("\n\t\tVector(0.0,0.0,0.0)")

@@ -3430,6 +3430,41 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 			col.prop(BRDFVRayMtl, 'environment_priority')
 
 
+class MATERIAL_PT_VRAY_override(MaterialButtonsPanel, bpy.types.Panel):
+	bl_label   = "Override"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		vma= active_ma.vray
+		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+
+	def draw_header(self, context):
+		ma= active_node_mat(context.material)
+		MtlOverride= ma.vray.MtlOverride
+		self.layout.prop(MtlOverride, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > 200
+
+		ob= context.object
+		ma= active_node_mat(context.material)
+
+		MtlOverride= ma.vray.MtlOverride
+		
+		layout= self.layout
+		layout.active= MtlOverride.use
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Coming soon!")
+	
+
 class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}

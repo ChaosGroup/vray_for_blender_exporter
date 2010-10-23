@@ -130,16 +130,17 @@ VRaySlot.GeomDisplacedMesh= PointerProperty(
 	description= "GeomDisplacedMesh texture slot settings."
 )
 
-GeomDisplacedMesh.displacement_amount= FloatProperty(
-	name= "Amount",
-	description= "",
-	min=-100.0,
-	max=100.0,
-	soft_min=-1.0,
-	soft_max=1.0,
-	precision=4,
-	default=1.0
-)
+# This is 'displacement_factor' actually.
+# GeomDisplacedMesh.displacement_amount= FloatProperty(
+# 	name= "Amount",
+# 	description= "",
+# 	min=-100.0,
+# 	max=100.0,
+# 	soft_min=-1.0,
+# 	soft_max=1.0,
+# 	precision=4,
+# 	default=1.0
+# )
 
 GeomDisplacedMesh.displacement_shift= FloatProperty(
 	name="Shift",
@@ -160,107 +161,40 @@ GeomDisplacedMesh.water_level= FloatProperty(
 )
 
 
-# '''
-#   Plugin: BRDFVRayMtl
-# '''
-# BoolProperty(
-# 	attr="map_vray_hilight",
-# 	name="Hilight",
-# 	description="TODO.",
-# 	default= False
-# )
+class BRDFBump(bpy.types.IDPropertyGroup):
+	pass
 
-# FloatProperty(
-# 	attr="vray_hilight_mult",
-# 	name="Hilight multiplier",
-# 	description="TODO.",
-# 	min=0.0,
-# 	max=1.0,
-# 	soft_min=0.0,
-# 	soft_max=1.0,
-# 	default= 1.0
-# )
+VRaySlot.BRDFBump= PointerProperty(
+	name= "BRDFBump",
+	type=  BRDFBump,
+	description= "BRDFBump texture slot settings."
+)
 
-# BoolProperty(
-# 	attr="vray_reflect_gloss_on",
-# 	name="Reflect gloss",
-# 	description="",
-# 	default = False
-# )
+BRDFBump.map_type= EnumProperty(
+	name= "Map Type",
+	description= "Normal map type.",
+	items= (
+		('EXPLICIT', "Normal (explicit)", "."),
+		('WORLD',    "Normal (world)",    "."),
+		('CAMERA',   "Normal (camera)",   "."),
+		('OBJECT',   "Normal (object)",   "."),
+		('TANGENT',  "Normal (tangent)" , "."),
+		('BUMP',     "Bump",              ".")
+	),
+	default= 'BUMP'
+)
 
-# FloatProperty(
-# 	attr="vray_reflect_gloss_factor",
-# 	name="Reflect Gloss multiplier",
-# 	description="",
-# 	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
-# )
+BRDFBump.bump_shadows= BoolProperty(
+	name= "Bump Shadows",
+	description= "Offset the surface shading point, in addition to the normal.",
+	default= False
+)
 
-# BoolProperty(
-# 	attr="vray_reglect_ior_on",
-# 	name="reflect ior",
-# 	description="",
-# 	default = False
-# )
-
-# FloatProperty(
-# 	attr="vray_reflect_ior_factor",
-# 	name="reflect factor",
-# 	description="",
-# 	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
-# )
-
-# BoolProperty(
-# 	attr="vray_refract_ior_on",
-# 	name="refract ior",
-# 	description="",
-# 	default = False
-# )
-
-# FloatProperty(
-# 	attr="vray_refract_ior_factor",
-# 	name="Scatter Color",
-# 	description="",
-# 	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
-# )
-
-# BoolProperty(
-# 	attr="vray_refract_gloss_on",
-# 	name="refract ior",
-# 	description="",
-# 	default = False
-# )
-
-# FloatProperty(
-# 	attr="vray_refract_gloss_factor",
-# 	name="Scatter Color",
-# 	description="",
-# 	min=0.0, max=1.0, soft_min=0.0, soft_max=1.0, default = 1.0
-# )
-
-
-# '''
-#   WORLD
-# '''
-# BoolProperty(
-# 	attr= 'map_vray_env_gi',
-# 	name= "Override GI",
-# 	description= "Use texture for GI.",
-# 	default= False
-# )
-
-# BoolProperty(
-# 	attr= 'map_vray_env_refl',
-# 	name= "Override reflections",
-# 	description= "Use texture for reflections.",
-# 	default= False
-# )
-
-# BoolProperty(
-# 	attr= 'map_vray_env_refr',
-# 	name= "Override refractions",
-# 	description= "Use texture for refractions.",
-# 	default= False
-# )
+BRDFBump.compute_bump_for_shadows= BoolProperty(
+	name= "Transparent Bump Shadows",
+	description= "True to compute bump mapping for shadow rays in case the material is transparent; false to skip the bump map for shadow rays (faster rendering).",
+	default= True
+)
 
 
 
@@ -438,10 +372,29 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				factor_but(col, BRDFSSS2Complex, 'map_sub_surface_color', 'sub_surface_color_factor', "Sub-surface")
 				factor_but(col, BRDFSSS2Complex, 'map_scatter_radius',    'scatter_radius_factor',    "Scatter Radius")
 
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			factor_but(col, texture_slot, 'use_map_normal',       'normal_factor',       "Normal")
+
+			if wide_ui:
+				col= split.column()
+
+			if VRaySlot is not None:
+				BRDFBump= VRaySlot.BRDFBump
+
+				col.active= texture_slot.use_map_normal
+				col.prop(BRDFBump,'map_type',text="Type")
+				col.prop(BRDFBump,'bump_shadows')
+				col.prop(BRDFBump,'compute_bump_for_shadows')
+
 			split= layout.split()
 			col= split.column()
 			col.label(text="Geometry:")
-			factor_but(col, texture_slot, 'use_map_normal',       'normal_factor',       "Bump/Normal")
+
+			split= layout.split()
+			col= split.column()
 			factor_but(col, texture_slot, 'use_map_displacement', 'displacement_factor', "Displace")
 
 			if wide_ui:
@@ -451,10 +404,17 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
 				col.active= texture_slot.use_map_displacement
-				col.label(text="Displacement")
-				col.prop(GeomDisplacedMesh,'displacement_amount',text="Amount",slider=True)
-				col.prop(GeomDisplacedMesh,'displacement_shift',text="Shift",slider=True)
-				col.prop(GeomDisplacedMesh,'water_level',text="Water",slider=True)
+				# This is 'displacement_factor' actually.
+				#col.prop(GeomDisplacedMesh,'displacement_amount',text="Amount",slider=True)
+				col.prop(GeomDisplacedMesh,'displacement_shift',slider=True)
+				col.prop(GeomDisplacedMesh,'water_level',slider=True)
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.label(text="NOTE: cause of API limitations some parameters are")
+			col.label(text="texture dependend not slot.")
 
 		elif type(idblock) == bpy.types.Lamp:
 			# intensity_tex
