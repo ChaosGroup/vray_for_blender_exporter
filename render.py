@@ -761,7 +761,8 @@ def write_geometry(sce, geometry_file):
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
-			vb_active_layers= VRayExporter.active_layers,
+			#vb_active_layers= VRayExporter.active_layers,
+			vb_active_layers= 0,
 			vb_animation= VRayExporter.animation
 		)
 
@@ -1805,13 +1806,24 @@ def write_LightMesh(ofile, ob, params, name, geometry, matrix):
 	ofile.write("\n}\n")
 
 
+def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix):
+	ofile.write("\nNode %s {"%(name))
+	ofile.write("\n\tobjectID= %d;"%(object_id))
+	ofile.write("\n\tgeometry= %s;"%(geometry))
+	ofile.write("\n\tmaterial= %s;"%(material))
+	ofile.write("\n\tvisible= %s;"%(a(sce,visibility)))
+	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
+	ofile.write("\n}\n")
+
+
 def write_object(ob, params, add_params= None):
 	props= {
 		'filters': None,
 		'types':   None,
 		'files':   None,
 
-		'visible': True,
+		'material': None,
+		'visible':  True,
 
 		'dupli':        False,
 		'dupli_group':  False,
@@ -1831,13 +1843,8 @@ def write_object(ob, params, add_params= None):
 
 	VRayExporter= sce.vray.exporter
 
-	# TMP
 	types= props['types']
 	files= props['files']
-	
-	# if ob in props['filters']['exported_nodes']:
-	#  	continue
-	# props['filters']['exported_nodes'].append(ob)
 
 	object_params= {
 		'meshlight': {
@@ -1852,7 +1859,12 @@ def write_object(ob, params, add_params= None):
 	}
 
 	node_name= get_name(ob,"Node",dupli_name= props['dupli_name'])
-	ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
+
+	ma_name= "Material_no_material"
+	if props['material'] is not None:
+		ma_name= props['material']
+	else:
+		ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 
 	debug(sce, "Object[%s]: %s" % (ob.name,object_params))
 
@@ -1862,6 +1874,9 @@ def write_object(ob, params, add_params= None):
 	node_geometry= get_name(ob.data,"Geom")
 	if hasattr(vd,'GeomMeshFile'):
 		if vd.GeomMeshFile.use:
+			# Don't override proxy material if proxy has multi-material
+			if len(ob.material_slots) > 1:
+				ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 			node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
 
 	if object_params['displace']['texture'] is not None:
@@ -1897,62 +1912,8 @@ def write_object(ob, params, add_params= None):
 		'visibility':             MtlRenderStats.visibility
 	}
 
-	def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix):
-		ofile.write("\nNode %s {"%(name))
-		ofile.write("\n\tobjectID= %d;"%(object_id))
-		ofile.write("\n\tgeometry= %s;"%(geometry))
-		ofile.write("\n\tmaterial= %s;"%(material))
-		ofile.write("\n\tvisible= %s;"%(a(sce,visibility)))
-		ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
-		ofile.write("\n}\n")
-
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
-			ps_material= "Material_no_material"
-			ps_material_idx= ps.settings.material
-			if len(ob.material_slots) >= ps_material_idx:
-				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
-
-			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
-				if VRayExporter.use_hair:
-					hair_geom_name= "HAIR_%s" % ps.name
-					hair_node_name= "%s_%s" % (node_name,hair_geom_name)
-
-					write_GeomMayaHair(ofile,ob,ps,hair_geom_name)
-					write_node(ofile, hair_node_name, hair_geom_name, ps_material, ob.pass_index, props['visible'], node_matrix)
-			else:
-				particle_objects= []
-				if ps.settings.render_type == 'OBJECT':
-					particle_objects.append(ps.settings.dupli_object)
-				elif ps.settings.render_type == 'GROUP':
-					particle_objects= ps.settings.dupli_group.objects
-				else:
-					continue
-
-				for p,particle in enumerate(ps.particles):
-					location= particle.location
-					size= particle.size
-					if ps.settings.type == 'HAIR':
-						location= particle.is_hair[0].co
-						size*= 3
-
-					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
-					part_transform.resize4x4()
-					part_transform[3][0]= location[0]
-					part_transform[3][1]= location[1]
-					part_transform[3][2]= location[2]
-					
-					for p_ob in particle_objects:
-						part_name= "EMITTER_%s_%s_%s" % (clean_string(ps.name), p, clean_string(p_ob.name))
-						part_geom= get_name(p_ob.data,"Geom")
-						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
-							part_transform= part_transform * p_ob.matrix_world
-						part_visibility= True
-						if ps.settings.type == 'EMITTER':
-							part_visibility= True if particle.alive_state == 'ALIVE' else False
-
-						write_node(ofile, part_name, part_geom, ps_material, p_ob.pass_index, part_visibility, part_transform)
-				
 			if ps.settings.use_render_emitter:
 				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
 	else:
@@ -2430,6 +2391,65 @@ def write_scene(sce):
 	# 			if ob.name in HIDE_FROM_VIEW:
 	# 				visible= False
 
+	def _write_object_particles(ob, params, add_params= None):
+		if len(ob.particle_systems):
+			for ps in ob.particle_systems:
+				ps_material= "Material_no_material"
+				ps_material_idx= ps.settings.material
+				if len(ob.material_slots) >= ps_material_idx:
+					ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
+
+				if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
+					if VRayExporter.use_hair:
+						hair_geom_name= "HAIR_%s" % ps.name
+						hair_node_name= "%s_%s" % (ob.name,hair_geom_name)
+
+						write_GeomMayaHair(params['files']['nodes'],ob,ps,hair_geom_name)
+						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world)
+				else:
+					particle_objects= []
+					if ps.settings.render_type == 'OBJECT':
+						particle_objects.append(ps.settings.dupli_object)
+					elif ps.settings.render_type == 'GROUP':
+						particle_objects= ps.settings.dupli_group.objects
+					else:
+						continue
+
+					for p,particle in enumerate(ps.particles):
+						location= particle.location
+						size= particle.size
+						if ps.settings.type == 'HAIR':
+							location= particle.is_hair[0].co
+							size*= 3
+
+						part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
+						part_transform.resize4x4()
+						part_transform[3][0]= location[0]
+						part_transform[3][1]= location[1]
+						part_transform[3][2]= location[2]
+
+						for p_ob in particle_objects:
+							part_name= "EMITTER_%s_%s" % (clean_string(ps.name), p)
+							if add_params is not None:
+								if 'dupli_name' in add_params:
+									part_name= '_'.join([add_params['dupli_name'],clean_string(ps.name),str(p)])
+									
+							if ps.settings.use_whole_group or ps.settings.use_global_dupli:
+								part_transform= part_transform * p_ob.matrix_world
+							part_visibility= True
+							if ps.settings.type == 'EMITTER':
+								part_visibility= True if particle.alive_state == 'ALIVE' else False
+
+							_write_object(p_ob, params, {
+								'dupli': True,
+								'dupli_name': part_name,
+								'visible': part_visibility,
+								'material': ps_material,
+								'matrix': part_transform
+								}
+							)
+							# write_node(ofile, part_name, part_geom, , p_ob.pass_index, part_visibility, part_transform)
+
 	def _write_object_dupli(ob, params, add_params= None):
 		if ob.dupli_type in ('VERTS','FACES','GROUP'):
 			ob.create_dupli_list(sce)
@@ -2437,8 +2457,6 @@ def write_scene(sce):
 				dup_name= "%s_%s" % (ob.name,dup_id)
 				_write_object(dup_ob.object, params, {'dupli': True, 'dupli_name': dup_name, 'matrix': dup_ob.matrix})
 			ob.free_dupli_list()
-		else:
-			return
 
 	def _write_object(ob, params, add_params= None):
 		if ob.type == 'LAMP':
@@ -2446,6 +2464,7 @@ def write_scene(sce):
 		elif ob.type == 'EMPTY':
 			_write_object_dupli(ob,params,add_params)
 		else:
+			_write_object_particles(ob,params,add_params)
 			_write_object_dupli(ob,params,add_params)
 			write_object(ob,params,add_params)
 
@@ -2661,7 +2680,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER_PREVIEW'
-	bl_label   = 'V-Ray (preview)'
+	bl_label   = 'V-Ray (material preview)'
 	bl_use_preview = True
 	
 	def render(self, scene):
