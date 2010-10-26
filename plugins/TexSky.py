@@ -32,7 +32,7 @@ ID=   'TEXSKY'
 NAME= 'Sky'
 PLUG= 'TexSky'
 DESC= "TODO."
-
+PID=  3
 
 PARAMS= (
 	'auto',

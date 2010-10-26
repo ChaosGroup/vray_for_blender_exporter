@@ -94,6 +94,12 @@ def clean_string(s):
 			s= s.replace(c, "_")
 	return s
 
+def rel_path(filepath):
+	if filepath[:2] == "//":
+		return True
+	else:
+		return False
+
 def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.path.abspath(fn))
 	return filename

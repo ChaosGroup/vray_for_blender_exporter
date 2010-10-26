@@ -31,6 +31,7 @@ ID=   'AO'
 NAME= 'Ambient Occlusion'
 PLUG= 'RenderChannelAO'
 DESC= "TODO."
+PID=  0
 
 PARAMS= (
 	'name',

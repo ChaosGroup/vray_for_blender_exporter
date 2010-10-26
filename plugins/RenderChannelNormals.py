@@ -27,17 +27,14 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'VELOCITY'
-NAME= 'Velocity'
-PLUG= 'RenderChannelVelocity'
+ID=   'NORMALS'
+NAME= 'Normals'
+PLUG= 'RenderChannelNormals'
 DESC= "TODO."
+PID=  4
 
 PARAMS= (
 	'name',
-	'clamp_velocity',
-	'max_velocity',
-	'max_velocity_last_frame',
-	'ignore_z',
 	'filtering'
 )
 
@@ -50,57 +47,23 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelVelocity(bpy.types.IDPropertyGroup):
+class RenderChannelNormals(bpy.types.IDPropertyGroup):
 	pass
 
 def add_properties(parent_struct):
-	parent_struct.RenderChannelVelocity= PointerProperty(
-		name= "Velocity",
-		type=  RenderChannelVelocity,
-		description= "V-Ray render channel \"Velocity\" settings."
+	parent_struct.RenderChannelNormals= PointerProperty(
+		name= "Normals",
+		type=  RenderChannelNormals,
+		description= "V-Ray render channel \"Normals\" settings."
 	)
 
-	RenderChannelVelocity.name= StringProperty(
+	RenderChannelNormals.name= StringProperty(
 		name= "Name",
 		description= "TODO.",
-		default= "Velocity"
+		default= "Normals"
 	)
 
-	RenderChannelVelocity.clamp_velocity= BoolProperty(
-		name= "Clamp",
-		description= "TODO.",
-		default= True
-	)
-
-	RenderChannelVelocity.max_velocity= FloatProperty(
-		name= "Max velocity",
-		description= "Max velocity",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	RenderChannelVelocity.max_velocity_last_frame= FloatProperty(
-		name= "Max velocity last frame",
-		description= "Max velocity last frame",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0
-	)
-
-	RenderChannelVelocity.ignore_z= BoolProperty(
-		name= "Ignore Z",
-		description= "TODO.",
-		default= True
-	)
-
-	RenderChannelVelocity.filtering= BoolProperty(
+	RenderChannelNormals.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True
@@ -133,11 +96,5 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'max_velocity')
-	col.prop(rna_pointer, 'max_velocity_last_frame', text="Max last")
-	if wide_ui:
-		col = split.column()
-	col.prop(rna_pointer, 'clamp_velocity')
-	col.prop(rna_pointer, 'ignore_z')
 	col.prop(rna_pointer, 'filtering')
-
+	

@@ -27,18 +27,19 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-
-ID=   'OBJECTSELECT'
-NAME= 'Object select'
-PLUG= 'RenderChannelObjectSelect'
+ID=   'VELOCITY'
+NAME= 'Velocity'
+PLUG= 'RenderChannelVelocity'
 DESC= "TODO."
+PID=  7
 
 PARAMS= (
 	'name',
-	'id',
-	'use_mtl_id',
-	'affect_matte_objects',
-	'consider_for_aa'
+	'clamp_velocity',
+	'max_velocity',
+	'max_velocity_last_frame',
+	'ignore_z',
+	'filtering'
 )
 
 
@@ -50,51 +51,62 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelObjectSelect(bpy.types.IDPropertyGroup):
-    pass
+class RenderChannelVelocity(bpy.types.IDPropertyGroup):
+	pass
 
 def add_properties(parent_struct):
-	parent_struct.RenderChannelObjectSelect= PointerProperty(
-		name= "Object select",
-		type=  RenderChannelObjectSelect,
-		description= "V-Ray render channel \"Object select\" settings."
+	parent_struct.RenderChannelVelocity= PointerProperty(
+		name= "Velocity",
+		type=  RenderChannelVelocity,
+		description= "V-Ray render channel \"Velocity\" settings."
 	)
 
-	RenderChannelObjectSelect.name= StringProperty(
+	RenderChannelVelocity.name= StringProperty(
 		name= "Name",
-		description= "Render channel name",
-		maxlen= 64,
-		default= "ObjectSelect"
+		description= "TODO.",
+		default= "Velocity"
 	)
 
-	RenderChannelObjectSelect.id= IntProperty(
-		name= "ID",
-		description= "The object/material ID that will be extracted",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 100,
-		default= 0
-	)
-
-	RenderChannelObjectSelect.use_mtl_id= BoolProperty(
-		name= "Use material ID",
-		description= "Use the material IDs instead of the object IDs",
-		default= False
-	)
-
-	RenderChannelObjectSelect.affect_matte_objects= BoolProperty(
-		name= "Affect matte objects",
-		description= "False to not affect Matte Objects",
+	RenderChannelVelocity.clamp_velocity= BoolProperty(
+		name= "Clamp",
+		description= "TODO.",
 		default= True
 	)
 
-	RenderChannelObjectSelect.consider_for_aa= BoolProperty(
-		name= "Consider for AA",
-		description= "TODO.",
-		default= False
+	RenderChannelVelocity.max_velocity= FloatProperty(
+		name= "Max velocity",
+		description= "Max velocity",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1
 	)
 
+	RenderChannelVelocity.max_velocity_last_frame= FloatProperty(
+		name= "Max velocity last frame",
+		description= "Max velocity last frame",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0
+	)
+
+	RenderChannelVelocity.ignore_z= BoolProperty(
+		name= "Ignore Z",
+		description= "TODO.",
+		default= True
+	)
+
+	RenderChannelVelocity.filtering= BoolProperty(
+		name= "Filtering",
+		description= "TODO.",
+		default= True
+	)
+	
 
 
 '''
@@ -111,7 +123,7 @@ def write(ofile, render_channel, sce= None, name= None):
 			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
 
@@ -122,9 +134,11 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'id')
-	col.prop(rna_pointer, 'use_mtl_id')
+	col.prop(rna_pointer, 'max_velocity')
+	col.prop(rna_pointer, 'max_velocity_last_frame', text="Max last")
 	if wide_ui:
 		col = split.column()
-	col.prop(rna_pointer, 'affect_matte_objects')
-	col.prop(rna_pointer, 'consider_for_aa')
+	col.prop(rna_pointer, 'clamp_velocity')
+	col.prop(rna_pointer, 'ignore_z')
+	col.prop(rna_pointer, 'filtering')
+

@@ -27,18 +27,17 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-
-ID=   'ZDEPTH'
-NAME= 'ZDepth'
-PLUG= 'RenderChannelZDepth'
+ID=   'EXTRATEX'
+NAME= 'ExtraTex'
+PLUG= 'RenderChannelExtraTex'
 DESC= "TODO."
+PID=  1
 
 PARAMS= (
 	'name',
-	'depth_from_camera',
-	'depth_black',
-	'depth_white',
-	'depth_clamp',
+	'consider_for_aa',
+	'affect_matte_objects',
+	'texmap',
 	'filtering'
 )
 
@@ -51,63 +50,46 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelZDepth(bpy.types.IDPropertyGroup):
-    pass
+class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
+	pass
 
 def add_properties(parent_struct):
-	parent_struct.RenderChannelZDepth= PointerProperty(
-		name= "Z-Depth",
-		type=  RenderChannelZDepth,
-		description= "V-Ray render channel \"Z-Depth\" settings."
+	parent_struct.RenderChannelExtraTex= PointerProperty(
+		name= "ExtraTex",
+		type=  RenderChannelExtraTex,
+		description= "V-Ray render channel \"ExtraTex\" settings."
 	)
 
-	RenderChannelZDepth.name= StringProperty(
+	RenderChannelExtraTex.name= StringProperty(
 		name= "Name",
-		description= "Render channel name",
-		maxlen= 64,
-		default= "ZDepth"
-	)
-
-	RenderChannelZDepth.depth_from_camera= BoolProperty(
-		name= "From camera",
 		description= "TODO.",
-		default= False
+		default= "ExtraTex"
 	)
 
-	RenderChannelZDepth.depth_black= FloatProperty(
-		name= "Black distance",
-		description= "TODO.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0
-	)
-
-	RenderChannelZDepth.depth_white= FloatProperty(
-		name= "White distance",
-		description= "TODO.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1000
-	)
-
-	RenderChannelZDepth.depth_clamp= BoolProperty(
-		name= "Clamp",
+	RenderChannelExtraTex.consider_for_aa= BoolProperty(
+		name= "Consider for AA",
 		description= "TODO.",
 		default= True
 	)
 
-	RenderChannelZDepth.filtering= BoolProperty(
+	RenderChannelExtraTex.affect_matte_objects= BoolProperty(
+		name= "Affect matte objects",
+		description= "TODO.",
+		default= True
+	)
+
+	RenderChannelExtraTex.texmap= StringProperty(
+		name= "Texture",
+		description= "TODO.",
+		default= ""
+	)
+
+	RenderChannelExtraTex.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True
 	)
-
+	
 
 
 '''
@@ -118,6 +100,9 @@ def write(ofile, render_channel, sce= None, name= None):
 	if name is not None:
 		channel_name= name
 
+	if render_channel.texmap == "":
+		return
+	
 	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
 	for param in PARAMS:
 		if param == 'name':
@@ -135,10 +120,12 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'depth_black', text="Black dist")
-	col.prop(rna_pointer, 'depth_white', text="White dist")
+	col.prop(rna_pointer, 'texmap')
+	split= layout.split()
+	col= split.column()
+	col.prop(rna_pointer, 'filtering')
 	if wide_ui:
 		col = split.column()
-	col.prop(rna_pointer, 'depth_from_camera')
-	col.prop(rna_pointer, 'depth_clamp')
-	col.prop(rna_pointer, 'filtering')
+	col.prop(rna_pointer, 'consider_for_aa')
+	col.prop(rna_pointer, 'affect_matte_objects')
+

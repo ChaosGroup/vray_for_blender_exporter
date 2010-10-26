@@ -36,6 +36,13 @@ from vb25.utils import *
 from vb25.plugin_manager import *
 
 
+VRayScene.use_hidden_lights= BoolProperty(
+	name= "Hidden lights",
+	description= "Render hidden lights.",
+	default= False
+)
+
+
 class SettingsDMCSampler(bpy.types.IDPropertyGroup):
 	pass
 
@@ -897,6 +904,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
 		col.prop(ve, 'use_hair')
+		col.prop(vs, 'use_hidden_lights')
 		col.prop(ve, 'use_instances')
 		col.prop(ve, 'active_layers')
 		col.prop(ve, 'image_to_blender')

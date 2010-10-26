@@ -32,6 +32,7 @@ ID=   'TEXFALLOFF'
 PLUG= 'TexFalloff'
 NAME= 'Falloff'
 DESC= "TODO."
+PID=  1
 
 PARAMS= (
 	'alpha_from_intensity',

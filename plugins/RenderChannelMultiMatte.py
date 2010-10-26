@@ -32,6 +32,7 @@ ID=   'MULTIMATTE'
 NAME= 'MultiMatte'
 PLUG= 'RenderChannelMultiMatte'
 DESC= "TODO."
+PID=  3
 
 PARAMS= (
 	'name',

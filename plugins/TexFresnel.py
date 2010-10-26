@@ -31,6 +31,8 @@ ID=   'TEXFRESNEL'
 NAME= 'Fresnel'
 PLUG= 'TexFresnel'
 DESC= "TODO."
+PID=  2
+
 PARAMS= (
 	'fresnel_ior',
 	'refract_ior',

@@ -31,6 +31,7 @@ ID=   'MAINPASSES'
 NAME= 'Main Passes'
 PLUG= 'RenderChannelMainPasses'
 DESC= "TODO."
+PID=  2
 
 PARAMS= None
 

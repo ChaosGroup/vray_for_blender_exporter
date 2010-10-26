@@ -27,13 +27,19 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'NORMALS'
-NAME= 'Normals'
-PLUG= 'RenderChannelNormals'
+
+ID=   'ZDEPTH'
+NAME= 'ZDepth'
+PLUG= 'RenderChannelZDepth'
 DESC= "TODO."
+PID=  8
 
 PARAMS= (
 	'name',
+	'depth_from_camera',
+	'depth_black',
+	'depth_white',
+	'depth_clamp',
 	'filtering'
 )
 
@@ -46,28 +52,63 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelNormals(bpy.types.IDPropertyGroup):
-	pass
+class RenderChannelZDepth(bpy.types.IDPropertyGroup):
+    pass
 
 def add_properties(parent_struct):
-	parent_struct.RenderChannelNormals= PointerProperty(
-		name= "Normals",
-		type=  RenderChannelNormals,
-		description= "V-Ray render channel \"Normals\" settings."
+	parent_struct.RenderChannelZDepth= PointerProperty(
+		name= "Z-Depth",
+		type=  RenderChannelZDepth,
+		description= "V-Ray render channel \"Z-Depth\" settings."
 	)
 
-	RenderChannelNormals.name= StringProperty(
+	RenderChannelZDepth.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
-		default= "Normals"
+		description= "Render channel name",
+		maxlen= 64,
+		default= "ZDepth"
 	)
 
-	RenderChannelNormals.filtering= BoolProperty(
+	RenderChannelZDepth.depth_from_camera= BoolProperty(
+		name= "From camera",
+		description= "TODO.",
+		default= False
+	)
+
+	RenderChannelZDepth.depth_black= FloatProperty(
+		name= "Black distance",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0
+	)
+
+	RenderChannelZDepth.depth_white= FloatProperty(
+		name= "White distance",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1000
+	)
+
+	RenderChannelZDepth.depth_clamp= BoolProperty(
+		name= "Clamp",
+		description= "TODO.",
+		default= True
+	)
+
+	RenderChannelZDepth.filtering= BoolProperty(
 		name= "Filtering",
 		description= "TODO.",
 		default= True
 	)
-	
+
 
 
 '''
@@ -84,7 +125,7 @@ def write(ofile, render_channel, sce= None, name= None):
 			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-	ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
 
@@ -95,5 +136,10 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
+	col.prop(rna_pointer, 'depth_black', text="Black dist")
+	col.prop(rna_pointer, 'depth_white', text="White dist")
+	if wide_ui:
+		col = split.column()
+	col.prop(rna_pointer, 'depth_from_camera')
+	col.prop(rna_pointer, 'depth_clamp')
 	col.prop(rna_pointer, 'filtering')
-	

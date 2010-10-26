@@ -32,6 +32,7 @@ ID=   'TEXDIRT'
 NAME= 'Dirt'
 PLUG= 'TexDirt'
 DESC= "TODO."
+PID=  0
 
 PARAMS= (
 	'white_color',

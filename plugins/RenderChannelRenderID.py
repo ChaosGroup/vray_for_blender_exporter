@@ -31,6 +31,7 @@ ID=   'RENDERID'
 NAME= 'RenderID'
 PLUG= 'RenderChannelRenderID'
 DESC= "TODO."
+PID=  6
 
 PARAMS= (
 	'name'

@@ -27,17 +27,19 @@
 '''
 
 TYPE= 'RENDERCHANNEL'
-ID=   'EXTRATEX'
-NAME= 'ExtraTex'
-PLUG= 'RenderChannelExtraTex'
+
+ID=   'OBJECTSELECT'
+NAME= 'Object select'
+PLUG= 'RenderChannelObjectSelect'
 DESC= "TODO."
+PID=  5
 
 PARAMS= (
 	'name',
-	'consider_for_aa',
+	'id',
+	'use_mtl_id',
 	'affect_matte_objects',
-	'texmap',
-	'filtering'
+	'consider_for_aa'
 )
 
 
@@ -49,46 +51,51 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
-	pass
+class RenderChannelObjectSelect(bpy.types.IDPropertyGroup):
+    pass
 
 def add_properties(parent_struct):
-	parent_struct.RenderChannelExtraTex= PointerProperty(
-		name= "ExtraTex",
-		type=  RenderChannelExtraTex,
-		description= "V-Ray render channel \"ExtraTex\" settings."
+	parent_struct.RenderChannelObjectSelect= PointerProperty(
+		name= "Object select",
+		type=  RenderChannelObjectSelect,
+		description= "V-Ray render channel \"Object select\" settings."
 	)
 
-	RenderChannelExtraTex.name= StringProperty(
+	RenderChannelObjectSelect.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
-		default= "ExtraTex"
+		description= "Render channel name",
+		maxlen= 64,
+		default= "ObjectSelect"
 	)
 
-	RenderChannelExtraTex.consider_for_aa= BoolProperty(
+	RenderChannelObjectSelect.id= IntProperty(
+		name= "ID",
+		description= "The object/material ID that will be extracted",
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 100,
+		default= 0
+	)
+
+	RenderChannelObjectSelect.use_mtl_id= BoolProperty(
+		name= "Use material ID",
+		description= "Use the material IDs instead of the object IDs",
+		default= False
+	)
+
+	RenderChannelObjectSelect.affect_matte_objects= BoolProperty(
+		name= "Affect matte objects",
+		description= "False to not affect Matte Objects",
+		default= True
+	)
+
+	RenderChannelObjectSelect.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
 		description= "TODO.",
-		default= True
+		default= False
 	)
 
-	RenderChannelExtraTex.affect_matte_objects= BoolProperty(
-		name= "Affect matte objects",
-		description= "TODO.",
-		default= True
-	)
-
-	RenderChannelExtraTex.texmap= StringProperty(
-		name= "Texture",
-		description= "TODO.",
-		default= ""
-	)
-
-	RenderChannelExtraTex.filtering= BoolProperty(
-		name= "Filtering",
-		description= "TODO.",
-		default= True
-	)
-	
 
 
 '''
@@ -99,9 +106,6 @@ def write(ofile, render_channel, sce= None, name= None):
 	if name is not None:
 		channel_name= name
 
-	if render_channel.texmap == "":
-		return
-	
 	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
 	for param in PARAMS:
 		if param == 'name':
@@ -119,12 +123,9 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'texmap')
-	split= layout.split()
-	col= split.column()
-	col.prop(rna_pointer, 'filtering')
+	col.prop(rna_pointer, 'id')
+	col.prop(rna_pointer, 'use_mtl_id')
 	if wide_ui:
 		col = split.column()
-	col.prop(rna_pointer, 'consider_for_aa')
 	col.prop(rna_pointer, 'affect_matte_objects')
-
+	col.prop(rna_pointer, 'consider_for_aa')
