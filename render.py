@@ -1841,8 +1841,6 @@ def write_object(ob, params, add_params= None):
 
 	ofile= props['files']['nodes']
 
-	VRayExporter= sce.vray.exporter
-
 	types= props['types']
 	files= props['files']
 
@@ -1858,6 +1856,12 @@ def write_object(ob, params, add_params= None):
 		'volume': None
 	}
 
+	debug(sce, "Object[%s]: %s" % (ob.name,object_params))
+
+	VRayExporter= sce.vray.exporter
+	VRayObject=   ob.vray
+	VRayData=     ob.data.vray
+
 	node_name= get_name(ob,"Node",dupli_name= props['dupli_name'])
 
 	ma_name= "Material_no_material"
@@ -1866,14 +1870,9 @@ def write_object(ob, params, add_params= None):
 	else:
 		ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 
-	debug(sce, "Object[%s]: %s" % (ob.name,object_params))
-
-	vo= ob.vray
-	vd= ob.data.vray
-
 	node_geometry= get_name(ob.data,"Geom")
-	if hasattr(vd,'GeomMeshFile'):
-		if vd.GeomMeshFile.use:
+	if hasattr(VRayData,'GeomMeshFile'):
+		if VRayData.GeomMeshFile.use:
 			# Don't override proxy material if proxy has multi-material
 			if len(ob.material_slots) > 1:
 				ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
@@ -1902,15 +1901,34 @@ def write_object(ob, params, add_params= None):
 			types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
 		return
 
-	MtlRenderStats= vo.MtlRenderStats
-	render_stats= {
-		'camera_visibility':      MtlRenderStats.camera_visibility,
-		'reflections_visibility': MtlRenderStats.reflections_visibility,
-		'refractions_visibility': MtlRenderStats.refractions_visibility,
-		'gi_visibility':          MtlRenderStats.gi_visibility,
-		'shadows_visibility':     MtlRenderStats.shadows_visibility,
-		'visibility':             MtlRenderStats.visibility
-	}
+	complex_material= []
+	for component in (VRayObject.MtlWrapper.use,VRayObject.MtlOverride.use,VRayObject.MtlRenderStats.use):
+		if component:
+			complex_material.append("MtlComponent_%.2d_%s"%(len(complex_material), ma_name))
+	complex_material.append(ma_name)
+	complex_material.reverse()
+
+	if VRayObject.MtlWrapper.use:
+		base_material= complex_material.pop()
+		ma_name= complex_material[-1]
+		ofile.write("\nMtlWrapper %s {"%(ma_name))
+		ofile.write("\n\tbase_material= %s;"%(base_material))
+		for param in OBJECT_PARAMS['MtlWrapper']:
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(VRayObject.MtlWrapper,param))))
+		ofile.write("\n}\n")
+
+	if VRayObject.MtlOverride.use:
+		# TODO
+		pass
+
+	if VRayObject.MtlRenderStats.use:
+		base_mtl= complex_material.pop()
+		ma_name= complex_material[-1]
+		ofile.write("\nMtlRenderStats %s {"%(ma_name))
+		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+		for param in OBJECT_PARAMS['MtlRenderStats']:
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(VRayObject.MtlRenderStats,param))))
+		ofile.write("\n}\n")
 
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
@@ -2362,7 +2380,7 @@ def write_scene(sce):
 	files['materials'].write("\n}\n")
 
 	# ca= sce.camera
-	# VRayCamera= ca.data.vray.VRayCamera
+	# VRayCamera= ca.data.vray
 
 	# if VRayCamera.hide_from_view:
 	# 	if VRayCamera.hide_from_everything:
@@ -2448,7 +2466,6 @@ def write_scene(sce):
 								'matrix': part_transform
 								}
 							)
-							# write_node(ofile, part_name, part_geom, , p_ob.pass_index, part_visibility, part_transform)
 
 	def _write_object_dupli(ob, params, add_params= None):
 		if ob.dupli_type in ('VERTS','FACES','GROUP'):
@@ -2487,6 +2504,12 @@ def write_scene(sce):
 				continue
 
 			if VRayExporter.active_layers:
+				if ob.type == 'LAMP':
+					if VRayScene.use_hidden_lights:
+						pass
+					else:
+						if not object_on_visible_layers(sce,ob):
+							continue
 				if not object_on_visible_layers(sce,ob):
 					continue
 
