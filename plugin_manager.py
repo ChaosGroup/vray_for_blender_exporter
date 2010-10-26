@@ -69,11 +69,12 @@ if base_dir is not None:
 		elif plugin.TYPE == 'SETTINGS':
 			SETTINGS_PLUGINS.append(plugin)
 		sys.stdout.flush()
+
+	TEX_PLUGINS= sorted(TEX_PLUGINS, key=lambda plug: plug.PID)
+	CHANNEL_PLUGINS= sorted(CHANNEL_PLUGINS, key=lambda plug: plug.PID)
+	
 	sys.stdout.write("V-Ray/Blender: Loading modules... done.                    \n")
 
-
-# class VRay(bpy.types.IDPropertyGroup):
-# 	pass
 
 class VRayTexture(bpy.types.IDPropertyGroup):
 	pass
@@ -104,12 +105,6 @@ def add_properties():
 	'''
 	  Base types
 	'''
-	# bpy.types.BlendData.vray= PointerProperty(
-	# 	name= "V-Ray Settings",
-	# 	type=  VRay,
-	# 	description= "V-Ray settings."
-	# )
-
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
