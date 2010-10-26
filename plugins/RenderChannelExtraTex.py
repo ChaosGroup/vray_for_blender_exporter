@@ -96,9 +96,7 @@ def add_properties(parent_struct):
   OUTPUT
 '''
 def write(ofile, render_channel, sce= None, name= None):
-	channel_name= render_channel.name
-	if name is not None:
-		channel_name= name
+	channel_name= name if name is not None else render_channel.name
 
 	if render_channel.texmap == "":
 		return
@@ -107,6 +105,12 @@ def write(ofile, render_channel, sce= None, name= None):
 	for param in PARAMS:
 		if param == 'name':
 			value= "\"%s\"" % channel_name
+		elif param == 'texmap':
+			texname= getattr(render_channel, 'texmap')
+			if texname in bpy.data.textures:
+				value= get_name(bpy.data.textures[texname], prefix= "Texture")
+			else:
+				continue
 		else:
 			value= getattr(render_channel, param)
 		ofile.write("\n\t%s= %s;"%(param, p(value)))
@@ -120,7 +124,8 @@ def write(ofile, render_channel, sce= None, name= None):
 def draw(rna_pointer, layout, wide_ui):
 	split= layout.split()
 	col= split.column()
-	col.prop(rna_pointer, 'texmap')
+	col.prop_search(rna_pointer, 'texmap', bpy.data, 'textures')
+
 	split= layout.split()
 	col= split.column()
 	col.prop(rna_pointer, 'filtering')
