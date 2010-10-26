@@ -64,7 +64,7 @@ def add_properties(VRayTexture):
 
 	TexEdges.edges_tex= FloatVectorProperty(
 		name= "Edges color",
-		description= "TODO.",
+		description= "Edges color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -75,7 +75,7 @@ def add_properties(VRayTexture):
 
 	TexEdges.bg_tex= FloatVectorProperty(
 		name= "Background color",
-		description= "TODO.",
+		description= "Background color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -86,7 +86,7 @@ def add_properties(VRayTexture):
 
 	TexEdges.show_hidden_edges= BoolProperty(
 		name= "Show hidden edges",
-		description= "TODO.",
+		description= "Show hidden edges.",
 		default= False
 	)
 	
@@ -102,7 +102,7 @@ def add_properties(VRayTexture):
 
 	TexEdges.width= FloatProperty(
 		name= "Width",
-		description= "TODO.",
+		description= "Edge width.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
