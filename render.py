@@ -1440,7 +1440,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= "TexLayered_%s"%(textype)
 					ofile.write("\nTexLayered %s {"%(tex_name))
 					ofile.write("\n\ttextures= List(%s);"%(','.join(texlayered_names)))
-					ofile.write("\n\tblend_modes= List(0,%s);"%(','.join(texlayered_modes)))
+					ofile.write("\n\tblend_modes= List(0,%s);"%(','.join(texlayered_modes[1:])))
 					ofile.write("\n}\n")
 
 				vraymat[textype]= tex_name
