@@ -144,9 +144,9 @@ def add_properties(VRayTexture):
 	TexDirt.bias_x= FloatProperty(
 		name= "Bias X",
 		description= "TODO",
-		min= 0.0,
+		min= -100.0,
 		max= 100.0,
-		soft_min= 0.0,
+		soft_min= -10.0,
 		soft_max= 10.0,
 		precision= 3,
 		default= 0
@@ -155,9 +155,9 @@ def add_properties(VRayTexture):
 	TexDirt.bias_y= FloatProperty(
 		name= "Bias Y",
 		description= "TODO",
-		min= 0.0,
+		min= -100.0,
 		max= 100.0,
-		soft_min= 0.0,
+		soft_min= -10.0,
 		soft_max= 10.0,
 		precision= 3,
 		default= 0
@@ -166,9 +166,9 @@ def add_properties(VRayTexture):
 	TexDirt.bias_z= FloatProperty(
 		name= "Bias Z",
 		description= "TODO",
-		min= 0.0,
+		min= -100.0,
 		max= 100.0,
-		soft_min= 0.0,
+		soft_min= -10.0,
 		soft_max= 10.0,
 		precision= 3,
 		default= 0

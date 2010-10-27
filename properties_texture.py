@@ -46,6 +46,14 @@ Slot.vray_slot= PointerProperty(
 	description= "V-Ray material texture slot settings."
 )
 
+VRaySlot.uvwgen= StringProperty(
+	name= "UVW Generator",
+	subtype= 'NONE',
+	options= {'HIDDEN'},
+	description= "TEMP VARIABLE.",
+	default= "UVWGenChannel_default"
+)
+
 
 class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
 	pass

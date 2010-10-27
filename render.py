@@ -1087,6 +1087,9 @@ def write_multi_material(ofile, ob):
 
 def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 	uvw_name= "%s_UVWGenChannel_%s"%(tex_name, get_name(tex))
+
+	VRaySlot= tex.vray_slot
+	VRaySlot.uvwgen= uvw_name
 	
 	ofile.write("\nUVWGenChannel %s {"%(uvw_name))
 	ofile.write("\n\tuvw_channel= %d;"%(1))
@@ -1351,12 +1354,10 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						vraytex['refract'].append(slot)
 						vraymat['refract_mult']+= slot.translucency_factor
 					if slot.use_map_normal:
-						if slot.texture.use_normal_map:
-							vraytex['normal'].append(slot)
-							vraymat['normal_amount']+= slot.normal_factor
-						else:
-							vraytex['bump'].append(slot)
-							vraymat['bump_amount']+= slot.normal_factor
+						vraytex['normal'].append(slot)
+						vraymat['normal_amount']+= slot.normal_factor
+						#vraymat['normal_slot']= slot
+						vraymat['normal_tex']= slot.texture
 					if slot.use_map_displacement:
 						vraytex['displace'].append(slot)
 						vraymat['displace_amount']+= slot.displacement_factor
@@ -1532,20 +1533,28 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 def write_BRDFBump(ofile, base_brdf, tex_vray):
 	brdf_name= "BRDFBump_%s"%(base_brdf)
 
+	MAP_TYPE= {
+		'EXPLICIT': 6,
+		'WORLD':    4,
+		'CAMERA':   3,
+		'OBJECT':   2,
+		'TANGENT':  1,
+		'BUMP'   :  0
+	}
+
+	texture= tex_vray['normal_tex']
+	VRaySlot= texture.vray_slot
+	BRDFBump= VRaySlot.BRDFBump
+
 	ofile.write("\nBRDFBump %s {"%(brdf_name))
-	ofile.write("\n\tbase_brdf= %s;"%(base_brdf))
-	ofile.write("\n\tbump_shadows= 0;")
-	if tex_vray['normal']:
-		ofile.write("\n\tmap_type= 1;")
-		if True: # if map_type == 1:
-			ofile.write("\n\tnormal_uvwgen= %s;"%("%s_UVWGenChannel_%s"%(tex_name, get_name(tex))))
-			
-		ofile.write("\n\tbump_tex_color= %s;"%(tex_vray['normal']))
-		ofile.write("\n\tbump_tex_mult= %.6f;"%(tex_vray['normal_amount']))
-	else:
-		ofile.write("\n\tmap_type= 0;")
-		ofile.write("\n\tbump_tex_color= %s;"%(tex_vray['bump']))
-		ofile.write("\n\tbump_tex_mult= %.6f;"%(tex_vray['bump_amount']))
+	ofile.write("\n\tbase_brdf= %s;" % base_brdf)
+	ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
+	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
+	ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
+	ofile.write("\n\tbump_tex_color= %s;" % tex_vray['normal'])
+	ofile.write("\n\tbump_tex_mult= %.6f;" % tex_vray['normal_amount'])
+	if BRDFBump.map_type == 'TANGENT':
+		ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
 	ofile.write("\n}\n")
 
 	return brdf_name
@@ -1618,7 +1627,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 		brdf_name= write_BRDFLight(ofile, sce, ma, ma_name, tex_vray)
 
 	if VRayMaterial.type not in ('EMIT','VOL'):
-		if tex_vray['bump'] or tex_vray['normal']:
+		if tex_vray['normal']:
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	complex_material= []
@@ -1668,7 +1677,10 @@ def write_materials(ofile,ob,filters,object_params):
 	def get_brdf_type(ma):
 		vma= ma.vray
 		if vma.type == 'MTL':
-			return 'BRDFVRayMtl'
+			if sce.vray.exporter.compat_mode:
+				return 'BRDFLayered'
+			else:
+				return 'BRDFVRayMtl'
 		elif vma.type == 'SSS':
 			return 'BRDFSSS2Complex'
 		elif vma.type == 'EMIT':
@@ -1683,18 +1695,18 @@ def write_materials(ofile,ob,filters,object_params):
 
 	def find_connected_node(nt, ns):
 		for n in nt.links:
-			if(n.to_socket == ns):
+			if n.to_socket == ns:
 				return n.from_node
 		return None
 
 	def write_node(ofile, ma, nt, no):
 		debug(sce,"  Writing node: %s [%s]"%(no.name, no.type))
 		
-		if(no.type == 'OUTPUT'):
+		if no.type == 'OUTPUT':
 			brdf_name= "BRDFDiffuse_no_material"
 
 			for ns in no.inputs:
-				if(ns.name == 'Color'):
+				if ns.name == 'Color':
 					color= find_connected_node(nt, ns)
 					brdf_name= "%s_%s_%s"%(ma.name, nt.name, color.name)
 
@@ -1702,10 +1714,10 @@ def write_materials(ofile,ob,filters,object_params):
 			ofile.write("\n\tbrdf= %s;"%(clean_string(brdf_name)))
 			ofile.write("\n}\n")
 
-		elif(no.type in ('MATERIAL','MATERIAL_EXT')):
+		elif no.type in ('MATERIAL','MATERIAL_EXT'):
 			write_material(no.material, filters, object_params, ofile)
 
-		elif(no.type == 'MIX_RGB'):
+		elif no.type == 'MIX_RGB':
 			color1= "BRDFDiffuse_no_material"
 			color2= "BRDFDiffuse_no_material"
 			fac= "Color(0.5,0.5,0.5)"
@@ -1713,24 +1725,24 @@ def write_materials(ofile,ob,filters,object_params):
 			brdf_name= "%s_%s_%s"%(ma.name, nt.name, no.name)
 
 			for ns in no.inputs:
-				if(ns.name == 'Color1'):
+				if ns.name == 'Color1':
 					node_color1= find_connected_node(nt, ns)
-				elif(ns.name == 'Color2'):
+				elif ns.name == 'Color2':
 					node_color2= find_connected_node(nt, ns)
 				else:
 					fac= "Color(1.0,1.0,1.0)*%.3f"%(1.0 - ns.default_value[0])
 					node_fac= find_connected_node(nt, ns)
 
-			if(node_color1):
-				if(node_color1.type in ('MATERIAL','MATERIAL_EXT')):
+			if node_color1:
+				if node_color1.type in ('MATERIAL','MATERIAL_EXT'):
 					color1= get_name(node_color1.material,'%s_Material' % get_brdf_type(node_color1.material))
 
-			if(node_color2):
-				if(node_color2.type in ('MATERIAL','MATERIAL_EXT')):
+			if node_color2:
+				if node_color2.type in ('MATERIAL','MATERIAL_EXT'):
 					color2= get_name(node_color2.material,'%s_Material' % get_brdf_type(node_color2.material))
 				
-			if(node_fac):
-				if(node_fac.type == 'TEXTURE'):
+			if node_fac:
+				if node_fac.type == 'TEXTURE':
 					weights= write_texture(ofile, ma= ma, tex= node_fac.texture)
 			else:
 				weights= "weights_%s"%(clean_string(brdf_name))
@@ -1740,15 +1752,16 @@ def write_materials(ofile,ob,filters,object_params):
 				ofile.write("\n}\n")
 
 			ofile.write("\nBRDFLayered %s {"%(clean_string(brdf_name)))
-			ofile.write("\n\tbrdfs= List(%s, %s);"%(color1, color2))
-			ofile.write("\n\tweights= List(%s, TexAColor_default_blend);"%(weights))
+			ofile.write("\n\tbrdfs= List(%s,%s);"%(color1, color2))
+			ofile.write("\n\tweights= List(%s,TexAColor_default_blend);"%(weights))
 			ofile.write("\n\tadditive_mode= 0;") # Shellac
 			ofile.write("\n}\n")
 				
-		elif(no.type == 'TEXTURE'):
+		elif no.type == 'TEXTURE':
+			write_texture(ofile, ma= ma, tex= no.texture)
 			debug(sce,"Node type \"%s\" is currently not implemented."%(no.type))
 
-		elif(no.type == 'INVERT'):
+		elif no.type == 'INVERT':
 			debug(sce,"Node type \"%s\" is currently not implemented."%(no.type))
 
 		else:
@@ -1762,7 +1775,7 @@ def write_materials(ofile,ob,filters,object_params):
 					debug(sce,"Writing node material: %s"%(ma.name))
 					nt= ma.node_tree
 					for n in nt.nodes:
-						if(n.type in ('OUTPUT', 'MATERIAL', 'MIX_RGB', 'TEXTURE', 'MATERIAL_EXT', 'INVERT')):
+						if n.type in ('OUTPUT', 'MATERIAL', 'MIX_RGB', 'TEXTURE', 'MATERIAL_EXT', 'INVERT'):
 							write_node(ofile, ma, nt, n)
 						else:
 							debug(sce,"Node: %s (unsupported node type: %s)"%(n.name, n.type))
@@ -2355,8 +2368,8 @@ def write_scene(sce):
 	files['materials'].write("\n\tuvw_channel= 1;")
 	files['materials'].write("\n\tuvw_transform= Transform(")
 	files['materials'].write("\n\t\tMatrix(")
-	files['materials'].write("\n\t\t\tVector(1.0,0.0,0.0)*2,")
-	files['materials'].write("\n\t\t\tVector(0.0,1.0,0.0)*2,")
+	files['materials'].write("\n\t\t\tVector(1.0,0.0,0.0),")
+	files['materials'].write("\n\t\t\tVector(0.0,1.0,0.0),")
 	files['materials'].write("\n\t\t\tVector(0.0,0.0,1.0)")
 	files['materials'].write("\n\t\t),")
 	files['materials'].write("\n\t\tVector(0.0,0.0,0.0)")
@@ -2376,7 +2389,7 @@ def write_scene(sce):
 	files['materials'].write("\n}\n")
 	files['materials'].write("\nTexAColor TexAColor_default_blend {")
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
-	files['materials'].write("\n\ttexture= Color(1.0,1.0,1.0);")
+	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
 
 	# ca= sce.camera
