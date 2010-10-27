@@ -1395,6 +1395,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 			else:
 				BLEND_MODES= {
 					'NONE':         0,
+					'MIX':          3,
 					'OVER':         1,
 					'IN':           2,
 					'OUT':          3,
@@ -1419,7 +1420,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
 
 					texlayered_names.append(tex_name) # For stencil
-					texlayered_modes.append(slot.blend_type)
+					texlayered_modes.append(str(BLEND_MODES[slot.blend_type]))
 
 					debug(sce,"  Slot: %s"%(textype))
 					debug(sce,"    Texture: %s [mode: %s]"%(tex.name, slot.blend_type))
@@ -1439,7 +1440,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= "TexLayered_%s"%(textype)
 					ofile.write("\nTexLayered %s {"%(tex_name))
 					ofile.write("\n\ttextures= List(%s);"%(','.join(texlayered_names)))
-					ofile.write("\n\tblend_modes= List(0, %s);"%(','.join(texlayered_modes)))
+					ofile.write("\n\tblend_modes= List(0,%s);"%(','.join(texlayered_modes)))
 					ofile.write("\n}\n")
 
 				vraymat[textype]= tex_name

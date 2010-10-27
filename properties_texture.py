@@ -421,6 +421,12 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
+			col.prop(texture_slot,'blend_type')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
 			col.label(text="NOTE: cause of API limitations some parameters are")
 			col.label(text="texture dependend not slot.")
 
