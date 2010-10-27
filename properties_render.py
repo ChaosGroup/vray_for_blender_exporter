@@ -43,6 +43,44 @@ VRayScene.use_hidden_lights= BoolProperty(
 )
 
 
+class VRayBake(bpy.types.IDPropertyGroup):
+	pass
+
+VRayScene.VRayBake= PointerProperty(
+	name= "VRayBake",
+	type=  VRayBake,
+	description= "Texture baking settings."
+)
+
+VRayBake.use= BoolProperty(
+	name= "Bake texture",
+	description= "Bake texture.",
+	default= False
+)
+
+VRayBake.object= StringProperty(
+	name= "Object",
+	subtype= 'NONE',
+	description= "Object to bake."
+)
+
+VRayBake.dilation= IntProperty(
+	name= "Dilation",
+	description= "Number of pixels to expand around geometry.",
+	min= 0,
+	max= 1000,
+	soft_min= 0,
+	soft_max= 100,
+	default= 2,
+)
+
+VRayBake.flip_derivs= BoolProperty(
+	name= "Flip derivatives",
+	description= "Flip the texture direction derivatives (reverses bump mapping).",
+	default= False
+)
+
+
 class SettingsDMCSampler(bpy.types.IDPropertyGroup):
 	pass
 
@@ -1442,6 +1480,41 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'address')
+
+
+class RENDER_PT_VRAY_bake(RenderButtonsPanel, bpy.types.Panel):
+	bl_label   = "Bake"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		VRayScene= context.scene.vray
+		VRayBake= VRayScene.VRayBake
+		self.layout.prop(VRayBake, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > 200
+
+		VRayScene= context.scene.vray
+		VRayBake= VRayScene.VRayBake
+
+		layout= self.layout
+		layout.active= VRayBake.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop_search(VRayBake, 'object',  context.scene, 'objects')
+
+		if wide_ui:
+			col= split.column()
+
+		col.prop(VRayBake, 'dilation')
+		col.prop(VRayBake, 'flip_derivs')
 
 
 class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):

@@ -1552,9 +1552,9 @@ def write_BRDFBump(ofile, base_brdf, tex_vray):
 	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 	ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
 	ofile.write("\n\tbump_tex_color= %s;" % tex_vray['normal'])
+	ofile.write("\n\tbump_tex_float= %s;" % tex_vray['normal'])
 	ofile.write("\n\tbump_tex_mult= %.6f;" % tex_vray['normal_amount'])
-	if BRDFBump.map_type == 'TANGENT':
-		ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
+	ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
 	ofile.write("\n}\n")
 
 	return brdf_name
@@ -2120,7 +2120,7 @@ def write_lamp(ob, params, add_params= None):
 	ofile.write("\n}\n")
 
 
-def write_camera(sce, ofile, camera= None):
+def write_camera(sce, ofile, camera= None, bake= False):
 	ca= camera if camera is not None else sce.camera
 
 	CAMERA_TYPE= {
@@ -2149,13 +2149,42 @@ def write_camera(sce, ofile, camera= None):
 		if aspect < 1.0:
 			fov= fov * aspect
 
-		ofile.write("\nRenderView RenderView {")
-		ofile.write("\n\ttransform= %s;"%(a(sce,transform(ca.matrix_world))))
-		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-		ofile.write("\n\tclipping= 1;")
-		ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
-		ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
-		ofile.write("\n}\n")
+		if bake:
+			VRayBake= sce.vray.VRayBake
+			bake_ob= None
+		
+			if VRayBake.object in bpy.data.objects:
+				bake_ob= bpy.data.objects[VRayBake.object]
+
+			if bake_ob is not None:
+				ofile.write("UVWGenChannel UVWGenChannel_BakeView {")
+				ofile.write("\n\tuvw_transform=Transform(")
+				ofile.write("\n\t\tMatrix(")
+				ofile.write("\n\t\tVector(1.0,0.0,0.0),")
+				ofile.write("\n\t\tVector(0.0,1.0,0.0),")
+				ofile.write("\n\t\tVector(0.0,0.0,1.0)")
+				ofile.write("\n\t\t),")
+				ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+				ofile.write("\n\t);")
+				ofile.write("\n\tuvw_channel=1;")
+				ofile.write("\n}\n")
+				ofile.write("\nBakeView {")
+				ofile.write("\n\tbake_node= %s;" % get_name(bake_ob,"Node"))
+				ofile.write("\n\tbake_uvwgen= UVWGenChannel_BakeView;")
+				ofile.write("\n\tdilation= %i;" % VRayBake.dilation)
+				ofile.write("\n\tflip_derivs= %i;" % VRayBake.flip_derivs)
+				ofile.write("\n}\n")
+			else:
+				print("V-Ray/Blender: Error! No object selected for baking!")
+
+		else:
+			ofile.write("\nRenderView RenderView {")
+			ofile.write("\n\ttransform= %s;"%(a(sce,transform(ca.matrix_world))))
+			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+			ofile.write("\n\tclipping= 1;")
+			ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
+			ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
+			ofile.write("\n}\n")
 
 		if VRayCamera.mode == 'PHYSICAL':
 			focus_distance= ca.data.dof_distance
@@ -2207,7 +2236,10 @@ def write_settings(sce,ofile):
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
 	ofile.write("\n\timg_width= %s;"%(int(wx)))
-	ofile.write("\n\timg_height= %s;"%(int(wy)))
+	if VRayScene.VRayBake.use:
+		ofile.write("\n\timg_height= %s;"%(int(wx)))
+	else:
+		ofile.write("\n\timg_height= %s;"%(int(wy)))
 	if VRayExporter.animation:
 		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(sce.camera.name),get_render_file_format(VRayExporter,rd.file_format)))
 		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(sce,'output')))
@@ -2345,7 +2377,7 @@ def write_settings(sce,ofile):
 	ofile.write("\n")
 
 
-def write_scene(sce):
+def write_scene(sce, bake= False):
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
 
@@ -2510,7 +2542,7 @@ def write_scene(sce):
 		}
 
 		write_environment(params['files']['nodes']) # TEMP
-		write_camera(sce,params['files']['camera'])
+		write_camera(sce,params['files']['camera'],bake= bake)
 	
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE'):
@@ -2627,9 +2659,11 @@ class VRayRenderer(bpy.types.RenderEngine):
 		ve= vsce.exporter
 		dr= vsce.VRayDR
 
+		VRayBake= vsce.VRayBake
+
 		if ve.auto_meshes:
 			write_geometry(sce, get_filenames(sce,'geometry'))
-		write_scene(sce)
+		write_scene(sce, bake= VRayBake.use)
 
 		vb_path= vb_script_path()
 
@@ -2777,7 +2811,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					continue
 				if ob.type == 'CAMERA':
 					if ob.name == "Camera":
-						write_camera(sce,ofile,ob)
+						write_camera(sce, ofile, camera= ob)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
 						write_material(ms.material, filters, object_params, ofile, name="PREVIEW")
