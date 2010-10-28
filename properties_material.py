@@ -462,7 +462,7 @@ BRDFVRayMtl.environment_priority= IntProperty(
 	name= "Environment priority",
 	description= "Environment override priority (used when several materials override it along a ray path)",
 	min= 0,
-	max= 10,
+	max= 100,
 	default= 0
 )
 
@@ -1080,9 +1080,47 @@ MtlOverride.use= BoolProperty(
 	default= False
 )
 
+MtlOverride.gi_mtl= StringProperty(
+	name= "GI material",
+	description= "The gi material.",
+	default= ""
+)
+
+MtlOverride.reflect_mtl= StringProperty(
+	name= "Reflection material",
+	description= "The reflection material.",
+	default= ""
+)
+
+MtlOverride.refract_mtl= StringProperty(
+	name= "Refraction material",
+	description= "The refraction material.",
+	default= ""
+)
+
+MtlOverride.shadow_mtl= StringProperty(
+	name= "Shadow material",
+	description= "The shadow material.",
+	default= ""
+)
+
+MtlOverride.environment_override= StringProperty(
+	name= "Environment override",
+	description= "Environment override texture.",
+	default= ""
+)
+
+MtlOverride.environment_priority= IntProperty(
+	name= "Environment priority",
+	description= "Environment override priority (used when several materials override it along a ray path)",
+	min= 0,
+	max= 100,
+	default= 0
+)
+
 
 '''
-  Plugin: LightMesh
+  LightMesh
 '''
 class LightMesh(bpy.types.IDPropertyGroup):
     pass
@@ -2095,8 +2133,22 @@ class MATERIAL_PT_VRAY_override(MaterialButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="Coming soon!")
-	
+		col.prop_search(MtlOverride, 'gi_mtl',      bpy.data, 'materials', text= "GI")
+		col.prop_search(MtlOverride, 'reflect_mtl', bpy.data, 'materials', text= "Reflection")
+		col.prop_search(MtlOverride, 'refract_mtl', bpy.data, 'materials', text= "Refraction")
+		col.prop_search(MtlOverride, 'shadow_mtl',  bpy.data, 'materials', text= "Shadow")
+
+		layout.separator()
+		split= layout.split()
+		col= split.column()
+		col.prop_search(MtlOverride, 'environment_override',  bpy.data, 'textures', text= "Environment")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(MtlOverride, 'environment_priority')
+
 
 class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Wrapper"

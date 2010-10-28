@@ -81,6 +81,72 @@ VRayBake.flip_derivs= BoolProperty(
 )
 
 
+class SettingsDefaultDisplacement(bpy.types.IDPropertyGroup):
+	pass
+
+VRayScene.SettingsDefaultDisplacement= PointerProperty(
+	name= "SettingsDefaultDisplacement",
+	type=  SettingsDefaultDisplacement,
+	description= "Default displacement settings."
+)
+
+SettingsDefaultDisplacement.override_on= BoolProperty(
+	name= "Override",
+	description= "Override settings globally.",
+	default= False
+)
+
+SettingsDefaultDisplacement.edgeLength= FloatProperty(
+	name= "Edge length",
+	description= "Max. height",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 4
+)
+
+SettingsDefaultDisplacement.viewDependent= BoolProperty(
+	name= "View dependent",
+	description= "Determines if view-dependent tesselation is used.",
+	default= True
+)
+
+SettingsDefaultDisplacement.maxSubdivs= IntProperty(
+	name= "Max subdivs",
+	description= "Determines the maximum subdivisions for a triangle of the original mesh.",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 256
+)
+
+SettingsDefaultDisplacement.tightBounds= BoolProperty(
+	name= "Tight bounds",
+	description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
+	default= True
+)
+
+SettingsDefaultDisplacement.amount= FloatProperty(
+	name= "Amount",
+	description= "Determines the displacement amount for white areas in the displacement map.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 1
+)
+
+SettingsDefaultDisplacement.relative= BoolProperty(
+	name= "Relative",
+	description= "TODO.",
+	default= False
+)
+
+
 class SettingsDMCSampler(bpy.types.IDPropertyGroup):
 	pass
 
@@ -478,6 +544,12 @@ VRayExporter.use_material_nodes= BoolProperty(
 	default= False
 )
 
+VRayExporter.use_displace= BoolProperty(
+	name= "Use displace",
+	description= "Use displace.",
+	default= True
+)
+
 VRayExporter.image_to_blender= BoolProperty(
 	name= "Image to Blender",
 	description= "Pass image to Blender on render end.",
@@ -733,37 +805,6 @@ VRayExporter.output_unique= BoolProperty(
 
 
 
-'''
-	SettingsDefaultDisplacement
-'''
-# BoolProperty(   attr="vray_displace_override_on",
-#                 name="vray_displace_override_on",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_displace_relative",
-#                 name="vray_displace_relative",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_displace_viewDependent",
-#                 name="vray_displace_viewDependent",
-#                 description="",
-#                 default= 1)
-# FloatProperty(  attr="vray_displace_edgeLength",
-#                 name="vray_displace_edgeLength",
-#                 description="",
-#                 min=, max=, soft_min=, soft_max=, default=4.0)
-# FloatProperty(  attr="vray_displace_amount",
-#                 name="vray_displace_amount",
-#                 description="",
-#                 min=, max=, soft_min=, soft_max=, default=0.0100)
-# IntProperty(    attr="vray_displace_maxSubdivs",
-#                 name="vray_displace_maxSubdivs",
-#                 description="",
-#                 min=, max=, default=256)
-# BoolProperty(   attr="vray_displace_tightBounds",
-#                 name="vray_displace_tightBounds",
-#                 description="",
-#                 default= 1)
 
 '''
 	Distributed rendering
@@ -936,6 +977,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.label(text="Globals:")
 		col.prop(vs.SettingsGI, 'on', text="GI")
 		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
+		col.prop(ve, 'use_displace', text= "Displace")
 		col.prop(vs.VRayDR, 'on', text="DR")
 		if wide_ui:
 			col= split.column()
@@ -1437,6 +1479,36 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 						render_channel.name= get_unique_name()
 					
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
+
+
+class RENDER_PT_vray_displace(RenderButtonsPanel, bpy.types.Panel):
+	bl_label = "Displace"
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		VRayExporter= context.scene.vray.exporter
+		return base_poll(__class__, context) and VRayExporter.use_displace
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		VRayScene= context.scene.vray
+		SettingsDefaultDisplacement= VRayScene.SettingsDefaultDisplacement
+
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsDefaultDisplacement, 'amount')
+		col.prop(SettingsDefaultDisplacement, 'edgeLength')
+		col.prop(SettingsDefaultDisplacement, 'maxSubdivs')
+		if wide_ui:
+			col= split.column()
+		col.prop(SettingsDefaultDisplacement, 'override_on')
+		col.prop(SettingsDefaultDisplacement, 'viewDependent')
+		col.prop(SettingsDefaultDisplacement, 'tightBounds')
+		col.prop(SettingsDefaultDisplacement, 'relative')
 
 
 class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):

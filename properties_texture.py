@@ -413,8 +413,6 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
 				col.active= texture_slot.use_map_displacement
-				# This is 'displacement_factor' actually.
-				#col.prop(GeomDisplacedMesh,'displacement_amount',text="Amount",slider=True)
 				col.prop(GeomDisplacedMesh,'displacement_shift',slider=True)
 				col.prop(GeomDisplacedMesh,'water_level',slider=True)
 
@@ -422,7 +420,10 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(texture_slot,'blend_type')
+			col.prop(texture_slot,'blend_type',text="Blend")
+			if wide_ui:
+				col= split.column()
+			col.prop(texture_slot,'invert')
 
 			layout.separator()
 

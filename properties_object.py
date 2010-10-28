@@ -246,6 +246,63 @@ MtlWrapper.trace_depth= IntProperty(
 
 
 '''
+  MtlOverride
+'''
+class MtlOverride(bpy.types.IDPropertyGroup):
+    pass
+
+VRayObject.MtlOverride= PointerProperty(
+	name= "MtlOverride",
+	type=  MtlOverride,
+	description= "V-Ray MtlOverride settings"
+)
+
+MtlOverride.use= BoolProperty(
+	name= "Use override material",
+	description= "Use override material.",
+	default= False
+)
+
+MtlOverride.gi_mtl= StringProperty(
+	name= "GI material",
+	description= "The gi material.",
+	default= ""
+)
+
+MtlOverride.reflect_mtl= StringProperty(
+	name= "Reflection material",
+	description= "The reflection material.",
+	default= ""
+)
+
+MtlOverride.refract_mtl= StringProperty(
+	name= "Refraction material",
+	description= "The refraction material.",
+	default= ""
+)
+
+MtlOverride.shadow_mtl= StringProperty(
+	name= "Shadow material",
+	description= "The shadow material.",
+	default= ""
+)
+
+MtlOverride.environment_override= StringProperty(
+	name= "Environment override",
+	description= "Environment override texture.",
+	default= ""
+)
+
+MtlOverride.environment_priority= IntProperty(
+	name= "Environment priority",
+	description= "Environment override priority (used when several materials override it along a ray path)",
+	min= 0,
+	max= 100,
+	default= 0
+)
+
+
+'''
   MtlRenderStats
 '''
 class MtlRenderStats(bpy.types.IDPropertyGroup):
@@ -300,25 +357,6 @@ MtlRenderStats.visibility= BoolProperty(
 )
 
 
-'''
-  MtlOverride
-'''
-class MtlOverride(bpy.types.IDPropertyGroup):
-    pass
-
-VRayObject.MtlOverride= PointerProperty(
-	name= "MtlOverride",
-	type=  MtlOverride,
-	description= "V-Ray MtlOverride settings"
-)
-
-MtlOverride.use= BoolProperty(
-	name= "Use override material",
-	description= "Use override material.",
-	default= False
-)
-
-
 
 '''
   GUI
@@ -334,6 +372,50 @@ class ObjectButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'object'
+
+
+class OBJECT_PT_VRAY_override(ObjectButtonsPanel, bpy.types.Panel):
+	bl_label   = "Override"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		ob= context.object
+		plugin= ob.vray.MtlOverride
+		self.layout.prop(plugin, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > 200
+
+		ob= context.object
+
+		MtlOverride= ob.vray.MtlOverride
+		
+		layout= self.layout
+		layout.active= MtlOverride.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop_search(MtlOverride, 'gi_mtl',      bpy.data, 'materials', text= "GI")
+		col.prop_search(MtlOverride, 'reflect_mtl', bpy.data, 'materials', text= "Reflection")
+		col.prop_search(MtlOverride, 'refract_mtl', bpy.data, 'materials', text= "Refraction")
+		col.prop_search(MtlOverride, 'shadow_mtl',  bpy.data, 'materials', text= "Shadow")
+
+		layout.separator()
+		split= layout.split()
+		col= split.column()
+		col.prop_search(MtlOverride, 'environment_override',  bpy.data, 'textures', text= "Environment")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(MtlOverride, 'environment_priority')
 
 
 class OBJECT_PT_VRAY_wrapper(ObjectButtonsPanel, bpy.types.Panel):

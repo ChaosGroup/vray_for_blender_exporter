@@ -92,6 +92,16 @@ MODULES= {
 		'adaptation_only',
 		'linearWorkflow'
 	),
+
+	'SettingsDefaultDisplacement': (
+		'override_on',
+		'edgeLength',
+		'viewDependent',
+		'maxSubdivs',
+		'tightBounds',
+		'amount',
+		'relative'
+	),
 	
 	'SettingsRegionsGenerator': (
         'xc',
