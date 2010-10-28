@@ -673,8 +673,11 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			sub= col.row()
 			sub.label(text="White balance")
 			sub.prop(CameraPhysical, 'white_balance', text="")
+
 			if wide_ui:
 				col= split.column()
+
+			col.prop(CameraPhysical, 'vignetting')
 
 			split= layout.split()
 			colL= split.column()
