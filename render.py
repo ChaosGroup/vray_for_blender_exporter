@@ -1651,7 +1651,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	complex_material= []
 	for component in (VRayMaterial.two_sided,VRayMaterial.MtlWrapper.use,VRayMaterial.MtlOverride.use,VRayMaterial.MtlRenderStats.use):
 		if component:
-			complex_material.append("MtlComponent_%.2d_%s"%(len(complex_material), ma_name))
+			complex_material.append("MtlComp_%.2d_%s"%(len(complex_material), ma_name))
 	complex_material.append(ma_name)
 	complex_material.reverse()
 
@@ -1677,8 +1677,10 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 		ofile.write("\n}\n")
 
 	if VRayMaterial.MtlOverride.use:
-		# TODO
-		pass
+		base_mtl= complex_material.pop()
+		ofile.write("\nMtlOverride %s {"%(complex_material[-1]))
+		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+		ofile.write("\n}\n")
 
 	if VRayMaterial.MtlRenderStats.use:
 		base_mtl= complex_material.pop()
@@ -1933,10 +1935,10 @@ def write_object(ob, params, add_params= None):
 		return
 
 	complex_material= []
+	complex_material.append(ma_name)
 	for component in (VRayObject.MtlWrapper.use,VRayObject.MtlOverride.use,VRayObject.MtlRenderStats.use):
 		if component:
-			complex_material.append("MtlComponent_%.2d_%s"%(len(complex_material), ma_name))
-	complex_material.append(ma_name)
+			complex_material.append("ObjComp_%.2d_%s"%(len(complex_material), ma_name))
 	complex_material.reverse()
 
 	if VRayObject.MtlWrapper.use:
