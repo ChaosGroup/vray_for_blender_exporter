@@ -1453,7 +1453,7 @@ LightMesh.units= EnumProperty(
 	name= "Intensity units",
 	description= "Units for the intensity.",
 	items= (
-		('DEFUALT',"Default",""),
+		('DEFAULT',"Default",""),
 		('LUMENS',"Lumens",""),
 		('LUMM',"Lm/m/m/sr",""),
 		('WATTSM',"Watts",""),
