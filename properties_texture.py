@@ -213,6 +213,7 @@ BRDFBump.compute_bump_for_shadows= BoolProperty(
 narrowui= 200
 
 import properties_texture
+properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
 
