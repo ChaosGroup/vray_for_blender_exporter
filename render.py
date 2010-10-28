@@ -103,6 +103,10 @@ MODULES= {
 }
 
 OBJECT_PARAMS= {
+	'GeomDisplacedMesh': (
+		'displacement_shift',
+		'water_level'
+	),
 	'EnvironmentFog': (
 		#'gizmos',
 		'emission',
@@ -1014,11 +1018,20 @@ def write_mesh_displace(ofile, mesh, params):
 	plugin= 'GeomDisplacedMesh'
 	name= "%s_%s" % (plugin, mesh)
 
+	TextureSlot= params['slot']
+	Texture= TextureSlot.texture
+	
+	GeomDisplacedMesh= Texture.vray_slot.GeomDisplacedMesh
+	
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tmesh= %s;" % mesh)
-	ofile.write("\n\tdisplacement_tex_color= %s;"%(params['texture']))
-	# for param in OBJECT_PARAMS[plugin]:
-	# 	ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(params['slot'],param))))
+	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
+	ofile.write("\n\tdisplacement_amount= %s;" % TextureSlot.displacement_factor)
+	for param in OBJECT_PARAMS[plugin]:
+		ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(GeomDisplacedMesh,param))))
+
+	ofile.write("\n\tkeep_continuity= 1;")
+	
 	ofile.write("\n}\n")
 
 	return name
@@ -1361,6 +1374,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					if slot.use_map_displacement:
 						vraytex['displace'].append(slot)
 						vraymat['displace_amount']+= slot.displacement_factor
+						vraymat['displace_slot']= slot
 
 	for textype in vraytex:
 		if len(vraytex[textype]):
@@ -1394,20 +1408,22 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 
 			else:
 				BLEND_MODES= {
-					'NONE':         0,
-					'MIX':          3,
-					'OVER':         1,
-					'IN':           2,
-					'OUT':          3,
-					'ADD':          4,
-					'SUBSTRACT':    5,
-					'MULTIPLY':     6,
-					'DIFFERENCE':   7,
-					'LIGHTEN':      8,
-					'DARKEN':       9,
-					'SATURATE':    10,
-					'DESATURATE':  11,
-					'ILLUMINATE':  12
+					'MIX':          1,
+					'ADD':         4,
+					'SUBTRACT':    5,
+					'MULTIPLY':    6,
+					'SCREEN':       1,
+					'OVERLAY':     1,
+					'DIFFERENCE':  7,
+					'DIVIDE':       1,
+					'DARKEN':      9,
+					'LIGHTEN':     8,
+					'HUE':          1,
+					'SATURATION': 10,
+					'VALUE':        1,
+					'COLOR':        1,
+					'SOFT LIGHT':   1,
+					'LINEAR LIGHT': 1
 				}
 
 				stencil= 0
@@ -1437,6 +1453,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					ofile.write("\n\tcomposite= %d;"%(0))
 					ofile.write("\n}\n")
 				else:
+					# TODO: blend [0] texture over an object color.
 					tex_name= "TexLayered_%s"%(textype)
 					ofile.write("\nTexLayered %s {"%(tex_name))
 					ofile.write("\n\ttextures= List(%s);"%(','.join(texlayered_names)))
@@ -1610,7 +1627,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 
 	if tex_vray['displace']:
 		object_params['displace']['texture']= tex_vray['displace']
-		object_params['displace']['params']= []
+		object_params['displace']['slot']= tex_vray['displace_slot']
 
 	if ma in filters['exported_materials']:
 		return
