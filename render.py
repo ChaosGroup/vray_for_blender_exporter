@@ -1429,6 +1429,21 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					'LINEAR LIGHT': 1
 				}
 
+				BLEND_MODES= {
+					'OVER':         1,
+					'IN':           2,
+					'OUT':          3,
+					'ADD':          4,
+					'SUBSTRACT':    5,
+					'MULTIPLY':     6,
+					'DIFFERENCE':   7,
+					'LIGHTEN':      8,
+					'DARKEN':       9,
+					'SATURATE':    10,
+					'DESATUREATE': 11,
+					'ILLUMINATE':  12
+				}
+
 				stencil= 0
 				texlayered_modes= []
 				texlayered_names= []
@@ -1439,8 +1454,8 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
 
 					texlayered_names.append(tex_name) # For stencil
-					texlayered_modes.append(str(BLEND_TYPE[slot.blend_type]))
-					#texlayered_modes.append(str(BLEND_MODES[tex.vray_slot.blend_modes]))
+					#texlayered_modes.append(str(BLEND_TYPE[slot.blend_type]))
+					texlayered_modes.append(str(BLEND_MODES[tex.vray_slot.blend_modes]))
 
 					debug(sce,"  Slot: %s"%(textype))
 					debug(sce,"    Texture: %s [mode: %s]"%(tex.name, slot.blend_type))

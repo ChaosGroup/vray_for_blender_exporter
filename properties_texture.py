@@ -58,7 +58,6 @@ VRaySlot.blend_modes= EnumProperty(
 	name= "Blend mode",
 	description= "Blend mode.",
 	items= (
-		('NONE', "None", "."),
 		('OVER', "Over", "."),
 		('IN', "In", "."),
 		('OUT', "Out", "."),
@@ -72,7 +71,7 @@ VRaySlot.blend_modes= EnumProperty(
 		('DESATUREATE', "Desaturate", "."),
 		('ILLUMINATE', "Illuminate", ".")
 	),
-	default= 'NONE'
+	default= 'OVER'
 )
 
 
