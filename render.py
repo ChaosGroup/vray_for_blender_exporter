@@ -1271,8 +1271,6 @@ def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
 
 
 def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
-	tex_name= "Texture_no_texture"
-
 	if slot:
 		tex= slot.texture
 
@@ -1281,19 +1279,14 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	if tex:
 		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
 		if plugin is not None:
-			texture= plugin.write(ofile, sce, tex)
-
-	return texture
+			return plugin.write(ofile, sce, tex)
 
 
 def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, env= None):
 	if slot:
 		tex= slot.texture
-		
-	# texture= {
-	# 	'texture': "Texture_no_texture",
-	# 	'uvwgen':  "UVWGenChannel_default"
-	# }
+
+	texture= "Texture_no_texture"
 
 	if tex.type == 'IMAGE':
 		texture= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
@@ -1417,7 +1410,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						vraymat[textype]= tex_name
 
 			else:
-				BLEND_MODES= {
+				BLEND_TYPE= {
 					'MIX':          1,
 					'ADD':         4,
 					'SUBTRACT':    5,
@@ -1446,7 +1439,8 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
 
 					texlayered_names.append(tex_name) # For stencil
-					texlayered_modes.append(str(BLEND_MODES[slot.blend_type]))
+					texlayered_modes.append(str(BLEND_TYPE[slot.blend_type]))
+					#texlayered_modes.append(str(BLEND_MODES[tex.vray_slot.blend_modes]))
 
 					debug(sce,"  Slot: %s"%(textype))
 					debug(sce,"    Texture: %s [mode: %s]"%(tex.name, slot.blend_type))
@@ -2698,7 +2692,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 		vb_path= vb_script_path()
 
 		params= []
-		params.append(vb_binary_path())
+		params.append(vb_binary_path(sce))
 
 		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
 		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
@@ -2803,7 +2797,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		vb_path= vb_script_path()
 
 		params= []
-		params.append(vb_binary_path())
+		params.append(vb_binary_path(sce))
 
 		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
 		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))

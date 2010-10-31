@@ -54,6 +54,27 @@ VRaySlot.uvwgen= StringProperty(
 	default= "UVWGenChannel_default"
 )
 
+VRaySlot.blend_modes= EnumProperty(
+	name= "Blend mode",
+	description= "Blend mode.",
+	items= (
+		('NONE', "None", "."),
+		('OVER', "Over", "."),
+		('IN', "In", "."),
+		('OUT', "Out", "."),
+		('ADD', "Add", "."),
+		('SUBSTRACT', "Substract", "."),
+		('MULTIPLY', "Multiply", "."),
+		('DIFFERENCE', "Difference", "."),
+		('LIGHTEN', "Lighten", "."),
+		('DARKEN', "Darken", "."),
+		('SATURATE', "Saturate", "."),
+		('DESATUREATE', "Desaturate", "."),
+		('ILLUMINATE', "Illuminate", ".")
+	),
+	default= 'NONE'
+)
+
 
 class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
 	pass
@@ -420,10 +441,10 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(texture_slot,'blend_type',text="Blend")
+			col.prop(VRaySlot,'blend_modes',text="Blend")
 			if wide_ui:
 				col= split.column()
-			col.prop(texture_slot,'invert')
+			col.prop(texture_slot,'invert',text="Invert")
 
 			layout.separator()
 

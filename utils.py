@@ -144,7 +144,11 @@ def vb_script_path():
 			return vb_path
 	return ''
 
-def vb_binary_path():
+def vb_binary_path(sce):
+	VRayExporter= sce.vray.exporter
+	if not VRayExporter.detect_vray and VRayExporter.vray_binary != "":
+		return bpy.path.abspath(VRayExporter.vray_binary)
+	
 	vray_bin= 'vray'
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'

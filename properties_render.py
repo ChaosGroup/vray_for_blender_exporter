@@ -627,6 +627,18 @@ VRayExporter.output= EnumProperty(
 	default= 'TMP'
 )
 
+VRayExporter.detect_vray= BoolProperty(
+	name= "Detect V-Ray",
+	description= "Detect V-Ray binary location.",
+	default= True
+)
+
+VRayExporter.vray_binary= StringProperty(
+	name= "Path",
+	subtype= 'FILE_PATH',
+	description= "Path to V-Ray binary."
+)
+
 VRayExporter.output_dir= StringProperty(
 	name= "Directory",
 	subtype= 'DIR_PATH',
@@ -1015,6 +1027,18 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(ve, 'detect_vray')
+		if not ve.detect_vray:
+			split= layout.split()
+			col= split.column()
+			col.prop(ve, 'vray_binary')
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()
