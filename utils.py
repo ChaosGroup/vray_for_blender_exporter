@@ -34,6 +34,9 @@ import tempfile
 import math
 import subprocess
 import time
+import shutil
+import filecmp
+import socket
 
 ''' Blender modules '''
 import bpy
@@ -41,6 +44,7 @@ import mathutils
 
 
 PLATFORM= sys.platform
+HOSTNAME= socket.gethostname()
 
 none_matrix= mathutils.Matrix(
 	[0.0,0.0,0.0],
@@ -104,8 +108,40 @@ def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.path.abspath(fn))
 	return filename
 
-def get_full_filepath(filepath):
-	return os.path.normpath(bpy.path.abspath(filepath))
+def get_full_filepath(sce,filepath):
+	VRayDR= sce.vray.VRayDR
+
+	src_file= os.path.normpath(bpy.path.abspath(filepath))
+	src_filename= os.path.split(src_file)[1]
+
+	if VRayDR.on:
+		dest_path= bpy.path.abspath(VRayDR.shared_dir)
+		if dest_path == "":
+			return src_file
+		blendfile_name= os.path.split(bpy.data.filepath)[1][:-6]
+
+		dest_path= os.path.join(dest_path, blendfile_name + os.sep)
+		if not os.path.exists(dest_path):
+			os.mkdir(dest_path)
+
+		rel_path= blendfile_name + os.sep + src_filename
+
+		dest_file= os.path.join(dest_path,src_filename)
+		if os.path.isfile(src_file):
+			if os.path.exists(dest_file):
+				if not filecmp.cmp(dest_file,src_file):
+					debug(sce,"Copying \"%s\" to \"%s\"..."%(src_filename,dest_path))
+					shutil.copy(src_file,dest_path)
+			else:
+				debug(sce,"Copying \"%s\" to \"%s\"..."%(src_filename,dest_path))
+				shutil.copy(src_file,dest_path)
+
+		if VRayDR.type in ('UU','WU'):
+			return "..%s%s"%(os.sep,rel_path)
+		else:
+			return "//%s/%s"%(HOSTNAME,rel_path)
+
+	return src_file
 
 def get_render_file_format(ve,file_format):
 	if ve.image_to_blender:
@@ -197,26 +233,31 @@ def get_filenames(sce, filetype):
 		return directory
 
 	ve= sce.vray.exporter
-
+	VRayDR= sce.vray.VRayDR
+	
 	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
+	blendfile_name= blendfile_name[:-6]
 
 	default_dir= tempfile.gettempdir()
 	export_dir= default_dir
 
 	export_file= 'scene'
 	if ve.output_unique:
-		export_file= blendfile_name[:-6]
+		export_file= blendfile_name
 
-	if ve.output == 'USER':
-		if ve.output_dir == "":
-			export_dir= default_dir
-		else:
-			export_dir= bpy.path.abspath(ve.output_dir)
-	elif ve.output == 'SCENE':
-		export_dir= blendfile_path
+	if VRayDR.on:
+		export_dir= os.path.join(bpy.path.abspath(VRayDR.shared_dir), blendfile_name + os.sep)
+	else:
+		if ve.output == 'USER':
+			if ve.output_dir == "":
+				export_dir= default_dir
+			else:
+				export_dir= bpy.path.abspath(ve.output_dir)
+		elif ve.output == 'SCENE':
+			export_dir= blendfile_path
 
-	if ve.output != 'USER':
-		export_dir= os.path.join(export_dir,"vb25")
+		if ve.output != 'USER':
+			export_dir= os.path.join(export_dir,"vb25")
 
 	filepath= export_dir
 

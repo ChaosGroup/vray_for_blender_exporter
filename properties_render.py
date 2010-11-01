@@ -652,175 +652,6 @@ VRayExporter.output_unique= BoolProperty(
 )
 
 
-# BoolProperty(   attr="vray_export_duplibase",
-#                 name="vray_export_duplibase",
-#                 description="",
-#                 default= 0)
-
-# IntProperty(    attr="vray_verboseLevel",
-#                 name="vray_verboseLevel",
-#                 description="",
-#                 min=, max=, default=3)
-
-# BoolProperty(   attr="vray_dr",
-#                 name="vray_dr",
-#                 description="",
-#                 default= 0)
-
-# BoolProperty(   attr="vray_export_bake",
-#                 name="vray_export_bake",
-#                 description="",
-#                 default= 0)
-
-# IntProperty(    attr="vray_dr_port",
-#                 name="vray_dr_port",
-#                 description="",
-#                 min=, max=, default=20204)
-
-# StringProperty( attr="vray_dr_hosts",
-#                 name="vray_dr_hosts",
-#                 description="")
-
-# BoolProperty(   attr="vray_display",
-#                 name="vray_display",
-#                 description="",
-#                 default= 1)
-
-
-'''
-	SettingsOutput
-'''
-# BoolProperty(   attr="vray_autosave",
-#                 name="vray_autosave",
-#                 description="",
-#                 default= 1)
-
-# BoolProperty(   attr="vray_autosave_alpha",
-#                 name="vray_img_separateAlpha",
-#                 description="",
-#                 default= 1)
-
-# BoolProperty(   attr="vray_stamp",
-#                 name="vray_stamp",
-#                 description="",
-#                 default= 0)
-
-
-'''
-	SettingsOptions
-'''
-# geom_displacement: bool = true
-# geom_doHidden: bool = true
-# light_doLights: bool = true
-# light_doDefaultLights: bool = true
-# light_doHiddenLights: bool = true
-# light_doShadows: bool = true
-# light_onlyGI: bool = false
-# gi_dontRenderImage: bool = false, Don't render final image
-# mtl_reflectionRefraction: bool = true
-# mtl_limitDepth: bool = false, Limit max depth
-# mtl_maxDepth: integer = 5, Max. ray depth for reflections and refractions
-# mtl_doMaps: bool = true
-# mtl_filterMaps: bool = true
-# mtl_transpMaxLevels: integer = 50, Max. transparency levels
-# mtl_transpCutoff: float = 0.001, Transparency cutoff
-# mtl_override_on: bool = false, Override material
-# mtl_glossy: bool = true, Glossy effects
-# geom_backfaceCull: bool = false, If true, back faces will be invisible to camera and shadow rays
-# ray_bias: float = 0, Secondary ray bias
-# misc_lowThreadPriority: bool = false
-# IntProperty(    attr="vray_mtl_limitDepth",
-#                 name="vray_mtl_limitDepth",
-#                 description="",
-#                 min=, max=, default=0)
-# IntProperty(    attr="vray_mtl_transpMaxLevels",
-#                 name="vray_mtl_transpMaxLevels",
-#                 description="",
-#                 min=, max=, default=50)
-# FloatProperty(  attr="vray_mtl_transpCutoff",
-#                 name="vray_mtl_transpCutoff",
-#                 description="",
-#                 min=, max=, soft_min=, soft_max=, default=0.0100)
-# IntProperty(    attr="vray_mtl_overall_type",
-#                 name="vray_mtl_overall_type",
-#                 description="",
-#                 min=, max=, default=0)
-# IntProperty(    attr="vray_mtl_maxDepth",
-#                 name="vray_mtl_maxDepth",
-#                 description="",
-#                 min=, max=, default=5)
-# BoolProperty(   attr="vray_mtl_reflect_refract",
-#                 name="vray_mtl_reflect_refract",
-#                 description="",
-#                 default= 1)
-# BoolProperty(   attr="vray_mtl_glossy",
-#                 name="vray_mtl_glossy",
-#                 description="",
-#                 default= 1)
-# BoolProperty(   attr="vray_mtl_doMaps",
-#                 name="vray_mtl_doMaps",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_mtl_overall",
-#                 name="vray_mtl_overall",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_mtl_limitDepth",
-#                 name="vray_mtl_limitDepth",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_mtl_overall_type",
-#                 name="vray_mtl_overall_type",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_mtl_overall_mat",
-#                 name="vray_mtl_overall_mat",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_mtl_filterMaps",
-#                 name="vray_mtl_filterMaps",
-#                 description="",
-#                 default= 0)
-
-# BoolProperty(   attr="vray_geom_backfaceCull",
-#                 name="vray_geom_backfaceCull",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_geom_displacement",
-#                 name="vray_geom_displacement",
-#                 description="",
-#                 default= 1)
-# BoolProperty(   attr="vray_geom_doHidden",
-#                 name="vray_geom_doHidden",
-#                 description="",
-#                 default= 0)
-
-# BoolProperty(   attr="vray_light_doShadows",
-#                 name="vray_light_doShadows",
-#                 description="",
-#                 default= 1)
-
-# BoolProperty(   attr="vray_light_doHiddenLights",
-#                 name="vray_light_doHiddenLights",
-#                 description="",
-#                 default= 0)
-# BoolProperty(   attr="vray_light_doLights",
-#                 name="vray_light_doLights",
-#                 description="",
-#                 default= 1)
-
-# FloatProperty(  attr="vray_ray_bias",
-#                 name="vray_ray_bias",
-#                 description="",
-#                 min=, max=, soft_min=, soft_max=, default=0.0)
-
-
-
-
-
-'''
-	Distributed rendering
-'''
 class VRayDR(bpy.types.IDPropertyGroup):
 	pass
 
@@ -844,11 +675,28 @@ VRayDR.port= IntProperty(
 	default= 20204
 )
 
+VRayDR.shared_dir= StringProperty(
+	name= "Shared directory",
+	subtype= 'DIR_PATH',
+	description= "Distributed rendering shader directory."
+)
+
 VRayDR.nodes_selected= IntProperty(
 	name= "Render Node Index",
 	default= -1,
 	min= -1,
 	max= 100
+)
+
+VRayDR.type= EnumProperty(
+	name= "Type",
+	description= "Distributed rendering network type.",
+	items= (
+		('WW', "Windows - Windows", "Window master & Windows nodes."),
+		('WU', "Windows - Unix",    "Window master & Unix nodes."),
+		('UU', "Unix - Unix",       "Unix master & Unix nodes.")
+	),
+	default= 'WU'
 )
 
 
@@ -880,6 +728,13 @@ del properties_render
 
 
 narrowui= 200
+
+
+class RENDER_MT_VRAY_im_preset(bpy.types.Menu):
+	bl_label= "Irradiance Map Presets"
+	preset_subdir= os.path.join("..", "io", "vb25", "presets", "im")
+	preset_operator = "script.execute_preset"
+	draw = bpy.types.Menu.draw_preset
 
 
 class RENDER_CHANNELS_OT_add(bpy.types.Operator):
@@ -987,10 +842,10 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Globals:")
-		col.prop(vs.SettingsGI, 'on', text="GI")
+		col.prop(vs.SettingsGI, 'on', text="Global Illumination")
 		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
 		col.prop(ve, 'use_displace', text= "Displace")
-		col.prop(vs.VRayDR, 'on', text="DR")
+		col.prop(vs.VRayDR, 'on')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
@@ -1264,7 +1119,11 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 
 		if module.mode not in ('FILE', 'ANIM_REND'):
 			split= layout.split()
-			split.column().prop(module, "preset")
+			col= split.column()
+			col.label(text="Preset:")
+			if wide_ui:
+				col= split.column()
+			col.menu('RENDER_MT_VRAY_im_preset', text="Preset")
 
 			split= layout.split()
 			split.label(text="Basic parameters:")
@@ -1552,6 +1411,16 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 
 		vs= context.scene.vray
 		module= vs.VRayDR
+
+		split= layout.split()
+		col= split.column()
+		col.prop(module, 'shared_dir')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(module, 'type', text="Network type")
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()

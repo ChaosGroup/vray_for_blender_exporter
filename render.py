@@ -1073,7 +1073,7 @@ def write_mesh_file(ofile, exported_proxy, ob):
 		exported_proxy.append(proxy_name)
 		
 		ofile.write("\nGeomMeshFile %s {"%(proxy_name))
-		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(proxy.file)))
+		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(sce,proxy.file)))
 		ofile.write("\n\tanim_speed= %i;"%(proxy.anim_speed))
 		ofile.write("\n\tanim_type= %i;"%(PROXY_ANIM_TYPE[proxy.anim_type]))
 		ofile.write("\n\tanim_offset= %i;"%(proxy.anim_offset))
@@ -1155,12 +1155,13 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 
 
 def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
-	filename= get_full_filepath(tex.image.filepath)
+	filename= get_full_filepath(sce,tex.image.filepath)
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
-	if not os.path.exists(filename):
-		debug(sce,"Error! Image file does not exists! (%s)"%(filename))
-		return None
+	if not sce.vray.VRayDR.on:
+		if not os.path.exists(filename):
+			debug(sce,"Error! Image file does not exists! (%s)"%(filename))
+			return None
 
 	if exported_bitmaps is not None:
 		if bitmap_name in exported_bitmaps:
@@ -1410,24 +1411,25 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						vraymat[textype]= tex_name
 
 			else:
-				BLEND_TYPE= {
-					'MIX':          1,
-					'ADD':         4,
-					'SUBTRACT':    5,
-					'MULTIPLY':    6,
-					'SCREEN':       1,
-					'OVERLAY':     1,
-					'DIFFERENCE':  7,
-					'DIVIDE':       1,
-					'DARKEN':      9,
-					'LIGHTEN':     8,
-					'HUE':          1,
-					'SATURATION': 10,
-					'VALUE':        1,
-					'COLOR':        1,
-					'SOFT LIGHT':   1,
-					'LINEAR LIGHT': 1
-				}
+				# TODO: add to scene converter
+				# BLEND_TYPE= {
+				# 	'MIX':          1,
+				# 	'ADD':         4,
+				# 	'SUBTRACT':    5,
+				# 	'MULTIPLY':    6,
+				# 	'SCREEN':       1,
+				# 	'OVERLAY':     1,
+				# 	'DIFFERENCE':  7,
+				# 	'DIVIDE':       1,
+				# 	'DARKEN':      9,
+				# 	'LIGHTEN':     8,
+				# 	'HUE':          1,
+				# 	'SATURATION': 10,
+				# 	'VALUE':        1,
+				# 	'COLOR':        1,
+				# 	'SOFT LIGHT':   1,
+				# 	'LINEAR LIGHT': 1
+				# }
 
 				BLEND_MODES= {
 					'OVER':         1,
@@ -1454,7 +1456,6 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
 
 					texlayered_names.append(tex_name) # For stencil
-					#texlayered_modes.append(str(BLEND_TYPE[slot.blend_type]))
 					texlayered_modes.append(str(BLEND_MODES[tex.vray_slot.blend_modes]))
 
 					debug(sce,"  Slot: %s"%(textype))
@@ -2146,7 +2147,7 @@ def write_lamp(ob, params, add_params= None):
 				ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
 				continue
 			elif param == 'ies_file':
-				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(vl.ies_file)))
+				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,vl.ies_file)))
 				continue
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))
