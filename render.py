@@ -770,8 +770,7 @@ def write_geometry(sce, geometry_file):
 							if slot.uv_layer not in uv_layers:
 								uv_layers.append(slot.uv_layer)
 
-
-	if hasattr(bpy.ops.scene, 'scene_export'):
+	try:
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
@@ -779,8 +778,7 @@ def write_geometry(sce, geometry_file):
 			vb_active_layers= 0,
 			vb_animation= VRayExporter.animation
 		)
-
-	else:
+	except:
 		print("V-Ray/Blender: Exporting meshes...")
 		
 		# Used when exporting dupli, particles etc.

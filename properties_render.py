@@ -117,9 +117,9 @@ SettingsDefaultDisplacement.maxSubdivs= IntProperty(
 	name= "Max subdivs",
 	description= "Determines the maximum subdivisions for a triangle of the original mesh.",
 	min= 0,
-	max= 100,
+	max= 2048,
 	soft_min= 0,
-	soft_max= 10,
+	soft_max= 1024,
 	default= 256
 )
 
