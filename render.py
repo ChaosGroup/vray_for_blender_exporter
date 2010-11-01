@@ -2179,11 +2179,12 @@ def write_camera(sce, ofile, camera= None, bake= False):
 				l= math.sqrt( x * x + y * y )
 				shift= -1 * z_shift / l
 		else:
-			rx= ob.rotation_axis_angle[0]
+			rx= ob.rotation_euler[0]
 			lsx= rx - math.pi / 2
 			if math.fabs(lsx) > 0.0001:
 				shift= math.tan(lsx)
-
+			if math.fabs(shift) > math.pi:
+				shift= 0.0
 		return shift
 
 	ca= camera if camera is not None else sce.camera
