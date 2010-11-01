@@ -486,6 +486,12 @@ CameraPhysical.exposure= BoolProperty(
 	default= True
 )
 
+CameraPhysical.guess_lens_shift= BoolProperty(
+	name= "Guess lens shift",
+	description= "Guess lens shift.",
+	default= False
+)
+
 CameraPhysical.type= EnumProperty(
 	name="Type",
 	description="The type of the physical camera.",
@@ -652,8 +658,9 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			col.prop(CameraPhysical, 'focal_length')
 			col.prop(CameraPhysical, 'zoom_factor')
 			col.prop(CameraPhysical, 'distortion')
-			col.prop(CameraPhysical, 'lens_shift')
-			
+			if not CameraPhysical.guess_lens_shift:
+				col.prop(CameraPhysical, 'lens_shift')
+			col.prop(CameraPhysical, 'guess_lens_shift')
 			if wide_ui:
 				col= split.column(align=True)
 			col.prop(CameraPhysical, 'exposure')
