@@ -784,9 +784,23 @@ class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
 			sub.active= not VRayCamera.everything_auto
 			sub.prop_search(VRayCamera, 'everything_objects',  context.scene, 'objects')
 			sub.prop_search(VRayCamera, 'everything_groups',   bpy.data,      'groups')
-		else:
-			col.prop(VRayCamera, 'hide_from_camera',  text="From camera")
-			col.prop(VRayCamera, 'hide_from_gi',      text="From GI")
-			col.prop(VRayCamera, 'hide_from_reflect', text="From reflections")
-			col.prop(VRayCamera, 'hide_from_refract', text="From refractions")
-			col.prop(VRayCamera, 'hide_from_shadows', text="From shadows")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'hide_from_camera',  text="From camera")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'hide_from_gi',      text="From GI")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'hide_from_reflect', text="From reflections")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'hide_from_refract', text="From refractions")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'hide_from_shadows', text="From shadows")

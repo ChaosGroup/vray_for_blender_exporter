@@ -195,7 +195,7 @@ MtlWrapper.gi_amount= FloatProperty(
 )
 
 MtlWrapper.no_gi_on_other_mattes= BoolProperty(
-	name= "No gi on other mattes",
+	name= "No GI on other mattes",
 	description= "This will cause the material to appear as a matte object in reflections, refractions, GI etc for other matte objects.",
 	default= True
 )
@@ -207,7 +207,7 @@ MtlWrapper.matte_for_secondary_rays= BoolProperty(
 )
 
 MtlWrapper.gi_surface_id= IntProperty(
-	name= "GI surface id",
+	name= "GI surface ID",
 	description= "If two objects have different GI surface ids, the light cache samples of the two objects will not be blended",
 	min= 0,
 	max= 10,

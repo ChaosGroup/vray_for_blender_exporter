@@ -811,7 +811,7 @@ def write_geometry(sce, geometry_file):
 			ofile.write("\nGeomStaticMesh %s {"%(me_name))
 
 			ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
-			for v in me.verts:
+			for v in me.vertices:
 				if(v.index):
 					ofile.write(",")
 				ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
@@ -821,20 +821,20 @@ def write_geometry(sce, geometry_file):
 			for f in me.faces:
 				if f.index:
 					ofile.write(",")
-				if len(f.verts) == 4:
+				if len(f.vertices) == 4:
 					ofile.write("%d,%d,%d,%d,%d,%d"%(
-						f.verts[0], f.verts[1], f.verts[2],
-						f.verts[2], f.verts[3], f.verts[0]))
+						f.vertices[0], f.vertices[1], f.vertices[2],
+						f.vertices[2], f.vertices[3], f.vertices[0]))
 				else:
 					ofile.write("%d,%d,%d"%(
-						f.verts[0], f.verts[1], f.verts[2]))
+						f.vertices[0], f.vertices[1], f.vertices[2]))
 			ofile.write(")));")
 
 			ofile.write("\n\tface_mtlIDs= ListInt(")
 			for f in me.faces:
 				if f.index:
 					ofile.write(",")
-				if len(f.verts) == 4:
+				if len(f.vertices) == 4:
 					ofile.write("%d,%d"%(
 						f.material_index, f.material_index))
 				else:
@@ -847,20 +847,20 @@ def write_geometry(sce, geometry_file):
 				if f.index:
 					ofile.write(",")
 
-				if len(f.verts) == 4:
-					verts= (0,1,2,2,3,0)
+				if len(f.vertices) == 4:
+					vertices= (0,1,2,2,3,0)
 				else:
-					verts= (0,1,2)
+					vertices= (0,1,2)
 
 				comma= 0
-				for v in verts:
+				for v in vertices:
 					if comma:
 						ofile.write(",")
 					comma= 1
 
-					if f.smooth:
+					if f.use_smooth:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-							tuple(me.verts[f.verts[v]].normal)
+							tuple(me.vertices[f.vertices[v]].normal)
 							))
 					else:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
@@ -874,12 +874,12 @@ def write_geometry(sce, geometry_file):
 				if f.index:
 					ofile.write(",")
 
-				if len(f.verts) == 4:
-					verts= 6
+				if len(f.vertices) == 4:
+					vertices= 6
 				else:
-					verts= 3
+					vertices= 3
 
-				for v in range(verts):
+				for v in range(vertices):
 					if v:
 						ofile.write(",")
 					ofile.write("%d"%(k))
@@ -926,19 +926,19 @@ def write_geometry(sce, geometry_file):
 
 						face= uv_texture.data[f]
 
-						verts= 3
+						vertices= 3
 						if len(face.uv) == 4:
-							verts= 6
+							vertices= 6
 							u= u0
 						else:
 							if len(uv_texture.data[f-1].uv) == 4:
 								u= u0
 
-						for i in range(verts):
+						for i in range(vertices):
 							if i:
 								ofile.write(",")
 
-							if verts == 6:
+							if vertices == 6:
 								if i == 5:
 									u0= u
 									u-= 4
@@ -2299,6 +2299,10 @@ def write_settings(sce,ofile):
 
 	ofile.write("\nSettingsOptions {")
 	ofile.write("\n\tmisc_lowThreadPriority= true;")
+	ofile.write("\n}")
+
+	ofile.write("\nSettingsJPEG SettingsJPEG{")
+	ofile.write("\n\tquality= 100;")
 	ofile.write("\n}")
 		
 	ofile.write("\nSettingsOutput {")

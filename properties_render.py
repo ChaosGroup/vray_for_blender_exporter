@@ -1254,7 +1254,7 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(module, "mode")
+		col.prop(module, "mode", text="Mode")
 
 		if not module.mode == 'FILE':
 			layout.label(text="Calculation parameters:")
