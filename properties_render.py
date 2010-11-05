@@ -544,6 +544,12 @@ VRayExporter.use_material_nodes= BoolProperty(
 	default= False
 )
 
+VRayExporter.mesh_active_layers= BoolProperty(
+	name= "Export meshes from active layers",
+	description= "Export meshes from active layers only.",
+	default= False
+)
+
 VRayExporter.use_displace= BoolProperty(
 	name= "Use displace",
 	description= "Use displace.",
@@ -880,8 +886,10 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()
+		col.prop(ve, 'mesh_active_layers', text= "Active layers meshes")
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
+		
 
 		layout.separator()
 

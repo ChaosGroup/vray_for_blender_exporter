@@ -115,7 +115,21 @@ MODULES= {
 OBJECT_PARAMS= {
 	'GeomDisplacedMesh': (
 		'displacement_shift',
-		'water_level'
+		'water_level',
+        'use_globals',
+        'view_dep',
+        'edge_length',
+        'max_subdivs',
+        'keep_continuity',
+        'map_channel',
+        'use_bounds',
+        'min_bound',
+        'max_bound',
+        'resolution',
+        'precision',
+        'tight_bounds',
+        'filter_texture',
+        'filter_blur'
 	),
 	'EnvironmentFog': (
 		#'gizmos',
@@ -774,8 +788,7 @@ def write_geometry(sce, geometry_file):
 		print("V-Ray/Blender: Special build detected - using custom operator.")
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
-			#vb_active_layers= VRayExporter.active_layers,
-			vb_active_layers= 0,
+			vb_active_layers= VRayExporter.mesh_active_layers,
 			vb_animation= VRayExporter.animation
 		)
 	except:
@@ -1034,12 +1047,16 @@ def write_mesh_displace(ofile, mesh, params):
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tmesh= %s;" % mesh)
 	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
-	ofile.write("\n\tdisplacement_amount= %s;" % TextureSlot.displacement_factor)
+	ofile.write("\n\tdisplacement_amount= %.6f;" % TextureSlot.displacement_factor)
+	if GeomDisplacedMesh.type == '2D':
+		ofile.write("\n\tdisplace_2d= 1;")
+	elif GeomDisplacedMesh.type == '3D':
+		ofile.write("\n\tvector_displacement= 1;")
+	else:
+		ofile.write("\n\tdisplace_2d= 0;")
+		ofile.write("\n\tvector_displacement= 0;")
 	for param in OBJECT_PARAMS[plugin]:
 		ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(GeomDisplacedMesh,param))))
-
-	ofile.write("\n\tkeep_continuity= 1;")
-	
 	ofile.write("\n}\n")
 
 	return name
@@ -1158,8 +1175,7 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 
 	if not sce.vray.VRayDR.on:
 		if not os.path.exists(filename):
-			debug(sce,"Error! Image file does not exists! (%s)"%(filename))
-			return None
+			debug(sce,"Image file does not exists! (%s)"%(filename))
 
 	if exported_bitmaps is not None:
 		if bitmap_name in exported_bitmaps:

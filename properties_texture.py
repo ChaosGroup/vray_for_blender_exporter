@@ -158,17 +158,19 @@ VRaySlot.GeomDisplacedMesh= PointerProperty(
 	description= "GeomDisplacedMesh texture slot settings."
 )
 
+GeomDisplacedMesh.type= EnumProperty(
+	name= "Type",
+	description= "Displacement type.",
+	items= (
+		('2D',  "2D",     "2D displacement."),
+		('NOR', "Normal", "Normal displacement."),
+		('3D',  "Vector", "Vector displacement.")
+	),
+	default= 'NOR'
+)
+
+# GeomDisplacedMesh.displacement_amount= FloatProperty()
 # This is 'displacement_factor' actually.
-# GeomDisplacedMesh.displacement_amount= FloatProperty(
-# 	name= "Amount",
-# 	description= "",
-# 	min=-100.0,
-# 	max=100.0,
-# 	soft_min=-1.0,
-# 	soft_max=1.0,
-# 	precision=4,
-# 	default=1.0
-# )
 
 GeomDisplacedMesh.displacement_shift= FloatProperty(
 	name="Shift",
@@ -187,6 +189,130 @@ GeomDisplacedMesh.water_level= FloatProperty(
 	min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
 	default=0.0
 )
+
+	
+GeomDisplacedMesh.use_globals= BoolProperty(
+	name= "Use globals",
+	description= "If true, the global displacement quality settings will be used.",
+	default= True
+)
+
+GeomDisplacedMesh.view_dep= BoolProperty(
+	name= "View dependent",
+	description= "Determines if view-dependent tesselation is used",
+	default= True
+)
+
+GeomDisplacedMesh.edge_length= FloatProperty(
+	name= "Edge length",
+	description= "Determines the approximate edge length for the sub-triangles",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 4
+)
+
+GeomDisplacedMesh.max_subdivs= IntProperty(
+	name= "Max subdivs",
+	description= "Determines the maximum subdivisions for a triangle of the original mesh",
+	min= 0,
+	max= 2048,
+	soft_min= 0,
+	soft_max= 1024,
+	default= 256
+)
+
+GeomDisplacedMesh.keep_continuity= BoolProperty(
+	name= "Keep continuity",
+	description= "If true, the plugin will attempt to keep the continuity of the displaced surface",
+	default= False
+)
+
+GeomDisplacedMesh.map_channel= IntProperty(
+	name= "Map channel",
+	description= "The mapping channel to use for vector and 2d displacement.",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 0
+)
+
+GeomDisplacedMesh.use_bounds= BoolProperty(
+	name= "Use bounds",
+	description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically.",
+	default= False
+)
+
+GeomDisplacedMesh.min_bound= FloatVectorProperty(
+	name= "Min bound",
+	description= "The lowest value for the displacement texture",
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0,0,0)
+)
+
+GeomDisplacedMesh.max_bound= FloatVectorProperty(
+	name= "Max bound",
+	description= "The biggest value for the displacement texture",
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1,1,1)
+)
+
+GeomDisplacedMesh.resolution= IntProperty(
+	name= "Resolution",
+	description= "Resolution at which to sample the displacement map for 2d displacement.",
+	min= 0,
+	max= 2048,
+	soft_min= 0,
+	soft_max= 512,
+	default= 256
+)
+
+GeomDisplacedMesh.precision= IntProperty(
+	name= "Precision",
+	description= "Increase for curved surfaces to avoid artifacts.",
+	min= 0,
+	max= 100,
+	soft_min= 0,
+	soft_max= 10,
+	default= 8
+)
+
+GeomDisplacedMesh.tight_bounds= BoolProperty(
+	name= "Tight bounds",
+	description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
+	default= False
+)
+
+GeomDisplacedMesh.filter_texture= BoolProperty(
+	name= "Filter texture",
+	description= "Filter the texture for 2d displacement.",
+	default= False
+)
+
+GeomDisplacedMesh.filter_blur= FloatProperty(
+	name= "Blur",
+	description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 0.001
+)
+	
+
+
 
 
 class BRDFBump(bpy.types.IDPropertyGroup):
@@ -271,13 +397,13 @@ def base_poll(cls, context):
 	return (tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES)
 
 
-class TextureButtonsPanel():
+class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
 
 
-class TEXTURE_PT_context_texture(TextureButtonsPanel, bpy.types.Panel):
+class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 	bl_label   = ""
 	bl_options = {'HIDE_HEADER'}
 
@@ -341,7 +467,7 @@ class TEXTURE_PT_context_texture(TextureButtonsPanel, bpy.types.Panel):
 					col.prop(tex.vray, 'type', text="Type")
 
 
-class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
+class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Influence"
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -372,7 +498,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 
 		# TEMP! Replace after BF fixes
 		#VRaySlot= texture_slot.vray
-		if texture is not None:
+		if texture:
 			VRaySlot= texture.vray_slot
 		
 		mat= context.material
@@ -392,7 +518,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 
-			if VRaySlot is not None:
+			if VRaySlot:
 				BRDFSSS2Complex= VRaySlot.BRDFSSS2Complex
 
 				col.label(text="SSS:")
@@ -433,8 +559,7 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
 				col.active= texture_slot.use_map_displacement
-				col.prop(GeomDisplacedMesh,'displacement_shift',slider=True)
-				col.prop(GeomDisplacedMesh,'water_level',slider=True)
+				col.prop(GeomDisplacedMesh, 'type')
 
 			layout.separator()
 
@@ -471,3 +596,70 @@ class TEXTURE_PT_vray_influence(TextureButtonsPanel, bpy.types.Panel):
 			factor_but(col, texture_slot, 'use_map_horizon',     'horizon_factor',     "GI")
 			factor_but(col, texture_slot, 'use_map_zenith_up',   'zenith_up_factor',   "Reflections")
 			factor_but(col, texture_slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
+
+
+class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
+	bl_label = "Displacement"
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		idblock= context_tex_datablock(context)
+		if not type(idblock) == bpy.types.Material:
+			return False
+
+		texture_slot= context.texture_slot
+		if not texture_slot:
+			return False
+
+		texture= texture_slot.texture
+		if not texture:
+			return False
+		
+		return (base_poll(__class__, context) and (texture_slot.use_map_displacement))
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		texture_slot= context.texture_slot
+		texture= texture_slot.texture
+
+		if texture:
+			VRaySlot= texture.vray_slot
+
+			if VRaySlot:
+				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+
+				split= layout.split()
+				col= split.column()
+
+				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
+				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
+				col.prop(GeomDisplacedMesh, 'resolution')
+				col.prop(GeomDisplacedMesh, 'precision')
+				if wide_ui:
+					col= split.column()
+				col.prop(GeomDisplacedMesh, 'keep_continuity')
+				col.prop(GeomDisplacedMesh, 'use_bounds')
+				if GeomDisplacedMesh.use_bounds:
+					sub= col.row()
+					sub.prop(GeomDisplacedMesh, 'min_bound', text="Min")
+					sub.prop(GeomDisplacedMesh, 'max_bound', text="Max")
+				col.prop(GeomDisplacedMesh, 'filter_texture')
+				if GeomDisplacedMesh.filter_texture:
+					col.prop(GeomDisplacedMesh, 'filter_blur')
+
+				split= layout.split()
+				col= split.column()
+				col.prop(GeomDisplacedMesh, 'use_globals')
+				if not GeomDisplacedMesh.use_globals:
+					split= layout.split()
+					col= split.column()
+					col.prop(GeomDisplacedMesh, 'edge_length')
+					col.prop(GeomDisplacedMesh, 'max_subdivs')
+					if wide_ui:
+						col= split.column()
+					col.prop(GeomDisplacedMesh, 'view_dep')
+					col.prop(GeomDisplacedMesh, 'tight_bounds')
