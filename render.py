@@ -1683,7 +1683,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	complex_material= []
-	for component in (VRayMaterial.two_sided,VRayMaterial.MtlWrapper.use,VRayMaterial.MtlOverride.use,VRayMaterial.MtlRenderStats.use):
+	for component in (VRayMaterial.Mtl2Sided.use,VRayMaterial.MtlWrapper.use,VRayMaterial.MtlOverride.use,VRayMaterial.MtlRenderStats.use):
 		if component:
 			complex_material.append("MtlComp_%.2d_%s"%(len(complex_material), ma_name))
 	complex_material.append(ma_name)
@@ -1693,13 +1693,29 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	ofile.write("\n\tbrdf= %s;"%(brdf_name))
 	ofile.write("\n}\n")
 
-	if VRayMaterial.two_sided:
+	if VRayMaterial.Mtl2Sided.use:
 		base_material= complex_material.pop()
 		ofile.write("\nMtl2Sided %s {"%(complex_material[-1]))
 		ofile.write("\n\tfront= %s;"%(base_material))
-		ofile.write("\n\tback= %s;"%(base_material))
-		ofile.write("\n\ttranslucency= Color(1.0,1.0,1.0)*%.3f;"%(VRayMaterial.two_sided_translucency))
-		ofile.write("\n\tforce_1sided= 1;")
+		back= base_material
+		if VRayMaterial.Mtl2Sided.back != "":
+			if VRayMaterial.Mtl2Sided.back in bpy.data.materials:
+				back= get_name(bpy.data.materials[VRayMaterial.Mtl2Sided.back],"Material")
+		ofile.write("\n\tback= %s;"%(back))
+
+		if VRayMaterial.Mtl2Sided.control == 'SLIDER':
+			ofile.write("\n\ttranslucency= %s;" % a(sce, "Color(1.0,1.0,1.0)*%.3f" % VRayMaterial.Mtl2Sided.translucency_slider))
+		elif VRayMaterial.Mtl2Sided.control == 'COLOR':
+			ofile.write("\n\ttranslucency= %s;" % a(sce, VRayMaterial.Mtl2Sided.translucency_color))
+		else:
+			if VRayMaterial.Mtl2Sided.translucency_tex != "":
+				if VRayMaterial.Mtl2Sided.translucency_tex in bpy.data.materials:
+					ofile.write("\n\ttranslucency_tex= %s;"%(get_name(bpy.data.textures[VRayMaterial.Mtl2Sided.translucency_tex],"Texture")))
+					ofile.write("\n\ttranslucency_tex_mult= %s;" % a(sce,VRayMaterial.Mtl2Sided.translucency_tex_mult))
+			else:
+				ofile.write("\n\ttranslucency= %s;" % a(sce, "Color(1.0,1.0,1.0)*%.3f" % VRayMaterial.Mtl2Sided.translucency_slider))
+
+		ofile.write("\n\tforce_1sided= %d;" % VRayMaterial.Mtl2Sided.force_1sided)
 		ofile.write("\n}\n")
 
 	if VRayMaterial.MtlWrapper.use:
@@ -1714,6 +1730,19 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 		base_mtl= complex_material.pop()
 		ofile.write("\nMtlOverride %s {"%(complex_material[-1]))
 		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+
+		for param in ('gi_mtl','reflect_mtl','refract_mtl','shadow_mtl'):
+			override_material= getattr(VRayMaterial.MtlOverride, param)
+			if override_material:
+				if override_material in bpy.data.materials:
+					ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material],"Material")))
+
+		environment_override= VRayMaterial.MtlOverride.environment_override
+		if environment_override:
+			if environment_override in bpy.data.materials:
+				ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override],"Texture"))
+
+		ofile.write("\n\tenvironment_priority= %i;"%(VRayMaterial.MtlOverride.environment_priority))
 		ofile.write("\n}\n")
 
 	if VRayMaterial.MtlRenderStats.use:
@@ -1985,8 +2014,24 @@ def write_object(ob, params, add_params= None):
 		ofile.write("\n}\n")
 
 	if VRayObject.MtlOverride.use:
-		# TODO
-		pass
+		base_mtl= complex_material.pop()
+		ma_name= complex_material[-1]
+		ofile.write("\nMtlOverride %s {"%(ma_name))
+		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+
+		for param in ('gi_mtl','reflect_mtl','refract_mtl','shadow_mtl'):
+			override_material= getattr(VRayObject.MtlOverride, param)
+			if override_material:
+				if override_material in bpy.data.materials:
+					ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material],"Material")))
+
+		environment_override= VRayObject.MtlOverride.environment_override
+		if environment_override:
+			if environment_override in bpy.data.materials:
+				ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override],"Texture"))
+
+		ofile.write("\n\tenvironment_priority= %i;"%(VRayObject.MtlOverride.environment_priority))
+		ofile.write("\n}\n")
 
 	if VRayObject.MtlRenderStats.use:
 		base_mtl= complex_material.pop()

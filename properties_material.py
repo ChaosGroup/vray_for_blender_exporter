@@ -67,14 +67,69 @@ VRayMaterial.emitter_type= EnumProperty(
 	default= 'MTL'
 )
 
-VRayMaterial.two_sided= BoolProperty(
+
+class Mtl2Sided(bpy.types.IDPropertyGroup):
+    pass
+
+VRayMaterial.Mtl2Sided= PointerProperty(
+	name= "Mtl2Sided",
+	type=  Mtl2Sided,
+	description= "V-Ray Mtl2Sided settings"
+)
+
+Mtl2Sided.use= BoolProperty(
 	name= "Two sided material",
 	description= "Simple \"Two sided\" material. Use nodes for advanced control.",
 	default= False
 )
 
-VRayMaterial.two_sided_translucency= FloatProperty(
-	name= "Two sided translucency",
+Mtl2Sided.back= StringProperty(
+	name= "Back material",
+	description= "Back material.",
+	default= ""
+)
+
+Mtl2Sided.translucency_tex= StringProperty(
+	name= "Back material",
+	description= "Back material.",
+	default= ""
+)
+
+Mtl2Sided.control= EnumProperty(
+	name= "Control",
+	description= "Translucency type.",
+	items= (
+		('SLIDER',  "Slider",  "."),
+		('COLOR',   "Color",   "."),
+		('TEXTURE', "Texture", ".")
+	),
+	default= 'SLIDER'
+)
+
+Mtl2Sided.translucency_tex_mult= FloatProperty(
+	name= "Translucency texture multiplier",
+	description= "Translucency texture multiplier.",
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	precision= 3,
+	default= 1.0
+)
+
+Mtl2Sided.translucency_color= FloatVectorProperty(
+	name= "Translucency color",
+	description= "Translucency between front and back.",
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.5,0.5,0.5)
+)
+
+Mtl2Sided.translucency_slider= FloatProperty(
+	name= "Translucency",
 	description= "Translucency between front and back.",
 	min= 0.0,
 	max= 1.0,
@@ -84,10 +139,13 @@ VRayMaterial.two_sided_translucency= FloatProperty(
 	default= 0.5
 )
 
+Mtl2Sided.force_1sided= BoolProperty(
+	name= "Force one-sided",
+	description= "Make the sub-materials one-sided.",
+	default= False
+)
 
-'''
-  BRDFVRayMtl
-'''
+
 class BRDFVRayMtl(bpy.types.IDPropertyGroup):
     pass
 
@@ -361,10 +419,10 @@ BRDFVRayMtl.anisotropy= FloatProperty(
 BRDFVRayMtl.anisotropy_rotation= FloatProperty(
 	name= "Rotation",
 	description= "Anisotropy rotation",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
+	min= -180.0,
+	max= 180.0,
+	soft_min= -180.0,
+	soft_max= 180.0,
 	default= 0.0
 )
 
@@ -1706,21 +1764,6 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 				layout.prop(vray, 'type')
 
 
-# class MATERIAL_PT_VRAY_preview(MaterialButtonsPanel, bpy.types.Panel):
-# 	bl_label = "Preview"
-#	bl_options = {'DEFAULT_CLOSED'}
-# 	bl_show_header = True
-
-# 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-# 	@classmethod
-# 	def poll(cls, context):
-# 		return base_poll(__class__, context)
-
-# 	def draw(self, context):
-# 		self.layout.template_preview(context.material)
-
-
 class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Parameters"
 	#bl_options = {'HIDE_HEADER'}
@@ -1818,16 +1861,6 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 					col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
 					col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
 					col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.prop(vma, 'two_sided')
-			if vma.two_sided:
-				if wide_ui:
-					col= split.column()
-				col.prop(vma, 'two_sided_translucency', slider=True, text="Translucency")
 
 		elif vma.type == 'EMIT':
 			row= layout.row()
@@ -2099,6 +2132,68 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(BRDFVRayMtl, 'environment_priority')
+
+
+class VRAY_MAT_two_sided(MaterialButtonsPanel, bpy.types.Panel):
+	bl_label   = "Two-Sided"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		vma= active_ma.vray
+		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+
+	def draw_header(self, context):
+		ma= active_node_mat(context.material)
+		Mtl2Sided= ma.vray.Mtl2Sided
+		self.layout.prop(Mtl2Sided, 'use', text="")
+
+	def draw(self, context):
+		layout= self.layout
+
+		wide_ui= context.region.width > 200
+
+		ma= active_node_mat(context.material)
+
+		Mtl2Sided= ma.vray.Mtl2Sided
+		
+		layout.active= Mtl2Sided.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop_search(Mtl2Sided, 'back', bpy.data, 'materials', text= "Back material")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(Mtl2Sided, 'control')
+
+		if Mtl2Sided.control == 'SLIDER':
+			split= layout.split()
+			col= split.column()
+			col.prop(Mtl2Sided, 'translucency_slider', slider=True)
+		elif Mtl2Sided.control == 'COLOR':
+			split= layout.split()
+			col= split.column()
+			col.prop(Mtl2Sided, 'translucency_color', text="")
+		else:
+			split= layout.split(percentage=0.3)
+			col= split.row()
+			col.prop(Mtl2Sided, 'translucency_tex_mult', text="Mult")
+			col= split.row()
+			col.prop_search(Mtl2Sided, 'translucency_tex', bpy.data, 'textures', text= "")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(Mtl2Sided, 'force_1sided')
 
 
 class MATERIAL_PT_VRAY_override(MaterialButtonsPanel, bpy.types.Panel):
