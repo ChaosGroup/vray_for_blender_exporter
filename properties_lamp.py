@@ -67,6 +67,26 @@ VRayLamp.units= EnumProperty(
 	default= 'DEFAULT'
 )
 
+VRayLamp.include_exclude= EnumProperty(
+	name= "Type",
+	description= "Include or exclude object from lightning.",
+	items= (
+		('EXCLUDE',"Exclude",""),
+		('INCLUDE',"Include",""),
+	),
+	default= 'EXCLUDE'
+)
+
+VRayLamp.include_objects= StringProperty(
+	name= "Include objects",
+	description= "Include objects."
+)
+
+VRayLamp.include_groups= StringProperty(
+	name= "Include groups",
+	description= "Include groups."
+)
+
 VRayLamp.beamRadius= FloatProperty(
 	name= "Beam radius",
 	description= "Beam radius, 0.0 if the light has no beam radius.",
@@ -458,13 +478,13 @@ def base_poll(cls, context):
 	return (context.lamp) and (rd.engine in cls.COMPAT_ENGINES)
 
 
-class DataButtonsPanel():
+class VRayDataPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
 
-class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_context_lamp(VRayDataPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
 
@@ -502,7 +522,7 @@ class DATA_PT_context_lamp(DataButtonsPanel, bpy.types.Panel):
 			layout.prop(lamp, 'type')
 
 
-class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -551,7 +571,7 @@ class DATA_PT_vray_light(DataButtonsPanel, bpy.types.Panel):
 			col.prop(vl,'storeWithIrradianceMap')
 
 
-class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Shape"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -627,7 +647,7 @@ class DATA_PT_vray_light_shape(DataButtonsPanel, bpy.types.Panel):
 			pass
 
 
-class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_vray_light_shadows(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Shadows"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -676,7 +696,7 @@ class DATA_PT_vray_light_shadows(DataButtonsPanel, bpy.types.Panel):
 			pass
 
 
-class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_vray_light_advanced(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Advanced"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -719,3 +739,27 @@ class DATA_PT_vray_light_advanced(DataButtonsPanel, bpy.types.Panel):
 			pass
 		else:
 			pass
+
+
+class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Include / Exclude"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		VRayLamp= context.lamp.vray
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayLamp, 'include_exclude', text="")
+		col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="Objects")
+		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
+

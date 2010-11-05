@@ -1908,13 +1908,43 @@ def write_LightMesh(ofile, ob, params, name, geometry, matrix):
 	ofile.write("\n}\n")
 
 
-def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix):
+def generate_object_list(object_names_string, group_names_string= None):
+	object_list= []
+
+	ob_names= object_names_string.split(';')
+	for ob_name in ob_names:
+		if ob_name in bpy.data.objects:
+			object_list.append(bpy.data.objects[ob_name])
+
+	if group_names_string:
+		gr_names= group_names_string.split(';')
+		if gr_name in bpy.data.groups:
+			object_list.extend(bpy.data.groups[gr_name].objects)
+
+	return object_list
+
+
+def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix, ob):
+	lights= []
+	for lamp in bpy.data.lamps:
+		VRayLamp= lamp.vray
+		object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
+		lamp_name= get_name(lamp,"Light")
+		if VRayLamp.include_exclude == 'INCLUDE':
+			if ob in object_list:
+				lights.append(lamp_name)
+		else:
+			if ob not in object_list:
+				lights.append(lamp_name)
+	
 	ofile.write("\nNode %s {"%(name))
 	ofile.write("\n\tobjectID= %d;"%(object_id))
 	ofile.write("\n\tgeometry= %s;"%(geometry))
 	ofile.write("\n\tmaterial= %s;"%(material))
 	ofile.write("\n\tvisible= %s;"%(a(sce,visibility)))
 	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
+	if len(lights):
+		ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
 	ofile.write("\n}\n")
 
 
@@ -2051,9 +2081,9 @@ def write_object(ob, params, add_params= None):
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
 			if ps.settings.use_render_emitter:
-				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
+				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
 	else:
-		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix)
+		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
 
 
 def write_environment(ofile, volumes= None):
@@ -2157,7 +2187,7 @@ def write_lamp(ob, params, add_params= None):
 	vl= lamp.vray
 
 	lamp_type= None
-	lamp_name= ob.name
+	lamp_name= get_name(ob,"Light")
 	lamp_matrix= ob.matrix_world
 
 	if add_params is not None:
@@ -2188,7 +2218,7 @@ def write_lamp(ob, params, add_params= None):
 	else:
 		return
 
-	ofile.write("\n%s %s_%s {"%(lamp_type,lamp_type,clean_string(lamp_name)))
+	ofile.write("\n%s %s {"%(lamp_type,lamp_name))
 
 	if lamp_type == 'SunLight':
 		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[vl.sky_model]))
@@ -2607,7 +2637,7 @@ def write_scene(sce, bake= False):
 						hair_node_name= "%s_%s" % (ob.name,hair_geom_name)
 
 						write_GeomMayaHair(params['files']['nodes'],ob,ps,hair_geom_name)
-						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world)
+						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world, ob)
 				else:
 					particle_objects= []
 					if ps.settings.render_type == 'OBJECT':

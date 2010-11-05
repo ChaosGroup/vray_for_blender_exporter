@@ -387,7 +387,7 @@ VRaySlot.BRDFBump= PointerProperty(
 )
 
 BRDFBump.map_type= EnumProperty(
-	name= "Map Type",
+	name= "Map type",
 	description= "Normal map type.",
 	items= (
 		('EXPLICIT', "Normal (explicit)", "."),
@@ -401,13 +401,13 @@ BRDFBump.map_type= EnumProperty(
 )
 
 BRDFBump.bump_shadows= BoolProperty(
-	name= "Bump Shadows",
+	name= "Bump shadows",
 	description= "Offset the surface shading point, in addition to the normal.",
 	default= False
 )
 
 BRDFBump.compute_bump_for_shadows= BoolProperty(
-	name= "Transparent Bump Shadows",
+	name= "Transparent bump shadows",
 	description= "True to compute bump mapping for shadow rays in case the material is transparent; false to skip the bump map for shadow rays (faster rendering).",
 	default= True
 )
