@@ -35,6 +35,68 @@ from bpy.props import *
 from vb25.utils import *
 
 
+class VRayImage(bpy.types.IDPropertyGroup):
+	pass
+
+bpy.types.Image.vray= PointerProperty(
+	name= "V-Ray Image Settings",
+	type=  VRayImage,
+	description= "V-Ray image settings."
+)
+
+class BitmapBuffer(bpy.types.IDPropertyGroup):
+	pass
+
+VRayImage.BitmapBuffer= PointerProperty(
+	name= "BitmapBuffer",
+	type=  BitmapBuffer,
+	description= "BitmapBuffer settings."
+)
+
+BitmapBuffer.filter_type= EnumProperty(
+	name= "Filter type",
+	description= "Filter type.",
+	items= (
+		('NONE',   "None",        "."),
+		('MIPMAP', "Mip-Map",     "."),
+		('AREA',   "Summed Area", ".")
+	),
+	default= 'MIPMAP'
+)
+
+BitmapBuffer.filter_blur= FloatProperty(
+	name= "Blur",
+	description= "Filter blur.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	default= 1.0
+)
+
+BitmapBuffer.gamma= FloatProperty(
+	name= "Gamma",
+	description= "Gamma.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	default= 1.0
+)
+
+BitmapBuffer.allow_negative_colors= BoolProperty(
+	name= "Allow negative colors",
+	description= "If false negative colors will be clamped.",
+	default= False
+)
+
+BitmapBuffer.use_data_window= BoolProperty(
+	name= "Use data window",
+	description= "True to use the data window information in e.g. OpenEXR files.",
+	default= True
+)
+
+
 Slot= bpy.types.Texture
 
 class VRaySlot(bpy.types.IDPropertyGroup):
@@ -663,3 +725,37 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 						col= split.column()
 					col.prop(GeomDisplacedMesh, 'view_dep')
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
+
+
+class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
+	bl_label = "Image Settings"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		engine= context.scene.render.engine
+		return tex and ((tex.type == 'IMAGE' and tex.image) and (engine in cls.COMPAT_ENGINES))
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		texture_slot= context.texture_slot
+		tex= texture_slot.texture
+
+		BitmapBuffer= tex.image.vray.BitmapBuffer
+
+		split= layout.split()
+		col= split.column()
+		col.prop(BitmapBuffer, 'filter_type', text="Filter")
+		if BitmapBuffer.filter_type != 'NONE':
+			col.prop(BitmapBuffer, 'filter_blur')
+		if wide_ui:
+			col= split.column()
+		col.prop(BitmapBuffer, 'gamma')
+		col.prop(BitmapBuffer, 'allow_negative_colors')
+		col.prop(BitmapBuffer, 'use_data_window')
+		
+

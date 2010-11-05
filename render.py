@@ -1170,6 +1170,12 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 
 
 def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
+	FILTER_TYPE= {
+		'NONE':   0,
+		'MIPMAP': 1,
+		'AREA':   2
+	}
+	
 	filename= get_full_filepath(sce,tex.image.filepath)
 	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
@@ -1182,19 +1188,19 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 			return bitmap_name
 		exported_bitmaps.append(bitmap_name)
 
+	BitmapBuffer= tex.image.vray.BitmapBuffer
+
 	ofile.write("\nBitmapBuffer %s {"%(bitmap_name))
-	ofile.write("\n\tfile= %s;"%(a(sce,"\"%s\""%(filename))))
-	ofile.write("\n\tgamma= %.6f;"%(1.0))
+	ofile.write("\n\tfile= \"%s\";" % filename)
+	ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
 
-	filter_type= 0
-	if tex.use_interpolation:
-		if tex.filter_type == 'BOX':
-			filter_type= 1
-		else:
-			filter_type= 2
-	ofile.write("\n\tfilter_type= %d;"%(filter_type))
+	if tex.image.source == 'SEQUENCE':
+		ofile.write("\n\tframe_sequence= 1;")
+		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
+		ofile.write("\n\tframe_offset= %i;" % tex.image_user.frame_offset)
 
-	ofile.write("\n\tfilter_blur= %.3f;"%(tex.filter_size))
+	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
+	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
 	ofile.write("\n}\n")
 
 	return bitmap_name
@@ -2676,7 +2682,7 @@ def write_scene(sce, bake= False):
 
 		write_environment(params['files']['nodes']) # TEMP
 		write_camera(sce,params['files']['camera'],bake= bake)
-	
+
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE'):
 				continue
@@ -2704,6 +2710,11 @@ def write_scene(sce, bake= False):
 				sys.stdout.flush()
 
 			_write_object(ob, params)
+
+			# TODO: export rest materials (ones that could be used in Overrides etc)
+			# for ma in bpy.data.materials:
+			# 	if ma.use_fake_user:
+			# 		write_material(ma, params['filters'], [], files['materials'])
 
 		del params
 
