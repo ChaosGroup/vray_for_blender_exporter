@@ -1918,8 +1918,9 @@ def generate_object_list(object_names_string, group_names_string= None):
 
 	if group_names_string:
 		gr_names= group_names_string.split(';')
-		if gr_name in bpy.data.groups:
-			object_list.extend(bpy.data.groups[gr_name].objects)
+		for gr_name in gr_names:
+			if gr_name in bpy.data.groups:
+				object_list.extend(bpy.data.groups[gr_name].objects)
 
 	return object_list
 

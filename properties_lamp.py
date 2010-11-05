@@ -79,12 +79,12 @@ VRayLamp.include_exclude= EnumProperty(
 
 VRayLamp.include_objects= StringProperty(
 	name= "Include objects",
-	description= "Include objects."
+	description= "Include objects: name{;name;etc}."
 )
 
 VRayLamp.include_groups= StringProperty(
 	name= "Include groups",
-	description= "Include groups."
+	description= "Include groups: name{;name;etc}."
 )
 
 VRayLamp.beamRadius= FloatProperty(

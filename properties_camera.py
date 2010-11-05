@@ -785,6 +785,8 @@ class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
 			sub.prop_search(VRayCamera, 'everything_objects',  context.scene, 'objects')
 			sub.prop_search(VRayCamera, 'everything_groups',   bpy.data,      'groups')
 
+			layout.separator()
+
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayCamera, 'hide_from_camera',  text="From camera")
