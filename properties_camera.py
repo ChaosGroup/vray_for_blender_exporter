@@ -64,59 +64,54 @@ VRayCamera.hide_from_view= BoolProperty(
 	default= False
 )
 
-VRayCamera.hide_from_everything= BoolProperty(
+VRayCamera.hf_all= BoolProperty(
 	name= "Hide from everything",
 	description= "Hide objects completely.",
 	default= False
 )
 
-VRayCamera.everything_auto= BoolProperty(
+VRayCamera.hf_all_auto= BoolProperty(
 	name= "Hide from everything (automatic)",
-	description= "Create group with name \"hidefrom_<camera-name>\".",
+	description= "Create group with name \"hf_<camera-name>\".",
 	default= False
 )
 
-VRayCamera.everything_objects= StringProperty(
+VRayCamera.hf_all_objects= StringProperty(
 	name= "Objects",
 	description= "Objects to hide completely: name{;name;etc}",
 	default= ""
 )
 
-VRayCamera.everything_groups= StringProperty(
+VRayCamera.hf_all_groups= StringProperty(
 	name= "Groups",
 	description= "Groups to hide completely: name{;name;etc}",
 	default= ""
 )
 
-VRayCamera.hide_from_camera= BoolProperty(
-	name= "Hide from camera",
-	description= "Hide objects from camera.",
-	default= False
-)
+for key in ('camera','gi','reflect','refract','shadows'):
+	setattr(VRayCamera, 'hf_%s' % key, bpy.props.BoolProperty(
+		name= "Hide from %s" % key,
+		description= "Hide objects from %s." % key,
+		default= False)
+	)
 
-VRayCamera.hide_from_gi= BoolProperty(
-	name= "Hide from GI",
-	description= "Hide objects from GI.",
-	default= False
-)
+	setattr(VRayCamera, 'hf_%s_auto' % key, bpy.props.BoolProperty(
+		name= "Auto",
+		description= "Hide objects automaically from %s." % key,
+		default= False)
+	)
 
-VRayCamera.hide_from_reflect= BoolProperty(
-	name= "Hide from reflections",
-	description= "Hide objects from reflections.",
-	default= False
-)
+	setattr(VRayCamera, 'hf_%s_objects' % key, bpy.props.StringProperty(
+		name= "Objects",
+		description= "Objects to hide from %s." % key,
+		default= "")
+	)
 
-VRayCamera.hide_from_refract= BoolProperty(
-	name= "Hide from refractions",
-	description= "Hide objects from refractions.",
-	default= False
-)
-
-VRayCamera.hide_from_shadows= BoolProperty(
-	name= "Hide from shadows",
-	description= "Hide objects from shadows.",
-	default= False
-)
+	setattr(VRayCamera, 'hf_%s_groups' % key, bpy.props.StringProperty(
+		name= "Groups",
+		description= "Groups to hide from %s." % key,
+		default= "")
+	)
 
 
 '''
@@ -749,7 +744,7 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		col.prop(ca, 'dof_distance', text="Distance")
 
 
-class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
+class DATA_PT_hf_view(DataButtonsPanel, bpy.types.Panel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -775,34 +770,82 @@ class DATA_PT_hide_from_view(DataButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_everything', text="Completely")
-		if VRayCamera.hide_from_everything:
+		col.prop(VRayCamera, 'hf_all', text="Completely")
+		if VRayCamera.hf_all:
 			split= layout.split(percentage=0.2)
 			col= split.column()
-			col.prop(VRayCamera, 'everything_auto', text="Auto")
+			col.prop(VRayCamera, 'hf_all_auto', text="Auto")
 			sub= split.column()
-			sub.active= not VRayCamera.everything_auto
-			sub.prop_search(VRayCamera, 'everything_objects',  context.scene, 'objects')
-			sub.prop_search(VRayCamera, 'everything_groups',   bpy.data,      'groups')
+			sub.active= not VRayCamera.hf_all_auto
+			sub.prop_search(VRayCamera, 'hf_all_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_all_groups',   bpy.data,      'groups')
 
 			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_camera',  text="From camera")
+		col.prop(VRayCamera, 'hf_camera', text="From camera")
+		if VRayCamera.hf_camera:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(VRayCamera, 'hf_camera_auto', text="Auto")
+			sub= split.column()
+			sub.active= not VRayCamera.hf_camera_auto
+			sub.prop_search(VRayCamera, 'hf_camera_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_camera_groups',   bpy.data,      'groups')
+
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_gi',      text="From GI")
+		col.prop(VRayCamera, 'hf_gi', text="From GI")
+		if VRayCamera.hf_gi:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(VRayCamera, 'hf_gi_auto', text="Auto")
+			sub= split.column()
+			sub.active= not VRayCamera.hf_gi_auto
+			sub.prop_search(VRayCamera, 'hf_gi_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_gi_groups',   bpy.data,      'groups')
+
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_reflect', text="From reflections")
+		col.prop(VRayCamera, 'hf_reflect', text="From reflections")
+		if VRayCamera.hf_reflect:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(VRayCamera, 'hf_reflect_auto', text="Auto")
+			sub= split.column()
+			sub.active= not VRayCamera.hf_reflect_auto
+			sub.prop_search(VRayCamera, 'hf_reflect_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_reflect_groups',   bpy.data,      'groups')
+
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_refract', text="From refractions")
+		col.prop(VRayCamera, 'hf_refract', text="From refractions")
+		if VRayCamera.hf_refract:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(VRayCamera, 'hf_refract_auto', text="Auto")
+			sub= split.column()
+			sub.active= not VRayCamera.hf_refract_auto
+			sub.prop_search(VRayCamera, 'hf_refract_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_refract_groups',   bpy.data,      'groups')
+
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayCamera, 'hide_from_shadows', text="From shadows")
+		col.prop(VRayCamera, 'hf_shadows', text="From shadows")
+		if VRayCamera.hf_shadows:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.prop(VRayCamera, 'hf_shadows_auto', text="Auto")
+			sub= split.column()
+			sub.active= not VRayCamera.hf_shadows_auto
+			sub.prop_search(VRayCamera, 'hf_shadows_objects',  context.scene, 'objects')
+			sub.prop_search(VRayCamera, 'hf_shadows_groups',   bpy.data,      'groups')
