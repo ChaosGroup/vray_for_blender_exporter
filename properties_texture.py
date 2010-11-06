@@ -61,7 +61,7 @@ BitmapBuffer.filter_type= EnumProperty(
 		('MIPMAP', "Mip-Map",     "."),
 		('AREA',   "Summed Area", ".")
 	),
-	default= 'MIPMAP'
+	default= 'AREA'
 )
 
 BitmapBuffer.filter_blur= FloatProperty(

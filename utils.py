@@ -181,14 +181,19 @@ def vb_script_path():
 	return ''
 
 def vb_binary_path(sce):
-	VRayExporter= sce.vray.exporter
-	if not VRayExporter.detect_vray and VRayExporter.vray_binary != "":
-		return bpy.path.abspath(VRayExporter.vray_binary)
-	
 	vray_bin= 'vray'
 	if(PLATFORM == "win32"):
 		vray_bin= 'vray.exe'
 	vray_path= vray_bin
+
+	VRayExporter= sce.vray.exporter
+	if not VRayExporter.detect_vray:
+		if VRayExporter.vray_binary == "":
+			debug(sce,"V-Ray binary is not set!")
+			return vray_bin
+		else:
+			return bpy.path.abspath(VRayExporter.vray_binary)
+	
 	vray_env_path= os.getenv('VRAY_PATH')
 
 	if vray_env_path is None:

@@ -1908,13 +1908,14 @@ def write_LightMesh(ofile, ob, params, name, geometry, matrix):
 	ofile.write("\n}\n")
 
 
-def generate_object_list(object_names_string, group_names_string= None):
+def generate_object_list(object_names_string= None, group_names_string= None):
 	object_list= []
 
-	ob_names= object_names_string.split(';')
-	for ob_name in ob_names:
-		if ob_name in bpy.data.objects:
-			object_list.append(bpy.data.objects[ob_name])
+	if object_names_string:
+		ob_names= object_names_string.split(';')
+		for ob_name in ob_names:
+			if ob_name in bpy.data.objects:
+				object_list.append(bpy.data.objects[ob_name])
 
 	if group_names_string:
 		gr_names= group_names_string.split(';')
@@ -1927,8 +1928,9 @@ def generate_object_list(object_names_string, group_names_string= None):
 
 def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix, ob):
 	lights= []
-	for lamp in bpy.data.lamps:
-		VRayLamp= lamp.vray
+	lamp_list= [ob for ob in sce.objects if ob.type == 'LAMP']
+	for lamp in lamp_list:
+		VRayLamp= lamp.data.vray
 		object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
 		lamp_name= get_name(lamp,"Light")
 		if VRayLamp.include_exclude == 'INCLUDE':
@@ -1937,7 +1939,7 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 		else:
 			if ob not in object_list:
 				lights.append(lamp_name)
-	
+
 	ofile.write("\nNode %s {"%(name))
 	ofile.write("\n\tobjectID= %d;"%(object_id))
 	ofile.write("\n\tgeometry= %s;"%(geometry))
@@ -1948,6 +1950,38 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 		ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
 	ofile.write("\n}\n")
 
+
+def visible_from_view(object, ca):
+	visibility=	{
+		'all':     True,
+		'gi':      True,
+		'reflect': True,
+		'refract': True,
+		'shadows': True
+	}
+
+	VRayCamera= ca.data.vray
+
+	if VRayCamera.hide_from_view:
+		for hide_type in visibility:
+			if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
+				if ob in generate_object_list(group_names_string= 'hf_%s' % ca.name):
+					visibility[hide_type]= False
+			else:
+				if ob in generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type)):
+					visibility[hide_type]= False
+
+	return visibility
+
+# ofile.write("\nMtlRenderStats HideFromView_%s {"%(complex_material[-1]))
+# ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+# ofile.write("\n\tvisibility= %s;" % visibility['all'])
+# ofile.write("\n\tcamera_visibility= %s;" % visibility['camera'])
+# ofile.write("\n\tgi_visibility= %s;" % visibility['gi'])
+# ofile.write("\n\treflections_visibility= %s;" % visibility['reflect'])
+# ofile.write("\n\trefractions_visibility= %s;" % visibility['refract'])
+# ofile.write("\n\tshadows_visibility= %s;" % visibility['shadows'])
+# ofile.write("\n}\n")
 
 def write_object(ob, params, add_params= None):
 	props= {
@@ -2552,7 +2586,8 @@ def write_scene(sce, bake= False):
 	VRayExporter= VRayScene.exporter
 
 	ca= sce.camera
-	vc= ca.data.vray.SettingsCamera
+	VRayCamera= ca.data.vray
+	vc= VRayCamera.SettingsCamera
 
 	files= {
 		'lamps':     open(get_filenames(sce,'lights'), 'w'),
@@ -2593,36 +2628,6 @@ def write_scene(sce, bake= False):
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
-
-	# ca= sce.camera
-	# VRayCamera= ca.data.vray
-
-	# if VRayCamera.hide_from_view:
-	# 	if VRayCamera.hide_from_everything:
-	# 		if VRayCamera.everything_auto:
-	# 			auto_group= 'hidefrom_%s' % ca.name
-	# 			try:
-	# 				for group_ob in bpy.data.groups[auto_group].objects:
-	# 					HIDE_FROM_VIEW.append(group_ob.name)
-	# 			except:
-	# 				debug(sce,"Group \"%s\" doesn\'t exist" % auto_group)
-	# 		else:
-	# 			HIDE_FROM_VIEW= VRayCamera.everything_objects.split(';')
-	# 			for gr in VRayCamera.everything_groups.split(';'):
-	# 				try:
-	# 					for group_ob in bpy.data.groups[gr].objects:
-	# 						HIDE_FROM_VIEW.append(group_ob.name)
-	# 				except:
-	# 					debug(sce,"Group \"%s\" doesn\'t exist" % gr)
-	# 			debug(sce,"Hide from view \"%s\": %s" % (ca.name,HIDE_FROM_VIEW))
-	# 	else:
-	# 		pass
-	# for ob in OBJECTS:
-	# 	visible= True
-	# 	if VRayCamera.hide_from_view:
-	# 		if VRayCamera.hide_from_everything:
-	# 			if ob.name in HIDE_FROM_VIEW:
-	# 				visible= False
 
 	def _write_object_particles(ob, params, add_params= None):
 		if len(ob.particle_systems):
