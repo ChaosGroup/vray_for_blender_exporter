@@ -142,7 +142,7 @@ Mtl2Sided.translucency_slider= FloatProperty(
 Mtl2Sided.force_1sided= BoolProperty(
 	name= "Force one-sided",
 	description= "Make the sub-materials one-sided.",
-	default= False
+	default= True
 )
 
 
@@ -556,6 +556,17 @@ BRDFVRayMtl.translucency_light_mult= FloatProperty(
 	soft_max= 1.0,
 	precision= 3,
 	default= 1
+)
+
+BRDFVRayMtl.translucency_thickness= FloatProperty(
+	name= "Translucency thickness",
+	description= "Maximum distance to trace inside the object.",
+	min= 0.0,
+	max= 100000.0,
+	soft_min= 0.0,
+	soft_max= 10000.0,
+	precision= 3,
+	default= 1000.0
 )
 
 BRDFVRayMtl.translucency_scatter_dir= FloatProperty(
