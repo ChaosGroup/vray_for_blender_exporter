@@ -67,6 +67,12 @@ VRayLamp.units= EnumProperty(
 	default= 'DEFAULT'
 )
 
+VRayLamp.use_include_exclude= BoolProperty(
+	name= "Use Include / Exclude",
+	description= "Use Include / Exclude.",
+	default= False
+)
+
 VRayLamp.include_exclude= EnumProperty(
 	name= "Type",
 	description= "Include or exclude object from lightning.",
@@ -751,11 +757,17 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 	def poll(cls, context):
 		return base_poll(__class__, context)
 
+	def draw_header(self, context):
+		VRayLamp= context.lamp.vray
+		self.layout.prop(VRayLamp, 'use_include_exclude', text="")
+
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		VRayLamp= context.lamp.vray
+
+		layout.active= VRayLamp.use_include_exclude
 
 		split= layout.split()
 		col= split.column()

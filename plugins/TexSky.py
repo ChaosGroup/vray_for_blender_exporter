@@ -136,6 +136,12 @@ def add_properties(VRayTexture):
 		default= False
 	)
 
+	TexSky.sun= StringProperty(
+		name= "Sun",
+		description= "Sun lamp.",
+		default= ""
+	)
+
 	TexSky.horiz_illum= FloatProperty(
 		name= "Horiz illumination",
 		description= "TODO.",
@@ -178,8 +184,12 @@ def write(ofile, sce, tex, name= None):
 		for ob in sce.objects:
 			if ob.type == 'LAMP':
 				if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
-					sun_light= "SunLight_%s" % clean_string(ob.name)
+					sun_light= get_name(ob,"Light")
 					break
+	else:
+		if vtex.sun:
+			if vtex.sun in bpy.data.objects:
+				sun_light= get_name(bpy.data.objects[vtex.sun],"Light")
 
 	# Write output
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
@@ -187,10 +197,10 @@ def write(ofile, sce, tex, name= None):
 		if param == 'sky_model':
 			ofile.write("\n\t%s= %s;"%(param, SKY_MODEL[vtex.sky_model]))
 		elif param == 'sun':
-			if(sun_light):
+			if sun_light:
 				ofile.write("\n\t%s= %s;"%(param, sun_light))
 			else:
-				ofile.write("\n\tsun= NULL;")
+				continue
 		elif param == 'auto':
 			pass
 		else:
@@ -243,8 +253,8 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		split.active= not vtex.auto
 		col= split.column()
 		col.prop(vtex, 'sky_model')
-		# if not vvtex.auto:
-		# 	col.prop(vtex, 'sun')
+		if not vtex.auto:
+			col.prop_search(vtex, 'sun', context.scene, 'objects')
 
 		split= layout.split()
 		split.active= not vtex.auto

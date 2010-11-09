@@ -236,7 +236,7 @@ OBJECT_PARAMS= {
 		'translucency_light_mult',
 		'translucency_scatter_dir',
 		'translucency_scatter_coeff',
-		# 'translucency_thickness',
+		'translucency_thickness',
 		'option_double_sided',
 		'option_reflect_on_back',
 		'option_glossy_rays_as_gi',
@@ -769,6 +769,98 @@ LC_MODE= {
 '''
   MESHES
 '''
+def write_mesh_hq(hq_file, sce, ob):
+	ofile= open(hq_file, 'w')
+
+	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)...\r" % hq_file)
+
+	me= ob.create_mesh(sce, True, 'RENDER')
+
+	for v in me.vertices:
+		ofile.write("v= %.6f,%.6f,%.6f\n" % tuple(v.co))
+
+	for f in me.faces:
+		if len(f.vertices) == 4:
+			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
+			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[2], f.vertices[3], f.vertices[0], f.material_index + 1))
+		else:
+			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
+
+	for f in me.faces:
+		if len(f.vertices) == 4:
+			vertices= (0,1,2,2,3,0)
+		else:
+			vertices= (0,1,2)
+
+		for v in vertices:
+			if f.use_smooth:
+				ofile.write("vn= %.6f,%.6f,%.6f\n" % tuple(me.vertices[f.vertices[v]].normal))
+			else:
+				ofile.write("vn= %.6f,%.6f,%.6f\n" % tuple(f.normal))
+
+	k= 0
+	for f in me.faces:
+		if len(f.vertices) == 4:
+			vertices= 6
+		else:
+			vertices= 3
+
+		ofile.write("fn= ")
+		for v in range(vertices):
+			ofile.write("%d"%(k))
+			if v == 2:
+				ofile.write("\nfn= ")
+			elif v != 5:
+				ofile.write(",")
+			k+= 1
+		ofile.write("\n")
+
+	if len(me.uv_textures):
+		uv_texture_idx= 1
+		uv_texture= me.uv_textures[0]
+
+		for f in range(len(uv_texture.data)):
+			face= uv_texture.data[f]
+			for i in range(len(face.uv)):
+				ofile.write("uv= %.6f,%.6f,0.0f\n" % (face.uv[i][0],face.uv[i][1]))
+
+		u = -1
+		u0= -1
+		for f in range(len(uv_texture.data)):
+			face= uv_texture.data[f]
+
+			vertices= 3
+			if len(face.uv) == 4:
+				vertices= 6
+				u= u0
+			else:
+				if len(uv_texture.data[f-1].uv) == 4:
+					u= u0
+
+			ofile.write("uf= ")
+			for i in range(vertices):
+				if vertices == 6:
+					if i == 5:
+						u0= u
+						u-= 4
+					if i != 3:
+						u+= 1
+				else:
+					u+= 1
+					u0= u
+				ofile.write("%d"%(u))
+				if i == 2:
+					ofile.write("\nuf= ")
+				elif i != 5:
+					ofile.write(",")
+			ofile.write("\n")
+
+	ofile.close()
+	
+	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s) done.\n" % hq_file)
+	sys.stdout.flush()
+
+
 def write_geometry(sce, geometry_file):
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
@@ -849,10 +941,10 @@ def write_geometry(sce, geometry_file):
 					ofile.write(",")
 				if len(f.vertices) == 4:
 					ofile.write("%d,%d"%(
-						f.material_index, f.material_index))
+						f.material_index + 1, f.material_index + 1))
 				else:
 					ofile.write("%d"%(
-						f.material_index))
+						f.material_index + 1))
 			ofile.write(");")
 
 			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
@@ -1113,7 +1205,7 @@ def write_multi_material(ofile, ob):
 			ma_name= get_name(slot.material, 'Material')
 			
 		mtls_list.append(ma_name)
-		ids_list.append(str(i))
+		ids_list.append(str(i + 1))
 
 	ofile.write("\nMtlMulti %s {"%(mtl_name))
 	ofile.write("\n\tmtls_list= List(%s);"%(','.join(mtls_list)))
@@ -1576,6 +1668,8 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 		if param not in ('refract','opacity','diffuse','reflect','reflect_glossiness','hilight_glossiness','refract'):
 			if param == 'translucency':
 				value= TRANSLUCENSY[BRDFVRayMtl.translucency]
+			elif param == 'translucency_thickness':
+				value= BRDFVRayMtl.translucency_thickness * 1000000000000
 			elif param == 'option_glossy_rays_as_gi':
 				value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
 			elif param == 'option_energy_mode':
@@ -1931,14 +2025,17 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 	lamp_list= [ob for ob in sce.objects if ob.type == 'LAMP']
 	for lamp in lamp_list:
 		VRayLamp= lamp.data.vray
-		object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
-		lamp_name= get_name(lamp,"Light")
-		if VRayLamp.include_exclude == 'INCLUDE':
-			if ob in object_list:
-				lights.append(lamp_name)
+		lamp_name= get_name(lamp.data,"Light")
+		if VRayLamp.use_include_exclude:
+			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
+			if VRayLamp.include_exclude == 'INCLUDE':
+				if ob in object_list:
+					lights.append(lamp_name)
+			else:
+				if ob not in object_list:
+					lights.append(lamp_name)
 		else:
-			if ob not in object_list:
-				lights.append(lamp_name)
+			lights.append(lamp_name)
 
 	ofile.write("\nNode %s {"%(name))
 	ofile.write("\n\tobjectID= %d;"%(object_id))
@@ -2803,7 +2900,12 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 	bl_description = "Creates proxy from selection."
 
 	def invoke(self, context, event):
-		print("V-Ray/Blender: Proxy Creator is in progress...")
+		hq_file= "/tmp/ob.hq"
+		proxy_file= "/tmp/ob.vrmesh"
+			
+		write_mesh_hq(hq_file, context.scene, context.object)
+
+		os.system("proxy_converter %s %s" % (hq_file,proxy_file))
 
 		return{'FINISHED'}
 

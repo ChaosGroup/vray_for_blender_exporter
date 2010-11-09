@@ -547,7 +547,7 @@ VRayExporter.use_material_nodes= BoolProperty(
 VRayExporter.mesh_active_layers= BoolProperty(
 	name= "Export meshes from active layers",
 	description= "Export meshes from active layers only.",
-	default= False
+	default= True
 )
 
 VRayExporter.use_displace= BoolProperty(

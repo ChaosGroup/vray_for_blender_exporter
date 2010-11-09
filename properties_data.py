@@ -197,17 +197,19 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 
 		wide_ui= context.region.width > narrowui
 
-		layout.active= ob.use
 
 		split= layout.split()
+		split.active= ob.use
 		col= split.column()
 		col.prop(ob, 'file')
 
 		split= layout.split()
+		split.active= ob.use
 		col= split.column()
 		col.prop(ob, 'anim_type')
 
 		split= layout.split()
+		split.active= ob.use
 		col= split.column()
 		col.prop(ob, 'anim_speed')
 		if wide_ui:
@@ -218,7 +220,6 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.label(text="Proxy generation:")
 		split= layout.split()
-		split.active= False
 		col= split.column()
 		col.operator('vray_create_proxy')
 		if wide_ui:
@@ -226,7 +227,6 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		col.operator('vray_replace_with_proxy', text="Replace with proxy")
 
 		split= layout.split()
-		split.active= False
 		col= split.column()
 		col.prop(ob, 'apply_transforms')
 		if wide_ui:
