@@ -740,8 +740,8 @@ IM_MODE= {
 
 INT_MODE= {
 	"VORONOI":   0,
-	"DELONE":    1,
-	"LEAST":     2,
+	"LEAST":     1,
+	"DELONE":    2,
 	"WEIGHTED":  3
 }
 
@@ -764,12 +764,93 @@ LC_MODE= {
 	"PPT":     3
 }
 
+PyVRay_dir= os.path.join(vb_script_path(), "modules")
+if os.path.exists(PyVRay_dir) and not PyVRay_dir in sys.path:
+	sys.path.append(PyVRay_dir)
+
+PyVRay= None
+try:
+	import VRayProxy
+	PyVRay= True
+except:
+	PyVRay= False
+
 
 
 '''
   MESHES
 '''
+def generate_proxy(sce, ob):
+	timer= time.clock()
+
+	me= ob.create_mesh(sce, True, 'RENDER')
+
+	if PyVRay:
+		vp= VRayProxy.VRayProxy()
+	else:
+		print("V-Ray/Blender: PyVRay not found!")
+		return
+
+	for v in me.vertices:
+		vp.add_vertex(v.co[0],v.co[1],v.co[2])
+
+	k= 0
+	for f in me.faces:
+		if len(f.vertices) == 4:
+			vp.add_face(f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1)
+			vp.add_face(f.vertices[2], f.vertices[3], f.vertices[0], f.material_index + 1)
+		else:
+			vp.add_face(f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1)
+
+		if len(f.vertices) == 4:
+			vertices= (0,1,2,2,3,0)
+			vert_count= 6
+		else:
+			vertices= (0,1,2)
+			vert_count= 3
+
+		for v in vertices:
+			normal= f.normal
+			if f.use_smooth:
+				normal= me.vertices[f.vertices[v]].normal
+			vp.add_normal(normal[0], normal[1], normal[2])
+
+		if len(f.vertices) == 4:
+			vp.add_face_normal(k, k+1, k+2)
+			vp.add_face_normal(k+3, k+4, k+5)
+			k+= 6
+		else:
+			vp.add_face_normal(k, k+1, k+2)
+			k+= 4
+
+	if len(me.uv_textures):
+		uv_texture= me.uv_textures[0]
+		uv_texture_idx= 1
+
+		k= 0
+		for f in range(len(uv_texture.data)):
+			face= uv_texture.data[f]
+
+			for i in range(len(face.uv)):
+				vp.add_uv(face.uv[i][0], face.uv[i][1], 0.0)
+
+			if len(face.uv) == 4:
+				vp.add_uv_face(k,k+1,k+2)
+				vp.add_uv_face(k+2,k+3,k)
+				k+= 4
+			else:
+				vb.add_uv_face(k,k+1,k+2)
+				k+= 3
+
+	vp.update_data()
+	vp.generate_proxy()
+
+	sys.stdout.write("Done [%.2f]\n" % (time.clock() - timer))
+
+
 def write_mesh_hq(hq_file, sce, ob):
+	timer= time.clock()
+
 	ofile= open(hq_file, 'w')
 
 	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)...\r" % hq_file)
@@ -779,6 +860,7 @@ def write_mesh_hq(hq_file, sce, ob):
 	for v in me.vertices:
 		ofile.write("v= %.6f,%.6f,%.6f\n" % tuple(v.co))
 
+	k= 0
 	for f in me.faces:
 		if len(f.vertices) == 4:
 			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
@@ -786,11 +868,12 @@ def write_mesh_hq(hq_file, sce, ob):
 		else:
 			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
 
-	for f in me.faces:
 		if len(f.vertices) == 4:
 			vertices= (0,1,2,2,3,0)
+			vert_count= 6
 		else:
 			vertices= (0,1,2)
+			vert_count= 3
 
 		for v in vertices:
 			if f.use_smooth:
@@ -798,15 +881,8 @@ def write_mesh_hq(hq_file, sce, ob):
 			else:
 				ofile.write("vn= %.6f,%.6f,%.6f\n" % tuple(f.normal))
 
-	k= 0
-	for f in me.faces:
-		if len(f.vertices) == 4:
-			vertices= 6
-		else:
-			vertices= 3
-
 		ofile.write("fn= ")
-		for v in range(vertices):
+		for v in range(vert_count):
 			ofile.write("%d"%(k))
 			if v == 2:
 				ofile.write("\nfn= ")
@@ -815,49 +891,29 @@ def write_mesh_hq(hq_file, sce, ob):
 			k+= 1
 		ofile.write("\n")
 
+	k= 0
 	if len(me.uv_textures):
 		uv_texture_idx= 1
 		uv_texture= me.uv_textures[0]
 
 		for f in range(len(uv_texture.data)):
 			face= uv_texture.data[f]
-			for i in range(len(face.uv)):
-				ofile.write("uv= %.6f,%.6f,0.0f\n" % (face.uv[i][0],face.uv[i][1]))
-
-		u = -1
-		u0= -1
-		for f in range(len(uv_texture.data)):
-			face= uv_texture.data[f]
-
-			vertices= 3
+			
 			if len(face.uv) == 4:
-				vertices= 6
-				u= u0
+				ofile.write("uf= %i,%i,%i\n" % (k,k+1,k+2))
+				ofile.write("uf= %i,%i,%i\n" % (k+2,k+3,k))
+				k+= 4
 			else:
-				if len(uv_texture.data[f-1].uv) == 4:
-					u= u0
-
-			ofile.write("uf= ")
-			for i in range(vertices):
-				if vertices == 6:
-					if i == 5:
-						u0= u
-						u-= 4
-					if i != 3:
-						u+= 1
-				else:
-					u+= 1
-					u0= u
-				ofile.write("%d"%(u))
-				if i == 2:
-					ofile.write("\nuf= ")
-				elif i != 5:
-					ofile.write(",")
-			ofile.write("\n")
+				ofile.write("uf= %i,%i,%i\n" % (k,k+1,k+2))
+				k+= 3
+		
+			for i in range(len(face.uv)):
+				ofile.write("uv= %.6f,%.6f,0.0\n" % (face.uv[i][0],face.uv[i][1]))
 
 	ofile.close()
 	
-	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s) done.\n" % hq_file)
+	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)..." % hq_file)
+	sys.stdout.write("done [%.2f]\n" % (time.clock() - timer))
 	sys.stdout.flush()
 
 
@@ -1016,49 +1072,29 @@ def write_geometry(sce, geometry_file):
 						for i in range(len(face.uv)):
 							if i:
 								ofile.write(",")
-
 							ofile.write("Vector(%.6f,%.6f,0.0)"%(
 								face.uv[i][0],
 								face.uv[i][1]
 							))
 
 					ofile.write("),ListInt(")
-					u = -1
-					u0= -1
+
+					k= 0
 					for f in range(len(uv_texture.data)):
 						if f:
 							ofile.write(",")
 
 						face= uv_texture.data[f]
 
-						vertices= 3
 						if len(face.uv) == 4:
-							vertices= 6
-							u= u0
+							ofile.write("%i,%i,%i,%i,%i,%i" % (k,k+1,k+2,k+2,k+3,k))
+							k+= 4
 						else:
-							if len(uv_texture.data[f-1].uv) == 4:
-								u= u0
-
-						for i in range(vertices):
-							if i:
-								ofile.write(",")
-
-							if vertices == 6:
-								if i == 5:
-									u0= u
-									u-= 4
-								if i != 3:
-									u+= 1
-							else:
-								u+= 1
-								u0= u
-
-							ofile.write("%d"%(u))
-
+							ofile.write("%i,%i,%i" % (k,k+1,k+2))
+							k+= 3
 					ofile.write("))")
-
+					
 				ofile.write(");")
-
 			ofile.write("\n}\n")
 
 		ofile= open(geometry_file, 'w')
@@ -2022,10 +2058,9 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 
 def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix, ob):
 	lights= []
-	lamp_list= [ob for ob in sce.objects if ob.type == 'LAMP']
-	for lamp in lamp_list:
+	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
-		lamp_name= get_name(lamp.data,"Light")
+		lamp_name= get_name(lamp,"Light")
 		if VRayLamp.use_include_exclude:
 			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
 			if VRayLamp.include_exclude == 'INCLUDE':
@@ -2129,18 +2164,16 @@ def write_object(ob, params, add_params= None):
 	node_name= get_name(ob,"Node",dupli_name= props['dupli_name'])
 
 	ma_name= "Material_no_material"
-	if props['material'] is not None:
+
+	# Don't override proxy material, if proxy has multi-material
+	if props['material'] is not None and not (hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use):
 		ma_name= props['material']
 	else:
 		ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 
 	node_geometry= get_name(ob.data,"Geom")
-	if hasattr(VRayData,'GeomMeshFile'):
-		if VRayData.GeomMeshFile.use:
-			# Don't override proxy material if proxy has multi-material
-			if len(ob.material_slots) > 1:
-				ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
-			node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
+	if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
+		node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
 
 	if object_params['displace']['texture'] is not None:
 		node_geometry= write_mesh_displace(ofile, node_geometry, object_params['displace'])
@@ -2821,14 +2854,11 @@ def write_scene(sce, bake= False):
 				continue
 
 			if VRayExporter.active_layers:
-				if ob.type == 'LAMP':
-					if VRayScene.use_hidden_lights:
-						pass
-					else:
-						if not object_on_visible_layers(sce,ob):
-							continue
-				if not object_on_visible_layers(sce,ob):
-					continue
+				if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
+					pass
+				else:
+					if not object_on_visible_layers(sce,ob):
+						continue
 
 			debug(sce,"[%s]: %s"%(ob.type,ob.name))
 			debug(sce,"  Animated: %d"%(1 if ob.animation_data else 0))
@@ -2873,7 +2903,7 @@ def write_scene(sce, bake= False):
 	for key in files:
 		files[key].close()
 
-	sys.stdout.write("V-Ray/Blender: Writing scene done. [%s]                    \n" % (time.clock() - timer))
+	sys.stdout.write("V-Ray/Blender: Writing scene done. [%.2f]                    \n" % (time.clock() - timer))
 	sys.stdout.flush()
 
 
@@ -2916,7 +2946,8 @@ class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
 	bl_description = "Create proxy and replace current object\'s mesh by simple mesh."
 
 	def invoke(self, context, event):
-		print("V-Ray/Blender: Proxy Creator is in progress...")
+
+		generate_proxy(context.scene, context.object)
 
 		return{'FINISHED'}
 
