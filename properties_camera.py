@@ -328,6 +328,12 @@ VRayCamera.CameraPhysical= PointerProperty(
 	description= "Physical Camera settings."
 )
 
+CameraPhysical.use= BoolProperty(
+	name= "Enable physical camera",
+	description= "Enable physical camera.",
+	default= False
+)
+
 CameraPhysical.f_number= FloatProperty(
 	name= "F-number",
 	description= "Determines the width of the camera aperture and, indirectly, exposure.",
@@ -604,20 +610,16 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		ca= context.camera
 
 		VRayCamera= ca.vray
-		CameraPhysical= VRayCamera.CameraPhysical
 		SettingsCamera= VRayCamera.SettingsCamera
 		SettingsCameraDof= VRayCamera.SettingsCameraDof
 		SettingsMotionBlur= VRayCamera.SettingsMotionBlur
 
 		wide_ui= context.region.width > narrowui
 
-		layout.prop(VRayCamera, 'mode', expand=True)
-
-		if not VRayCamera.mode == 'PHYSICAL':
-			if wide_ui:
-				layout.prop(ca, 'type', expand=True)
-			else:
-				layout.prop(ca, 'type', text="")
+		if wide_ui:
+			layout.prop(ca, 'type', expand=True)
+		else:
+			layout.prop(ca, 'type', text="")
 
 		split= layout.split()
 		col= split.column()
@@ -632,106 +634,33 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 
 		layout.separator()
 
-		if VRayCamera.mode == 'PHYSICAL':
-			'''
-			  CameraPhysical
-			'''
-			split= layout.split()
-			col= split.column()
-			col.prop(SettingsCamera, 'type', text="Type")
-
-			split= layout.split()
-			col= split.column()
-			col.prop(CameraPhysical, 'type', text="Motion type")
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="Parameters:")
-
-			split= layout.split()
-			col= split.column(align=True)
-			col.prop(CameraPhysical, 'film_width')
-			col.prop(CameraPhysical, 'focal_length')
-			col.prop(CameraPhysical, 'zoom_factor')
-			col.prop(CameraPhysical, 'distortion')
-			if not CameraPhysical.guess_lens_shift:
-				col.prop(CameraPhysical, 'lens_shift')
-			col.prop(CameraPhysical, 'guess_lens_shift')
-			if wide_ui:
-				col= split.column(align=True)
-			col.prop(CameraPhysical, 'exposure')
-			if CameraPhysical.exposure:
-				col.prop(CameraPhysical, 'f_number')
-				if CameraPhysical.type == 'STILL':
-					col.prop(CameraPhysical, 'shutter_speed')
-				elif CameraPhysical.type == 'CINEMATIC':
-					col.prop(CameraPhysical, 'shutter_angle')
-					col.prop(CameraPhysical, 'shutter_offset')
-				else:
-					col.prop(CameraPhysical, 'latency')
-				col.prop(CameraPhysical, 'ISO')
-
-			split= layout.split()
-			col= split.column()
-			sub= col.row()
-			sub.label(text="White balance")
-			sub.prop(CameraPhysical, 'white_balance', text="")
-
-			if wide_ui:
-				col= split.column()
-
-			col.prop(CameraPhysical, 'vignetting')
-
-			split= layout.split()
-			colL= split.column()
-			colL.label(text="Sampling:")
-			
-			split= layout.split()
-			colL= split.column()
-			colR= split.column(align=True)
-
-			colL.prop(CameraPhysical, 'use_dof')
-			colL.prop(CameraPhysical, 'use_moblur')
-
-			if CameraPhysical.use_dof:
-				colR.prop(CameraPhysical, 'blades_enable')
-
-			if CameraPhysical.use_moblur or CameraPhysical.use_dof:
-				colL.prop(CameraPhysical, 'subdivs')
-
-				if CameraPhysical.use_dof and CameraPhysical.blades_enable:
-					colR.prop(CameraPhysical, 'blades_num')
-					colR.prop(CameraPhysical, 'blades_rotation')
-					colR.prop(CameraPhysical, 'center_bias')
-					colR.prop(CameraPhysical, 'anisotropy')
-			
+		'''
+			SettingsCamera
+		'''
+		if ca.type == 'ORTHO':
+			col.prop(ca, 'ortho_scale')
 		else:
-			'''
-			  SettingsCamera
-			'''
-			if ca.type == 'ORTHO':
-				col.prop(ca, 'ortho_scale')
-			else:
-				split= layout.split()
-				col= split.column()
-				col.label(text="Type:")
-				col= split.column()
-				col.prop(SettingsCamera, 'type', text="")
-
-			'''
-			  SettingsCameraDof
-			'''
 			split= layout.split()
 			col= split.column()
+			col.label(text="Type:")
 			col= split.column()
-			
-			'''
-			  SettingsMotionBlur
-			'''
-			split= layout.split()
-			col= split.column()
-			col= split.column()
+			col.prop(SettingsCamera, 'type', text="")
 
+		layout.separator()
+
+		'''
+			SettingsCameraDof
+		'''
+		# split= layout.split()
+		# col= split.column()
+		# col= split.column()
+
+		'''
+			SettingsMotionBlur
+		'''
+		# split= layout.split()
+		# col= split.column()
+		# col= split.column()
 
 		split= layout.split()
 		col = split.column(align=True)
@@ -745,7 +674,99 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		col.prop(ca, 'dof_distance', text="Distance")
 
 
-class DATA_PT_hf_view(DataButtonsPanel, bpy.types.Panel):
+class VRAY_CAMERA_physical(DataButtonsPanel, bpy.types.Panel):
+	bl_label   = "Physical"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		ca= context.camera
+		VRayCamera= ca.vray
+		CameraPhysical= VRayCamera.CameraPhysical
+		self.layout.prop(CameraPhysical, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		ca= context.camera
+		VRayCamera= ca.vray
+		CameraPhysical= VRayCamera.CameraPhysical
+
+		layout= self.layout
+		layout.active= CameraPhysical.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop(CameraPhysical, 'type', text="Type")
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Parameters:")
+
+		split= layout.split()
+		col= split.column(align=True)
+		col.prop(CameraPhysical, 'film_width')
+		col.prop(CameraPhysical, 'focal_length')
+		col.prop(CameraPhysical, 'zoom_factor')
+		col.prop(CameraPhysical, 'distortion')
+		if not CameraPhysical.guess_lens_shift:
+			col.prop(CameraPhysical, 'lens_shift')
+		col.prop(CameraPhysical, 'guess_lens_shift')
+		if wide_ui:
+			col= split.column(align=True)
+		col.prop(CameraPhysical, 'exposure')
+		if CameraPhysical.exposure:
+			col.prop(CameraPhysical, 'f_number')
+			if CameraPhysical.type == 'STILL':
+				col.prop(CameraPhysical, 'shutter_speed')
+			elif CameraPhysical.type == 'CINEMATIC':
+				col.prop(CameraPhysical, 'shutter_angle')
+				col.prop(CameraPhysical, 'shutter_offset')
+			else:
+				col.prop(CameraPhysical, 'latency')
+			col.prop(CameraPhysical, 'ISO')
+
+		split= layout.split()
+		col= split.column()
+		sub= col.row()
+		sub.label(text="White balance")
+		sub.prop(CameraPhysical, 'white_balance', text="")
+
+		if wide_ui:
+			col= split.column()
+
+		col.prop(CameraPhysical, 'vignetting')
+
+		split= layout.split()
+		colL= split.column()
+		colL.label(text="Sampling:")
+
+		split= layout.split()
+		colL= split.column()
+		colR= split.column(align=True)
+
+		colL.prop(CameraPhysical, 'use_dof')
+		colL.prop(CameraPhysical, 'use_moblur')
+
+		if CameraPhysical.use_dof:
+			colR.prop(CameraPhysical, 'blades_enable')
+
+		if CameraPhysical.use_moblur or CameraPhysical.use_dof:
+			colL.prop(CameraPhysical, 'subdivs')
+
+			if CameraPhysical.use_dof and CameraPhysical.blades_enable:
+				colR.prop(CameraPhysical, 'blades_num')
+				colR.prop(CameraPhysical, 'blades_rotation')
+				colR.prop(CameraPhysical, 'center_bias')
+				colR.prop(CameraPhysical, 'anisotropy')
+
+
+class VRAY_CAMERA_hide_from_view(DataButtonsPanel, bpy.types.Panel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
 
