@@ -633,15 +633,16 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 		layout.separator()
 
 		if VRayCamera.mode == 'PHYSICAL':
-			if ca.type == 'ORTHO':
-				ca.type= 'PERSP'
-			
 			'''
 			  CameraPhysical
 			'''
 			split= layout.split()
 			col= split.column()
-			col.prop(CameraPhysical, 'type', text="Type")
+			col.prop(SettingsCamera, 'type', text="Type")
+
+			split= layout.split()
+			col= split.column()
+			col.prop(CameraPhysical, 'type', text="Motion type")
 
 			split= layout.split()
 			col= split.column()

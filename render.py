@@ -2512,32 +2512,30 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
 			ofile.write("\n}\n")
 
-		if VRayCamera.mode == 'PHYSICAL':
-			focus_distance= ca.data.dof_distance
-			if focus_distance == 0.0:
-				focus_distance= 200.0
+		focus_distance= ca.data.dof_distance
+		if focus_distance == 0.0:
+			focus_distance= 200.0
 
-			ofile.write("\nCameraPhysical {")
-			ofile.write("\n\ttype= %d;"%(PHYS[CameraPhysical.type]))
-			ofile.write("\n\ttargeted= 0;")
-			ofile.write("\n\tspecify_focus= 1;")
-			ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
-			ofile.write("\n\tspecify_fov= 1;")
-			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(CameraPhysical.white_balance)))))
-			for param in OBJECT_PARAMS['CameraPhysical']:
-				if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
-					value= get_lens_shift(ca)
-				else:
-					value= getattr(CameraPhysical,param)
-				ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
-			ofile.write("\n}\n")
+		ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
+		ofile.write("\n\ttype= %d;"%(PHYS[CameraPhysical.type]))
+		ofile.write("\n\ttargeted= 0;")
+		ofile.write("\n\tspecify_focus= 1;")
+		ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
+		ofile.write("\n\tspecify_fov= 1;")
+		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+		ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(CameraPhysical.white_balance)))))
+		for param in OBJECT_PARAMS['CameraPhysical']:
+			if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
+				value= get_lens_shift(ca)
+			else:
+				value= getattr(CameraPhysical,param)
+			ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+		ofile.write("\n}\n")
 
-		else:
-			ofile.write("\nSettingsCamera {")
-			ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
-			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-			ofile.write("\n}\n")
+		ofile.write("\nSettingsCamera Camera {")
+		ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
+		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+		ofile.write("\n}\n")
 
 
 def write_settings(sce,ofile):
