@@ -370,7 +370,7 @@ BRDFVRayMtl.refract_affect_alpha= BoolProperty(
 
 BRDFVRayMtl.fog_mult= FloatProperty(
 	name= "Fog multiplier",
-	description= "",
+	description= "Multiplier for the absorption.",
 	min= 0.0,
 	max= 10.0,
 	soft_min= 0.0,
@@ -387,7 +387,7 @@ BRDFVRayMtl.fog_unit_scale_on= BoolProperty(
 
 BRDFVRayMtl.fog_bias= FloatProperty(
 	name= "Fog bias",
-	description= "",
+	description= "Bias for the absorption.",
 	min= -100.0,
 	max= 100.0,
 	soft_min= -1.0,
@@ -396,19 +396,9 @@ BRDFVRayMtl.fog_bias= FloatProperty(
 	default= 0.0
 )
 
-BRDFVRayMtl.fog_ior= FloatProperty(
-	name= "Fog bias",
-	description= "",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 1.0
-)
-
 BRDFVRayMtl.anisotropy= FloatProperty(
 	name= "Anisotropy",
-	description= "",
+	description= "The anisotropy for glossy reflections.",
 	min= -1.0,
 	max= 1.0,
 	soft_min= -1.0,
@@ -418,11 +408,11 @@ BRDFVRayMtl.anisotropy= FloatProperty(
 
 BRDFVRayMtl.anisotropy_rotation= FloatProperty(
 	name= "Rotation",
-	description= "Anisotropy rotation",
-	min= -180.0,
-	max= 180.0,
-	soft_min= -180.0,
-	soft_max= 180.0,
+	description= "The rotation of the anisotropy axes.",
+	min= 0.0,
+	max= 360.0,
+	soft_min= 0.0,
+	soft_max= 360.0,
 	default= 0.0
 )
 

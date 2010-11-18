@@ -1704,6 +1704,8 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 		if param not in ('refract','opacity','diffuse','reflect','reflect_glossiness','hilight_glossiness','refract'):
 			if param == 'translucency':
 				value= TRANSLUCENSY[BRDFVRayMtl.translucency]
+			elif param == 'anisotropy_rotation':
+				value= BRDFVRayMtl.anisotropy_rotation / 360.0
 			elif param == 'translucency_thickness':
 				value= BRDFVRayMtl.translucency_thickness * 1000000000000
 			elif param == 'option_glossy_rays_as_gi':
