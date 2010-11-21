@@ -176,14 +176,32 @@ def object_on_visible_layers(sce,ob):
 
 def vb_script_path():
 	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
-		if vb_path != '':
+		if vb_path:
 			return vb_path
 	return ''
 
+def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
+	pc_binary= "proxy_converter"
+	if PLATFORM == 'win32':
+		pc_binary+= ".exe"
+	if vb_script_path():
+		p= os.path.join(vb_script_path(),'bin',pc_binary)
+		if os.path.exists(p):
+			pc_binary= p
+
+	params= []
+	params.append(pc_binary)
+	if append:
+		params.append('--append')
+	params.append(hq_filepath)
+	params.append(vrmesh_filepath)
+
+	os.system(' '.join(params))
+
 def vb_binary_path(sce):
-	vray_bin= 'vray'
-	if(PLATFORM == "win32"):
-		vray_bin= 'vray.exe'
+	vray_bin= "vray"
+	if PLATFORM == 'win32':
+		vray_bin+= ".exe"
 	vray_path= vray_bin
 
 	VRayExporter= sce.vray.exporter
@@ -209,6 +227,8 @@ def vb_binary_path(sce):
 
 	if vray_env_path:
 		if PLATFORM == "win32":
+			if vray_env_path[0:1] == ";":
+				vray_env_path= vray_env_path[1:]
 			if vray_env_path[0:1] == "\"":
 				vray_env_path= vray_env_path[1:-1]
 		else:

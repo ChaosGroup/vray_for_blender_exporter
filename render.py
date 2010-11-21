@@ -764,156 +764,65 @@ LC_MODE= {
 	"PPT":     3
 }
 
-PyVRay_dir= os.path.join(vb_script_path(), "modules")
-if os.path.exists(PyVRay_dir) and not PyVRay_dir in sys.path:
-	sys.path.append(PyVRay_dir)
-
-PyVRay= None
-try:
-	import VRayProxy
-	PyVRay= True
-except:
-	PyVRay= False
-
 
 
 '''
   MESHES
 '''
-def generate_proxy(sce, ob):
+def write_mesh_hq(ofile, sce, ob):
 	timer= time.clock()
+
+	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)..." % ofile.name)
+	sys.stdout.flush()
 
 	me= ob.create_mesh(sce, True, 'RENDER')
 
-	if PyVRay:
-		vp= VRayProxy.VRayProxy()
-	else:
-		print("V-Ray/Blender: PyVRay not found!")
-		return
+	GeomMeshFile= ob.data.vray.GeomMeshFile
 
-	for v in me.vertices:
-		vp.add_vertex(v.co[0],v.co[1],v.co[2])
+	if(GeomMeshFile.apply_transforms):
+		me.transform(ob.matrix_world)
+	elif(GeomMeshFile.apply_scale):
+		## TODO
+		# me.transform(ob.matrix_world.scale_part())
+		pass
 
+	for vertex in me.vertices:
+		ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
 	k= 0
-	for f in me.faces:
-		if len(f.vertices) == 4:
-			vp.add_face(f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1)
-			vp.add_face(f.vertices[2], f.vertices[3], f.vertices[0], f.material_index + 1)
-		else:
-			vp.add_face(f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1)
-
-		if len(f.vertices) == 4:
-			vertices= (0,1,2,2,3,0)
-			vert_count= 6
-		else:
-			vertices= (0,1,2)
-			vert_count= 3
-
-		for v in vertices:
-			normal= f.normal
-			if f.use_smooth:
-				normal= me.vertices[f.vertices[v]].normal
-			vp.add_normal(normal[0], normal[1], normal[2])
-
-		if len(f.vertices) == 4:
-			vp.add_face_normal(k, k+1, k+2)
-			vp.add_face_normal(k+3, k+4, k+5)
+	for face in me.faces:
+		vert_order= (0,1,2,2,3,0)
+		if len(face.vertices) == 4:
+			ofile.write("f=%d,%d,%d;%d\n" % (face.vertices[0], face.vertices[1], face.vertices[2], face.material_index + 1))
+			ofile.write("f=%d,%d,%d;%d\n" % (face.vertices[2], face.vertices[3], face.vertices[0], face.material_index + 1))
+			ofile.write("fn=%i,%i,%i\n" % (k,k+1,k+2))
+			ofile.write("fn=%i,%i,%i\n" % (k+3,k+4,k+5))
 			k+= 6
 		else:
-			vp.add_face_normal(k, k+1, k+2)
-			k+= 4
-
+			vert_order= (0,1,2)
+			ofile.write("f=%d,%d,%d;%d\n" % (face.vertices[0], face.vertices[1], face.vertices[2], face.material_index + 1))
+			ofile.write("fn=%i,%i,%i\n" % (k,k+1,k+2))
+			k+= 3
+		for v in vert_order:
+			if face.use_smooth:
+				ofile.write("n=%.6f,%.6f,%.6f\n" % tuple(me.vertices[face.vertices[v]].normal))
+			else:
+				ofile.write("n=%.6f,%.6f,%.6f\n" % tuple(face.normal))
 	if len(me.uv_textures):
-		uv_texture= me.uv_textures[0]
-		uv_texture_idx= 1
-
+		uv_layer= me.uv_textures[0]
 		k= 0
-		for f in range(len(uv_texture.data)):
-			face= uv_texture.data[f]
-
+		for face in uv_layer.data:
 			for i in range(len(face.uv)):
-				vp.add_uv(face.uv[i][0], face.uv[i][1], 0.0)
-
+				ofile.write("uv=%.6f,%.6f,0.0\n" % (face.uv[i][0], face.uv[i][1]))
 			if len(face.uv) == 4:
-				vp.add_uv_face(k,k+1,k+2)
-				vp.add_uv_face(k+2,k+3,k)
+				ofile.write("uf=%i,%i,%i\n" % (k,k+1,k+2))
+				ofile.write("uf=%i,%i,%i\n" % (k+2,k+3,k))
 				k+= 4
 			else:
-				vb.add_uv_face(k,k+1,k+2)
+				ofile.write("uf=%i,%i,%i\n" % (k,k+1,k+2))
 				k+= 3
-
-	vp.update_data()
-	vp.generate_proxy()
-
-	sys.stdout.write("Done [%.2f]\n" % (time.clock() - timer))
-
-
-def write_mesh_hq(hq_file, sce, ob):
-	timer= time.clock()
-
-	ofile= open(hq_file, 'w')
-
-	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)...\r" % hq_file)
-
-	me= ob.create_mesh(sce, True, 'RENDER')
-
-	for v in me.vertices:
-		ofile.write("v= %.6f,%.6f,%.6f\n" % tuple(v.co))
-
-	k= 0
-	for f in me.faces:
-		if len(f.vertices) == 4:
-			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
-			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[2], f.vertices[3], f.vertices[0], f.material_index + 1))
-		else:
-			ofile.write("f= %d,%d,%d;%d\n" % (f.vertices[0], f.vertices[1], f.vertices[2], f.material_index + 1))
-
-		if len(f.vertices) == 4:
-			vertices= (0,1,2,2,3,0)
-			vert_count= 6
-		else:
-			vertices= (0,1,2)
-			vert_count= 3
-
-		for v in vertices:
-			if f.use_smooth:
-				ofile.write("vn= %.6f,%.6f,%.6f\n" % tuple(me.vertices[f.vertices[v]].normal))
-			else:
-				ofile.write("vn= %.6f,%.6f,%.6f\n" % tuple(f.normal))
-
-		ofile.write("fn= ")
-		for v in range(vert_count):
-			ofile.write("%d"%(k))
-			if v == 2:
-				ofile.write("\nfn= ")
-			elif v != 5:
-				ofile.write(",")
-			k+= 1
-		ofile.write("\n")
-
-	k= 0
-	if len(me.uv_textures):
-		uv_texture_idx= 1
-		uv_texture= me.uv_textures[0]
-
-		for f in range(len(uv_texture.data)):
-			face= uv_texture.data[f]
-			
-			if len(face.uv) == 4:
-				ofile.write("uf= %i,%i,%i\n" % (k,k+1,k+2))
-				ofile.write("uf= %i,%i,%i\n" % (k+2,k+3,k))
-				k+= 4
-			else:
-				ofile.write("uf= %i,%i,%i\n" % (k,k+1,k+2))
-				k+= 3
-		
-			for i in range(len(face.uv)):
-				ofile.write("uv= %.6f,%.6f,0.0\n" % (face.uv[i][0],face.uv[i][1]))
-
-	ofile.close()
+	ofile.write("\n")
 	
-	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)..." % hq_file)
-	sys.stdout.write("done [%.2f]\n" % (time.clock() - timer))
+	sys.stdout.write(" done [%.2f]\n" % (time.clock() - timer))
 	sys.stdout.flush()
 
 
@@ -933,14 +842,19 @@ def write_geometry(sce, geometry_file):
 								uv_layers.append(slot.uv_layer)
 
 	try:
-		print("V-Ray/Blender: Special build detected - using custom operator.")
+		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
+		sys.stdout.write("V-Ray/Blender: Using custom operator for meshes export...\n")
+		sys.stdout.flush()
+		
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
 			vb_active_layers= VRayExporter.mesh_active_layers,
 			vb_animation= VRayExporter.animation
 		)
 	except:
-		print("V-Ray/Blender: Exporting meshes...")
+		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
+		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+		sys.stdout.flush()
 		
 		# Used when exporting dupli, particles etc.
 		exported_meshes= []
@@ -1258,7 +1172,7 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 	VRaySlot.uvwgen= uvw_name
 	
 	ofile.write("\nUVWGenChannel %s {"%(uvw_name))
-	ofile.write("\n\tuvw_channel= %d;"%(1))
+	ofile.write("\n\tuvw_channel= %d;"%(1)) # TODO
 	ofile.write("\n\tuvw_transform= Transform(")
 	ofile.write("\n\t\tMatrix(")
 	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%s,"%(tex.repeat_x))
@@ -1269,6 +1183,15 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 	ofile.write("\n\t);")
 	ofile.write("\n}\n")
 
+	return uvw_name
+
+
+def write_UVWGenExplicit(ofile, tex, tex_name,  mapping, param= None):
+	uvw_name= "%s_UVWGenExplicit_s"%(tex_name, get_name(tex))
+
+	ofile.write("\nUVWGenExplicit %s {"%(uvw_name))
+	ofile.write("\n}\n")
+	
 	return uvw_name
 
 
@@ -2474,6 +2397,9 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		aspect= float(wx) / float(wy)
 
 		fov= ca.data.angle
+		if VRayCamera.override_fov:
+			fov= VRayCamera.fov
+			
 		if aspect < 1.0:
 			fov= fov * aspect
 
@@ -2512,10 +2438,17 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n\tclipping= 1;")
 			ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
 			ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
+			if ca.data.type == 'ORTHO':
+				ofile.write("\n\torthographic= 1;")
+				ofile.write("\n\torthographicWidth= %s;" % a(sce,ca.data.ortho_scale))
 			ofile.write("\n}\n")
 
 		ofile.write("\nSettingsCamera Camera {")
-		ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
+		if ca.data.type == 'ORTHO':
+			ofile.write("\n\ttype= 7;")
+			ofile.write("\n\theight= %s;" % a(sce,ca.data.ortho_scale))
+		else:
+			ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
@@ -2875,7 +2808,7 @@ def write_scene(sce, bake= False):
 
 			_write_object(ob, params)
 
-			# TODO: export rest materials (ones that could be used in Overrides etc)
+			# TODO: export rest materials (that could be used in Overrides etc)
 			# for ma in bpy.data.materials:
 			# 	if ma.use_fake_user:
 			# 		write_material(ma, params['filters'], [], files['materials'])
@@ -2931,24 +2864,45 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 	bl_description = "Creates proxy from selection."
 
 	def invoke(self, context, event):
-		hq_file= "/tmp/ob.hq"
-		proxy_file= "/tmp/ob.vrmesh"
-			
-		write_mesh_hq(hq_file, context.scene, context.object)
+		sce= context.scene
+		ob=  context.object
 
-		os.system("proxy_converter %s %s" % (hq_file,proxy_file))
+		def _generate_proxy(append=False):
+			hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
+			write_mesh_hq(hq_file, sce, ob)
+			hq_file.close()
+			proxy_creator(hq_file.name, vrmesh_filepath, append)
+			os.remove(hq_file.name)
 
-		return{'FINISHED'}
+		timer= time.clock()
 
+		GeomMeshFile= ob.data.vray.GeomMeshFile
 
-class SCENE_OT_vray_replace_proxy(bpy.types.Operator):
-	bl_idname = "vray_replace_with_proxy"
-	bl_label = "Replace with proxy"
-	bl_description = "Create proxy and replace current object\'s mesh by simple mesh."
+		vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else clean_string(ob.name)
+		vrmesh_filename+= ".vrmesh"
 
-	def invoke(self, context, event):
+		vrmesh_dirpath= bpy.path.abspath(GeomMeshFile.dirpath)
+		if not os.path.exists(vrmesh_dirpath):
+			os.mkdir(vrmesh_dirpath)
+		vrmesh_filepath= os.path.join(vrmesh_dirpath,vrmesh_filename)
 
-		generate_proxy(context.scene, context.object)
+		if GeomMeshFile.animation:
+			selected_frame= sce.frame_current
+			frame= GeomMeshFile.frame_start
+			while(frame <= GeomMeshFile.frame_end):
+				sce.frame_set(frame)
+				_generate_proxy(append=True)
+				frame+= 1
+			sce.frame_set(selected_frame)
+		else:
+			_generate_proxy()
+
+		if GeomMeshFile.replace:
+			# TODO: kill object's mesh, replace with simple Cube, save materials
+			GeomMeshFile.use= True
+			GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+		
+		debug(context.scene, "V-Ray/Blender: Proxy generation total time: %.2f\n" % (time.clock() - timer))
 
 		return{'FINISHED'}
 

@@ -575,7 +575,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, texture_slot, 'use_map_specular',      'specular_factor',        "Glossy")
 			factor_but(col, texture_slot, 'use_map_color_spec',    'specular_color_factor',  "Hilight")
 			factor_but(col, texture_slot, 'use_map_translucency',  'translucency_factor',    "Refraction")
-			factor_but(col, texture_slot, 'use_map_emit',          'emit_factor',            "Emit")
+			#factor_but(col, texture_slot, 'use_map_emit',          'emit_factor',            "Emit")
 
 			if wide_ui:
 				col= split.column()

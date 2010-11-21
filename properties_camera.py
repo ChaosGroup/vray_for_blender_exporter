@@ -54,6 +54,22 @@ VRayCamera.mode= EnumProperty(
 	default= 'NORMAL'
 )
 
+VRayCamera.override_fov= BoolProperty(
+	name= "Override FOV",
+	description= "Override FOV.",
+	default= False
+)
+
+VRayCamera.fov= FloatProperty(
+	name= "FOV",
+	description= "Field of vision.",
+	min= 0.0,
+	max= 360.0,
+	soft_min= 0.0,
+	soft_max= 360.0,
+	default= 45.0
+)
+
 
 '''
   Hide From View

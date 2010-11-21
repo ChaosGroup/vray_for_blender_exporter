@@ -120,6 +120,18 @@ GeomMeshFile.scale= FloatProperty(
 	default= 1.0
 )
 
+GeomMeshFile.replace= BoolProperty(
+	name= "Replace",
+	description= "Replace object\'s data with simple mesh and apply proxy.",
+	default= False
+)
+
+GeomMeshFile.animation= BoolProperty(
+	name= "Animation",
+	description= "Animated proxy.",
+	default= False
+)
+
 GeomMeshFile.apply_transforms= BoolProperty(
 	name= "Apply transform",
 	description= "Apply rotation and location.",
@@ -129,7 +141,41 @@ GeomMeshFile.apply_transforms= BoolProperty(
 GeomMeshFile.apply_scale= BoolProperty(
 	name= "Apply scale",
 	description= "Apply scale.",
-	default= True
+	default= False
+)
+
+GeomMeshFile.dirpath= StringProperty(
+	name= "Path",
+	subtype= 'DIR_PATH',
+	description= "Proxy generation directory.",
+	default= "//proxy"
+)
+
+GeomMeshFile.filename= StringProperty(
+	name= "Name",
+	subtype= 'NONE',
+	description= "Proxy file name. If empty object's name is used.",
+	default= ""
+)
+
+GeomMeshFile.frame_start= IntProperty(
+	name= "Start frame",
+	description= "Proxy generation start frame.",
+	min= 1,
+	max= 1000,
+	soft_min= 1,
+	soft_max= 250,
+	default= 1
+)
+
+GeomMeshFile.frame_end= IntProperty(
+	name= "End frame",
+	description= "Proxy generation end frame.",
+	min= 1,
+	max= 1000,
+	soft_min= 1,
+	soft_max= 250,
+	default= 250
 )
 
 
@@ -191,44 +237,54 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		self.layout.prop(ob, 'use', text="")
 
 	def draw(self, context):
-		ob= context.mesh.vray.GeomMeshFile
-
 		layout= self.layout
 
 		wide_ui= context.region.width > narrowui
 
+		GeomMeshFile= context.mesh.vray.GeomMeshFile
 
 		split= layout.split()
-		split.active= ob.use
+		split.active= GeomMeshFile.use
 		col= split.column()
-		col.prop(ob, 'file')
+		col.prop(GeomMeshFile, 'file')
+		col.prop(GeomMeshFile, 'anim_type')
 
 		split= layout.split()
-		split.active= ob.use
-		col= split.column()
-		col.prop(ob, 'anim_type')
-
-		split= layout.split()
-		split.active= ob.use
-		col= split.column()
-		col.prop(ob, 'anim_speed')
+		split.active= GeomMeshFile.use
+		col= split.column(align=True)
+		col.prop(GeomMeshFile, 'anim_speed')
 		if wide_ui:
 			col= split.column()
-		col.prop(ob, 'anim_offset')
+		col.prop(GeomMeshFile, 'anim_offset')
 
+		layout.separator()
+		
 		split= layout.split()
 		col= split.column()
 		col.label(text="Proxy generation:")
-		split= layout.split()
-		col= split.column()
-		col.operator('vray_create_proxy')
-		if wide_ui:
-			col= split.column()
-		col.operator('vray_replace_with_proxy', text="Replace with proxy")
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ob, 'apply_transforms')
+		col.prop(GeomMeshFile, 'dirpath')
+		col.prop(GeomMeshFile, 'filename')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomMeshFile, 'animation')
+		sub= col.column(align=True)
+		sub.active= GeomMeshFile.animation
+		sub.prop(GeomMeshFile, 'frame_start')
+		sub.prop(GeomMeshFile, 'frame_end')
 		if wide_ui:
 			col= split.column()
-		col.prop(ob, 'apply_scale')
+		col.prop(GeomMeshFile, 'replace', text="Replace mesh [!]")
+		col.prop(GeomMeshFile, 'apply_transforms')
+		sub= col.column()
+		sub.active= not GeomMeshFile.apply_transforms
+		sub.prop(GeomMeshFile, 'apply_scale')
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.operator('vray_create_proxy', icon='OUTLINER_OB_MESH')
