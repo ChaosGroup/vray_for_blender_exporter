@@ -376,7 +376,7 @@ def write_BRDFDiffuse(ofile, sce, ma, ma_name, tex_vray):
 		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['color']))
 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(1.0,1.0,1.0)*%.6f"%(1.0 - ma.alpha))))
 	if(tex_vray['alpha']):
-		ofile.write("\n\ttransparency_tex= %s;"%(a(tex_vray['alpha'])))
+		ofile.write("\n\ttransparency_tex= %s;"%(a(sce,tex_vray['alpha'])))
 	ofile.write("\n}\n")
 
 	return brdf_name

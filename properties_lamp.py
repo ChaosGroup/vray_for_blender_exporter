@@ -585,7 +585,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		lamp= context.lamp
-		return (lamp and lamp.type not in ('HEMI')) and base_poll(__class__, context)
+		return (lamp and base_poll(__class__, context))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -595,11 +595,16 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 		lamp= context.lamp
 		vl= lamp.vray
 
-		if(lamp.type == 'AREA'):
+		if lamp.type == 'AREA':
 			layout.prop(lamp,'shape', expand=True)
-		elif(lamp.type == 'SUN'):
+			#  use_rect_tex: bool = false
+			#  tex_resolution: integer = 512
+			#  tex_adaptive: float = 1
+
+		elif lamp.type == 'SUN':
 			layout.prop(vl,'direct_type', expand=True)
-		elif(lamp.type == 'SPOT'):
+
+		elif lamp.type == 'SPOT':
 			layout.prop(vl,'spot_type', expand=True)
 
 		split= layout.split()
@@ -647,6 +652,16 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'soft_shadows')
 
 		elif(lamp.type == 'HEMI'):
+			#  objectID: integer = 0
+			#  use_dome_tex: bool = false
+			#  tex_resolution: integer = 512
+			#  dome_targetRadius: float = 100
+			#  dome_emitRadius: float = 150
+			#  dome_spherical: bool = false
+			#  tex_adaptive: float = 1
+			#  dome_rayDistance: float = 100000
+			#  dome_rayDistanceMode: integer = 0
+
 			pass
 
 		else:

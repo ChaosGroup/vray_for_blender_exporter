@@ -50,723 +50,6 @@ VERSION= '2.5'
 
 
 '''
-  VRAY MODULES
-'''
-MODULES= {
-	'SettingsUnitsInfo': (
-		'meters_scale',
-		'photometric_scale'
-	),
-
-	'SettingsDMCSampler': (
-		'time_dependent',
-		'adaptive_amount',
-		'adaptive_threshold',
-		'adaptive_min_samples',
-		'subdivs_mult'
-	),
-
-	'SettingsImageSampler': (
-		'fixed_subdivs',
-		'dmc_minSubdivs',
-		'dmc_threshold',
-		'dmc_show_samples',
-		'subdivision_minRate',
-		'subdivision_maxRate',
-		'subdivision_threshold',
-		'subdivision_edges',
-		'subdivision_normals',
-		'subdivision_normals_threshold',
-		'subdivision_jitter',
-		'subdivision_show_samples'
-	),
-
-	'SettingsColorMapping': (
-		'affect_background',
-		'dark_mult',
-		'bright_mult',
-		'gamma',
-		'subpixel_mapping',
-		'clamp_output',
-		'clamp_level',
-		'adaptation_only',
-		'linearWorkflow'
-	),
-
-	'SettingsDefaultDisplacement': (
-		'override_on',
-		'edgeLength',
-		'viewDependent',
-		'maxSubdivs',
-		'tightBounds',
-		'amount',
-		'relative'
-	),
-	
-	'SettingsRegionsGenerator': (
-        'xc',
-        'yc',
-        # 'xymeans',
-        # 'seqtype',
-        'reverse'
-	)
-}
-
-OBJECT_PARAMS= {
-	'GeomDisplacedMesh': (
-		'displacement_shift',
-		'water_level',
-        'use_globals',
-        'view_dep',
-        'edge_length',
-        'max_subdivs',
-        'keep_continuity',
-        'map_channel',
-        'use_bounds',
-        'min_bound',
-        'max_bound',
-        'resolution',
-        'precision',
-        'tight_bounds',
-        'filter_texture',
-        'filter_blur'
-	),
-	'EnvironmentFog': (
-		#'gizmos',
-		'emission',
-		#'emission_tex',
-		'color',
-		#'color_tex',
-		'distance',
-		'density',
-		#'density_tex',
-		'use_height',
-		'height',
-		'subdivs',
-		'affect_background',
-		'yup',
-		'fade_out_radius',
-		'per_object_fade_out_radius',
-		'use_fade_out_tex',
-		#'fade_out_tex',
-		'edge_fade_out',
-		'fade_out_type',
-		'scatter_gi',
-		'scatter_bounces',
-		'simplify_gi',
-		'step_size',
-		'max_steps',
-		'tex_samples',
-		'cutoff_threshold',
-		'light_mode',
-		#'lights',
-		'use_shade_instance'
-	),
-	
-	'BRDFSSS2Complex': (
-		'prepass_rate',
-		'interpolation_accuracy',
-		'scale',
-		'ior',
-		'overall_color',
-		'diffuse_color',
-		'diffuse_amount',
-		'sub_surface_color',
-		'scatter_radius',
-		'scatter_radius_mult',
-		'phase_function',
-		'specular_color',
-		'specular_amount',
-		'specular_glossiness',
-		'specular_subdivs',
-		'cutoff_threshold',
-		'trace_reflections',
-		'reflection_depth',
-		#'single_scatter',
-		'subdivs',
-		'refraction_depth',
-		'front_scatter',
-		'back_scatter',
-		'scatter_gi',
-		'prepass_blur'
-		#'channels'
-	),
-
-	'BRDFVRayMtl': (
-		'opacity',
-		'diffuse',
-		'roughness',
-		# 'brdf_type',
-		# 'reflect',
-		# 'reflect_glossiness',
-		# 'hilight_glossiness',
-		'hilight_glossiness_lock',
-		'fresnel',
-		'fresnel_ior',
-		'fresnel_ior_lock',
-		'reflect_subdivs',
-		'reflect_trace',
-		'reflect_depth',
-		'reflect_exit_color',
-		'hilight_soften',
-		# 'reflect_dim_distance',
-		'reflect_dim_distance_on',
-		'reflect_dim_distance_falloff',
-		'anisotropy',
-		'anisotropy_rotation',
-		'anisotropy_derivation',
-		'anisotropy_axis',
-		# 'anisotropy_uvwgen',
-		# 'refract',
-		'refract_ior',
-		'refract_glossiness',
-		'refract_subdivs',
-		'refract_trace',
-		'refract_depth',
-		'refract_exit_color',
-		'refract_exit_color_on',
-		'refract_affect_alpha',
-		'refract_affect_shadows',
-		'fog_color',
-		'fog_mult',
-		'fog_bias',
-		'fog_unit_scale_on',
-		'translucency',
-		'translucency_color',
-		'translucency_light_mult',
-		'translucency_scatter_dir',
-		'translucency_scatter_coeff',
-		'translucency_thickness',
-		'option_double_sided',
-		'option_reflect_on_back',
-		'option_glossy_rays_as_gi',
-		'option_cutoff',
-		'option_use_irradiance_map',
-		'option_energy_mode',
-		# 'environment_override',
-		'environment_priority',
-	),
-	
-	'CameraPhysical': (
-		'film_width',
-		'focal_length',
-		'zoom_factor',
-		'distortion',
-		'distortion_type',
-		'f_number',
-		'lens_shift',
-		'shutter_speed',
-		'shutter_angle',
-		'shutter_offset',
-		'latency',
-		'ISO',
-		'dof_display_threshold',
-		'exposure',
-		'vignetting',
-		'blades_enable',
-		'blades_num',
-		'blades_rotation',
-		'center_bias',
-		'anisotropy',
-		'use_dof',
-		'use_moblur',
-		'subdivs'
-		#'lens_file',
-		#'horizontal_shift'
-	),
-
-	'LightOmni': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		#'units',
-		'intensity',
-		#'intensity_tex',
-		#'shadowRadius',
-		'areaSpeculars',
-		'shadowSubdivs',
-		'decay'
-	),
-
-	'LightSphere': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		#'units',
-		'intensity',
-		#'intensity_tex',
-		'subdivs',
-		'storeWithIrradianceMap',
-		'invisible',
-		'affectReflections',
-		'noDecay',
-		'radius',
-		'sphere_segments'
-	),
-
-	'LightRectangle': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		#'units',
-		'intensity',
-		#'intensity_tex',
-		'subdivs',
-		#'storeWithIrradianceMap',
-		'invisible',
-		'affectReflections',
-		'noDecay'
-	),
-
-	'LightDirect': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		'intensity',
-		#'intensity_tex',
-		'shadowRadius',
-		'areaSpeculars',
-		'shadowSubdivs',
-		'beamRadius'
-	),
-
-	'SunLight': (
-		'turbidity',
-		'ozone',
-		'water_vapour',
-		'intensity_multiplier',
-		'size_multiplier',
-		#'up_vector',
-		'invisible',
-		'horiz_illum',
-		#'sky_model',
-		'shadows',
-		#'atmos_shadows',
-		'shadowBias',
-		'shadow_subdivs',
-		'shadow_color',
-		#'shadow_color_tex',
-		#'photon_radius',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'enabled'
-	),	
-
-	'LightIES': (
-		'enabled',
-		'intensity',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		'shadowSubdivs',
-		'ies_file',
-		#'filter_color',
-		'soft_shadows',
-		#'area_speculars'
-	),
-
-	'LightDome': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		#'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		#'channels',
-		#'channels_raw',
-		#'channels_diffuse',
-		#'channels_specular',
-		'units',
-		'intensity',
-		#'intensity_tex',
-		'subdivs',
-		#'storeWithIrradianceMap',
-		'invisible',
-		'affectReflections',
-		#'dome_tex',
-		#'use_dome_tex',
-		#'tex_resolution',
-		#'dome_targetRadius',
-		#'dome_emitRadius',
-		#'dome_spherical',
-		#'tex_adaptive',
-		#'dome_rayDistance',
-		#'dome_rayDistanceMode',
-	),
-
-	'LightSpot': (
-		'enabled',
-		#'color_tex',
-		'shadows',
-		'shadowColor',
-		#'shadowColor_tex',
-		'shadowBias',
-		#'photonSubdivs',
-		'causticSubdivs',
-		#'diffuseMult',
-		'causticMult',
-		'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		'bumped_below_surface_check',
-		'nsamples',
-		'diffuse_contribution',
-		'specular_contribution',
-		#'units',
-		'intensity',
-		#'intensity_tex',
-		'shadowRadius',
-		'areaSpeculars',
-		'shadowSubdivs',
-		#'coneAngle',
-		#'penumbraAngle',
-		#'dropOff',
-		#'falloffType',
-		'decay',
-		#'barnDoor',
-		#'barnDoorLeft',
-		#'barnDoorRight',
-		#'barnDoorTop',
-		#'barnDoorBottom',
-		#'useDecayRegions',
-		#'startDistance1',
-		#'endDistance1',
-		#'startDistance2',
-		#'endDistance2',
-		#'startDistance3',
-		#'endDistance3'
-	),
-
-	'LightMesh': (
-		'enabled',
-		# 'transform',
-		'color',
-		# 'color_tex',
-		# 'shadows',
-		# 'shadowColor',
-		# 'shadowColor_tex',
-		# 'shadowBias',
-		# 'photonSubdivs',
-		'causticSubdivs',
-		# 'diffuseMult',
-		# 'causticMult',
-		# 'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		# 'bumped_below_surface_check',
-		# 'nsamples',
-		# 'diffuse_contribution',
-		# 'specular_contribution',
-		# 'channels',
-		# 'channels_raw',
-		# 'channels_diffuse',
-		# 'channels_specular',
-		'units',
-		'intensity',
-		# 'intensity_tex',
-		'subdivs',
-		'storeWithIrradianceMap',
-		'invisible',
-		'affectReflections',
-		'noDecay',
-		'doubleSided',
-		'lightPortal',
-		'geometry',
-		# 'ignoreLightNormals',
-		# 'tex',
-		# 'use_tex',
-		# 'tex_resolution',
-		# 'cache_tex'
-	),
-
-	'TexSky': (
-		#'transform',
-		#'target_transform',
-		'turbidity',
-		'ozone',
-		'water_vapour',
-		'intensity_multiplier',
-		'size_multiplier',
-		#'up_vector',
-		'invisible',
-		'horiz_illum',
-		'sky_model',
-		'sun'
-	),
-
-	'MtlWrapper': (
-		#'base_material',
-		'generate_gi',
-		'receive_gi',
-		'generate_caustics',
-		'receive_caustics',
-		'alpha_contribution',
-		'matte_surface',
-		'shadows',
-		'affect_alpha',
-		'shadow_tint_color',
-		'shadow_brightness',
-		'reflection_amount',
-		'refraction_amount',
-		'gi_amount',
-		'no_gi_on_other_mattes',
-		'matte_for_secondary_rays',
-		'gi_surface_id',
-		'gi_quality_multiplier',
-		#'alpha_contribution_tex',
-		#'shadow_brightness_tex',
-		#'reflection_filter_tex',
-		'trace_depth',
-		#'channels'
-	),
-
-	'MtlRenderStats': (
-		'camera_visibility',
-		'reflections_visibility',
-		'refractions_visibility',
-		'gi_visibility',
-		'shadows_visibility',
-		'visibility'
-	)
-}
-
-BLEND_TYPE= {
-	'MIX':          0,
-	'ADD':          4,
-	'SUBTRACT':     5,
-	'MULTIPLY':     6,
-	'SCREEN':       0,
-	'OVERLAY':      1,
-	'DIFFERENCE':   7,
-	'DIVIDE':       0,
-	'DARKEN':       9,
-	'LIGHTEN':      8,
-	'HUE':          0,
-	'SATURATION':  10,
-	'VALUE':        0,
-	'COLOR':        0,
-	'SOFT LIGHT':   0,
-	'LINEAR LIGHT': 0
-}
-
-TEX_TYPES= ('IMAGE', 'VRAY')
-
-# Enum currently doesn't extract value index,
-# so...
-UNITS= {
-	'DEFAULT' : 0,
-	'LUMENS'  : 1,
-	'LUMM'    : 2,
-	'WATTSM'  : 3,
-	'WATM'    : 4
-}
-
-LIGHT_PORTAL= {
-	'NORMAL':  0,
-	'PORTAL':  1,
-	'SPORTAL': 2
-}
-
-SKY_MODEL= {
-	'CIEOVER'  : 2,
-	'CIECLEAR' : 1,
-	'PREETH'   : 0
-}
-
-PROXY_ANIM_TYPE= {
-	'LOOP'     : 0,
-	'ONCE'     : 1,
-	'PINGPONG' : 2,
-	'STILL'    : 3
-}
-
-AA_FILTER_TYPE= {
-	'AREA'     : '\nFilterArea {',
-	'BOX'      : '\nFilterBox {',
-	'TRIANGLE' : '\nFilterTriangle {',
-	'LANC'     : '\nFilterLanczos {',
-	'SINC'     : '\nFilterSinc {',
-	'GAUSS'    : '\nFilterGaussian {',
-	'CATMULL'  : '\nFilterCatmullRom {'
-}
-
-PHYS= {
-	"STILL":     0,
-	"CINEMATIC": 1,
-	"VIDEO":     2
-}
-
-SEQTYPE= {
-	'HILBERT':   5,
-	'TRIANGLE':  4,
-	'IOSPIRAL':  3,
-	'TBCHECKER': 2,
-	'LRWIPE':    1,
-	'TBWIPE':    0
-}
-
-XYMEANS= {
-	'BUCKETS': 1,
-	'SIZE':    0
-}
-
-COLOR_MAPPING_TYPE= {
-	'LNR':  0,
-	'EXP':  1,
-	'HSV':  2,
-	'INT':  3,
-	'GCOR': 4,
-	'GINT': 5,
-	'REIN': 6
-}
-
-IMAGE_SAMPLER_TYPE= {
-	'FXD': 0,
-	'DMC': 1,
-	'SBD': 2
-}
-
-PRIMARY= {
-	"IM":  0,
-	"PM":  1,
-	"BF":  2,
-	"LC":  3
-}
-
-SECONDARY= {
-	"NONE":  0,
-	"PM":    1,
-	"BF":    2,
-	"LC":    3
-}
-
-SCALE= {
-	"SCREEN":  0,
-	"WORLD":   1
-}
-
-IM_MODE= {
-	"SINGLE":    0,
-	"INC":       1,
-	"FILE":      2,
-	"ADD":       3,
-	"ADD_INC":   4,
-	"BUCKET":    5,
-	"ANIM_PRE":  6,
-	"ANIM_REND": 7
-}
-
-INT_MODE= {
-	"VORONOI":   0,
-	"LEAST":     1,
-	"DELONE":    2,
-	"WEIGHTED":  3
-}
-
-LOOK_TYPE= {
-	"QUAD":     0,
-	"NEAREST":  1,
-	"OVERLAP":  2,
-	"DENSITY":  3
-}
-
-LC_FILT= {
-	"NEAREST": 0,
-	"FIXED":   1
-}
-
-LC_MODE= {
-	"SINGLE":  0,
-	"FILE":    1,
-	"FLY":     2,
-	"PPT":     3
-}
-
-
-
-'''
   MESHES
 '''
 def write_mesh_hq(ofile, sce, ob):
@@ -1089,7 +372,7 @@ def write_mesh_displace(ofile, mesh, params):
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tmesh= %s;" % mesh)
 	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
-	ofile.write("\n\tdisplacement_amount= %.6f;" % TextureSlot.displacement_factor)
+	ofile.write("\n\tdisplacement_amount= %s;" % a(sce,TextureSlot.displacement_factor))
 	if GeomDisplacedMesh.type == '2D':
 		ofile.write("\n\tdisplace_2d= 1;")
 	elif GeomDisplacedMesh.type == '3D':
@@ -1109,11 +392,13 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 	hair_vertices=     []
 	widths=            []
 
-	for particle in ps.particles:
+	for p,particle in enumerate(ps.particles):
+		sys.stdout.write("V-Ray/Blender: Object: %s => Hair: %i\r" % (ob.name, p))
+		sys.stdout.flush()
 		num_hair_vertices.append(str(len(particle.is_hair)))
 		for segment in particle.is_hair:
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			widths.append(str(0.001))
+			widths.append(str(0.001)) # TODO
 
 	ofile.write("\nGeomMayaHair %s {"%(name))
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(sce.frame_current, ','.join(num_hair_vertices)))
@@ -1137,6 +422,14 @@ def write_mesh_file(ofile, exported_proxy, ob):
 		ofile.write("\n}\n")
 
 	return proxy_name
+
+
+def generate_proxy(sce, ob, vrmesh, append=False):
+	hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
+	write_mesh_hq(hq_file, sce, ob)
+	hq_file.close()
+	proxy_creator(hq_file.name, vrmesh, append)
+	os.remove(hq_file.name)
 
 
 
@@ -1211,10 +504,6 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 	if param:
 		ofile.write("\n\tuvw_transform= %s;"%(transform(mathutils.RotationMatrix(params[0], 4, 'Z'))))
 	ofile.write("\n\tmapping_type= \"%s\";"%(MAPPING_TYPE[mapping]))
-	ofile.write("\n\twrap_u= 1;")
-	ofile.write("\n\twrap_v= 1;")
-	ofile.write("\n\tcrop_u= 0;")
-	ofile.write("\n\tcrop_v= 0;")
 	ofile.write("\n}\n")
 	
 	return uvw_name
@@ -1289,13 +578,11 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 				ofile.write("\n\tinvert= %d;"%(slot.invert))
 			ofile.write("\n}\n")
 		else:
-			#return {'texture': "Texture_no_texture", 'uvwgen': "UVWGenChannel_default"}
 			return "Texture_no_texture"
 
 	else:
 		debug(sce,"Error! Image file is not set! (%s)"%(tex.name))
 
-	#return {'texture': tex_name, 'uvwgen': uvwgen}
 	return tex_name
 
 
@@ -1588,40 +875,40 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
-	if(tex_vray['alpha']):
-		ofile.write("\n\topacity= %s::out_intensity;"%(tex_vray['alpha']))
+	if tex_vray['alpha']:
+		ofile.write("\n\topacity= %s::out_intensity;" % tex_vray['alpha'])
 	else:
-		ofile.write("\n\topacity= %s;"%(a(sce,"%.6f"%(ma.alpha))))
+		ofile.write("\n\topacity= %s;" % a(sce,"%.6f"%(ma.alpha)))
 
-	if(tex_vray['roughness']):
-		ofile.write("\n\troughness= %s::out_intensity;"%(tex_vray['roughness']))
+	if tex_vray['roughness']:
+		ofile.write("\n\troughness= %s::out_intensity;" % tex_vray['roughness'])
 	else:
-		ofile.write("\n\troughness= %s;"%(a(sce,"%.6f"%(BRDFVRayMtl.roughness))))
+		ofile.write("\n\troughness= %s;" % a(sce,"%.6f"%(BRDFVRayMtl.roughness)))
 
-	if(tex_vray['color']):
-		ofile.write("\n\tdiffuse= %s;"%(tex_vray['color']))
+	if tex_vray['color']:
+		ofile.write("\n\tdiffuse= %s;" % tex_vray['color'])
 	else:
-		ofile.write("\n\tdiffuse= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color)))))
+		ofile.write("\n\tdiffuse= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color))))
 
-	if(tex_vray['reflect']):
-		ofile.write("\n\treflect= %s;"%(tex_vray['reflect']))
+	if tex_vray['reflect']:
+		ofile.write("\n\treflect= %s;" % tex_vray['reflect'])
 	else:
-		ofile.write("\n\treflect= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.reflect_color)))))
+		ofile.write("\n\treflect= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.reflect_color))))
 
-	if(tex_vray['reflect_glossiness']):
-		ofile.write("\n\treflect_glossiness= %s::out_intensity;"%(tex_vray['reflect_glossiness']))
+	if tex_vray['reflect_glossiness']:
+		ofile.write("\n\treflect_glossiness= %s::out_intensity;" % tex_vray['reflect_glossiness'])
 	else:
-		ofile.write("\n\treflect_glossiness= %s;"%(a(sce,BRDFVRayMtl.reflect_glossiness)))
+		ofile.write("\n\treflect_glossiness= %s;" % a(sce,BRDFVRayMtl.reflect_glossiness))
 
-	if(tex_vray['hilight_glossiness']):
-		ofile.write("\n\thilight_glossiness= %s::out_intensity;"%(tex_vray['hilight_glossiness']))
+	if tex_vray['hilight_glossiness']:
+		ofile.write("\n\thilight_glossiness= %s::out_intensity;" % tex_vray['hilight_glossiness'])
 	else:
-		ofile.write("\n\thilight_glossiness= %s;"%(a(sce,BRDFVRayMtl.hilight_glossiness)))
+		ofile.write("\n\thilight_glossiness= %s;" % a(sce,BRDFVRayMtl.hilight_glossiness))
 
-	if(tex_vray['refract']):
-		ofile.write("\n\trefract= %s;"%(tex_vray['refract']))
+	if tex_vray['refract']:
+		ofile.write("\n\trefract= %s;" % tex_vray['refract'])
 	else:
-		ofile.write("\n\trefract= %s;"%(a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.refract_color)))))
+		ofile.write("\n\trefract= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.refract_color))))
 
 	for param in OBJECT_PARAMS['BRDFVRayMtl']:
 		if param not in ('refract','opacity','diffuse','reflect','reflect_glossiness','hilight_glossiness','refract'):
@@ -1708,12 +995,11 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 
 	tex_vray= write_textures(ofile, filters['exported_bitmaps'], ma, ma_name)
 
-	if VRayMaterial.type == 'EMIT':
-		if VRayMaterial.emitter_type == 'MESH':
-			object_params['meshlight']['on']= True
-			object_params['meshlight']['material']= ma
-			object_params['meshlight']['texture']= tex_vray['emit'] if tex_vray['emit'] else tex_vray['color']
-			return
+	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
+		object_params['meshlight']['on']= True
+		object_params['meshlight']['material']= ma
+		object_params['meshlight']['texture']= tex_vray['emit'] if tex_vray['emit'] else tex_vray['color']
+		return
 	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
 		for param in OBJECT_PARAMS['EnvironmentFog']:
@@ -2029,7 +1315,7 @@ def visible_from_view(object, ca):
 					visibility[hide_type]= False
 
 	return visibility
-
+# TODO:
 # ofile.write("\nMtlRenderStats HideFromView_%s {"%(complex_material[-1]))
 # ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
 # ofile.write("\n\tvisibility= %s;" % visibility['all'])
@@ -2261,10 +1547,10 @@ def write_EnvFogMeshGizmo(ofile, node_name, node_geometry, node_matrix):
 	name= "%s_%s" % (plugin,node_name)
 
 	ofile.write("\n%s %s {"%(plugin,name))
-	ofile.write("\n\ttransform= %s;"%(a(sce,transform(node_matrix))))
-	ofile.write("\n\tgeometry= %s;"%(node_geometry))
-	#ofile.write("\n\tlights= %s;"%())
-	#ofile.write("\n\tfade_out_radius= %s;"%())
+	ofile.write("\n\ttransform= %s;" % a(sce,transform(node_matrix)))
+	ofile.write("\n\tgeometry= %s;" % node_geometry)
+	#ofile.write("\n\tlights= %s;" % )
+	#ofile.write("\n\tfade_out_radius= %s;" % )
 	ofile.write("\n}\n")
 
 	return name
@@ -2289,22 +1575,49 @@ def write_lamp(ob, params, add_params= None):
 	if lamp.type == 'POINT':
 		if vl.radius > 0:
 			lamp_type= 'LightSphere'
+			#color_tex
+			#shadowColor_tex
+			#intensity_tex
 		else:
 			lamp_type= 'LightOmni'
+			#color_tex
+			#shadowColor_tex
+			#intensity_tex
 	elif lamp.type == 'SPOT':
 		if vl.spot_type == 'SPOT':
 			lamp_type= 'LightSpot'
+			#color_tex
+			#shadowColor_tex
+			#intensity_tex
 		else:
 			lamp_type= 'LightIES'
+			# color_tex
+			# shadowColor_tex
 	elif lamp.type == 'SUN':
 		if vl.direct_type == 'DIRECT':
 			lamp_type= 'LightDirect'
+			#color_tex
+			#shadowColor_tex
+			#intensity_tex
 		else:
 			lamp_type= 'SunLight'
+			#shadow_color_tex == shadowColor_tex
 	elif lamp.type == 'AREA':
 		lamp_type= 'LightRectangle'
+		# color_tex
+		# shadowColor_tex
+		# intensity_tex
+		# rect_tex
+		# use_rect_tex: bool = false
+		# tex_resolution: integer = 512
+		# tex_adaptive: float = 1
 	elif lamp.type == 'HEMI':
 		lamp_type= 'LightDome'
+		#color_tex
+		#shadowColor_tex
+		#intensity_tex
+		#dome_tex
+
 	else:
 		return
 
@@ -2718,6 +2031,9 @@ def write_scene(sce, bake= False):
 						continue
 
 					for p,particle in enumerate(ps.particles):
+						sys.stdout.write("V-Ray/Blender: Object: \033[0;33m%s\033[0m => Particle: \033[0;32m%i\033[0m\r" % (ob.name, p))
+						sys.stdout.flush()
+						
 						location= particle.location
 						size= particle.size
 						if ps.settings.type == 'HAIR':
@@ -2867,13 +2183,6 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 		sce= context.scene
 		ob=  context.object
 
-		def _generate_proxy(append=False):
-			hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
-			write_mesh_hq(hq_file, sce, ob)
-			hq_file.close()
-			proxy_creator(hq_file.name, vrmesh_filepath, append)
-			os.remove(hq_file.name)
-
 		timer= time.clock()
 
 		GeomMeshFile= ob.data.vray.GeomMeshFile
@@ -2891,11 +2200,11 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 			frame= GeomMeshFile.frame_start
 			while(frame <= GeomMeshFile.frame_end):
 				sce.frame_set(frame)
-				_generate_proxy(append=True)
+				generate_proxy(sce,ob,vrmesh_filepath,append=True)
 				frame+= 1
 			sce.frame_set(selected_frame)
 		else:
-			_generate_proxy()
+			generate_proxy(sce,ob,vrmesh_filepath)
 
 		if GeomMeshFile.replace:
 			# TODO: kill object's mesh, replace with simple Cube, save materials
@@ -3066,7 +2375,9 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 				},
 				'volume': None
 			}
-			
+
+			# TODO
+			#ofile= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
 			ofile.write("\nSettingsOutput {")
 			ofile.write("\n\timg_separateAlpha= 0;")
@@ -3153,9 +2464,6 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					try:
 						if not ve.animation:
 							if ve.image_to_blender or sce.name == "preview":
-								# if rd.use_border and not rd.use_crop_to_border:
-								# 	wx= rd.resolution_x * rd.resolution_percentage / 100
-								# 	wy= rd.resolution_y * rd.resolution_percentage / 100
 								result= self.begin_result(0, 0, int(wx), int(wy))
 								layer= result.layers[0]
 								layer.load_from_file(load_file)

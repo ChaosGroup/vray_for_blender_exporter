@@ -99,6 +99,7 @@ BitmapBuffer.use_data_window= BoolProperty(
 
 Slot= bpy.types.Texture
 
+
 class VRaySlot(bpy.types.IDPropertyGroup):
 	pass
 
@@ -112,7 +113,7 @@ VRaySlot.uvwgen= StringProperty(
 	name= "UVW Generator",
 	subtype= 'NONE',
 	options= {'HIDDEN'},
-	description= "TEMP VARIABLE.",
+	description= "UVW generator name.",
 	default= "UVWGenChannel_default"
 )
 
@@ -120,21 +121,63 @@ VRaySlot.blend_modes= EnumProperty(
 	name= "Blend mode",
 	description= "Blend mode.",
 	items= (
-		('OVER', "Over", "."),
-		('IN', "In", "."),
-		('OUT', "Out", "."),
-		('ADD', "Add", "."),
-		('SUBSTRACT', "Substract", "."),
-		('MULTIPLY', "Multiply", "."),
-		('DIFFERENCE', "Difference", "."),
-		('LIGHTEN', "Lighten", "."),
-		('DARKEN', "Darken", "."),
-		('SATURATE', "Saturate", "."),
+		('OVER',        "Over",       "."),
+		('IN',          "In",         "."),
+		('OUT',         "Out",        "."),
+		('ADD',         "Add",        "."),
+		('SUBSTRACT',   "Substract",  "."),
+		('MULTIPLY',    "Multiply",   "."),
+		('DIFFERENCE',  "Difference", "."),
+		('LIGHTEN',     "Lighten",    "."),
+		('DARKEN',      "Darken",     "."),
+		('SATURATE',    "Saturate",   "."),
 		('DESATUREATE', "Desaturate", "."),
-		('ILLUMINATE', "Illuminate", ".")
+		('ILLUMINATE',  "Illuminate", ".")
 	),
 	default= 'OVER'
 )
+
+
+class VRayLight(bpy.types.IDPropertyGroup):
+	pass
+
+VRaySlot.Light= PointerProperty(
+	name= "VRayLight",
+	type=  VRayLight,
+	description= "VRay lights texture slot settings."
+)
+
+VRayLight.map_color= BoolProperty(
+	name= "Color",
+	description= "A color texture that if present will override the color parameter.",
+	default= False
+)
+
+VRayLight.map_shadowColor= BoolProperty(
+	name= "Shadow",
+	description= "A color texture that if present will override the \"Shadow color\" parameter.",
+	default= False
+)
+
+VRayLight.map_intensity= BoolProperty(
+	name= "Shadow",
+	description= "A color texture that if present will override the \"Shadow color\" parameter.",
+	default= False
+)
+
+# Seems that we could use tex from "color"
+# VRayLight.map_rect= BoolProperty(
+# 	name= "Rectangle",
+# 	description= "The light texture.",
+# 	default= False
+# )
+
+# Seems that we could use tex from "color"
+# VRayLight.map_dome= BoolProperty(
+# 	name= "Dome",
+# 	description= ".",
+# 	default= False
+# )
 
 
 class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
@@ -372,10 +415,6 @@ GeomDisplacedMesh.filter_blur= FloatProperty(
 	precision= 3,
 	default= 0.001
 )
-	
-
-
-
 
 class BRDFBump(bpy.types.IDPropertyGroup):
 	pass
@@ -450,19 +489,21 @@ def context_tex_datablock(context):
 
 def base_poll(cls, context):
 	rd= context.scene.render
-	try:
-		tex= context.texture_slot.texture
-	except:
-		return False
+	tex= context.texture
 	if tex is None:
 		return False
-	return (tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES)
+	return ((tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES))
 
 
 class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		return tex and (tex.type != 'NONE' or tex.use_nodes) and (context.scene.render.engine in cls.COMPAT_ENGINES)
 
 
 class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
@@ -534,11 +575,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
-	@classmethod
-	def poll(cls, context):
-		idblock= context_tex_datablock(context)
-		return (base_poll(__class__, context) and (type(idblock) in (bpy.types.Material,bpy.types.Lamp,bpy.types.World)))
-
 	def draw(self, context):
 		def factor_but(layout, slot, toggle, factor, label= None):
 			row= layout.row(align=True)
@@ -562,10 +598,10 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 		#VRaySlot= texture_slot.vray
 		if texture:
 			VRaySlot= texture.vray_slot
-		
-		mat= context.material
-		
+
 		if type(idblock) == bpy.types.Material:
+			mat= context.material
+
 			split= layout.split()
 			col= split.column()
 			col.label(text="Shading:")
@@ -575,7 +611,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, texture_slot, 'use_map_specular',      'specular_factor',        "Glossy")
 			factor_but(col, texture_slot, 'use_map_color_spec',    'specular_color_factor',  "Hilight")
 			factor_but(col, texture_slot, 'use_map_translucency',  'translucency_factor',    "Refraction")
-			#factor_but(col, texture_slot, 'use_map_emit',          'emit_factor',            "Emit")
 
 			if wide_ui:
 				col= split.column()
@@ -598,7 +633,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 
-			if VRaySlot is not None:
+			if VRaySlot:
 				BRDFBump= VRaySlot.BRDFBump
 
 				col.active= texture_slot.use_map_normal
@@ -617,7 +652,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 
-			if VRaySlot is not None:
+			if VRaySlot:
 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
 				col.active= texture_slot.use_map_displacement
@@ -639,21 +674,18 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			col.label(text="NOTE: cause of API limitations some parameters are")
 			col.label(text="texture dependend not slot.")
 
-		elif type(idblock) == bpy.types.Lamp:
-			# intensity_tex
-			# shadowColor_tex
-			# rect_tex
-			pass
+		elif type(idblock) in (bpy.types.AreaLamp,bpy.types.HemiLamp,bpy.types.SunLamp,bpy.types.PointLamp,bpy.types.SpotLamp):
+			split= layout.split()
+			col= split.column()
+			col.label(text="In progress...")
 
 		elif type(idblock) == bpy.types.World:
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")
 			factor_but(col, texture_slot, 'use_map_blend',       'blend_factor',       "Background")
-
 			if wide_ui:
 				col= split.column()
-			
 			col.label(text="Override:")
 			factor_but(col, texture_slot, 'use_map_horizon',     'horizon_factor',     "GI")
 			factor_but(col, texture_slot, 'use_map_zenith_up',   'zenith_up_factor',   "Reflections")
