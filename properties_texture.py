@@ -666,6 +666,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(texture_slot,'invert',text="Invert")
+			col.prop(texture_slot,'use_stencil')
 
 			layout.separator()
 

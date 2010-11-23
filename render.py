@@ -62,12 +62,11 @@ def write_mesh_hq(ofile, sce, ob):
 
 	GeomMeshFile= ob.data.vray.GeomMeshFile
 
-	if(GeomMeshFile.apply_transforms):
+	if GeomMeshFile.apply_transforms:
 		me.transform(ob.matrix_world)
-	elif(GeomMeshFile.apply_scale):
-		## TODO
-		# me.transform(ob.matrix_world.scale_part())
-		pass
+	## TODO
+	# elif GeomMeshFile.apply_scale: 
+	# 	me.transform(ob.matrix_world.scale_part())
 
 	for vertex in me.vertices:
 		ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
@@ -2206,10 +2205,39 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 		else:
 			generate_proxy(sce,ob,vrmesh_filepath)
 
+		ob_data_name= ob.data.name
+		if GeomMeshFile.add_suffix:
+			ob.name+= '_proxy'
+			ob_data_name+= '_proxy'
+			
 		if GeomMeshFile.replace:
-			# TODO: kill object's mesh, replace with simple Cube, save materials
+			original_mesh= ob.data
+			
+			bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
+			bbox_mesh= bpy.data.meshes.new(ob_data_name)
+			bbox_mesh.from_pydata(ob.bound_box, [], bbox_faces)
+			bbox_mesh.update()
+
+			for slot in ob.material_slots:
+				if slot and slot.material:
+					bbox_mesh.materials.append(slot.material)
+
+			ob.data= bbox_mesh
+			ob.draw_type= 'WIRE'
+			for md in ob.modifiers: ob.modifiers.remove(md)
+
+			if GeomMeshFile.apply_transforms:
+				ob.select= True
+				sce.objects.active= ob
+				bpy.ops.object.scale_apply()
+				bpy.ops.object.rotation_apply()
+				bpy.ops.object.location_apply()
+
+			GeomMeshFile= ob.data.vray.GeomMeshFile
 			GeomMeshFile.use= True
 			GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
+			bpy.data.meshes.remove(original_mesh)
 		
 		debug(context.scene, "V-Ray/Blender: Proxy generation total time: %.2f\n" % (time.clock() - timer))
 

@@ -138,6 +138,12 @@ GeomMeshFile.apply_transforms= BoolProperty(
 	default= False
 )
 
+GeomMeshFile.add_suffix= BoolProperty(
+	name= "Apply suffix",
+	description= "Add \"_proxy\" suffix to object and mesh names.",
+	default= True
+)
+
 GeomMeshFile.apply_scale= BoolProperty(
 	name= "Apply scale",
 	description= "Apply scale.",
@@ -277,11 +283,12 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		sub.prop(GeomMeshFile, 'frame_end')
 		if wide_ui:
 			col= split.column()
+		col.prop(GeomMeshFile, 'add_suffix')
 		col.prop(GeomMeshFile, 'replace', text="Replace mesh [!]")
 		col.prop(GeomMeshFile, 'apply_transforms')
-		sub= col.column()
-		sub.active= not GeomMeshFile.apply_transforms
-		sub.prop(GeomMeshFile, 'apply_scale')
+		# sub= col.column()
+		# sub.active= not GeomMeshFile.apply_transforms
+		# sub.prop(GeomMeshFile, 'apply_scale')
 
 		layout.separator()
 
