@@ -62,11 +62,8 @@ def write_mesh_hq(ofile, sce, ob):
 
 	GeomMeshFile= ob.data.vray.GeomMeshFile
 
-	if GeomMeshFile.apply_transforms:
+	if GeomMeshFile.replace and GeomMeshFile.apply_transforms:
 		me.transform(ob.matrix_world)
-	## TODO
-	# elif GeomMeshFile.apply_scale: 
-	# 	me.transform(ob.matrix_world.scale_part())
 
 	for vertex in me.vertices:
 		ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
@@ -915,8 +912,8 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 				value= TRANSLUCENSY[BRDFVRayMtl.translucency]
 			elif param == 'anisotropy_rotation':
 				value= BRDFVRayMtl.anisotropy_rotation / 360.0
-			elif param == 'translucency_thickness':
-				value= BRDFVRayMtl.translucency_thickness * 1000000000000
+			# elif param == 'translucency_thickness':
+			# 	value= BRDFVRayMtl.translucency_thickness * 1000000000000
 			elif param == 'option_glossy_rays_as_gi':
 				value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
 			elif param == 'option_energy_mode':
@@ -2196,8 +2193,15 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 
 		if GeomMeshFile.animation:
 			selected_frame= sce.frame_current
-			frame= GeomMeshFile.frame_start
-			while(frame <= GeomMeshFile.frame_end):
+			
+			frame_start= sce.frame_start
+			frame_end= sce.frame_end
+			if GeomMeshFile.animation_range == 'MANUAL':
+				frame_start= GeomMeshFile.frame_start
+				frame_end= GeomMeshFile.frame_end
+
+			frame= frame_start
+			while(frame <= frame_end):
 				sce.frame_set(frame)
 				generate_proxy(sce,ob,vrmesh_filepath,append=True)
 				frame+= 1

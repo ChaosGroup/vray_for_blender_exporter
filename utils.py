@@ -898,7 +898,7 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	if PLATFORM == 'win32':
 		pc_binary+= ".exe"
 	if vb_script_path():
-		p= os.path.join(vb_script_path(),'bin',pc_binary)
+		p= os.path.join(vb_script_path(),pc_binary)
 		if os.path.exists(p):
 			pc_binary= p
 

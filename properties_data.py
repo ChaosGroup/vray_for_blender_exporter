@@ -82,12 +82,12 @@ GeomMeshFile.anim_type= EnumProperty(
 	name= "Animation type",
 	description= "Proxy animation type.",
 	items= (
-		('LOOP',"Loop","TODO."),
-		('ONCE',"Once","TODO."),
-		('PINGPONG',"Ping-pong","TODO."),
-		('STILL',"Still","TODO.")
+		('LOOP',     "Loop",      "."),
+		('ONCE',     "Once",      "."),
+		('PINGPONG', "Ping-pong", "."),
+		('STILL',    "Still",     ".")
 	),
-	default= "LOOP"
+	default= 'LOOP'
 )
 
 GeomMeshFile.anim_speed= FloatProperty(
@@ -126,28 +126,16 @@ GeomMeshFile.replace= BoolProperty(
 	default= False
 )
 
-GeomMeshFile.animation= BoolProperty(
-	name= "Animation",
-	description= "Animated proxy.",
-	default= False
-)
-
 GeomMeshFile.apply_transforms= BoolProperty(
 	name= "Apply transform",
-	description= "Apply rotation and location.",
+	description= "Apply rotation, location and scale.",
 	default= False
 )
 
 GeomMeshFile.add_suffix= BoolProperty(
-	name= "Apply suffix",
+	name= "Add suffix",
 	description= "Add \"_proxy\" suffix to object and mesh names.",
 	default= True
-)
-
-GeomMeshFile.apply_scale= BoolProperty(
-	name= "Apply scale",
-	description= "Apply scale.",
-	default= False
 )
 
 GeomMeshFile.dirpath= StringProperty(
@@ -162,6 +150,22 @@ GeomMeshFile.filename= StringProperty(
 	subtype= 'NONE',
 	description= "Proxy file name. If empty object's name is used.",
 	default= ""
+)
+
+GeomMeshFile.animation= BoolProperty(
+	name= "Animation",
+	description= "Animated proxy.",
+	default= False
+)
+
+GeomMeshFile.animation_range= EnumProperty(
+	name= "Animation range",
+	description= "Animation range type.",
+	items= (
+		('MANUAL', "Manual", "."),
+		('SCENE',  "Scene",     ".")
+	),
+	default= 'SCENE'
 )
 
 GeomMeshFile.frame_start= IntProperty(
@@ -214,7 +218,6 @@ del properties_data_mesh
 
 
 narrowui= 200
-
 
 
 def base_poll(cls, context):
@@ -277,18 +280,20 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(GeomMeshFile, 'animation')
-		sub= col.column(align=True)
+		sub= col.column()
 		sub.active= GeomMeshFile.animation
-		sub.prop(GeomMeshFile, 'frame_start')
-		sub.prop(GeomMeshFile, 'frame_end')
+		sub.prop(GeomMeshFile, 'animation_range', text="Range")
+		if GeomMeshFile.animation_range == 'MANUAL':
+			sub= sub.column(align=True)
+			sub.prop(GeomMeshFile, 'frame_start')
+			sub.prop(GeomMeshFile, 'frame_end')
 		if wide_ui:
 			col= split.column()
-		col.prop(GeomMeshFile, 'add_suffix')
 		col.prop(GeomMeshFile, 'replace', text="Replace mesh [!]")
-		col.prop(GeomMeshFile, 'apply_transforms')
-		# sub= col.column()
-		# sub.active= not GeomMeshFile.apply_transforms
-		# sub.prop(GeomMeshFile, 'apply_scale')
+		sub= col.column()
+		sub.active= GeomMeshFile.replace
+		sub.prop(GeomMeshFile, 'add_suffix')
+		sub.prop(GeomMeshFile, 'apply_transforms')
 
 		layout.separator()
 
