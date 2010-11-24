@@ -1,3 +1,4 @@
 *.pyc
+*.so
 preview/preview_materials.vrscene
 
