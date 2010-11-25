@@ -62,7 +62,7 @@ def write_mesh_hq(ofile, sce, ob):
 
 	GeomMeshFile= ob.data.vray.GeomMeshFile
 
-	if GeomMeshFile.replace and GeomMeshFile.apply_transforms:
+	if GeomMeshFile.apply_transforms:
 		me.transform(ob.matrix_world)
 
 	for vertex in me.vertices:
@@ -1795,7 +1795,12 @@ def write_settings(sce,ofile):
 
 	for f in ('geometry', 'materials', 'lights', 'nodes', 'camera'):
 		if VRayDR.on:
-			ofile.write("#include \"%s\"\n" % ('..' + os.path.join(bpy.path.abspath(VRayExporter.output_dir),os.path.basename(get_filenames(sce,f)))))
+			if VRayDR.type == 'UU':
+				ofile.write("#include \"%s\"\n" % get_filenames(sce,f))
+			elif VRayDR.type == 'WU':
+				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(sce,f)))))
+			else:
+				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(sce,f)))))
 		else:
 			ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(sce,f))))
 			
@@ -2209,39 +2214,68 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 		else:
 			generate_proxy(sce,ob,vrmesh_filepath)
 
+		ob_name= ob.name
 		ob_data_name= ob.data.name
-		if GeomMeshFile.add_suffix:
-			ob.name+= '_proxy'
-			ob_data_name+= '_proxy'
-			
-		if GeomMeshFile.replace:
-			original_mesh= ob.data
-			
+
+		if GeomMeshFile.mode != 'NONE':
+			if GeomMeshFile.mode in ('THIS','REPLACE'):
+				if GeomMeshFile.add_suffix:
+					ob.name+= '_proxy'
+					ob.data.name+= '_proxy'
+
+			if GeomMeshFile.mode == 'THIS':
+				GeomMeshFile.use= True
+				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
 			bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
-			bbox_mesh= bpy.data.meshes.new(ob_data_name)
+			bbox_mesh= bpy.data.meshes.new(ob_data_name+'_proxy')
 			bbox_mesh.from_pydata(ob.bound_box, [], bbox_faces)
 			bbox_mesh.update()
 
-			for slot in ob.material_slots:
-				if slot and slot.material:
-					bbox_mesh.materials.append(slot.material)
+			if GeomMeshFile.mode in ('NEW','REPLACE'):
+				for slot in ob.material_slots:
+					if slot and slot.material:
+						bbox_mesh.materials.append(slot.material)
 
-			ob.data= bbox_mesh
-			ob.draw_type= 'WIRE'
-			for md in ob.modifiers: ob.modifiers.remove(md)
+			if GeomMeshFile.mode == 'NEW':
+				new_ob= bpy.data.objects.new(ob_name+'_proxy', bbox_mesh)
+				sce.objects.link(new_ob)
+				new_ob.matrix_world= ob.matrix_world
+				new_ob.draw_type= 'WIRE'
+				bpy.ops.object.select_all(action='DESELECT')
+				new_ob.select= True
+				sce.objects.active= new_ob
 
-			if GeomMeshFile.apply_transforms:
-				ob.select= True
-				sce.objects.active= ob
-				bpy.ops.object.scale_apply()
-				bpy.ops.object.rotation_apply()
-				bpy.ops.object.location_apply()
+				if GeomMeshFile.apply_transforms:
+					ob.select= True
+					sce.objects.active= ob
+					bpy.ops.object.scale_apply()
+					bpy.ops.object.rotation_apply()
+					bpy.ops.object.location_apply()
 
-			GeomMeshFile= ob.data.vray.GeomMeshFile
-			GeomMeshFile.use= True
-			GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+				GeomMeshFile= new_ob.data.vray.GeomMeshFile
+				GeomMeshFile.use= True
+				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
-			bpy.data.meshes.remove(original_mesh)
+			elif GeomMeshFile.mode == 'REPLACE':
+				original_mesh= ob.data
+
+				ob.data= bbox_mesh
+				ob.draw_type= 'WIRE'
+				for md in ob.modifiers: ob.modifiers.remove(md)
+
+				if GeomMeshFile.apply_transforms:
+					ob.select= True
+					sce.objects.active= ob
+					bpy.ops.object.scale_apply()
+					bpy.ops.object.rotation_apply()
+					bpy.ops.object.location_apply()
+
+				GeomMeshFile= ob.data.vray.GeomMeshFile
+				GeomMeshFile.use= True
+				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
+				bpy.data.meshes.remove(original_mesh)
 		
 		debug(context.scene, "V-Ray/Blender: Proxy generation total time: %.2f\n" % (time.clock() - timer))
 

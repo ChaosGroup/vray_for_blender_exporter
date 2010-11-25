@@ -90,6 +90,18 @@ GeomMeshFile.anim_type= EnumProperty(
 	default= 'LOOP'
 )
 
+GeomMeshFile.mode= EnumProperty(
+	name= "Mode",
+	description= "Proxy creation mode.",
+	items= (
+		('NONE',    "None",        "Don\'t attach proxy."),
+		('NEW',     "New object",  "Attach proxy to new object."),
+		('THIS',    "This object", "Attach proxy to this object."),
+		('REPLACE', "Replace",     "Replace this object with proxy."),
+	),
+	default= 'NONE'
+)
+
 GeomMeshFile.anim_speed= FloatProperty(
 	name= "Speed",
 	description= "Animated proxy playback speed.",
@@ -118,12 +130,6 @@ GeomMeshFile.scale= FloatProperty(
 	soft_min= 0.0,
 	soft_max= 2.0,
 	default= 1.0
-)
-
-GeomMeshFile.replace= BoolProperty(
-	name= "Replace",
-	description= "Replace object\'s data with simple mesh and apply proxy.",
-	default= False
 )
 
 GeomMeshFile.apply_transforms= BoolProperty(
@@ -276,6 +282,8 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(GeomMeshFile, 'dirpath')
 		col.prop(GeomMeshFile, 'filename')
+		col.separator()
+		col.prop(GeomMeshFile, 'mode', text="Attach mode")
 
 		split= layout.split()
 		col= split.column()
@@ -289,11 +297,8 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 			sub.prop(GeomMeshFile, 'frame_end')
 		if wide_ui:
 			col= split.column()
-		col.prop(GeomMeshFile, 'replace', text="Replace mesh [!]")
-		sub= col.column()
-		sub.active= GeomMeshFile.replace
-		sub.prop(GeomMeshFile, 'add_suffix')
-		sub.prop(GeomMeshFile, 'apply_transforms')
+		col.prop(GeomMeshFile, 'add_suffix')
+		col.prop(GeomMeshFile, 'apply_transforms')
 
 		layout.separator()
 

@@ -828,16 +828,16 @@ def get_full_filepath(sce,filepath):
 	src_filename= os.path.split(src_file)[1]
 
 	if VRayDR.on:
-		dest_path= bpy.path.abspath(VRayDR.shared_dir)
+		dest_path= os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
+
 		if dest_path == "":
 			return src_file
+		
 		blendfile_name= os.path.split(bpy.data.filepath)[1][:-6]
 
 		dest_path= os.path.join(dest_path, blendfile_name + os.sep)
 		if not os.path.exists(dest_path):
 			os.mkdir(dest_path)
-
-		rel_path= blendfile_name + os.sep + src_filename
 
 		dest_file= os.path.join(dest_path,src_filename)
 		if os.path.isfile(src_file):
@@ -849,10 +849,12 @@ def get_full_filepath(sce,filepath):
 				debug(sce,"Copying \"%s\" to \"%s\"..."%(src_filename,dest_path))
 				shutil.copy(src_file,dest_path)
 
-		if VRayDR.type in ('UU','WU'):
-			return "..%s%s"%(os.sep,rel_path)
+		if VRayDR.type == 'UU':
+			return dest_file
+		elif VRayDR.type == 'WU':
+			return "..%s%s%s%s"%(os.sep, blendfile_name, os.sep, src_filename)
 		else:
-			return "//%s/%s"%(HOSTNAME,rel_path)
+			return "//%s/%s"%(HOSTNAME, rel_path)
 
 	return src_file
 
