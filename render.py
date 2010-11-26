@@ -839,7 +839,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	return vraymat
 
 
-def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
+def write_BRDFVRayMtl(ofile, ma, ma_name, input_textures):
 	BRDF_TYPE= {
 		'PHONG': 0,
 		'BLINN': 1,
@@ -868,41 +868,52 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, tex_vray):
 
 	brdf_name= "BRDFVRayMtl_%s"%(ma_name)
 
+	textures= {}
+	for key in ('color','reflect','roughness','reflect_glossiness','hilight_glossiness','refract','refract_glossiness','alpha','displace'):
+		if input_textures[key]:
+			mult_value= input_textures[key+'_mult']
+			if mult_value != 1.0:
+				textures[key]= multiply_texture(ofile, sce, input_textures[key], mult_value, suffix= ma_name)
+			else:
+				textures[key]= input_textures[key]
+		else:
+			textures[key]= None
+				
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
-	if tex_vray['alpha']:
-		ofile.write("\n\topacity= %s::out_intensity;" % tex_vray['alpha'])
+	if textures['alpha']:
+		ofile.write("\n\topacity= %s::out_intensity;" % textures['alpha'])
 	else:
 		ofile.write("\n\topacity= %s;" % a(sce,"%.6f"%(ma.alpha)))
 
-	if tex_vray['roughness']:
-		ofile.write("\n\troughness= %s::out_intensity;" % tex_vray['roughness'])
+	if textures['roughness']:
+		ofile.write("\n\troughness= %s::out_intensity;" % textures['roughness'])
 	else:
 		ofile.write("\n\troughness= %s;" % a(sce,"%.6f"%(BRDFVRayMtl.roughness)))
 
-	if tex_vray['color']:
-		ofile.write("\n\tdiffuse= %s;" % tex_vray['color'])
+	if textures['color']:
+		ofile.write("\n\tdiffuse= %s;" % textures['color'])
 	else:
 		ofile.write("\n\tdiffuse= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color))))
 
-	if tex_vray['reflect']:
-		ofile.write("\n\treflect= %s;" % tex_vray['reflect'])
+	if textures['reflect']:
+		ofile.write("\n\treflect= %s;" % textures['reflect'])
 	else:
 		ofile.write("\n\treflect= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.reflect_color))))
 
-	if tex_vray['reflect_glossiness']:
-		ofile.write("\n\treflect_glossiness= %s::out_intensity;" % tex_vray['reflect_glossiness'])
+	if textures['reflect_glossiness']:
+		ofile.write("\n\treflect_glossiness= %s::out_intensity;" % textures['reflect_glossiness'])
 	else:
 		ofile.write("\n\treflect_glossiness= %s;" % a(sce,BRDFVRayMtl.reflect_glossiness))
 
-	if tex_vray['hilight_glossiness']:
-		ofile.write("\n\thilight_glossiness= %s::out_intensity;" % tex_vray['hilight_glossiness'])
+	if textures['hilight_glossiness']:
+		ofile.write("\n\thilight_glossiness= %s::out_intensity;" % textures['hilight_glossiness'])
 	else:
 		ofile.write("\n\thilight_glossiness= %s;" % a(sce,BRDFVRayMtl.hilight_glossiness))
 
-	if tex_vray['refract']:
-		ofile.write("\n\trefract= %s;" % tex_vray['refract'])
+	if textures['refract']:
+		ofile.write("\n\trefract= %s;" % textures['refract'])
 	else:
 		ofile.write("\n\trefract= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.refract_color))))
 
@@ -1268,6 +1279,9 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
 		lamp_name= get_name(lamp,"Light")
+		if not object_on_visible_layers(sce,lamp):
+			if not sce.vray.use_hidden_lights:
+				continue
 		if VRayLamp.use_include_exclude:
 			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
 			if VRayLamp.include_exclude == 'INCLUDE':
@@ -1765,6 +1779,14 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		if focus_distance == 0.0:
 			focus_distance= 200.0
 
+		f= CameraPhysical.focal_length / 100
+		N= CameraPhysical.f_number
+		c= 0.019
+
+		H= (f * f) / (N * c)
+
+		print(H)
+
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
 			ofile.write("\n\ttype= %d;"%(PHYS[CameraPhysical.type]))
@@ -1918,6 +1940,7 @@ def write_settings(sce,ofile):
 		ofile.write("\nSettingsLightCache {")
 		ofile.write("\n\tsubdivs= %.0f;"%(lc.subdivs * dmc.subdivs_mult))
 		ofile.write("\n\tsample_size= %.6f;"%(lc.sample_size))
+		# TODO: auto num passes
 		ofile.write("\n\tnum_passes= %i;"%(lc.num_passes))
 		ofile.write("\n\tdepth= %i;"%(lc.depth))
 		ofile.write("\n\tfilter_type= %i;"%(LC_FILT[lc.filter_type]))
@@ -2277,7 +2300,7 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 
 				bpy.data.meshes.remove(original_mesh)
 		
-		debug(context.scene, "V-Ray/Blender: Proxy generation total time: %.2f\n" % (time.clock() - timer))
+		debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
 
 		return{'FINISHED'}
 

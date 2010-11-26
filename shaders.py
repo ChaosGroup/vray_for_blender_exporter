@@ -34,11 +34,25 @@ import bpy
 from vb25.utils import *
 
 
+def multiply_texture(ofile, sce, input_texture_name, mult_value, suffix= None):
+	tex_name= "TexMult_%s" % input_texture_name
+
+	if suffix:
+		tex_name+= suffix
+		
+	ofile.write("\nTexAColorOp %s {" % tex_name)
+	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+	ofile.write("\n\tmult_a= %s;" % a(sce,mult_value))
+	ofile.write("\n}\n")
+				
+	return tex_name
+
+
 def write_TexFresnel(ofile, sce, ma, ma_name, tex_vray):
 	tex_name= "TexFresnel_%s"%(ma_name)
 
 	ofile.write("\nTexFresnel %s {"%(tex_name))
-	if(tex_vray["reflect"]):
+	if tex_vray["reflect"]:
 		ofile.write("\n\tblack_color= %s;"%(tex_vray["reflect"]))
 	else:
 		ofile.write("\n\tblack_color= %s;"%(a(sce,"AColor(%.6f, %.6f, %.6f, 1.0)"%(tuple([1.0 - c for c in ma.vray_reflect_color])))))

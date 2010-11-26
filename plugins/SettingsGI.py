@@ -502,7 +502,7 @@ def add_properties(parent_struct):
 	SettingsLightCache.show_calc_phase= BoolProperty(
 		name= "Show calc phase",
 		description= "Turning this option on will show the paths that are traced.",
-		default= 0
+		default= 1
 	)
 
 	SettingsLightCache.store_direct_light= BoolProperty(

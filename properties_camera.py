@@ -662,7 +662,7 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			col= split.column()
 			col.prop(SettingsCamera, 'type', text="")
 
-		layout.separator()
+			layout.separator()
 
 		'''
 			SettingsCameraDof
