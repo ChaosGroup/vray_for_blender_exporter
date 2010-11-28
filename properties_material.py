@@ -733,6 +733,17 @@ BRDFSSS2Complex.diffuse_amount= FloatProperty(
 	default= 0.0
 )
 
+BRDFSSS2Complex.scatter_radius= FloatVectorProperty(
+	name= "Scatter radius",
+	description= 'TODO.',
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (0.92,0.52,0.175)
+)
+
 BRDFSSS2Complex.scatter_radius_mult= FloatProperty(
 	name= "Scatter radius",
 	description= 'TODO.',
@@ -777,17 +788,6 @@ BRDFSSS2Complex.sub_surface_color= FloatVectorProperty(
 	default= (0.5,0.5,0.5)
 )
 
-BRDFSSS2Complex.scatter_radius= FloatVectorProperty(
-	name= "Scatter radius",
-	description= 'TODO.',
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.92,0.52,0.175)
-)
-
 BRDFSSS2Complex.phase_function= FloatProperty(
 	name= "Phase function",
 	description= 'TODO.',
@@ -801,7 +801,7 @@ BRDFSSS2Complex.phase_function= FloatProperty(
 
 BRDFSSS2Complex.specular_color= FloatVectorProperty(
 	name= "Specular color",
-	description= 'TODO.',
+	description= "Specular color.",
 	subtype= 'COLOR',
 	min= 0.0,
 	max= 1.0,
@@ -812,7 +812,7 @@ BRDFSSS2Complex.specular_color= FloatVectorProperty(
 
 BRDFSSS2Complex.specular_subdivs= IntProperty(
 	name= "Specular subdivs",
-	description= 'TODO.',
+	description= "Specular subdivs.",
 	min= 0,
 	max= 10,
 	default= 8
@@ -820,7 +820,7 @@ BRDFSSS2Complex.specular_subdivs= IntProperty(
 
 BRDFSSS2Complex.specular_amount= FloatProperty(
 	name= "Specular amount",
-	description= 'TODO.',
+	description= "Specular amount.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -1377,7 +1377,7 @@ EnvironmentFog.subdivs= IntProperty(
 EnvironmentFog.affect_background= BoolProperty(
 	name= "Affect background",
 	description= "Affect background",
-	default= False
+	default= True
 )
 
 EnvironmentFog.yup= BoolProperty(
@@ -1922,7 +1922,7 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.label(text='General')
+			col.label(text="General:")
 
 			split= layout.split()
 			col= split.column()
@@ -1941,49 +1941,28 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.label(text='Overall color')
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'overall_color', text='')
+			col.prop(BRDFSSS2Complex, 'overall_color')
 			if wide_ui:
 				col= split.column()
-			col.prop(BRDFSSS2Complex, 'phase_function')
-
+			col.prop(BRDFSSS2Complex, 'diffuse_color')
 			split= layout.split()
 			col= split.column()
-			col.label(text='Diffuse color')
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'diffuse_color', text='')
 			if wide_ui:
 				col= split.column()
-			col.prop(BRDFSSS2Complex, 'diffuse_amount')
+			col.prop(BRDFSSS2Complex, 'diffuse_amount', text="Amount")
 
 			split= layout.split()
 			col= split.column()
 			col.prop(BRDFSSS2Complex, 'sub_surface_color')
+			col.prop(BRDFSSS2Complex, 'phase_function')
 			if wide_ui:
 				col= split.column()
+			col.prop(BRDFSSS2Complex, 'scatter_radius', text="Scatter color")
+			col.prop(BRDFSSS2Complex, 'scatter_radius_mult', text="Radius")
 
 			split= layout.split()
 			col= split.column()
-			col.label(text='Scatter color')
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'scatter_radius', text='')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'scatter_radius_mult')
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.label(text='Specular layer')
-
+			col.label(text='Specular layer:')
 			split= layout.split()
 			col= split.column()
 			col.prop(BRDFSSS2Complex, 'specular_color', text='')
@@ -2005,11 +1984,10 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.label(text='Options:')
+			col.prop(BRDFSSS2Complex, 'single_scatter')
 
 			split= layout.split()
 			col= split.column()
-			col.prop(BRDFSSS2Complex, 'single_scatter', text='Type')
 			col.prop(BRDFSSS2Complex, 'subdivs')
 			col.prop(BRDFSSS2Complex, 'refraction_depth')
 			col.prop(BRDFSSS2Complex, 'cutoff_threshold')
@@ -2069,17 +2047,7 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			col.prop(EnvironmentFog, 'tex_samples')
 			col.prop(EnvironmentFog, 'cutoff_threshold')
 
-			# We have per material setup
 			#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
-
-			#col.prop(EnvironmentFog, 'emission_tex')
-			#col.prop(EnvironmentFog, 'color_tex')
-			#col.prop(EnvironmentFog, 'density_tex')
-
-			#col.prop(EnvironmentFog, 'use_fade_out_tex')
-			#col.prop(EnvironmentFog, 'fade_out_tex')
-			#col.prop(EnvironmentFog, 'edge_fade_out')
-
 			#col.prop(EnvironmentFog, 'yup')
 		else:
 			pass

@@ -1016,3 +1016,25 @@ def get_filenames(sce, filetype):
 	debug(sce,"Filepath (%s): %s" % (filetype,filepath))
 
 	return filepath
+
+
+# TODO: add to scene converter
+# BLEND_TYPE= {
+# 	'MIX':          1,
+# 	'ADD':         4,
+# 	'SUBTRACT':    5,
+# 	'MULTIPLY':    6,
+# 	'SCREEN':       1,
+# 	'OVERLAY':     1,
+# 	'DIFFERENCE':  7,
+# 	'DIVIDE':       1,
+# 	'DARKEN':      9,
+# 	'LIGHTEN':     8,
+# 	'HUE':          1,
+# 	'SATURATION': 10,
+# 	'VALUE':        1,
+# 	'COLOR':        1,
+# 	'SOFT LIGHT':   1,
+# 	'LINEAR LIGHT': 1
+# }
+

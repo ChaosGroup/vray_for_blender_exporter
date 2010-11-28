@@ -30,6 +30,7 @@
 ''' Python modules  '''
 import math
 import os
+import random
 import string
 import subprocess
 import sys
@@ -542,16 +543,18 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 	return bitmap_name
 
 
-def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
+def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None, env= None, env_type= None):
 	tex_name= "Texture_no_texture"
 
-	if slot:
-		tex= slot.texture
+	slot= None
+	if issubclass(type(tex), bpy.types.TextureSlot):
+		slot= tex
+		tex= tex.texture
 
 	if tex.image:
 		tex_name= get_name(tex,"Texture")
-		if ma:
-			tex_name= "%s_%s"%(tex_name, get_name(ma,"Material"))
+		# if ma:
+		# 	tex_name= "%s_%s"%(tex_name, get_name(ma))
 
 		if env:
 			uvwgen= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
@@ -582,78 +585,399 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, slot= None, tex= No
 	return tex_name
 
 
-def write_TexAColorOp(ofile, tex, mult, tex_name= None):
-	brdf_name= "TexAColorOp_%s"%(tex_name if tex_name else tex)
-
-	ofile.write("\nTexAColorOp %s {"%(brdf_name))
-	ofile.write("\n\tcolor_a= %s;"%(a(sce,tex)))
-	ofile.write("\n\tmult_a= %s;"%(a(sce,mult)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_TexInvert(ofile, tex):
-	tex_name= "TexInvert_%s"%(tex)
-
-	ofile.write("\nTexInvert %s {"%(tex_name))
-	ofile.write("\n\ttexture= %s;"%(tex))
-	ofile.write("\n}\n")
-
-	return tex_name
-
-
-def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
-	OPERATOR= {
-		'Add':        0,
-		'Substract':  1,
-		'Difference': 2,
-		'Multiply':   3,
-		'Divide':     4,
-		'Minimum':    5,
-		'Maximum':    6
-	}
-
-	tex_name= "TexCompMax_%s"%(name)
-
-	ofile.write("\nTexCompMax %s {"%(tex_name))
-	ofile.write("\n\tsourceA= %s;"%(sourceA))
-	ofile.write("\n\tsourceB= %s;"%(sourceB))
-	ofile.write("\n\toperator= %d;"%(OPERATOR[operator]))
-	ofile.write("\n}\n")
-
-	return tex_name
-
-
-def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, ob= None, env= None, env_type= None):
-	if slot:
-		tex= slot.texture
-
-	VRayTexture= tex.vray
-	
+def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None, env= None, env_type= None):
+	if issubclass(type(tex), bpy.types.TextureSlot):
+		tex= tex.texture
 	if tex:
+		VRayTexture= tex.vray
 		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
-		if plugin is not None:
+		if plugin:
 			return plugin.write(ofile, sce, tex)
 
 
-def write_texture(ofile, exported_bitmaps= None, ma= None, slot= None, tex= None, env= None):
-	if slot:
-		tex= slot.texture
+def write_texture(ofile, exported_bitmaps= None, ma= None, tex= None, env= None):
+	slot= None
+	if issubclass(type(tex), bpy.types.TextureSlot):
+		slot= tex
+		tex=  tex.texture
 
-	texture= "Texture_no_texture"
+	tex_name= "Texture_no_texture"
 
 	if tex.type == 'IMAGE':
-		texture= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, slot= slot, tex= tex, env= env)
+		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, tex= tex, env= env)
 	elif tex.type == 'VRAY':
-		texture= write_TexPlugin(ofile, ma= ma, slot= slot, tex= tex, env= env)
-	else:
-		pass
+		tex_name= write_TexPlugin(ofile, ma= ma, tex= tex, env= env)
 
-	return texture
+	return tex_name
 
+
+def write_textures_working(ofile, exported_bitmaps, ma, ma_name):
+	VRayMaterial= ma.vray
+
+	vraymat= {
+		'color':      None,
+		'color_mult': 0.0,
+		'emit':      None,
+		'emit_mult': 0.0,
+		'bump':        None,
+		'bump_amount': 0.0,
+		'normal':        None,
+		'normal_amount': 0.0,
+		'reflect':      None,
+		'reflect_mult': 0.0,
+		'roughness':      None,
+		'roughness_mult': 0.0,
+		'reflect_glossiness':      None,
+		'reflect_glossiness_mult': 0.0,
+		'hilight_glossiness':      None,
+		'hilight_glossiness_mult': 0.0,
+		'refract':      None,
+		'refract_mult': 0.0,
+		'refract_glossiness':      None,
+		'refract_glossiness_mult': 0.0,
+		'alpha':      None,
+		'alpha_mult': 0.0,
+
+		'displace':        None,
+		'displace_amount': 0.0,
+		'displace_slot': None,
+	}
+
+	color_slots= []
+	for i,slot in enumerate(ma.texture_slots):
+		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES and slot.use_map_color_diffuse:
+			color_slots.append(slot)
+
+	print("Slots of one type")
+	for slot in color_slots:
+		print(slot.name)
+	
+	def _collapse_layers(slots):
+		layers= []
+		for i,slot in enumerate(slots):
+			if slot.use_stencil:
+				return {'color_a': layers,
+						'color_b': _collapse_layers(slots[i+1:]),
+						'blend_amount': slot}
+			else:
+				layers.append(slot)
+		return layers
+
+	collapsed_layers= _collapse_layers(color_slots)
+
+	# def _print_layer(depth,layers):
+	# 	for layer in layers:
+	# 		if type(layer) == list:
+	# 			depth+= 2
+	# 			_print_layer(depth,layer)
+	# 		else:
+	# 			print("{0:>{width}}".format(layer.name,width=depth))
+
+	# print("Collapsed slots of one type")
+	# depth= 0
+	# _print_layer(depth,collapsed_layers)
+
+	def _get_random_string():
+		return ''.join([random.choice(string.ascii_letters) for x in range(16)])
+
+	def _write_TexLayered(layer):
+		tex_name= _get_random_string()
+
+		textures= []
+		for slot in layer:
+			orig_tex= write_texture(ofile, exported_bitmaps, ma, slot)
+			mult_tex= multiply_texture(ofile, sce, orig_tex, slot.diffuse_color_factor)
+			textures.append(mult_tex)
+
+		if len(textures) == 1: return textures[0]
+		
+		ofile.write("\nTexLayered %s {"%(tex_name))
+		ofile.write("\n\ttextures= List(%s);"%(','.join(textures)))
+		ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l.texture.vray_slot.blend_mode] for l in layer])))
+		ofile.write("\n}\n")
+		return tex_name
+
+	def _write_TexMix(color_a, color_b, blend_slot):
+		tex_name= _get_random_string()
+
+		orig_tex= write_texture(ofile, exported_bitmaps, ma, blend_slot)
+		blend_amount= multiply_texture(ofile, sce, orig_tex, blend_slot.diffuse_color_factor)
+
+		ofile.write("\nTexMix %s {" % tex_name)
+		ofile.write("\n\tcolor1= %s;" % color_a)
+		ofile.write("\n\tcolor2= %s;" % color_b)
+		ofile.write("\n\tmix_amount= 1.0;")
+		ofile.write("\n\tmix_map= %s;" % blend_amount)
+		ofile.write("\n}\n")
+		return tex_name
+
+	def _write_shaders(layer):
+		if type(layer) == dict:
+			color_a= _write_shaders(layer['color_a'])
+			color_b= _write_shaders(layer['color_b'])
+			layer_name= _write_TexMix(color_a, color_b, layer['blend_amount'])
+		elif type(layer) == list:
+			layer_name= _write_TexLayered(layer)
+		return layer_name
+	
+	vraymat['color']= _write_shaders(collapsed_layers)
+
+	return vraymat
 
 def write_textures(ofile, exported_bitmaps, ma, ma_name):
+	def _write_multiplied_texture(slot, factor):
+		tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
+		tex_name= multiply_texture(ofile, sce, tex_name, factor)
+		return tex_name
+
+	def _get_random_string():
+		return ''.join([random.choice(string.ascii_letters) for x in range(16)])
+
+	BRDFVRayMtl= ma.vray.BRDFVRayMtl
+
+	# param_name: [ (default_value, stencil, blend_mode) ]
+	mapped_params= {
+		'diffuse':  [ (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE') ],
+		# 'roughness',
+		# 'opacity',
+		# 'normal',
+
+		'reflect':             [ (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)), 0, 'NONE') ],
+		# 'reflect_glossiness':  "AColor(%.6f,%.6f,%.6f,1.0)" % tuple([BRDFVRayMtl.reflect_glossiness]*3),
+		# 'hilight_glossiness':  "AColor(%.6f,%.6f,%.6f,1.0)" % tuple([BRDFVRayMtl.hilight_glossiness]*3),
+		# 'fresnel_ior':         "AColor(%.6f,%.6f,%.6f,1.0)" % tuple([BRDFVRayMtl.fresnel_ior]*3),
+		# 'anisotropy':          "AColor(%.6f,%.6f,%.6f,1.0)" % tuple([BRDFVRayMtl.anisotropy]*3]),
+		# 'anisotropy_rotation': "AColor(%.6f,%.6f,%.6f,1.0)" % tuple([BRDFVRayMtl.anisotropy_rotation]*3),
+		# 'refract',
+		# 'refract_ior',
+		# 'refract_glossiness',
+		# 'translucency_color',
+		# 'displacement',
+	}
+
+	for i,slot in enumerate(ma.texture_slots):
+		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
+			# TODO: VRaySlot= slot.vray
+			VRaySlot= slot.texture.vray_slot
+
+			factor= 1.0
+			for key in mapped_params:
+				use_slot= False
+				if key == 'diffuse':
+					if slot.use_map_color_diffuse:
+						use_slot= True
+						factor= slot.diffuse_color_factor
+				elif key == 'normal':
+					if slot.use_map_normal:
+						use_slot= True
+				elif key == 'displacement':
+					if slot.use_map_displacement:
+						use_slot= True
+				else:
+					if getattr(VRaySlot, 'map_'+key):
+						use_slot= True
+						factor= getattr(VRaySlot, key+'_mult')
+				if use_slot:
+					mapped_params[key].append((_write_multiplied_texture(slot, factor), slot.use_stencil, VRaySlot.blend_mode))
+
+	def _collapse_layers(slots):
+		layers= []
+		for i,slot in enumerate(slots):
+			(texture,stencil,blend_mode)= slot
+			if stencil:
+				return {'color_a': layers,
+						'color_b': _collapse_layers(slots[i+1:]),
+						'blend_amount': texture}
+			else:
+				layers.append((texture,blend_mode))
+		return layers
+
+	for key in mapped_params:
+		mapped_params[key]= _collapse_layers(mapped_params[key])
+		print(mapped_params[key])
+
+	def _write_TexLayered(layers):
+		tex_name= _get_random_string()
+
+		if len(layers) == 1: return layers[0][0]
+		
+		ofile.write("\nTexLayered %s {"%(tex_name))
+		ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
+		ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l[1]] for l in layers])))
+		ofile.write("\n}\n")
+
+		return tex_name
+
+	def _write_TexMix(color_a, color_b, blend_amount):
+		tex_name= _get_random_string()
+
+		ofile.write("\nTexMix %s {" % tex_name)
+		ofile.write("\n\tcolor1= %s;" % color_a)
+		ofile.write("\n\tcolor2= %s;" % color_b)
+		ofile.write("\n\tmix_amount= 1.0;")
+		ofile.write("\n\tmix_map= %s;" % blend_amount)
+		ofile.write("\n}\n")
+
+		return tex_name
+
+	def _write_shaders(layer):
+		if type(layer) == dict:
+			color_a= _write_shaders(layer['color_a'])
+			color_b= _write_shaders(layer['color_b'])
+			layer_name= _write_TexMix(color_a, color_b, layer['blend_amount'])
+		elif type(layer) == list:
+			layer_name= _write_TexLayered(layer)
+		return layer_name
+
+	for key in mapped_params:
+		mapped_params[key]= _write_shaders(mapped_params[key])
+
+	return mapped_params
+
+
+def write_textures_ng(ofile, exported_bitmaps, ma, ma_name):
+	VRayMaterial= ma.vray
+	
+	mapped_params= {
+		'color':     [],
+		'roughness': [],
+		'opacity':   [],
+
+		'reflect':             [],
+		'reflect_glossiness':  [],
+		'hilight_glossiness':  [],
+		'fresnel_ior':         [],
+		'anisotropy':          [],
+		'anisotropy_rotation': [],
+		
+		'refract':                [],
+		'refract_ior':            [],
+		'refract_glossiness':     [],
+		'translucency_color':     [],
+
+		'normal':   [],
+		'displace': [],
+
+		# 'overall_color':       [],
+		# 'sub_surface_color':   [],
+		# 'scatter_radius':      [],
+		# 'diffuse_color':       [],
+		# 'specular_color':      [],
+		# 'specular_amount':     [],
+		# 'specular_glossiness': [],
+
+		# 'color_tex':    [],
+		# 'density_tex':  [],
+		# 'emission_tex': [],
+		# 'fade_out_tex': [],
+	}
+
+	for i,slot in enumerate(ma.texture_slots):
+		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
+			VRaySlot= slot.texture.vray_slot
+			
+			for param in mapped_params:
+				if param == 'color':
+					if slot.use_map_color_diffuse:
+						mapped_params[param].append((slot,slot.diffuse_color_factor))
+				elif param == 'normal':
+					if slot.use_map_normal:
+						mapped_params[param].append((slot,slot.normal_factor))
+				elif param == 'displace':
+					if slot.use_map_displacement:
+						mapped_params[param].append((slot,slot.displacement_factor))
+				else:
+					map_to= 'map_'+param
+					factor= param+'_mult'
+					if getattr(VRaySlot,map_to):
+						mapped_params[param].append((slot,getattr(VRaySlot,factor)))
+
+	# for mp in mapped_params:
+	# 	print(mapped_params[mp])
+
+	# struct StackTex:
+	# 'texture': texture slot
+	# 'blend_mode': blending mode: 0 - mask, >0 - texture
+	# 'textures' list of StackTex: textures affected by mask
+	
+	texture_stacks= {}
+	for key in mapped_params:
+		if len(mapped_params[key]):
+			textures= []
+			i= 0
+			for slot,factor in mapped_params[key]:
+				if len(textures) and ptr[-1]['blend_mode'] == 'STENCIL':
+					ptr= textures[-1]['textures']
+				else:
+					ptr= textures
+
+				if i == 0 and factor < 1.0:
+					i+= 1
+					ptr.append({ 'texture': "AColor(%.6f, %.6f, %.6f,1)" % tuple(ma.diffuse_color),
+								 'blend_mode': 'NONE',
+								 'textures': [] })
+					
+				ptr.append({ 'texture': 'bal',
+							 'blend_mode': 'STENCIL' if slot.use_stencil else slot.texture.vray_slot.blend_mode,
+							 'textures': [] })
+
+			texture_stacks[key]= textures
+				
+	# def _print_textures(textures, depth= 0):
+	# 	for texture in textures:
+	# 		if texture['blend_mode'] == 'STENCIL':
+	# 			depth+= 2
+	# 			_print_textures(texture['textures'],depth)
+	# 		else:
+	# 			print(''.join([' ' for c in range(depth)])+"%s"%texture)
+
+	# for key in texture_stacks:
+	# 	_print_textures(texture_stacks[key])
+
+	def _write_TexBlend(color_a,color_b,stencil,name):
+		tex_name= "TexBlend_%s" % name
+		ofile.write("\nTexBlend %s {" % tex_name)
+		ofile.write("\n\tcolor_a= %s;" % color_a)
+		ofile.write("\n\tcolor_b= %s;"% color_b)
+		ofile.write("\n\tblend_amount= %s::out_intensity;" % stencil)
+		ofile.write("\n}\n")
+		return tex_name
+
+	def _write_TexLayered(textures,blend_modes,name):
+		tex_name= "TexLayered_%s" % name
+		ofile.write("\nTexLayered %s {"%(tex_name))
+		ofile.write("\n\ttextures= List(%s);"%(',\n'.join(textures)))
+		ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[bm] for bm in blend_modes])))
+		ofile.write("\n}\n")
+		return tex_name
+
+	def _write_stack(textures, name):
+		tex_layered_names= []
+		tex_layered_modes= []
+		for i,texture in enumerate(textures):
+			if texture['blend_mode'] == 'STENCIL':
+				below= textures[i-1]['texture']
+				over= _write_stack(texture['textures'],i)
+				stencil= texture['texture']
+
+				tex_name= _write_TexBlend(below,over,stencil,str(i))
+				
+				tex_layered_names.append(tex_name)
+			else:
+				if texture[i+1]['blend_mode'] == 'STENCIL':
+					tex_layered_names.append(texture['texture'])
+				print('append %s' % texture['texture'])
+			tex_layered_modes.append(texture['blend_mode'])
+		return _write_TexLayered(tex_layered_names,tex_layered_modes,name)
+
+	textures= {}
+	for key in texture_stacks:
+		textures[key]= _write_stack(texture_stacks[key], "%s_%s" % (clean_string(ma.name),key))
+
+	return textures
+
+
+def write_textures_old(ofile, exported_bitmaps, ma, ma_name):
 	vraytex= {
 		'color': [],
 		'bump': [],
@@ -702,7 +1026,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				if slot.texture.type in TEX_TYPES:
 					if slot.use_map_color_diffuse:
 						vraytex['color'].append(slot)
-						vraymat['color_mult']+= slot.diffuse_color_factor
+						vraymat['color_mult']= slot.diffuse_color_factor
 					if slot.use_map_emit:
 						vraytex['emit'].append(slot)
 						vraymat['emit_mult']+= slot.emit_factor
@@ -727,7 +1051,6 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					if slot.use_map_normal:
 						vraytex['normal'].append(slot)
 						vraymat['normal_amount']+= slot.normal_factor
-						#vraymat['normal_slot']= slot
 						vraymat['normal_tex']= slot.texture
 					if slot.use_map_displacement:
 						vraytex['displace'].append(slot)
@@ -756,36 +1079,23 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						ofile.write("\n}\n")
 						vraymat[textype]= tex_name
 					if slot.diffuse_color_factor < 1.0:
-						tex_name= "TexCombineColor_%s_%s"%(ma_name,vraymat[textype])
-						ofile.write("\nTexCombineColor %s {"%(tex_name))
-						ofile.write("\n\tcolor= %s;"%(a(sce,"AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
-						ofile.write("\n\ttexture= %s;"%(vraymat[textype]))
-						ofile.write("\n\ttexture_multiplier= %s;"%(a(sce,slot.diffuse_factor)))
-						ofile.write("\n}\n")
-						vraymat[textype]= tex_name
+						if 0:
+							tex_name= "TexCombineColor_%s_%s"%(ma_name,vraymat[textype])
+							ofile.write("\nTexCombineColor %s {"%(tex_name))
+							ofile.write("\n\tcolor= %s;"%(a(sce,"AColor(%.3f,%.3f,%.3f,1.0)"%(tuple(ma.diffuse_color)))))
+							ofile.write("\n\ttexture= %s;"%(vraymat[textype]))
+							ofile.write("\n\ttexture_multiplier= %s;"%(a(sce,slot.diffuse_color_factor)))
+							ofile.write("\n}\n")
+							vraymat[textype]= tex_name
+						else:
+							vraymat[textype]= multiply_texture(ofile, sce, vraymat[textype], slot.diffuse_color_factor, suffix= 'test')
+
 
 			else:
-				# TODO: add to scene converter
-				# BLEND_TYPE= {
-				# 	'MIX':          1,
-				# 	'ADD':         4,
-				# 	'SUBTRACT':    5,
-				# 	'MULTIPLY':    6,
-				# 	'SCREEN':       1,
-				# 	'OVERLAY':     1,
-				# 	'DIFFERENCE':  7,
-				# 	'DIVIDE':       1,
-				# 	'DARKEN':      9,
-				# 	'LIGHTEN':     8,
-				# 	'HUE':          1,
-				# 	'SATURATION': 10,
-				# 	'VALUE':        1,
-				# 	'COLOR':        1,
-				# 	'SOFT LIGHT':   1,
-				# 	'LINEAR LIGHT': 1
-				# }
-
 				BLEND_MODES= {
+					'NONE':         0,
+					'STENCIL':      1,
+					
 					'OVER':         1,
 					'IN':           2,
 					'OUT':          3,
@@ -801,13 +1111,18 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				}
 
 				stencil= 0
+				texlayered_opacities= []
 				texlayered_modes= []
 				texlayered_names= []
+
+				texlayered_names.append("AColor(%.6f, %.6f, %.6f,1)" % tuple(ma.diffuse_color))
+				texlayered_modes.append("0")
 
 				for slot in vraytex[textype]:
 					tex= slot.texture
 
 					tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
+					tex_name= multiply_texture(ofile, sce, tex_name, slot.diffuse_color_factor, suffix= 'test')
 
 					texlayered_names.append(tex_name) # For stencil
 					texlayered_modes.append(str(BLEND_MODES[tex.vray_slot.blend_modes]))
@@ -830,8 +1145,10 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 					# TODO: blend [0] texture over an object color.
 					tex_name= "TexLayered_%s"%(textype)
 					ofile.write("\nTexLayered %s {"%(tex_name))
+					#ofile.write("\nTexLayeredMax %s {"%(tex_name))
 					ofile.write("\n\ttextures= List(%s);"%(','.join(texlayered_names)))
 					ofile.write("\n\tblend_modes= List(0,%s);"%(','.join(texlayered_modes[1:])))
+					#ofile.write("\n\topacities= List(%s);"%(','.join(texlayered_opacities)))
 					ofile.write("\n}\n")
 
 				vraymat[textype]= tex_name
@@ -839,7 +1156,7 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	return vraymat
 
 
-def write_BRDFVRayMtl(ofile, ma, ma_name, input_textures):
+def write_BRDFVRayMtl(ofile, ma, ma_name, textures):
 	BRDF_TYPE= {
 		'PHONG': 0,
 		'BLINN': 1,
@@ -868,54 +1185,36 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, input_textures):
 
 	brdf_name= "BRDFVRayMtl_%s"%(ma_name)
 
-	textures= {}
-	for key in ('color','reflect','roughness','reflect_glossiness','hilight_glossiness','refract','refract_glossiness','alpha','displace'):
-		if input_textures[key]:
-			mult_value= input_textures[key+'_mult']
-			if mult_value != 1.0:
-				textures[key]= multiply_texture(ofile, sce, input_textures[key], mult_value, suffix= ma_name)
-			else:
-				textures[key]= input_textures[key]
-		else:
-			textures[key]= None
-				
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
-	if textures['alpha']:
-		ofile.write("\n\topacity= %s::out_intensity;" % textures['alpha'])
-	else:
-		ofile.write("\n\topacity= %s;" % a(sce,"%.6f"%(ma.alpha)))
+	# if textures['opacity']:
+	# 	ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
+	# else:
+	# 	ofile.write("\n\topacity= %s;" % a(sce,"%.6f"%(ma.alpha)))
 
-	if textures['roughness']:
-		ofile.write("\n\troughness= %s::out_intensity;" % textures['roughness'])
-	else:
-		ofile.write("\n\troughness= %s;" % a(sce,"%.6f"%(BRDFVRayMtl.roughness)))
+	# if textures['roughness']:
+	# 	ofile.write("\n\troughness= %s::out_intensity;" % textures['roughness'])
+	# else:
+	# 	ofile.write("\n\troughness= %s;" % a(sce,"%.6f"%(BRDFVRayMtl.roughness)))
 
-	if textures['color']:
-		ofile.write("\n\tdiffuse= %s;" % textures['color'])
-	else:
-		ofile.write("\n\tdiffuse= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(ma.diffuse_color))))
+	ofile.write("\n\tdiffuse= %s;" % textures['diffuse'])
+	ofile.write("\n\treflect= %s;" % textures['reflect'])
 
-	if textures['reflect']:
-		ofile.write("\n\treflect= %s;" % textures['reflect'])
-	else:
-		ofile.write("\n\treflect= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.reflect_color))))
+	# if textures['reflect_glossiness']:
+	# 	ofile.write("\n\treflect_glossiness= %s::out_intensity;" % textures['reflect_glossiness'])
+	# else:
+	# 	ofile.write("\n\treflect_glossiness= %s;" % a(sce,BRDFVRayMtl.reflect_glossiness))
 
-	if textures['reflect_glossiness']:
-		ofile.write("\n\treflect_glossiness= %s::out_intensity;" % textures['reflect_glossiness'])
-	else:
-		ofile.write("\n\treflect_glossiness= %s;" % a(sce,BRDFVRayMtl.reflect_glossiness))
+	# if textures['hilight_glossiness']:
+	# 	ofile.write("\n\thilight_glossiness= %s::out_intensity;" % textures['hilight_glossiness'])
+	# else:
+	# 	ofile.write("\n\thilight_glossiness= %s;" % a(sce,BRDFVRayMtl.hilight_glossiness))
 
-	if textures['hilight_glossiness']:
-		ofile.write("\n\thilight_glossiness= %s::out_intensity;" % textures['hilight_glossiness'])
-	else:
-		ofile.write("\n\thilight_glossiness= %s;" % a(sce,BRDFVRayMtl.hilight_glossiness))
-
-	if textures['refract']:
-		ofile.write("\n\trefract= %s;" % textures['refract'])
-	else:
-		ofile.write("\n\trefract= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.refract_color))))
+	# if textures['refract']:
+	# 	ofile.write("\n\trefract= %s;" % textures['refract'])
+	# else:
+	# 	ofile.write("\n\trefract= %s;" % a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%(tuple(BRDFVRayMtl.refract_color))))
 
 	for param in OBJECT_PARAMS['BRDFVRayMtl']:
 		if param not in ('refract','opacity','diffuse','reflect','reflect_glossiness','hilight_glossiness','refract'):
@@ -1005,7 +1304,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 		object_params['meshlight']['on']= True
 		object_params['meshlight']['material']= ma
-		object_params['meshlight']['texture']= tex_vray['emit'] if tex_vray['emit'] else tex_vray['color']
+		object_params['meshlight']['texture']= tex_vray['color']
 		return
 	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
@@ -1013,7 +1312,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 			object_params['volume'][param]= getattr(VRayMaterial.EnvironmentFog,param)
 		return
 
-	if tex_vray['displace']:
+	if 'displace' in tex_vray:
 		object_params['displace']['texture']= tex_vray['displace']
 		object_params['displace']['slot']= tex_vray['displace_slot']
 
@@ -1033,7 +1332,7 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 		brdf_name= write_BRDFLight(ofile, sce, ma, ma_name, tex_vray)
 
 	if VRayMaterial.type not in ('EMIT','VOL'):
-		if tex_vray['normal']:
+		if 'normal' in tex_vray and tex_vray['normal']:
 			brdf_name= write_BRDFBump(ofile, brdf_name, tex_vray)
 
 	complex_material= []
@@ -1376,7 +1675,7 @@ def write_object(ob, params, add_params= None):
 		'volume': None
 	}
 
-	debug(sce, "Object[%s]: %s" % (ob.name,object_params))
+	debug(sce, "  Params: %s" % object_params)
 
 	VRayExporter= sce.vray.exporter
 	VRayObject=   ob.vray
@@ -1785,7 +2084,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 
 		H= (f * f) / (N * c)
 
-		print(H)
+		debug(sce, "Camera: H= %.3f" % H)
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
@@ -2317,9 +2616,9 @@ class VRayRenderer(bpy.types.RenderEngine):
 		rd=  scene.render
 		wo=  scene.world
 
-		# TEMP
 		if rd.display_mode != 'AREA':
 			rd.display_mode= 'AREA'
+			rd.use_color_management= False
 
 		vsce= sce.vray
 		ve= vsce.exporter
@@ -2426,9 +2725,9 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		rd=  scene.render
 		wo=  scene.world
 
-		# TEMP
 		if rd.display_mode != 'AREA':
 			rd.display_mode= 'AREA'
+			rd.use_color_management= False
 
 		vsce= sce.vray
 		ve= vsce.exporter

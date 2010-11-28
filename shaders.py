@@ -34,17 +34,117 @@ import bpy
 from vb25.utils import *
 
 
-def multiply_texture(ofile, sce, input_texture_name, mult_value, suffix= None):
+BLEND_MODES= {
+	'NONE':         '0',
+	'STENCIL':      '1',
+
+	'OVER':         '1',
+	'IN':           '2',
+	'OUT':          '3',
+	'ADD':          '4',
+	'SUBSTRACT':    '5',
+	'MULTIPLY':     '6',
+	'DIFFERENCE':   '7',
+	'LIGHTEN':      '8',
+	'DARKEN':       '9',
+	'SATURATE':    '10',
+	'DESATUREATE': '11',
+	'ILLUMINATE':  '12',
+}
+
+
+def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
 	tex_name= "TexMult_%s" % input_texture_name
 
+	if mult_value == 1.0:
+		return input_texture_name
+	
 	if suffix:
 		tex_name+= suffix
 		
 	ofile.write("\nTexAColorOp %s {" % tex_name)
 	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-	ofile.write("\n\tmult_a= %s;" % a(sce,mult_value))
+	if mult_value > 1.0:
+		ofile.write("\n\tmult_a= %s;" % a(sce,mult_value))
+	else:
+		ofile.write("\n\tmult_a= 1.0;")
+		ofile.write("\n\tresult_alpha= %s;" % a(sce,mult_value))
 	ofile.write("\n}\n")
 				
+	return tex_name
+
+
+def stencil_texture(ofile,sce, textureA, textureB, mode, factor, name= None):
+	tex_name= "Stencil_%s_%s" % (textureA, textureB)
+	if name:
+		tex_name= name
+	
+	ofile.write("\nTexBlend %s {" % tex_name)
+	ofile.write("\n\tcolor_a= %s;" % textureA)
+	ofile.write("\n\tcolor_b= %s;" % textureB)
+	ofile.write("\n\tblend_amount= %s::out_intensity;"%(texlayered_names[stencil]))
+	ofile.write("\n\tcomposite= %d;"%(0))
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def blend_texture(ofile,sce, textureA, textureB, mode, factor):
+	tex_name= "stackmix_%s"%(tex)
+	
+	ofile.write("\nTexLayered stackmix_a_%s {"%(tex))
+	ofile.write("\n\ttextures= List(%s,%s);"%(color1,color2))
+	ofile.write("\n\tblend_modes= List(1,%s);"%(mode))
+	ofile.write("\n}\n")
+	ofile.write("\nTexMix stackmix_%s {"%(tex))
+	ofile.write("\n\tcolor2= stackmix_a_%s;"%(tex))
+	ofile.write("\n\tcolor1= %s;"%(color1))
+	ofile.write("\n\tmix_amount= %s;"%(factor))
+	ofile.write("\n}\n")
+		
+	return tex_name
+
+
+def write_TexAColorOp(ofile, sce, tex, mult, tex_name= None):
+	brdf_name= "TexAColorOp_%s"%(tex_name if tex_name else tex)
+
+	ofile.write("\nTexAColorOp %s {"%(brdf_name))
+	ofile.write("\n\tcolor_a= %s;"%(a(sce,tex)))
+	ofile.write("\n\tmult_a= %s;"%(a(sce,mult)))
+	ofile.write("\n}\n")
+
+	return brdf_name
+
+
+def write_TexInvert(ofile, tex):
+	tex_name= "TexInvert_%s"%(tex)
+
+	ofile.write("\nTexInvert %s {"%(tex_name))
+	ofile.write("\n\ttexture= %s;"%(tex))
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
+	OPERATOR= {
+		'Add':        0,
+		'Substract':  1,
+		'Difference': 2,
+		'Multiply':   3,
+		'Divide':     4,
+		'Minimum':    5,
+		'Maximum':    6
+	}
+
+	tex_name= "TexCompMax_%s"%(name)
+
+	ofile.write("\nTexCompMax %s {"%(tex_name))
+	ofile.write("\n\tsourceA= %s;"%(sourceA))
+	ofile.write("\n\tsourceB= %s;"%(sourceB))
+	ofile.write("\n\toperator= %d;"%(OPERATOR[operator]))
+	ofile.write("\n}\n")
+
 	return tex_name
 
 
