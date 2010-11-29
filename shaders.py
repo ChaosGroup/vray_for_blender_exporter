@@ -34,6 +34,716 @@ import bpy
 from vb25.utils import *
 
 
+MODULES= {
+	'SettingsUnitsInfo': (
+		'meters_scale',
+		'photometric_scale'
+	),
+
+	'SettingsDMCSampler': (
+		'time_dependent',
+		'adaptive_amount',
+		'adaptive_threshold',
+		'adaptive_min_samples',
+		'subdivs_mult'
+	),
+
+	'SettingsImageSampler': (
+		'fixed_subdivs',
+		'dmc_minSubdivs',
+		'dmc_threshold',
+		'dmc_show_samples',
+		'subdivision_minRate',
+		'subdivision_maxRate',
+		'subdivision_threshold',
+		'subdivision_edges',
+		'subdivision_normals',
+		'subdivision_normals_threshold',
+		'subdivision_jitter',
+		'subdivision_show_samples'
+	),
+
+	'SettingsColorMapping': (
+		'affect_background',
+		'dark_mult',
+		'bright_mult',
+		'gamma',
+		'subpixel_mapping',
+		'clamp_output',
+		'clamp_level',
+		'adaptation_only',
+		'linearWorkflow'
+	),
+
+	'SettingsDefaultDisplacement': (
+		'override_on',
+		'edgeLength',
+		'viewDependent',
+		'maxSubdivs',
+		'tightBounds',
+		'amount',
+		'relative'
+	),
+	
+	'SettingsRegionsGenerator': (
+        'xc',
+        'yc',
+        # 'xymeans',
+        # 'seqtype',
+        'reverse'
+	)
+}
+
+OBJECT_PARAMS= {
+	'GeomDisplacedMesh': (
+		'displacement_shift',
+		'water_level',
+        'use_globals',
+        'view_dep',
+        'edge_length',
+        'max_subdivs',
+        'keep_continuity',
+        'map_channel',
+        'use_bounds',
+        'min_bound',
+        'max_bound',
+        'resolution',
+        'precision',
+        'tight_bounds',
+        'filter_texture',
+        'filter_blur'
+	),
+	'EnvironmentFog': (
+		#'gizmos',
+		'emission',
+		#'emission_tex',
+		'color',
+		#'color_tex',
+		'distance',
+		'density',
+		#'density_tex',
+		'use_height',
+		'height',
+		'subdivs',
+		'affect_background',
+		'yup',
+		'fade_out_radius',
+		'per_object_fade_out_radius',
+		'use_fade_out_tex',
+		#'fade_out_tex',
+		'edge_fade_out',
+		'fade_out_type',
+		'scatter_gi',
+		'scatter_bounces',
+		'simplify_gi',
+		'step_size',
+		'max_steps',
+		'tex_samples',
+		'cutoff_threshold',
+		'light_mode',
+		#'lights',
+		'use_shade_instance'
+	),
+	
+	'BRDFSSS2Complex': (
+		'prepass_rate',
+		'interpolation_accuracy',
+		'scale',
+		'ior',
+		#'overall_color',
+		#'diffuse_color',
+		#'diffuse_amount',
+		#'sub_surface_color',
+		#'scatter_radius',
+		'scatter_radius_mult',
+		'phase_function',
+		#'specular_color',
+		#'specular_amount',
+		#'specular_glossiness',
+		'specular_subdivs',
+		'cutoff_threshold',
+		'trace_reflections',
+		'reflection_depth',
+		#'single_scatter',
+		'subdivs',
+		'refraction_depth',
+		'front_scatter',
+		'back_scatter',
+		'scatter_gi',
+		'prepass_blur'
+		#'channels'
+	),
+
+	'BRDFVRayMtl': (
+		# 'opacity',
+		# 'diffuse',
+		# 'roughness',
+		## 'brdf_type',
+		# 'reflect',
+		# 'reflect_glossiness',
+		# 'hilight_glossiness',
+		'hilight_glossiness_lock',
+		'fresnel',
+		'fresnel_ior',
+		'fresnel_ior_lock',
+		'reflect_subdivs',
+		'reflect_trace',
+		'reflect_depth',
+		'reflect_exit_color',
+		'hilight_soften',
+		# 'reflect_dim_distance',
+		'reflect_dim_distance_on',
+		'reflect_dim_distance_falloff',
+		'anisotropy',
+		'anisotropy_rotation',
+		'anisotropy_derivation',
+		'anisotropy_axis',
+		# 'anisotropy_uvwgen',
+		# 'refract',
+		'refract_ior',
+		'refract_glossiness',
+		'refract_subdivs',
+		'refract_trace',
+		'refract_depth',
+		'refract_exit_color',
+		'refract_exit_color_on',
+		'refract_affect_alpha',
+		'refract_affect_shadows',
+		'fog_color',
+		'fog_mult',
+		'fog_bias',
+		'fog_unit_scale_on',
+		'translucency',
+		# 'translucency_color',
+		'translucency_light_mult',
+		'translucency_scatter_dir',
+		'translucency_scatter_coeff',
+		'translucency_thickness',
+		'option_double_sided',
+		'option_reflect_on_back',
+		'option_glossy_rays_as_gi',
+		'option_cutoff',
+		'option_use_irradiance_map',
+		'option_energy_mode',
+		# 'environment_override',
+		'environment_priority',
+	),
+	
+	'CameraPhysical': (
+		'film_width',
+		'focal_length',
+		'zoom_factor',
+		'distortion',
+		'distortion_type',
+		'f_number',
+		'lens_shift',
+		'shutter_speed',
+		'shutter_angle',
+		'shutter_offset',
+		'latency',
+		'ISO',
+		'dof_display_threshold',
+		'exposure',
+		'vignetting',
+		'blades_enable',
+		'blades_num',
+		'blades_rotation',
+		'center_bias',
+		'anisotropy',
+		'use_dof',
+		'use_moblur',
+		'subdivs'
+		#'lens_file',
+		#'horizontal_shift'
+	),
+
+	'LightOmni': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		#'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		'decay'
+	),
+
+	'LightSphere': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay',
+		'radius',
+		'sphere_segments'
+	),
+
+	'LightRectangle': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		#'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay'
+	),
+
+	'LightDirect': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		'intensity',
+		#'intensity_tex',
+		'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		'beamRadius'
+	),
+
+	'SunLight': (
+		'turbidity',
+		'ozone',
+		'water_vapour',
+		'intensity_multiplier',
+		'size_multiplier',
+		#'up_vector',
+		'invisible',
+		'horiz_illum',
+		#'sky_model',
+		'shadows',
+		#'atmos_shadows',
+		'shadowBias',
+		'shadow_subdivs',
+		'shadow_color',
+		#'shadow_color_tex',
+		#'photon_radius',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'enabled'
+	),	
+
+	'LightIES': (
+		'enabled',
+		'intensity',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		'shadowSubdivs',
+		'ies_file',
+		#'filter_color',
+		'soft_shadows',
+		#'area_speculars'
+	),
+
+	'LightDome': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		#'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'channels',
+		#'channels_raw',
+		#'channels_diffuse',
+		#'channels_specular',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		#'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		#'dome_tex',
+		#'use_dome_tex',
+		#'tex_resolution',
+		#'dome_targetRadius',
+		#'dome_emitRadius',
+		#'dome_spherical',
+		#'tex_adaptive',
+		#'dome_rayDistance',
+		#'dome_rayDistanceMode',
+	),
+
+	'LightSpot': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		#'coneAngle',
+		#'penumbraAngle',
+		#'dropOff',
+		#'falloffType',
+		'decay',
+		#'barnDoor',
+		#'barnDoorLeft',
+		#'barnDoorRight',
+		#'barnDoorTop',
+		#'barnDoorBottom',
+		#'useDecayRegions',
+		#'startDistance1',
+		#'endDistance1',
+		#'startDistance2',
+		#'endDistance2',
+		#'startDistance3',
+		#'endDistance3'
+	),
+
+	'LightMesh': (
+		'enabled',
+		# 'transform',
+		'color',
+		# 'color_tex',
+		# 'shadows',
+		# 'shadowColor',
+		# 'shadowColor_tex',
+		# 'shadowBias',
+		# 'photonSubdivs',
+		'causticSubdivs',
+		# 'diffuseMult',
+		# 'causticMult',
+		# 'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		# 'bumped_below_surface_check',
+		# 'nsamples',
+		# 'diffuse_contribution',
+		# 'specular_contribution',
+		# 'channels',
+		# 'channels_raw',
+		# 'channels_diffuse',
+		# 'channels_specular',
+		'units',
+		'intensity',
+		# 'intensity_tex',
+		'subdivs',
+		'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay',
+		'doubleSided',
+		'lightPortal',
+		'geometry',
+		# 'ignoreLightNormals',
+		# 'tex',
+		# 'use_tex',
+		# 'tex_resolution',
+		# 'cache_tex'
+	),
+
+	'TexSky': (
+		#'transform',
+		#'target_transform',
+		'turbidity',
+		'ozone',
+		'water_vapour',
+		'intensity_multiplier',
+		'size_multiplier',
+		#'up_vector',
+		'invisible',
+		'horiz_illum',
+		'sky_model',
+		'sun'
+	),
+
+	'MtlWrapper': (
+		#'base_material',
+		'generate_gi',
+		'receive_gi',
+		'generate_caustics',
+		'receive_caustics',
+		'alpha_contribution',
+		'matte_surface',
+		'shadows',
+		'affect_alpha',
+		'shadow_tint_color',
+		'shadow_brightness',
+		'reflection_amount',
+		'refraction_amount',
+		'gi_amount',
+		'no_gi_on_other_mattes',
+		'matte_for_secondary_rays',
+		'gi_surface_id',
+		'gi_quality_multiplier',
+		#'alpha_contribution_tex',
+		#'shadow_brightness_tex',
+		#'reflection_filter_tex',
+		'trace_depth',
+		#'channels'
+	),
+
+	'MtlRenderStats': (
+		'camera_visibility',
+		'reflections_visibility',
+		'refractions_visibility',
+		'gi_visibility',
+		'shadows_visibility',
+		'visibility'
+	)
+}
+
+TEX_TYPES= ('IMAGE', 'VRAY')
+
+UNITS= {
+	'DEFAULT' : 0,
+	'LUMENS'  : 1,
+	'LUMM'    : 2,
+	'WATTSM'  : 3,
+	'WATM'    : 4
+}
+
+LIGHT_PORTAL= {
+	'NORMAL':  0,
+	'PORTAL':  1,
+	'SPORTAL': 2
+}
+
+SKY_MODEL= {
+	'CIEOVER'  : 2,
+	'CIECLEAR' : 1,
+	'PREETH'   : 0
+}
+
+PROXY_ANIM_TYPE= {
+	'LOOP'     : 0,
+	'ONCE'     : 1,
+	'PINGPONG' : 2,
+	'STILL'    : 3
+}
+
+AA_FILTER_TYPE= {
+	'AREA'     : '\nFilterArea {',
+	'BOX'      : '\nFilterBox {',
+	'TRIANGLE' : '\nFilterTriangle {',
+	'LANC'     : '\nFilterLanczos {',
+	'SINC'     : '\nFilterSinc {',
+	'GAUSS'    : '\nFilterGaussian {',
+	'CATMULL'  : '\nFilterCatmullRom {'
+}
+
+PHYS= {
+	"STILL":     0,
+	"CINEMATIC": 1,
+	"VIDEO":     2
+}
+
+SEQTYPE= {
+	'HILBERT':   5,
+	'TRIANGLE':  4,
+	'IOSPIRAL':  3,
+	'TBCHECKER': 2,
+	'LRWIPE':    1,
+	'TBWIPE':    0
+}
+
+XYMEANS= {
+	'BUCKETS': 1,
+	'SIZE':    0
+}
+
+COLOR_MAPPING_TYPE= {
+	'LNR':  0,
+	'EXP':  1,
+	'HSV':  2,
+	'INT':  3,
+	'GCOR': 4,
+	'GINT': 5,
+	'REIN': 6
+}
+
+IMAGE_SAMPLER_TYPE= {
+	'FXD': 0,
+	'DMC': 1,
+	'SBD': 2
+}
+
+PRIMARY= {
+	"IM":  0,
+	"PM":  1,
+	"BF":  2,
+	"LC":  3
+}
+
+SECONDARY= {
+	"NONE":  0,
+	"PM":    1,
+	"BF":    2,
+	"LC":    3
+}
+
+SCALE= {
+	"SCREEN":  0,
+	"WORLD":   1
+}
+
+IM_MODE= {
+	"SINGLE":    0,
+	"INC":       1,
+	"FILE":      2,
+	"ADD":       3,
+	"ADD_INC":   4,
+	"BUCKET":    5,
+	"ANIM_PRE":  6,
+	"ANIM_REND": 7
+}
+
+INT_MODE= {
+	"VORONOI":   0,
+	"LEAST":     1,
+	"DELONE":    2,
+	"WEIGHTED":  3
+}
+
+LOOK_TYPE= {
+	"QUAD":     0,
+	"NEAREST":  1,
+	"OVERLAP":  2,
+	"DENSITY":  3
+}
+
+LC_FILT= {
+	"NEAREST": 0,
+	"FIXED":   1
+}
+
+LC_MODE= {
+	"SINGLE":  0,
+	"FILE":    1,
+	"FLY":     2,
+	"PPT":     3
+}
+
+# BLEND_TYPE= {
+# 	'MIX':          0,
+# 	'ADD':          4,
+# 	'SUBTRACT':     5,
+# 	'MULTIPLY':     6,
+# 	'SCREEN':       0,
+# 	'OVERLAY':      1,
+# 	'DIFFERENCE':   7,
+# 	'DIVIDE':       0,
+# 	'DARKEN':       9,
+# 	'LIGHTEN':      8,
+# 	'HUE':          0,
+# 	'SATURATION':  10,
+# 	'VALUE':        0,
+# 	'COLOR':        0,
+# 	'SOFT LIGHT':   0,
+# 	'LINEAR LIGHT': 0
+# }
+
 BLEND_MODES= {
 	'NONE':         '0',
 	'STENCIL':      '1',
@@ -54,11 +764,10 @@ BLEND_MODES= {
 
 
 def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
-	tex_name= "TexMult_%s" % input_texture_name
-
 	if mult_value == 1.0:
 		return input_texture_name
-	
+
+	tex_name= "TexMult_%s" % input_texture_name
 	if suffix:
 		tex_name+= suffix
 		

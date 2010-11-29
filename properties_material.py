@@ -1338,11 +1338,11 @@ EnvironmentFog.distance= FloatProperty(
 
 EnvironmentFog.density= FloatProperty(
 	name= "Density",
-	description= "Fog density",
+	description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog.",
 	min= 0.0,
-	max= 100.0,
+	max= 1.0,
 	soft_min= 0.0,
-	soft_max= 10.0,
+	soft_max= 1.0,
 	precision= 3,
 	default= 1
 )
@@ -1941,7 +1941,8 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(BRDFSSS2Complex, 'overall_color')
+			#col.prop(BRDFSSS2Complex, 'overall_color')
+			col.prop(mat, 'diffuse_color', text="Overall color")
 			if wide_ui:
 				col= split.column()
 			col.prop(BRDFSSS2Complex, 'diffuse_color')

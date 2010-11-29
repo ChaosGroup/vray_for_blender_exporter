@@ -148,23 +148,21 @@ VRaySlot.blend_mode= EnumProperty(
 # 	min= 0.0,
 # 	max= 100.0,
 # 	soft_min= 0.0,
-# 	soft_max= 2.0,
+# 	soft_max= 1.0,
 # 	default= 1.0
 # )
-
 # VRaySlot.map_diffuse= BoolProperty(
 # 	name= "Diffuse",
 # 	description= "Diffuse texture.",
 # 	default= False
 # )
-
 # VRaySlot.diffuse_mult= FloatProperty(
 # 	name= "Diffuse texture multiplier",
 # 	description= "Diffuse texture multiplier.",
 # 	min= 0.0,
 # 	max= 100.0,
 # 	soft_min= 0.0,
-# 	soft_max= 2.0,
+# 	soft_max= 1.0,
 # 	default= 1.0
 # )
 
@@ -180,7 +178,7 @@ VRaySlot.opacity_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -196,7 +194,7 @@ VRaySlot.roughness_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -212,7 +210,7 @@ VRaySlot.reflect_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -228,7 +226,7 @@ VRaySlot.reflect_glossiness_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -244,7 +242,7 @@ VRaySlot.hilight_glossiness_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -260,7 +258,7 @@ VRaySlot.anisotropy_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -276,7 +274,7 @@ VRaySlot.anisotropy_rotation_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -292,7 +290,7 @@ VRaySlot.fresnel_ior_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -308,7 +306,7 @@ VRaySlot.refract_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -324,7 +322,7 @@ VRaySlot.refract_ior_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -340,7 +338,7 @@ VRaySlot.refract_glossiness_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -356,81 +354,207 @@ VRaySlot.translucency_color_mult= FloatProperty(
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
 
-class EnvironmentFog(bpy.types.IDPropertyGroup):
-	pass
-
-VRaySlot.EnvironmentFog= PointerProperty(
-	name= "EnvironmentFog",
-	type=  EnvironmentFog,
-	description= "VRay environment fog texture slot settings."
+'''
+  BRDFSSS2Complex
+'''
+VRaySlot.map_overall_color= BoolProperty(
+	name= "Overall color",
+	description= "Overall color.",
+	default= False
 )
 
-EnvironmentFog.map_emission_tex= BoolProperty(
+VRaySlot.overall_color_mult= FloatProperty(
+	name= "Overall color multiplier",
+	description= "Overall color multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_diffuse_color= BoolProperty(
+	name= "Diffuse color",
+	description= "Diffuse color.",
+	default= False
+)
+
+VRaySlot.diffuse_color_mult= FloatProperty(
+	name= "Diffuse color multiplier",
+	description= "Diffuse color multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_diffuse_amount= BoolProperty(
+	name= "Diffuse amount",
+	description= "Diffuse amount.",
+	default= False
+)
+
+VRaySlot.diffuse_amount_mult= FloatProperty(
+	name= "Diffuse amount multiplier",
+	description= "Diffuse amount multiplie.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_sub_surface_color= BoolProperty(
+	name= "Sub-surface color",
+	description= "Sub-surface color.",
+	default= False
+)
+
+VRaySlot.sub_surface_color_mult= FloatProperty(
+	name= "Sub-surface color multiplier",
+	description= "Sub-surface color multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_scatter_radius= BoolProperty(
+	name= "Scatter radius",
+	description= "Scatter radius.",
+	default= False
+)
+
+VRaySlot.scatter_radius_mult= FloatProperty(
+	name= "Scatter radius multiplier",
+	description= "Scatter radius multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_specular_color= BoolProperty(
+	name= "Specular color",
+	description= "Specular color.",
+	default= False
+)
+
+VRaySlot.specular_color_mult= FloatProperty(
+	name= "Specular color multiplier",
+	description= "Specular color multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_specular_amount= BoolProperty(
+	name= "Specular amount",
+	description= "Specular amoun.",
+	default= False
+)
+
+VRaySlot.specular_amount_mult= FloatProperty(
+	name= "Specular amount multiplier.",
+	description= "Specular amount multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+VRaySlot.map_specular_glossiness= BoolProperty(
+	name= "Specular glossiness",
+	description= "Specular glossiness.",
+	default= False
+)
+
+VRaySlot.specular_glossiness_mult= FloatProperty(
+	name= "Specular glossiness multiplier.",
+	description= "Specular glossiness multiplier.",
+	min=0.0,
+	max=100.0,
+	soft_min=0.0,
+	soft_max=1.0,
+	default=1.0
+)
+
+
+'''
+  EnvironmentFog
+'''
+VRaySlot.map_emission_tex= BoolProperty(
 	name= "Emission",
 	description= "Emission texture.",
 	default= False
 )
 
-EnvironmentFog.emission_tex_mult= FloatProperty(
+VRaySlot.emission_tex_mult= FloatProperty(
 	name= "Emission texture multiplier",
 	description= "Emission texture multiplier.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
-EnvironmentFog.map_color_tex= BoolProperty(
+VRaySlot.map_color_tex= BoolProperty(
 	name= "Color",
 	description= "Color texture.",
 	default= False
 )
 
-EnvironmentFog.color_tex_mult= FloatProperty(
+VRaySlot.color_tex_mult= FloatProperty(
 	name= "Color texture multiplier",
 	description= "Color texture multiplier.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
-EnvironmentFog.map_density_tex= BoolProperty(
+VRaySlot.map_density_tex= BoolProperty(
 	name= "Density",
 	description= "Density texture.",
 	default= False
 )
 
-EnvironmentFog.density_tex_mult= FloatProperty(
+VRaySlot.density_tex_mult= FloatProperty(
 	name= "Density texture multiplier",
 	description= "Density texture multiplier.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
-EnvironmentFog.map_fade_out_tex= BoolProperty(
+VRaySlot.map_fade_out_tex= BoolProperty(
 	name= "Fade out",
 	description= "Fade out texture.",
 	default= False
 )
 
-EnvironmentFog.fade_out_tex_mult= FloatProperty(
+VRaySlot.fade_out_tex_mult= FloatProperty(
 	name= "Fade out texture multiplier",
 	description= "Fade out texture multiplier.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
-	soft_max= 2.0,
+	soft_max= 1.0,
 	default= 1.0
 )
 
@@ -477,144 +601,6 @@ VRayLight.map_intensity= BoolProperty(
 # )
 
 
-class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
-	pass
-
-VRaySlot.BRDFSSS2Complex= PointerProperty(
-	name= "BRDFSSS2Complex",
-	type=  BRDFSSS2Complex,
-	description= "BRDFSSS2Complex texture slot settings."
-)
-
-BRDFSSS2Complex.map_overall_color= BoolProperty(
-	name= "Overall color",
-	description= "Overall color.",
-	default= False
-)
-
-BRDFSSS2Complex.overall_color_mult= FloatProperty(
-	name= "Overall color multiplier",
-	description= "Overall color multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_diffuse_color= BoolProperty(
-	name= "Diffuse color",
-	description= "Diffuse color.",
-	default= False
-)
-
-BRDFSSS2Complex.diffuse_color_mult= FloatProperty(
-	name= "Diffuse color multiplier",
-	description= "Diffuse color multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_diffuse_amount= BoolProperty(
-	name= "Diffuse amount",
-	description= "Diffuse amount.",
-	default= False
-)
-
-BRDFSSS2Complex.diffuse_amount_mult= FloatProperty(
-	name= "Diffuse amount multiplier",
-	description= "Diffuse amount multiplie.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_sub_surface_color= BoolProperty(
-	name= "Sub-surface color",
-	description= "Sub-surface color.",
-	default= False
-)
-
-BRDFSSS2Complex.sub_surface_color_mult= FloatProperty(
-	name= "Sub-surface color multiplier",
-	description= "Sub-surface color multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_scatter_radius= BoolProperty(
-	name= "Scatter radius",
-	description= "Scatter radius.",
-	default= False
-)
-
-BRDFSSS2Complex.scatter_radius_mult= FloatProperty(
-	name= "Scatter radius multiplier",
-	description= "Scatter radius multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_specular_color= BoolProperty(
-	name= "Specular color",
-	description= "Specular color.",
-	default= False
-)
-
-BRDFSSS2Complex.specular_color_mult= FloatProperty(
-	name= "Specular color multiplier",
-	description= "Specular color multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_specular_amount= BoolProperty(
-	name= "Specular amount",
-	description= "Specular amoun.",
-	default= False
-)
-
-BRDFSSS2Complex.specular_amount_mult= FloatProperty(
-	name= "Specular amount multiplier.",
-	description= "Specular amount multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-BRDFSSS2Complex.map_specular_glossiness= BoolProperty(
-	name= "Specular glossiness",
-	description= "Specular glossiness.",
-	default= False
-)
-
-BRDFSSS2Complex.specular_glossiness_mult= FloatProperty(
-	name= "Specular glossiness multiplier.",
-	description= "Specular glossiness multiplier.",
-	min=0.0,
-	max=100.0,
-	soft_min=0.0,
-	soft_max=1.0,
-	default=1.0
-)
-
-
 class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
 	pass
 
@@ -635,8 +621,15 @@ GeomDisplacedMesh.type= EnumProperty(
 	default= 'NOR'
 )
 
-# GeomDisplacedMesh.displacement_amount= FloatProperty()
-# This is 'displacement_factor' actually.
+GeomDisplacedMesh.displacement_amount= FloatProperty(
+	description= "Amount",
+	min= -100.0,
+	max= 100.0,
+	soft_min= -0.1,
+	soft_max= 0.1,
+	precision= 5,
+	default= 0.0
+)
 
 GeomDisplacedMesh.displacement_shift= FloatProperty(
 	name="Shift",
@@ -784,6 +777,17 @@ VRaySlot.BRDFBump= PointerProperty(
 	name= "BRDFBump",
 	type=  BRDFBump,
 	description= "BRDFBump texture slot settings."
+)
+
+BRDFBump.bump_tex_mult= FloatProperty(
+	name= "Amount",
+	description= "Bump amount.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 0.02
 )
 
 BRDFBump.map_type= EnumProperty(
@@ -962,8 +966,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			VRayMaterial= ma.vray
 
 			BRDFBump= VRaySlot.BRDFBump
-			BRDFSSS2Complex= VRaySlot.BRDFSSS2Complex
-			EnvironmentFog= VRaySlot.EnvironmentFog
 			GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
 			if VRayMaterial.type == 'MTL':
@@ -973,35 +975,37 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				split= layout.split()
 				col= split.column()
 				factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
-				factor_but(col, VRaySlot, 'map_roughness', 'roughness_mult', "Roughness")
+				factor_but(col, VRaySlot, 'map_roughness',         'roughness_mult',       "Roughness")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
+				#factor_but(col, VRaySlot, 'map_opacity',           'opacity_mult',         "Opacity")
+				factor_but(col, slot,     'use_map_alpha',         'alpha_factor',         "Alpha")
 
 				split= layout.split()
 				col= split.column()
 				col.label(text="Reflection:")
 				split= layout.split()
 				col= split.column()
-				factor_but(col, VRaySlot, 'map_reflect', 'reflect_mult', "Reflect")
+				#factor_but(col, VRaySlot, 'map_reflect',            'reflect_mult',            "Reflect")
+				factor_but(col, slot,     'use_map_raymir',         'raymir_factor',           "Reflect")
 				factor_but(col, VRaySlot, 'map_reflect_glossiness', 'reflect_glossiness_mult', "Glossiness")
 				factor_but(col, VRaySlot, 'map_hilight_glossiness', 'hilight_glossiness_mult', "Hilight")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, VRaySlot, 'map_anisotropy', 'anisotropy_mult', "Anisotropy")
+				factor_but(col, VRaySlot, 'map_anisotropy',          'anisotropy_mult',          "Anisotropy")
 				factor_but(col, VRaySlot, 'map_anisotropy_rotation', 'anisotropy_rotation_mult', "Rotation")
-				factor_but(col, VRaySlot, 'map_fresnel_ior', 'fresnel_ior_mult', "Fresnel IOR")
+				factor_but(col, VRaySlot, 'map_fresnel_ior',         'fresnel_ior_mult',         "Fresnel IOR")
 
 				split= layout.split()
 				col= split.column()
 				col.label(text="Refraction:")
 				split= layout.split()
 				col= split.column()
-				factor_but(col, VRaySlot, 'map_refract', 'refract_mult', "Refract")
+				factor_but(col, VRaySlot, 'map_refract',            'refract_mult',            "Refract")
 				factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, VRaySlot, 'map_refract_ior', 'refract_ior_mult', "IOR")
+				factor_but(col, VRaySlot, 'map_refract_ior',        'refract_ior_mult',        "IOR")
 				factor_but(col, VRaySlot, 'map_refract_glossiness', 'refract_glossiness_mult', "Glossiness")
 
 			elif VRayMaterial.type == 'SSS':
@@ -1010,23 +1014,24 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				col.label(text="SSS:")
 				split= layout.split()
 				col= split.column()
-				factor_but(col, BRDFSSS2Complex, 'map_overall_color',     'overall_color_mult',     "Overall")
-				factor_but(col, BRDFSSS2Complex, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
+				#factor_but(col, VRaySlot, 'map_overall_color',     'overall_color_mult',     "Overall")
+				factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor',   "Overall")
+				factor_but(col, VRaySlot, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, BRDFSSS2Complex, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter radius")
+				factor_but(col, VRaySlot, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter radius")
 
 				layout.separator()
 
 				split= layout.split()
 				col= split.column()
-				factor_but(col, BRDFSSS2Complex, 'map_diffuse_color',  'diffuse_color_mult',  "Diffuse")
-				factor_but(col, BRDFSSS2Complex, 'map_diffuse_amount', 'diffuse_amount_mult', "Amount")
+				factor_but(col, VRaySlot, 'map_diffuse_color',  'diffuse_color_mult',  "Diffuse")
+				factor_but(col, VRaySlot, 'map_diffuse_amount', 'diffuse_amount_mult', "Amount")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, BRDFSSS2Complex, 'map_specular_color',      'specular_color_mult',      "Specular")
-				factor_but(col, BRDFSSS2Complex, 'map_specular_amount',     'specular_amount_mult',     "Amount")
-				factor_but(col, BRDFSSS2Complex, 'map_specular_glossiness', 'specular_glossiness_mult', "Glossiness")
+				factor_but(col, VRaySlot, 'map_specular_color',      'specular_color_mult',      "Specular")
+				factor_but(col, VRaySlot, 'map_specular_amount',     'specular_amount_mult',     "Amount")
+				factor_but(col, VRaySlot, 'map_specular_glossiness', 'specular_glossiness_mult', "Glossiness")
 
 			elif VRayMaterial.type == 'EMIT':
 				split= layout.split()
@@ -1038,7 +1043,8 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				if wide_ui:
 					col= split.column()
 				if not VRayMaterial.emitter_type == 'MESH':
-					factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
+					#factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
+					factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
 
 			elif VRayMaterial.type == 'VOL':
 				split= layout.split()
@@ -1046,12 +1052,11 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				col.label(text="Volume:")
 				split= layout.split()
 				col= split.column()
-				factor_but(col, EnvironmentFog, 'map_color_tex',    'color_tex_mult',    "Color")
-				factor_but(col, EnvironmentFog, 'map_density_tex',  'density_tex_mult',  "Density")
+				factor_but(col, VRaySlot, 'map_color_tex',    'color_tex_mult',    "Color")
+				factor_but(col, VRaySlot, 'map_density_tex',  'density_tex_mult',  "Density")
 				if wide_ui:
 					col= split.column()
-				factor_but(col, EnvironmentFog, 'map_emission_tex', 'emission_tex_mult', "Emission")
-				factor_but(col, EnvironmentFog, 'map_fade_out_tex', 'fade_out_tex_mult', "Fade out")
+				factor_but(col, VRaySlot, 'map_emission_tex', 'emission_tex_mult', "Emission")
 
 			layout.separator()
 
@@ -1066,6 +1071,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 					col= split.column()
 				col.active= slot.use_map_normal
 				col.prop(BRDFBump,'map_type',text="Type")
+				col.prop(BRDFBump,'bump_tex_mult')
 				col.prop(BRDFBump,'bump_shadows')
 				col.prop(BRDFBump,'compute_bump_for_shadows')
 
@@ -1155,7 +1161,7 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 
 				split= layout.split()
 				col= split.column()
-
+				col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
 				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
 				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
 				col.prop(GeomDisplacedMesh, 'resolution')
