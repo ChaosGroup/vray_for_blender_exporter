@@ -96,6 +96,7 @@ MODULES= {
 
 OBJECT_PARAMS= {
 	'GeomDisplacedMesh': (
+		'displacement_amount',
 		'displacement_shift',
 		'water_level',
         'use_globals',
@@ -725,6 +726,30 @@ LC_MODE= {
 	"PPT":     3
 }
 
+BRDF_TYPE= {
+	'PHONG': 0,
+	'BLINN': 1,
+	'WARD':  2
+}
+
+TRANSLUCENSY= {
+	"HYBRID": 3,
+	"SOFT":   2,
+	"HARD":   1,
+	"NONE":   0
+}
+
+GLOSSY_RAYS= {
+	'ALWAYS': 2,
+	'GI':     1,
+	'NEVER':  0
+}
+
+ENERGY_MODE= {
+	'MONO':  1,
+	'COLOR': 0
+}
+
 # BLEND_TYPE= {
 # 	'MIX':          0,
 # 	'ADD':          4,
@@ -767,9 +792,10 @@ def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
 	if mult_value == 1.0:
 		return input_texture_name
 
-	tex_name= "TexMult_%s" % input_texture_name
-	if suffix:
-		tex_name+= suffix
+	# tex_name= "TexMult_%s" % input_texture_name
+	# if suffix:
+	# 	tex_name+= suffix
+	tex_name= get_random_string()
 		
 	ofile.write("\nTexAColorOp %s {" % tex_name)
 	ofile.write("\n\tcolor_a= %s;" % input_texture_name)

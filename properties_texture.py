@@ -81,6 +81,7 @@ BitmapBuffer.gamma= FloatProperty(
 	max= 100.0,
 	soft_min= 0.0,
 	soft_max= 10.0,
+	precision= 4,
 	default= 1.0
 )
 
@@ -97,13 +98,10 @@ BitmapBuffer.use_data_window= BoolProperty(
 )
 
 
-Slot= bpy.types.Texture
-
-
 class VRaySlot(bpy.types.IDPropertyGroup):
 	pass
 
-Slot.vray_slot= PointerProperty(
+bpy.types.Texture.vray_slot= PointerProperty(
 	name= "V-Ray Material Texture Slot",
 	type=  VRaySlot,
 	description= "V-Ray material texture slot settings."
@@ -165,6 +163,37 @@ VRaySlot.blend_mode= EnumProperty(
 # 	soft_max= 1.0,
 # 	default= 1.0
 # )
+
+VRaySlot.map_displacement= BoolProperty(
+	name= "Displacement",
+	description= "Displacement texture.",
+	default= False
+)
+VRaySlot.displacement_mult= FloatProperty(
+	name= "Displacement texture multiplier",
+	description= "Displacement texture multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
+)
+
+VRaySlot.map_normal= BoolProperty(
+	name= "Normal",
+	description= "Normal texture.",
+	default= False
+)
+
+VRaySlot.normal_mult= FloatProperty(
+	name= "Normal texture multiplier",
+	description= "Normal texture multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
+)
 
 VRaySlot.map_opacity= BoolProperty(
 	name= "Opacity",
@@ -622,13 +651,14 @@ GeomDisplacedMesh.type= EnumProperty(
 )
 
 GeomDisplacedMesh.displacement_amount= FloatProperty(
-	description= "Amount",
+	name= "Amount",
+	description= "Displacement amount.",
 	min= -100.0,
 	max= 100.0,
 	soft_min= -0.1,
 	soft_max= 0.1,
 	precision= 5,
-	default= 0.0
+	default= 0.02
 )
 
 GeomDisplacedMesh.displacement_shift= FloatProperty(
@@ -828,10 +858,12 @@ import properties_texture
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_image_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_image_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture
 
 
@@ -1066,7 +1098,13 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				col.label(text="Bump / Normal:")
 				split= layout.split()
 				col= split.column()
-				factor_but(col, slot, 'use_map_normal',       'normal_factor',       "Normal")
+				#factor_but(col, slot,     'use_map_normal', 'normal_factor', "Normal")
+				row= col.row(align=True)
+				row.prop(slot, 'use_map_normal', text="")
+				sub= row.row()
+				sub.active= getattr(slot,'use_map_normal')
+				sub.prop(VRaySlot, 'normal_mult', slider=True, text="Normal")
+				
 				if wide_ui:
 					col= split.column()
 				col.active= slot.use_map_normal
@@ -1081,11 +1119,13 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			factor_but(col, slot, 'use_map_displacement', 'displacement_factor', "Displace")
+			#factor_but(col, slot, 'use_map_displacement', 'displacement_factor', "Displace")
+			factor_but(col, VRaySlot, 'map_displacement', 'displacement_mult', "Displace")
 			if wide_ui:
 				col= split.column()
 			col.active= slot.use_map_displacement
 			col.prop(GeomDisplacedMesh, 'type')
+			col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
 
 			layout.separator()
 
@@ -1161,7 +1201,6 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 
 				split= layout.split()
 				col= split.column()
-				col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
 				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
 				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
 				col.prop(GeomDisplacedMesh, 'resolution')
@@ -1209,9 +1248,14 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 
 		texture_slot= context.texture_slot
 		tex= texture_slot.texture
+		VRayTexture= tex.vray
 
 		BitmapBuffer= tex.image.vray.BitmapBuffer
 
+		layout.prop(VRayTexture, 'placement_type', expand=True)
+
+		layout.separator()
+				
 		split= layout.split()
 		col= split.column()
 		col.prop(BitmapBuffer, 'filter_type', text="Filter")

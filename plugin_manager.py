@@ -143,6 +143,18 @@ def add_properties():
 		default= 'NONE'
 	)
 
+	VRayTexture.placement_type= EnumProperty(
+		name= "Placement type",
+		description= "Image texure placement type.",
+		items= (
+			('FULL', "Full",  "The whole texture is valid."),
+			('CROP', "Crop",  "Crop texture."),
+			('PLACE',"Place", "Place texture."),
+		),
+		default= 'FULL'
+	)
+
+
 	'''
 	  V-Ray: RenderChannel
 	'''

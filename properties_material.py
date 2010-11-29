@@ -1416,7 +1416,7 @@ EnvironmentFog.per_object_fade_out_radius= BoolProperty(
 EnvironmentFog.use_fade_out_tex= BoolProperty(
 	name= "Use fade out tex",
 	description= "True if the fade_out_tex should be used for fade out computation.",
-	default= True
+	default= False
 )
 
 EnvironmentFog.edge_fade_out= FloatProperty(
@@ -2004,7 +2004,8 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(EnvironmentFog, 'color')
+			#col.prop(EnvironmentFog, 'color')
+			col.prop(mat, 'diffuse_color', text="Color")
 			if wide_ui:
 				col= split.column()
 			col.prop(EnvironmentFog, 'emission')

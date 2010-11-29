@@ -56,7 +56,7 @@ VRayCamera.mode= EnumProperty(
 
 VRayCamera.override_fov= BoolProperty(
 	name= "Override FOV",
-	description= "Override FOV.",
+	description= "Override FOV (if you need FOV > 180).",
 	default= False
 )
 
@@ -64,10 +64,12 @@ VRayCamera.fov= FloatProperty(
 	name= "FOV",
 	description= "Field of vision.",
 	min= 0.0,
-	max= 360.0,
+	max= math.pi * 2,
 	soft_min= 0.0,
-	soft_max= 360.0,
-	default= 45.0
+	soft_max= math.pi * 2,
+	subtype= 'ANGLE',
+	precision= 2,
+	default= math.pi / 4
 )
 
 
@@ -348,6 +350,12 @@ CameraPhysical.use= BoolProperty(
 	name= "Enable physical camera",
 	description= "Enable physical camera.",
 	default= False
+)
+
+CameraPhysical.specify_fov= BoolProperty(
+	name= "Use FOV",
+	description= "Use field of view instead of use the focal length, film width, scale etc.",
+	default= True
 )
 
 CameraPhysical.f_number= FloatProperty(
@@ -648,6 +656,14 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(ca, 'lens_unit', text="")
 
+			split= layout.split()
+			col= split.column()
+			col.prop(VRayCamera, 'override_fov')
+			if wide_ui:
+				col= split.column()
+			if VRayCamera.override_fov:
+				col.prop(VRayCamera, 'fov')
+
 		layout.separator()
 
 		'''
@@ -725,16 +741,23 @@ class VRAY_CAMERA_physical(DataButtonsPanel, bpy.types.Panel):
 		col.label(text="Parameters:")
 
 		split= layout.split()
-		col= split.column(align=True)
-		col.prop(CameraPhysical, 'film_width')
-		col.prop(CameraPhysical, 'focal_length')
-		col.prop(CameraPhysical, 'zoom_factor')
-		col.prop(CameraPhysical, 'distortion')
+		col= split.column()
+		sub= col.column(align=True)
+		sub.prop(CameraPhysical, 'specify_fov', text="Use FOV")
+		if not CameraPhysical.specify_fov:
+			sub.prop(CameraPhysical, 'film_width')
+			sub.prop(CameraPhysical, 'focal_length')
+			sub.prop(CameraPhysical, 'zoom_factor')
+
+		sub= col.column(align=True)
+		sub.prop(CameraPhysical, 'distortion')
 		if not CameraPhysical.guess_lens_shift:
-			col.prop(CameraPhysical, 'lens_shift')
-		col.prop(CameraPhysical, 'guess_lens_shift')
+			sub.prop(CameraPhysical, 'lens_shift')
+		sub.prop(CameraPhysical, 'guess_lens_shift')
+		
 		if wide_ui:
 			col= split.column(align=True)
+
 		col.prop(CameraPhysical, 'exposure')
 		if CameraPhysical.exposure:
 			col.prop(CameraPhysical, 'f_number')

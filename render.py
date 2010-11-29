@@ -320,8 +320,6 @@ def write_geometry(sce, geometry_file):
 			else:
 				for m in ob.modifiers:
 					# TODO:
-					# Add more modifiers
-					# Add detector to custom build
 					if m.type in ('ARMATURE', 'SOFT_BODY'):
 						dynamic= True
 						break
@@ -355,33 +353,6 @@ def write_geometry(sce, geometry_file):
 
 		ofile.close()
 		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
-
-
-def write_mesh_displace(ofile, mesh, params):
-	plugin= 'GeomDisplacedMesh'
-	name= "%s_%s" % (plugin, mesh)
-
-	TextureSlot= params['slot']
-	Texture= TextureSlot.texture
-	
-	GeomDisplacedMesh= Texture.vray_slot.GeomDisplacedMesh
-	
-	ofile.write("\n%s %s {"%(plugin,name))
-	ofile.write("\n\tmesh= %s;" % mesh)
-	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
-	ofile.write("\n\tdisplacement_amount= %s;" % a(sce,TextureSlot.displacement_factor))
-	if GeomDisplacedMesh.type == '2D':
-		ofile.write("\n\tdisplace_2d= 1;")
-	elif GeomDisplacedMesh.type == '3D':
-		ofile.write("\n\tvector_displacement= 1;")
-	else:
-		ofile.write("\n\tdisplace_2d= 0;")
-		ofile.write("\n\tvector_displacement= 0;")
-	for param in OBJECT_PARAMS[plugin]:
-		ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(GeomDisplacedMesh,param))))
-	ofile.write("\n}\n")
-
-	return name
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -421,6 +392,31 @@ def write_mesh_file(ofile, exported_proxy, ob):
 	return proxy_name
 
 
+def write_mesh_displace(ofile, mesh, params):
+	plugin= 'GeomDisplacedMesh'
+	name= "%s_%s" % (plugin, mesh)
+
+	slot= params['slot']
+	VRaySlot= slot.texture.vray_slot
+	GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+	
+	ofile.write("\n%s %s {"%(plugin,name))
+	ofile.write("\n\tmesh= %s;" % mesh)
+	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
+	if GeomDisplacedMesh.type == '2D':
+		ofile.write("\n\tdisplace_2d= 1;")
+	elif GeomDisplacedMesh.type == '3D':
+		ofile.write("\n\tvector_displacement= 1;")
+	else:
+		ofile.write("\n\tdisplace_2d= 0;")
+		ofile.write("\n\tvector_displacement= 0;")
+	for param in OBJECT_PARAMS[plugin]:
+		ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(GeomDisplacedMesh,param))))
+	ofile.write("\n}\n")
+
+	return name
+
+
 def generate_proxy(sce, ob, vrmesh, append=False):
 	hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
 	write_mesh_hq(hq_file, sce, ob)
@@ -456,20 +452,31 @@ def write_multi_material(ofile, ob):
 
 
 def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
-	uvw_name= "%s_UVWGenChannel_%s"%(tex_name, get_name(tex))
+	# uvw_name= "%s_UVWGenChannel_%s"%(tex_name, get_name(tex))
+	uvw_name= get_random_string()
+
+	slot= None
+	if issubclass(type(tex), bpy.types.TextureSlot):
+		slot= tex
+		tex=  tex.texture
 
 	VRaySlot= tex.vray_slot
 	VRaySlot.uvwgen= uvw_name
-	
+
 	ofile.write("\nUVWGenChannel %s {"%(uvw_name))
 	ofile.write("\n\tuvw_channel= %d;"%(1)) # TODO
+	ofile.write("\n\twrap_u= %s;" % str(2 if tex.use_mirror_x else 0))
+	ofile.write("\n\twrap_v= %s;" % str(2 if tex.use_mirror_y else 0))
 	ofile.write("\n\tuvw_transform= Transform(")
 	ofile.write("\n\t\tMatrix(")
-	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%s,"%(tex.repeat_x))
-	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%s,"%(tex.repeat_y))
+	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%s," % tex.repeat_x)
+	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%s," % tex.repeat_y)
 	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
 	ofile.write("\n\t\t),")
-	ofile.write("\n\t\tVector(0.0,0.0,0.0)") # xoffset, yoffset, 0.0
+	if slot:
+		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % (slot.offset[0], slot.offset[1]))
+	else:
+		ofile.write("\n\t\tVector(0.0,0.0,0.0)")
 	ofile.write("\n\t);")
 	ofile.write("\n}\n")
 
@@ -512,30 +519,29 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 		'MIPMAP': 1,
 		'AREA':   2
 	}
-	
-	filename= get_full_filepath(sce,tex.image.filepath)
-	bitmap_name= "BitmapBuffer_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
 
+	BitmapBuffer= tex.image.vray.BitmapBuffer
+
+	filename= get_full_filepath(sce,tex.image.filepath)
 	if not sce.vray.VRayDR.on:
 		if not os.path.exists(filename):
 			debug(sce,"Image file does not exists! (%s)"%(filename))
 
-	if exported_bitmaps is not None:
-		if bitmap_name in exported_bitmaps:
-			return bitmap_name
-		exported_bitmaps.append(bitmap_name)
+	# bitmap_name= "Image_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
+	# if exported_bitmaps:
+	# 	if bitmap_name in exported_bitmaps:
+	# 		return bitmap_name
+	# 	exported_bitmaps.append(bitmap_name)
 
-	BitmapBuffer= tex.image.vray.BitmapBuffer
+	bitmap_name= get_random_string()
 
-	ofile.write("\nBitmapBuffer %s {"%(bitmap_name))
+	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
 	ofile.write("\n\tfile= \"%s\";" % filename)
 	ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
-
 	if tex.image.source == 'SEQUENCE':
 		ofile.write("\n\tframe_sequence= 1;")
 		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
 		ofile.write("\n\tframe_offset= %i;" % tex.image_user.frame_offset)
-
 	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
 	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
 	ofile.write("\n}\n")
@@ -544,6 +550,12 @@ def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
 
 
 def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None, env= None, env_type= None):
+	PLACEMENT_TYPE= {
+		'FULL':  0,
+		'CROP':  1,
+		'PLACE': 2
+	}
+
 	tex_name= "Texture_no_texture"
 
 	slot= None
@@ -552,22 +564,22 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 		tex= tex.texture
 
 	if tex.image:
-		tex_name= get_name(tex,"Texture")
-		# if ma:
-		# 	tex_name= "%s_%s"%(tex_name, get_name(ma))
+		# tex_name= get_name(tex,"Texture")
+		# if ma: tex_name= "%s_%s"%(get_name(ma),tex_name)
+		tex_name= get_random_string()
 
 		if env:
 			uvwgen= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
 		else:
-			uvwgen= write_UVWGenChannel(ofile, tex, tex_name, ob)
+			uvwgen= write_UVWGenChannel(ofile, slot, tex_name, ob)
 
 		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
 		if bitmap_name:
-			ofile.write("\nTexBitmap %s {"%(tex_name))
-			ofile.write("\n\tbitmap= %s;"%(bitmap_name))
-			ofile.write("\n\tuvwgen= %s;"%(uvwgen))
-			ofile.write("\n\tnouvw_color= AColor(0,0,0,0);")
+			ofile.write("\nTexBitmap %s {" % tex_name)
+			ofile.write("\n\tbitmap= %s;" % bitmap_name)
+			ofile.write("\n\tuvwgen= %s;" % uvwgen)
+			ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(ma.diffuse_color))
 			if not env:
 				if tex.extension == 'REPEAT':
 					ofile.write("\n\ttile= %d;"%(1))
@@ -575,6 +587,12 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 					ofile.write("\n\ttile= %d;"%(0))
 			if slot:
 				ofile.write("\n\tinvert= %d;"%(slot.invert))
+
+			ofile.write("\n\tu= %s;" % tex.crop_min_x)
+			ofile.write("\n\tv= %s;" % tex.crop_min_y)
+			ofile.write("\n\tw= %s;" % tex.crop_max_x)
+			ofile.write("\n\th= %s;" % tex.crop_max_y)
+			ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[tex.vray.placement_type])
 			ofile.write("\n}\n")
 		else:
 			return "Texture_no_texture"
@@ -595,17 +613,12 @@ def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 			return plugin.write(ofile, sce, tex)
 
 
-def write_texture(ofile, exported_bitmaps= None, ma= None, tex= None, env= None):
-	slot= None
-	if issubclass(type(tex), bpy.types.TextureSlot):
-		slot= tex
-		tex=  tex.texture
-
+def write_texture(ofile, exported_bitmaps= None, slot= None, ma= None, env= None):
 	tex_name= "Texture_no_texture"
 
-	if tex.type == 'IMAGE':
-		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, tex= tex, env= env)
-	elif tex.type == 'VRAY':
+	if slot.texture.type == 'IMAGE':
+		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, tex= slot, env= env)
+	elif slot.texture.type == 'VRAY':
 		tex_name= write_TexPlugin(ofile, ma= ma, tex= tex, env= env)
 
 	return tex_name
@@ -645,7 +658,7 @@ def get_color_params(ma):
 		'specular_amount':     ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
 		'specular_glossiness': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
 		
-		'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.color)),       0, 'NONE'),
+		'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
 		'emission_tex': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
 		'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
 	}
@@ -654,7 +667,7 @@ def get_color_params(ma):
 
 def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	def _write_multiplied_texture(slot, factor):
-		tex_name= write_texture(ofile, exported_bitmaps, ma, slot)
+		tex_name= write_texture(ofile, exported_bitmaps, slot, ma)
 		tex_name= multiply_texture(ofile, sce, tex_name, factor)
 		return tex_name
 
@@ -667,10 +680,8 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 	mapped_params= {
 		'mapto': {},
 		'values': {
-			'normal_slot':   None,
-			'normal_amount': 0.0,
-			'displacement_slot':   None,
-			'displacement_amount': 0.0,
+			'normal_slot':       None,
+			'displacement_slot': None,
 		}
 	}
 
@@ -695,22 +706,24 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 				elif key == 'normal':
 					if slot.use_map_normal:
 						use_slot= True
+						factor= VRaySlot.normal_mult
 						mapped_params['values']['normal_slot']= slot
-				elif key == 'displacement':
-					if slot.use_map_displacement:
-						use_slot= True
-						mapped_params['values']['displacement_amount']= VRaySlot.GeomDisplacedMesh.displacement_amount
 				else:
 					if getattr(VRaySlot, 'map_'+key):
 						use_slot= True
 						factor= getattr(VRaySlot, key+'_mult')
+						if key == 'displacement':
+							mapped_params['values']['displacement_slot']= slot
+
 				if use_slot:
 					if key not in mapped_params['mapto']:
 						mapped_params['mapto'][key]= []
-						if factor < 1.0:
+						if factor < 1.0 or slot.use_stencil:
 							mapped_params['mapto'][key].append(defaults[key])
 					mapped_params['mapto'][key].append((_write_multiplied_texture(slot, factor), slot.use_stencil, VRaySlot.blend_mode))
 
+	debug(sce,mapped_params['mapto'])
+	
 	def _collapse_layers(slots):
 		layers= []
 		for i,slot in enumerate(slots):
@@ -766,33 +779,10 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 
 
 def write_BRDFVRayMtl(ofile, ma, ma_name, mapped_params):
-	BRDF_TYPE= {
-		'PHONG': 0,
-		'BLINN': 1,
-		'WARD':  2
-	}
-
-	TRANSLUCENSY= {
-		"HYBRID": 3,
-		"SOFT":   2,
-		"HARD":   1,
-		"NONE":   0
-	}
-
-	GLOSSY_RAYS= {
-		'ALWAYS': 2,
-		'GI':     1,
-		'NEVER':  0
-	}
-
-	ENERGY_MODE= {
-		'MONO':  1,
-		'COLOR': 0
-	}
+	defaults= get_color_params(ma)
 
 	textures= mapped_params['mapto']
-	defaults= get_color_params(ma)
-	values= mapped_params['values']
+	values=   mapped_params['values']
 
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
@@ -912,11 +902,14 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
 		for param in OBJECT_PARAMS['EnvironmentFog']:
-			object_params['volume'][param]= getattr(VRayMaterial.EnvironmentFog,param)
+			if param == 'color':
+				value= ma.diffuse_color
+			else:
+				value= getattr(VRayMaterial.EnvironmentFog,param)
+			object_params['volume'][param]= value
 		for param in ('color_tex','emission_tex','density_tex'):
 			if param in textures['mapto']:
 				object_params['volume'][param]= textures['mapto'][param]
-			
 		return
 
 	if textures['values']['displacement_slot']:
@@ -1302,7 +1295,7 @@ def write_object(ob, params, add_params= None):
 	if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
 		node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
 
-	if object_params['displace']['texture'] is not None:
+	if object_params['displace']['texture']:
 		node_geometry= write_mesh_displace(ofile, node_geometry, object_params['displace'])
 
 	node_matrix= ob.matrix_world
@@ -1447,11 +1440,11 @@ def write_EnvironmentFog(ofile,volume,material):
 
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
-	#ofile.write("\n\tdensity_tex= Texture_Test_Checker::out_intensity;")
 	for param in volume[material]['params']:
-		value= volume[material]['params'][param]
 		if param == 'light_mode':
-			value= LIGHT_MODE[value]
+			value= LIGHT_MODE[volume[material]['params'][param]]
+		else:
+			value= volume[material]['params'][param]
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
 	ofile.write("\n}\n")
 
@@ -2225,7 +2218,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 		if rd.display_mode != 'AREA':
 			rd.display_mode= 'AREA'
-			rd.use_color_management= False
+		rd.use_color_management= False
 
 		vsce= sce.vray
 		ve= vsce.exporter
@@ -2334,7 +2327,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
 		if rd.display_mode != 'AREA':
 			rd.display_mode= 'AREA'
-			rd.use_color_management= False
+		rd.use_color_management= False
 
 		vsce= sce.vray
 		ve= vsce.exporter
