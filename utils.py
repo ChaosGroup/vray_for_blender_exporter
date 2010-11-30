@@ -255,6 +255,8 @@ def get_plugin(plugins, plugin_id):
 
 def get_filenames(sce, filetype):
 	def create_dir(directory):
+		if PLATFORM != 'win32':
+			directory= directory.replace('\\','/')
 		if not os.path.exists(directory):
 			print("V-Ray/Blender: Path doesn't exist, trying to create...")
 			print("V-Ray/Blender: Creating directory: %s"%(directory))
@@ -332,3 +334,8 @@ def get_filenames(sce, filetype):
 # 	'LINEAR LIGHT': 1
 # }
 
+
+def preprocess_textures(sce):
+	for tex in bpy.data.textures:
+		tex.vray.name= get_random_string()
+		debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))

@@ -87,6 +87,12 @@ def add_properties(VRayTexture):
 		default= (1.0,1.0,1.0)
 	)
 
+	TexDirt.white_color_tex= StringProperty(
+		name= "White color texture",
+		description= "White color texture.",
+		default= ""
+	)
+
 	TexDirt.black_color= FloatVectorProperty(
 		name= "Black color",
 		description= "TODO",
@@ -96,6 +102,12 @@ def add_properties(VRayTexture):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		default= (0.0,0.0,0.0)
+	)
+
+	TexDirt.black_color_tex= StringProperty(
+		name= "Black color texture",
+		description= "Black color texture.",
+		default= ""
 	)
 
 	TexDirt.radius= FloatProperty(
@@ -305,9 +317,13 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(vtex,'white_color',text="Unoccluded color")
+		col.prop_search(vtex, 'white_color_tex', bpy.data, 'textures', text= "")
 		if wide_ui:
 			col= split.column()
 		col.prop(vtex,'black_color',text="Occluded color")
+		col.prop_search(vtex, 'black_color_tex', bpy.data, 'textures', text= "")
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()

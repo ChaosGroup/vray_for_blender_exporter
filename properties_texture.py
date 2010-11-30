@@ -85,6 +85,12 @@ BitmapBuffer.gamma= FloatProperty(
 	default= 1.0
 )
 
+BitmapBuffer.gamma_correct= BoolProperty(
+	name= "Correct CM gamma",
+	description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
+	default= False
+)
+
 BitmapBuffer.allow_negative_colors= BoolProperty(
 	name= "Allow negative colors",
 	description= "If false negative colors will be clamped.",
@@ -93,7 +99,7 @@ BitmapBuffer.allow_negative_colors= BoolProperty(
 
 BitmapBuffer.use_data_window= BoolProperty(
 	name= "Use data window",
-	description= "True to use the data window information in e.g. OpenEXR files.",
+	description= "Use the data window information in OpenEXR files.",
 	default= True
 )
 
@@ -854,17 +860,6 @@ BRDFBump.compute_bump_for_shadows= BoolProperty(
 
 narrowui= 200
 
-import properties_texture
-properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
-
-properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-del properties_texture
-
-
 def context_tex_datablock(context):
     idblock= context.material
     if idblock:
@@ -963,6 +958,12 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 					split= layout.split()
 					col= split.column()
 					col.prop(tex.vray, 'type', text="Type")
+
+
+import properties_texture
+properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+del properties_texture
 
 
 class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
@@ -1163,6 +1164,12 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
 
 
+import properties_texture
+properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+del properties_texture
+
+
 class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
 	
@@ -1229,6 +1236,12 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
+import properties_texture
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+del properties_texture
+
+
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Image Settings"
 
@@ -1248,39 +1261,47 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		tex= slot.texture
 		VRayTexture= tex.vray
 
-		layout.prop(VRayTexture, 'extension', expand=True)
+		layout.prop(VRayTexture, 'tile', expand=True)
 
-		split = layout.split()
-
-		if VRayTexture.extension != 'NOTILE':
+		if VRayTexture.tile != 'NOTILE':
+			split = layout.split()
 			col= split.column()
 			col.label(text="Tile:")
 			sub= col.row(align=True)
-			sub.prop(tex, 'repeat_x', text='U')
-			sub.prop(tex, 'repeat_y', text='V')
+			sub_u= sub.row()
+			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
+			sub_u.prop(tex, 'repeat_x', text='U')
+			sub_v= sub.row()
+			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
+			sub_v.prop(tex, 'repeat_y', text='V')
 			if wide_ui:
 				col= split.column()
 			col.label(text="Mirror:")
 			sub= col.row(align=True)
-			sub.prop(tex, 'use_mirror_x', text='U')
-			sub.prop(tex, 'use_mirror_y', text='V')
+			sub_u= sub.row()
+			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
+			sub_u.prop(tex, 'use_mirror_x', text='U')
+			sub_v= sub.row()
+			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
+			sub_v.prop(tex, 'use_mirror_y', text='V')
 
-			layout.separator()
+		layout.separator()
 
 		layout.prop(VRayTexture, 'placement_type', expand=True)
 
-		split = layout.split()
-		col= split.column()
-		col.label(text="Crop Minimum:")
-		sub= col.row(align=True)
-		sub.prop(tex, 'crop_min_x', text='U')
-		sub.prop(tex, 'crop_min_y', text='V')
-		if wide_ui:
+		if VRayTexture.placement_type != 'FULL':
+			split = layout.split()
 			col= split.column()
-		col.label(text="Crop Maximum:")
-		sub= col.row(align=True)
-		sub.prop(tex, 'crop_max_x', text='U')
-		sub.prop(tex, 'crop_max_y', text='V')
+			col.label(text="Crop Minimum:")
+			sub= col.row(align=True)
+			sub.prop(tex, 'crop_min_x', text='U')
+			sub.prop(tex, 'crop_min_y', text='V')
+			if wide_ui:
+				col= split.column()
+			col.label(text="Crop Maximum:")
+			sub= col.row(align=True)
+			sub.prop(tex, 'crop_max_x', text='U')
+			sub.prop(tex, 'crop_max_y', text='V')
 
 		layout.separator()
 
@@ -1294,7 +1315,6 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(BitmapBuffer, 'gamma')
+		col.prop(BitmapBuffer, 'gamma_correct')
 		col.prop(BitmapBuffer, 'allow_negative_colors')
 		col.prop(BitmapBuffer, 'use_data_window')
-		
-

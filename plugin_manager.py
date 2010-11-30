@@ -136,6 +136,14 @@ def add_properties():
 	'''
 	  Texture
 	'''
+	VRayTexture.name= StringProperty(
+		name= "V-Ray Texture name",
+		description= "V-Ray texture name for internal usage.",
+		subtype= 'NONE',
+		options= {'HIDDEN'},
+		default= ""
+	)
+
 	VRayTexture.type= EnumProperty(
 		name= "Texture Type",
 		description= "V-Ray texture type.",
@@ -154,7 +162,7 @@ def add_properties():
 		default= 'FULL'
 	)
 
-	VRayTexture.extension= EnumProperty(
+	VRayTexture.tile= EnumProperty(
 		name= "Tile",
 		description= "Tile type.",
 		items= (

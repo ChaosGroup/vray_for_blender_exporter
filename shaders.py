@@ -35,6 +35,13 @@ from vb25.utils import *
 
 
 MODULES= {
+	'SettingsRaycaster': (
+		'maxLevels',
+		'minLeafSize',
+		'faceLevelCoef',
+		'dynMemLimit',
+	),
+	
 	'SettingsUnitsInfo': (
 		'meters_scale',
 		'photometric_scale'

@@ -46,7 +46,7 @@ from vb25.shaders import *
 from vb25.plugin_manager import *
 
 
-VERSION= '2.5'
+VERSION= '2.5.07'
 
 
 '''
@@ -123,7 +123,6 @@ def write_geometry(sce, geometry_file):
 	try:
 		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
 		sys.stdout.write("V-Ray/Blender: Using custom operator for meshes export...\n")
-		sys.stdout.flush()
 		
 		bpy.ops.scene.scene_export(
 			vb_geometry_file= geometry_file,
@@ -132,9 +131,7 @@ def write_geometry(sce, geometry_file):
 		)
 
 	except:
-		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
-		sys.stdout.flush()
 		
 		# Used when exporting dupli, particles etc.
 		exported_meshes= []
@@ -451,8 +448,29 @@ def write_multi_material(ofile, ob):
 	return mtl_name
 
 
+def write_UVWGenProjection(ofile, slot, ob= None, suffix=None):
+	MAPPING= {
+		'NONE':   0,
+		'FLAT':   1,
+		'CUBE':   5,
+		'TUBE':   3,
+		'SPHERE': 2,
+	}
+
+	uvw_name= get_random_string()
+
+	slot.texture.vray.uvwgen= uvw_name
+
+	ofile.write("\nUVWGenProjection %s {" % uvw_name)
+	ofile.write("\n\ttype= %d;" % MAPPING[slot.mapping])
+	if ob:
+		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X') * ob.matrix_world.rotation_part().to_4x4().transpose()))
+	ofile.write("\n}\n")
+
+	return uvw_name
+
+
 def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
-	# uvw_name= "%s_UVWGenChannel_%s"%(tex_name, get_name(tex))
 	uvw_name= get_random_string()
 
 	slot= None
@@ -461,22 +479,20 @@ def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
 		tex=  tex.texture
 
 	VRaySlot= tex.vray_slot
+	VRayTexture= tex.vray
 	VRaySlot.uvwgen= uvw_name
 
-	ofile.write("\nUVWGenChannel %s {"%(uvw_name))
-	ofile.write("\n\tuvw_channel= %d;"%(1)) # TODO
-	ofile.write("\n\twrap_u= %s;" % str(2 if tex.use_mirror_x else 0))
-	ofile.write("\n\twrap_v= %s;" % str(2 if tex.use_mirror_y else 0))
+	ofile.write("\nUVWGenChannel %s {" % uvw_name)
+	ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
+	ofile.write("\n\twrap_u= %d;" % (2 if tex.use_mirror_x else 0))
+	ofile.write("\n\twrap_v= %d;" % (2 if tex.use_mirror_y else 0))
 	ofile.write("\n\tuvw_transform= Transform(")
 	ofile.write("\n\t\tMatrix(")
-	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%s," % tex.repeat_x)
-	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%s," % tex.repeat_y)
+	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (tex.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
+	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (tex.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
 	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
 	ofile.write("\n\t\t),")
-	if slot:
-		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % (slot.offset[0], slot.offset[1]))
-	else:
-		ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
 	ofile.write("\n\t);")
 	ofile.write("\n}\n")
 
@@ -504,10 +520,10 @@ def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
 
 	uvw_name= "uv_env_%s_%s"%(tex_name, MAPPING_TYPE[mapping])
 	
-	ofile.write("\nUVWGenEnvironment %s {"%(uvw_name))
+	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	if param:
-		ofile.write("\n\tuvw_transform= %s;"%(transform(mathutils.RotationMatrix(params[0], 4, 'Z'))))
-	ofile.write("\n\tmapping_type= \"%s\";"%(MAPPING_TYPE[mapping]))
+		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'Z')))
+	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[mapping])
 	ofile.write("\n}\n")
 	
 	return uvw_name
@@ -556,6 +572,13 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 		'PLACE': 2
 	}
 
+	TILE= {
+		'NOTILE': 0,
+		'TILEUV': 1,
+		'TILEU':  2,
+		'TILEV':  3,
+	}
+
 	tex_name= "Texture_no_texture"
 
 	slot= None
@@ -564,6 +587,8 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 		tex= tex.texture
 
 	if tex.image:
+		VRayTexture= tex.vray
+		
 		# tex_name= get_name(tex,"Texture")
 		# if ma: tex_name= "%s_%s"%(get_name(ma),tex_name)
 		tex_name= get_random_string()
@@ -571,7 +596,10 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 		if env:
 			uvwgen= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
 		else:
-			uvwgen= write_UVWGenChannel(ofile, slot, tex_name, ob)
+			if slot.texture_coords == 'UV':
+				uvwgen= write_UVWGenChannel(ofile, slot, tex_name, ob)
+			else:
+				uvwgen= write_UVWGenProjection(ofile, slot)
 
 		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
 
@@ -580,19 +608,14 @@ def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None
 			ofile.write("\n\tbitmap= %s;" % bitmap_name)
 			ofile.write("\n\tuvwgen= %s;" % uvwgen)
 			ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(ma.diffuse_color))
-			if not env:
-				if tex.extension == 'REPEAT':
-					ofile.write("\n\ttile= %d;"%(1))
-				else:
-					ofile.write("\n\ttile= %d;"%(0))
-			if slot:
-				ofile.write("\n\tinvert= %d;"%(slot.invert))
-
+			ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
 			ofile.write("\n\tu= %s;" % tex.crop_min_x)
 			ofile.write("\n\tv= %s;" % tex.crop_min_y)
 			ofile.write("\n\tw= %s;" % tex.crop_max_x)
 			ofile.write("\n\th= %s;" % tex.crop_max_y)
 			ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[tex.vray.placement_type])
+			if slot:
+				ofile.write("\n\tinvert= %d;"%(slot.invert))
 			ofile.write("\n}\n")
 		else:
 			return "Texture_no_texture"
@@ -619,7 +642,7 @@ def write_texture(ofile, exported_bitmaps= None, slot= None, ma= None, env= None
 	if slot.texture.type == 'IMAGE':
 		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, tex= slot, env= env)
 	elif slot.texture.type == 'VRAY':
-		tex_name= write_TexPlugin(ofile, ma= ma, tex= tex, env= env)
+		tex_name= write_TexPlugin(ofile, ma= ma, tex= slot, env= env)
 
 	return tex_name
 
@@ -691,7 +714,11 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 			for key in defaults:
 				factor= 1.0
 				use_slot= False
-				if key in ('diffuse','overall_color'):
+				if key == 'diffuse':
+					if slot.use_map_color_diffuse:
+						use_slot= True
+						factor= slot.diffuse_color_factor
+				elif key == 'overall_color' and ma.vray.type == 'SSS':
 					if slot.use_map_color_diffuse:
 						use_slot= True
 						factor= slot.diffuse_color_factor
@@ -1657,9 +1684,10 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\nRenderView RenderView {")
 			ofile.write("\n\ttransform= %s;"%(a(sce,transform(ca.matrix_world))))
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-			ofile.write("\n\tclipping= 1;")
-			ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
-			ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
+			if SettingsCamera.type != 'SPHERIFICAL':
+				ofile.write("\n\tclipping= 1;")
+				ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
+				ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
 			if ca.data.type == 'ORTHO':
 				ofile.write("\n\torthographic= 1;")
 				ofile.write("\n\torthographicWidth= %s;" % a(sce,ca.data.ortho_scale))
@@ -1730,11 +1758,11 @@ def write_settings(sce,ofile):
 
 	ofile.write("\nSettingsOptions {")
 	ofile.write("\n\tmisc_lowThreadPriority= true;")
-	ofile.write("\n}")
+	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsJPEG SettingsJPEG{")
 	ofile.write("\n\tquality= 100;")
-	ofile.write("\n}")
+	ofile.write("\n}\n")
 		
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
@@ -1888,6 +1916,8 @@ def write_scene(sce, bake= False):
 	ca= sce.camera
 	VRayCamera= ca.data.vray
 	vc= VRayCamera.SettingsCamera
+
+	preprocess_textures(sce)
 
 	files= {
 		'lamps':     open(get_filenames(sce,'lights'), 'w'),
@@ -2206,7 +2236,7 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER'
-	bl_label   = 'V-Ray'
+	bl_label   = "V-Ray (git)"
 	bl_use_preview = False
 	
 	def render(self, scene):
@@ -2315,7 +2345,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER_PREVIEW'
-	bl_label   = 'V-Ray (material preview)'
+	bl_label   = "V-Ray (git) [material preview]"
 	bl_use_preview = True
 	
 	def render(self, scene):

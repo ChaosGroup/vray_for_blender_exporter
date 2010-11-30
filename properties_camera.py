@@ -644,10 +644,19 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			layout.prop(ca, 'type', expand=True)
 		else:
 			layout.prop(ca, 'type', text="")
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()
 		if ca.type == 'PERSP':
+			col.prop(VRayCamera, 'override_fov')
+			if wide_ui:
+				col= split.column()
+			if VRayCamera.override_fov: col.prop(VRayCamera, 'fov')
+				
+			split= layout.split()
+			split.active= not VRayCamera.override_fov
+			col= split.column()
 			if ca.lens_unit == 'MILLIMETERS':
 				col.prop(ca, 'lens', text="Angle")
 			elif ca.lens_unit == 'DEGREES':
@@ -656,19 +665,8 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(ca, 'lens_unit', text="")
 
-			split= layout.split()
-			col= split.column()
-			col.prop(VRayCamera, 'override_fov')
-			if wide_ui:
-				col= split.column()
-			if VRayCamera.override_fov:
-				col.prop(VRayCamera, 'fov')
-
 		layout.separator()
 
-		'''
-			SettingsCamera
-		'''
 		if ca.type == 'ORTHO':
 			col.prop(ca, 'ortho_scale')
 		else:
@@ -679,6 +677,11 @@ class DATA_PT_vray_camera(DataButtonsPanel, bpy.types.Panel):
 			col.prop(SettingsCamera, 'type', text="")
 
 			layout.separator()
+
+		'''
+			SettingsCamera
+		'''
+		# SMTH
 
 		'''
 			SettingsCameraDof
