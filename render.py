@@ -377,16 +377,16 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 
 def write_mesh_file(ofile, exported_proxy, ob):
 	proxy= ob.data.vray.GeomMeshFile
-	proxy_name= "Proxy_%s" % clean_string(os.path.basename(proxy.file))
+	proxy_name= "Proxy_%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
 
 	if proxy_name not in exported_proxy:
 		exported_proxy.append(proxy_name)
 		
-		ofile.write("\nGeomMeshFile %s {"%(proxy_name))
-		ofile.write("\n\tfile= \"%s\";"%(get_full_filepath(sce,proxy.file)))
-		ofile.write("\n\tanim_speed= %i;"%(proxy.anim_speed))
-		ofile.write("\n\tanim_type= %i;"%(PROXY_ANIM_TYPE[proxy.anim_type]))
-		ofile.write("\n\tanim_offset= %i;"%(proxy.anim_offset))
+		ofile.write("\nGeomMeshFile %s {" % proxy_name)
+		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,proxy.file))
+		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
+		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
+		ofile.write("\n\tanim_offset= %i;" % proxy.anim_offset)
 		ofile.write("\n}\n")
 
 	return proxy_name

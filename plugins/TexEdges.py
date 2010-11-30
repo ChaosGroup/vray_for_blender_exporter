@@ -29,7 +29,7 @@
 TYPE= 'TEXTURE'
 
 ID=   'TEXEDGES'
-NAME= 'Egde'
+NAME= 'Edge'
 PLUG= 'TexEdges'
 DESC= "It is a very simple texture map that allows you to render out the wire frame of a mesh."
 PID=   4

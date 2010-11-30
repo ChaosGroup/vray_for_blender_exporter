@@ -154,6 +154,18 @@ def add_properties():
 		default= 'FULL'
 	)
 
+	VRayTexture.extension= EnumProperty(
+		name= "Tile",
+		description= "Tile type.",
+		items= (
+			('NOTILE', "No tile", "No tiling."),
+			('TILEUV', "Tile UV", "Tile in UV."),
+			('TILEU',  "Tile U",  "Tile in U."),
+			('TILEV',  "Tile V",  "Tile in V."),
+		),
+		default= 'TILEUV'
+	)
+
 
 	'''
 	  V-Ray: RenderChannel

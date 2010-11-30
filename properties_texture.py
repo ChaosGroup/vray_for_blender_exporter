@@ -858,12 +858,10 @@ import properties_texture
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_image_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
 
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-properties_texture.TEXTURE_PT_image_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture
 
 
@@ -1246,16 +1244,48 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		texture_slot= context.texture_slot
-		tex= texture_slot.texture
+		slot= context.texture_slot
+		tex= slot.texture
 		VRayTexture= tex.vray
 
-		BitmapBuffer= tex.image.vray.BitmapBuffer
+		layout.prop(VRayTexture, 'extension', expand=True)
+
+		split = layout.split()
+
+		if VRayTexture.extension != 'NOTILE':
+			col= split.column()
+			col.label(text="Tile:")
+			sub= col.row(align=True)
+			sub.prop(tex, 'repeat_x', text='U')
+			sub.prop(tex, 'repeat_y', text='V')
+			if wide_ui:
+				col= split.column()
+			col.label(text="Mirror:")
+			sub= col.row(align=True)
+			sub.prop(tex, 'use_mirror_x', text='U')
+			sub.prop(tex, 'use_mirror_y', text='V')
+
+			layout.separator()
 
 		layout.prop(VRayTexture, 'placement_type', expand=True)
 
+		split = layout.split()
+		col= split.column()
+		col.label(text="Crop Minimum:")
+		sub= col.row(align=True)
+		sub.prop(tex, 'crop_min_x', text='U')
+		sub.prop(tex, 'crop_min_y', text='V')
+		if wide_ui:
+			col= split.column()
+		col.label(text="Crop Maximum:")
+		sub= col.row(align=True)
+		sub.prop(tex, 'crop_max_x', text='U')
+		sub.prop(tex, 'crop_max_y', text='V')
+
 		layout.separator()
-				
+
+		BitmapBuffer= tex.image.vray.BitmapBuffer
+
 		split= layout.split()
 		col= split.column()
 		col.prop(BitmapBuffer, 'filter_type', text="Filter")

@@ -60,25 +60,22 @@ def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
 def	debug(sce, s):
-	ve= sce.vray.exporter
-	if ve.debug:
+	if sce.vray.exporter.debug:
 		print("V-Ray/Blender: %s"%(s))
 
 def p(t):
-	if type(t) == type(True):
+	if type(t) == bool:
 		return "%i"%(t)
-	elif type(t) == type(1):
+	elif type(t) == int:
 		return "%i"%(t)
-	elif type(t) == type(1.0):
+	elif type(t) == float:
 		return "%.6f"%(t)
-	elif str(type(t)) == "<class 'color'>":
-		return "Color(%.3f,%.3f,%.3f)"%(tuple(t))
-	elif str(type(t)) == "<class 'vector'>":
-		return "Color(%.3f,%.3f,%.3f)"%(tuple(t))
-	elif type(t) == type(""):
-		if(t == "True"):
+	elif type(t) == mathutils.Color:
+		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
+	elif type(t) == str:
+		if t == "True":
 			return "1"
-		elif(t == "False"):
+		elif t == "False":
 			return "0"
 		else:
 			return t
@@ -118,6 +115,10 @@ def get_full_filepath(sce,filepath):
 	VRayDR= sce.vray.VRayDR
 
 	src_file= os.path.normpath(bpy.path.abspath(filepath))
+
+	if PLATFORM != 'win32':
+		src_file= src_file.replace('\\','/')
+
 	src_filename= os.path.split(src_file)[1]
 
 	if VRayDR.on:
