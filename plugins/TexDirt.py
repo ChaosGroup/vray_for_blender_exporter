@@ -253,7 +253,7 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, slot, params):
+def write(ofile, sce, params):
 	MODE= {
 		'AO':    0,
 		'PHONG': 1,
@@ -261,27 +261,32 @@ def write(ofile, sce, slot, params):
 		'WARD':  3
 	}
 
-	print(type(slot))
-	tex= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+	slot= params.get('slot')
+	texture= params.get('texture')
 
 	tex_name= params['name'] if 'name' in params else get_random_string()
 
-	vtex= getattr(tex.vray, PLUG)
+	TexDirt= getattr(texture.vray, PLUG)
 
 	mapped_params= {}
-	for param in ('white_color_tex','black_color_tex'):
-		param_tex= getattr(vtex, param)
-		if param_tex:
-			if param_tex in bpy.data.textures:
-				params['texture']= bpy.data.textures[param_tex]
-				mapped_params[param]= write_texture(ofile, sce, params)
+	for key in ('white_color_tex','black_color_tex'):
+		key_tex= getattr(TexDirt, key)
+		if key_tex:
+			if key_tex in bpy.data.textures:
+				params['texture']= bpy.data.textures[key_tex]
+				mapped_params[key]= write_texture(ofile, sce, params)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
+		value= getattr(TexDirt, param)
 		if param == 'mode':
-			ofile.write("\n\t%s= %s;"%(param, MODE[vtex.mode]))
-		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+			value= MODE[TexDirt.mode]
+		if param in ('white_color','black_color'):
+			key= param+'_tex'
+			if key in mapped_params:
+				value= mapped_params[key]
+			else: pass
+		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
 	ofile.write("\n}\n")
 
 	return tex_name

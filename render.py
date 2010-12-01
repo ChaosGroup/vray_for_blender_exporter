@@ -369,7 +369,7 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 		num_hair_vertices.append(str(len(particle.is_hair)))
 		for segment in particle.is_hair:
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			widths.append(str(0.001)) # TODO
+			widths.append(str(0.01)) # TODO
 
 	ofile.write("\nGeomMayaHair %s {"%(name))
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(sce.frame_current, ','.join(num_hair_vertices)))
@@ -465,14 +465,13 @@ def get_color_params(ma):
 	return defaults
 
 
-def write_multiplied_texture(ofile, sce, slot, factor, params):
-	tex_name= write_texture(ofile, sce, slot, params)
-	tex_name= multiply_texture(ofile, sce, tex_name, factor)
+def write_multiplied_texture(ofile, sce, params):
+	tex_name= write_texture(ofile, sce, params)
+	tex_name= multiply_texture(ofile, sce, tex_name, params['factor'])
 	return tex_name
 
 
 def write_textures(ofile, params):
-
 	ma= params['material']
 
 	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
@@ -531,13 +530,10 @@ def write_textures(ofile, params):
 					params['mapto']=    key
 					params['slot']=     slot
 					params['texture']=  slot.texture
-					mapped_params['mapto'][key].append((write_multiplied_texture(ofile, sce, slot, factor, params),
+					params['factor']=   factor
+					mapped_params['mapto'][key].append((write_multiplied_texture(ofile, sce, params),
 														slot.use_stencil,
 														VRaySlot.blend_mode))
-					# Reseting for data save
-					del params['mapto']
-					del params['slot']
-					del params['texture']
 
 	if len(mapped_params['mapto']):
 		debug(sce,mapped_params['mapto'])
@@ -1200,17 +1196,20 @@ def write_environment(ofile, volumes= None):
 
 	for slot in wo.texture_slots:
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
+			params= {'slot': slot,
+					 'texture': slot.texture,
+					 'environment': True}
 			if slot.use_map_blend:
-				bg_tex= write_texture(ofile, sce, slot, {'environment': True})
+				bg_tex= write_texture(ofile, sce, params)
 				bg_tex_mult= slot.blend_factor
 			if slot.use_map_horizon:
-				gi_tex= write_texture(ofile, sce, slot, {'environment': True})
+				gi_tex= write_texture(ofile, sce, params)
 				gi_tex_mult= slot.horizon_factor
 			if slot.use_map_zenith_up:
-				reflect_tex= write_texture(ofile, sce, slot, {'environment': True})
+				reflect_tex= write_texture(ofile, sce, params)
 				reflect_tex_mult= slot.zenith_up_factor
 			if slot.use_map_zenith_down:
-				refract_tex=  write_texture(ofile, sce, slot, {'environment': True})
+				refract_tex=  write_texture(ofile, sce, params)
 				refract_tex_mult= slot.zenith_down_factor
 
 	ofile.write("\nSettingsEnvironment {")
@@ -1539,7 +1538,7 @@ def write_settings(sce,ofile):
 	VRayDR=       VRayScene.VRayDR
 	
 	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-	ofile.write("// Scene file\n\n")
+	ofile.write("// Settings\n\n")
 
 	for f in ('geometry', 'materials', 'lights', 'nodes', 'camera'):
 		if VRayDR.on:
@@ -1702,7 +1701,7 @@ def write_settings(sce,ofile):
 	for channel in VRayScene.render_channels:
 		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
 		if plugin:
-			plugin.write(ofile, getattr(channel,plugin.PLUG), name= channel.name)
+			plugin.write(ofile, getattr(channel,plugin.PLUG), sce, channel.name)
 
 	ofile.write("\n")
 
@@ -1714,8 +1713,6 @@ def write_scene(sce, bake= False):
 	ca= sce.camera
 	VRayCamera= ca.data.vray
 	vc= VRayCamera.SettingsCamera
-
-	preprocess_textures(sce)
 
 	files= {
 		'lamps':     open(get_filenames(sce,'lights'), 'w'),
@@ -1729,7 +1726,9 @@ def write_scene(sce, bake= False):
 		'volume': {}
 	}
 
-	files['materials'].write("// V-Ray/Blender %s\n" % VERSION)
+	for key in files:
+		files[key].write("// V-Ray/Blender %s\n" % VERSION)
+
 	files['materials'].write("// Materials\n")
 	files['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
 	files['materials'].write("\n\tuvw_channel= 1;")
@@ -1758,9 +1757,9 @@ def write_scene(sce, bake= False):
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
-
-	files['nodes'].write("// V-Ray/Blender %s\n" % VERSION)
 	files['nodes'].write("// Nodes\n")
+	files['lamps'].write("// Lights\n")
+	files['camera'].write("// Camera & Environment\n")
 
 	def _write_object_particles(ob, params, add_params= None):
 		if len(ob.particle_systems):
@@ -1846,6 +1845,7 @@ def write_scene(sce, bake= False):
 			'files': files,
 			'filters': {
 				'exported_bitmaps':   [],
+				'exported_textures':  [],
 				'exported_materials': [],
 				'exported_proxy':     []
 			},
@@ -1879,11 +1879,6 @@ def write_scene(sce, bake= False):
 				sys.stdout.flush()
 
 			_write_object(ob, params)
-
-			# TODO: export rest materials (that could be used in Overrides etc)
-			# for ma in bpy.data.materials:
-			# 	if ma.use_fake_user:
-			# 		write_material(ma, params['filters'], [], files['materials'])
 
 		del params
 

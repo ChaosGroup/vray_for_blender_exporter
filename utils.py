@@ -55,13 +55,26 @@ none_matrix= mathutils.Matrix(
 	[0.0,0.0,0.0]
 )
 
+def color(text, color=None):
+	if not color or PLATFORM == 'win32':
+		return text
+	if color == 'green':
+		return "\033[0;32m%s\033[0m" % text
+	elif color == 'red':
+		return "\033[0;31m%s\033[0m" % text
+	else:
+		return text
+
 # The most powerfull unique name generator =)
 def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
-def	debug(sce, s):
+def	debug(sce, s, error= False):
 	if sce.vray.exporter.debug:
-		print("V-Ray/Blender: %s"%(s))
+		out= "V-Ray/Blender: "
+		if error: out+= color("Error!")
+		out+= "%s"%(s)
+		print("%s"%(out))
 
 def p(t):
 	if type(t) == bool:
@@ -86,7 +99,7 @@ def a(sce,t):
 	return "interpolate((%i,%s))"%(sce.frame_current,p(t))
 
 def transform(m):
-	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))\n\t"\
+	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))"\
             %(m[0][0], m[0][1], m[0][2],\
               m[1][0], m[1][1], m[1][2],\
               m[2][0], m[2][1], m[2][2],\
@@ -106,6 +119,15 @@ def rel_path(filepath):
 		return True
 	else:
 		return False
+
+def get_data_by_name(sce, data, name):
+	if data == 'objects':
+		if name in sce.objects:
+			return sce.objects[name]
+	elif data in ('textures','materials','meshes'):
+		if name in bpy.data[data]:
+			return bpy.data[data][name]
+	return None
 
 def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.path.abspath(fn))

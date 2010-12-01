@@ -48,6 +48,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.shaders import *
 
 
 class RenderChannelExtraTex(bpy.types.IDPropertyGroup):
@@ -98,23 +99,22 @@ def add_properties(parent_struct):
 def write(ofile, render_channel, sce= None, name= None):
 	channel_name= name if name is not None else render_channel.name
 
-	if render_channel.texmap == "":
-		return
+	texname= render_channel.texmap
+	if texname:
+		if texname in bpy.data.textures:
+			params= {'texture': bpy.data.textures[texname]}
+			texmap= write_texture(ofile, sce, params)
 	
-	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
-	for param in PARAMS:
-		if param == 'name':
-			value= "\"%s\"" % channel_name
-		elif param == 'texmap':
-			texname= getattr(render_channel, 'texmap')
-			if texname in bpy.data.textures:
-				value= get_name(bpy.data.textures[texname], prefix= "Texture")
+		ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
+		for param in PARAMS:
+			if param == 'name':
+				value= "\"%s\"" % channel_name
+			elif param == 'texmap':
+				value= texmap
 			else:
-				continue
-		else:
-			value= getattr(render_channel, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
-	ofile.write("\n}\n")
+				value= getattr(render_channel, param)
+			ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n}\n")
 
 
 

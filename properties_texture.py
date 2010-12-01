@@ -85,8 +85,14 @@ BitmapBuffer.gamma= FloatProperty(
 	default= 1.0
 )
 
+BitmapBuffer.use_input_gamma= BoolProperty(
+	name= "Use \"Input gamma\"",
+	description= "Use \"Input gamma\" from \"Color mapping\" settings.",
+	default= True
+)
+
 BitmapBuffer.gamma_correct= BoolProperty(
-	name= "Correct CM gamma",
+	name= "Invert gamma",
 	description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
 	default= False
 )
@@ -1151,7 +1157,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			split= layout.split()
 			col= split.column()
-			col.label(text="In progress...")
+			col.label(text="Coming soon...")
 
 		elif type(idblock) == bpy.types.World:
 			split= layout.split()
@@ -1249,6 +1255,7 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 
 		idblock= context_tex_datablock(context)
 
+		sce= context.scene
 		ob= context.object
 		slot= context.texture_slot
 		tex= slot.texture
@@ -1260,9 +1267,6 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			else:
 				layout.prop(VRayTexture, 'texture_coords')
 
-			if slot.texture_coords != VRayTexture.texture_coords:
-				slot.texture_coords= VRayTexture.texture_coords
-
 			if VRayTexture.texture_coords == 'UV':
 				split= layout.split(percentage=0.3)
 				split.label(text="Layer:")
@@ -1273,7 +1277,10 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			else:
 				split= layout.split(percentage=0.3)
 				split.label(text="Projection:")
-				split.prop(slot, 'mapping', text="")
+				split.prop(VRayTexture, 'mapping', text="")
+				split= layout.split(percentage=0.3)
+				split.label(text="Object:")
+				split.prop_search(VRayTexture, 'object', sce, 'objects', text="")
 
 			split= layout.split()
 			col= split.column()
@@ -1285,12 +1292,12 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			split= layout.split()
 			col= split.column()
-			col.label(text="In progress...")
+			col.label(text="Coming soon...")
 
 		elif type(idblock) == bpy.types.World:
 			split= layout.split()
 			col= split.column()
-			col.label(text="In progress...")
+			col.label(text="Coming soon...")
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
@@ -1378,7 +1385,9 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 			col.prop(BitmapBuffer, 'filter_blur')
 		if wide_ui:
 			col= split.column()
-		col.prop(BitmapBuffer, 'gamma')
-		col.prop(BitmapBuffer, 'gamma_correct')
+		col.prop(BitmapBuffer, 'use_input_gamma')
+		if not BitmapBuffer.use_input_gamma:
+			col.prop(BitmapBuffer, 'gamma')
+			#col.prop(BitmapBuffer, 'gamma_correct')
 		col.prop(BitmapBuffer, 'allow_negative_colors')
 		col.prop(BitmapBuffer, 'use_data_window')

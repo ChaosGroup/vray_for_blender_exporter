@@ -779,7 +779,6 @@ BITMAP_FILTER_TYPE= {
 BLEND_MODES= {
 	'NONE':         '0',
 	'STENCIL':      '1',
-
 	'OVER':         '1',
 	'IN':           '2',
 	'OUT':          '3',
@@ -794,16 +793,27 @@ BLEND_MODES= {
 	'ILLUMINATE':  '12',
 }
 
+ENVMAPPING_TYPE= {
+	'SPHERE': 'spherical',
+	'VIEW':   'screen',
+	'GLOBAL': 'screen',
+	'OBJECT': 'cubic',
+	'TUBE':   'mirror_ball',
+	'ANGMAP': 'angular'
+}
+
 PROJECTION_MAPPING= {
-	'NONE':   0,
 	'FLAT':   1,
-	'CUBE':   5,
-	'TUBE':   3,
 	'SPHERE': 2,
+	'TUBE':   3,
+	'BALL':   4,
+	'CUBE':   5,
+	'TRI':    6,
+	'PERS':   8,
 }
 
 
-def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
+def multiply_texture(ofile, sce, input_texture_name, mult_value):
 	if mult_value == 1.0:
 		return input_texture_name
 
@@ -821,41 +831,41 @@ def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
 	return tex_name
 
 
-def write_UVWGenProjection(ofile, sce, slot, params):
-	if issubclass(type(slot), bpy.types.Texture):
-		texture= slot
-		slot= None
-	else:
-		texture= slot.texture
+def write_UVWGenProjection(ofile, sce, params):
+	ob= params.get('object')
+	slot= params.get('slot')
+	texture= params.get('texture')
 
-	uvw_name= get_random_string()
+	uvw_name= params['name'] + 'UVP'
 
-	slot.texture.vray.uvwgen= uvw_name
+	VRayTexture= texture.vray
+	VRayTexture.uvwgen= uvw_name
+
+	if VRayTexture.object:
+		ob= get_data_by_name(sce, 'objects', VRayTexture.object)
 
 	ofile.write("\nUVWGenProjection %s {" % uvw_name)
-	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING[slot.mapping])
-	if 'object' in params:
-		ofile.write("\n\tuvw_transform= %s;" % transform(
-			mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
-			*
-			params['object'].matrix_world.rotation_part().to_4x4().transpose()))
+	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING[VRayTexture.mapping])
+	if ob:
+		mt= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
+		mt*= ob.matrix_world.copy().invert() 
+		ofile.write("\n\tuvw_transform= %s; // %s" % (a(sce,transform(mt)),ob.name))
 	ofile.write("\n}\n")
 
 	return uvw_name
 
 
-def write_UVWGenChannel(ofile, sce, slot, params):
-	if issubclass(type(slot), bpy.types.Texture):
-		texture= slot
-		slot= None
-	else:
-		texture= slot.texture
+def write_UVWGenChannel(ofile, sce, params):
+	slot= params.get('slot')
+	texture= params.get('texture')
 
-	uvw_name= get_random_string()
+	uvw_name= params['name'] + 'UVC'
 
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
 	VRaySlot.uvwgen= uvw_name
+
+	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
@@ -869,59 +879,55 @@ def write_UVWGenChannel(ofile, sce, slot, params):
 	ofile.write("\n\t\t),")
 	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
 	ofile.write("\n\t);")
+	if uvwgen:
+		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
 	return uvw_name
 
 
-def write_UVWGenEnvironment(ofile, sce, slot, params):
-	if issubclass(type(slot), bpy.types.Texture):
-		texture= slot
-		slot= None
-	else:
-		texture= slot.texture
-
-	MAPPING_TYPE= {
-		'SPHERE': 'spherical',
-		'VIEW':   'screen',
-		'GLOBAL': 'screen',
-		'OBJECT': 'cubic',
-		'TUBE':   'mirror_ball',
-		'ANGMAP': 'angular'
-	}
+def write_UVWGenEnvironment(ofile, sce, params):
+	slot= params.get('slot')
+	texture= params.get('texture')
 
 	uvw_name= get_random_string()
 	
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
-	if param:
-		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'Z')))
-	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[slot.texture_coords])
+	if 'rotate' in params:
+		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(params['rotate']['angle']), 4, params['rotate']['axis'])))
+	ofile.write("\n\tmapping_type= \"%s\";" % ENV_MAPPING_TYPE[slot.texture_coords])
 	ofile.write("\n}\n")
 	
 	return uvw_name
 
 
-def write_BitmapBuffer(ofile, sce, slot, params):
-	texture= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+def write_BitmapBuffer(ofile, sce, params):
+	slot= params.get('slot')
+	texture= params.get('texture')
 
 	BitmapBuffer= texture.image.vray.BitmapBuffer
 
 	filename= get_full_filepath(sce,texture.image.filepath)
 	if not sce.vray.VRayDR.on:
-		if not os.path.exists(filename):
-			debug(sce,"Image file does not exists! (%s)"%(filename))
+		if not os.path.exists(filename) or not texture.image.filepath:
+			print("V-Ray/Blender: %s Texture: %s => Image file does not exists!"%(color("Error!",'red'),texture.name))
+			return None
 
-	# bitmap_name= "Image_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
-	# if exported_bitmaps:
-	# 	if bitmap_name in exported_bitmaps:
-	# 		return bitmap_name
-	# 	exported_bitmaps.append(bitmap_name)
-
-	bitmap_name= get_random_string()
+	if texture.image.source == 'SEQUENCE':
+		bitmap_name= get_random_string()
+	else:
+		bitmap_name= 'IM' + clean_string("".join(os.path.basename(filename).split('.')[:-1]))
+		if 'filters' in params:
+			if bitmap_name in params['filters']['exported_bitmaps']:
+				return bitmap_name
+			params['filters']['exported_bitmaps'].append(bitmap_name)
 
 	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
 	ofile.write("\n\tfile= \"%s\";" % filename)
-	ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
+	if BitmapBuffer.use_input_gamma:
+		ofile.write("\n\tgamma= %s;" % p(sce.vray.SettingsColorMapping.input_gamma))
+	else:
+		ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
 	if texture.image.source == 'SEQUENCE':
 		ofile.write("\n\tframe_sequence= 1;")
 		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
@@ -933,7 +939,7 @@ def write_BitmapBuffer(ofile, sce, slot, params):
 	return bitmap_name
 
 
-def write_TexBitmap(ofile, sce, slot, params):
+def write_TexBitmap(ofile, sce, params):
 	PLACEMENT_TYPE= {
 		'FULL':  0,
 		'CROP':  1,
@@ -950,56 +956,62 @@ def write_TexBitmap(ofile, sce, slot, params):
 	slot= params.get('slot')
 	texture= params.get('texture')
 
-	tex_name= params.get('name',get_random_string())
+	VRayTexture= texture.vray
+	VRaySlot=    texture.vray_slot
 
-	if texture.image:
-		VRayTexture= texture.vray
-		
-		bitmap= write_BitmapBuffer(ofile, sce, slot, params)
+	if not texture.image:
+		print("V-Ray/Blender: %s Image is not set! (%s)"%(color("Error!",'red'),texture.name))
+		return "Texture_no_texture"
 
-		if bitmap:
-			if 'environment' in params:
-				uvwgen= write_UVWGenEnvironment(ofile, sce, slot, params)
-			else:
-				if slot.texture_coords == 'UV':
-					uvwgen= write_UVWGenChannel(ofile, sce, slot, params)
-				else:
-					uvwgen= write_UVWGenProjection(ofile, sce, slot, params)
+	tex_name= 'TE' + clean_string(texture.name)
 
-			ofile.write("\nTexBitmap %s {" % tex_name)
-			ofile.write("\n\tbitmap= %s;" % bitmap)
-			ofile.write("\n\tuvwgen= %s;" % uvwgen)
-			if 'material' in params:
-				ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(params['material'].diffuse_color))
-			ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
-			ofile.write("\n\tu= %s;" % texture.crop_min_x)
-			ofile.write("\n\tv= %s;" % texture.crop_min_y)
-			ofile.write("\n\tw= %s;" % texture.crop_max_x)
-			ofile.write("\n\th= %s;" % texture.crop_max_y)
-			ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
-			if slot:
-				ofile.write("\n\tinvert= %d;"%(slot.invert))
-			ofile.write("\n}\n")
-		else:
-			return "Texture_no_texture"
+	if VRayTexture.texture_coords == 'ORCO':
+		if 'object' in params:
+			tex_name= 'OB' + clean_string(params['object'].name) + tex_name
 
+	if 'filters' in params:
+		if tex_name in params['filters']['exported_textures']:
+			debug(sce, "Filters: %s" % params['filters'])
+			return tex_name
+		params['filters']['exported_textures'].append(tex_name)
+
+	bitmap= write_BitmapBuffer(ofile, sce, params)
+
+	if bitmap is None:
+		return None
+	
+	if 'environment' in params:
+		uvwgen= write_UVWGenEnvironment(ofile, sce, params)
 	else:
-		debug(sce,"Error! Image file is not set! (%s)"%(tex.name))
+		uvwgen= write_UVWGenChannel(ofile, sce, params)
+
+	ofile.write("\nTexBitmap %s {" % tex_name)
+	ofile.write("\n\tbitmap= %s;" % bitmap)
+	ofile.write("\n\tuvwgen= %s;" % uvwgen)
+	if 'material' in params:
+		ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(params['material'].diffuse_color))
+	ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
+	ofile.write("\n\tu= %s;" % texture.crop_min_x)
+	ofile.write("\n\tv= %s;" % texture.crop_min_y)
+	ofile.write("\n\tw= %s;" % texture.crop_max_x)
+	ofile.write("\n\th= %s;" % texture.crop_max_y)
+	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
+	if slot:
+		ofile.write("\n\tinvert= %d;"%(slot.invert))
+	ofile.write("\n}\n")
 
 	return tex_name
 
 
-def write_TexPlugin(ofile, sce, slot, params):
-	texture= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
-
-	if texture:
-		VRayTexture= texture.vray
+def write_TexPlugin(ofile, sce, params):
+	if 'texture' in params:
+		VRayTexture= params['texture'].vray
 		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
 		if plugin:
-			return plugin.write(ofile, sce, slot, params)
+			return plugin.write(ofile, sce, params)
 
 
-def write_texture(ofile, sce, slot, params):
+def write_texture(ofile, sce, params):
 	texture= params['texture']
 
 	texture_name= 'TE' + clean_string(texture.name)
@@ -1011,12 +1023,18 @@ def write_texture(ofile, sce, slot, params):
 	params['name']= texture_name
 
 	if texture.type == 'IMAGE':
-		write_TexBitmap(ofile, sce, slot, params)
+		texture_name= write_TexBitmap(ofile, sce, params)
 	elif texture.type == 'VRAY':
-		write_TexPlugin(ofile, sce, slot, params)
+		texture_name= write_TexPlugin(ofile, sce, params)
 	else:
+		texture_name= None
 		print("V-Ray/Blender: Texture type [%s] is currently unsupported." % texture.type)
+
+	if texture_name is None:
 		return "Texture_no_texture"
+
+	# for key in ('object','material','mapto','texture','slot'):
+	# 	if key in params: del params[key]
 
 	return texture_name
 

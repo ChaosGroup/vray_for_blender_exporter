@@ -263,6 +263,16 @@ SettingsColorMapping.gamma= FloatProperty(
 	default= 1.0
 )
 
+SettingsColorMapping.input_gamma= FloatProperty(
+	name= "Input gamma",
+	description= "Input gamma for textures.",
+	min= 0.0,
+	max= 10.0,
+	soft_min= 1.0,
+	soft_max= 2.2,
+	default= 1.0
+)
+
 SettingsColorMapping.clamp_output= BoolProperty(
 	name= "Clamp output",
 	description= "Clamp colors after color mapping.",
@@ -943,6 +953,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(cm, "bright_mult")
 			col.prop(cm, "dark_mult")
 		col.prop(cm, "gamma")
+		col.prop(cm, "input_gamma")
 		if wide_ui:
 			col= split.column()
 		col.prop(cm, "affect_background")

@@ -104,8 +104,9 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, slot, params):
-	tex= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+def write(ofile, sce, params):
+	slot= params.get('slot')
+	tex= params.get('texture')
 
 	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
 

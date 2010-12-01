@@ -102,6 +102,8 @@ def add_properties():
 		if items:
 			return enum_items
 
+
+	# TODO: Move some where else
 	'''
 	  Base types
 	'''
@@ -184,6 +186,28 @@ def add_properties():
 		default= 'TILEUV'
 	)
 
+	VRayTexture.mapping= EnumProperty(
+		name= "Projection",
+		description= "Generated projection type.",
+		items= (
+			('FLAT',   "Flat",        "Planar projection."),
+			('CUBE',   "Cube",        "Cubic projection."),
+			('SPHERE', "Sphere",      "Spherical projection."),
+			('TUBE',   "Tube",        "Cylindrical projection."),
+			('BALL',   "Ball",        "Ball projection."),
+			('TRI',    "Triplanar",   "Triplanar projection."),
+			('PERS',   "Perspective", "Perspective projection."),
+		),
+		default= 'FLAT'
+	)
+
+	VRayTexture.object= StringProperty(
+		name= "Mapping Object",
+		description= "Object to use for mapping generation.",
+		subtype= 'NONE',
+		options= {'HIDDEN'},
+		default= ""
+	)
 
 	'''
 	  V-Ray: RenderChannel
