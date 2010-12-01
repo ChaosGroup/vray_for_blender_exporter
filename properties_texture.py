@@ -731,7 +731,7 @@ GeomDisplacedMesh.map_channel= IntProperty(
 	max= 100,
 	soft_min= 0,
 	soft_max= 10,
-	default= 0
+	default= 1
 )
 
 GeomDisplacedMesh.use_bounds= BoolProperty(
@@ -963,6 +963,8 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 import properties_texture
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture
 
 
@@ -1164,12 +1166,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
 
 
-import properties_texture
-properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_mapping.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-del properties_texture
-
-
 class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
 	
@@ -1236,10 +1232,65 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
-import properties_texture
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-del properties_texture
+class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
+	bl_label = "Mapping"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		engine= context.scene.render.engine
+		return (tex and (engine in cls.COMPAT_ENGINES))
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		idblock= context_tex_datablock(context)
+
+		ob= context.object
+		slot= context.texture_slot
+		tex= slot.texture
+		VRayTexture= tex.vray
+
+		if type(idblock) == bpy.types.Material:
+			if wide_ui:
+				layout.prop(VRayTexture, 'texture_coords', expand=True)
+			else:
+				layout.prop(VRayTexture, 'texture_coords')
+
+			if slot.texture_coords != VRayTexture.texture_coords:
+				slot.texture_coords= VRayTexture.texture_coords
+
+			if VRayTexture.texture_coords == 'UV':
+				split= layout.split(percentage=0.3)
+				split.label(text="Layer:")
+				if ob and ob.type == 'MESH':
+					split.prop_search(slot, 'uv_layer', ob.data, 'uv_textures', text="")
+				else:
+					split.prop(slot, 'uv_layer', text="")
+			else:
+				split= layout.split(percentage=0.3)
+				split.label(text="Projection:")
+				split.prop(slot, 'mapping', text="")
+
+			split= layout.split()
+			col= split.column()
+			col.prop(slot, 'offset')
+			if wide_ui:
+				col= split.column()
+			col.prop(slot, 'scale')
+
+		elif issubclass(type(idblock), bpy.types.Lamp):
+			split= layout.split()
+			col= split.column()
+			col.label(text="In progress...")
+
+		elif type(idblock) == bpy.types.World:
+			split= layout.split()
+			col= split.column()
+			col.label(text="In progress...")
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
@@ -1261,7 +1312,17 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		tex= slot.texture
 		VRayTexture= tex.vray
 
-		layout.prop(VRayTexture, 'tile', expand=True)
+		if wide_ui:
+			layout.prop(VRayTexture, 'tile', expand=True)
+		else:
+			layout.prop(VRayTexture, 'tile')
+
+		if VRayTexture.tile == 'TILEUV':
+			if tex.extension != 'REPEAT':
+				tex.extension= 'REPEAT'
+		else:
+			if tex.extension != 'CLIP':
+				tex.extension= 'CLIP'
 
 		if VRayTexture.tile != 'NOTILE':
 			split = layout.split()
@@ -1287,7 +1348,10 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 
 		layout.separator()
 
-		layout.prop(VRayTexture, 'placement_type', expand=True)
+		if wide_ui:
+			layout.prop(VRayTexture, 'placement_type', expand=True)
+		else:
+			layout.prop(VRayTexture, 'placement_type')
 
 		if VRayTexture.placement_type != 'FULL':
 			split = layout.split()

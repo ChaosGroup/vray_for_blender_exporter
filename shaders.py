@@ -32,6 +32,7 @@ import bpy
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.plugin_manager import *
 
 
 MODULES= {
@@ -183,32 +184,32 @@ OBJECT_PARAMS= {
 	),
 
 	'BRDFVRayMtl': (
-		# 'opacity',
-		# 'diffuse',
-		# 'roughness',
-		## 'brdf_type',
-		# 'reflect',
-		# 'reflect_glossiness',
-		# 'hilight_glossiness',
+		#'opacity',
+		#'iffuse',
+		#'roughness',
+		##'brdf_type',
+		#'reflect',
+		#'reflect_glossiness',
+		#'hilight_glossiness',
 		'hilight_glossiness_lock',
 		'fresnel',
-		'fresnel_ior',
+		#'fresnel_ior',
 		'fresnel_ior_lock',
 		'reflect_subdivs',
 		'reflect_trace',
 		'reflect_depth',
 		'reflect_exit_color',
 		'hilight_soften',
-		# 'reflect_dim_distance',
+		##'reflect_dim_distance',
 		'reflect_dim_distance_on',
 		'reflect_dim_distance_falloff',
-		'anisotropy',
-		'anisotropy_rotation',
+		#anisotropy',
+		#anisotropy_rotation',
 		'anisotropy_derivation',
 		'anisotropy_axis',
-		# 'anisotropy_uvwgen',
-		# 'refract',
-		'refract_ior',
+		##'anisotropy_uvwgen',
+		#'refract',
+		#'refract_ior',
 		'refract_glossiness',
 		'refract_subdivs',
 		'refract_trace',
@@ -222,7 +223,7 @@ OBJECT_PARAMS= {
 		'fog_bias',
 		'fog_unit_scale_on',
 		'translucency',
-		# 'translucency_color',
+		#'translucency_color',
 		'translucency_light_mult',
 		'translucency_scatter_dir',
 		'translucency_scatter_coeff',
@@ -233,7 +234,7 @@ OBJECT_PARAMS= {
 		'option_cutoff',
 		'option_use_irradiance_map',
 		'option_energy_mode',
-		# 'environment_override',
+		##'environment_override',
 		'environment_priority',
 	),
 	
@@ -757,24 +758,23 @@ ENERGY_MODE= {
 	'COLOR': 0
 }
 
-# BLEND_TYPE= {
-# 	'MIX':          0,
-# 	'ADD':          4,
-# 	'SUBTRACT':     5,
-# 	'MULTIPLY':     6,
-# 	'SCREEN':       0,
-# 	'OVERLAY':      1,
-# 	'DIFFERENCE':   7,
-# 	'DIVIDE':       0,
-# 	'DARKEN':       9,
-# 	'LIGHTEN':      8,
-# 	'HUE':          0,
-# 	'SATURATION':  10,
-# 	'VALUE':        0,
-# 	'COLOR':        0,
-# 	'SOFT LIGHT':   0,
-# 	'LINEAR LIGHT': 0
-# }
+CAMERA_TYPE= {
+	'DEFAULT':            0,
+	'SPHERIFICAL':        1,
+	'CYLINDRICAL_POINT':  2,
+	'CYLINDRICAL_ORTHO':  3,
+	'BOX':                4,
+	'FISH_EYE':           5,
+	'WARPED_SPHERICAL':   6,
+	'ORTHOGONAL':         7,
+	'PINHOLE':            8
+}
+
+BITMAP_FILTER_TYPE= {
+	'NONE':   0,
+	'MIPMAP': 1,
+	'AREA':   2
+}
 
 BLEND_MODES= {
 	'NONE':         '0',
@@ -794,14 +794,19 @@ BLEND_MODES= {
 	'ILLUMINATE':  '12',
 }
 
+PROJECTION_MAPPING= {
+	'NONE':   0,
+	'FLAT':   1,
+	'CUBE':   5,
+	'TUBE':   3,
+	'SPHERE': 2,
+}
+
 
 def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
 	if mult_value == 1.0:
 		return input_texture_name
 
-	# tex_name= "TexMult_%s" % input_texture_name
-	# if suffix:
-	# 	tex_name+= suffix
 	tex_name= get_random_string()
 		
 	ofile.write("\nTexAColorOp %s {" % tex_name)
@@ -816,35 +821,204 @@ def multiply_texture(ofile,sce, input_texture_name, mult_value, suffix= None):
 	return tex_name
 
 
-def stencil_texture(ofile,sce, textureA, textureB, mode, factor, name= None):
-	tex_name= "Stencil_%s_%s" % (textureA, textureB)
-	if name:
-		tex_name= name
+def write_UVWGenProjection(ofile, sce, slot, params):
+	if issubclass(type(slot), bpy.types.Texture):
+		texture= slot
+		slot= None
+	else:
+		texture= slot.texture
+
+	uvw_name= get_random_string()
+
+	slot.texture.vray.uvwgen= uvw_name
+
+	ofile.write("\nUVWGenProjection %s {" % uvw_name)
+	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING[slot.mapping])
+	if 'object' in params:
+		ofile.write("\n\tuvw_transform= %s;" % transform(
+			mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
+			*
+			params['object'].matrix_world.rotation_part().to_4x4().transpose()))
+	ofile.write("\n}\n")
+
+	return uvw_name
+
+
+def write_UVWGenChannel(ofile, sce, slot, params):
+	if issubclass(type(slot), bpy.types.Texture):
+		texture= slot
+		slot= None
+	else:
+		texture= slot.texture
+
+	uvw_name= get_random_string()
+
+	VRaySlot= texture.vray_slot
+	VRayTexture= texture.vray
+	VRaySlot.uvwgen= uvw_name
+
+	ofile.write("\nUVWGenChannel %s {" % uvw_name)
+	ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
+	ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
+	ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
+	ofile.write("\n\tuvw_transform= Transform(")
+	ofile.write("\n\t\tMatrix(")
+	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
+	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
+	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+	ofile.write("\n\t\t),")
+	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
+	ofile.write("\n\t);")
+	ofile.write("\n}\n")
+
+	return uvw_name
+
+
+def write_UVWGenEnvironment(ofile, sce, slot, params):
+	if issubclass(type(slot), bpy.types.Texture):
+		texture= slot
+		slot= None
+	else:
+		texture= slot.texture
+
+	MAPPING_TYPE= {
+		'SPHERE': 'spherical',
+		'VIEW':   'screen',
+		'GLOBAL': 'screen',
+		'OBJECT': 'cubic',
+		'TUBE':   'mirror_ball',
+		'ANGMAP': 'angular'
+	}
+
+	uvw_name= get_random_string()
 	
-	ofile.write("\nTexBlend %s {" % tex_name)
-	ofile.write("\n\tcolor_a= %s;" % textureA)
-	ofile.write("\n\tcolor_b= %s;" % textureB)
-	ofile.write("\n\tblend_amount= %s::out_intensity;"%(texlayered_names[stencil]))
-	ofile.write("\n\tcomposite= %d;"%(0))
+	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
+	if param:
+		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'Z')))
+	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[slot.texture_coords])
 	ofile.write("\n}\n")
-
-	return tex_name
-
-
-def blend_texture(ofile,sce, textureA, textureB, mode, factor):
-	tex_name= "stackmix_%s"%(tex)
 	
-	ofile.write("\nTexLayered stackmix_a_%s {"%(tex))
-	ofile.write("\n\ttextures= List(%s,%s);"%(color1,color2))
-	ofile.write("\n\tblend_modes= List(1,%s);"%(mode))
+	return uvw_name
+
+
+def write_BitmapBuffer(ofile, sce, slot, params):
+	texture= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+
+	BitmapBuffer= texture.image.vray.BitmapBuffer
+
+	filename= get_full_filepath(sce,texture.image.filepath)
+	if not sce.vray.VRayDR.on:
+		if not os.path.exists(filename):
+			debug(sce,"Image file does not exists! (%s)"%(filename))
+
+	# bitmap_name= "Image_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
+	# if exported_bitmaps:
+	# 	if bitmap_name in exported_bitmaps:
+	# 		return bitmap_name
+	# 	exported_bitmaps.append(bitmap_name)
+
+	bitmap_name= get_random_string()
+
+	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
+	ofile.write("\n\tfile= \"%s\";" % filename)
+	ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
+	if texture.image.source == 'SEQUENCE':
+		ofile.write("\n\tframe_sequence= 1;")
+		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
+		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
+	ofile.write("\n\tfilter_type= %d;" % BITMAP_FILTER_TYPE[BitmapBuffer.filter_type])
+	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
 	ofile.write("\n}\n")
-	ofile.write("\nTexMix stackmix_%s {"%(tex))
-	ofile.write("\n\tcolor2= stackmix_a_%s;"%(tex))
-	ofile.write("\n\tcolor1= %s;"%(color1))
-	ofile.write("\n\tmix_amount= %s;"%(factor))
-	ofile.write("\n}\n")
+
+	return bitmap_name
+
+
+def write_TexBitmap(ofile, sce, slot, params):
+	PLACEMENT_TYPE= {
+		'FULL':  0,
+		'CROP':  1,
+		'PLACE': 2
+	}
+
+	TILE= {
+		'NOTILE': 0,
+		'TILEUV': 1,
+		'TILEU':  2,
+		'TILEV':  3,
+	}
+
+	slot= params.get('slot')
+	texture= params.get('texture')
+
+	tex_name= params.get('name',get_random_string())
+
+	if texture.image:
+		VRayTexture= texture.vray
 		
+		bitmap= write_BitmapBuffer(ofile, sce, slot, params)
+
+		if bitmap:
+			if 'environment' in params:
+				uvwgen= write_UVWGenEnvironment(ofile, sce, slot, params)
+			else:
+				if slot.texture_coords == 'UV':
+					uvwgen= write_UVWGenChannel(ofile, sce, slot, params)
+				else:
+					uvwgen= write_UVWGenProjection(ofile, sce, slot, params)
+
+			ofile.write("\nTexBitmap %s {" % tex_name)
+			ofile.write("\n\tbitmap= %s;" % bitmap)
+			ofile.write("\n\tuvwgen= %s;" % uvwgen)
+			if 'material' in params:
+				ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(params['material'].diffuse_color))
+			ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
+			ofile.write("\n\tu= %s;" % texture.crop_min_x)
+			ofile.write("\n\tv= %s;" % texture.crop_min_y)
+			ofile.write("\n\tw= %s;" % texture.crop_max_x)
+			ofile.write("\n\th= %s;" % texture.crop_max_y)
+			ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
+			if slot:
+				ofile.write("\n\tinvert= %d;"%(slot.invert))
+			ofile.write("\n}\n")
+		else:
+			return "Texture_no_texture"
+
+	else:
+		debug(sce,"Error! Image file is not set! (%s)"%(tex.name))
+
 	return tex_name
+
+
+def write_TexPlugin(ofile, sce, slot, params):
+	texture= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+
+	if texture:
+		VRayTexture= texture.vray
+		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
+		if plugin:
+			return plugin.write(ofile, sce, slot, params)
+
+
+def write_texture(ofile, sce, slot, params):
+	texture= params['texture']
+
+	texture_name= 'TE' + clean_string(texture.name)
+	if 'material' in params:
+		texture_name= 'MA' + clean_string(params['material'].name) + texture_name
+	if 'mapto' in params:
+		texture_name+= 'TS' + params['mapto']
+
+	params['name']= texture_name
+
+	if texture.type == 'IMAGE':
+		write_TexBitmap(ofile, sce, slot, params)
+	elif texture.type == 'VRAY':
+		write_TexPlugin(ofile, sce, slot, params)
+	else:
+		print("V-Ray/Blender: Texture type [%s] is currently unsupported." % texture.type)
+		return "Texture_no_texture"
+
+	return texture_name
 
 
 def write_TexAColorOp(ofile, sce, tex, mult, tex_name= None):
@@ -868,7 +1042,7 @@ def write_TexInvert(ofile, tex):
 	return tex_name
 
 
-def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
+def write_TexCompMax(ofile, sce, params):
 	OPERATOR= {
 		'Add':        0,
 		'Substract':  1,
@@ -879,212 +1053,35 @@ def write_TexCompMax(ofile, name, sourceA, sourceB, operator):
 		'Maximum':    6
 	}
 
-	tex_name= "TexCompMax_%s"%(name)
+	tex_name= "TexCompMax_%s"%(params['name'])
 
-	ofile.write("\nTexCompMax %s {"%(tex_name))
-	ofile.write("\n\tsourceA= %s;"%(sourceA))
-	ofile.write("\n\tsourceB= %s;"%(sourceB))
-	ofile.write("\n\toperator= %d;"%(OPERATOR[operator]))
+	ofile.write("\nTexCompMax %s {" % tex_name)
+	ofile.write("\n\tsourceA= %s;" % params['sourceA'])
+	ofile.write("\n\tsourceB= %s;" % params['sourceB'])
+	ofile.write("\n\toperator= %d;" % OPERATOR[params['operator']])
 	ofile.write("\n}\n")
 
 	return tex_name
 
 
-def write_TexFresnel(ofile, sce, ma, ma_name, tex_vray):
+def write_TexFresnel(ofile, sce, ma, ma_name, textures):
 	tex_name= "TexFresnel_%s"%(ma_name)
 
-	ofile.write("\nTexFresnel %s {"%(tex_name))
-	if tex_vray["reflect"]:
-		ofile.write("\n\tblack_color= %s;"%(tex_vray["reflect"]))
+	ofile.write("\nTexFresnel %s {" % tex_name)
+	if 'reflect' in textures:
+		ofile.write("\n\tblack_color= %s;" % textures['reflect'])
 	else:
-		ofile.write("\n\tblack_color= %s;"%(a(sce,"AColor(%.6f, %.6f, %.6f, 1.0)"%(tuple([1.0 - c for c in ma.vray_reflect_color])))))
-	ofile.write("\n\tfresnel_ior= %s;"%(a(sce,ma.vray_fresnel_ior)))
+		ofile.write("\n\tblack_color= %s;" % a(sce,"AColor(%.6f, %.6f, %.6f, 1.0)"%(tuple([1.0 - c for c in ma.vray_reflect_color]))))
+	ofile.write("\n\tfresnel_ior= %s;" % a(sce,ma.vray.BRDFVRayMtl.fresnel_ior))
 	ofile.write("\n}\n")
 
 	return tex_name
 
 
-def write_BRDFMirror(ofile, sce, ma, ma_name, tex_vray):
-	rm= ma.raytrace_mirror
-
-	brdf_name= "BRDFMirror_%s"%(ma_name)
-
-	ofile.write("\nBRDFMirror %s {"%(brdf_name))
-	if(tex_vray['color']):
-		ofile.write("\n\tcolor= %s;"%(tex_vray['color']))
-	else:
-		ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color)))))
-	if(tex_vray['reflect']):
-		ofile.write("\n\ttransparency= Color(1.0, 1.0, 1.0);")
-		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
-	else:
-		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple([1.0 - c for c in ma.vray_reflect_color])))))
-	ofile.write("\n\tback_side= %d;"%(ma.vray_back_side))
-	ofile.write("\n\ttrace_reflections= %s;"%(p(ma.vray_trace_reflections)))
-	ofile.write("\n\ttrace_depth= %i;"%(rm.depth))
-	ofile.write("\n\tcutoff= %.6f;"%(0.01))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray):
-	rm= ma.raytrace_mirror
-
-	brdf_name= "BRDFGlossy_%s"%(ma_name)
-
-	if(ma.vray_brdf == 'PHONG'):
-		ofile.write("\nBRDFPhong %s {"%(brdf_name))
-	elif(ma.vray_brdf == 'WARD'):
-		ofile.write("\nBRDFWard %s {"%(brdf_name))
-	else:
-		ofile.write("\nBRDFBlinn %s {"%(brdf_name))
-
-	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_reflect_color)))))
-	ofile.write("\n\tsubdivs= %i;"%(rm.gloss_samples))
-
-	if(tex_vray['reflect']):
-		ofile.write("\n\ttransparency= Color(1.0,1.0,1.0);")
-		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
-	else:
-		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(
-			1.0 - ma.vray_reflect_color[0],
-			1.0 - ma.vray_reflect_color[1],
-			1.0 - ma.vray_reflect_color[2]))))
-
-	ofile.write("\n\treflectionGlossiness= %s;"%(a(sce,rm.gloss_factor)))
-	ofile.write("\n\thilightGlossiness= %s;"%(a(sce,ma.vray_hilightGlossiness)))
-	if(tex_vray['reflect_glossiness']):
-		ofile.write("\n\treflectionGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['reflect_glossiness'])))
-	if(tex_vray['hilight_glossiness']):
-		ofile.write("\n\thilightGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['hilight_glossiness'])))
-	ofile.write("\n\tback_side= %s;"%(a(sce,ma.vray_back_side)))
-	ofile.write("\n\ttrace_reflections= %s;"%(p(ma.vray_trace_reflections)))
-	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rm.depth)))
-	if(not ma.vray_brdf == 'PHONG'):
-		ofile.write("\n\tanisotropy= %s;"%(a(sce,ma.vray_anisotropy)))
-		ofile.write("\n\tanisotropy_rotation= %s;"%(a(sce,ma.vray_anisotropy_rotation)))
-	ofile.write("\n\tcutoff= %s;"%(a(sce,rm.gloss_threshold)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFGlass(ofile, sce, ma, ma_name, tex_vray):
-	rt= ma.raytrace_transparency
-
-	brdf_name= "BRDFGlass_%s"%(ma_name)
-
-	ofile.write("\nBRDFGlass %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_refract_color)))))
-	if(tex_vray['refract']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
-	ofile.write("\n\tior= %s;"%(a(sce,rt.ior)))
-	ofile.write("\n\taffect_shadows= %d;"%(ma.vray_affect_alpha))
-	ofile.write("\n\ttrace_refractions= %d;"%(ma.vray_trace_refractions))
-	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rt.depth)))
-	ofile.write("\n\tcutoff= %s;"%(a(sce,0.001)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFGlassGlossy(ofile, sce, ma, ma_name, tex_vray):
-	rt= ma.raytrace_transparency
-
-	brdf_name= "BRDFGlassGlossy_%s"%(ma_name)
-
-	ofile.write("\nBRDFGlassGlossy %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_refract_color)))))
-	if(tex_vray['refract']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
-	ofile.write("\n\tglossiness= %s;"%(a(sce,rt.gloss_factor)))
-	ofile.write("\n\tsubdivs= %i;"%(rt.gloss_samples))
-	ofile.write("\n\tior= %s;"%(a(sce,rt.ior)))
-	ofile.write("\n\taffect_shadows= %d;"%(ma.vray_affect_alpha))
-	ofile.write("\n\ttrace_refractions= %d;"%(ma.vray_trace_refractions))
-	ofile.write("\n\ttrace_depth= %s;"%(a(sce,rt.depth)))
-	ofile.write("\n\tcutoff= %s;"%(a(sce,0.001)))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFDiffuse(ofile, sce, ma, ma_name, tex_vray):
-	brdf_name= "BRDFDiffuse_%s"%(ma_name)
-
-	ofile.write("\nBRDFDiffuse %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color)))))
-	ofile.write("\n\troughness= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(ma.vray_roughness,ma.vray_roughness,ma.vray_roughness))))
-	if(tex_vray['color']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['color']))
-	ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
-	if(tex_vray['alpha']):
-		ofile.write("\n\ttransparency_tex= %s;"%(a(sce,tex_vray['alpha'])))
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDF(ofile, sce, ma, ma_name, tex_vray):
-	def bool_color(color, level):
-		for c in color:
-			if c > level:
-				return True
-		return False
-
-	rm= ma.raytrace_mirror
-	rt= ma.raytrace_transparency
-
-	brdfs= []
-
-	if(tex_vray['reflect']):
-		tex_vray['reflect']= write_TexInvert(tex_vray['reflect'])
-
-	if(ma.vray_fresnel):
-		tex_vray['reflect']= write_TexFresnel(ofile, sce, ma, ma_name, tex_vray)
-
-	if(tex_vray['reflect'] or bool_color(ma.vray_reflect_color, 0.0)):
-		if(rm.gloss_factor < 1.0 or tex_vray['reflect_glossiness']):
-			brdf_name= write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray)
-		else:
-			brdf_name= write_BRDFMirror(ofile, sce, ma, ma_name, tex_vray)
-		brdfs.append(brdf_name)
-
-	if(tex_vray['refract'] or bool_color(ma.vray_refract_color, 0.0)):
-		if(rt.gloss_factor < 1.0 or tex_vray['refract_glossiness']):
-			brdf_name= write_BRDFGlassGlossy(ofile, sce, ma, ma_name, tex_vray)
-		else:
-			brdf_name= write_BRDFGlass(ofile, sce, ma, ma_name, tex_vray)
-	else:
-		brdf_name= write_BRDFDiffuse(ofile, sce, ma, ma_name, tex_vray)
-	brdfs.append(brdf_name)
-
-	if(len(brdfs) == 1):
-		brdf_name= brdfs[0]
-	else:
-		brdf_name= "BRDFLayered_%s"%(ma_name)
-
-		ofile.write("\nBRDFLayered %s {"%(brdf_name))
-		ofile.write("\n\tbrdfs= List(")
-		brdfs_out= ""
-		for brdf in brdfs:
-			brdfs_out+= "\n\t\t%s,"%(brdf)
-		ofile.write(brdfs_out[0:-1])
-		ofile.write("\n\t);")
-		ofile.write("\n\tadditive_mode= %s;"%(0)); # For shellac
-		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
-		if(tex_vray['alpha']):
-			ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['alpha']))
-		ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray):
+def write_BRDFGlossy(ofile, sce, ma, ma_name, textures):
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-	brdf_name= "BRDFGlossy_%s"%(ma_name)
+	brdf_name= get_random_string()
 
 	if BRDFVRayMtl.brdf_type == 'PHONG':
 		ofile.write("\nBRDFPhong %s {"%(brdf_name))
@@ -1096,9 +1093,9 @@ def write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray):
 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(BRDFVRayMtl.reflect_color)))))
 	ofile.write("\n\tsubdivs= %i;"%(BRDFVRayMtl.reflect_subdivs))
 
-	if tex_vray['reflect']:
+	if 'reflect' in textures:
 		ofile.write("\n\ttransparency= Color(1.0,1.0,1.0);")
-		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
+		ofile.write("\n\ttransparency_tex= %s;"%(textures['reflect']))
 	else:
 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple([1.0 - c for c in BRDFVRayMtl.reflect_color])))))
 
@@ -1107,10 +1104,10 @@ def write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray):
 		ofile.write("\n\thilightGlossiness= %s;"%(a(sce,BRDFVRayMtl.reflect_glossiness)))
 	else:
 		ofile.write("\n\thilightGlossiness= %s;"%(a(sce,BRDFVRayMtl.hilight_glossiness)))
-	if tex_vray['reflect_glossiness']:
-		ofile.write("\n\treflectionGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['reflect_glossiness'])))
-	if tex_vray['hilight_glossiness']:
-		ofile.write("\n\thilightGlossiness_tex= %s;"%("%s::out_intensity"%(tex_vray['hilight_glossiness'])))
+	if 'reflect_glossiness' in textures:
+		ofile.write("\n\treflectionGlossiness_tex= %s;"%("%s::out_intensity"%(textures['reflect_glossiness'])))
+	if 'hilight_glossiness' in textures:
+		ofile.write("\n\thilightGlossiness_tex= %s;"%("%s::out_intensity"%(textures['hilight_glossiness'])))
 	ofile.write("\n\tback_side= %d;"%(BRDFVRayMtl.option_reflect_on_back))
 	ofile.write("\n\ttrace_reflections= %s;"%(p(BRDFVRayMtl.reflect_trace)))
 	ofile.write("\n\ttrace_depth= %i;"%(BRDFVRayMtl.reflect_depth))
@@ -1123,19 +1120,19 @@ def write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFMirror(ofile, sce, ma, ma_name, tex_vray):
+def write_BRDFMirror(ofile, sce, ma, ma_name, textures):
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-	brdf_name= "BRDFMirror_%s"%(ma_name)
+	brdf_name= get_random_string()
 
 	ofile.write("\nBRDFMirror %s {"%(brdf_name))
-	if tex_vray['color']:
-		ofile.write("\n\tcolor= %s;"%(tex_vray['color']))
+	if textures['color']:
+		ofile.write("\n\tcolor= %s;"%(textures['color']))
 	else:
 		ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(BRDFVRayMtl.reflect_color)))))
-	if tex_vray['reflect']:
+	if textures['reflect']:
 		ofile.write("\n\ttransparency= Color(1.0, 1.0, 1.0);")
-		ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['reflect']))
+		ofile.write("\n\ttransparency_tex= %s;"%(textures['reflect']))
 	else:
 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple([1.0 - c for c in BRDFVRayMtl.reflect_color])))))
 	ofile.write("\n\tback_side= %d;"%(BRDFVRayMtl.option_reflect_on_back))
@@ -1147,15 +1144,15 @@ def write_BRDFMirror(ofile, sce, ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFGlass(ofile, sce, ma, ma_name, tex_vray):
+def write_BRDFGlass(ofile, sce, ma, ma_name, textures):
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-	brdf_name= "BRDFGlass_%s"%(ma_name)
+	brdf_name= get_random_string()
 
 	ofile.write("\nBRDFGlass %s {"%(brdf_name))
 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(BRDFVRayMtl.refract_color)))))
-	if(tex_vray['refract']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
+	if 'refract' in textures:
+		ofile.write("\n\tcolor_tex= %s;"%(textures['refract']))
 	ofile.write("\n\tior= %s;"%(a(sce,BRDFVRayMtl.refract_ior)))
 	ofile.write("\n\taffect_shadows= %d;"%(BRDFVRayMtl.refract_affect_shadows))
 	ofile.write("\n\taffect_alpha= %d;"%(BRDFVRayMtl.refract_affect_alpha))
@@ -1167,15 +1164,15 @@ def write_BRDFGlass(ofile, sce, ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFGlassGlossy(ofile, sce, ma, ma_name, tex_vray):
-	rt= ma.raytrace_transparency
+def write_BRDFGlassGlossy(ofile, sce, ma, ma_name, textures):
+	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-	brdf_name= "BRDFGlassGlossy_%s"%(ma_name)
+	brdf_name= get_random_string()
 
 	ofile.write("\nBRDFGlassGlossy %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(ma.vray_refract_color)))))
-	if(tex_vray['refract']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['refract']))
+	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(BRDFVRayMtl.refract_color)))))
+	if 'refract' in textures:
+		ofile.write("\n\tcolor_tex= %s;"%(textures['refract']))
 	ofile.write("\n\tglossiness= %s;"%(a(sce,BRDFVRayMtl.refract_glossiness)))
 	ofile.write("\n\tsubdivs= %i;"%(BRDFVRayMtl.refract_subdivs))
 	ofile.write("\n\tior= %s;"%(a(sce,BRDFVRayMtl.refract_ior)))
@@ -1189,56 +1186,25 @@ def write_BRDFGlassGlossy(ofile, sce, ma, ma_name, tex_vray):
 	return brdf_name
 
 
-def write_BRDFLight(ofile, sce, ma, ma_name, tex_vray):
-	brdf_name= "BRDFLight_%s"%(ma_name)
-
-	if(tex_vray['color']):
-		color= tex_vray['color']
-	else:
-		color= "Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color))
-
-	if(tex_vray['alpha']):
-		alpha= write_TexInvert(ofile, sce,tex_vray['alpha'])
-		color= write_TexCompMax(ofile, sce,"%s_alpha"%(brdf_name), alpha, color)
-
-	light= ma.vray.BRDFLight
-
-	ofile.write("\nBRDFLight %s {"%(brdf_name))
-	ofile.write("\n\tcolor= %s;"%(a(sce,color)))
-	ofile.write("\n\tcolorMultiplier= %s;"%(a(sce,ma.emit * 10)))
-	ofile.write("\n\tcompensateExposure= %s;"%(a(sce,light.compensateExposure)))
-	ofile.write("\n\temitOnBackSide= %s;"%(a(sce,light.emitOnBackSide)))
-	ofile.write("\n\tdoubleSided= %s;"%(a(sce,light.doubleSided)))
-
-	if(tex_vray['alpha']):
-		ofile.write("\n\ttransparency= %s;"%(a(sce,tex_vray['alpha'])))
-	else:
-		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(1.0 - ma.alpha, 1.0 - ma.alpha, 1.0 - ma.alpha))))
-
-	ofile.write("\n}\n")
-
-	return brdf_name
-
-
-def write_BRDFDiffuse(ofile, sce, ma, ma_name, tex_vray):
+def write_BRDFDiffuse(ofile, sce, ma, ma_name, textures):
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 		
-	brdf_name= "BRDFDiffuse_%s"%(ma_name)
+	brdf_name= get_random_string()
 
 	ofile.write("\nBRDFDiffuse %s {"%(brdf_name))
 	ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f, %.6f, %.6f)"%(tuple(ma.diffuse_color)))))
 	ofile.write("\n\troughness= %s;"%(a(sce,"Color(1.0,1.0,1.0)*%.6f"%(BRDFVRayMtl.roughness))))
-	if(tex_vray['color']):
-		ofile.write("\n\tcolor_tex= %s;"%(tex_vray['color']))
-		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(1.0,1.0,1.0)*%.6f"%(1.0 - ma.alpha))))
-	if(tex_vray['alpha']):
-		ofile.write("\n\ttransparency_tex= %s;"%(a(sce,tex_vray['alpha'])))
+	if 'diffuse' in textures:
+		ofile.write("\n\tcolor_tex= %s;" % textures['diffuse'])
+	ofile.write("\n\ttransparency= %s;" % a(sce,"Color(1.0,1.0,1.0)*%.6f"%(1.0 - ma.alpha)))
+	if 'opacity' in textures:
+		ofile.write("\n\ttransparency_tex= %s;" % textures['opacity'])
 	ofile.write("\n}\n")
 
 	return brdf_name
 
 
-def write_BRDF(ofile, sce, ma, ma_name, tex_vray):
+def write_BRDF(ofile, sce, ma, ma_name, textures):
 	def bool_color(color):
 		for c in color:
 			if c > 0.0:
@@ -1249,23 +1215,25 @@ def write_BRDF(ofile, sce, ma, ma_name, tex_vray):
 
 	brdfs= []
 
-	if tex_vray['reflect']:
-		tex_vray['reflect']= write_TexInvert(tex_vray['reflect'])
+	reflect= None
 
-	if tex_vray['reflect'] or bool_color(BRDFVRayMtl.reflect_color):
-		if BRDFVRayMtl.reflect_glossiness < 1.0 or tex_vray['reflect_glossiness']:
-			brdf_name= write_BRDFGlossy(ofile, sce, ma, ma_name, tex_vray)
+	if 'reflect' in textures:
+		reflect= write_TexInvert(textures['reflect'])
+
+	if reflect or bool_color(BRDFVRayMtl.reflect_color):
+		if BRDFVRayMtl.reflect_glossiness < 1.0 or 'reflect_glossiness' in textures:
+			brdf_name= write_BRDFGlossy(ofile, sce, ma, ma_name, textures['mapto'])
 		else:
-			brdf_name= write_BRDFMirror(ofile, sce, ma, ma_name, tex_vray)
+			brdf_name= write_BRDFMirror(ofile, sce, ma, ma_name, textures['mapto'])
 		brdfs.append(brdf_name)
 
-	if tex_vray['refract'] or bool_color(BRDFVRayMtl.refract_color):
-		if BRDFVRayMtl.refract_glossiness < 1.0 or tex_vray['refract_glossiness']:
-			brdf_name= write_BRDFGlassGlossy(ofile, sce, ma, ma_name, tex_vray)
+	if 'refract' in textures or bool_color(BRDFVRayMtl.refract_color):
+		if BRDFVRayMtl.refract_glossiness < 1.0 or 'refract_glossiness' in textures:
+			brdf_name= write_BRDFGlassGlossy(ofile, sce, ma, ma_name, textures['mapto'])
 		else:
-			brdf_name= write_BRDFGlass(ofile, sce, ma, ma_name, tex_vray)
+			brdf_name= write_BRDFGlass(ofile, sce, ma, ma_name, textures['mapto'])
 	else:
-		brdf_name= write_BRDFDiffuse(ofile, sce, ma, ma_name, tex_vray)
+		brdf_name= write_BRDFDiffuse(ofile, sce, ma, ma_name, textures['mapto'])
 	brdfs.append(brdf_name)
 
 	if len(brdfs) == 1:
@@ -1275,8 +1243,42 @@ def write_BRDF(ofile, sce, ma, ma_name, tex_vray):
 		ofile.write("\nBRDFLayered %s {"%(brdf_name))
 		ofile.write("\n\tbrdfs= List(%s);"%(','.join(brdfs)))
 		ofile.write("\n\ttransparency= %s;"%(a(sce,"Color(1.0,1.0,1.0)*%.6f"%(1.0 - ma.alpha))))
-		if tex_vray['alpha']:
-			ofile.write("\n\ttransparency_tex= %s;"%(tex_vray['alpha']))
+		if 'opacity' in textures:
+			ofile.write("\n\ttransparency_tex= %s;" % textures['opacity'])
 		ofile.write("\n}\n")
+
+	return brdf_name
+
+
+def write_BRDFLight(ofile, sce, ma, ma_name, textures):
+	brdf_name= "BRDFLight_%s"%(ma_name)
+
+	light= ma.vray.BRDFLight
+
+	ofile.write("\nBRDFLight %s {"%(brdf_name))
+
+	if 'diffuse' in textures:
+		color= textures['diffuse']
+		if 'opacity' in textures:
+			alpha= write_TexInvert(ofile, sce, textures['opacity'])
+			color= write_TexCompMax(ofile, sce, {'name': "%s_alpha" % brdf_name,
+												 'sourceA': alpha,
+												 'sourceB': color,
+												 'opertor': 'Multiply'})
+		ofile.write("\n\tcolor= %s;" % color)
+	else:
+		ofile.write("\n\tcolor= %s;" % a(sce, ma.diffuse_color))
+
+	ofile.write("\n\tcolorMultiplier= %s;" % a(sce, ma.emit * 10))
+	ofile.write("\n\tcompensateExposure= %s;" % p(light.compensateExposure))
+	ofile.write("\n\temitOnBackSide= %s;" % p(light.emitOnBackSide))
+	ofile.write("\n\tdoubleSided= %s;" % p(light.doubleSided))
+
+	if 'opacity' in textures:
+		ofile.write("\n\ttransparency= %s;" % textures['opacity'])
+	else:
+		ofile.write("\n\ttransparency= %s;" % a(sce,"Color(1.0,1.0,1.0)*%.6f" % (1.0 - ma.alpha)))
+
+	ofile.write("\n}\n")
 
 	return brdf_name

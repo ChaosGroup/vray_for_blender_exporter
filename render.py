@@ -105,20 +105,17 @@ def write_mesh_hq(ofile, sce, ob):
 	sys.stdout.flush()
 
 
+def generate_proxy(sce, ob, vrmesh, append=False):
+	hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
+	write_mesh_hq(hq_file, sce, ob)
+	hq_file.close()
+	proxy_creator(hq_file.name, vrmesh, append)
+	os.remove(hq_file.name)
+
+
 def write_geometry(sce, geometry_file):
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
-
-	# For getting unique IDs for UV names
-	uv_layers= {}
-	i= 1
-	for ma in bpy.data.materials:
-		for slot in ma.texture_slots:
-			if slot and slot.texture and slot.texture.type == 'IMAGE':
-				if slot.texture_coords == 'UV':
-					if slot.uv_layer not in uv_layers:
-						uv_layers[slot.uv_layer]= i
-						i+= 1
 
 	try:
 		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
@@ -132,8 +129,17 @@ def write_geometry(sce, geometry_file):
 
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
-		
-		# Used when exporting dupli, particles etc.
+
+		uv_layers= {}
+		i= 1
+		for ma in bpy.data.materials:
+			for slot in ma.texture_slots:
+				if slot and slot.texture and slot.texture.type == 'IMAGE':
+					if slot.texture_coords == 'UV':
+						if slot.uv_layer not in uv_layers:
+							uv_layers[slot.uv_layer]= i
+							i+= 1
+
 		exported_meshes= []
 
 		def write_mesh(exported_meshes, ob):
@@ -372,23 +378,6 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 	ofile.write("\n}\n")
 
 
-def write_mesh_file(ofile, exported_proxy, ob):
-	proxy= ob.data.vray.GeomMeshFile
-	proxy_name= "Proxy_%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
-
-	if proxy_name not in exported_proxy:
-		exported_proxy.append(proxy_name)
-		
-		ofile.write("\nGeomMeshFile %s {" % proxy_name)
-		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,proxy.file))
-		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
-		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
-		ofile.write("\n\tanim_offset= %i;" % proxy.anim_offset)
-		ofile.write("\n}\n")
-
-	return proxy_name
-
-
 def write_mesh_displace(ofile, mesh, params):
 	plugin= 'GeomDisplacedMesh'
 	name= "%s_%s" % (plugin, mesh)
@@ -414,239 +403,27 @@ def write_mesh_displace(ofile, mesh, params):
 	return name
 
 
-def generate_proxy(sce, ob, vrmesh, append=False):
-	hq_file= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
-	write_mesh_hq(hq_file, sce, ob)
-	hq_file.close()
-	proxy_creator(hq_file.name, vrmesh, append)
-	os.remove(hq_file.name)
+def write_mesh_file(ofile, exported_proxy, ob):
+	proxy= ob.data.vray.GeomMeshFile
+	proxy_name= "Proxy_%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
+
+	if proxy_name not in exported_proxy:
+		exported_proxy.append(proxy_name)
+		
+		ofile.write("\nGeomMeshFile %s {" % proxy_name)
+		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,proxy.file))
+		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
+		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
+		ofile.write("\n\tanim_offset= %i;" % proxy.anim_offset)
+		ofile.write("\n}\n")
+
+	return proxy_name
 
 
 
 '''
   MATERIALS
 '''
-def write_multi_material(ofile, ob):
-	mtl_name= "Material_%s"%(get_name(ob,"Data"))
-
-	mtls_list= []
-	ids_list=  []
-
-	for i,slot in enumerate(ob.material_slots):
-		ma_name= "Material_no_material"
-		if slot.material is not None:
-			ma_name= get_name(slot.material, 'Material')
-			
-		mtls_list.append(ma_name)
-		ids_list.append(str(i + 1))
-
-	ofile.write("\nMtlMulti %s {"%(mtl_name))
-	ofile.write("\n\tmtls_list= List(%s);"%(','.join(mtls_list)))
-	ofile.write("\n\tids_list= ListInt(%s);"%(','.join(ids_list)))
-	ofile.write("\n}\n")
-
-	return mtl_name
-
-
-def write_UVWGenProjection(ofile, slot, ob= None, suffix=None):
-	MAPPING= {
-		'NONE':   0,
-		'FLAT':   1,
-		'CUBE':   5,
-		'TUBE':   3,
-		'SPHERE': 2,
-	}
-
-	uvw_name= get_random_string()
-
-	slot.texture.vray.uvwgen= uvw_name
-
-	ofile.write("\nUVWGenProjection %s {" % uvw_name)
-	ofile.write("\n\ttype= %d;" % MAPPING[slot.mapping])
-	if ob:
-		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X') * ob.matrix_world.rotation_part().to_4x4().transpose()))
-	ofile.write("\n}\n")
-
-	return uvw_name
-
-
-def write_UVWGenChannel(ofile, tex, tex_name, ob= None):
-	uvw_name= get_random_string()
-
-	slot= None
-	if issubclass(type(tex), bpy.types.TextureSlot):
-		slot= tex
-		tex=  tex.texture
-
-	VRaySlot= tex.vray_slot
-	VRayTexture= tex.vray
-	VRaySlot.uvwgen= uvw_name
-
-	ofile.write("\nUVWGenChannel %s {" % uvw_name)
-	ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
-	ofile.write("\n\twrap_u= %d;" % (2 if tex.use_mirror_x else 0))
-	ofile.write("\n\twrap_v= %d;" % (2 if tex.use_mirror_y else 0))
-	ofile.write("\n\tuvw_transform= Transform(")
-	ofile.write("\n\t\tMatrix(")
-	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (tex.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
-	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (tex.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
-	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
-	ofile.write("\n\t\t),")
-	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
-	ofile.write("\n\t);")
-	ofile.write("\n}\n")
-
-	return uvw_name
-
-
-def write_UVWGenExplicit(ofile, tex, tex_name,  mapping, param= None):
-	uvw_name= "%s_UVWGenExplicit_s"%(tex_name, get_name(tex))
-
-	ofile.write("\nUVWGenExplicit %s {"%(uvw_name))
-	ofile.write("\n}\n")
-	
-	return uvw_name
-
-
-def write_UVWGenEnvironment(ofile, tex, tex_name,  mapping, param= None):
-	MAPPING_TYPE= {
-		'SPHERE': 'spherical',
-		'VIEW':   'screen',
-		'GLOBAL': 'screen',
-		'OBJECT': 'cubic',
-		'TUBE':   'mirror_ball',
-		'ANGMAP': 'angular'
-	}
-
-	uvw_name= "uv_env_%s_%s"%(tex_name, MAPPING_TYPE[mapping])
-	
-	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
-	if param:
-		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(90.0), 4, 'Z')))
-	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[mapping])
-	ofile.write("\n}\n")
-	
-	return uvw_name
-
-
-def write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob= None):
-	FILTER_TYPE= {
-		'NONE':   0,
-		'MIPMAP': 1,
-		'AREA':   2
-	}
-
-	BitmapBuffer= tex.image.vray.BitmapBuffer
-
-	filename= get_full_filepath(sce,tex.image.filepath)
-	if not sce.vray.VRayDR.on:
-		if not os.path.exists(filename):
-			debug(sce,"Image file does not exists! (%s)"%(filename))
-
-	# bitmap_name= "Image_%s_%s"%(tex_name, clean_string(os.path.basename(filename)))
-	# if exported_bitmaps:
-	# 	if bitmap_name in exported_bitmaps:
-	# 		return bitmap_name
-	# 	exported_bitmaps.append(bitmap_name)
-
-	bitmap_name= get_random_string()
-
-	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
-	ofile.write("\n\tfile= \"%s\";" % filename)
-	ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
-	if tex.image.source == 'SEQUENCE':
-		ofile.write("\n\tframe_sequence= 1;")
-		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
-		ofile.write("\n\tframe_offset= %i;" % tex.image_user.frame_offset)
-	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
-	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
-	ofile.write("\n}\n")
-
-	return bitmap_name
-
-
-def write_TexBitmap(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None, env= None, env_type= None):
-	PLACEMENT_TYPE= {
-		'FULL':  0,
-		'CROP':  1,
-		'PLACE': 2
-	}
-
-	TILE= {
-		'NOTILE': 0,
-		'TILEUV': 1,
-		'TILEU':  2,
-		'TILEV':  3,
-	}
-
-	tex_name= "Texture_no_texture"
-
-	slot= None
-	if issubclass(type(tex), bpy.types.TextureSlot):
-		slot= tex
-		tex= tex.texture
-
-	if tex.image:
-		VRayTexture= tex.vray
-		
-		# tex_name= get_name(tex,"Texture")
-		# if ma: tex_name= "%s_%s"%(get_name(ma),tex_name)
-		tex_name= get_random_string()
-
-		if env:
-			uvwgen= write_UVWGenEnvironment(ofile, tex, tex_name, slot.texture_coords)
-		else:
-			if slot.texture_coords == 'UV':
-				uvwgen= write_UVWGenChannel(ofile, slot, tex_name, ob)
-			else:
-				uvwgen= write_UVWGenProjection(ofile, slot)
-
-		bitmap_name= write_BitmapBuffer(ofile, exported_bitmaps, tex, tex_name, ob)
-
-		if bitmap_name:
-			ofile.write("\nTexBitmap %s {" % tex_name)
-			ofile.write("\n\tbitmap= %s;" % bitmap_name)
-			ofile.write("\n\tuvwgen= %s;" % uvwgen)
-			ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(ma.diffuse_color))
-			ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
-			ofile.write("\n\tu= %s;" % tex.crop_min_x)
-			ofile.write("\n\tv= %s;" % tex.crop_min_y)
-			ofile.write("\n\tw= %s;" % tex.crop_max_x)
-			ofile.write("\n\th= %s;" % tex.crop_max_y)
-			ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[tex.vray.placement_type])
-			if slot:
-				ofile.write("\n\tinvert= %d;"%(slot.invert))
-			ofile.write("\n}\n")
-		else:
-			return "Texture_no_texture"
-
-	else:
-		debug(sce,"Error! Image file is not set! (%s)"%(tex.name))
-
-	return tex_name
-
-
-def write_TexPlugin(ofile, exported_bitmaps= None, ma= None, tex= None, ob= None, env= None, env_type= None):
-	if issubclass(type(tex), bpy.types.TextureSlot):
-		tex= tex.texture
-	if tex:
-		VRayTexture= tex.vray
-		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
-		if plugin:
-			return plugin.write(ofile, sce, tex)
-
-
-def write_texture(ofile, exported_bitmaps= None, slot= None, ma= None, env= None):
-	tex_name= "Texture_no_texture"
-
-	if slot.texture.type == 'IMAGE':
-		tex_name= write_TexBitmap(ofile, exported_bitmaps= exported_bitmaps, ma= ma, tex= slot, env= env)
-	elif slot.texture.type == 'VRAY':
-		tex_name= write_TexPlugin(ofile, ma= ma, tex= slot, env= env)
-
-	return tex_name
-
-
 def get_color_params(ma):
 	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
@@ -657,8 +434,8 @@ def get_color_params(ma):
 		'roughness': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE'),
 		'opacity':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
 		
-		'reflect_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE'),
-		'hilight_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE'),
+		'reflect_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE'),
+		'hilight_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE'),
 		
 		'reflect':             (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE'),
 		'anisotropy':          (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE'),
@@ -688,11 +465,15 @@ def get_color_params(ma):
 	return defaults
 
 
-def write_textures(ofile, exported_bitmaps, ma, ma_name):
-	def _write_multiplied_texture(slot, factor):
-		tex_name= write_texture(ofile, exported_bitmaps, slot, ma)
-		tex_name= multiply_texture(ofile, sce, tex_name, factor)
-		return tex_name
+def write_multiplied_texture(ofile, sce, slot, factor, params):
+	tex_name= write_texture(ofile, sce, slot, params)
+	tex_name= multiply_texture(ofile, sce, tex_name, factor)
+	return tex_name
+
+
+def write_textures(ofile, params):
+
+	ma= params['material']
 
 	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
@@ -747,9 +528,19 @@ def write_textures(ofile, exported_bitmaps, ma, ma_name):
 						mapped_params['mapto'][key]= []
 						if factor < 1.0 or slot.use_stencil:
 							mapped_params['mapto'][key].append(defaults[key])
-					mapped_params['mapto'][key].append((_write_multiplied_texture(slot, factor), slot.use_stencil, VRaySlot.blend_mode))
+					params['mapto']=    key
+					params['slot']=     slot
+					params['texture']=  slot.texture
+					mapped_params['mapto'][key].append((write_multiplied_texture(ofile, sce, slot, factor, params),
+														slot.use_stencil,
+														VRaySlot.blend_mode))
+					# Reseting for data save
+					del params['mapto']
+					del params['slot']
+					del params['texture']
 
-	debug(sce,mapped_params['mapto'])
+	if len(mapped_params['mapto']):
+		debug(sce,mapped_params['mapto'])
 	
 	def _collapse_layers(slots):
 		layers= []
@@ -818,16 +609,16 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, mapped_params):
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
+	for key in ('diffuse','reflect','refract','translucency_color'):
+		ofile.write("\n\t%s= %s;" % (key, textures[key] if key in textures else defaults[key][0]))
+
+	for key in ('roughness','reflect_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
+		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(sce,getattr(BRDFVRayMtl,key))))
+
 	if 'opacity' in textures:
 		ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
 	else:
 		ofile.write("\n\topacity= %s;" % a(sce,ma.alpha))
-
-	for key in ('diffuse','reflect','refract','translucency_color'):
-		ofile.write("\n\t%s= %s;" % (key, textures[key] if key in textures else defaults[key][0]))
-
-	for key in ('roughness','reflect_glossiness','hilight_glossiness'):
-		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else defaults[key][0]))
 
 	for param in OBJECT_PARAMS['BRDFVRayMtl']:
 		if param == 'translucency':
@@ -910,16 +701,16 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, textures):
 	return brdf_name
 
 
-def	write_material(ma, filters, object_params, ofile, name= None):
-	ma_name= get_name(ma,"Material")
-	if name:
-		ma_name= name
+def	write_material(ma, filters, object_params, ofile, name= None, ob= None):
+	ma_name= name if name else get_name(ma,"Material")
 
 	VRayMaterial= ma.vray
 	
 	brdf_name= "BRDFDiffuse_no_material"
 
-	textures= write_textures(ofile, filters['exported_bitmaps'], ma, ma_name)
+	textures= write_textures(ofile, {'material': ma,
+									 'object':   ob,
+									 'filters':  filters})
 
 	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 		object_params['meshlight']['on']= True
@@ -1036,6 +827,28 @@ def	write_material(ma, filters, object_params, ofile, name= None):
 	del complex_material
 
 
+def write_multi_material(ofile, ob):
+	mtl_name= "Material_%s"%(get_name(ob,"Data"))
+
+	mtls_list= []
+	ids_list=  []
+
+	for i,slot in enumerate(ob.material_slots):
+		ma_name= "Material_no_material"
+		if slot.material is not None:
+			ma_name= get_name(slot.material, 'Material')
+			
+		mtls_list.append(ma_name)
+		ids_list.append(str(i + 1))
+
+	ofile.write("\nMtlMulti %s {"%(mtl_name))
+	ofile.write("\n\tmtls_list= List(%s);"%(','.join(mtls_list)))
+	ofile.write("\n\tids_list= ListInt(%s);"%(','.join(ids_list)))
+	ofile.write("\n}\n")
+
+	return mtl_name
+
+
 def write_materials(ofile,ob,filters,object_params):
 	def get_brdf_type(ma):
 		vma= ma.vray
@@ -1143,7 +956,7 @@ def write_materials(ofile,ob,filters,object_params):
 						else:
 							debug(sce,"Node: %s (unsupported node type: %s)"%(n.name, n.type))
 				else:
-					write_material(ma, filters, object_params, ofile)
+					write_material(ma, filters, object_params, ofile, ob= ob)
 
 	ma_name= "Material_no_material"
 	if len(ob.material_slots):
@@ -1153,33 +966,6 @@ def write_materials(ofile,ob,filters,object_params):
 		else:
 			ma_name= write_multi_material(ofile, ob)
 	return ma_name
-
-
-def write_LightMesh(ofile, ob, params, name, geometry, matrix):
-	plugin= 'LightMesh'
-
-	ma=  params['material']
-	tex= params['texture']
-
-	light= getattr(ma.vray,plugin)
-
-	ofile.write("\n%s %s {" % (plugin,name))
-	ofile.write("\n\ttransform= %s;"%(a(sce,transform(matrix))))
-	for param in OBJECT_PARAMS[plugin]:
-		if param == 'color':
-			if tex:
-				ofile.write("\n\tcolor= %s;"%(tex))
-			else:
-				ofile.write("\n\tcolor= %s;"%(a(sce,ma.diffuse_color)))
-		elif param == 'geometry':
-			ofile.write("\n\t%s= %s;"%(param, geometry))
-		elif param == 'units':
-			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
-		elif param == 'lightPortal':
-			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
-		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(light,param))))
-	ofile.write("\n}\n")
 
 
 def generate_object_list(object_names_string= None, group_names_string= None):
@@ -1251,6 +1037,7 @@ def visible_from_view(object, ca):
 					visibility[hide_type]= False
 
 	return visibility
+
 # TODO:
 # ofile.write("\nMtlRenderStats HideFromView_%s {"%(complex_material[-1]))
 # ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
@@ -1412,21 +1199,19 @@ def write_environment(ofile, volumes= None):
 	refract_tex_mult= 1.0
 
 	for slot in wo.texture_slots:
-		if slot:
-			if slot.texture:
-				if slot.texture.type in TEX_TYPES:
-					if slot.use_map_blend:
-						bg_tex= write_texture(ofile, slot= slot, env=True)
-						bg_tex_mult= slot.blend_factor
-					if slot.use_map_horizon:
-						gi_tex= write_texture(ofile, slot= slot, env=True)
-						gi_tex_mult= slot.horizon_factor
-					if slot.use_map_zenith_up:
-						reflect_tex= write_texture(ofile, slot= slot, env=True)
-						reflect_tex_mult= slot.zenith_up_factor
-					if slot.use_map_zenith_down:
-						refract_tex= write_texture(ofile, slot= slot, env=True)
-						refract_tex_mult= slot.zenith_down_factor
+		if slot and slot.texture and slot.texture.type in TEX_TYPES:
+			if slot.use_map_blend:
+				bg_tex= write_texture(ofile, sce, slot, {'environment': True})
+				bg_tex_mult= slot.blend_factor
+			if slot.use_map_horizon:
+				gi_tex= write_texture(ofile, sce, slot, {'environment': True})
+				gi_tex_mult= slot.horizon_factor
+			if slot.use_map_zenith_up:
+				reflect_tex= write_texture(ofile, sce, slot, {'environment': True})
+				reflect_tex_mult= slot.zenith_up_factor
+			if slot.use_map_zenith_down:
+				refract_tex=  write_texture(ofile, sce, slot, {'environment': True})
+				refract_tex_mult= slot.zenith_down_factor
 
 	ofile.write("\nSettingsEnvironment {")
 	ofile.write("\n\tbg_color= %s;"%(a(sce,wo.vray.bg_color)))
@@ -1490,6 +1275,33 @@ def write_EnvFogMeshGizmo(ofile, node_name, node_geometry, node_matrix):
 	ofile.write("\n}\n")
 
 	return name
+
+
+def write_LightMesh(ofile, ob, params, name, geometry, matrix):
+	plugin= 'LightMesh'
+
+	ma=  params['material']
+	tex= params['texture']
+
+	light= getattr(ma.vray,plugin)
+
+	ofile.write("\n%s %s {" % (plugin,name))
+	ofile.write("\n\ttransform= %s;"%(a(sce,transform(matrix))))
+	for param in OBJECT_PARAMS[plugin]:
+		if param == 'color':
+			if tex:
+				ofile.write("\n\tcolor= %s;"%(tex))
+			else:
+				ofile.write("\n\tcolor= %s;"%(a(sce,ma.diffuse_color)))
+		elif param == 'geometry':
+			ofile.write("\n\t%s= %s;"%(param, geometry))
+		elif param == 'units':
+			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
+		elif param == 'lightPortal':
+			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
+		else:
+			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(light,param))))
+	ofile.write("\n}\n")
 
 
 def write_lamp(ob, params, add_params= None):
@@ -1579,10 +1391,9 @@ def write_lamp(ob, params, add_params= None):
 		if lamp_type == 'LightIES':
 			if param == 'intensity':
 				ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
-				continue
 			elif param == 'ies_file':
 				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,vl.ies_file)))
-				continue
+			continue
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))
 		elif param == 'shadow_color':
@@ -1622,18 +1433,6 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		return shift
 
 	ca= camera if camera is not None else sce.camera
-
-	CAMERA_TYPE= {
-		'DEFAULT':            0,
-		'SPHERIFICAL':        1,
-		'CYLINDRICAL_POINT':  2,
-		'CYLINDRICAL_ORTHO':  3,
-		'BOX':                4,
-		'FISH_EYE':           5,
-		'WARPED_SPHERICAL':   6,
-		'ORTHOGONAL':         7,
-		'PINHOLE':            8
-	}
 
 	if ca is not None:
 		VRayCamera= ca.data.vray
@@ -1706,11 +1505,11 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		if focus_distance == 0.0:
 			focus_distance= 200.0
 
-		f= CameraPhysical.focal_length / 100
+		f= CameraPhysical.focal_length
 		N= CameraPhysical.f_number
 		c= 0.019
 
-		H= (f * f) / (N * c)
+		H= (f * f) / (N * c) / 1000
 
 		debug(sce, "Camera: H= %.3f" % H)
 
@@ -1867,8 +1666,7 @@ def write_settings(sce,ofile):
 		ofile.write("\nSettingsLightCache {")
 		ofile.write("\n\tsubdivs= %.0f;"%(lc.subdivs * dmc.subdivs_mult))
 		ofile.write("\n\tsample_size= %.6f;"%(lc.sample_size))
-		# TODO: auto num passes
-		ofile.write("\n\tnum_passes= %i;"%(lc.num_passes))
+		ofile.write("\n\tnum_passes= %i;"%(lc.num_passes)) # TODO: auto num passes
 		ofile.write("\n\tdepth= %i;"%(lc.depth))
 		ofile.write("\n\tfilter_type= %i;"%(LC_FILT[lc.filter_type]))
 		ofile.write("\n\tfilter_samples= %i;"%(lc.filter_samples))
@@ -1903,7 +1701,7 @@ def write_settings(sce,ofile):
 
 	for channel in VRayScene.render_channels:
 		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
-		if plugin is not None:
+		if plugin:
 			plugin.write(ofile, getattr(channel,plugin.PLUG), name= channel.name)
 
 	ofile.write("\n")
@@ -1931,6 +1729,8 @@ def write_scene(sce, bake= False):
 		'volume': {}
 	}
 
+	files['materials'].write("// V-Ray/Blender %s\n" % VERSION)
+	files['materials'].write("// Materials\n")
 	files['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
 	files['materials'].write("\n\tuvw_channel= 1;")
 	files['materials'].write("\n\tuvw_transform= Transform(")
@@ -1958,6 +1758,9 @@ def write_scene(sce, bake= False):
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
+
+	files['nodes'].write("// V-Ray/Blender %s\n" % VERSION)
+	files['nodes'].write("// Nodes\n")
 
 	def _write_object_particles(ob, params, add_params= None):
 		if len(ob.particle_systems):
@@ -2049,7 +1852,7 @@ def write_scene(sce, bake= False):
 			'types': types
 		}
 
-		write_environment(params['files']['nodes']) # TEMP
+		write_environment(params['files']['camera'])
 		write_camera(sce,params['files']['camera'],bake= bake)
 
 		for ob in sce.objects:
@@ -2104,6 +1907,7 @@ def write_scene(sce, bake= False):
 	write_settings(sce,files['scene'])
 
 	for key in files:
+		files[key].write("\n// vim: set syntax=on syntax=c:\n\n")
 		files[key].close()
 
 	sys.stdout.write("V-Ray/Blender: Writing scene done. [%.2f]                    \n" % (time.clock() - timer))
@@ -2411,9 +2215,9 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 						write_camera(sce, ofile, camera= ob)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
-						write_material(ms.material, filters, object_params, ofile, name="PREVIEW")
+						write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob)
 					elif ms.material.name in ("checkerlight","checkerdark"):
-						write_material(ms.material, filters, object_params, ofile)
+						write_material(ms.material, filters, object_params, ofile, ob= ob)
 						
 			ofile.close()
 			del object_params

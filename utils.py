@@ -86,7 +86,7 @@ def a(sce,t):
 	return "interpolate((%i,%s))"%(sce.frame_current,p(t))
 
 def transform(m):
-	return "Transform(Matrix(Vector(%f, %f, %f),Vector(%f, %f, %f),Vector(%f, %f, %f)),Vector(%f, %f, %f))"\
+	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))\n\t"\
             %(m[0][0], m[0][1], m[0][2],\
               m[1][0], m[1][1], m[1][2],\
               m[2][0], m[2][1], m[2][2],\

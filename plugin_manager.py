@@ -162,6 +162,16 @@ def add_properties():
 		default= 'FULL'
 	)
 
+	VRayTexture.texture_coords= EnumProperty(
+		name= "Coords",
+		description= "Image texure placement type.",
+		items= (
+			('ORCO', "Object", "Generated coordinates."),
+			('UV',   "UV",     "Mesh UV coordinates."),
+		),
+		default= 'UV'
+	)
+
 	VRayTexture.tile= EnumProperty(
 		name= "Tile",
 		description= "Tile type.",

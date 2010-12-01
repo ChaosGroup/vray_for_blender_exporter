@@ -839,11 +839,14 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator('render.render', text="Image", icon='RENDER_STILL')
+		if wide_ui:
+			col= split.column()
+		col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
 
-		if not ve.auto_meshes:
-			if wide_ui:
-				col= split.column()
-			col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
+		# if not ve.auto_meshes:
+		# 	if wide_ui:
+		# 		col= split.column()
+		# 	col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
@@ -860,7 +863,6 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(vs, 'use_hidden_lights')
 		col.prop(ve, 'use_instances')
 		col.prop(ve, 'active_layers')
-		col.prop(ve, 'image_to_blender')
 
 
 class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
@@ -882,11 +884,12 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(ve, 'autorun')
-		col.prop(ve, 'auto_meshes')
+		# col.prop(ve, 'auto_meshes') # Fix crash
 		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()
 		col.prop(ve, 'mesh_active_layers', text= "Active layers meshes")
+		col.prop(ve, 'image_to_blender')
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
 		

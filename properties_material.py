@@ -85,7 +85,7 @@ Mtl2Sided.use= BoolProperty(
 
 Mtl2Sided.back= StringProperty(
 	name= "Back material",
-	description= "Back material.",
+	description= "Back material. Same material if nothing is set.",
 	default= ""
 )
 

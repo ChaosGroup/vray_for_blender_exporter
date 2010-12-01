@@ -257,7 +257,7 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, tex, name= None):
+def write(ofile, sce, slot, params):
 	TYPE= {
 		'TA':   0,
 		'PP':   1,
@@ -279,9 +279,9 @@ def write(ofile, sce, tex, name= None):
 		'WZ':    9
 	}
 
-	tex_name= "%s"%(get_name(tex, "Texture"))
-	if name is not None:
-		tex_name= name
+	tex= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+
+	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
 
 	vtex= getattr(tex.vray, PLUG)
 

@@ -64,6 +64,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.shaders import *
 
 
 class TexDirt(bpy.types.IDPropertyGroup):
@@ -252,19 +253,28 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, tex, name= None):
+def write(ofile, sce, slot, params):
 	MODE= {
 		'AO':    0,
 		'PHONG': 1,
 		'BLINN': 2,
 		'WARD':  3
 	}
-	
-	tex_name= "%s"%(get_name(tex, "Texture"))
-	if name is not None:
-		tex_name= name
+
+	print(type(slot))
+	tex= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+
+	tex_name= params['name'] if 'name' in params else get_random_string()
 
 	vtex= getattr(tex.vray, PLUG)
+
+	mapped_params= {}
+	for param in ('white_color_tex','black_color_tex'):
+		param_tex= getattr(vtex, param)
+		if param_tex:
+			if param_tex in bpy.data.textures:
+				params['texture']= bpy.data.textures[param_tex]
+				mapped_params[param]= write_texture(ofile, sce, params)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:

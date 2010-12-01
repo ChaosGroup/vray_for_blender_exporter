@@ -104,10 +104,10 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, tex, name= None):
-	tex_name= get_name(tex, "Texture")
-	if name is not None:
-		tex_name= name
+def write(ofile, sce, slot, params):
+	tex= slot if issubclass(type(slot), bpy.types.Texture) else slot.texture
+
+	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
 
 	vtex= tex.vray.TexFresnel
 
