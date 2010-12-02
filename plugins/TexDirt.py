@@ -376,6 +376,3 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 		
 		
 bpy.types.register(TEXTURE_PT_TexDirt)
-
-
-

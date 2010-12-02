@@ -336,28 +336,40 @@ def get_filenames(sce, filetype):
 	return filepath
 
 
-# TODO: add to scene converter
-# BLEND_TYPE= {
-# 	'MIX':          1,
-# 	'ADD':         4,
-# 	'SUBTRACT':    5,
-# 	'MULTIPLY':    6,
-# 	'SCREEN':       1,
-# 	'OVERLAY':     1,
-# 	'DIFFERENCE':  7,
-# 	'DIVIDE':       1,
-# 	'DARKEN':      9,
-# 	'LIGHTEN':     8,
-# 	'HUE':          1,
-# 	'SATURATION': 10,
-# 	'VALUE':        1,
-# 	'COLOR':        1,
-# 	'SOFT LIGHT':   1,
-# 	'LINEAR LIGHT': 1
-# }
+CONVERT_BLEND_TYPE= {
+	'MIX':          'OVER',
+	'SCREEN':       'OVER',
+	'DIVIDE':       'OVER',
+	'HUE':          'OVER',
+	'VALUE':        'OVER',
+	'COLOR':        'OVER',
+	'SOFT LIGHT':   'OVER',
+	'LINEAR LIGHT': 'OVER',
+	'OVERLAY':      'OVER',
+	'ADD':          'ADD',
+	'SUBTRACT':     'SUBTRACT',
+	'MULTIPLY':     'MULTIPLY',
+	'DIFFERENCE':   'DIFFERENCE',
+	'DARKEN':       'DARKEN',
+	'LIGHTEN':      'LIGHTEN',
+	'SATURATION':   'SATURATE',
+}
 
 
 def preprocess_textures(sce):
 	for tex in bpy.data.textures:
 		tex.vray.name= get_random_string()
 		debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))
+
+
+class VRAY_OT_convert_scene(bpy.types.Operator):
+	bl_idname = "vray_convert_scene"
+	bl_label  = "Convert scene"
+	bl_description = "Convert scene settings from BI to V-Ray."
+
+	def invoke(self, context, event):
+		sce= context.scene
+
+		
+
+		return{'FINISHED'}

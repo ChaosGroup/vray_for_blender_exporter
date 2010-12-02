@@ -783,7 +783,7 @@ BLEND_MODES= {
 	'IN':           '2',
 	'OUT':          '3',
 	'ADD':          '4',
-	'SUBSTRACT':    '5',
+	'SUBTRACT':     '5',
 	'MULTIPLY':     '6',
 	'DIFFERENCE':   '7',
 	'LIGHTEN':      '8',
@@ -868,19 +868,20 @@ def write_UVWGenChannel(ofile, sce, params):
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
-	ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
 	ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
 	ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
-	ofile.write("\n\tuvw_transform= Transform(")
+	ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
 	ofile.write("\n\t\tMatrix(")
 	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
 	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
 	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
 	ofile.write("\n\t\t),")
 	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
-	ofile.write("\n\t);")
+	ofile.write("\n\t)));")
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
+	else:
+		ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
 	ofile.write("\n}\n")
 
 	return uvw_name
@@ -1039,24 +1040,20 @@ def write_texture(ofile, sce, params):
 	return texture_name
 
 
-def write_TexAColorOp(ofile, sce, tex, mult, tex_name= None):
-	brdf_name= "TexAColorOp_%s"%(tex_name if tex_name else tex)
-
-	ofile.write("\nTexAColorOp %s {"%(brdf_name))
-	ofile.write("\n\tcolor_a= %s;"%(a(sce,tex)))
-	ofile.write("\n\tmult_a= %s;"%(a(sce,mult)))
+def write_TexAColorOp(ofile, sce, color_a, mult):
+	tex_name= get_random_string()
+	ofile.write("\nTexAColorOp %s {" % tex_name)
+	ofile.write("\n\tcolor_a= %s;" % color_a)
+	ofile.write("\n\tmult_a= %s;" % a(sce,mult))
 	ofile.write("\n}\n")
-
-	return brdf_name
+	return tex_name
 
 
 def write_TexInvert(ofile, tex):
-	tex_name= "TexInvert_%s"%(tex)
-
-	ofile.write("\nTexInvert %s {"%(tex_name))
-	ofile.write("\n\ttexture= %s;"%(tex))
+	tex_name= get_random_string()
+	ofile.write("\nTexInvert %s {" % tex_name)
+	ofile.write("\n\ttexture= %s;" % tex)
 	ofile.write("\n}\n")
-
 	return tex_name
 
 
@@ -1268,7 +1265,9 @@ def write_BRDF(ofile, sce, ma, ma_name, textures):
 	return brdf_name
 
 
-def write_BRDFLight(ofile, sce, ma, ma_name, textures):
+def write_BRDFLight(ofile, sce, ma, ma_name, mapped_params):
+	textures= mapped_params['mapto']
+
 	brdf_name= "BRDFLight_%s"%(ma_name)
 
 	light= ma.vray.BRDFLight

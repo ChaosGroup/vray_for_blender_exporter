@@ -2045,10 +2045,6 @@ class VRayRenderer(bpy.types.RenderEngine):
 		rd=  scene.render
 		wo=  scene.world
 
-		if rd.display_mode != 'AREA':
-			rd.display_mode= 'AREA'
-		rd.use_color_management= False
-
 		vsce= sce.vray
 		ve= vsce.exporter
 		dr= vsce.VRayDR
@@ -2153,10 +2149,6 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		sce= scene
 		rd=  scene.render
 		wo=  scene.world
-
-		if rd.display_mode != 'AREA':
-			rd.display_mode= 'AREA'
-		rd.use_color_management= False
 
 		vsce= sce.vray
 		ve= vsce.exporter

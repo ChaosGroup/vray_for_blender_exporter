@@ -135,14 +135,14 @@ VRaySlot.blend_mode= EnumProperty(
 		('IN',          "In",         "."),
 		('OUT',         "Out",        "."),
 		('ADD',         "Add",        "."),
-		('SUBSTRACT',   "Substract",  "."),
+		('SUBTRACT',    "Subtract",   "."),
 		('MULTIPLY',    "Multiply",   "."),
 		('DIFFERENCE',  "Difference", "."),
 		('LIGHTEN',     "Lighten",    "."),
 		('DARKEN',      "Darken",     "."),
 		('SATURATE',    "Saturate",   "."),
 		('DESATUREATE', "Desaturate", "."),
-		('ILLUMINATE',  "Illuminate", ".")
+		('ILLUMINATE',  "Illuminate", "."),
 	),
 	default= 'OVER'
 )
@@ -1360,19 +1360,18 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		else:
 			layout.prop(VRayTexture, 'placement_type')
 
-		if VRayTexture.placement_type != 'FULL':
-			split = layout.split()
+		split = layout.split()
+		col= split.column()
+		col.label(text="Crop Minimum:")
+		sub= col.row(align=True)
+		sub.prop(tex, 'crop_min_x', text='U')
+		sub.prop(tex, 'crop_min_y', text='V')
+		if wide_ui:
 			col= split.column()
-			col.label(text="Crop Minimum:")
-			sub= col.row(align=True)
-			sub.prop(tex, 'crop_min_x', text='U')
-			sub.prop(tex, 'crop_min_y', text='V')
-			if wide_ui:
-				col= split.column()
-			col.label(text="Crop Maximum:")
-			sub= col.row(align=True)
-			sub.prop(tex, 'crop_max_x', text='U')
-			sub.prop(tex, 'crop_max_y', text='V')
+		col.label(text="Crop Maximum:")
+		sub= col.row(align=True)
+		sub.prop(tex, 'crop_max_x', text='U')
+		sub.prop(tex, 'crop_max_y', text='V')
 
 		layout.separator()
 
