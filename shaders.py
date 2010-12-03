@@ -210,6 +210,8 @@ OBJECT_PARAMS= {
 		##'anisotropy_uvwgen',
 		#'refract',
 		#'refract_ior',
+		'dispersion_on',
+		'dispersion',
 		'refract_glossiness',
 		'refract_subdivs',
 		'refract_trace',

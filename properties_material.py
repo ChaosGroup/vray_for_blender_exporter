@@ -211,6 +211,18 @@ BRDFVRayMtl.fresnel_ior_lock= BoolProperty(
 	default= False
 )
 
+BRDFVRayMtl.dispersion_on= BoolProperty(
+	name= "Dispersion",
+	description= "Enable dispersion.",
+	default= False
+)
+
+BRDFVRayMtl.dispersion= BoolProperty(
+	name= "Dispersion",
+	description= "Abbe value",
+	default= True
+)
+
 BRDFVRayMtl.fresnel_ior= FloatProperty(
 	name= "Fresnel IOR",
 	description= "",
@@ -1829,22 +1841,25 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 				col.prop(BRDFVRayMtl, "fresnel_ior")
 
 			split= layout.split()
-			col= split.column(align=True)
+			col= split.column()
 			col.label(text="Refractions")
-			col.prop(BRDFVRayMtl, 'refract_color', text="")
-			col.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
-			col.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
-			col.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
-			col.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
+			sub= col.column(align=True)
+			sub.prop(BRDFVRayMtl, 'refract_color', text="")
+			sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
+			sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
+			sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
+			sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
+			col.prop(BRDFVRayMtl, 'dispersion_on')
 			if wide_ui:
-				col= split.column(align=True)
+				col= split.column()
 			col.label(text="Fog")
-			col.prop(BRDFVRayMtl, 'fog_color', text="")
-			col.prop(BRDFVRayMtl, 'fog_mult')
-			col.prop(BRDFVRayMtl, 'fog_bias')
-			col.label(text='')
-			col.prop(BRDFVRayMtl, 'refract_affect_alpha')
-			col.prop(BRDFVRayMtl, 'refract_affect_shadows')
+			sub= col.column(align=True)
+			sub.prop(BRDFVRayMtl, 'fog_color', text="")
+			sub.prop(BRDFVRayMtl, 'fog_mult')
+			sub.prop(BRDFVRayMtl, 'fog_bias')
+			sub= col.column(align=True)
+			sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
+			sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
 
 			if not ve.compat_mode:
 				layout.separator()

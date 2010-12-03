@@ -1130,7 +1130,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, VRaySlot, 'map_displacement', 'displacement_mult', "Displace")
 			if wide_ui:
 				col= split.column()
-			col.active= slot.use_map_displacement
+			col.active= VRaySlot.map_displacement
 			col.prop(GeomDisplacedMesh, 'type')
 			col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
 
@@ -1191,7 +1191,8 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 		if not texture:
 			return False
 		
-		return (base_poll(__class__, context) and (texture_slot.use_map_displacement))
+		VRaySlot= texture.vray_slot
+		return (base_poll(__class__, context) and VRaySlot.map_displacement)
 
 	def draw(self, context):
 		layout= self.layout

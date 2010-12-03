@@ -764,12 +764,11 @@ class VRAY_CAMERA_physical(DataButtonsPanel, bpy.types.Panel):
 		col.prop(CameraPhysical, 'exposure')
 		if CameraPhysical.exposure:
 			col.prop(CameraPhysical, 'f_number')
-			if CameraPhysical.type == 'STILL':
-				col.prop(CameraPhysical, 'shutter_speed')
-			elif CameraPhysical.type == 'CINEMATIC':
+			col.prop(CameraPhysical, 'shutter_speed')
+			if CameraPhysical.type == 'CINEMATIC':
 				col.prop(CameraPhysical, 'shutter_angle')
 				col.prop(CameraPhysical, 'shutter_offset')
-			else:
+			elif CameraPhysical.type == 'VIDEO':
 				col.prop(CameraPhysical, 'latency')
 			col.prop(CameraPhysical, 'ISO')
 
