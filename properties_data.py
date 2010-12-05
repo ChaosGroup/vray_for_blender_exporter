@@ -115,10 +115,10 @@ GeomMeshFile.anim_speed= FloatProperty(
 GeomMeshFile.anim_offset= FloatProperty(
 	name= "Offset",
 	description= "Animated proxy initial frame offset.",
-	min= 0.0,
+	min= -1000.0,
 	max= 1000.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
+	soft_min= -10.0,
+	soft_max= 10.0,
 	default= 0.0
 )
 
@@ -172,6 +172,12 @@ GeomMeshFile.animation_range= EnumProperty(
 		('SCENE',  "Scene",     ".")
 	),
 	default= 'SCENE'
+)
+
+GeomMeshFile.add_velocity= BoolProperty(
+	name= "Add velocity",
+	description= "This makes it possible to add motion blur to the final animation. However exporting this extra information takes longer. If you are not going to need motion blur it makes sense to disable this option.",
+	default= False
 )
 
 GeomMeshFile.frame_start= IntProperty(
@@ -290,6 +296,7 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		col.prop(GeomMeshFile, 'animation')
 		sub= col.column()
 		sub.active= GeomMeshFile.animation
+		sub.prop(GeomMeshFile, 'add_velocity')
 		sub.prop(GeomMeshFile, 'animation_range', text="Range")
 		if GeomMeshFile.animation_range == 'MANUAL':
 			sub= sub.column(align=True)

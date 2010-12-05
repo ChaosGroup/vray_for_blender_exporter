@@ -795,7 +795,7 @@ BLEND_MODES= {
 	'ILLUMINATE':  '12',
 }
 
-ENVMAPPING_TYPE= {
+ENV_MAPPING_TYPE= {
 	'SPHERE': 'spherical',
 	'VIEW':   'screen',
 	'GLOBAL': 'screen',

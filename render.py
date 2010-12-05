@@ -55,18 +55,33 @@ VERSION= '2.5.07'
 def write_mesh_hq(ofile, sce, ob):
 	timer= time.clock()
 
-	sys.stdout.write("V-Ray/Blender: Generating HQ file (%s)..." % ofile.name)
+	sys.stdout.write("V-Ray/Blender: Generating HQ file (Frame: %i; File: %s)..." % (sce.frame_current,ofile.name))
 	sys.stdout.flush()
-
-	me= ob.create_mesh(sce, True, 'RENDER')
 
 	GeomMeshFile= ob.data.vray.GeomMeshFile
 
+	me=  ob.create_mesh(sce, True, 'RENDER')
+	dme= None
+
+	if GeomMeshFile.animation and GeomMeshFile.add_velocity:
+		if sce.frame_current != sce.frame_end:
+			sce.frame_set(sce.frame_current+1)
+			dme= ob.create_mesh(sce, True, 'RENDER')
+
 	if GeomMeshFile.apply_transforms:
 		me.transform(ob.matrix_world)
+		if dme:
+			dme.transform(ob.matrix_world)
 
-	for vertex in me.vertices:
-		ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
+	if dme:
+		for v,dv in zip(me.vertices,dme.vertices):
+			ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(v.co))
+			ofile.write("l=%.6f,%.6f,%.6f\n" % tuple([dc-c for c,dc in zip(v.co,dv.co)]))
+	else:
+		for vertex in me.vertices:
+			ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
+			ofile.write("l=0.0,0.0,0.0\n")
+
 	k= 0
 	for face in me.faces:
 		vert_order= (0,1,2,2,3,0)
@@ -414,7 +429,7 @@ def write_mesh_file(ofile, exported_proxy, ob):
 		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,proxy.file))
 		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
 		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
-		ofile.write("\n\tanim_offset= %i;" % proxy.anim_offset)
+		ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
 		ofile.write("\n}\n")
 
 	return proxy_name
@@ -1500,17 +1515,17 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
-		focus_distance= ca.data.dof_distance
+		focus_distance= ca.data.dof_distance * 100
 		if focus_distance == 0.0:
 			focus_distance= 200.0
 
-		f= CameraPhysical.focal_length
-		N= CameraPhysical.f_number
-		c= 0.019
+		# f= CameraPhysical.focal_length
+		# N= CameraPhysical.f_number
+		# c= 0.019
 
-		H= (f * f) / (N * c) / 1000
+		# H= (f * f) / (N * c) / 1000
 
-		debug(sce, "Camera: H= %.3f" % H)
+		# debug(sce, "Camera: H= %.3f" % H)
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
@@ -1811,16 +1826,14 @@ def write_scene(sce, bake= False):
 								part_transform= part_transform * p_ob.matrix_world
 							part_visibility= True
 							if ps.settings.type == 'EMITTER':
-								part_visibility= True if particle.alive_state == 'ALIVE' else False
+								#part_visibility= True if particle.alive_state == 'ALIVE' else False
+								part_visibility= True if particle.alive_state not in ('DEAD','UNBORN') else False
 
-							_write_object(p_ob, params, {
-								'dupli': True,
-								'dupli_name': part_name,
-								'visible': part_visibility,
-								'material': ps_material,
-								'matrix': part_transform
-								}
-							)
+							_write_object(p_ob, params, {'dupli': True,
+														 'dupli_name': part_name,
+														 'visible': part_visibility,
+														 'material': ps_material,
+														 'matrix': part_transform})
 
 	def _write_object_dupli(ob, params, add_params= None):
 		if ob.dupli_type in ('VERTS','FACES','GROUP'):
@@ -1956,7 +1969,11 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 				frame_start= GeomMeshFile.frame_start
 				frame_end= GeomMeshFile.frame_end
 
+			# Export first frame to create file without append
 			frame= frame_start
+			sce.frame_set(frame)
+			generate_proxy(sce,ob,vrmesh_filepath)
+			frame+= 1
 			while(frame <= frame_end):
 				sce.frame_set(frame)
 				generate_proxy(sce,ob,vrmesh_filepath,append=True)
