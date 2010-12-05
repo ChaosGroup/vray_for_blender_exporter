@@ -795,6 +795,15 @@ BLEND_MODES= {
 	'ILLUMINATE':  '12',
 }
 
+TRANS_ENV_MAPPING= {
+	'SPHERE': 'spherical',
+	'VIEW':   'screen',
+	'GLOBAL': 'screen',
+	'OBJECT': 'cubic',
+	'TUBE':   'mirror_ball',
+	'ANGMAP': 'angular'
+}
+
 ENV_MAPPING_TYPE= {
 	'SPHERE': 'spherical',
 	'VIEW':   'screen',
@@ -802,6 +811,15 @@ ENV_MAPPING_TYPE= {
 	'OBJECT': 'cubic',
 	'TUBE':   'mirror_ball',
 	'ANGMAP': 'angular'
+}
+
+ENVIRONMENT_MAPPING= {
+	'SPHERE':   'spherical',
+	'ANGLULAR': 'angular',
+	'SCREEN':   'screen',
+	'TUBE':     'max_cylindrical',
+	'CUBIC':    'cubic',
+	'MBALL':    'mirror_ball',
 }
 
 PROJECTION_MAPPING= {
@@ -893,12 +911,15 @@ def write_UVWGenEnvironment(ofile, sce, params):
 	slot= params.get('slot')
 	texture= params.get('texture')
 
+	VRaySlot= texture.vray_slot
+	VRayTexture= texture.vray
+
 	uvw_name= get_random_string()
 	
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	if 'rotate' in params:
-		ofile.write("\n\tuvw_transform= %s;" % transform(mathutils.Matrix.Rotation(math.radians(params['rotate']['angle']), 4, params['rotate']['axis'])))
-	ofile.write("\n\tmapping_type= \"%s\";" % ENV_MAPPING_TYPE[slot.texture_coords])
+		ofile.write("\n\tuvw_matrix= %s;" % transform(mathutils.Matrix.Rotation(math.radians(params['rotate']['angle']), 4, params['rotate']['axis'])))
+	ofile.write("\n\tmapping_type= \"%s\";" % ENVIRONMENT_MAPPING[VRayTexture.environment_mapping])
 	ofile.write("\n}\n")
 	
 	return uvw_name

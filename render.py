@@ -1211,9 +1211,14 @@ def write_environment(ofile, volumes= None):
 
 	for slot in wo.texture_slots:
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
+			VRaySlot= slot.texture.vray_slot
+
 			params= {'slot': slot,
 					 'texture': slot.texture,
-					 'environment': True}
+					 'environment': True,
+					 'rotate': {'angle': VRaySlot.texture_rotation_h,
+								'axis': 'Z'}}
+
 			if slot.use_map_blend:
 				bg_tex= write_texture(ofile, sce, params)
 				bg_tex_mult= slot.blend_factor

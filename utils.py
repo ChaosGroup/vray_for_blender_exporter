@@ -83,6 +83,8 @@ def p(t):
 		return "%i"%(t)
 	elif type(t) == float:
 		return "%.6f"%(t)
+	elif type(t) == mathutils.Vector:
+		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
 	elif type(t) == mathutils.Color:
 		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
 	elif type(t) == str:

@@ -176,11 +176,32 @@ VRaySlot.blend_mode= EnumProperty(
 # 	default= 1.0
 # )
 
+VRaySlot.texture_rotation_h= FloatProperty(
+	name= "Horiz. rotation",
+	description= "TODO.",
+	min= -360.0,
+	max= 360.0,
+	soft_min= -180.0,
+	soft_max= 180.0,
+	default= 0.0
+)
+
+VRaySlot.texture_rotation_v= FloatProperty(
+	name= "Vert. rotation",
+	description= "TODO.",
+	min= -360.0,
+	max= 360.0,
+	soft_min= -180.0,
+	soft_max= 180.0,
+	default= 0.0
+)
+
 VRaySlot.map_displacement= BoolProperty(
 	name= "Displacement",
 	description= "Displacement texture.",
 	default= False
 )
+
 VRaySlot.displacement_mult= FloatProperty(
 	name= "Displacement texture multiplier",
 	description= "Displacement texture multiplier.",
@@ -1261,6 +1282,7 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 		slot= context.texture_slot
 		tex= slot.texture
 		VRayTexture= tex.vray
+		VRaySlot= tex.vray_slot
 
 		if type(idblock) == bpy.types.Material:
 			if wide_ui:
@@ -1283,22 +1305,30 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 				split.label(text="Object:")
 				split.prop_search(VRayTexture, 'object', sce, 'objects', text="")
 
-			split= layout.split()
-			col= split.column()
-			col.prop(slot, 'offset')
-			if wide_ui:
-				col= split.column()
-			col.prop(slot, 'scale')
-
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Coming soon...")
 
 		elif type(idblock) == bpy.types.World:
+			split= layout.split(percentage=0.3)
+			split.label(text="Projection:")
+			split.prop(VRayTexture, 'environment_mapping', text="")
+
 			split= layout.split()
+			split.active= False
 			col= split.column()
-			col.label(text="Coming soon...")
+			col.prop(VRaySlot, 'texture_rotation_h')
+			if wide_ui:
+				col= split.column()
+			col.prop(VRaySlot, 'texture_rotation_v')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(slot, 'offset')
+		if wide_ui:
+			col= split.column()
+		col.prop(slot, 'scale')
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):

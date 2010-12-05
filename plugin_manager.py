@@ -201,6 +201,20 @@ def add_properties():
 		default= 'FLAT'
 	)
 
+	VRayTexture.environment_mapping= EnumProperty(
+		name= "Projection",
+		description= "Generated projection type.",
+		items= (
+			('SCREEN',  "Screen",      "Planar projection."),
+			('CUBIC',   "Cube",        "Cubic projection."),
+			('SPHERE',  "Sphere",      "Spherical projection."),
+			('TUBE',    "Tube",        "Cylindrical projection."),
+			('ANGULAR', "Angular",     "Angular projection."),
+			('MBALL',   "Mirror ball", "Mirror ball projection."),
+		),
+		default= 'SPHERE'
+	)
+
 	VRayTexture.object= StringProperty(
 		name= "Mapping Object",
 		description= "Object to use for mapping generation.",
