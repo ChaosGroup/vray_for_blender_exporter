@@ -827,7 +827,8 @@ PROJECTION_MAPPING= {
 	'SPHERE': 2,
 	'TUBE':   3,
 	'BALL':   4,
-	'CUBE':   5,
+	#'CUBE':   5,
+	'CUBE':   6,
 	'TRI':    6,
 	'PERS':   8,
 }
@@ -859,7 +860,7 @@ def write_UVWGenProjection(ofile, sce, params):
 	uvw_name= params['name'] + 'UVP'
 
 	VRayTexture= texture.vray
-	VRayTexture.uvwgen= uvw_name
+	#VRayTexture.uvwgen= uvw_name
 
 	if VRayTexture.object:
 		ob= get_data_by_name(sce, 'objects', VRayTexture.object)
@@ -867,8 +868,7 @@ def write_UVWGenProjection(ofile, sce, params):
 	ofile.write("\nUVWGenProjection %s {" % uvw_name)
 	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING[VRayTexture.mapping])
 	if ob:
-		mt= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
-		mt*= ob.matrix_world.copy().invert() 
+		mt= ob.matrix_world.copy().invert() 
 		ofile.write("\n\tuvw_transform= %s; // %s" % (a(sce,transform(mt)),ob.name))
 	ofile.write("\n}\n")
 
@@ -883,7 +883,7 @@ def write_UVWGenChannel(ofile, sce, params):
 
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
-	VRaySlot.uvwgen= uvw_name
+	#VRaySlot.uvwgen= uvw_name
 
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 

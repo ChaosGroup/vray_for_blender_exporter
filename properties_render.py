@@ -604,7 +604,7 @@ VRayExporter.camera_loop= BoolProperty(
 
 VRayExporter.compat_mode= BoolProperty(
 	name= "Compatibility mode",
-	description= "V-Ray/Blender 2.4 shading compatibility mode.",
+	description= "Shading compatibility mode for old versions of V-Ray.",
 	default= False
 )
 
@@ -845,6 +845,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 
 		vs= context.scene.vray
 		ve= vs.exporter
+		SettingsOptions= vs.SettingsOptions
 
 		split= layout.split()
 		col= split.column()
@@ -860,7 +861,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="Globals:")
+		col.label(text="Modules:")
 		col.prop(vs.SettingsGI, 'on', text="Global Illumination")
 		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
 		col.prop(ve, 'use_displace', text= "Displace")
@@ -869,10 +870,72 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
-		col.prop(ve, 'use_hair')
-		col.prop(vs, 'use_hidden_lights')
 		col.prop(ve, 'use_instances')
 		col.prop(ve, 'active_layers')
+		col.prop(SettingsOptions, 'gi_dontRenderImage')
+
+
+class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
+	bl_label   = "Globals"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > 200
+
+		VRayScene= context.scene.vray
+		VRayExporter=    VRayScene.exporter
+		SettingsOptions= VRayScene.SettingsOptions
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Geometry:")
+		col.prop(SettingsOptions, 'geom_displacement')
+		col.prop(VRayExporter, 'use_hair')
+		col.prop(SettingsOptions, 'geom_doHidden')
+		col.prop(SettingsOptions, 'geom_backfaceCull')
+		col.prop(SettingsOptions, 'ray_bias')
+		if wide_ui:
+			col= split.column()
+		col.label(text="Lights:")
+		col.prop(SettingsOptions, 'light_doLights')
+		# col.prop(SettingsOptions, 'light_doDefaultLights')
+		# col.prop(SettingsOptions, 'light_doHiddenLights')
+		col.prop(VRayScene, 'use_hidden_lights')
+		col.prop(SettingsOptions, 'light_doShadows')
+		col.prop(SettingsOptions, 'light_onlyGI')
+
+		layout.label(text="Materials:")
+		split= layout.split()
+		col= split.column()
+		# col.prop(SettingsOptions, 'mtl_override_on')
+		# if SettingsOptions.mtl_override_on:
+		# 	col.prop_search(SettingsOptions, 'mtl_override', bpy.data, 'materials', text="")
+		col.prop(SettingsOptions, 'mtl_doMaps')
+		if SettingsOptions.mtl_doMaps:
+			col.prop(SettingsOptions, 'mtl_filterMaps')
+			col.prop(SettingsOptions, 'mtl_filterMapsForSecondaryRays')
+		if wide_ui:
+			col= split.column()
+		col.prop(SettingsOptions, 'mtl_reflectionRefraction')
+		if SettingsOptions.mtl_reflectionRefraction:
+			col.prop(SettingsOptions, 'mtl_limitDepth')
+			if SettingsOptions.mtl_limitDepth:
+				col.prop(SettingsOptions, 'mtl_maxDepth')
+		col.prop(SettingsOptions, 'mtl_glossy')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsOptions, 'mtl_transpMaxLevels')
+		if wide_ui:
+			col= split.column()
+		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
 
 class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
@@ -1504,6 +1567,67 @@ class RENDER_PT_VRAY_bake(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(VRayBake, 'flip_derivs')
 
 
+class VRAY_RENDER_SettingsSystem(RenderButtonsPanel, bpy.types.Panel):
+	bl_label   = "System"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > 200
+
+		VRayScene= context.scene.vray
+		SettingsRaycaster=        VRayScene.SettingsRaycaster
+		SettingsUnitsInfo=        VRayScene.SettingsUnitsInfo
+		SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
+		SettingsOptions=          VRayScene.SettingsOptions
+
+		layout.label(text="Raycaster parameters:")
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsRaycaster, 'maxLevels')
+		col.prop(SettingsRaycaster, 'minLeafSize')
+		if wide_ui:
+			col= split.column()
+		col.prop(SettingsRaycaster, 'faceLevelCoef')
+		col.prop(SettingsOptions, 'misc_lowThreadPriority')
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsRaycaster, 'dynMemLimit')
+
+		layout.separator()
+
+		layout.label(text="Units scale:")
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsUnitsInfo, 'meters_scale', text="Metric")
+		if wide_ui:
+			col= split.column()
+		col.prop(SettingsUnitsInfo, 'photometric_scale', text="Photometric")
+
+		layout.separator()
+
+		layout.label(text="Render region division:")
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsRegionsGenerator, 'xymeans', text="XY")
+		col.prop(SettingsRegionsGenerator, 'seqtype')
+		col.prop(SettingsRegionsGenerator, 'reverse')
+		if wide_ui:
+			col= split.column()
+		sub= col.row(align=True)
+		sub.prop(SettingsRegionsGenerator, 'xc')
+		sub= sub.column()
+		sub.active= not SettingsRegionsGenerator.lock_size
+		sub.prop(SettingsRegionsGenerator, 'yc')
+		col.prop(SettingsRegionsGenerator, 'lock_size')
+
+
 class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "About"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -1523,7 +1647,8 @@ class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 		col.separator()
 		col.label(text="Author: Andrey M. Izrantsev")
 		col.label(text="URL: http://vray.cgdo.ru")
-		col.label(text="Email / Jabber: izrantsev@gmail.com")
+		col.label(text="Email: izrantsev@cgdo.ru")
+		col.label(text="Jabber: izrantsev@gmail.com")
 		col.separator()
 		col.label(text="IRC: irc.freenode.net #vrayblender")
 		col.separator()

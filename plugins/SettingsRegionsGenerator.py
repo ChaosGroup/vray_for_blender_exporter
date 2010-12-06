@@ -79,20 +79,26 @@ def add_properties(parent_struct):
 		description="XY means region width/height or region count.",
 		items=(
 			('BUCKETS',  "Region count",  ""),
-			('SIZE',     "Region W/H",    "") # 0
+			('SIZE',     "Bucket W/H",    "") # 0
 		),
 		default= 'SIZE'
 	)
 
 	SettingsRegionsGenerator.reverse= BoolProperty(
 		name= "Reverse",
-		description= "Reverses the region sequence order. ",
+		description= "Reverses the region sequence order.",
 		default= False
+	)
+
+	SettingsRegionsGenerator.lock_size= BoolProperty(
+		name= "Lock size",
+		description= "Lock bucker size (x = y).",
+		default= True
 	)
 
 	SettingsRegionsGenerator.xc= IntProperty(
 		name= "X",
-		description= "Determines the maximum region width in pixels (Region W/H is selected) or the number of regions in the horizontal direction (when Region Count is selected)",
+		description= "Determines the maximum region width in pixels (Bucket W/H is selected) or the number of regions in the horizontal direction (when Region Count is selected)",
 		min= 1,
 		max= 100,
 		default= 32
@@ -100,7 +106,7 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.yc= IntProperty(
 		name= "Y",
-		description= "Determines the maximum region height in pixels (Region W/H is selected) or the number of regions in the vertical direction (when Region Count is selected)",
+		description= "Determines the maximum region height in pixels (Bucket W/H is selected) or the number of regions in the vertical direction (when Region Count is selected)",
 		min= 1,
 		max= 100,
 		default= 32

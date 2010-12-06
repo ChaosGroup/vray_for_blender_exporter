@@ -671,7 +671,7 @@ def write_BRDFBump(ofile, base_brdf, textures):
 	ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
 	ofile.write("\n\tbump_tex_color= %s;" % textures['mapto']['normal'])
 	ofile.write("\n\tbump_tex_float= %s;" % textures['mapto']['normal'])
-	ofile.write("\n\tbump_tex_mult= %s;" % a(sce,BRDFBump.bump_tex_mult))
+	ofile.write("\n\tbump_tex_mult= %s;" % a(sce,BRDFBump.bump_tex_mult / 10))
 	ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
 	ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
@@ -1574,10 +1574,6 @@ def write_settings(sce,ofile):
 	wx= rd.resolution_x * rd.resolution_percentage / 100
 	wy= rd.resolution_y * rd.resolution_percentage / 100
 
-	ofile.write("\nSettingsOptions {")
-	ofile.write("\n\tmisc_lowThreadPriority= true;")
-	ofile.write("\n}\n")
-
 	ofile.write("\nSettingsJPEG SettingsJPEG{")
 	ofile.write("\n\tquality= 100;")
 	ofile.write("\n}\n")
@@ -1750,6 +1746,7 @@ def write_scene(sce, bake= False):
 		files[key].write("// V-Ray/Blender %s\n" % VERSION)
 
 	files['materials'].write("// Materials\n")
+	files['materials'].write("\n// Default materials")
 	files['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
 	files['materials'].write("\n\tuvw_channel= 1;")
 	files['materials'].write("\n\tuvw_transform= Transform(")
@@ -1777,6 +1774,7 @@ def write_scene(sce, bake= False):
 	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
 	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	files['materials'].write("\n}\n")
+	files['materials'].write("\n// Scene materials\n")
 	files['nodes'].write("// Nodes\n")
 	files['lamps'].write("// Lights\n")
 	files['camera'].write("// Camera & Environment\n")

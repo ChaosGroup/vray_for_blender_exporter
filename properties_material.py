@@ -49,10 +49,11 @@ VRayMaterial.type= EnumProperty(
 	name= "Type",
 	description= "Material type.",
 	items= (
-		('MTL',"Standard","Standard V-Ray material."),
-		('SSS',"SSS","Fast SSS material."),
-		('EMIT',"Light","Light emitting material."),
-		('VOL',"Volume","Volumetric material.")
+		('MTL',  "Standard", "Standard V-Ray material."),
+		('SSS',  "SSS",      "Fast SSS material."),
+		('EMIT', "Light",    "Light emitting material."),
+		('VOL',  "Volume",   "Volumetric material."),
+		('CAR',  "Car",      "Car-paint material."),
 	),
 	default= 'MTL'
 )
@@ -61,8 +62,8 @@ VRayMaterial.emitter_type= EnumProperty(
 	name= "Emitter type",
 	description= "This determines the type of BRDF (the shape of the hilight).",
 	items= (
-		('MTL',"Material",""),
-		('MESH',"Mesh light","")
+		('MTL',  "Material",   "TODO."),
+		('MESH', "Mesh light", "TODO.")
 	),
 	default= 'MTL'
 )
@@ -217,10 +218,14 @@ BRDFVRayMtl.dispersion_on= BoolProperty(
 	default= False
 )
 
-BRDFVRayMtl.dispersion= BoolProperty(
-	name= "Dispersion",
-	description= "Abbe value",
-	default= True
+BRDFVRayMtl.dispersion= IntProperty(
+	name= "Abbe",
+	description= "Abbe value.",
+	min= 1,
+	max= 1024,
+	soft_min= 1,
+	soft_max= 100,
+	default= 10
 )
 
 BRDFVRayMtl.fresnel_ior= FloatProperty(
@@ -1850,6 +1855,8 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
 			sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
 			col.prop(BRDFVRayMtl, 'dispersion_on')
+			if BRDFVRayMtl.dispersion_on:
+				col.prop(BRDFVRayMtl, 'dispersion')
 			if wide_ui:
 				col= split.column()
 			col.label(text="Fog")
@@ -2066,8 +2073,8 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 
 			#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
 			#col.prop(EnvironmentFog, 'yup')
-		else:
-			pass
+		elif vma.type == 'CAR':
+			layout.label(text="Coming soon!")
 
 
 class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):

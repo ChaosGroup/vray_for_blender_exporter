@@ -379,5 +379,3 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 	
 
 bpy.types.register(TEXTURE_PT_TexFalloff)
-
-
