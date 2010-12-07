@@ -860,7 +860,7 @@ def write_UVWGenProjection(ofile, sce, params):
 	uvw_name= params['name'] + 'UVP'
 
 	VRayTexture= texture.vray
-	#VRayTexture.uvwgen= uvw_name
+	VRayTexture.uvwgen= uvw_name
 
 	if VRayTexture.object:
 		ob= get_data_by_name(sce, 'objects', VRayTexture.object)
@@ -883,7 +883,7 @@ def write_UVWGenChannel(ofile, sce, params):
 
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
-	#VRaySlot.uvwgen= uvw_name
+	VRaySlot.uvwgen= uvw_name
 
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
