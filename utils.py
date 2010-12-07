@@ -135,8 +135,12 @@ def get_filename(fn):
 	(filepath, filename)= os.path.split(bpy.path.abspath(fn))
 	return filename
 
-def get_full_filepath(sce,filepath):
+def get_full_filepath(sce,ob,filepath):
 	VRayDR= sce.vray.VRayDR
+
+	if ob.library and filepath[:2] == '//':
+		lib_path= os.path.dirname(bpy.path.abspath(ob.library.filepath))
+		filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
 
 	src_file= os.path.normpath(bpy.path.abspath(filepath))
 

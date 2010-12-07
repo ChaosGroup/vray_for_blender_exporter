@@ -426,7 +426,7 @@ def write_mesh_file(ofile, exported_proxy, ob):
 		exported_proxy.append(proxy_name)
 		
 		ofile.write("\nGeomMeshFile %s {" % proxy_name)
-		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,proxy.file))
+		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,ob,proxy.file))
 		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
 		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
 		ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
@@ -1411,7 +1411,7 @@ def write_lamp(ob, params, add_params= None):
 			if param == 'intensity':
 				ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
 			elif param == 'ies_file':
-				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,vl.ies_file)))
+				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,lamp,vl.ies_file)))
 			continue
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))

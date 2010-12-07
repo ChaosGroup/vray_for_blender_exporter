@@ -931,7 +931,7 @@ def write_BitmapBuffer(ofile, sce, params):
 
 	BitmapBuffer= texture.image.vray.BitmapBuffer
 
-	filename= get_full_filepath(sce,texture.image.filepath)
+	filename= get_full_filepath(sce,texture.image,texture.image.filepath)
 	if not sce.vray.VRayDR.on:
 		if not os.path.exists(filename) or not texture.image.filepath:
 			print("V-Ray/Blender: %s Texture: %s => Image file does not exists!"%(color("Error!",'red'),texture.name))
