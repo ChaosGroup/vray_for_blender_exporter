@@ -850,14 +850,10 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator('render.render', text="Image", icon='RENDER_STILL')
-		if wide_ui:
-			col= split.column()
-		col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
-
-		# if not ve.auto_meshes:
-		# 	if wide_ui:
-		# 		col= split.column()
-		# 	col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
+		if not ve.auto_meshes:
+			if wide_ui:
+				col= split.column()
+			col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
@@ -957,7 +953,9 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(ve, 'autorun')
-		# col.prop(ve, 'auto_meshes') # Fix crash
+		sub= col.column()
+		sub.active= False
+		sub.prop(ve, 'auto_meshes')
 		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()

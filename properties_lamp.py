@@ -641,6 +641,10 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'horiz_illum')
 				col.prop(vl,'water_vapour')
 
+				split= layout.split()
+				col= split.column()
+				col.operator('vray_add_sky', icon='TEXTURE')
+
 		elif lamp.type == 'SPOT':
 			if vl.spot_type == 'SPOT':
 				col.prop(lamp,'distance')
@@ -790,3 +794,22 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 		col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="Objects")
 		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
 
+
+class VRAY_OT_add_sky(bpy.types.Operator):
+	bl_idname = "vray_add_sky"
+	bl_label  = "Add Sky texture"
+	bl_description = "Add Sky texture to background."
+
+	def invoke(self, context, event):
+		sce= context.scene
+
+		tex= bpy.data.textures.new('VRaySky', type= 'VRAY')
+		tex.vray.type= 'TEXSKY'
+
+		for i,slot in enumerate(sce.world.texture_slots):
+			if not slot:
+				new_slot= sce.world.texture_slots.create(i)
+				new_slot.texture= tex
+				break
+		
+		return{'FINISHED'}

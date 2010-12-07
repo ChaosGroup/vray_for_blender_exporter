@@ -451,7 +451,7 @@ BRDFVRayMtl.refract_trace= BoolProperty(
 )
 
 BRDFVRayMtl.refract_exit_color= FloatVectorProperty(
-	name= "refract exit color",
+	name= "Refraction exit color",
 	description= "The color to use when maximum depth is reached when refract_exit_color_on is true",
 	subtype= 'COLOR',
 	min= 0.0,
@@ -462,7 +462,7 @@ BRDFVRayMtl.refract_exit_color= FloatVectorProperty(
 )
 
 BRDFVRayMtl.refract_exit_color_on= BoolProperty(
-	name= "refract exit color on",
+	name= "Use refraction exit color",
 	description= "If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray",
 	default= False
 )
@@ -1854,9 +1854,6 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
 			sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
 			sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
-			col.prop(BRDFVRayMtl, 'dispersion_on')
-			if BRDFVRayMtl.dispersion_on:
-				col.prop(BRDFVRayMtl, 'dispersion')
 			if wide_ui:
 				col= split.column()
 			col.label(text="Fog")
@@ -1869,6 +1866,14 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 			sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
 
 			if not ve.compat_mode:
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFVRayMtl, 'dispersion_on')
+				if wide_ui:
+					col= split.column()
+				if BRDFVRayMtl.dispersion_on:
+					col.prop(BRDFVRayMtl, 'dispersion')
+
 				layout.separator()
 
 				split= layout.split()
@@ -2114,6 +2119,15 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
 
 		if not ve.compat_mode:
+			split= layout.split()
+			col= split.column()
+			col.prop(BRDFVRayMtl, 'reflect_exit_color')
+			if wide_ui:
+				col= split.column()
+			col.prop(BRDFVRayMtl, 'refract_exit_color')
+
+			layout.separator()
+			
 			split= layout.split()
 			col= split.column()
 			col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
