@@ -896,7 +896,7 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(VRayExporter, 'use_hair')
 		col.prop(SettingsOptions, 'geom_doHidden')
 		col.prop(SettingsOptions, 'geom_backfaceCull')
-		col.prop(SettingsOptions, 'ray_bias')
+		col.prop(SettingsOptions, 'ray_bias', text="Secondary bias")
 		if wide_ui:
 			col= split.column()
 		col.label(text="Lights:")
@@ -910,9 +910,11 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		layout.label(text="Materials:")
 		split= layout.split()
 		col= split.column()
-		# col.prop(SettingsOptions, 'mtl_override_on')
-		# if SettingsOptions.mtl_override_on:
-		# 	col.prop_search(SettingsOptions, 'mtl_override', bpy.data, 'materials', text="")
+		sub= col.column()
+		sub.active= False
+		sub.prop(SettingsOptions, 'mtl_override_on')
+		if SettingsOptions.mtl_override_on:
+			sub.prop_search(SettingsOptions, 'mtl_override', bpy.data, 'materials', text="")
 		col.prop(SettingsOptions, 'mtl_doMaps')
 		if SettingsOptions.mtl_doMaps:
 			col.prop(SettingsOptions, 'mtl_filterMaps')

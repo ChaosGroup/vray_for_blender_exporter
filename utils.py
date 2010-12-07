@@ -62,6 +62,8 @@ def color(text, color=None):
 		return "\033[0;32m%s\033[0m" % text
 	elif color == 'red':
 		return "\033[0;31m%s\033[0m" % text
+	elif color == 'yellow':
+		return "\033[0;33m%s\033[0m" % text
 	else:
 		return text
 
@@ -71,7 +73,7 @@ def get_random_string():
 
 def	debug(sce, s, error= False):
 	if sce.vray.exporter.debug:
-		out= "V-Ray/Blender: "
+		out= color("V-Ray/Blender: ", 'green')
 		if error: out+= color("Error!")
 		out+= "%s"%(s)
 		print("%s"%(out))

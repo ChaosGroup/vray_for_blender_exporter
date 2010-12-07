@@ -798,18 +798,21 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_idname = "vray_add_sky"
 	bl_label  = "Add Sky texture"
-	bl_description = "Add Sky texture to background."
+	bl_description = "Add Sky texture to the background."
 
 	def invoke(self, context, event):
 		sce= context.scene
 
-		tex= bpy.data.textures.new('VRaySky', type= 'VRAY')
-		tex.vray.type= 'TEXSKY'
+		try:
+			tex= bpy.data.textures.new('VRaySky', type= 'VRAY')
+			tex.vray.type= 'TEXSKY'
 
-		for i,slot in enumerate(sce.world.texture_slots):
-			if not slot:
-				new_slot= sce.world.texture_slots.create(i)
-				new_slot.texture= tex
-				break
+			for i,slot in enumerate(sce.world.texture_slots):
+				if not slot:
+					new_slot= sce.world.texture_slots.create(i)
+					new_slot.texture= tex
+					break
+		except:
+			print("V-Ray/Blender: Sky texture only availble in \"%s\"!" % color("Special build",'green'))
 		
 		return{'FINISHED'}

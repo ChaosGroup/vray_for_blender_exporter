@@ -234,11 +234,11 @@ def write_geometry(sce, geometry_file):
 					if f.use_smooth:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
 							tuple(me.vertices[f.vertices[v]].normal)
-							))
+						))
 					else:
 						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
 							tuple(f.normal)
-							))
+						))
 			ofile.write(")));")
 
 			ofile.write("\n\tfaceNormals= ListInt(")
