@@ -262,17 +262,17 @@ def vb_binary_path(sce):
 						debug(sce, "V-Ray found in: %s" % (vray_path))
 						return vray_path
 		return None
-		
-	vray_standalone_paths= get_env_paths('VRAY_PATH')
-	if vray_standalone_paths:
-		vray_standalone= find_vray_binary(vray_standalone_paths)
-		if vray_standalone:
-			return vray_standalone
 
 	if not VRayExporter.detect_vray and not VRayExporter.vray_binary:
 		manual_path= bpy.path.abspath(VRayExporter.vray_binary)
 		if manual_path:
 			return manual_path
+
+	vray_standalone_paths= get_env_paths('VRAY_PATH')
+	if vray_standalone_paths:
+		vray_standalone= find_vray_binary(vray_standalone_paths)
+		if vray_standalone:
+			return vray_standalone
 
 	search_paths= []
 	for maya in ('2011','2010','2009','2008'):
