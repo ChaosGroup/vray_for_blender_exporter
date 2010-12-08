@@ -250,8 +250,8 @@ def vb_binary_path(sce):
 			split_char= ';'
 		env_var= os.getenv(var)
 		if env_var:
-			return env_var.strip('\"').split(split_char)
-		return None
+			return env_var.replace('\"','').split(split_char)
+		return []
 
 	def find_vray_binary(paths):
 		if paths:
