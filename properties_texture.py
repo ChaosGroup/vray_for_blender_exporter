@@ -178,7 +178,7 @@ VRaySlot.blend_mode= EnumProperty(
 
 VRaySlot.texture_rotation_h= FloatProperty(
 	name= "Horiz. rotation",
-	description= "TODO.",
+	description= "Horizontal rotation.",
 	min= -360.0,
 	max= 360.0,
 	soft_min= -180.0,
@@ -1316,11 +1316,11 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			split.prop(VRayTexture, 'environment_mapping', text="")
 
 			split= layout.split()
-			split.active= False
 			col= split.column()
 			col.prop(VRaySlot, 'texture_rotation_h')
 			if wide_ui:
 				col= split.column()
+			col.active= False
 			col.prop(VRaySlot, 'texture_rotation_v')
 
 		split= layout.split()

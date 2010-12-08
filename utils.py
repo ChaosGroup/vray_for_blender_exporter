@@ -74,7 +74,7 @@ def get_random_string():
 def	debug(sce, s, error= False):
 	if sce.vray.exporter.debug:
 		out= color("V-Ray/Blender: ", 'green')
-		if error: out+= color("Error!")
+		if error: out+= color("Error! ", 'red')
 		out+= "%s"%(s)
 		print("%s"%(out))
 
@@ -238,44 +238,54 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	os.system(' '.join(params))
 
 def vb_binary_path(sce):
+	VRayExporter= sce.vray.exporter
+
 	vray_bin= "vray"
 	if PLATFORM == 'win32':
 		vray_bin+= ".exe"
-	vray_path= vray_bin
 
-	VRayExporter= sce.vray.exporter
-	if not VRayExporter.detect_vray:
-		if VRayExporter.vray_binary == "":
-			debug(sce,"V-Ray binary is not set!")
-			return vray_bin
-		else:
-			return bpy.path.abspath(VRayExporter.vray_binary)
-	
-	vray_env_path= os.getenv('VRAY_PATH')
+	def get_env_paths(var):
+		split_char= ':'
+		if PLATFORM == 'win32':
+			split_char= ';'
+		env_var= os.getenv(var)
+		if env_var:
+			return env_var.strip('\"').split(split_char)
+		return None
 
-	if vray_env_path is None:
-		for maya in ('2011','2010','2009','2008'):
-			for arch in ('x64','x86'):
-				vray_env_path= os.getenv("VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch))
-				if vray_env_path:
-					break
-			if vray_env_path:
-				break
-		if vray_env_path:
-			vray_env_path= os.path.join(vray_env_path,'bin')
+	def find_vray_binary(paths):
+		if paths:
+			for p in paths:
+				if p:
+					vray_path= os.path.join(p,vray_bin)
+					if os.path.exists(vray_path):
+						debug(sce, "V-Ray found in: %s" % (vray_path))
+						return vray_path
+		return None
+		
+	vray_standalone_paths= get_env_paths('VRAY_PATH')
+	if vray_standalone_paths:
+		vray_standalone= find_vray_binary(vray_standalone_paths)
+		if vray_standalone:
+			return vray_standalone
 
-	if vray_env_path:
-		if PLATFORM == "win32":
-			if vray_env_path[0:1] == ";":
-				vray_env_path= vray_env_path[1:]
-			if vray_env_path[0:1] == "\"":
-				vray_env_path= vray_env_path[1:-1]
-		else:
-			if vray_env_path[0:1] == ":":
-				vray_env_path= vray_env_path[1:]
-		vray_path=  os.path.join(vray_env_path, vray_bin)
+	if not VRayExporter.detect_vray and not VRayExporter.vray_binary:
+		manual_path= bpy.path.abspath(VRayExporter.vray_binary)
+		if manual_path:
+			return manual_path
 
-	return vray_path
+	search_paths= []
+	for maya in ('2011','2010','2009','2008'):
+		for arch in ('x64','x86'):
+			env_var= "VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch)
+			debug(sce, "Searching in: %s" % (env_var))
+			vray_maya= find_vray_binary([os.path.join(p,'bin') for p in get_env_paths(env_var)])
+			if vray_maya:
+				return vray_maya
+
+	debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)
+
+	return vray_bin
 
 def get_plugin(plugins, plugin_id):
 	for plugin in plugins:

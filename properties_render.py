@@ -652,7 +652,7 @@ VRayExporter.detect_vray= BoolProperty(
 VRayExporter.vray_binary= StringProperty(
 	name= "Path",
 	subtype= 'FILE_PATH',
-	description= "Path to V-Ray binary."
+	description= "Path to V-Ray binary. Don\'t use relative path here - use absolute!"
 )
 
 VRayExporter.output_dir= StringProperty(
