@@ -108,8 +108,8 @@ VRayLamp.direct_type= EnumProperty(
 	name= "Direct type",
 	description= "Direct light type.",
 	items= (
-		('DIRECT',"Direct",""),
-		('SUN',"Sun","")
+		('DIRECT', "Direct", ""),
+		('SUN',    "Sun",    ""),
 	),
 	default= 'DIRECT'
 )
@@ -118,10 +118,10 @@ VRayLamp.spot_type= EnumProperty(
 	name= "Spot type",
 	description= "Spot light subtype.",
 	items= (
-		('SPOT',"Spot",""),
-		('IES',"IES","")
+		('SPOT', "Spot", ""),
+		('IES',  "IES",  ""),
 	),
-	default= 'DIRECT'
+	default= 'SPOT'
 )
 
 VRayLamp.shadows= BoolProperty(

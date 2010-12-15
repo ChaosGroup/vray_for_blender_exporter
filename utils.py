@@ -264,9 +264,7 @@ def vb_binary_path(sce):
 		return None
 
 	if not VRayExporter.detect_vray and VRayExporter.vray_binary:
-		manual_path= bpy.path.abspath(VRayExporter.vray_binary)
-		if manual_path:
-			return manual_path
+		return bpy.path.abspath(VRayExporter.vray_binary)
 
 	vray_standalone_paths= get_env_paths('VRAY_PATH')
 	if vray_standalone_paths:
