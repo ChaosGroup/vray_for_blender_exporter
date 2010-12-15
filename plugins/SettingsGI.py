@@ -443,7 +443,7 @@ def add_properties(parent_struct):
 			('FLY',"Fly-through",""),
 			('PPT',"Progressive path tracing","")
 		),
-		default= "SINGLE"
+		default= 'SINGLE'
 	)
 
 	SettingsLightCache.subdivs= IntProperty(

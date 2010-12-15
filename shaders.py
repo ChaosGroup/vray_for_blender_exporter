@@ -731,8 +731,8 @@ LC_FILT= {
 
 LC_MODE= {
 	"SINGLE":  0,
-	"FILE":    1,
-	"FLY":     2,
+	"FLY":     1,
+	"FILE":    2,
 	"PPT":     3
 }
 

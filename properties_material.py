@@ -225,7 +225,7 @@ BRDFVRayMtl.dispersion= IntProperty(
 	max= 1024,
 	soft_min= 1,
 	soft_max= 100,
-	default= 10
+	default= 50
 )
 
 BRDFVRayMtl.fresnel_ior= FloatProperty(
