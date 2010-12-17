@@ -635,19 +635,19 @@ PROXY_ANIM_TYPE= {
 }
 
 AA_FILTER_TYPE= {
-	'AREA'     : '\nFilterArea {',
-	'BOX'      : '\nFilterBox {',
-	'TRIANGLE' : '\nFilterTriangle {',
-	'LANC'     : '\nFilterLanczos {',
-	'SINC'     : '\nFilterSinc {',
-	'GAUSS'    : '\nFilterGaussian {',
-	'CATMULL'  : '\nFilterCatmullRom {'
+	'AREA'     : "\nFilterArea {",
+	'BOX'      : "\nFilterBox {",
+	'TRIANGLE' : "\nFilterTriangle {",
+	'LANC'     : "\nFilterLanczos {",
+	'SINC'     : "\nFilterSinc {",
+	'GAUSS'    : "\nFilterGaussian {",
+	'CATMULL'  : "\nFilterCatmullRom {"
 }
 
 PHYS= {
-	"STILL":     0,
-	"CINEMATIC": 1,
-	"VIDEO":     2
+	'STILL':     0,
+	'CINEMATIC': 1,
+	'VIDEO':     2
 }
 
 SEQTYPE= {
@@ -681,59 +681,59 @@ IMAGE_SAMPLER_TYPE= {
 }
 
 PRIMARY= {
-	"IM":  0,
-	"PM":  1,
-	"BF":  2,
-	"LC":  3
+	'IM':  0,
+	'PM':  1,
+	'BF':  2,
+	'LC':  3
 }
 
 SECONDARY= {
-	"NONE":  0,
-	"PM":    1,
-	"BF":    2,
-	"LC":    3
+	'NONE':  0,
+	'PM':    1,
+	'BF':    2,
+	'LC':    3
 }
 
 SCALE= {
-	"SCREEN":  0,
-	"WORLD":   1
+	'SCREEN':  0,
+	'WORLD':   1
 }
 
 IM_MODE= {
-	"SINGLE":    0,
-	"INC":       1,
-	"FILE":      2,
-	"ADD":       3,
-	"ADD_INC":   4,
-	"BUCKET":    5,
-	"ANIM_PRE":  6,
-	"ANIM_REND": 7
+	'SINGLE':    0,
+	'INC':       1,
+	'FILE':      2,
+	'ADD':       3,
+	'ADD_INC':   4,
+	'BUCKET':    5,
+	'ANIM_PRE':  6,
+	'ANIM_REND': 7
 }
 
 INT_MODE= {
-	"VORONOI":   0,
-	"LEAST":     1,
-	"DELONE":    2,
-	"WEIGHTED":  3
+	'VORONOI':   0,
+	'LEAST':     1,
+	'DELONE':    2,
+	'WEIGHTED':  3
 }
 
 LOOK_TYPE= {
-	"QUAD":     0,
-	"NEAREST":  1,
-	"OVERLAP":  2,
-	"DENSITY":  3
+	'QUAD':     0,
+	'NEAREST':  1,
+	'OVERLAP':  2,
+	'DENSITY':  3
 }
 
 LC_FILT= {
-	"NEAREST": 0,
-	"FIXED":   1
+	'NEAREST': 0,
+	'FIXED':   1
 }
 
 LC_MODE= {
-	"SINGLE":  0,
-	"FLY":     1,
-	"FILE":    2,
-	"PPT":     3
+	'SINGLE':  0,
+	'FLY':     1,
+	'FILE':    2,
+	'PPT':     3
 }
 
 BRDF_TYPE= {
@@ -743,10 +743,10 @@ BRDF_TYPE= {
 }
 
 TRANSLUCENSY= {
-	"HYBRID": 3,
-	"SOFT":   2,
-	"HARD":   1,
-	"NONE":   0
+	'HYBRID': 3,
+	'SOFT':   2,
+	'HARD':   1,
+	'NONE':   0
 }
 
 GLOSSY_RAYS= {
@@ -882,13 +882,18 @@ def write_UVWGenChannel(ofile, sce, params):
 
 	uvw_name= params['name'] + 'UVC'
 
+	uvw_channel= 1
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
 	VRaySlot.uvwgen= uvw_name
 
+	if slot:
+		uvw_channel= params['uv_ids'][slot.uv_layer]
+		
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
+	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
 	ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
 	ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
 	ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
@@ -901,8 +906,6 @@ def write_UVWGenChannel(ofile, sce, params):
 	ofile.write("\n\t)));")
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
-	else:
-		ofile.write("\n\tuvw_channel= %d;" % (1)) # TODO
 	ofile.write("\n}\n")
 
 	return uvw_name
@@ -994,7 +997,7 @@ def write_TexBitmap(ofile, sce, params):
 		if 'object' in params:
 			tex_name= 'OB' + clean_string(params['object'].name) + tex_name
 
-	if 'filters' in params:
+	if 'filters' in params and 'exported_textures' in params['filters']:
 		if tex_name in params['filters']['exported_textures']:
 			debug(sce, "Filters: %s" % params['filters'])
 			return tex_name

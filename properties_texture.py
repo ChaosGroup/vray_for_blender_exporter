@@ -1355,12 +1355,13 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		else:
 			layout.prop(VRayTexture, 'tile')
 
-		if VRayTexture.tile == 'TILEUV':
-			if tex.extension != 'REPEAT':
-				tex.extension= 'REPEAT'
-		else:
-			if tex.extension != 'CLIP':
-				tex.extension= 'CLIP'
+		# Move to scene converter
+		# if VRayTexture.tile == 'TILEUV':
+		# 	if tex.extension != 'REPEAT':
+		# 		tex.extension= 'REPEAT'
+		# else:
+		# 	if tex.extension != 'CLIP':
+		# 		tex.extension= 'CLIP'
 
 		if VRayTexture.tile != 'NOTILE':
 			split = layout.split()

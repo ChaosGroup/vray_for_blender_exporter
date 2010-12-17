@@ -296,7 +296,9 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		col.prop(GeomMeshFile, 'animation')
 		sub= col.column()
 		sub.active= GeomMeshFile.animation
-		sub.prop(GeomMeshFile, 'add_velocity')
+		sub_inactive= sub.column()
+		sub_inactive.active= False
+		sub_inactive.prop(GeomMeshFile, 'add_velocity')
 		sub.prop(GeomMeshFile, 'animation_range', text="Range")
 		if GeomMeshFile.animation_range == 'MANUAL':
 			sub= sub.column(align=True)

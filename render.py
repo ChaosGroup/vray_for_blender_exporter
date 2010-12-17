@@ -145,16 +145,6 @@ def write_geometry(sce, geometry_file):
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
-		uv_layers= {}
-		i= 1
-		for ma in bpy.data.materials:
-			for slot in ma.texture_slots:
-				if slot and slot.texture and slot.texture.type == 'IMAGE':
-					if slot.texture_coords == 'UV':
-						if slot.uv_layer not in uv_layers:
-							uv_layers[slot.uv_layer]= i
-							i+= 1
-
 		exported_meshes= []
 
 		def write_mesh(exported_meshes, ob):
@@ -671,7 +661,7 @@ def write_BRDFBump(ofile, base_brdf, textures):
 	ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
 	ofile.write("\n\tbump_tex_color= %s;" % textures['mapto']['normal'])
 	ofile.write("\n\tbump_tex_float= %s;" % textures['mapto']['normal'])
-	ofile.write("\n\tbump_tex_mult= %s;" % a(sce,BRDFBump.bump_tex_mult / 10))
+	ofile.write("\n\tbump_tex_mult= %s;" % a(sce,BRDFBump.bump_tex_mult / 1000))
 	ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
 	ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
@@ -712,7 +702,7 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, textures):
 	return brdf_name
 
 
-def	write_material(ma, filters, object_params, ofile, name= None, ob= None):
+def	write_material(ma, filters, object_params, ofile, name= None, ob= None, params= None):
 	ma_name= name if name else get_name(ma,"Material")
 
 	VRayMaterial= ma.vray
@@ -721,7 +711,8 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None):
 
 	textures= write_textures(ofile, {'material': ma,
 									 'object':   ob,
-									 'filters':  filters})
+									 'filters':  filters,
+									 'uv_ids':   params['uv_ids']})
 
 	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 		object_params['meshlight']['on']= True
@@ -861,6 +852,16 @@ def write_multi_material(ofile, ob):
 
 
 def write_materials(ofile,ob,filters,object_params):
+	uv_layers= {}
+	uv_id= 1
+	for ma in bpy.data.materials:
+		for slot in ma.texture_slots:
+			if slot and slot.texture:
+				if slot.texture.vray.texture_coords == 'UV':
+					if slot.uv_layer not in uv_layers:
+						uv_layers[slot.uv_layer]= uv_id
+						uv_id+= 1
+
 	def get_brdf_type(ma):
 		vma= ma.vray
 		if vma.type == 'MTL':
@@ -930,7 +931,8 @@ def write_materials(ofile,ob,filters,object_params):
 				
 			if node_fac:
 				if node_fac.type == 'TEXTURE':
-					weights= write_texture(ofile, ma= ma, tex= node_fac.texture)
+					weights= write_texture(ofile, sce, {'material': ma,
+														'texture': node_fac.texture})
 			else:
 				weights= "weights_%s"%(clean_string(brdf_name))
 				ofile.write("\nTexAColor %s {"%(weights))
@@ -967,7 +969,7 @@ def write_materials(ofile,ob,filters,object_params):
 						else:
 							debug(sce,"Node: %s (unsupported node type: %s)"%(n.name, n.type))
 				else:
-					write_material(ma, filters, object_params, ofile, ob= ob)
+					write_material(ma, filters, object_params, ofile, ob= ob, params= {'uv_ids': uv_layers})
 
 	ma_name= "Material_no_material"
 	if len(ob.material_slots):
@@ -1309,7 +1311,9 @@ def write_LightMesh(ofile, ob, params, name, geometry, matrix):
 	for param in OBJECT_PARAMS[plugin]:
 		if param == 'color':
 			if tex:
-				ofile.write("\n\tcolor= %s;"%(tex))
+				ofile.write("\n\tcolor= %s;" % a(sce,ma.diffuse_color))
+				ofile.write("\n\ttex= %s;" % tex)
+				ofile.write("\n\tuse_tex= 1;")
 			else:
 				ofile.write("\n\tcolor= %s;"%(a(sce,ma.diffuse_color)))
 		elif param == 'geometry':
@@ -1570,7 +1574,12 @@ def write_settings(sce,ofile):
 				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(sce,f)))))
 		else:
 			ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(sce,f))))
-			
+
+	ofile.write("#include \"scene_geometry_00.vrscene\"\n")
+	ofile.write("#include \"scene_geometry_01.vrscene\"\n")
+	ofile.write("#include \"scene_geometry_02.vrscene\"\n")
+	ofile.write("#include \"scene_geometry_03.vrscene\"\n")
+
 	wx= rd.resolution_x * rd.resolution_percentage / 100
 	wy= rd.resolution_y * rd.resolution_percentage / 100
 
