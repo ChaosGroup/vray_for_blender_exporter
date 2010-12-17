@@ -137,9 +137,9 @@ def write_geometry(sce, geometry_file):
 		sys.stdout.write("V-Ray/Blender: Using custom operator for meshes export...\n")
 		
 		bpy.ops.scene.scene_export(
-			vb_geometry_file= geometry_file,
-			vb_active_layers= VRayExporter.mesh_active_layers,
-			vb_animation= VRayExporter.animation,
+			filepath= geometry_file[:-11],
+			use_active_layers= VRayExporter.mesh_active_layers,
+			use_animation= VRayExporter.animation,
 		)
 
 	except:

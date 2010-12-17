@@ -335,8 +335,11 @@ def get_filenames(sce, filetype):
 
 	filepath= export_dir
 
-	if filetype in ('scene', 'geometry', 'materials', 'lights', 'nodes', 'camera'):
+	if filetype in ('scene', 'materials', 'lights', 'nodes', 'camera'):
 		filepath= os.path.join(create_dir(export_dir), "%s_%s.vrscene" % (export_file,filetype))
+
+	elif filetype == 'geometry':
+		filepath= os.path.join(create_dir(export_dir), "%s_geometry_00.vrscene" % (export_file))
 
 	elif filetype == 'lightmaps':
 		filepath= create_dir(os.path.join(export_dir,filetype))
@@ -381,7 +384,7 @@ def preprocess_textures(sce):
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname = "vray_convert_scene"
 	bl_label  = "Convert scene"
-	bl_description = "Convert scene settings from BI to V-Ray."
+	bl_description = "Convert scene settings from Blender Internal to V-Ray."
 
 	def invoke(self, context, event):
 		sce= context.scene
