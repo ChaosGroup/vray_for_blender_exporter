@@ -46,7 +46,7 @@ from vb25.shaders import *
 from vb25.plugin_manager import *
 
 
-VERSION= '2.5.07'
+VERSION= '2.5.10'
 
 
 '''
