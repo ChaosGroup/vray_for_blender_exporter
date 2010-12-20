@@ -741,12 +741,14 @@ class VRAY_OB_displacement(ObjectButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
+		col.prop(GeomDisplacedMesh, 'displacement_amount')
 		col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
 		col.prop(GeomDisplacedMesh, 'water_level', slider=True)
 		col.prop(GeomDisplacedMesh, 'resolution')
 		col.prop(GeomDisplacedMesh, 'precision')
 		if wide_ui:
 			col= split.column()
+		col.prop(GeomDisplacedMesh, 'type')
 		col.prop(GeomDisplacedMesh, 'keep_continuity')
 		col.prop(GeomDisplacedMesh, 'use_bounds')
 		if GeomDisplacedMesh.use_bounds:

@@ -133,19 +133,18 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		bpy.ops.scene.scene_export(
-			filepath= geometry_file[:-11],
-			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation= VRayExporter.animation,
-		)
-
-		# TEMP
-		bpy.ops.scene.scene_export(
-			vb_geometry_file= geometry_file,
-			vb_active_layers= VRayExporter.mesh_active_layers,
-			vb_animation= VRayExporter.animation,
-		)
-
+		try:
+			bpy.ops.scene.scene_export(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+			)
+		except: # TEMP
+			bpy.ops.scene.scene_export(
+				vb_geometry_file= geometry_file,
+				vb_active_layers= VRayExporter.mesh_active_layers,
+				vb_animation= VRayExporter.animation,
+			)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
@@ -386,12 +385,19 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 
 
 def write_mesh_displace(ofile, mesh, params):
+	slot= params.get('slot')
+	ob=   params.get('object')
+
 	plugin= 'GeomDisplacedMesh'
 	name= "%s_%s" % (plugin, mesh)
 
-	slot= params['slot']
 	VRaySlot= slot.texture.vray_slot
 	GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+
+	if ob:
+		name= "%s_%s" % (plugin, clean_string(ob.name))
+		if ob.vray.GeomDisplacedMesh.use:
+			GeomDisplacedMesh= ob.vray.GeomDisplacedMesh
 	
 	ofile.write("\n%s %s {"%(plugin,name))
 	ofile.write("\n\tmesh= %s;" % mesh)
@@ -1096,6 +1102,7 @@ def write_object(ob, params, add_params= None):
 			'material': None
 		},
 		'displace': {
+			'object':   ob,
 			'texture':  None,
 			'params':   None
 		},
