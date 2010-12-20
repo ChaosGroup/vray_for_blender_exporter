@@ -133,9 +133,6 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		sys.stdout.write("V-Ray/Blender: Special build detected!\n")
-		sys.stdout.write("V-Ray/Blender: Using custom operator for meshes export...\n")
-		
 		bpy.ops.scene.scene_export(
 			filepath= geometry_file[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
