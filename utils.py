@@ -124,6 +124,28 @@ def rel_path(filepath):
 	else:
 		return False
 
+def get_uv_layer_id(sce, uv_layers, uv_layer_name):
+	if uv_layer_name == "":
+		return 1
+	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1
+
+def get_uv_layers(sce):
+	uv_layers= {}
+	uv_id= 1
+	for ma in bpy.data.materials:
+		for slot in ma.texture_slots:
+			if slot and slot.texture:
+				if slot.texture.vray.texture_coords == 'UV':
+					if slot.uv_layer and slot.uv_layer not in uv_layers:
+						uv_layers[slot.uv_layer]= uv_id
+						uv_id+= 1
+
+	if sce.vray.exporter.debug:
+		for uv_layer in uv_layers:
+			print("UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
+
+	return uv_layers
+
 def get_data_by_name(sce, data, name):
 	if data == 'objects':
 		if name in sce.objects:

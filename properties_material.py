@@ -68,6 +68,27 @@ VRayMaterial.emitter_type= EnumProperty(
 	default= 'MTL'
 )
 
+VRayMaterial.material_id_number= IntProperty(
+	name= "Material ID",
+	description= "Material ID.",
+	min= 0,
+	max= 1024,
+	soft_min= 0,
+	soft_max= 10,
+	default= 0
+)
+
+VRayMaterial.material_id_color= FloatVectorProperty(
+	name= "Color",
+	description= "Material ID color",
+	subtype= 'COLOR',
+	min= 0.0,
+	max= 1.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= (1.0,1.0,1.0)
+)
+
 
 class Mtl2Sided(bpy.types.IDPropertyGroup):
     pass
@@ -2357,20 +2378,33 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 		ob= context.object
 		ma= active_node_mat(context.material)
 
-		MtlRenderStats= ma.vray.MtlRenderStats
+		VRayMaterial= ma.vray
+		MtlRenderStats= VRayMaterial.MtlRenderStats
 
 		layout= self.layout
-		layout.active= MtlRenderStats.use
+		
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayMaterial, 'material_id_number')
+		# if wide_ui:
+		# 	col= split.column()
+		# else:
+		# 	sub= col.column()
+		# sub.active= VRayMaterial.material_id_number
+		# sub.prop(VRayMaterial, 'material_id_color', text="")
 
 		split= layout.split()
+		split.active= MtlRenderStats.use
 		col= split.column()
 		col.prop(MtlRenderStats, 'visibility', text="Visible")
 
 		split= layout.split()
+		split.active= MtlRenderStats.use
 		col= split.column()
 		col.label(text="Visible to:")
 
 		split= layout.split()
+		split.active= MtlRenderStats.use
 		sub= split.column()
 		sub.active= MtlRenderStats.visibility
 		sub.prop(MtlRenderStats, 'camera_visibility', text="Camera")

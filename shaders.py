@@ -888,7 +888,7 @@ def write_UVWGenChannel(ofile, sce, params):
 	VRaySlot.uvwgen= uvw_name
 
 	if slot:
-		uvw_channel= params['uv_ids'][slot.uv_layer]
+		uvw_channel= get_uv_layer_id(sce, params['uv_ids'], slot.uv_layer)
 		
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
@@ -918,7 +918,7 @@ def write_UVWGenEnvironment(ofile, sce, params):
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
 
-	uvw_name= get_random_string()
+	uvw_name= params['name'] + 'UVE'
 	
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	if 'rotate' in params:

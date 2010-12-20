@@ -1000,6 +1000,15 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
+	@classmethod
+	def poll(cls, context):
+		engine= context.scene.render.engine
+		tex= context.texture
+		if not hasattr(context, "texture_slot"):
+			return False
+		return (tex and (context.material or context.world or context.lamp or context.brush or context.texture)
+				and (engine in cls.COMPAT_ENGINES))
+
 	def draw(self, context):
 		def factor_but(layout, slot, toggle, factor, label= None):
 			row= layout.row(align=True)
@@ -1204,7 +1213,7 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 		if not type(idblock) == bpy.types.Material:
 			return False
 
-		texture_slot= context.texture_slot
+		texture_slot= getattr(context,'texture_slot',None)
 		if not texture_slot:
 			return False
 
@@ -1219,8 +1228,8 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		texture_slot= context.texture_slot
-		texture= texture_slot.texture
+		texture_slot= getattr(context,'texture_slot',None)
+		texture= texture_slot.texture if texture_slot else context.texture
 
 		if texture:
 			VRaySlot= texture.vray_slot
@@ -1279,8 +1288,10 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 
 		sce= context.scene
 		ob= context.object
-		slot= context.texture_slot
-		tex= slot.texture
+
+		slot= getattr(context,'texture_slot',None)
+		tex= slot.texture if slot else context.texture
+
 		VRayTexture= tex.vray
 		VRaySlot= tex.vray_slot
 
@@ -1291,12 +1302,13 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 				layout.prop(VRayTexture, 'texture_coords')
 
 			if VRayTexture.texture_coords == 'UV':
-				split= layout.split(percentage=0.3)
-				split.label(text="Layer:")
-				if ob and ob.type == 'MESH':
-					split.prop_search(slot, 'uv_layer', ob.data, 'uv_textures', text="")
-				else:
-					split.prop(slot, 'uv_layer', text="")
+				if slot:
+					split= layout.split(percentage=0.3)
+					split.label(text="Layer:")
+					if ob and ob.type == 'MESH':
+						split.prop_search(slot, 'uv_layer', ob.data, 'uv_textures', text="")
+					else:
+						split.prop(slot, 'uv_layer', text="")
 			else:
 				split= layout.split(percentage=0.3)
 				split.label(text="Projection:")
@@ -1323,12 +1335,13 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			col.active= False
 			col.prop(VRaySlot, 'texture_rotation_v')
 
-		split= layout.split()
-		col= split.column()
-		col.prop(slot, 'offset')
-		if wide_ui:
+		if slot:
+			split= layout.split()
 			col= split.column()
-		col.prop(slot, 'scale')
+			col.prop(slot, 'offset')
+			if wide_ui:
+				col= split.column()
+			col.prop(slot, 'scale')
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
@@ -1346,8 +1359,9 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		slot= context.texture_slot
-		tex= slot.texture
+		slot= getattr(context,'texture_slot',None)
+		tex= slot.texture if slot else context.texture
+
 		VRayTexture= tex.vray
 
 		if wide_ui:

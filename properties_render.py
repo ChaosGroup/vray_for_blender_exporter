@@ -501,9 +501,9 @@ SettingsRaycaster.faceLevelCoef= FloatProperty(
 SettingsRaycaster.dynMemLimit= IntProperty(
 	name= "Dynamic memory limit",
 	description= "RAM limit for the dynamic raycasters.",
-	min= 100,
+	min= 0,
 	max= 100000,
-	default= 400
+	default= 1024
 )
 
 

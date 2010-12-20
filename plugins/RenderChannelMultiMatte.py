@@ -101,13 +101,13 @@ def add_properties(parent_struct):
 
 	RenderChannelMultiMatte.use_mtl_id= BoolProperty(
 		name= "Use material ID",
-		description= "true to use the material IDs instead of the object IDs",
+		description= "Use the material IDs instead of the object IDs",
 		default= False
 	)
 
 	RenderChannelMultiMatte.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
-		description= "false to not affect Matte Objects",
+		description= "Affect Matte Objects",
 		default= True
 	)
 

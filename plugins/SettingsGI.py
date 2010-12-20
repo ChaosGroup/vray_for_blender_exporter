@@ -486,7 +486,7 @@ def add_properties(parent_struct):
 	SettingsLightCache.num_passes_auto= BoolProperty(
 		name= "Auto num. passes",
 		description= "Set number of passes to threads number.",
-		default= 0
+		default= 1
 	)
 
 	SettingsLightCache.depth= IntProperty(
