@@ -1004,10 +1004,12 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		layout.separator()
 
+		layout.label(text="Threads:")
 		split= layout.split()
 		col= split.column()
-		col.label(text="Threads:")
 		col.row().prop(rd, "threads_mode", expand=True)
+		if wide_ui:
+			col= split.column(align=True)
 		sub= col.column()
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, "threads")
@@ -1016,8 +1018,22 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.operator("vray.convert_scene", text="Convert scene")
-		col.operator("vray.flip_resolution", text="Flip resolution")
+		col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column(align=True)
+		col.label(text="Resolution:")
+		col.prop(rd, "resolution_x", text="X")
+		col.prop(rd, "resolution_y", text="Y")
+		col.prop(rd, "resolution_percentage", text="")
+		col.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
+		if wide_ui:
+			col= split.column(align=True)
+		col.label(text="Aspect:")
+		col.prop(rd, "pixel_aspect_x", text="X")
+		col.prop(rd, "pixel_aspect_y", text="Y")
 		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):

@@ -1526,14 +1526,14 @@ def write_camera(sce, ofile, camera= None, bake= False):
 				ofile.write("\n\torthographicWidth= %s;" % a(sce,ca.data.ortho_scale))
 			ofile.write("\n}\n")
 
-		# ofile.write("\nSettingsCamera Camera {")
-		# if ca.data.type == 'ORTHO':
-		# 	ofile.write("\n\ttype= 7;")
-		# 	ofile.write("\n\theight= %s;" % a(sce,ca.data.ortho_scale))
-		# else:
-		# 	ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
-		# ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-		# ofile.write("\n}\n")
+		ofile.write("\nSettingsCamera Camera {")
+		if ca.data.type == 'ORTHO':
+			ofile.write("\n\ttype= 7;")
+			ofile.write("\n\theight= %s;" % a(sce,ca.data.ortho_scale))
+		else:
+			ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
+		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+		ofile.write("\n}\n")
 
 		focus_distance= ca.data.dof_distance * 100
 		if focus_distance == 0.0:
