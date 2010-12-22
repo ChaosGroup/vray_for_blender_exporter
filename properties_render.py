@@ -5,24 +5,23 @@
 	http://vray.cgdo.ru
 
 	Author: Andrey M. Izrantsev (aka bdancer)
-	E-Mail: izrantsev@gmail.com
+	E-Mail: izrantsev@cgdo.ru
 
 	This plugin is protected by the GNU General Public License v.2
 
-	This program is free software: you can redioutibute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+	http://www.gnu.org/licenses/
 
-	This program is dioutibuted in the hope that it will be useful,
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public License
+	as published by the Free Software Foundation; either version 2
+	of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-	All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
+	All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -53,8 +52,8 @@ VRayScene.VRayBake= PointerProperty(
 )
 
 VRayBake.use= BoolProperty(
-	name= "Bake texture",
-	description= "Bake texture.",
+	name= "Bake",
+	description= "Bake to texture.",
 	default= False
 )
 
@@ -753,6 +752,13 @@ class RENDER_MT_VRAY_im_preset(bpy.types.Menu):
 	draw = bpy.types.Menu.draw_preset
 
 
+class VRAY_MT_global_preset(bpy.types.Menu):
+	bl_label= "V-Ray Global Presets"
+	preset_subdir= os.path.join("..", "io", "vb25", "presets", "render")
+	preset_operator = "script.execute_preset"
+	draw = bpy.types.Menu.draw_preset
+
+
 class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 	bl_idname=      'render_channels.add'
 	bl_label=       "Add Render Channel"
@@ -862,11 +868,11 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
 		col.prop(ve, 'use_displace', text= "Displace")
 		col.prop(vs.VRayDR, 'on')
+		col.prop(vs.VRayBake, 'use')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
-		col.prop(ve, 'use_instances')
 		col.prop(ve, 'active_layers')
 		col.prop(SettingsOptions, 'gi_dontRenderImage')
 
@@ -892,7 +898,8 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Geometry:")
-		col.prop(SettingsOptions, 'geom_displacement')
+		col.prop(VRayExporter, 'use_instances')
+		#col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(VRayExporter, 'use_hair')
 		col.prop(SettingsOptions, 'geom_doHidden')
 		col.prop(SettingsOptions, 'geom_backfaceCull')
@@ -950,7 +957,15 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
+		rd= context.scene.render
 		ve= context.scene.vray.exporter
+
+		row= layout.row(align=True)
+		row.menu("VRAY_MT_global_preset", text=bpy.types.VRAY_MT_global_preset.bl_label)
+		row.operator("vray.preset_add", text="", icon="ZOOMIN")
+		row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()
@@ -966,7 +981,6 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
 		
-
 		layout.separator()
 
 		split= layout.split()
@@ -986,6 +1000,23 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(ve, 'output_dir')
 		col.prop(ve, 'output_unique')
 
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Threads:")
+		col.row().prop(rd, "threads_mode", expand=True)
+		sub= col.column()
+		sub.enabled= rd.threads_mode == 'FIXED'
+		sub.prop(rd, "threads")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.operator("vray.convert_scene", text="Convert scene")
+		col.operator("vray.flip_resolution", text="Flip resolution")
+		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
@@ -1532,7 +1563,7 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 			layout.prop(render_node, 'address')
 
 
-class RENDER_PT_VRAY_bake(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RENDER_bake(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 	
@@ -1540,12 +1571,9 @@ class RENDER_PT_VRAY_bake(RenderButtonsPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
-
-	def draw_header(self, context):
 		VRayScene= context.scene.vray
 		VRayBake= VRayScene.VRayBake
-		self.layout.prop(VRayBake, 'use', text="")
+		return (base_poll(__class__, context) and VRayBake.use)
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
@@ -1554,15 +1582,12 @@ class RENDER_PT_VRAY_bake(RenderButtonsPanel, bpy.types.Panel):
 		VRayBake= VRayScene.VRayBake
 
 		layout= self.layout
-		layout.active= VRayBake.use
 
 		split= layout.split()
 		col= split.column()
 		col.prop_search(VRayBake, 'object',  context.scene, 'objects')
-
 		if wide_ui:
 			col= split.column()
-
 		col.prop(VRayBake, 'dilation')
 		col.prop(VRayBake, 'flip_derivs')
 

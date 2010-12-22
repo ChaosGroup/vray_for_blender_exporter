@@ -45,6 +45,74 @@ import bpy
 import mathutils
 
 
+MODULES= {
+	'SettingsRaycaster': (
+		'maxLevels',
+		'minLeafSize',
+		'faceLevelCoef',
+		'dynMemLimit',
+	),
+	
+	'SettingsUnitsInfo': (
+		'meters_scale',
+		'photometric_scale'
+	),
+
+	'SettingsDMCSampler': (
+		'time_dependent',
+		'adaptive_amount',
+		'adaptive_threshold',
+		'adaptive_min_samples',
+		'subdivs_mult'
+	),
+
+	'SettingsImageSampler': (
+		'fixed_subdivs',
+		'dmc_minSubdivs',
+		'dmc_threshold',
+		'dmc_show_samples',
+		'subdivision_minRate',
+		'subdivision_maxRate',
+		'subdivision_threshold',
+		'subdivision_edges',
+		'subdivision_normals',
+		'subdivision_normals_threshold',
+		'subdivision_jitter',
+		'subdivision_show_samples'
+	),
+
+	'SettingsColorMapping': (
+		'affect_background',
+		'dark_mult',
+		'bright_mult',
+		'gamma',
+		'subpixel_mapping',
+		'clamp_output',
+		'clamp_level',
+		'adaptation_only',
+		'linearWorkflow'
+	),
+
+	'SettingsDefaultDisplacement': (
+		'override_on',
+		'edgeLength',
+		'viewDependent',
+		'maxSubdivs',
+		'tightBounds',
+		'amount',
+		'relative'
+	),
+	
+	'SettingsRegionsGenerator': (
+        'xc',
+        'yc',
+        # 'xymeans',
+        # 'seqtype',
+        'reverse'
+	)
+}
+
+
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 
@@ -404,13 +472,36 @@ def preprocess_textures(sce):
 
 
 class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname = "vray_convert_scene"
+	bl_idname = "vray.convert_scene"
 	bl_label  = "Convert scene"
 	bl_description = "Convert scene settings from Blender Internal to V-Ray."
 
 	def invoke(self, context, event):
 		sce= context.scene
 
-		
+		VRayScene= sce.vray
 
+		plugins= []
+		plugins.append("SettingsGI")
+
+		for module in plugins:
+			vb_module= getattr(VRayScene, module)
+			for param in dict(vb_module):
+				print("bpy.context.scene.vray.%s.%s= %s" % (module, param, 'test'))
+				#print("bpy.context.scene.vray.%s.%s= %s" % (module, param, getattr(vb_module, param)))
+
+		return{'FINISHED'}
+
+
+class VRAY_OT_flip_resolution(bpy.types.Operator):
+	bl_idname = "vray.flip_resolution"
+	bl_label  = "Flip resolution"
+	bl_description = "Flip render resolution."
+
+	def invoke(self, context, event):
+		rd= context.scene.render
+
+		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
+		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
+		
 		return{'FINISHED'}

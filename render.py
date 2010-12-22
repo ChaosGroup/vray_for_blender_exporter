@@ -1129,7 +1129,7 @@ def write_object(ob, params, add_params= None):
 	if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
 		node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
 
-	if object_params['displace']['texture']:
+	if object_params['displace']['texture'] and VRayExporter.use_displace:
 		node_geometry= write_mesh_displace(ofile, node_geometry, object_params['displace'])
 
 	node_matrix= ob.matrix_world
