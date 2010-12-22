@@ -84,7 +84,7 @@ def add_properties(parent_struct):
 	SettingsOptions.geom_doHidden= BoolProperty(
 		name= "Render hidden",
 		description= "TODO.",
-		default= True
+		default= False
 	)
 	
 	SettingsOptions.light_doLights= BoolProperty(
@@ -96,7 +96,7 @@ def add_properties(parent_struct):
 	SettingsOptions.light_doDefaultLights= BoolProperty(
 		name= "Default lights",
 		description= "TODO.",
-		default= True
+		default= False
 	)
 	
 	SettingsOptions.light_doHiddenLights= BoolProperty(

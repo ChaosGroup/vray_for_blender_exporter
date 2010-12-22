@@ -1738,7 +1738,8 @@ def write_settings(sce,ofile):
 
 def write_scene(sce, bake= False):
 	VRayScene= sce.vray
-	VRayExporter= VRayScene.exporter
+	VRayExporter=    VRayScene.exporter
+	SettingsOptions= VRayScene.SettingsOptions
 
 	ca= sce.camera
 	VRayCamera= ca.data.vray
@@ -1893,6 +1894,8 @@ def write_scene(sce, bake= False):
 				if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
 					pass
 				else:
+					if ob.hide_render and not SettingsOptions.geom_doHidden:
+						continue
 					if not object_on_visible_layers(sce,ob):
 						continue
 

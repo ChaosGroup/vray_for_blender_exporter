@@ -977,7 +977,9 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(ve, 'mesh_active_layers', text= "Active layers meshes")
-		col.prop(ve, 'image_to_blender')
+		sub= col.column()
+		sub.active= False
+		sub.prop(ve, 'image_to_blender')
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
 		
