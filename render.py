@@ -1492,7 +1492,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			if VRayBake.object in bpy.data.objects:
 				bake_ob= bpy.data.objects[VRayBake.object]
 
-			if bake_ob is not None:
+			if bake_ob:
 				ofile.write("\nUVWGenChannel UVWGenChannel_BakeView {")
 				ofile.write("\n\tuvw_transform=Transform(")
 				ofile.write("\n\t\tMatrix(")

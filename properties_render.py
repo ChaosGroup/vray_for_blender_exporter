@@ -1014,26 +1014,26 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, "threads")
 
-		layout.separator()
+		# layout.separator()
 
-		split= layout.split()
-		col= split.column()
-		col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
+		# split= layout.split()
+		# col= split.column()
+		# col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
 
-		layout.separator()
+		# layout.separator()
 
-		split= layout.split()
-		col= split.column(align=True)
-		col.label(text="Resolution:")
-		col.prop(rd, "resolution_x", text="X")
-		col.prop(rd, "resolution_y", text="Y")
-		col.prop(rd, "resolution_percentage", text="")
-		col.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
-		if wide_ui:
-			col= split.column(align=True)
-		col.label(text="Aspect:")
-		col.prop(rd, "pixel_aspect_x", text="X")
-		col.prop(rd, "pixel_aspect_y", text="Y")
+		# split= layout.split()
+		# col= split.column(align=True)
+		# col.label(text="Resolution:")
+		# col.prop(rd, "resolution_x", text="X")
+		# col.prop(rd, "resolution_y", text="Y")
+		# col.prop(rd, "resolution_percentage", text="")
+		# col.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
+		# if wide_ui:
+		# 	col= split.column(align=True)
+		# col.label(text="Aspect:")
+		# col.prop(rd, "pixel_aspect_x", text="X")
+		# col.prop(rd, "pixel_aspect_y", text="Y")
 		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
