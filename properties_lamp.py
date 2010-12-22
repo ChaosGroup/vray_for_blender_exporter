@@ -651,6 +651,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				if wide_ui:
 					col= split.column()
 				col.prop(lamp,'spot_size', text="Size")
+				col.prop(lamp,'spot_blend', text="Blend")
 			else:
 				col.prop(vl,'ies_file', text="File")
 				col.prop(vl,'soft_shadows')

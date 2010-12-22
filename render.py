@@ -1408,6 +1408,10 @@ def write_lamp(ob, params, add_params= None):
 		if lamp_type != 'LightIES':
 			ofile.write("\n\tunits= %i;"%(UNITS[vl.units]))
 
+	if lamp_type == 'LightSpot':
+		ofile.write("\n\tconeAngle= %s;" % a(sce,lamp.spot_size))
+		ofile.write("\n\tpenumbraAngle= %s;" % a(sce, - lamp.spot_size * lamp.spot_blend))
+
 	if lamp_type == 'LightRectangle':
 		if lamp.shape == 'RECTANGLE':
 			ofile.write("\n\tu_size= %s;"%(a(sce,lamp.size/2)))
