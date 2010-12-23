@@ -133,18 +133,11 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		try:
-			bpy.ops.scene.scene_export(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-			)
-		except: # TEMP
-			bpy.ops.scene.scene_export(
-				vb_geometry_file= geometry_file,
-				vb_active_layers= VRayExporter.mesh_active_layers,
-				vb_animation= VRayExporter.animation,
-			)
+		bpy.ops.scene.scene_export(
+			filepath= geometry_file[:-11],
+			use_active_layers= VRayExporter.mesh_active_layers,
+			use_animation= VRayExporter.animation,
+		)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 

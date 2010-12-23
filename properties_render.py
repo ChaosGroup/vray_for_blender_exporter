@@ -735,8 +735,8 @@ VRayRenderNode.address= StringProperty(
 	GUI
 '''
 import properties_render
-properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+# properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER')
+# properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_render
@@ -835,6 +835,62 @@ class RenderButtonsPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'render'
 
+
+class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
+	bl_label = "Dimensions"
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		scene= context.scene
+		rd=    scene.render
+
+		row = layout.row(align=True)
+		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
+		row.operator("render.preset_add", text="", icon="ZOOMIN")
+		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active = True
+
+		split = layout.split()
+
+		col = split.column()
+		sub = col.column(align=True)
+		sub.label(text="Resolution:")
+		sub.prop(rd, "resolution_x", text="X")
+		sub.prop(rd, "resolution_y", text="Y")
+		sub.prop(rd, "resolution_percentage", text="")
+		sub.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
+
+		sub.label(text="Aspect Ratio:")
+		sub.prop(rd, "pixel_aspect_x", text="X")
+		sub.prop(rd, "pixel_aspect_y", text="Y")
+
+		row = col.row()
+		row.prop(rd, "use_border", text="Border")
+		sub = row.row()
+		sub.active = rd.use_border
+		sub.prop(rd, "use_crop_to_border", text="Crop")
+
+		col = split.column()
+		sub = col.column(align=True)
+		sub.label(text="Frame Range:")
+		sub.prop(scene, "frame_start", text="Start")
+		sub.prop(scene, "frame_end", text="End")
+		sub.prop(scene, "frame_step", text="Step")
+
+		sub.label(text="Frame Rate:")
+		sub.prop(rd, "fps")
+		sub.prop(rd, "fps_base", text="/")
+		subrow = sub.row(align=True)
+		subrow.prop(rd, "frame_map_old", text="Old")
+		subrow.prop(rd, "frame_map_new", text="New")
+		
 
 class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
@@ -1014,26 +1070,11 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, "threads")
 
-		# layout.separator()
+		layout.separator()
 
-		# split= layout.split()
-		# col= split.column()
-		# col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
-
-		# layout.separator()
-
-		# split= layout.split()
-		# col= split.column(align=True)
-		# col.label(text="Resolution:")
-		# col.prop(rd, "resolution_x", text="X")
-		# col.prop(rd, "resolution_y", text="Y")
-		# col.prop(rd, "resolution_percentage", text="")
-		# col.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
-		# if wide_ui:
-		# 	col= split.column(align=True)
-		# col.label(text="Aspect:")
-		# col.prop(rd, "pixel_aspect_x", text="X")
-		# col.prop(rd, "pixel_aspect_y", text="Y")
+		split= layout.split()
+		col= split.column()
+		col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
 		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
