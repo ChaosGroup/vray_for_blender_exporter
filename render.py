@@ -1415,16 +1415,14 @@ def write_lamp(ob, params, add_params= None):
 		ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[vl.lightPortal]))
 
 	for param in OBJECT_PARAMS[lamp_type]:
-		if lamp_type == 'LightIES':
-			if param == 'intensity':
-				ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
-			elif param == 'ies_file':
-				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,lamp,vl.ies_file)))
-			continue
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))
+		elif param == 'intensity' and lamp_type == 'LightIES':
+			ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
 		elif param == 'shadow_color':
 			ofile.write("\n\tshadow_color= %s;"%(a(sce,vl.shadowColor)))
+		elif param == 'ies_file':
+			ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,lamp,vl.ies_file)))
 		else:
 			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vl,param))))
 
@@ -1528,7 +1526,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
-		focus_distance= ca.data.dof_distance * 100
+		focus_distance= ca.data.dof_distance
 		if focus_distance == 0.0:
 			focus_distance= 200.0
 
@@ -2094,8 +2092,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path(sce))
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
-		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
+		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2195,8 +2193,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path(sce))
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
-		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
+		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 		
 		if sce.name == "preview":
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
