@@ -1431,6 +1431,10 @@ def write_lamp(ob, params, add_params= None):
 
 
 def write_camera(sce, ofile, camera= None, bake= False):
+	def get_distance(ob1, ob2):
+		vec= ob1.location - ob2.location
+		print(vec.length)
+		
 	def get_lens_shift(ob):
 		camera= ob.data
 		shift= 0.0
@@ -1526,17 +1530,13 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
-		focus_distance= ca.data.dof_distance
-		if focus_distance == 0.0:
-			focus_distance= 200.0
+		focus_distance= 200.0
 
-		# f= CameraPhysical.focal_length
-		# N= CameraPhysical.f_number
-		# c= 0.019
-
-		# H= (f * f) / (N * c) / 1000
-
-		# debug(sce, "Camera: H= %.3f" % H)
+		if ca.data.dof_object:
+			focus_distance= get_distance(ca,ca.data.dof_object)
+		else:
+			if focus_distance != 0.0:
+				focus_distance= ca.data.dof_distance
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
@@ -1544,7 +1544,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n\ttargeted= 0;")
 			ofile.write("\n\tspecify_focus= 1;")
 			ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
-			ofile.write("\n\tspecify_fov= 1;")
+			ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(CameraPhysical.white_balance)))))
 			for param in OBJECT_PARAMS['CameraPhysical']:
