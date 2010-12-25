@@ -504,8 +504,8 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 					BRDFVRayMtl.fresnel= True
 					BRDFVRayMtl.fresnel_ior= rm.fresnel
 			
-			for i,slot in enumerate(ma.texture_slots):
-				if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
+			for slot in ma.texture_slots:
+				if slot and slot.texture and slot.texture.type in TEX_TYPES:
 					VRaySlot=    slot.texture.vray_slot
 					VRayTexture= slot.texture.vray
 

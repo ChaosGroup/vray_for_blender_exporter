@@ -531,7 +531,7 @@ def write_textures(ofile, params):
 				if use_slot:
 					if key not in mapped_params['mapto']: # First texture
 						mapped_params['mapto'][key]= []
-						if factor < 1.0 or VRaySlot.blend_mode != 'OVER' or slot.use_stencil:
+						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
 							mapped_params['mapto'][key].append(defaults[key])
 					params['mapto']=    key
 					params['slot']=     slot
