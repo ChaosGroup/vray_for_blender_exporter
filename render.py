@@ -137,6 +137,7 @@ def write_geometry(sce, geometry_file):
 			filepath= geometry_file[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
 			use_animation= VRayExporter.animation,
+			use_instances= VRayExporter.use_instances,
 		)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
@@ -1538,8 +1539,10 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		if ca.data.dof_object:
 			focus_distance= get_distance(ca,ca.data.dof_object)
 		else:
-			if focus_distance != 0.0:
-				focus_distance= ca.data.dof_distance
+			focus_distance= ca.data.dof_distance
+
+		if focus_distance < 0.001:
+			focus_distance= 200.0
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))

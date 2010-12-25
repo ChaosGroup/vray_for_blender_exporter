@@ -592,7 +592,7 @@ VRayExporter.use_hair= BoolProperty(
 VRayExporter.use_instances= BoolProperty(
 	name= "Instances",
 	description= "Use instances (saves memory and faster export)",
-	default= False
+	default= True
 )
 
 VRayExporter.camera_loop= BoolProperty(
