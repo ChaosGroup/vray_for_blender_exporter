@@ -583,6 +583,12 @@ VRayExporter.animation= BoolProperty(
 	default= False
 )
 
+VRayExporter.check_animated= BoolProperty(
+	name= "Check animated",
+	description= "Detect animated meshes.",
+	default= False
+)
+
 VRayExporter.use_hair= BoolProperty(
 	name= "Hair",
 	description= "Render hair.",
@@ -955,6 +961,7 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.label(text="Geometry:")
 		col.prop(VRayExporter, 'use_instances')
+		col.prop(VRayExporter, 'check_animated')
 		#col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(VRayExporter, 'use_hair')
 		col.prop(SettingsOptions, 'geom_doHidden')
