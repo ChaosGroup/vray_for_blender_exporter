@@ -133,12 +133,19 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		bpy.ops.scene.scene_export(
-			filepath= geometry_file[:-11],
-			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation= VRayExporter.animation,
-			use_instances= VRayExporter.use_instances,
-		)
+		try:
+			bpy.ops.scene.scene_export(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+				use_instances= VRayExporter.use_instances,
+			)
+		except:
+			bpy.ops.scene.scene_export(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+			)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
@@ -1396,7 +1403,10 @@ def write_lamp(ob, params, add_params= None):
 	else:
 		return
 
-	ofile.write("\n%s %s {"%(lamp_type,lamp_name))
+	if lamp_type == "LightDirect":
+		ofile.write("\nLightDirectMax %s {" % lamp_name)
+	else:
+		ofile.write("\n%s %s {"%(lamp_type,lamp_name))
 
 	if lamp_type == 'SunLight':
 		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[vl.sky_model]))
@@ -1534,13 +1544,9 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
-		focus_distance= 200.0
-
+		focus_distance= ca.data.dof_distance
 		if ca.data.dof_object:
 			focus_distance= get_distance(ca,ca.data.dof_object)
-		else:
-			focus_distance= ca.data.dof_distance
-
 		if focus_distance < 0.001:
 			focus_distance= 200.0
 
