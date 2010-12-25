@@ -1074,7 +1074,7 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.operator("vray.convert_scene", text="Convert scene", icon="NODETREE")
+		col.operator("vray.convert_scene", icon="MATERIAL")
 		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):

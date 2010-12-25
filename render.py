@@ -718,7 +718,8 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 		object_params['meshlight']['on']= True
 		object_params['meshlight']['material']= ma
-		object_params['meshlight']['texture']= textures['mapto']['diffuse'] if 'diffuse' in textures['mapto'] else None # TODO: add more textures (shadow, etc)
+		# TODO: add more textures (shadow, etc)
+		object_params['meshlight']['texture']= textures['mapto'].get('diffuse')
 		return
 	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
