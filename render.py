@@ -529,9 +529,9 @@ def write_textures(ofile, params):
 							mapped_params['values']['displacement_slot']= slot
 
 				if use_slot:
-					if key not in mapped_params['mapto']:
+					if key not in mapped_params['mapto']: # First texture
 						mapped_params['mapto'][key]= []
-						if factor < 1.0 or slot.use_stencil:
+						if factor < 1.0 or VRaySlot.blend_mode != 'OVER' or slot.use_stencil:
 							mapped_params['mapto'][key].append(defaults[key])
 					params['mapto']=    key
 					params['slot']=     slot
@@ -549,11 +549,13 @@ def write_textures(ofile, params):
 		for i,slot in enumerate(slots):
 			(texture,stencil,blend_mode)= slot
 			if stencil:
-				return {'color_a': layers,
-						'color_b': _collapse_layers(slots[i+1:]),
-						'blend_amount': texture}
-			else:
-				layers.append((texture,blend_mode))
+				color_a= layers
+				color_b= _collapse_layers(slots[i+1:])
+				if len(color_a) and len(color_b):
+					return {'color_a': color_a,
+							'color_b': color_b,
+							'blend_amount': texture}
+			layers.append((texture,blend_mode))
 		return layers
 
 	def _write_TexLayered(layers):
