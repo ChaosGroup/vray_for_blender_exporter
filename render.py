@@ -133,11 +133,20 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		bpy.ops.scene.scene_export(
-			filepath= geometry_file[:-11],
-			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation= VRayExporter.animation,
-		)
+		try:
+			bpy.ops.scene.scene_export(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+				use_instances= VRayExporter.use_instances,
+				check_animated= VRayExporter.check_animated,
+			)
+		except:
+			bpy.ops.scene.scene_export(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+			)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
@@ -539,9 +548,9 @@ def write_textures(ofile, params):
 							mapped_params['values']['displacement_slot']= slot
 
 				if use_slot:
-					if key not in mapped_params['mapto']:
+					if key not in mapped_params['mapto']: # First texture
 						mapped_params['mapto'][key]= []
-						if factor < 1.0 or slot.use_stencil:
+						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
 							mapped_params['mapto'][key].append(defaults[key])
 					params['mapto']=    key
 					params['slot']=     slot
@@ -559,11 +568,13 @@ def write_textures(ofile, params):
 		for i,slot in enumerate(slots):
 			(texture,stencil,blend_mode)= slot
 			if stencil:
-				return {'color_a': layers,
-						'color_b': _collapse_layers(slots[i+1:]),
-						'blend_amount': texture}
-			else:
-				layers.append((texture,blend_mode))
+				color_a= layers
+				color_b= _collapse_layers(slots[i+1:])
+				if len(color_a) and len(color_b):
+					return {'color_a': color_a,
+							'color_b': color_b,
+							'blend_amount': texture}
+			layers.append((texture,blend_mode))
 		return layers
 
 	def _write_TexLayered(layers):
@@ -728,7 +739,8 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 		object_params['meshlight']['on']= True
 		object_params['meshlight']['material']= ma
-		object_params['meshlight']['texture']= textures['mapto']['diffuse'] if 'diffuse' in textures['mapto'] else None # TODO: add more textures (shadow, etc)
+		# TODO: add more textures (shadow, etc)
+		object_params['meshlight']['texture']= textures['mapto'].get('diffuse')
 		return
 	elif VRayMaterial.type == 'VOL':
 		object_params['volume']= {}
@@ -1402,7 +1414,10 @@ def write_lamp(ob, params, add_params= None):
 	else:
 		return
 
-	ofile.write("\n%s %s {"%(lamp_type,lamp_name))
+	if lamp_type == "LightDirect":
+		ofile.write("\nLightDirectMax %s {" % lamp_name)
+	else:
+		ofile.write("\n%s %s {"%(lamp_type,lamp_name))
 
 	if lamp_type == 'SunLight':
 		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[vl.sky_model]))
@@ -1425,16 +1440,14 @@ def write_lamp(ob, params, add_params= None):
 		ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[vl.lightPortal]))
 
 	for param in OBJECT_PARAMS[lamp_type]:
-		if lamp_type == 'LightIES':
-			if param == 'intensity':
-				ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
-			elif param == 'ies_file':
-				ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,lamp,vl.ies_file)))
-			continue
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))
+		elif param == 'intensity' and lamp_type == 'LightIES':
+			ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
 		elif param == 'shadow_color':
 			ofile.write("\n\tshadow_color= %s;"%(a(sce,vl.shadowColor)))
+		elif param == 'ies_file':
+			ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(sce,lamp,vl.ies_file)))
 		else:
 			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vl,param))))
 
@@ -1443,6 +1456,10 @@ def write_lamp(ob, params, add_params= None):
 
 
 def write_camera(sce, ofile, camera= None, bake= False):
+	def get_distance(ob1, ob2):
+		vec= ob1.location - ob2.location
+		print(vec.length)
+		
 	def get_lens_shift(ob):
 		camera= ob.data
 		shift= 0.0
@@ -1538,17 +1555,11 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 		ofile.write("\n}\n")
 
-		focus_distance= ca.data.dof_distance * 100
-		if focus_distance == 0.0:
+		focus_distance= ca.data.dof_distance
+		if ca.data.dof_object:
+			focus_distance= get_distance(ca,ca.data.dof_object)
+		if focus_distance < 0.001:
 			focus_distance= 200.0
-
-		# f= CameraPhysical.focal_length
-		# N= CameraPhysical.f_number
-		# c= 0.019
-
-		# H= (f * f) / (N * c) / 1000
-
-		# debug(sce, "Camera: H= %.3f" % H)
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
@@ -1556,7 +1567,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n\ttargeted= 0;")
 			ofile.write("\n\tspecify_focus= 1;")
 			ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
-			ofile.write("\n\tspecify_fov= 1;")
+			ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(CameraPhysical.white_balance)))))
 			for param in OBJECT_PARAMS['CameraPhysical']:
@@ -2104,8 +2115,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path(sce))
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
-		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
+		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 
 		wx= rd.resolution_x * rd.resolution_percentage / 100
 		wy= rd.resolution_y * rd.resolution_percentage / 100
@@ -2205,8 +2216,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		params= []
 		params.append(vb_binary_path(sce))
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render.%s" % get_render_file_format(ve,rd.file_format))
-		load_file= os.path.join(get_filenames(sce,'output'),"render.%.4i.%s" % (sce.frame_current,get_render_file_format(ve,rd.file_format)))
+		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 		
 		if sce.name == "preview":
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")

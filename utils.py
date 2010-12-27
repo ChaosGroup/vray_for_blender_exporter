@@ -45,6 +45,9 @@ import bpy
 import mathutils
 
 
+TEX_TYPES= ('IMAGE', 'VRAY')
+
+
 MODULES= {
 	'SettingsRaycaster': (
 		'maxLevels',
@@ -473,23 +476,47 @@ def preprocess_textures(sce):
 
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname = "vray.convert_scene"
-	bl_label  = "Convert scene"
-	bl_description = "Convert scene settings from Blender Internal to V-Ray."
+	bl_label  = "Convert materials"
+	bl_description = "Convert scene materials from Blender Internal to V-Ray."
 
 	def invoke(self, context, event):
-		sce= context.scene
+		for ma in bpy.data.materials:
+			print("V-Ray/Blender: Processing material: %s" % ma.name)
+			
+			rm= ma.raytrace_mirror
+			rt= ma.raytrace_transparency
+			
+			VRayMaterial= ma.vray
+			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
-		VRayScene= sce.vray
+			if ma.emit > 0.0:
+				VRayMaterial.type= 'EMIT'
 
-		plugins= []
-		plugins.append("SettingsGI")
+			if rm.use:
+				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
+				BRDFVRayMtl.reflect_glossiness= rm.gloss_factor
+				BRDFVRayMtl.reflect_subdivs= rm.gloss_samples
+				BRDFVRayMtl.reflect_depth= rm.depth
+				BRDFVRayMtl.option_cutoff= rm.gloss_threshold
+				BRDFVRayMtl.anisotropy= 1.0 - rm.gloss_anisotropic
 
-		for module in plugins:
-			vb_module= getattr(VRayScene, module)
-			for param in dict(vb_module):
-				print("bpy.context.scene.vray.%s.%s= %s" % (module, param, 'test'))
-				#print("bpy.context.scene.vray.%s.%s= %s" % (module, param, getattr(vb_module, param)))
+				if rm.fresnel > 0.0:
+					BRDFVRayMtl.fresnel= True
+					BRDFVRayMtl.fresnel_ior= rm.fresnel
+			
+			for slot in ma.texture_slots:
+				if slot and slot.texture and slot.texture.type in TEX_TYPES:
+					VRaySlot=    slot.texture.vray_slot
+					VRayTexture= slot.texture.vray
 
+					VRaySlot.blend_mode= CONVERT_BLEND_TYPE[slot.blend_type]
+					
+					if slot.use_map_emit:
+						VRayMaterial.type= 'EMIT'
+
+			if ma.type == 'VOLUME':
+				VRayMaterial.type= 'VOL'
+				
 		return{'FINISHED'}
 
 

@@ -538,8 +538,6 @@ OBJECT_PARAMS= {
 	)
 }
 
-TEX_TYPES= ('IMAGE', 'VRAY')
-
 UNITS= {
 	'DEFAULT' : 0,
 	'LUMENS'  : 1,
