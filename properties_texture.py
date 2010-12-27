@@ -1175,6 +1175,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				
 				if wide_ui:
 					col= split.column()
+
 				col.active= slot.use_map_normal
 				col.prop(BRDFBump,'map_type',text="Type")
 				col.prop(BRDFBump,'bump_tex_mult')
@@ -1194,26 +1195,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			col.active= VRaySlot.map_displacement
 			col.prop(GeomDisplacedMesh, 'type')
 			col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="Options:")
-			split= layout.split()
-			col= split.column()
-			col.prop(VRaySlot,'blend_mode',text="Blend")
-			if wide_ui:
-				col= split.column()
-			col.prop(slot,'invert',text="Invert")
-			col.prop(slot,'use_stencil')
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="NOTE: cause of API limitations some parameters are")
-			col.label(text="texture dependent not slot.")
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			VRayLight= VRaySlot.VRayLight
@@ -1237,6 +1218,26 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, slot, 'use_map_horizon',     'horizon_factor',     "GI")
 			factor_but(col, slot, 'use_map_zenith_up',   'zenith_up_factor',   "Reflections")
 			factor_but(col, slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Options:")
+		split= layout.split()
+		col= split.column()
+		col.prop(VRaySlot,'blend_mode',text="Blend")
+		if wide_ui:
+			col= split.column()
+		col.prop(slot,'invert',text="Invert")
+		col.prop(slot,'use_stencil')
+			
+		layout.separator()
+		
+		split= layout.split()
+		col= split.column()
+		col.label(text="NOTE: cause of API limitations some parameters are")
+		col.label(text="texture dependent not slot.")
 
 
 class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):

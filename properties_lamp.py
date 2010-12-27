@@ -93,7 +93,7 @@ VRayLamp.include_groups= StringProperty(
 	description= "Include groups: name{;name;etc}."
 )
 
-VRayLamp.beamRadius= FloatProperty(
+VRayLamp.fallsize= FloatProperty(
 	name= "Beam radius",
 	description= "Beam radius, 0.0 if the light has no beam radius.",
 	min= 0.0,
@@ -101,7 +101,7 @@ VRayLamp.beamRadius= FloatProperty(
 	soft_min= 0.0,
 	soft_max= 100.0,
 	precision= 3,
-	default= 0.0
+	default= 1.0
 )
 
 VRayLamp.direct_type= EnumProperty(
@@ -126,7 +126,7 @@ VRayLamp.spot_type= EnumProperty(
 
 VRayLamp.shadows= BoolProperty(
 	name= "Shadows",
-	description= "TODO.",
+	description= "Produce shadows.",
 	default= True
 )
 
@@ -172,7 +172,7 @@ VRayLamp.shadowBias= FloatProperty(
 
 VRayLamp.shadowSubdivs= IntProperty(
 	name= "Shadow subdivs",
-	description= "TODO.",
+	description= "This value controls the number of samples V-Ray takes to compute area shadows. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
 	min= 0,
 	max= 256,
 	default= 8
@@ -180,7 +180,7 @@ VRayLamp.shadowSubdivs= IntProperty(
 
 VRayLamp.shadowRadius= FloatProperty(
 	name= "Shadow radius",
-	description= "TODO.",
+	description= "Shadow radius.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -191,7 +191,7 @@ VRayLamp.shadowRadius= FloatProperty(
 
 VRayLamp.decay= FloatProperty(
 	name= "Decay",
-	description= "TODO.",
+	description= "Light decay.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -224,7 +224,7 @@ VRayLamp.intensity= FloatProperty(
 
 VRayLamp.subdivs= IntProperty(
 	name= "Subdivs",
-	description= "TODO.",
+	description= "This controls the number of samples for the area shadow. More subdivs produce area shadows with better quality but render slower.",
 	min= 0,
 	max= 256,
 	default= 8
@@ -232,25 +232,25 @@ VRayLamp.subdivs= IntProperty(
 
 VRayLamp.storeWithIrradianceMap= BoolProperty(
 	name= "Store with irradiance map",
-	description= "TODO.",
+	description= "When this option is on and GI calculation is set to Irradiance map V-Ray will calculate the effects of the VRayLightRect and store them in the irradiance map.",
 	default= False
 )
 
 VRayLamp.invisible= BoolProperty(
 	name= "Invisible",
-	description= "TODO.",
+	description= "This setting controls whether the shape of the light source is visible in the render result.",
 	default= False
 )
 
 VRayLamp.noDecay= BoolProperty(
 	name= "No decay",
-	description= "TODO.",
+	description= "When this option is on the intensity will not decay with distance.",
 	default= False
 )
 
 VRayLamp.doubleSided= BoolProperty(
 	name= "Double-sided",
-	description= "TODO.",
+	description= "This option controls whether light is beamed from both sides of the plane.",
 	default= False
 )
 
@@ -278,7 +278,7 @@ VRayLamp.radius= FloatProperty(
 
 VRayLamp.sphere_segments= IntProperty(
 	name= "Sphere segments",
-	description= "TODO.",
+	description= "Controls the quality of the light object when it is visible either directly or in reflections.",
 	min= 0,
 	max= 100,
 	default= 20
@@ -300,7 +300,7 @@ VRayLamp.nsamples= IntProperty(
 
 VRayLamp.diffuse_contribution= FloatProperty(
 	name= "Diffuse contribution",
-	description= "TODO.",
+	description= "A multiplier for the effect of the light on the diffuse.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -311,7 +311,7 @@ VRayLamp.diffuse_contribution= FloatProperty(
 
 VRayLamp.specular_contribution= FloatProperty(
 	name= "Specular contribution",
-	description= "TODO.",
+	description= "A multiplier for the effect of the light on the specular.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -322,52 +322,41 @@ VRayLamp.specular_contribution= FloatProperty(
 
 VRayLamp.areaSpeculars= BoolProperty(
 	name= "Area speculars",
-	description= "TODO.",
+	description= "When this parameter is enabled, the specular highlights will be computed with the real light shape as defined in the .ies files.",
 	default= False
 )
 
 VRayLamp.ignoreLightNormals= BoolProperty(
 	name= "Ignore light normals",
-	description= "TODO.",
+	description= "When this option is off, more light is emitted in the direction of the source surface normal.",
 	default= True
-)
-
-VRayLamp.use_rect_tex= BoolProperty(
-	name= "Use rect tex",
-	description= "TODO.",
-	default= False
 )
 
 VRayLamp.tex_resolution= IntProperty(
 	name= "Tex resolution",
-	description= "TODO.",
+	description= "Specifies the resolution at which the texture is sampled when the \"Tex Adaptive\" option is checked.",
 	min= 0,
 	max= 10,
 	default= 512
 )
 
-VRayLamp.tex_adaptive= FloatProperty(
+VRayLamp.tex_adaptive= BoolProperty(
 	name= "Tex adaptive",
-	description= "TODO.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 3,
-	default= 1
+	description= "When this option is checked V-Ray will use impotance sampling on the texture in order to produce better shadows.",
+	default= True
 )
 
 VRayLamp.causticSubdivs= IntProperty(
 	name= "Caustic subdivs",
-	description= "Caustic subdivs.",
+	description= "Caustic subdivisions. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
 	min= 1,
 	max= 100000,
 	default= 1000
 )
 
 VRayLamp.causticMult= FloatProperty(
-	name= "Causticmult",
-	description= "TODO.",
+	name= "Caustics multiplier",
+	description= "Caustics multiplier.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -390,7 +379,7 @@ VRayLamp.soft_shadows= BoolProperty(
 
 VRayLamp.turbidity= FloatProperty(
 	name= "Turbidity",
-	description= "TODO.",
+	description= "This parameter determines the amount of dust in the air and affects the color of the sun and sky.",
 	min= 2.0,
 	max= 100.0,
 	soft_min= 2.0,
@@ -401,7 +390,7 @@ VRayLamp.turbidity= FloatProperty(
 
 VRayLamp.intensity_multiplier= FloatProperty(
 	name= "Intensity multiplier",
-	description= "TODO.",
+	description= "This is an intensity multiplier for the Sun.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
@@ -412,7 +401,7 @@ VRayLamp.intensity_multiplier= FloatProperty(
 
 VRayLamp.ozone= FloatProperty(
 	name= "Ozone",
-	description= "TODO.",
+	description= "This parameter affects the color of the sun light.",
 	min= 0.0,
 	max= 1.0,
 	soft_min= 0.0,
@@ -423,7 +412,7 @@ VRayLamp.ozone= FloatProperty(
 
 VRayLamp.water_vapour= FloatProperty(
 	name= "Water vapour",
-	description= "TODO.",
+	description= "Water vapour.",
 	min= 0.0,
 	max= 10.0,
 	soft_min= 0.0,
@@ -434,7 +423,7 @@ VRayLamp.water_vapour= FloatProperty(
 
 VRayLamp.size_multiplier= FloatProperty(
 	name= "Size",
-	description= "TODO.",
+	description= "This parameter controls the visible size of the sun.",
 	min= 0.0,
 	max= 100.0,
 	soft_min= 0.0,
@@ -445,13 +434,13 @@ VRayLamp.size_multiplier= FloatProperty(
 
 VRayLamp.invisible= BoolProperty(
 	name= "Invisible",
-	description= "TODO.",
+	description= "When on, this option makes the sun invisible, both to the camera and to reflections.",
 	default= False
 )
 
 VRayLamp.horiz_illum= FloatProperty(
 	name= "Horiz illumination",
-	description= "TODO.",
+	description= "Specifies the intensity (in lx) of the illumination on horizontal surfaces coming from the Sky.",
 	min= 0.0,
 	max= 100000.0,
 	soft_min= 0.0,
@@ -462,7 +451,7 @@ VRayLamp.horiz_illum= FloatProperty(
 
 VRayLamp.sky_model= EnumProperty(
 	name= "Sky model",
-	description= "Sky model.",
+	description= "Allows you to specify the procedural model that will be used to generate the VRaySky texture.",
 	items= (
 		('CIEOVER',"CIE Overcast",""),
 		('CIECLEAR',"CIE Clear",""),
@@ -625,7 +614,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 
 		elif lamp.type == 'SUN':
 			if vl.direct_type == 'DIRECT':
-				col.prop(vl,'beamRadius')
+				col.prop(vl,'fallsize')
 			else:
 				split= layout.split()
 				col= split.column()

@@ -286,7 +286,7 @@ OBJECT_PARAMS= {
 		'noDecay'
 	),
 
-	'LightDirect': (
+	'LightDirectMax': (
 		'enabled',
 		#'color_tex',
 		'shadows',
@@ -309,7 +309,7 @@ OBJECT_PARAMS= {
 		'shadowRadius',
 		'areaSpeculars',
 		'shadowSubdivs',
-		'beamRadius'
+		'fallsize',
 	),
 
 	'SunLight': (
@@ -818,7 +818,7 @@ def write_UVWGenChannel(ofile, sce, params):
 	VRayTexture= texture.vray
 	VRaySlot.uvwgen= uvw_name
 
-	if slot:
+	if slot and 'uv_ids' in params:
 		uvw_channel= get_uv_layer_id(sce, params['uv_ids'], slot.uv_layer)
 		
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
