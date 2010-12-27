@@ -624,7 +624,7 @@ VRaySlot.fade_out_tex_mult= FloatProperty(
 class VRayLight(bpy.types.IDPropertyGroup):
 	pass
 
-VRaySlot.Light= PointerProperty(
+VRaySlot.VRayLight= PointerProperty(
 	name= "VRayLight",
 	type=  VRayLight,
 	description= "VRay lights texture slot settings."
@@ -633,7 +633,17 @@ VRaySlot.Light= PointerProperty(
 VRayLight.map_color= BoolProperty(
 	name= "Color",
 	description= "A color texture that if present will override the \"Color\" parameter.",
-	default= False
+	default= True
+)
+
+VRayLight.color_mult= FloatProperty(
+	name= "Color texture multiplier",
+	description= "Color texture multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
 )
 
 VRayLight.map_shadowColor= BoolProperty(
@@ -642,10 +652,30 @@ VRayLight.map_shadowColor= BoolProperty(
 	default= False
 )
 
+VRayLight.shadowColor_mult= FloatProperty(
+	name= "Shadow color texture multiplier",
+	description= "Shadow color texture multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
+)
+
 VRayLight.map_intensity= BoolProperty(
 	name= "Intensity",
 	description= "A color texture that if present will override the \"Intensity\" parameter.",
 	default= False
+)
+
+VRayLight.intensity_mult= FloatProperty(
+	name= "Intensity texture multiplier",
+	description= "Intensity texture multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 1.0,
+	default= 1.0
 )
 
 # Seems that we could use tex from "color"
@@ -1185,9 +1215,15 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			col.label(text="texture dependent not slot.")
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
+			VRayLight= VRaySlot.VRayLight
+
 			split= layout.split()
 			col= split.column()
-			col.label(text="Coming soon...")
+			factor_but(col, VRayLight, 'map_color', 'color_mult', "Color")
+			factor_but(col, VRayLight, 'map_shadowColor', 'shadowColor_mult', "Shadow")
+			if wide_ui:
+				col= split.column()
+			factor_but(col, VRayLight, 'map_intensity', 'intensity_mult', "Intensity")
 
 		elif type(idblock) == bpy.types.World:
 			split= layout.split()
@@ -1316,11 +1352,6 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 				split= layout.split(percentage=0.3)
 				split.label(text="Object:")
 				split.prop_search(VRayTexture, 'object', sce, 'objects', text="")
-
-		elif issubclass(type(idblock), bpy.types.Lamp):
-			split= layout.split()
-			col= split.column()
-			col.label(text="Coming soon...")
 
 		elif type(idblock) == bpy.types.World:
 			split= layout.split(percentage=0.3)

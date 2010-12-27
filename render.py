@@ -430,6 +430,16 @@ def write_mesh_file(ofile, exported_proxy, ob):
 '''
   MATERIALS
 '''
+def lamp_defaults(la):
+	VRayLamp= la.vray
+
+	return {
+		'color':       (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(la.color)),                 0, 'NONE'),
+		'intensity':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([VRayLamp.intensity]*3)),   0, 'NONE'),
+		'shadowColor': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([VRayLamp.shadowColor]*3)), 0, 'NONE'),
+	}
+
+
 def get_color_params(ma):
 	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex

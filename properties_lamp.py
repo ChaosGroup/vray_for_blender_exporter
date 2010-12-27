@@ -614,6 +614,8 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(lamp,'size')
 			else:
 				col.prop(lamp,'size', text="Size X")
+				if wide_ui:
+					col= split.column()
 				col.prop(lamp,'size_y')
 
 		elif lamp.type == 'POINT':
