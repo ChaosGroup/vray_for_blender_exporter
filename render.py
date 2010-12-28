@@ -714,6 +714,8 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, mapped_params):
 			value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
 		elif param == 'option_energy_mode':
 			value= ENERGY_MODE[BRDFVRayMtl.option_energy_mode]
+		elif param == 'fog_mult':
+			value= BRDFVRayMtl.fog_mult / 100.0
 		else:
 			value= getattr(BRDFVRayMtl,param)
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
@@ -1465,7 +1467,7 @@ def write_lamp(ob, params, add_params= None):
 
 		if lamp.type in ('AREA','HEMI'):
 			ofile.write("\n\tuse_rect_tex= 1;")
-			ofile.write("\n\ttex_adaptive= %i;" % (1))
+			ofile.write("\n\ttex_adaptive= %.2f;" % (1.0))
 			ofile.write("\n\ttex_resolution= %i;" % (512))
 
 	if 'intensity' in textures:
@@ -1616,15 +1618,17 @@ def write_camera(sce, ofile, camera= None, bake= False):
 		focus_distance= ca.data.dof_distance
 		if ca.data.dof_object:
 			focus_distance= get_distance(ca,ca.data.dof_object)
+
 		if focus_distance < 0.001:
 			focus_distance= 200.0
 
 		if CameraPhysical.use:
 			ofile.write("\nCameraPhysical PhysicalCamera_%s {" % clean_string(ca.name))
 			ofile.write("\n\ttype= %d;"%(PHYS[CameraPhysical.type]))
-			ofile.write("\n\ttargeted= 0;")
 			ofile.write("\n\tspecify_focus= 1;")
 			ofile.write("\n\tfocus_distance= %s;"%(a(sce,focus_distance)))
+			# ofile.write("\n\ttargeted= 1;")
+			# ofile.write("\n\ttarget_distance= %s;"%(a(sce,focus_distance)))
 			ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
 			ofile.write("\n\twhite_balance= %s;"%(a(sce,"Color(%.3f,%.3f,%.3f)"%(tuple(CameraPhysical.white_balance)))))
