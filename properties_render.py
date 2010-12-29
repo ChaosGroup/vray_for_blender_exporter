@@ -41,6 +41,23 @@ VRayScene.use_hidden_lights= BoolProperty(
 	default= False
 )
 
+VRayScene.image_aspect= FloatProperty(
+	name= "Image aspect",
+	description= "Image aspect.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 10.0,
+	precision= 3,
+	default= 1.333
+)
+
+VRayScene.image_aspect_lock= BoolProperty(
+	name= "Lock aspect",
+	description= "Lock image aspect.",
+	default= False
+)
+
 
 class VRayBake(bpy.types.IDPropertyGroup):
 	pass
@@ -857,6 +874,10 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 
 		scene= context.scene
 		rd=    scene.render
+		VRayScene= scene.vray
+		
+		if VRayScene.image_aspect_lock:
+			rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
 
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
@@ -866,23 +887,32 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 		split = layout.split()
 
 		col = split.column()
-		sub = col.column(align=True)
+		sub= col.column(align=True)
 		sub.label(text="Resolution:")
 		sub.prop(rd, "resolution_x", text="X")
-		sub.prop(rd, "resolution_y", text="Y")
-		sub.prop(rd, "resolution_percentage", text="")
+		sub_aspect= sub.column()
+		sub_aspect.active= not VRayScene.image_aspect_lock
+		sub_aspect.prop(rd, "resolution_y", text="Y")
 		sub.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
-
-		sub.label(text="Aspect Ratio:")
-		sub.prop(rd, "pixel_aspect_x", text="X")
-		sub.prop(rd, "pixel_aspect_y", text="Y")
-
-		row = col.row()
+		sub.prop(rd, "resolution_percentage", text="")
+		row= sub.row()
 		row.prop(rd, "use_border", text="Border")
-		sub = row.row()
+		sub= row.row()
 		sub.active = rd.use_border
 		sub.prop(rd, "use_crop_to_border", text="Crop")
 
+		if wide_ui:
+			col= split.column()
+
+		sub = col.column(align=True)
+		sub.prop(VRayScene, "image_aspect_lock", text="Image aspect")
+		if VRayScene.image_aspect_lock:
+			sub.prop(VRayScene, "image_aspect")
+		sub.label(text="Pixel aspect:")
+		sub.prop(rd, "pixel_aspect_x", text="X")
+		sub.prop(rd, "pixel_aspect_y", text="Y")
+
+		split= layout.split()
 		col = split.column()
 		sub = col.column(align=True)
 		sub.label(text="Frame Range:")
@@ -890,13 +920,17 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 		sub.prop(scene, "frame_end", text="End")
 		sub.prop(scene, "frame_step", text="Step")
 
+		if wide_ui:
+			col= split.column()
+
+		sub = col.column(align=True)
 		sub.label(text="Frame Rate:")
 		sub.prop(rd, "fps")
 		sub.prop(rd, "fps_base", text="/")
 		subrow = sub.row(align=True)
 		subrow.prop(rd, "frame_map_old", text="Old")
 		subrow.prop(rd, "frame_map_new", text="New")
-		
+
 
 class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"

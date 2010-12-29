@@ -526,7 +526,13 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_description = "Flip render resolution."
 
 	def invoke(self, context, event):
-		rd= context.scene.render
+		scene= context.scene
+		rd=    scene.render
+
+		VRayScene= scene.vray
+
+		if VRayScene.image_aspect_lock:
+			VRayScene.image_aspect= 1 / VRayScene.image_aspect
 
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
