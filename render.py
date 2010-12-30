@@ -2291,6 +2291,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 				'exported_materials': [],
 				'exported_proxy':     []
 			}
+
+			temp_params= {
+				'uv_ids': get_uv_layers(sce),
+			}
+
 			object_params= {
 				'meshlight': {
 					'on':       False,
@@ -2300,7 +2305,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					'texture':  None,
 					'params':   None
 				},
-				'volume': None
+				'volume': None,
 			}
 
 			# TODO
@@ -2320,9 +2325,9 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 						write_camera(sce, ofile, camera= ob)
 				for ms in ob.material_slots:
 					if ob.name == "preview":
-						write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob)
+						write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
 					elif ms.material.name in ("checkerlight","checkerdark"):
-						write_material(ms.material, filters, object_params, ofile, ob= ob)
+						write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
 						
 			ofile.close()
 			del object_params

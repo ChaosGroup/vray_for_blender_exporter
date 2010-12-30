@@ -884,18 +884,19 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
 		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active = True
 
-		split = layout.split()
-
-		col = split.column()
+		layout.label(text="Resolution:")
+		
+		split= layout.split()
+		col= split.column()
 		sub= col.column(align=True)
-		sub.label(text="Resolution:")
 		sub.prop(rd, "resolution_x", text="X")
 		sub_aspect= sub.column()
 		sub_aspect.active= not VRayScene.image_aspect_lock
 		sub_aspect.prop(rd, "resolution_y", text="Y")
 		sub.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
 		sub.prop(rd, "resolution_percentage", text="")
-		row= sub.row()
+
+		row= col.row()
 		row.prop(rd, "use_border", text="Border")
 		sub= row.row()
 		sub.active = rd.use_border
