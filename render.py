@@ -1722,7 +1722,7 @@ def write_settings(sce,ofile):
 		ofile.write("\n\tshow_calc_phase= %i;"%(lc.show_calc_phase))
 		ofile.write("\n\tstore_direct_light= %i;"%(lc.store_direct_light))
 		ofile.write("\n\tuse_for_glossy_rays= %i;"%(lc.use_for_glossy_rays))
-		ofile.write("\n\tworld_scale= %i;"%(SCALE[lc.scale]))
+		ofile.write("\n\tworld_scale= %i;"%(SCALE[lc.world_scale]))
 		ofile.write("\n\tadaptive_sampling= %i;"%(lc.adaptive_sampling))
 		ofile.write("\n\tmode= %d;"%(LC_MODE[lc.mode]))
 		ofile.write("\n\tauto_save= %d;"%(lc.auto_save))

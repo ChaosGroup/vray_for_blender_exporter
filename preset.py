@@ -137,13 +137,16 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 
 	preset_values= [
 		"bpy.context.scene.vray.exporter.autorun",
+		"bpy.context.scene.vray.exporter.animation",
 		"bpy.context.scene.vray.exporter.auto_meshes",
 		"bpy.context.scene.vray.exporter.debug",
 		"bpy.context.scene.vray.exporter.use_material_nodes",
 		"bpy.context.scene.vray.exporter.compat_mode",
 		"bpy.context.scene.vray.exporter.image_to_blender",
+		"bpy.context.scene.vray.exporter.active_layers",
 		"bpy.context.scene.vray.exporter.mesh_active_layers",
 		"bpy.context.scene.vray.exporter.check_animated",
+		"bpy.context.scene.vray.exporter.use_displace",
 		"bpy.context.scene.vray.exporter.use_instances",
 		"bpy.context.scene.vray.exporter.use_hair",
 		"bpy.context.scene.vray.exporter.detect_vray",
@@ -151,6 +154,39 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.exporter.output",
 		"bpy.context.scene.vray.exporter.output_dir",
 		"bpy.context.scene.vray.exporter.output_unique",
+
+        "bpy.context.scene.vray.SettingsOptions.geom_displacement",
+        "bpy.context.scene.vray.SettingsOptions.geom_doHidden",
+        "bpy.context.scene.vray.SettingsOptions.light_doLights",
+        "bpy.context.scene.vray.SettingsOptions.light_doDefaultLights",
+        "bpy.context.scene.vray.SettingsOptions.light_doHiddenLights",
+        "bpy.context.scene.vray.SettingsOptions.light_doShadows",
+        "bpy.context.scene.vray.SettingsOptions.light_onlyGI",
+        "bpy.context.scene.vray.SettingsOptions.gi_dontRenderImage",
+        "bpy.context.scene.vray.SettingsOptions.mtl_reflectionRefraction",
+        "bpy.context.scene.vray.SettingsOptions.mtl_limitDepth",
+        "bpy.context.scene.vray.SettingsOptions.mtl_maxDepth",
+        "bpy.context.scene.vray.SettingsOptions.mtl_doMaps",
+        "bpy.context.scene.vray.SettingsOptions.mtl_filterMaps",
+        "bpy.context.scene.vray.SettingsOptions.mtl_filterMapsForSecondaryRays",
+        "bpy.context.scene.vray.SettingsOptions.mtl_transpMaxLevels",
+        "bpy.context.scene.vray.SettingsOptions.mtl_transpCutoff",
+        "bpy.context.scene.vray.SettingsOptions.mtl_override_on",
+        "bpy.context.scene.vray.SettingsOptions.mtl_glossy",
+        "bpy.context.scene.vray.SettingsOptions.geom_backfaceCull",
+        "bpy.context.scene.vray.SettingsOptions.ray_bias",
+        "bpy.context.scene.vray.SettingsOptions.misc_lowThreadPriority",
+
+        "bpy.context.scene.vray.SettingsCaustics.on",
+        "bpy.context.scene.vray.SettingsCaustics.max_photons",
+        "bpy.context.scene.vray.SettingsCaustics.search_distance",
+        "bpy.context.scene.vray.SettingsCaustics.max_density",
+        "bpy.context.scene.vray.SettingsCaustics.multiplier",
+        "bpy.context.scene.vray.SettingsCaustics.mode",
+        "bpy.context.scene.vray.SettingsCaustics.file",
+        "bpy.context.scene.vray.SettingsCaustics.auto_save",
+        "bpy.context.scene.vray.SettingsCaustics.auto_save_file",
+        "bpy.context.scene.vray.SettingsCaustics.show_calc_phase",
 
 		"bpy.context.scene.vray.SettingsGI.on",
         "bpy.context.scene.vray.SettingsGI.refract_caustics",
@@ -171,6 +207,7 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		
         "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.subdivs",
         "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.depth",
+
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.min_rate",
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.max_rate",
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.subdivs",
@@ -197,6 +234,7 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.check_sample_visibility",
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.auto_save",
         "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.auto_save_file",
+
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.subdivs",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.sample_size",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.filter_type",
@@ -218,6 +256,7 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.multiple_views",
         # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
         # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
+
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.override_on",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.edgeLength",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.viewDependent",
@@ -225,11 +264,13 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.tightBounds",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.amount",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.relative",
+
 		"bpy.context.scene.vray.SettingsRegionsGenerator.xc",
 		"bpy.context.scene.vray.SettingsRegionsGenerator.yc",
 		"bpy.context.scene.vray.SettingsRegionsGenerator.reverse",
 		"bpy.context.scene.vray.SettingsRegionsGenerator.seqtype",
 		"bpy.context.scene.vray.SettingsRegionsGenerator.xymeans",
+
 		"bpy.context.scene.vray.SettingsImageSampler.type",
 		"bpy.context.scene.vray.SettingsImageSampler.fixed_subdivs",
 		"bpy.context.scene.vray.SettingsImageSampler.dmc_minSubdivs",
@@ -243,17 +284,21 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.SettingsImageSampler.subdivision_normals_threshold",
 		"bpy.context.scene.vray.SettingsImageSampler.subdivision_jitter",
 		"bpy.context.scene.vray.SettingsImageSampler.subdivision_show_samples",
+
 		"bpy.context.scene.vray.SettingsRaycaster.maxLevels",
 		"bpy.context.scene.vray.SettingsRaycaster.minLeafSize",
 		"bpy.context.scene.vray.SettingsRaycaster.faceLevelCoef",
 		"bpy.context.scene.vray.SettingsRaycaster.dynMemLimit",
+
 		"bpy.context.scene.vray.SettingsDMCSampler.time_dependent",
 		"bpy.context.scene.vray.SettingsDMCSampler.adaptive_amount",
 		"bpy.context.scene.vray.SettingsDMCSampler.adaptive_threshold",
 		"bpy.context.scene.vray.SettingsDMCSampler.adaptive_min_samples",
 		"bpy.context.scene.vray.SettingsDMCSampler.subdivs_mult",
+
 		"bpy.context.scene.vray.SettingsUnitsInfo.meters_scale",
 		"bpy.context.scene.vray.SettingsUnitsInfo.photometric_scale",
+
 		"bpy.context.scene.vray.SettingsColorMapping.affect_background",
 		"bpy.context.scene.vray.SettingsColorMapping.dark_mult",
 		"bpy.context.scene.vray.SettingsColorMapping.bright_mult",
@@ -264,7 +309,13 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.SettingsColorMapping.clamp_level",
 		"bpy.context.scene.vray.SettingsColorMapping.adaptation_only",
 		"bpy.context.scene.vray.SettingsColorMapping.linearWorkflow",
+
+		"bpy.context.scene.vray.VRayDR.on",
+		"bpy.context.scene.vray.VRayDR.shared_dir",
+		"bpy.context.scene.vray.VRayDR.type",
+		"bpy.context.scene.vray.VRayDR.port",
+
 		"bpy.context.scene.render.threads_mode",
 		"bpy.context.scene.render.threads",
 	]
-	
+
