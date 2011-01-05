@@ -226,7 +226,7 @@ def add_properties(parent_struct):
 		default= "SINGLE"
 	)
 
-	SettingsIrradianceMap.lookupType= EnumProperty(
+	SettingsIrradianceMap.lookup_mode= EnumProperty(
 		name= "Sample lookup",
 		description= "Method of choosing suitable points from the irradiance map to be used as basis for the interpolation.",
 		items= (
@@ -238,7 +238,7 @@ def add_properties(parent_struct):
 		default= "OVERLAP"
 	)
 
-	SettingsIrradianceMap.interpolationType= EnumProperty(
+	SettingsIrradianceMap.interpolation_mode= EnumProperty(
 		name= "Interpolation type",
 		description= "Method for interpolating the GI value from the samples in the irradiance map.",
 		items= (
@@ -454,7 +454,7 @@ def add_properties(parent_struct):
 		default= 1000
 	)
 
-	SettingsLightCache.scale= EnumProperty(
+	SettingsLightCache.world_scale= EnumProperty(
 		name= "Light cache scale mode",
 		description= "This parameter determines the units of the \"Sample size\" and the \"Filter size\"",
 		items= (
@@ -527,8 +527,9 @@ def add_properties(parent_struct):
 		name= "Filter type",
 		description= "The filter determines how irradiance is interpolated from the samples in the light cache.",
 		items= (
-			('NEAREST',"Nearest",""),
-			('FIXED',"Fixed","")
+			('NONE',    "None",    ""),
+			('NEAREST', "Nearest", ""),
+			('FIXED',   "Fixed",   "")
 		),
 		default= "NEAREST"
 	)

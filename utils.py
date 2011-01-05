@@ -297,7 +297,7 @@ def get_name(data, prefix= None, dupli_name= None):
 	if prefix:
 		name= "%s_%s"%(prefix,name)
 	if data.library:
-		name+= "_%s"%(get_filename(data.library.filepath))
+		name+= '_' + get_filename(data.library.filepath)
 	return clean_string(name)
 
 def object_on_visible_layers(sce,ob):
@@ -468,10 +468,7 @@ CONVERT_BLEND_TYPE= {
 }
 
 
-def preprocess_textures(sce):
-	for tex in bpy.data.textures:
-		tex.vray.name= get_random_string()
-		debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))
+#debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))
 
 
 class VRAY_OT_convert_scene(bpy.types.Operator):

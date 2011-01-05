@@ -656,8 +656,9 @@ LOOK_TYPE= {
 }
 
 LC_FILT= {
-	'NEAREST': 0,
-	'FIXED':   1
+	'NONE':    0,
+	'NEAREST': 1,
+	'FIXED':   2
 }
 
 LC_MODE= {
@@ -765,24 +766,6 @@ PROJECTION_MAPPING= {
 }
 
 
-def multiply_texture(ofile, sce, input_texture_name, mult_value):
-	if mult_value == 1.0:
-		return input_texture_name
-
-	tex_name= get_random_string()
-		
-	ofile.write("\nTexAColorOp %s {" % tex_name)
-	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-	if mult_value > 1.0:
-		ofile.write("\n\tmult_a= %s;" % a(sce,mult_value))
-	else:
-		ofile.write("\n\tmult_a= 1.0;")
-		ofile.write("\n\tresult_alpha= %s;" % a(sce,mult_value))
-	ofile.write("\n}\n")
-				
-	return tex_name
-
-
 def write_UVWGenProjection(ofile, sce, params):
 	ob= params.get('object')
 	slot= params.get('slot')
@@ -875,7 +858,7 @@ def write_BitmapBuffer(ofile, sce, params):
 	if texture.image.source == 'SEQUENCE':
 		bitmap_name= get_random_string()
 	else:
-		bitmap_name= 'IM' + clean_string("".join(os.path.basename(filename).split('.')[:-1]))
+		bitmap_name= 'IM' + clean_string(texture.image.name)
 		if 'filters' in params:
 			if bitmap_name in params['filters']['exported_bitmaps']:
 				return bitmap_name
@@ -1257,3 +1240,90 @@ def write_BRDFLight(ofile, sce, ma, ma_name, mapped_params):
 	ofile.write("\n}\n")
 
 	return brdf_name
+
+
+def write_multiply_texture(ofile, sce, input_texture_name, mult_value):
+	if mult_value == 1.0:
+		return input_texture_name
+
+	tex_name= get_random_string()
+		
+	ofile.write("\nTexAColorOp %s {" % tex_name)
+	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+	if mult_value > 1.0:
+		ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
+		ofile.write("\n\tresult_alpha= %s;" % a(sce, 1.0))
+	else:
+		ofile.write("\n\tmult_a= %s;" % a(sce, 1.0))
+		ofile.write("\n\tresult_alpha= %s;" % a(sce, mult_value))
+	ofile.write("\n}\n")
+				
+	return tex_name
+
+
+def write_texture_factor(ofile, sce, params):
+	tex_name= write_texture(ofile, sce, params)
+	tex_name= write_multiply_texture(ofile, sce, tex_name, params['factor'])
+	return tex_name
+
+
+'''
+  Stack naming:
+    BAbase_name+TEtexture_name+IDtexture_id_in_stack+PLplugin
+  like:
+    MAmaterial+TEtexture+IDtexture_id_in_stack
+  or:
+    LAlamp+TEtexture+IDtexture_id_in_stack
+'''
+def stack_collapse_layers(slots):
+	layers= []
+	for i,slot in enumerate(slots):
+		(texture,stencil,blend_mode)= slot
+		if stencil:
+			color_a= layers
+			color_b= stack_collapse_layers(slots[i+1:])
+			if len(color_a) and len(color_b):
+				return {'color_a': color_a,
+						'color_b': color_b,
+						'blend_amount': texture}
+		layers.append((texture,blend_mode))
+	return layers
+
+
+def stack_write_TexLayered(ofile, layers):
+	tex_name= 'TL' + get_random_string()
+	if len(layers) == 1: return layers[0][0]
+	ofile.write("\nTexLayered %s {"%(tex_name))
+	ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
+	ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l[1]] for l in layers])))
+	ofile.write("\n}\n")
+	return tex_name
+
+
+def stack_write_TexMix(ofile, color1, color2, blend_amount):
+	tex_name= 'TM' + get_random_string()
+	ofile.write("\nTexMix %s {" % tex_name)
+	ofile.write("\n\tcolor1= %s;" % color1)
+	ofile.write("\n\tcolor2= %s;" % color2)
+	ofile.write("\n\tmix_amount= 1.0;")
+	ofile.write("\n\tmix_map= %s;" % blend_amount)
+	ofile.write("\n}\n")
+	return tex_name
+
+
+def stack_write_shaders(ofile, layer):
+	if type(layer) == dict:
+		color_a= stack_write_shaders(ofile, layer['color_a'])
+		color_b= stack_write_shaders(ofile, layer['color_b'])
+		layer_name= stack_write_TexMix(ofile, color_a, color_b, layer['blend_amount'])
+	elif type(layer) == list:
+		layer_name= stack_write_TexLayered(ofile, layer)
+	return layer_name
+
+
+def write_TexOutput(ofile, texmap, params):
+	tex_name= 'TO' + get_random_string()
+	ofile.write("\nTexOutput %s {" % tex_name)
+	ofile.write("\n\ttexmap= %s;" % texmap)
+	ofile.write("\n}\n")
+	return tex_name

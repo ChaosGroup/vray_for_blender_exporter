@@ -995,10 +995,6 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Geometry:")
-		col.prop(VRayExporter, 'use_instances')
-		col.prop(VRayExporter, 'check_animated')
-		#col.prop(SettingsOptions, 'geom_displacement')
-		col.prop(VRayExporter, 'use_hair')
 		col.prop(SettingsOptions, 'geom_doHidden')
 		col.prop(SettingsOptions, 'geom_backfaceCull')
 		col.prop(SettingsOptions, 'ray_bias', text="Secondary bias")
@@ -1067,19 +1063,25 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
+		col.label(text="Options:")
 		col.prop(ve, 'autorun')
 		sub= col.column()
 		sub.active= False
 		sub.prop(ve, 'auto_meshes')
 		col.prop(ve, 'debug')
-		if wide_ui:
-			col= split.column()
-		col.prop(ve, 'mesh_active_layers', text= "Active layers meshes")
+		col.prop(ve, 'use_material_nodes')
+		col.prop(ve, 'compat_mode')
 		sub= col.column()
 		sub.active= False
 		sub.prop(ve, 'image_to_blender')
-		col.prop(ve, 'use_material_nodes')
-		col.prop(ve, 'compat_mode')
+		if wide_ui:
+			col= split.column()
+		col.label(text="Mesh export:")
+		col.prop(ve, 'mesh_active_layers', text= "Active layers")
+		col.prop(ve, 'check_animated')
+		col.prop(ve, 'use_instances')
+		#col.prop(SettingsOptions, 'geom_displacement')
+		col.prop(ve, 'use_hair')
 		
 		layout.separator()
 
@@ -1372,8 +1374,8 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 			else:
 				split= layout.split()
 			col= split.column()
-			col.prop(module,"interpolationType", text="Interp. type")
-			col.prop(module,"lookupType")
+			col.prop(module,"interpolation_mode", text="Interp. type")
+			col.prop(module,"lookup_mode")
 			col.prop(module,"calc_interp_samples")
 			if wide_ui:
 				col= split.column()
@@ -1482,7 +1484,7 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 			col.prop(module, "subdivs")
 			col.prop(module, "sample_size")
-			col.prop(module, "scale", text="Sample scale")
+			col.prop(module, "world_scale", text="Sample scale")
 			if not module.num_passes_auto:
 				col.prop(module, "num_passes")
 			col.prop(module, "depth", slider= True)
@@ -1501,10 +1503,13 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 			sub= split.column().row()
 			sub.active= module.filter
 			sub.prop(module, "filter_type", text="Type")
-			if module.filter_type == 'NEAREST':
-				sub.prop(module, "filter_samples")
+			if module.filter_type != 'NONE':
+				if module.filter_type == 'NEAREST':
+					sub.prop(module, "filter_samples")
+				else:
+					sub.prop(module, "filter_size")
 			else:
-				sub.prop(module, "filter_size")
+				sub.label(text="")
 
 		split= layout.split(percentage=0.2)
 		split.column().prop(module, "prefilter")

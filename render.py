@@ -487,68 +487,6 @@ def material_defaults(ma):
 		'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
 	}
 
-def write_multiplied_texture(ofile, sce, params):
-	tex_name= write_texture(ofile, sce, params)
-	tex_name= multiply_texture(ofile, sce, tex_name, params['factor'])
-	return tex_name
-
-#
-# Stack naming:
-# BAbase_name+TEtexture_name+IDtexture_id_in_stack+PLplugin
-# like:
-#   MAmaterial+TEtexture+IDtexture_id_in_stack
-# or:
-#   LAlamp+TEtexture+IDtexture_id_in_stack
-#
-def stack_collapse_layers(slots):
-	layers= []
-	for i,slot in enumerate(slots):
-		(texture,stencil,blend_mode)= slot
-		if stencil:
-			color_a= layers
-			color_b= stack_collapse_layers(slots[i+1:])
-			if len(color_a) and len(color_b):
-				return {'color_a': color_a,
-						'color_b': color_b,
-						'blend_amount': texture}
-		layers.append((texture,blend_mode))
-	return layers
-
-def stack_write_TexLayered(ofile, layers):
-	tex_name= get_random_string()
-	if len(layers) == 1: return layers[0][0]
-	ofile.write("\nTexLayered %s {"%(tex_name))
-	ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
-	ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l[1]] for l in layers])))
-	ofile.write("\n}\n")
-	return tex_name
-
-def stack_write_TexMix(ofile, color_a, color_b, blend_amount):
-	tex_name= get_random_string()
-	ofile.write("\nTexMix %s {" % tex_name)
-	ofile.write("\n\tcolor1= %s;" % color_a)
-	ofile.write("\n\tcolor2= %s;" % color_b)
-	ofile.write("\n\tmix_amount= 1.0;")
-	ofile.write("\n\tmix_map= %s;" % blend_amount)
-	ofile.write("\n}\n")
-	return tex_name
-
-def stack_write_TexOutput(ofile, input_texture):
-	tex_name= get_random_string()
-	ofile.write("\nTexOutput %s {" % tex_name)
-	ofile.write("\n\ttexmap= %s;" % input_texture)
-	ofile.write("\n}\n")
-	return tex_name
-
-def stack_write_shaders(ofile, layer):
-	if type(layer) == dict:
-		color_a= stack_write_shaders(ofile, layer['color_a'])
-		color_b= stack_write_shaders(ofile, layer['color_b'])
-		layer_name= stack_write_TexMix(ofile, color_a, color_b, layer['blend_amount'])
-	elif type(layer) == list:
-		layer_name= stack_write_TexLayered(ofile, layer)
-	return layer_name
-
 def write_lamp_textures(ofile, params):
 	la= params['lamp']
 	
@@ -580,7 +518,7 @@ def write_lamp_textures(ofile, params):
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					mapped_params['mapto'][key].append((write_multiplied_texture(ofile, sce, params),
+					mapped_params['mapto'][key].append((write_texture_factor(ofile, sce, params),
 														slot.use_stencil,
 														VRaySlot.blend_mode))
 	if len(mapped_params['mapto']):
@@ -588,12 +526,10 @@ def write_lamp_textures(ofile, params):
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
-			mapped_params['mapto'][key]= stack_write_TexOutput(
+			mapped_params['mapto'][key]= write_TexOutput(
 				ofile,
-				stack_write_shaders(
-					ofile,
-					stack_collapse_layers(mapped_params['mapto'][key])
-				)
+				stack_write_shaders(ofile, stack_collapse_layers(mapped_params['mapto'][key])),
+				{}
 			)
 
 	return mapped_params
@@ -659,21 +595,19 @@ def write_material_textures(ofile, params):
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					mapped_params['mapto'][key].append((write_multiplied_texture(ofile, sce, params),
-														slot.use_stencil,
-														VRaySlot.blend_mode))
+					mapped_params['mapto'][key].append(
+						(write_texture_factor(ofile, sce, params), slot.use_stencil, VRaySlot.blend_mode)
+					)
 
 	if len(mapped_params['mapto']):
 		debug(sce,mapped_params['mapto'])
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
-			mapped_params['mapto'][key]= stack_write_TexOutput(
+			mapped_params['mapto'][key]= write_TexOutput(
 				ofile,
-				stack_write_shaders(
-					ofile,
-					stack_collapse_layers(mapped_params['mapto'][key])
-				)
+				stack_write_shaders(ofile, stack_collapse_layers(mapped_params['mapto'][key])),
+				{} # TODO: TexOutput params
 			)
 
 	return mapped_params
@@ -693,7 +627,7 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, mapped_params):
 	ofile.write("\n\tbrdf_type= %s;"%(a(sce,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
 	for key in ('diffuse','reflect','refract','translucency_color'):
-		ofile.write("\n\t%s= %s;" % (key, textures[key] if key in textures else defaults[key][0]))
+		ofile.write("\n\t%s= %s;" % (key, a(sce,textures[key]) if key in textures else defaults[key][0]))
 
 	for key in ('roughness','reflect_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
 		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(sce,getattr(BRDFVRayMtl,key))))
@@ -769,7 +703,7 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, textures):
 	ofile.write("\nBRDFSSS2Complex %s {" % brdf_name)
 
 	for key in ('overall_color','diffuse_color','sub_surface_color','scatter_radius','specular_color'):
-		ofile.write("\n\t%s= %s;" % (key, textures[key] if key in textures else a(sce,getattr(BRDFSSS2Complex,key))))
+		ofile.write("\n\t%s= %s;" % (key, a(sce,textures[key]) if key in textures else a(sce,getattr(BRDFSSS2Complex,key))))
 
 	for key in ('specular_amount','specular_glossiness','diffuse_amount'):
 		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(sce,getattr(BRDFSSS2Complex,key))))
@@ -1193,7 +1127,7 @@ def write_object(ob, params, add_params= None):
 	VRayObject=   ob.vray
 	VRayData=     ob.data.vray
 
-	node_name= get_name(ob,"Node",dupli_name= props['dupli_name'])
+	node_name= get_name(ob, "Node", dupli_name= props['dupli_name'])
 
 	ma_name= "Material_no_material"
 
@@ -1361,6 +1295,8 @@ def write_EnvironmentFog(ofile,volume,material):
 	for param in volume[material]['params']:
 		if param == 'light_mode':
 			value= LIGHT_MODE[volume[material]['params'][param]]
+		elif param in ('density_tex','fade_out_tex','emission_mult_tex'):
+			value= "%s::out_intensity" % volume[material]['params'][param]
 		else:
 			value= volume[material]['params'][param]
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
@@ -1471,7 +1407,7 @@ def write_lamp(ob, params, add_params= None):
 			ofile.write("\n\ttex_resolution= %i;" % (512))
 
 	if 'intensity' in textures:
-		ofile.write("\n\tintensity_tex= %s;" % textures['intensity'])
+		ofile.write("\n\tintensity_tex= %s;" % a(sce, "%s::out_intensity" % textures['intensity']))
 
 	if 'shadowColor' in textures:
 		if lamp.type == 'SUN' and vl.direct_type == 'DIRECT':
@@ -1502,6 +1438,10 @@ def write_lamp(ob, params, add_params= None):
 	for param in OBJECT_PARAMS[lamp_type]:
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(sce,vl.subdivs)))
+		elif param == 'shadowRadius' and lamp_type == 'LightDirectMax':
+			ofile.write("\n\t%s= %s;" % (param, a(sce,vl.shadowRadius)))
+			ofile.write("\n\tshadowRadius1= %s;" % a(sce,vl.shadowRadius))
+			ofile.write("\n\tshadowRadius2= %s;" % a(sce,vl.shadowRadius))
 		elif param == 'intensity' and lamp_type == 'LightIES':
 			ofile.write("\n\tpower= %s;"%(a(sce,vl.intensity)))
 		elif param == 'shadow_color':
@@ -1518,7 +1458,7 @@ def write_lamp(ob, params, add_params= None):
 def write_camera(sce, ofile, camera= None, bake= False):
 	def get_distance(ob1, ob2):
 		vec= ob1.location - ob2.location
-		print(vec.length)
+		return vec.length
 		
 	def get_lens_shift(ob):
 		camera= ob.data
@@ -1668,10 +1608,6 @@ def write_settings(sce,ofile):
 	wx= rd.resolution_x * rd.resolution_percentage / 100
 	wy= rd.resolution_y * rd.resolution_percentage / 100
 
-	ofile.write("\nSettingsJPEG SettingsJPEG {")
-	ofile.write("\n\tquality= 100;")
-	ofile.write("\n}\n")
-		
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
 	ofile.write("\n\timg_width= %s;"%(int(wx)))
@@ -1753,8 +1689,8 @@ def write_settings(sce,ofile):
 		ofile.write("\n\tdetail_radius= %.6f;"%(im.detail_radius))
 		ofile.write("\n\tdetail_subdivs_mult= %.6f;"%(im.detail_subdivs_mult))
 		ofile.write("\n\tdetail_scale= %i;"%(SCALE[im.detail_scale]))
-		ofile.write("\n\tinterpolation_mode= %i;"%(INT_MODE[im.interpolationType]))
-		ofile.write("\n\tlookup_mode= %i;"%(LOOK_TYPE[im.lookupType]))
+		ofile.write("\n\tinterpolation_mode= %i;"%(INT_MODE[im.interpolation_mode]))
+		ofile.write("\n\tlookup_mode= %i;"%(LOOK_TYPE[im.lookup_mode]))
 		ofile.write("\n\tshow_calc_phase= %i;"%(im.show_calc_phase))
 		ofile.write("\n\tshow_direct_light= %i;"%(im.show_direct_light))
 		ofile.write("\n\tshow_samples= %i;"%(im.show_samples))
@@ -1765,6 +1701,7 @@ def write_settings(sce,ofile):
 		ofile.write("\n\tauto_save= %d;"%(im.auto_save))
 		ofile.write("\n\tauto_save_file= \"%s\";"%(bpy.path.abspath(im.auto_save_file)))
 		ofile.write("\n\tfile= \"%s\";"%(im.file))
+		ofile.write("\n\tdont_delete= false;")
 		ofile.write("\n}\n")
 
 		ofile.write("\nSettingsDMCGI {")
@@ -1791,11 +1728,21 @@ def write_settings(sce,ofile):
 		ofile.write("\n\tauto_save= %d;"%(lc.auto_save))
 		ofile.write("\n\tauto_save_file= \"%s\";"%(bpy.path.abspath(lc.auto_save_file)))
 		ofile.write("\n\tfile= \"%s\";"%(lc.file))
+		ofile.write("\n\tdont_delete= false;")
 		ofile.write("\n}\n")
 
 	ofile.write("\nSettingsEXR {")
 	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
-	ofile.write("\n\tbits_per_channel= 32;")
+	ofile.write("\n\tbits_per_channel= %d;" % (16 if rd.use_exr_half else 32))
+	ofile.write("\n}\n")
+
+	ofile.write("\nSettingsJPEG SettingsJPEG {")
+	ofile.write("\n\tquality= %d;" % rd.file_quality)
+	ofile.write("\n}\n")
+
+	ofile.write("\nSettingsPNG SettingsPNG {")
+	ofile.write("\n\tcompression= %d;" % int(rd.file_quality / 10))
+	ofile.write("\n\tbits_per_channel= 16;")
 	ofile.write("\n}\n")
 
 	# ofile.write("\nRTEngine {")
@@ -1805,7 +1752,7 @@ def write_settings(sce,ofile):
 	# ofile.write("\n\tgi_depth= 3;")
 	# ofile.write("\n\tgi_reflective_caustics= 1;")
 	# ofile.write("\n\tgi_refractive_caustics= 1;")
-	# ofile.write("\n\tuse_opencl= 0;")
+	# ofile.write("\n\tuse_opencl= 1;")
 	# ofile.write("\n}\n")	
 
 	for channel in VRayScene.render_channels:
