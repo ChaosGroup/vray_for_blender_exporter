@@ -747,7 +747,7 @@ ENV_MAPPING_TYPE= {
 
 ENVIRONMENT_MAPPING= {
 	'SPHERE':   'spherical',
-	'ANGLULAR': 'angular',
+	'ANGULAR':  'angular',
 	'SCREEN':   'screen',
 	'TUBE':     'max_cylindrical',
 	'CUBIC':    'cubic',
