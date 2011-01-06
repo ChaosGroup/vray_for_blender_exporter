@@ -133,20 +133,13 @@ def write_geometry(sce, geometry_file):
 	VRayExporter= VRayScene.exporter
 
 	try:
-		try:
-			bpy.ops.scene.scene_export(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-				use_instances= VRayExporter.use_instances,
-				check_animated= VRayExporter.check_animated,
-			)
-		except:
-			bpy.ops.scene.scene_export(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-			)
+		bpy.ops.scene.scene_export(
+			filepath= geometry_file[:-11],
+			use_active_layers= VRayExporter.mesh_active_layers,
+			use_animation= VRayExporter.animation,
+			use_instances= VRayExporter.use_instances,
+			check_animated= VRayExporter.check_animated,
+		)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
@@ -782,7 +775,8 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
+	#ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
+	ofile.write("\n\tbrdf= %s;" % brdf_name)
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:
