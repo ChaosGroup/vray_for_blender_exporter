@@ -782,7 +782,7 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
+	ofile.write("\n\tbrdf= %s;" % brdf_name)
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:
