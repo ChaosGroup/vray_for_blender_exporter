@@ -1049,10 +1049,11 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 def visible_from_view(object, ca):
 	visibility=	{
 		'all':     True,
+		'camera':  True,
 		'gi':      True,
 		'reflect': True,
 		'refract': True,
-		'shadows': True
+		'shadows': True,
 	}
 
 	VRayCamera= ca.data.vray
@@ -1920,7 +1921,10 @@ def write_scene(sce, bake= False):
 
 			if VRayExporter.active_layers:
 				if not object_on_visible_layers(sce,ob):
-					if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
+					if ob.type == 'LAMP':
+						if VRayScene.use_hidden_lights:
+							pass
+					elif SettingsOptions.geom_doHidden:
 						pass
 					else:
 						continue
