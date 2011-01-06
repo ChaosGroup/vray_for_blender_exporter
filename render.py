@@ -1919,9 +1919,8 @@ def write_scene(sce, bake= False):
 				continue
 
 			if VRayExporter.active_layers:
-				if ob.type == 'LAMP':
-					if not VRayScene.use_hidden_lights:
-						continue
+				if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
+					pass
 				else:
 					if ob.hide_render and not SettingsOptions.geom_doHidden:
 						continue
