@@ -775,7 +775,10 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
+<<<<<<< HEAD
 	#ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
+=======
+>>>>>>> master
 	ofile.write("\n\tbrdf= %s;" % brdf_name)
 	ofile.write("\n}\n")
 
@@ -1015,7 +1018,7 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
 		lamp_name= get_name(lamp,"Light")
-		if not object_on_visible_layers(sce,lamp):
+		if not object_on_visible_layers(sce,lamp) or lamp.hide_render:
 			if not sce.vray.use_hidden_lights:
 				continue
 		if VRayLamp.use_include_exclude:
@@ -1043,10 +1046,11 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 def visible_from_view(object, ca):
 	visibility=	{
 		'all':     True,
+		'camera':  True,
 		'gi':      True,
 		'reflect': True,
 		'refract': True,
-		'shadows': True
+		'shadows': True,
 	}
 
 	VRayCamera= ca.data.vray
@@ -1913,13 +1917,21 @@ def write_scene(sce, bake= False):
 				continue
 
 			if VRayExporter.active_layers:
+				if not object_on_visible_layers(sce,ob):
+					if ob.type == 'LAMP':
+						if VRayScene.use_hidden_lights:
+							pass
+					elif SettingsOptions.geom_doHidden:
+						pass
+					else:
+						continue
+
+			if ob.hide_render:
 				if ob.type == 'LAMP':
 					if not VRayScene.use_hidden_lights:
 						continue
 				else:
-					if ob.hide_render and not SettingsOptions.geom_doHidden:
-						continue
-					if not object_on_visible_layers(sce,ob):
+					if not SettingsOptions.geom_doHidden:
 						continue
 
 			debug(sce,"[%s]: %s"%(ob.type,ob.name))
