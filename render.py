@@ -1016,7 +1016,13 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 	return object_list
 
 
-def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix, ob):
+def write_visible_from_view(ofile, name, base_mtl, params):
+	return ma_name
+
+
+def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,ob,params):
+	visibility= params['visibility']
+
 	lights= []
 	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
@@ -1035,50 +1041,28 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 		else:
 			lights.append(lamp_name)
 
+	base_mtl= material
+	material= "HideFromView_%s" % clean_string(ob.name)
+
+	ofile.write("\nMtlRenderStats %s {" % material)
+	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
+	ofile.write("\n\tvisibility= %s;" % (0 if ob in visibility['all'] or visible == False else 1))
+	ofile.write("\n\tcamera_visibility= %s;" % (0 if ob in visibility['camera'] else 1))
+	ofile.write("\n\tgi_visibility= %s;" % (0 if ob in visibility['gi'] else 1))
+	ofile.write("\n\treflections_visibility= %s;" % (0 if ob in visibility['reflect'] else 1))
+	ofile.write("\n\trefractions_visibility= %s;" % (0 if ob in visibility['refract'] else 1))
+	ofile.write("\n\tshadows_visibility= %s;" % (0 if ob in visibility['shadows'] else 1))
+	ofile.write("\n}\n")
+
 	ofile.write("\nNode %s {"%(name))
 	ofile.write("\n\tobjectID= %d;"%(object_id))
 	ofile.write("\n\tgeometry= %s;"%(geometry))
 	ofile.write("\n\tmaterial= %s;"%(material))
-	ofile.write("\n\tvisible= %s;"%(a(sce,visibility)))
 	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
 	if len(lights):
 		ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
 	ofile.write("\n}\n")
 
-
-def visible_from_view(object, ca):
-	visibility=	{
-		'all':     True,
-		'camera':  True,
-		'gi':      True,
-		'reflect': True,
-		'refract': True,
-		'shadows': True,
-	}
-
-	VRayCamera= ca.data.vray
-
-	if VRayCamera.hide_from_view:
-		for hide_type in visibility:
-			if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
-				if ob in generate_object_list(group_names_string= 'hf_%s' % ca.name):
-					visibility[hide_type]= False
-			else:
-				if ob in generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type)):
-					visibility[hide_type]= False
-
-	return visibility
-
-# TODO:
-# ofile.write("\nMtlRenderStats HideFromView_%s {"%(complex_material[-1]))
-# ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
-# ofile.write("\n\tvisibility= %s;" % visibility['all'])
-# ofile.write("\n\tcamera_visibility= %s;" % visibility['camera'])
-# ofile.write("\n\tgi_visibility= %s;" % visibility['gi'])
-# ofile.write("\n\treflections_visibility= %s;" % visibility['reflect'])
-# ofile.write("\n\trefractions_visibility= %s;" % visibility['refract'])
-# ofile.write("\n\tshadows_visibility= %s;" % visibility['shadows'])
-# ofile.write("\n}\n")
 
 def write_object(ob, params, add_params= None):
 	props= {
@@ -1213,9 +1197,9 @@ def write_object(ob, params, add_params= None):
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
 			if ps.settings.use_render_emitter:
-				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
+				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 	else:
-		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
+		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 
 
 def write_environment(ofile, volumes= None):
@@ -1836,7 +1820,7 @@ def write_scene(sce, bake= False):
 						hair_node_name= "%s_%s" % (ob.name,hair_geom_name)
 
 						write_GeomMayaHair(params['files']['nodes'],ob,ps,hair_geom_name)
-						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world, ob)
+						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world, ob, params)
 				else:
 					particle_objects= []
 					if ps.settings.render_type == 'OBJECT':
@@ -1899,8 +1883,10 @@ def write_scene(sce, bake= False):
 			_write_object_dupli(ob,params,add_params)
 			write_object(ob,params,add_params)
 
-	def write_frame():
+	def write_frame(camera= None):
 		params= {
+			'scene': sce,
+			'camera': camera,
 			'files': files,
 			'filters': {
 				'exported_bitmaps':   [],
@@ -1911,6 +1897,29 @@ def write_scene(sce, bake= False):
 			'types': types,
 			'uv_ids': get_uv_layers(sce),
 		}
+
+		if camera:
+			VRayCamera= ca.data.vray
+
+			visibility= {
+				'all':     [],
+				'camera':  [],
+				'gi':      [],
+				'reflect': [],
+				'refract': [],
+				'shadows': [],
+			}
+
+			if VRayCamera.hide_from_view:
+				for hide_type in visibility:
+					if getattr(VRayCamera, 'hf_%s' % hide_type):
+						if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
+							visibility[hide_type]= generate_object_list(group_names_string= 'hf_%s' % ca.name)
+						else:
+							visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
+
+			params['visibility']= visibility
+			print(visibility)
 
 		write_environment(params['files']['camera'])
 		write_camera(sce,params['files']['camera'],bake= bake)
@@ -1961,11 +1970,11 @@ def write_scene(sce, bake= False):
 		f= sce.frame_start
 		while(f <= sce.frame_end):
 			sce.frame_set(f)
-			write_frame()
+			write_frame(ca)
 			f+= sce.frame_step
 		sce.frame_set(selected_frame)
 	else:
-		write_frame()
+		write_frame(ca)
 
 	if len(types['volume']):
 		write_environment(files['nodes'],[write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
