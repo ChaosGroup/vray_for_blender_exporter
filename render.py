@@ -1021,7 +1021,7 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
 		lamp_name= get_name(lamp,"Light")
-		if not object_on_visible_layers(sce,lamp):
+		if not object_on_visible_layers(sce,lamp) or lamp.hide_render:
 			if not sce.vray.use_hidden_lights:
 				continue
 		if VRayLamp.use_include_exclude:
@@ -1919,12 +1919,18 @@ def write_scene(sce, bake= False):
 				continue
 
 			if VRayExporter.active_layers:
-				if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
-					pass
-				else:
-					if ob.hide_render and not SettingsOptions.geom_doHidden:
+				if not object_on_visible_layers(sce,ob):
+					if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
+						pass
+					else:
 						continue
-					if not object_on_visible_layers(sce,ob):
+
+			if ob.hide_render:
+				if ob.type == 'LAMP':
+					if not VRayScene.use_hidden_lights:
+						continue
+				else:
+					if not SettingsOptions.geom_doHidden:
 						continue
 
 			debug(sce,"[%s]: %s"%(ob.type,ob.name))
