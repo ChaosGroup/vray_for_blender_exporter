@@ -1518,8 +1518,16 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 		colR.prop(module, "prefilter_samples")
 
 		split= layout.split()
-		split.column().prop(module, "use_for_glossy_rays")
-		split.column().prop(module, "multiple_views")
+		split= layout.split()
+		col= split.column()
+		col.prop(module, "use_for_glossy_rays")
+		col.prop(module, "multiple_views")
+		if wide_ui:
+			col= split.column()
+		col.prop(module, "retrace_enabled")
+		sub= col.column()
+		sub.active= module.retrace_enabled
+		sub.prop(module, "retrace_threshold", text="Retrace thresh.")
 
 		split= layout.split()
 		split.label(text="Files:")

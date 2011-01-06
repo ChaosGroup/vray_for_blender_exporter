@@ -489,6 +489,23 @@ def add_properties(parent_struct):
 		default= 1
 	)
 
+	SettingsLightCache.retrace_enabled= BoolProperty(
+		name= "Retrace",
+		description= "Enable retrace of light cache.",
+		default= False
+	)
+
+	SettingsLightCache.retrace_threshold= FloatProperty(
+		name= "Retrace treshold",
+		description= "Retrace treshold, relative to the light cache sample size.",
+		min= 0.0,
+		max= 10.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		precision= 3,
+		default= 1.0
+	)
+
 	SettingsLightCache.depth= IntProperty(
 		name= "Depth",
 		description= "Light cache depth.",

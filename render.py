@@ -782,7 +782,7 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;"%(brdf_name))
+	ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:
@@ -1712,7 +1712,7 @@ def write_settings(sce,ofile):
 		ofile.write("\nSettingsLightCache {")
 		ofile.write("\n\tsubdivs= %.0f;"%(lc.subdivs * dmc.subdivs_mult))
 		ofile.write("\n\tsample_size= %.6f;"%(lc.sample_size))
-		ofile.write("\n\tnum_passes= %i;"% (rd.threads if lc.num_passes_auto else lc.num_passes)) # TODO: auto num passes
+		ofile.write("\n\tnum_passes= %i;"% (rd.threads if lc.num_passes_auto else lc.num_passes))
 		ofile.write("\n\tdepth= %i;"%(lc.depth))
 		ofile.write("\n\tfilter_type= %i;"%(LC_FILT[lc.filter_type]))
 		ofile.write("\n\tfilter_samples= %i;"%(lc.filter_samples))
@@ -1919,8 +1919,9 @@ def write_scene(sce, bake= False):
 				continue
 
 			if VRayExporter.active_layers:
-				if ob.type == 'LAMP' and VRayScene.use_hidden_lights:
-					pass
+				if ob.type == 'LAMP':
+					if not VRayScene.use_hidden_lights:
+						continue
 				else:
 					if ob.hide_render and not SettingsOptions.geom_doHidden:
 						continue
@@ -2017,11 +2018,12 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 				frame_start= GeomMeshFile.frame_start
 				frame_end= GeomMeshFile.frame_end
 
-			# Export first frame to create file without append
+			# Export first frame to create file
 			frame= frame_start
 			sce.frame_set(frame)
 			generate_proxy(sce,ob,vrmesh_filepath)
 			frame+= 1
+			# Export all other frames
 			while(frame <= frame_end):
 				sce.frame_set(frame)
 				generate_proxy(sce,ob,vrmesh_filepath,append=True)
@@ -2252,18 +2254,15 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					'texture':  None,
 					'params':   None
 				},
-				'volume': None,
+				'volume':       None,
 			}
 
-			# TODO
-			#ofile= tempfile.NamedTemporaryFile(mode='w', suffix=".hq", delete=False)
 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
 			ofile.write("\nSettingsOutput {")
 			ofile.write("\n\timg_separateAlpha= 0;")
 			ofile.write("\n\timg_width= %s;"%(int(wx)))
 			ofile.write("\n\timg_height= %s;"%(int(wy)))
 			ofile.write("\n}\n")
-
 			for ob in sce.objects:
 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
 					continue
@@ -2271,11 +2270,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					if ob.name == "Camera":
 						write_camera(sce, ofile, camera= ob)
 				for ms in ob.material_slots:
-					if ob.name == "preview":
-						write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
-					elif ms.material.name in ("checkerlight","checkerdark"):
-						write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
-						
+					if ms.material:
+						if ob.name == "preview":
+							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
+						elif ms.material.name in ("checkerlight","checkerdark"):
+							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
 			ofile.close()
 			del object_params
 			del filters
@@ -2283,6 +2282,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append('-sceneFile=')
 			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
 			params.append('-display=')
+			params.append("0")
+			params.append('-showProgress=')
 			params.append("0")
 			params.append('-imgFile=')
 			params.append(image_file)
