@@ -213,7 +213,7 @@ def get_uv_layers(sce):
 
 	if sce.vray.exporter.debug:
 		for uv_layer in uv_layers:
-			print("UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
+			print("V-Ray/Blender: UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
 
 	return uv_layers
 

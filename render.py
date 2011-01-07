@@ -522,7 +522,7 @@ def write_lamp_textures(ofile, params):
 														slot.use_stencil,
 														VRaySlot.blend_mode))
 	if len(mapped_params['mapto']):
-		debug(sce,mapped_params['mapto'])
+		debug(sce, "V-Ray/Blender: Lamp \"%s\" texture stack: %s" % (la.name,mapped_params['mapto']))
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
@@ -600,7 +600,7 @@ def write_material_textures(ofile, params):
 					)
 
 	if len(mapped_params['mapto']):
-		debug(sce,mapped_params['mapto'])
+		debug(sce, "V-Ray/Blender: Material \"%s\" texture stack: %s" % (ma.name,mapped_params['mapto']))
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
@@ -1919,7 +1919,7 @@ def write_scene(sce, bake= False):
 							visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
 
 			params['visibility']= visibility
-			print(visibility)
+			debug(sce, "Hide from view: %s" %  visibility)
 
 		write_environment(params['files']['camera'])
 		write_camera(sce,params['files']['camera'],bake= bake)
