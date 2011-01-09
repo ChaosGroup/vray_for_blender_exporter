@@ -1042,6 +1042,9 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 			lights.append(lamp_name)
 
 	base_mtl= material
+	if sce.vray.SettingsOptions.mtl_override_on:
+		base_mtl= get_name(bpy.data.materials[sce.vray.SettingsOptions.mtl_override],"Material")
+
 	material= "HideFromView_%s" % clean_string(ob.name)
 
 	ofile.write("\nMtlRenderStats %s {" % material)
@@ -1239,27 +1242,33 @@ def write_environment(ofile, volumes= None):
 				refract_tex_mult= slot.zenith_down_factor
 
 	ofile.write("\nSettingsEnvironment {")
+
 	ofile.write("\n\tbg_color= %s;"%(a(sce,wo.vray.bg_color)))
 	if bg_tex:
 		ofile.write("\n\tbg_tex= %s;"%(bg_tex))
 		ofile.write("\n\tbg_tex_mult= %s;"%(a(sce,bg_tex_mult)))
+
 	if wo.vray.gi_override:
 		ofile.write("\n\tgi_color= %s;"%(a(sce,wo.vray.gi_color)))
 	if gi_tex:
 		ofile.write("\n\tgi_tex= %s;"%(gi_tex))
 		ofile.write("\n\tgi_tex_mult= %s;"%(a(sce,gi_tex_mult)))
+
 	if wo.vray.reflection_override:
 		ofile.write("\n\treflect_color= %s;"%(a(sce,wo.vray.reflection_color)))
 	if reflect_tex:
 		ofile.write("\n\treflect_tex= %s;"%(reflect_tex))
 		ofile.write("\n\treflect_tex_mult= %s;"%(a(sce,reflect_tex_mult)))
+
 	if wo.vray.refraction_override:
 		ofile.write("\n\trefract_color= %s;"%(a(sce,wo.vray.refraction_color)))
 	if refract_tex:
 		ofile.write("\n\trefract_tex= %s;"%(refract_tex))
 		ofile.write("\n\trefract_tex_mult= %s;"%(a(sce,refract_tex_mult)))
+
 	if volumes:
 		ofile.write("\n\tenvironment_volume= List(%s);"%(','.join(volumes)))
+
 	ofile.write("\n}\n")
 
 

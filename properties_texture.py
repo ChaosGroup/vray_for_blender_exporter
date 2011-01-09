@@ -1374,7 +1374,9 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			col.prop(slot, 'offset')
 			if wide_ui:
 				col= split.column()
-			col.prop(slot, 'scale')
+			sub= col.column()
+			sub.active= 0
+			sub.prop(slot, 'scale')
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):

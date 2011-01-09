@@ -1011,11 +1011,9 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		layout.label(text="Materials:")
 		split= layout.split()
 		col= split.column()
-		sub= col.column()
-		sub.active= False
-		sub.prop(SettingsOptions, 'mtl_override_on')
+		col.prop(SettingsOptions, 'mtl_override_on')
 		if SettingsOptions.mtl_override_on:
-			sub.prop_search(SettingsOptions, 'mtl_override', bpy.data, 'materials', text="")
+			col.prop_search(SettingsOptions, 'mtl_override', bpy.data, 'materials', text="")
 		col.prop(SettingsOptions, 'mtl_doMaps')
 		if SettingsOptions.mtl_doMaps:
 			col.prop(SettingsOptions, 'mtl_filterMaps')
@@ -1078,7 +1076,9 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.label(text="Mesh export:")
 		col.prop(ve, 'mesh_active_layers', text= "Active layers")
-		col.prop(ve, 'check_animated')
+		sub= col.column()
+		sub.active= False
+		sub.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
 		#col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')

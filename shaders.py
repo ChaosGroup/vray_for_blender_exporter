@@ -727,15 +727,6 @@ BLEND_MODES= {
 	'ILLUMINATE':  '12',
 }
 
-TRANS_ENV_MAPPING= {
-	'SPHERE': 'spherical',
-	'VIEW':   'screen',
-	'GLOBAL': 'screen',
-	'OBJECT': 'cubic',
-	'TUBE':   'mirror_ball',
-	'ANGMAP': 'angular'
-}
-
 ENV_MAPPING_TYPE= {
 	'SPHERE': 'spherical',
 	'VIEW':   'screen',
@@ -752,6 +743,15 @@ ENVIRONMENT_MAPPING= {
 	'TUBE':     'max_cylindrical',
 	'CUBIC':    'cubic',
 	'MBALL':    'mirror_ball',
+}
+
+TRANS_ENV_MAPPING= {
+	'SPHERE': 'spherical',
+	'VIEW':   'screen',
+	'GLOBAL': 'screen',
+	'OBJECT': 'cubic',
+	'TUBE':   'mirror_ball',
+	'ANGMAP': 'angular'
 }
 
 PROJECTION_MAPPING= {
