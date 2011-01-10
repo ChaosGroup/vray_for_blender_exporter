@@ -302,6 +302,10 @@ def write_geometry(sce, geometry_file):
 				ofile.write(");")
 			ofile.write("\n}\n")
 
+		for t in range(sce.render.threads):
+			ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
+			ofile.close()
+
 		ofile= open(geometry_file, 'w')
 		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 		ofile.write("// Geometry file\n")
@@ -1042,10 +1046,10 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 			lights.append(lamp_name)
 
 	base_mtl= material
-	if sce.vray.SettingsOptions.mtl_override_on:
+	if sce.vray.SettingsOptions.mtl_override_on and sce.vray.SettingsOptions.mtl_override:
 		base_mtl= get_name(bpy.data.materials[sce.vray.SettingsOptions.mtl_override],"Material")
 
-	material= "HideFromView_%s" % clean_string(ob.name)
+	material= "HideFromView_%s" % get_name(ob,'OB')
 
 	ofile.write("\nMtlRenderStats %s {" % material)
 	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
@@ -1058,7 +1062,7 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 	ofile.write("\n}\n")
 
 	ofile.write("\nNode %s {"%(name))
-	ofile.write("\n\tobjectID= %d;"%(object_id))
+	ofile.write("\n\tobjectID= %d;" % (params['objectID'] if 'objectID' in params else object_id))
 	ofile.write("\n\tgeometry= %s;"%(geometry))
 	ofile.write("\n\tmaterial= %s;"%(material))
 	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
@@ -1879,7 +1883,13 @@ def write_scene(sce, bake= False):
 			ob.create_dupli_list(sce)
 			for dup_id,dup_ob in enumerate(ob.dupli_list):
 				dup_name= "%s_%s" % (ob.name,dup_id)
-				_write_object(dup_ob.object, params, {'dupli': True, 'dupli_name': dup_name, 'matrix': dup_ob.matrix})
+				if ob.pass_index:
+					params['objectID']= ob.pass_index
+				_write_object(dup_ob.object, params, {'dupli': True,
+													  'dupli_name': dup_name,
+													  'matrix': dup_ob.matrix})
+				if 'objectID' in params:
+					del params['objectID']
 			ob.free_dupli_list()
 
 	def _write_object(ob, params, add_params= None):

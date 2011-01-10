@@ -119,12 +119,10 @@ MODULES= {
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 
-none_matrix= mathutils.Matrix(
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0]
-)
+try:
+	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
+except:
+	none_matrix= mathutils.Matrix((0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0))
 
 def color(text, color=None):
 	if not color or PLATFORM == 'win32':
