@@ -45,6 +45,12 @@ from vb25.utils import *
 from vb25.shaders import *
 from vb25.plugin_manager import *
 
+''' vb dev modules '''
+try:
+	from vb25.nodes_material import *
+except:
+	pass
+
 
 VERSION= '2.5.10'
 
@@ -983,12 +989,7 @@ def write_materials(ofile,ob,filters,object_params):
 			if ma:
 				if sce.vray.exporter.use_material_nodes and ma.use_nodes and hasattr(ma.node_tree, 'links'):
 					debug(sce,"Writing node material: %s"%(ma.name))
-					nt= ma.node_tree
-					for n in nt.nodes:
-						if n.type in ('OUTPUT', 'MATERIAL', 'MIX_RGB', 'TEXTURE', 'MATERIAL_EXT', 'INVERT'):
-							write_node(ofile, ma, nt, n)
-						else:
-							debug(sce,"Node: %s (unsupported node type: %s)"%(n.name, n.type))
+					write_node_material(params)
 				else:
 					write_material(ma, filters, object_params, ofile, ob= ob, params= {'uv_ids': uv_layers})
 
