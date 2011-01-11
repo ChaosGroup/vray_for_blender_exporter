@@ -255,14 +255,15 @@ def add_properties(rna_pointer):
 	)
 
 	# placement_type
-	TexNoiseMax.placement_type= IntProperty(
-		name= "placement type",
-		description= "The way the valid portion of the texture is applied: 0 - the whole texture is valid, 1 - crop, 2 -place.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
+	TexNoiseMax.placement_type= EnumProperty(
+		name= "Placement type",
+		description= "Image texure placement type.",
+		items= (
+			('FULL', "Full",  "The whole texture is valid."),
+			('CROP', "Crop",  "Crop texture."),
+			('PLACE',"Place", "Place texture."),
+		),
+		default= 'FULL'
 	)
 
 	# u
@@ -533,6 +534,11 @@ def write(ofile, sce, params):
 		'FRACTAL':    1,
 		'TRUBULENCE': 2,
 	}
+	_PLACEMENT_TYPE= {
+		'FULL':  0,
+		'CROP':  1,
+		'PLACE': 2,
+	}
 
 	#ofile= params.get('file')
 	#sce= params.get('scene')
@@ -546,6 +552,8 @@ def write(ofile, sce, params):
 	for param in PARAMS:
 		if param == 'type':
 			value= _TYPE[TexNoiseMax.type]
+		elif param == 'placement_type':
+			value= _PLACEMENT_TYPE[TexNoiseMax.placement_type]
 		else:
 			value= getattr(TexNoiseMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
@@ -603,7 +611,9 @@ class VRAY_TP_TexNoiseMax(TPTexNoiseMax, bpy.types.Panel):
 		col.prop(TexNoiseMax, 'high')
 		col.prop(TexNoiseMax, 'phase')
 
-		# Common params - move to "Common" panel
+		# layout.separator()
+
+		# # Common params - move to "Common" panel
 		# split= layout.split()
 		# col= split.column()
 		# col.prop(TexNoiseMax, 'alpha_from_intensity')

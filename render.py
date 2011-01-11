@@ -972,8 +972,7 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 	ofile.write("\n\tgeometry= %s;"%(geometry))
 	ofile.write("\n\tmaterial= %s;"%(material))
 	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
-	if len(lights):
-		ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
+	ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
 	ofile.write("\n}\n")
 
 
