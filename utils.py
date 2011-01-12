@@ -119,12 +119,10 @@ MODULES= {
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 
-none_matrix= mathutils.Matrix(
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0],
-	[0.0,0.0,0.0]
-)
+try:
+	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
+except:
+	none_matrix= mathutils.Matrix((0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0))
 
 def color(text, color=None):
 	if not color or PLATFORM == 'win32':
@@ -213,7 +211,7 @@ def get_uv_layers(sce):
 
 	if sce.vray.exporter.debug:
 		for uv_layer in uv_layers:
-			print("UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
+			print("V-Ray/Blender: UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
 
 	return uv_layers
 

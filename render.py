@@ -45,6 +45,12 @@ from vb25.utils import *
 from vb25.shaders import *
 from vb25.plugin_manager import *
 
+''' vb dev modules '''
+try:
+	from vb25.nodes_material import *
+except:
+	pass
+
 
 VERSION= '2.5.10'
 
@@ -295,6 +301,10 @@ def write_geometry(sce, geometry_file):
 				ofile.write(");")
 			ofile.write("\n}\n")
 
+		for t in range(sce.render.threads):
+			ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
+			ofile.close()
+
 		ofile= open(geometry_file, 'w')
 		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
 		ofile.write("// Geometry file\n")
@@ -388,6 +398,7 @@ def write_mesh_displace(ofile, mesh, params):
 
 	VRaySlot= slot.texture.vray_slot
 	GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+	displacement_amount= GeomDisplacedMesh.displacement_amount
 
 	if ob:
 		name= "%s_%s" % (plugin, clean_string(ob.name))
@@ -405,7 +416,17 @@ def write_mesh_displace(ofile, mesh, params):
 		ofile.write("\n\tdisplace_2d= 0;")
 		ofile.write("\n\tvector_displacement= 0;")
 	for param in OBJECT_PARAMS[plugin]:
-		ofile.write("\n\t%s= %s;"%(param,a(sce,getattr(GeomDisplacedMesh,param))))
+		if param == 'displacement_amount':
+			if ob and ob.vray.GeomDisplacedMesh.use:
+				if GeomDisplacedMesh.amount_type == 'OVER':
+					value= GeomDisplacedMesh.displacement_amount
+				else:
+					value= GeomDisplacedMesh.amount_mult * displacement_amount
+			else:
+				value= displacement_amount
+		else:
+			value= getattr(GeomDisplacedMesh,param)
+		ofile.write("\n\t%s= %s;"%(param,a(sce,value)))
 	ofile.write("\n}\n")
 
 	return name
@@ -515,7 +536,7 @@ def write_lamp_textures(ofile, params):
 														slot.use_stencil,
 														VRaySlot.blend_mode))
 	if len(mapped_params['mapto']):
-		debug(sce,mapped_params['mapto'])
+		debug(sce, "V-Ray/Blender: Lamp \"%s\" texture stack: %s" % (la.name,mapped_params['mapto']))
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
@@ -593,7 +614,7 @@ def write_material_textures(ofile, params):
 					)
 
 	if len(mapped_params['mapto']):
-		debug(sce,mapped_params['mapto'])
+		debug(sce, "V-Ray/Blender: Material \"%s\" texture stack: %s" % (ma.name,mapped_params['mapto']))
 	
 	for key in mapped_params['mapto']:
 		if len(mapped_params['mapto'][key]):
@@ -873,114 +894,14 @@ def write_multi_material(ofile, ob):
 def write_materials(ofile,ob,filters,object_params):
 	uv_layers= object_params['uv_ids']
 
-	def get_brdf_type(ma):
-		vma= ma.vray
-		if vma.type == 'MTL':
-			if sce.vray.exporter.compat_mode:
-				return 'BRDFLayered'
-			else:
-				return 'BRDFVRayMtl'
-		elif vma.type == 'SSS':
-			return 'BRDFSSS2Complex'
-		elif vma.type == 'EMIT':
-			return 'BRDFLight'
-		else:
-			return ''
-
-	def get_node_name(nt, node):
-		nt_name= get_name(nt,"NodeTree")
-		node_name= "%s_%s"%(nt_name, clean_string(node.name))
-		return node_name
-
-	def find_connected_node(nt, ns):
-		for n in nt.links:
-			if n.to_socket == ns:
-				return n.from_node
-		return None
-
-	def write_node(ofile, ma, nt, no):
-		debug(sce,"  Writing node: %s [%s]"%(no.name, no.type))
-		
-		if no.type == 'OUTPUT':
-			brdf_name= "BRDFDiffuse_no_material"
-
-			for ns in no.inputs:
-				if ns.name == 'Color':
-					color= find_connected_node(nt, ns)
-					brdf_name= "%s_%s_%s"%(ma.name, nt.name, color.name)
-
-			ofile.write("\nMtlSingleBRDF %s {"%(get_name(ma,'Material')))
-			ofile.write("\n\tbrdf= %s;"%(clean_string(brdf_name)))
-			ofile.write("\n}\n")
-
-		elif no.type in ('MATERIAL','MATERIAL_EXT'):
-			write_material(no.material, filters, object_params, ofile)
-
-		elif no.type == 'MIX_RGB':
-			color1= "BRDFDiffuse_no_material"
-			color2= "BRDFDiffuse_no_material"
-			fac= "Color(0.5,0.5,0.5)"
-
-			brdf_name= "%s_%s_%s"%(ma.name, nt.name, no.name)
-
-			for ns in no.inputs:
-				if ns.name == 'Color1':
-					node_color1= find_connected_node(nt, ns)
-				elif ns.name == 'Color2':
-					node_color2= find_connected_node(nt, ns)
-				else:
-					fac= "Color(1.0,1.0,1.0)*%.3f"%(1.0 - ns.default_value[0])
-					node_fac= find_connected_node(nt, ns)
-
-			if node_color1:
-				if node_color1.type in ('MATERIAL','MATERIAL_EXT'):
-					color1= get_name(node_color1.material,'%s_Material' % get_brdf_type(node_color1.material))
-
-			if node_color2:
-				if node_color2.type in ('MATERIAL','MATERIAL_EXT'):
-					color2= get_name(node_color2.material,'%s_Material' % get_brdf_type(node_color2.material))
-				
-			if node_fac:
-				if node_fac.type == 'TEXTURE':
-					weights= write_texture(ofile, sce, {'material': ma,
-														'texture': node_fac.texture})
-			else:
-				weights= "weights_%s"%(clean_string(brdf_name))
-				ofile.write("\nTexAColor %s {"%(weights))
-				ofile.write("\n\tuvwgen= UVWGenChannel_default;")
-				ofile.write("\n\ttexture= %s;"%(fac))
-				ofile.write("\n}\n")
-
-			ofile.write("\nBRDFLayered %s {"%(clean_string(brdf_name)))
-			ofile.write("\n\tbrdfs= List(%s,%s);"%(color1, color2))
-			ofile.write("\n\tweights= List(%s,TexAColor_default_blend);"%(weights))
-			ofile.write("\n\tadditive_mode= 0;") # Shellac
-			ofile.write("\n}\n")
-				
-		elif no.type == 'TEXTURE':
-			tex_name= write_texture(ofile, sce, {'material': ma,
-												 'texture': no.texture})
-
-		elif no.type == 'INVERT':
-			debug(sce,"Node type \"%s\" is currently not implemented."%(no.type))
-
-		else:
-			debug(sce,"Node: %s (unsupported node type: %s)"%(no.name,no.type))
-
 	if len(ob.material_slots):
 		for slot in ob.material_slots:
 			ma= slot.material
 			if ma:
 				if sce.vray.exporter.use_material_nodes and ma.use_nodes and hasattr(ma.node_tree, 'links'):
-					debug(sce,"Writing node material: %s"%(ma.name))
-					nt= ma.node_tree
-					for n in nt.nodes:
-						if n.type in ('OUTPUT', 'MATERIAL', 'MIX_RGB', 'TEXTURE', 'MATERIAL_EXT', 'INVERT'):
-							write_node(ofile, ma, nt, n)
-						else:
-							debug(sce,"Node: %s (unsupported node type: %s)"%(n.name, n.type))
-				else:
-					write_material(ma, filters, object_params, ofile, ob= ob, params= {'uv_ids': uv_layers})
+					debug(sce,"Node materials temporarily disabled...")
+					#write_node_material(params)
+				write_material(ma, filters, object_params, ofile, ob= ob, params= {'uv_ids': uv_layers})
 
 	ma_name= "Material_no_material"
 	if len(ob.material_slots):
@@ -1010,7 +931,13 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 	return object_list
 
 
-def write_node(ofile,name,geometry,material,object_id,visibility,transform_matrix, ob):
+def write_visible_from_view(ofile, name, base_mtl, params):
+	return ma_name
+
+
+def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,ob,params):
+	visibility= params['visibility']
+
 	lights= []
 	for lamp in [ob for ob in sce.objects if ob.type == 'LAMP']:
 		VRayLamp= lamp.data.vray
@@ -1029,50 +956,30 @@ def write_node(ofile,name,geometry,material,object_id,visibility,transform_matri
 		else:
 			lights.append(lamp_name)
 
-	ofile.write("\nNode %s {"%(name))
-	ofile.write("\n\tobjectID= %d;"%(object_id))
-	ofile.write("\n\tgeometry= %s;"%(geometry))
-	ofile.write("\n\tmaterial= %s;"%(material))
-	ofile.write("\n\tvisible= %s;"%(a(sce,visibility)))
-	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
-	if len(lights):
-		ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
+	base_mtl= material
+	if sce.vray.SettingsOptions.mtl_override_on and sce.vray.SettingsOptions.mtl_override:
+		base_mtl= get_name(bpy.data.materials[sce.vray.SettingsOptions.mtl_override],"Material")
+
+	material= "HideFromView_%s" % get_name(ob,'OB')
+
+	ofile.write("\nMtlRenderStats %s {" % material)
+	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
+	ofile.write("\n\tvisibility= %s;" % (0 if ob in visibility['all'] or visible == False else 1))
+	ofile.write("\n\tcamera_visibility= %s;" % (0 if ob in visibility['camera'] else 1))
+	ofile.write("\n\tgi_visibility= %s;" % (0 if ob in visibility['gi'] else 1))
+	ofile.write("\n\treflections_visibility= %s;" % (0 if ob in visibility['reflect'] else 1))
+	ofile.write("\n\trefractions_visibility= %s;" % (0 if ob in visibility['refract'] else 1))
+	ofile.write("\n\tshadows_visibility= %s;" % (0 if ob in visibility['shadows'] else 1))
 	ofile.write("\n}\n")
 
+	ofile.write("\nNode %s {"%(name))
+	ofile.write("\n\tobjectID= %d;" % (params['objectID'] if 'objectID' in params else object_id))
+	ofile.write("\n\tgeometry= %s;"%(geometry))
+	ofile.write("\n\tmaterial= %s;"%(material))
+	ofile.write("\n\ttransform= %s;"%(a(sce,transform(transform_matrix))))
+	ofile.write("\n\tlights= List(%s);"%(','.join(lights)))
+	ofile.write("\n}\n")
 
-def visible_from_view(object, ca):
-	visibility=	{
-		'all':     True,
-		'camera':  True,
-		'gi':      True,
-		'reflect': True,
-		'refract': True,
-		'shadows': True,
-	}
-
-	VRayCamera= ca.data.vray
-
-	if VRayCamera.hide_from_view:
-		for hide_type in visibility:
-			if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
-				if ob in generate_object_list(group_names_string= 'hf_%s' % ca.name):
-					visibility[hide_type]= False
-			else:
-				if ob in generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type)):
-					visibility[hide_type]= False
-
-	return visibility
-
-# TODO:
-# ofile.write("\nMtlRenderStats HideFromView_%s {"%(complex_material[-1]))
-# ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
-# ofile.write("\n\tvisibility= %s;" % visibility['all'])
-# ofile.write("\n\tcamera_visibility= %s;" % visibility['camera'])
-# ofile.write("\n\tgi_visibility= %s;" % visibility['gi'])
-# ofile.write("\n\treflections_visibility= %s;" % visibility['reflect'])
-# ofile.write("\n\trefractions_visibility= %s;" % visibility['refract'])
-# ofile.write("\n\tshadows_visibility= %s;" % visibility['shadows'])
-# ofile.write("\n}\n")
 
 def write_object(ob, params, add_params= None):
 	props= {
@@ -1207,9 +1114,9 @@ def write_object(ob, params, add_params= None):
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
 			if ps.settings.use_render_emitter:
-				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
+				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 	else:
-		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob)
+		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 
 
 def write_environment(ofile, volumes= None):
@@ -1249,27 +1156,33 @@ def write_environment(ofile, volumes= None):
 				refract_tex_mult= slot.zenith_down_factor
 
 	ofile.write("\nSettingsEnvironment {")
+
 	ofile.write("\n\tbg_color= %s;"%(a(sce,wo.vray.bg_color)))
 	if bg_tex:
 		ofile.write("\n\tbg_tex= %s;"%(bg_tex))
 		ofile.write("\n\tbg_tex_mult= %s;"%(a(sce,bg_tex_mult)))
+
 	if wo.vray.gi_override:
 		ofile.write("\n\tgi_color= %s;"%(a(sce,wo.vray.gi_color)))
 	if gi_tex:
 		ofile.write("\n\tgi_tex= %s;"%(gi_tex))
 		ofile.write("\n\tgi_tex_mult= %s;"%(a(sce,gi_tex_mult)))
+
 	if wo.vray.reflection_override:
 		ofile.write("\n\treflect_color= %s;"%(a(sce,wo.vray.reflection_color)))
 	if reflect_tex:
 		ofile.write("\n\treflect_tex= %s;"%(reflect_tex))
 		ofile.write("\n\treflect_tex_mult= %s;"%(a(sce,reflect_tex_mult)))
+
 	if wo.vray.refraction_override:
 		ofile.write("\n\trefract_color= %s;"%(a(sce,wo.vray.refraction_color)))
 	if refract_tex:
 		ofile.write("\n\trefract_tex= %s;"%(refract_tex))
 		ofile.write("\n\trefract_tex_mult= %s;"%(a(sce,refract_tex_mult)))
+
 	if volumes:
 		ofile.write("\n\tenvironment_volume= List(%s);"%(','.join(volumes)))
+
 	ofile.write("\n}\n")
 
 
@@ -1830,7 +1743,7 @@ def write_scene(sce, bake= False):
 						hair_node_name= "%s_%s" % (ob.name,hair_geom_name)
 
 						write_GeomMayaHair(params['files']['nodes'],ob,ps,hair_geom_name)
-						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world, ob)
+						write_node(params['files']['nodes'], hair_node_name, hair_geom_name, ps_material, ob.pass_index, True, ob.matrix_world, ob, params)
 				else:
 					particle_objects= []
 					if ps.settings.render_type == 'OBJECT':
@@ -1880,7 +1793,13 @@ def write_scene(sce, bake= False):
 			ob.create_dupli_list(sce)
 			for dup_id,dup_ob in enumerate(ob.dupli_list):
 				dup_name= "%s_%s" % (ob.name,dup_id)
-				_write_object(dup_ob.object, params, {'dupli': True, 'dupli_name': dup_name, 'matrix': dup_ob.matrix})
+				if ob.pass_index:
+					params['objectID']= ob.pass_index
+				_write_object(dup_ob.object, params, {'dupli': True,
+													  'dupli_name': dup_name,
+													  'matrix': dup_ob.matrix})
+				if 'objectID' in params:
+					del params['objectID']
 			ob.free_dupli_list()
 
 	def _write_object(ob, params, add_params= None):
@@ -1893,8 +1812,10 @@ def write_scene(sce, bake= False):
 			_write_object_dupli(ob,params,add_params)
 			write_object(ob,params,add_params)
 
-	def write_frame():
+	def write_frame(camera= None):
 		params= {
+			'scene': sce,
+			'camera': camera,
 			'files': files,
 			'filters': {
 				'exported_bitmaps':   [],
@@ -1905,6 +1826,29 @@ def write_scene(sce, bake= False):
 			'types': types,
 			'uv_ids': get_uv_layers(sce),
 		}
+
+		if camera:
+			VRayCamera= ca.data.vray
+
+			visibility= {
+				'all':     [],
+				'camera':  [],
+				'gi':      [],
+				'reflect': [],
+				'refract': [],
+				'shadows': [],
+			}
+
+			if VRayCamera.hide_from_view:
+				for hide_type in visibility:
+					if getattr(VRayCamera, 'hf_%s' % hide_type):
+						if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
+							visibility[hide_type]= generate_object_list(group_names_string= 'hf_%s' % ca.name)
+						else:
+							visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
+
+			params['visibility']= visibility
+			debug(sce, "Hide from view: %s" %  visibility)
 
 		write_environment(params['files']['camera'])
 		write_camera(sce,params['files']['camera'],bake= bake)
@@ -1955,11 +1899,11 @@ def write_scene(sce, bake= False):
 		f= sce.frame_start
 		while(f <= sce.frame_end):
 			sce.frame_set(f)
-			write_frame()
+			write_frame(ca)
 			f+= sce.frame_step
 		sce.frame_set(selected_frame)
 	else:
-		write_frame()
+		write_frame(ca)
 
 	if len(types['volume']):
 		write_environment(files['nodes'],[write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
@@ -1998,106 +1942,111 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 
 	def invoke(self, context, event):
 		sce= context.scene
-		ob=  context.object
-
 		timer= time.clock()
 
-		GeomMeshFile= ob.data.vray.GeomMeshFile
+		def _create_proxy(ob):
+			GeomMeshFile= ob.data.vray.GeomMeshFile
 
-		vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else clean_string(ob.name)
-		vrmesh_filename+= ".vrmesh"
+			vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else clean_string(ob.name)
+			vrmesh_filename+= ".vrmesh"
 
-		vrmesh_dirpath= bpy.path.abspath(GeomMeshFile.dirpath)
-		if not os.path.exists(vrmesh_dirpath):
-			os.mkdir(vrmesh_dirpath)
-		vrmesh_filepath= os.path.join(vrmesh_dirpath,vrmesh_filename)
+			vrmesh_dirpath= bpy.path.abspath(GeomMeshFile.dirpath)
+			if not os.path.exists(vrmesh_dirpath):
+				os.mkdir(vrmesh_dirpath)
+			vrmesh_filepath= os.path.join(vrmesh_dirpath,vrmesh_filename)
 
-		if GeomMeshFile.animation:
-			selected_frame= sce.frame_current
-			
-			frame_start= sce.frame_start
-			frame_end= sce.frame_end
-			if GeomMeshFile.animation_range == 'MANUAL':
-				frame_start= GeomMeshFile.frame_start
-				frame_end= GeomMeshFile.frame_end
+			if GeomMeshFile.animation:
+				selected_frame= sce.frame_current
 
-			# Export first frame to create file
-			frame= frame_start
-			sce.frame_set(frame)
-			generate_proxy(sce,ob,vrmesh_filepath)
-			frame+= 1
-			# Export all other frames
-			while(frame <= frame_end):
+				frame_start= sce.frame_start
+				frame_end= sce.frame_end
+				if GeomMeshFile.animation_range == 'MANUAL':
+					frame_start= GeomMeshFile.frame_start
+					frame_end= GeomMeshFile.frame_end
+
+				# Export first frame to create file
+				frame= frame_start
 				sce.frame_set(frame)
-				generate_proxy(sce,ob,vrmesh_filepath,append=True)
+				generate_proxy(sce,ob,vrmesh_filepath)
 				frame+= 1
-			sce.frame_set(selected_frame)
+				# Export all other frames
+				while(frame <= frame_end):
+					sce.frame_set(frame)
+					generate_proxy(sce,ob,vrmesh_filepath,append=True)
+					frame+= 1
+				sce.frame_set(selected_frame)
+			else:
+				generate_proxy(sce,ob,vrmesh_filepath)
+
+			ob_name= ob.name
+			ob_data_name= ob.data.name
+
+			if GeomMeshFile.mode != 'NONE':
+				if GeomMeshFile.mode in ('THIS','REPLACE'):
+					if GeomMeshFile.add_suffix:
+						ob.name+= '_proxy'
+						ob.data.name+= '_proxy'
+
+				if GeomMeshFile.mode == 'THIS':
+					GeomMeshFile.use= True
+					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
+				bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
+				bbox_mesh= bpy.data.meshes.new(ob_data_name+'_proxy')
+				bbox_mesh.from_pydata(ob.bound_box, [], bbox_faces)
+				bbox_mesh.update()
+
+				if GeomMeshFile.mode in ('NEW','REPLACE'):
+					for slot in ob.material_slots:
+						if slot and slot.material:
+							bbox_mesh.materials.append(slot.material)
+
+				if GeomMeshFile.mode == 'NEW':
+					new_ob= bpy.data.objects.new(ob_name+'_proxy', bbox_mesh)
+					sce.objects.link(new_ob)
+					new_ob.matrix_world= ob.matrix_world
+					new_ob.draw_type= 'WIRE'
+					bpy.ops.object.select_all(action='DESELECT')
+					new_ob.select= True
+					sce.objects.active= new_ob
+
+					if GeomMeshFile.apply_transforms:
+						ob.select= True
+						sce.objects.active= ob
+						bpy.ops.object.scale_apply()
+						bpy.ops.object.rotation_apply()
+						bpy.ops.object.location_apply()
+
+					GeomMeshFile= new_ob.data.vray.GeomMeshFile
+					GeomMeshFile.use= True
+					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
+				elif GeomMeshFile.mode == 'REPLACE':
+					original_mesh= ob.data
+
+					ob.data= bbox_mesh
+					ob.draw_type= 'WIRE'
+					for md in ob.modifiers: ob.modifiers.remove(md)
+
+					if GeomMeshFile.apply_transforms:
+						ob.select= True
+						sce.objects.active= ob
+						bpy.ops.object.scale_apply()
+						bpy.ops.object.rotation_apply()
+						bpy.ops.object.location_apply()
+
+					GeomMeshFile= ob.data.vray.GeomMeshFile
+					GeomMeshFile.use= True
+					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
+
+					bpy.data.meshes.remove(original_mesh)
+
+		if len(bpy.context.selected_objects):
+			for ob in bpy.context.selected_objects:
+				_create_proxy(ob)
 		else:
-			generate_proxy(sce,ob,vrmesh_filepath)
+			_create_proxy(context.object)
 
-		ob_name= ob.name
-		ob_data_name= ob.data.name
-
-		if GeomMeshFile.mode != 'NONE':
-			if GeomMeshFile.mode in ('THIS','REPLACE'):
-				if GeomMeshFile.add_suffix:
-					ob.name+= '_proxy'
-					ob.data.name+= '_proxy'
-
-			if GeomMeshFile.mode == 'THIS':
-				GeomMeshFile.use= True
-				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-			bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
-			bbox_mesh= bpy.data.meshes.new(ob_data_name+'_proxy')
-			bbox_mesh.from_pydata(ob.bound_box, [], bbox_faces)
-			bbox_mesh.update()
-
-			if GeomMeshFile.mode in ('NEW','REPLACE'):
-				for slot in ob.material_slots:
-					if slot and slot.material:
-						bbox_mesh.materials.append(slot.material)
-
-			if GeomMeshFile.mode == 'NEW':
-				new_ob= bpy.data.objects.new(ob_name+'_proxy', bbox_mesh)
-				sce.objects.link(new_ob)
-				new_ob.matrix_world= ob.matrix_world
-				new_ob.draw_type= 'WIRE'
-				bpy.ops.object.select_all(action='DESELECT')
-				new_ob.select= True
-				sce.objects.active= new_ob
-
-				if GeomMeshFile.apply_transforms:
-					ob.select= True
-					sce.objects.active= ob
-					bpy.ops.object.scale_apply()
-					bpy.ops.object.rotation_apply()
-					bpy.ops.object.location_apply()
-
-				GeomMeshFile= new_ob.data.vray.GeomMeshFile
-				GeomMeshFile.use= True
-				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-			elif GeomMeshFile.mode == 'REPLACE':
-				original_mesh= ob.data
-
-				ob.data= bbox_mesh
-				ob.draw_type= 'WIRE'
-				for md in ob.modifiers: ob.modifiers.remove(md)
-
-				if GeomMeshFile.apply_transforms:
-					ob.select= True
-					sce.objects.active= ob
-					bpy.ops.object.scale_apply()
-					bpy.ops.object.rotation_apply()
-					bpy.ops.object.location_apply()
-
-				GeomMeshFile= ob.data.vray.GeomMeshFile
-				GeomMeshFile.use= True
-				GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-				bpy.data.meshes.remove(original_mesh)
-		
 		debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
 
 		return{'FINISHED'}
