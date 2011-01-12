@@ -383,6 +383,16 @@ GeomDisplacedMesh.type= EnumProperty(
 	default= 'NOR'
 )
 
+GeomDisplacedMesh.amount_type= EnumProperty(
+	name= "Amount type",
+	description= "Displacement amount type.",
+	items= (
+		('MULT', "Multiply", "Multiply material amount."),
+		('OVER', "Override", "Override material amount.")
+	),
+	default= 'OVER'
+)
+
 GeomDisplacedMesh.displacement_amount= FloatProperty(
 	name= "Amount",
 	description= "Displacement amount.",
@@ -392,6 +402,17 @@ GeomDisplacedMesh.displacement_amount= FloatProperty(
 	soft_max= 0.1,
 	precision= 5,
 	default= 0.02
+)
+
+GeomDisplacedMesh.amount_mult= FloatProperty(
+	name= "Mult",
+	description= "Displacement amount multiplier.",
+	min= 0.0,
+	max= 100.0,
+	soft_min= 0.0,
+	soft_max= 2.0,
+	precision= 3,
+	default= 1.0
 )
 
 GeomDisplacedMesh.displacement_shift= FloatProperty(
@@ -741,7 +762,11 @@ class VRAY_OB_displacement(ObjectButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(GeomDisplacedMesh, 'displacement_amount')
+		col.prop(GeomDisplacedMesh, 'amount_type', text="Amount")
+		if GeomDisplacedMesh.amount_type == 'OVER':
+			col.prop(GeomDisplacedMesh, 'displacement_amount')
+		else:
+			col.prop(GeomDisplacedMesh, 'amount_mult')
 		col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
 		col.prop(GeomDisplacedMesh, 'water_level', slider=True)
 		col.prop(GeomDisplacedMesh, 'resolution')
@@ -758,10 +783,8 @@ class VRAY_OB_displacement(ObjectButtonsPanel, bpy.types.Panel):
 		col.prop(GeomDisplacedMesh, 'filter_texture')
 		if GeomDisplacedMesh.filter_texture:
 			col.prop(GeomDisplacedMesh, 'filter_blur')
-
-		split= layout.split()
-		col= split.column()
 		col.prop(GeomDisplacedMesh, 'use_globals')
+
 		if not GeomDisplacedMesh.use_globals:
 			split= layout.split()
 			col= split.column()
