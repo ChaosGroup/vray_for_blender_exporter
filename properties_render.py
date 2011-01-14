@@ -783,7 +783,7 @@ class VRAY_MT_global_preset(bpy.types.Menu):
 
 
 class RENDER_CHANNELS_OT_add(bpy.types.Operator):
-	bl_idname=      'render_channels.add'
+	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
 	bl_description= "Add render channel"
 
@@ -800,7 +800,7 @@ class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 
 
 class RENDER_CHANNELS_OT_del(bpy.types.Operator):
-	bl_idname=      'render_channels.remove'
+	bl_idname=      'vray.render_channels_remove'
 	bl_label=       "Remove Render Channel"
 	bl_description= "Remove render channel"
 
@@ -818,7 +818,7 @@ class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 
 
 class RENDER_NODES_OT_add(bpy.types.Operator):
-	bl_idname=      'render_nodes.add'
+	bl_idname=      'vray.render_nodes_add'
 	bl_label=       "Add Render Node"
 	bl_description= "Add render node"
 
@@ -833,7 +833,7 @@ class RENDER_NODES_OT_add(bpy.types.Operator):
 
 
 class RENDER_NODES_OT_del(bpy.types.Operator):
-	bl_idname=      'render_nodes.remove'
+	bl_idname=      'vray.render_nodes_remove'
 	bl_label=       "Remove Render Nodel"
 	bl_description= "Remove render node"
 
@@ -956,7 +956,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
-			col.operator('vray_export_meshes', icon='OUTLINER_OB_MESH')
+			col.operator('vray.export_meshes', icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
@@ -1565,8 +1565,8 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 		row= split.row()
 		row.template_list(vsce, 'render_channels', vsce, 'render_channels_index', rows= 3)
 		col= row.column(align=True)
-		col.operator('render_channels.add',    text="", icon="ZOOMIN")
-		col.operator('render_channels.remove', text="", icon="ZOOMOUT")
+		col.operator('vray.render_channels_add',    text="", icon="ZOOMIN")
+		col.operator('vray.render_channels_remove', text="", icon="ZOOMOUT")
 
 		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
 			render_channel= render_channels[vsce.render_channels_index]
@@ -1665,8 +1665,8 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 		row= split.row()
 		row.template_list(module, 'nodes', module, 'nodes_selected', rows= 3)
 		col= row.column(align=True)
-		col.operator('render_nodes.add',    text="", icon="ZOOMIN")
-		col.operator('render_nodes.remove', text="", icon="ZOOMOUT")
+		col.operator('vray.render_nodes_add',    text="", icon="ZOOMIN")
+		col.operator('vray.render_nodes_remove', text="", icon="ZOOMOUT")
 
 		if module.nodes_selected >= 0 and len(module.nodes) > 0:
 			render_node= module.nodes[module.nodes_selected]

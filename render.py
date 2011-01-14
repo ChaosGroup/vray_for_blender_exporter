@@ -134,12 +134,214 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 	os.remove(hq_file.name)
 
 
+def write_geometry_python(sce, geometry_file):
+	sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+
+	VRayScene= sce.vray
+	VRayExporter= VRayScene.exporter
+
+	uv_layers= get_uv_layers(sce)
+
+	exported_meshes= []
+
+	def write_mesh(exported_meshes, ob):
+		me= ob.create_mesh(sce, True, 'RENDER')
+
+		me_name= get_name(ob.data, 'Geom')
+
+		if VRayExporter.use_instances:
+			if me_name in exported_meshes:
+				return
+			exported_meshes.append(me_name)
+
+		if VRayExporter.debug:
+			print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
+				  %(sce.frame_current,
+					ob.name,
+					ob.data.name))
+		else:
+			if PLATFORM == "win32":
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
+								 %(sce.frame_current, ob.data.name))
+			else:
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
+								 %(sce.frame_current, ob.data.name))
+			sys.stdout.flush()
+
+		ofile.write("\nGeomStaticMesh %s {"%(me_name))
+
+		ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
+		for v in me.vertices:
+			if(v.index):
+				ofile.write(",")
+			ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
+		ofile.write(")));")
+
+		ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+			if len(f.vertices) == 4:
+				ofile.write("%d,%d,%d,%d,%d,%d"%(
+					f.vertices[0], f.vertices[1], f.vertices[2],
+					f.vertices[2], f.vertices[3], f.vertices[0]))
+			else:
+				ofile.write("%d,%d,%d"%(
+					f.vertices[0], f.vertices[1], f.vertices[2]))
+		ofile.write(")));")
+
+		ofile.write("\n\tface_mtlIDs= ListInt(")
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+			if len(f.vertices) == 4:
+				ofile.write("%d,%d"%(
+					f.material_index + 1, f.material_index + 1))
+			else:
+				ofile.write("%d"%(
+					f.material_index + 1))
+		ofile.write(");")
+
+		ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+
+			if len(f.vertices) == 4:
+				vertices= (0,1,2,2,3,0)
+			else:
+				vertices= (0,1,2)
+
+			comma= 0
+			for v in vertices:
+				if comma:
+					ofile.write(",")
+				comma= 1
+
+				if f.use_smooth:
+					ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+						tuple(me.vertices[f.vertices[v]].normal)
+					))
+				else:
+					ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+						tuple(f.normal)
+					))
+		ofile.write(")));")
+
+		ofile.write("\n\tfaceNormals= ListInt(")
+		k= 0
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+
+			if len(f.vertices) == 4:
+				vertices= 6
+			else:
+				vertices= 3
+
+			for v in range(vertices):
+				if v:
+					ofile.write(",")
+				ofile.write("%d"%(k))
+				k+= 1
+		ofile.write(");")
+
+		if len(me.uv_textures):
+			ofile.write("\n\tmap_channels= List(")
+
+			for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
+				if uv_texture_idx:
+					ofile.write(",")
+
+				uv_layer_index= get_uv_layer_id(sce, uv_layers, uv_texture.name)
+
+				ofile.write("\n\t\t// %s"%(uv_texture.name))
+				ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
+
+				for f in range(len(uv_texture.data)):
+					if f:
+						ofile.write(",")
+
+					face= uv_texture.data[f]
+
+					for i in range(len(face.uv)):
+						if i:
+							ofile.write(",")
+						ofile.write("Vector(%.6f,%.6f,0.0)"%(
+							face.uv[i][0],
+							face.uv[i][1]
+						))
+
+				ofile.write("),ListInt(")
+
+				k= 0
+				for f in range(len(uv_texture.data)):
+					if f:
+						ofile.write(",")
+
+					face= uv_texture.data[f]
+
+					if len(face.uv) == 4:
+						ofile.write("%i,%i,%i,%i,%i,%i" % (k,k+1,k+2,k+2,k+3,k))
+						k+= 4
+					else:
+						ofile.write("%i,%i,%i" % (k,k+1,k+2))
+						k+= 3
+				ofile.write("))")
+
+			ofile.write(");")
+		ofile.write("\n}\n")
+
+	for t in range(sce.render.threads):
+		ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
+		ofile.close()
+
+	ofile= open(geometry_file, 'w')
+	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
+	ofile.write("// Geometry file\n")
+
+	timer= time.clock()
+
+	OBJECTS= []
+	
+	for ob in sce.objects:
+		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
+			continue
+
+		if ob.data.vray.GeomMeshFile.use:
+			continue
+
+		if VRayExporter.mesh_active_layers:
+			if not object_on_visible_layers(sce,ob):
+				continue
+
+		OBJECTS.append(ob)
+
+	if VRayExporter.animation:
+		cur_frame= sce.frame_current
+		sce.frame_set(sce.frame_start)
+		f= sce.frame_start
+		while(f <= sce.frame_end):
+			exported_meshes= []
+			sce.frame_set(f)
+			for ob in OBJECTS:
+				write_mesh(exported_meshes,ob)
+			f+= sce.frame_step
+		sce.frame_set(cur_frame)
+	else:
+		for ob in OBJECTS:
+			write_mesh(exported_meshes,ob)
+
+	ofile.close()
+	print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
+
+
 def write_geometry(sce, geometry_file):
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
 
 	try:
-		bpy.ops.scene.scene_export(
+		bpy.ops.scene.vray_export_meshes(
 			filepath= geometry_file[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
 			use_animation= VRayExporter.animation,
@@ -147,226 +349,7 @@ def write_geometry(sce, geometry_file):
 			check_animated= VRayExporter.check_animated,
 		)
 	except:
-		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
-
-		uv_layers= get_uv_layers(sce)
-
-		exported_meshes= []
-
-		def write_mesh(exported_meshes, ob):
-			me= ob.create_mesh(sce, True, 'RENDER')
-
-			me_name= get_name(ob.data, 'Geom')
-
-			if VRayExporter.use_instances:
-				if me_name in exported_meshes:
-					return
-				exported_meshes.append(me_name)
-
-			if VRayExporter.debug:
-				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
-					  %(sce.frame_current,
-						ob.name,
-						ob.data.name))
-			else:
-				if PLATFORM == "win32":
-					sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
-									 %(sce.frame_current, ob.data.name))
-				else:
-					sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
-									 %(sce.frame_current, ob.data.name))
-				sys.stdout.flush()
-
-			ofile.write("\nGeomStaticMesh %s {"%(me_name))
-
-			ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
-			for v in me.vertices:
-				if(v.index):
-					ofile.write(",")
-				ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
-			ofile.write(")));")
-
-			ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-				if len(f.vertices) == 4:
-					ofile.write("%d,%d,%d,%d,%d,%d"%(
-						f.vertices[0], f.vertices[1], f.vertices[2],
-						f.vertices[2], f.vertices[3], f.vertices[0]))
-				else:
-					ofile.write("%d,%d,%d"%(
-						f.vertices[0], f.vertices[1], f.vertices[2]))
-			ofile.write(")));")
-
-			ofile.write("\n\tface_mtlIDs= ListInt(")
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-				if len(f.vertices) == 4:
-					ofile.write("%d,%d"%(
-						f.material_index + 1, f.material_index + 1))
-				else:
-					ofile.write("%d"%(
-						f.material_index + 1))
-			ofile.write(");")
-
-			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-
-				if len(f.vertices) == 4:
-					vertices= (0,1,2,2,3,0)
-				else:
-					vertices= (0,1,2)
-
-				comma= 0
-				for v in vertices:
-					if comma:
-						ofile.write(",")
-					comma= 1
-
-					if f.use_smooth:
-						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-							tuple(me.vertices[f.vertices[v]].normal)
-						))
-					else:
-						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-							tuple(f.normal)
-						))
-			ofile.write(")));")
-
-			ofile.write("\n\tfaceNormals= ListInt(")
-			k= 0
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-
-				if len(f.vertices) == 4:
-					vertices= 6
-				else:
-					vertices= 3
-
-				for v in range(vertices):
-					if v:
-						ofile.write(",")
-					ofile.write("%d"%(k))
-					k+= 1
-			ofile.write(");")
-
-			if len(me.uv_textures):
-				ofile.write("\n\tmap_channels= List(")
-
-				for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
-					if uv_texture_idx:
-						ofile.write(",")
-						
-					uv_layer_index= get_uv_layer_id(sce, uv_layers, uv_texture.name)
-
-					ofile.write("\n\t\t// %s"%(uv_texture.name))
-					ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
-
-					for f in range(len(uv_texture.data)):
-						if f:
-							ofile.write(",")
-
-						face= uv_texture.data[f]
-
-						for i in range(len(face.uv)):
-							if i:
-								ofile.write(",")
-							ofile.write("Vector(%.6f,%.6f,0.0)"%(
-								face.uv[i][0],
-								face.uv[i][1]
-							))
-
-					ofile.write("),ListInt(")
-
-					k= 0
-					for f in range(len(uv_texture.data)):
-						if f:
-							ofile.write(",")
-
-						face= uv_texture.data[f]
-
-						if len(face.uv) == 4:
-							ofile.write("%i,%i,%i,%i,%i,%i" % (k,k+1,k+2,k+2,k+3,k))
-							k+= 4
-						else:
-							ofile.write("%i,%i,%i" % (k,k+1,k+2))
-							k+= 3
-					ofile.write("))")
-					
-				ofile.write(");")
-			ofile.write("\n}\n")
-
-		for t in range(sce.render.threads):
-			ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
-			ofile.close()
-
-		ofile= open(geometry_file, 'w')
-		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-		ofile.write("// Geometry file\n")
-
-		timer= time.clock()
-
-		STATIC_OBJECTS= []
-		DYNAMIC_OBJECTS= []
-
-		cur_frame= sce.frame_current
-		sce.frame_set(sce.frame_start)
-
-		for ob in sce.objects:
-			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
-				continue
-
-			if ob.data.vray.GeomMeshFile.use:
-				continue
-
-			if VRayExporter.mesh_active_layers:
-				if not object_on_visible_layers(sce,ob):
-					continue
-
-			dynamic= False
-			if ob.data.animation_data:
-				dynamic= True
-			else:
-				for m in ob.modifiers:
-					# TODO: add more modifiers
-					if m.type in ('ARMATURE', 'SOFT_BODY'):
-						dynamic= True
-						break
-
-			if dynamic:
-				DYNAMIC_OBJECTS.append(ob)
-			else:
-				STATIC_OBJECTS.append(ob)
-
-		for ob in STATIC_OBJECTS:
-			write_mesh(exported_meshes,ob)
-
-		if VRayExporter.animation and len(DYNAMIC_OBJECTS):
-			f= sce.frame_start
-			while(f <= sce.frame_end):
-				exported_meshes= []
-				sce.frame_set(f)
-				for ob in DYNAMIC_OBJECTS:
-					write_mesh(exported_meshes,ob)
-				f+= sce.frame_step
-		else:
-			for ob in DYNAMIC_OBJECTS:
-				write_mesh(exported_meshes,ob)
-
-		sce.frame_set(cur_frame)
-
-		del exported_meshes
-
-		del STATIC_OBJECTS
-		del DYNAMIC_OBJECTS
-
-		ofile.close()
-		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
+		write_geometry_python(sce, geometry_file)
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -1922,8 +1905,8 @@ def write_scene(sce, bake= False):
 '''
   V-Ray Renderer
 '''
-class SCENE_OT_vray_export_meshes(bpy.types.Operator):
-	bl_idname = "vray_export_meshes"
+class VB_export_meshes(bpy.types.Operator):
+	bl_idname = "vray.export_meshes"
 	bl_label = "Export meshes"
 	bl_description = "Export Meshes"
 
@@ -1935,8 +1918,8 @@ class SCENE_OT_vray_export_meshes(bpy.types.Operator):
 		return{'FINISHED'}
 
 
-class SCENE_OT_vray_create_proxy(bpy.types.Operator):
-	bl_idname = "vray_create_proxy"
+class VB_create_proxy(bpy.types.Operator):
+	bl_idname = "vray.create_proxy"
 	bl_label = "Create proxy"
 	bl_description = "Creates proxy from selection."
 
@@ -2157,154 +2140,207 @@ class VRayRenderer(bpy.types.RenderEngine):
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
-class VRayRendererPreview(bpy.types.RenderEngine):
-	bl_idname  = 'VRAY_RENDER_PREVIEW'
-	bl_label   = "V-Ray (git) [material preview]"
-	bl_use_preview = True
+# class VRayRendererPreview(bpy.types.RenderEngine):
+# 	bl_idname  = 'VRAY_RENDER_PREVIEW'
+# 	bl_label   = "V-Ray (git) [material preview]"
+# 	bl_use_preview = True
 	
-	def render(self, scene):
-		global sce
+# 	def render(self, scene):
+# 		global sce
 		
-		sce= scene
-		rd=  scene.render
-		wo=  scene.world
+# 		sce= scene
+# 		rd=  scene.render
+# 		wo=  scene.world
 
-		vsce= sce.vray
-		ve= vsce.exporter
+# 		vsce= sce.vray
+# 		ve= vsce.exporter
 
-		wx= rd.resolution_x * rd.resolution_percentage / 100
-		wy= rd.resolution_y * rd.resolution_percentage / 100
+# 		wx= rd.resolution_x * rd.resolution_percentage / 100
+# 		wy= rd.resolution_y * rd.resolution_percentage / 100
 
-		vb_path= vb_script_path()
+# 		vb_path= vb_script_path()
 
-		params= []
-		params.append(vb_binary_path(sce))
+# 		params= []
+# 		params.append(vb_binary_path(sce))
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
+# 		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+# 		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 		
-		if sce.name == "preview":
-			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
-			load_file= image_file
+# 		if sce.name == "preview":
+# 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
+# 			load_file= image_file
 
-			filters= {
-				'exported_bitmaps':   [],
-				'exported_materials': [],
-				'exported_proxy':     []
-			}
+# 			filters= {
+# 				'exported_bitmaps':   [],
+# 				'exported_materials': [],
+# 				'exported_proxy':     []
+# 			}
 
-			temp_params= {
-				'uv_ids': get_uv_layers(sce),
-			}
+# 			temp_params= {
+# 				'uv_ids': get_uv_layers(sce),
+# 			}
 
-			object_params= {
-				'meshlight': {
-					'on':       False,
-					'material': None
-				},
-				'displace': {
-					'texture':  None,
-					'params':   None
-				},
-				'volume':       None,
-			}
+# 			object_params= {
+# 				'meshlight': {
+# 					'on':       False,
+# 					'material': None
+# 				},
+# 				'displace': {
+# 					'texture':  None,
+# 					'params':   None
+# 				},
+# 				'volume':       None,
+# 			}
 
-			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
-			ofile.write("\nSettingsOutput {")
-			ofile.write("\n\timg_separateAlpha= 0;")
-			ofile.write("\n\timg_width= %s;"%(int(wx)))
-			ofile.write("\n\timg_height= %s;"%(int(wy)))
-			ofile.write("\n}\n")
-			for ob in sce.objects:
-				if ob.type in ('LAMP','ARMATURE','EMPTY'):
-					continue
-				if ob.type == 'CAMERA':
-					if ob.name == "Camera":
-						write_camera(sce, ofile, camera= ob)
-				for ms in ob.material_slots:
-					if ms.material:
-						if ob.name == "preview":
-							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
-						elif ms.material.name in ("checkerlight","checkerdark"):
-							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
-			ofile.close()
-			del object_params
-			del filters
+# 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
+# 			ofile.write("\nSettingsOutput {")
+# 			ofile.write("\n\timg_separateAlpha= 0;")
+# 			ofile.write("\n\timg_width= %s;"%(int(wx)))
+# 			ofile.write("\n\timg_height= %s;"%(int(wy)))
+# 			ofile.write("\n}\n")
+# 			for ob in sce.objects:
+# 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
+# 					continue
+# 				if ob.type == 'CAMERA':
+# 					if ob.name == "Camera":
+# 						write_camera(sce, ofile, camera= ob)
+# 				for ms in ob.material_slots:
+# 					if ms.material:
+# 						if ob.name == "preview":
+# 							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
+# 						elif ms.material.name in ("checkerlight","checkerdark"):
+# 							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
+# 			ofile.close()
+# 			del object_params
+# 			del filters
 		
-			params.append('-sceneFile=')
-			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
-			params.append('-display=')
-			params.append("0")
-			params.append('-showProgress=')
-			params.append("0")
-			params.append('-imgFile=')
-			params.append(image_file)
-		else:
-			if ve.auto_meshes:
-				write_geometry(sce, get_filenames(sce,'geometry'))
-			write_scene(sce)
+# 			params.append('-sceneFile=')
+# 			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
+# 			params.append('-display=')
+# 			params.append("0")
+# 			params.append('-showProgress=')
+# 			params.append("0")
+# 			params.append('-imgFile=')
+# 			params.append(image_file)
+# 		else:
+# 			if ve.auto_meshes:
+# 				write_geometry(sce, get_filenames(sce,'geometry'))
+# 			write_scene(sce)
 
-			if(rd.use_border):
-				x0= wx * rd.border_min_x
-				y0= wy * (1.0 - rd.border_max_y)
-				x1= wx * rd.border_max_x
-				y1= wy * (1.0 - rd.border_min_y)
+# 			if(rd.use_border):
+# 				x0= wx * rd.border_min_x
+# 				y0= wy * (1.0 - rd.border_max_y)
+# 				x1= wx * rd.border_max_x
+# 				y1= wy * (1.0 - rd.border_min_y)
 
-				region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
+# 				region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
 
-				if(rd.use_crop_to_border):
-					params.append('-crop=')
-				else:
-					params.append('-region=')
-				params.append(region)
+# 				if(rd.use_crop_to_border):
+# 					params.append('-crop=')
+# 				else:
+# 					params.append('-region=')
+# 				params.append(region)
 
-			params.append('-sceneFile=')
-			params.append(get_filenames(sce,'scene'))
+# 			params.append('-sceneFile=')
+# 			params.append(get_filenames(sce,'scene'))
 
-			params.append('-display=')
-			params.append("1")
+# 			params.append('-display=')
+# 			params.append("1")
 
-			if ve.image_to_blender:
-				params.append('-autoclose=')
-				params.append('1')
+# 			if ve.image_to_blender:
+# 				params.append('-autoclose=')
+# 				params.append('1')
 
-			if ve.animation:
-				params.append('-frames=')
-				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
-			else:
-				params.append('-frames=')
-				params.append("%d" % sce.frame_current)
+# 			if ve.animation:
+# 				params.append('-frames=')
+# 				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
+# 			else:
+# 				params.append('-frames=')
+# 				params.append("%d" % sce.frame_current)
 
-			params.append('-imgFile=')
-			params.append(image_file)
+# 			params.append('-imgFile=')
+# 			params.append(image_file)
 
-		if ve.debug:
-			print("V-Ray/Blender: Command: %s"%(params))
+# 		if ve.debug:
+# 			print("V-Ray/Blender: Command: %s"%(params))
 
-		if ve.autorun:
-			process= subprocess.Popen(params)
+# 		if ve.autorun:
+# 			process= subprocess.Popen(params)
 
-			while True:
-				if self.test_break():
-					try:
-						process.kill()
-					except:
-						pass
-					break
+# 			while True:
+# 				if self.test_break():
+# 					try:
+# 						process.kill()
+# 					except:
+# 						pass
+# 					break
 
-				if process.poll() is not None:
-					try:
-						if not ve.animation:
-							if ve.image_to_blender or sce.name == "preview":
-								result= self.begin_result(0, 0, int(wx), int(wy))
-								layer= result.layers[0]
-								layer.load_from_file(load_file)
-								self.end_result(result)
-					except:
-						pass
-					break
+# 				if process.poll() is not None:
+# 					try:
+# 						if not ve.animation:
+# 							if ve.image_to_blender or sce.name == "preview":
+# 								result= self.begin_result(0, 0, int(wx), int(wy))
+# 								layer= result.layers[0]
+# 								layer.load_from_file(load_file)
+# 								self.end_result(result)
+# 					except:
+# 						pass
+# 					break
 
-				time.sleep(0.05)
-		else:
-			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
+# 				time.sleep(0.05)
+# 		else:
+# 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
+
+
+# class VRayRendererPreview(bpy.types.RenderEngine):
+# 	bl_label   = "V-Ray (git) [material preview]"
+# 	bl_idname  = 'VRAY_RENDER_PREVIEW'
+# 	bl_use_preview = True
+	
+# 	def render(self, scene):
+# 		global sce
+
+# 		sce= scene
+# 		rd=  scene.render
+		
+# 		wx= rd.resolution_x * rd.resolution_percentage / 100
+# 		wy= rd.resolution_y * rd.resolution_percentage / 100
+
+# 		write_geometry_python(scene, get_filenames(scene,'geometry'))
+# 		write_scene(scene)
+
+# 		image_file= os.path.join(get_filenames(scene,'output'),"preview.exr")
+
+# 		params= []
+# 		params.append(vb_binary_path(scene))
+# 		params.append('-display=')
+# 		params.append("0")
+# 		params.append('-showProgress=')
+# 		params.append("0")
+# 		params.append('-sceneFile=')
+# 		params.append(get_filenames(scene,'scene'))
+# 		params.append('-imgFile=')
+# 		params.append(image_file)
+
+# 		process= subprocess.Popen(params)
+
+# 		while True:
+# 			if self.test_break():
+# 				try:
+# 					process.kill()
+# 				except:
+# 					pass
+# 				break
+
+# 			if process.poll() is not None:
+# 				try:
+# 					result= self.begin_result(0, 0, int(wx), int(wy))
+# 					layer= result.layers[0]
+# 					layer.load_from_file(image_file)
+# 					self.end_result(result)
+# 				except:
+# 					pass
+# 				break
+
+# 			time.sleep(0.05)
 
