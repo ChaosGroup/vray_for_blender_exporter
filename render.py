@@ -896,6 +896,22 @@ def write_multi_material(ofile, ob):
 
 	return mtl_name
 
+# 'VolumeVRayToon'
+#   lineColor: color = Color(0, 0, 0), The color of cartoon line
+#   widthType: integer = 0
+#   lineWidth: float = 1.5
+#   opacity: float = 1
+#   hideInnerEdges: bool = false
+#   normalThreshold: float = 0.7
+#   overlapThreshold: float = 0.95
+#   traceBias: float = 0.2
+#   doSecondaryRays: bool = false
+#   excludeType: integer = 0
+#   excludeList: plugin, unlimited list
+#   lineColor_tex: acolor texture
+#   lineWidth_tex: float texture
+#   opacity_tex: float texture
+#   distortion_tex: float texture
 
 def write_materials(ofile,ob,filters,object_params):
 	uv_layers= object_params['uv_ids']
@@ -1809,6 +1825,8 @@ def write_scene(sce, bake= False):
 			ob.free_dupli_list()
 
 	def _write_object(ob, params, add_params= None):
+		if ob.type in ('CAMERA','ARMATURE'):
+			return
 		if ob.type == 'LAMP':
 			write_lamp(ob,params,add_params)
 		elif ob.type == 'EMPTY':
