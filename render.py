@@ -140,7 +140,7 @@ def write_geometry(sce, geometry_file):
 
 	try:
 		try:
-			bpy.ops.scene.scene_export(
+			bpy.ops.scene.vray_export_meshes(
 				filepath= geometry_file[:-11],
 				use_active_layers= VRayExporter.mesh_active_layers,
 				use_animation= VRayExporter.animation,
@@ -148,11 +148,20 @@ def write_geometry(sce, geometry_file):
 				check_animated= VRayExporter.check_animated,
 			)
 		except:
-			bpy.ops.scene.scene_export(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-			)
+			try:
+				bpy.ops.scene.scene_export(
+					filepath= geometry_file[:-11],
+					use_active_layers= VRayExporter.mesh_active_layers,
+					use_animation= VRayExporter.animation,
+					use_instances= VRayExporter.use_instances,
+					check_animated= VRayExporter.check_animated,
+				)
+			except:
+				bpy.ops.scene.scene_export(
+					filepath= geometry_file[:-11],
+					use_active_layers= VRayExporter.mesh_active_layers,
+					use_animation= VRayExporter.animation,
+				)
 	except:
 		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
 
@@ -1825,7 +1834,7 @@ def write_scene(sce, bake= False):
 			ob.free_dupli_list()
 
 	def _write_object(ob, params, add_params= None):
-		if ob.type in ('CAMERA','ARMATURE'):
+		if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 			return
 		if ob.type == 'LAMP':
 			write_lamp(ob,params,add_params)
@@ -1878,7 +1887,7 @@ def write_scene(sce, bake= False):
 		write_camera(sce,params['files']['camera'],bake= bake)
 
 		for ob in sce.objects:
-			if ob.type in ('CAMERA','ARMATURE'):
+			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 				continue
 
 			if VRayExporter.active_layers:
