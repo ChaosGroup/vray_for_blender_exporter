@@ -392,8 +392,10 @@ CameraPhysical.latency= FloatProperty(
 CameraPhysical.lens_shift= FloatProperty(
 	name="Lens shift",
 	description="Shift lenses for 2-point perspective.",
-	min=0.0,      max=1.0,
-	soft_min=0.0, soft_max=1.0,
+	min=-1.0,
+	max=1.0,
+	soft_min=-1.0,
+	soft_max=1.0,
 	default=0.0
 )
 

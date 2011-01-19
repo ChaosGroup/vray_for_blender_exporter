@@ -1082,11 +1082,11 @@ def write_BRDFMirror(ofile, sce, ma, ma_name, textures):
 	brdf_name= get_random_string()
 
 	ofile.write("\nBRDFMirror %s {"%(brdf_name))
-	if textures['color']:
+	if 'color' in textures:
 		ofile.write("\n\tcolor= %s;"%(textures['color']))
 	else:
 		ofile.write("\n\tcolor= %s;"%(a(sce,"Color(%.6f,%.6f,%.6f)"%(tuple(BRDFVRayMtl.reflect_color)))))
-	if textures['reflect']:
+	if 'reflect' in textures:
 		ofile.write("\n\ttransparency= Color(1.0, 1.0, 1.0);")
 		ofile.write("\n\ttransparency_tex= %s;"%(textures['reflect']))
 	else:
