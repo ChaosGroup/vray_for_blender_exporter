@@ -142,36 +142,6 @@ def write_geometry_python(sce, geometry_file):
 
 	uv_layers= get_uv_layers(sce)
 
-	try:
-		try:
-			bpy.ops.scene.vray_export_meshes(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-				use_instances= VRayExporter.use_instances,
-				check_animated= VRayExporter.check_animated,
-			)
-		except:
-			try:
-				bpy.ops.scene.scene_export(
-					filepath= geometry_file[:-11],
-					use_active_layers= VRayExporter.mesh_active_layers,
-					use_animation= VRayExporter.animation,
-					use_instances= VRayExporter.use_instances,
-					check_animated= VRayExporter.check_animated,
-				)
-			except:
-				bpy.ops.scene.scene_export(
-					filepath= geometry_file[:-11],
-					use_active_layers= VRayExporter.mesh_active_layers,
-					use_animation= VRayExporter.animation,
-				)
-	except:
-		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
-
-		uv_layers= get_uv_layers(sce)
->>>>>>> master
-
 	exported_meshes= []
 
 	def write_mesh(exported_meshes, ob):
@@ -364,22 +334,6 @@ def write_geometry_python(sce, geometry_file):
 
 	ofile.close()
 	print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
-
-
-def write_geometry(sce, geometry_file):
-	VRayScene= sce.vray
-	VRayExporter= VRayScene.exporter
-
-	try:
-		bpy.ops.scene.vray_export_meshes(
-			filepath= geometry_file[:-11],
-			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation= VRayExporter.animation,
-			use_instances= VRayExporter.use_instances,
-			check_animated= VRayExporter.check_animated,
-		)
-	except:
-		write_geometry_python(sce, geometry_file)
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -1953,25 +1907,12 @@ def write_scene(sce, bake= False):
 '''
   V-Ray Renderer
 '''
-class VB_export_meshes(bpy.types.Operator):
-	bl_idname = "vray.export_meshes"
-	bl_label = "Export meshes"
-	bl_description = "Export Meshes"
-
-	def invoke(self, context, event):
-		sce= context.scene
-
-		write_geometry(sce, get_filenames(sce,'geometry'))
-
-		return{'FINISHED'}
-
-
 class VB_create_proxy(bpy.types.Operator):
-	bl_idname = "vray.create_proxy"
-	bl_label = "Create proxy"
+	bl_idname      = "vray.create_proxy"
+	bl_label       = "Create proxy"
 	bl_description = "Creates proxy from selection."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		sce= context.scene
 		timer= time.clock()
 
@@ -2083,6 +2024,35 @@ class VB_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+class VB_export_meshes(bpy.types.Operator):
+	bl_idname      = "vray.export_meshes"
+	bl_label       = "Export meshes"
+	bl_description = "Export meshes into vrscene file."
+
+	def execute(self, context):
+		sce= context.scene
+		# TODO: Ask ideasman
+		#sce= bpy.data.scenes.active
+
+		VRayScene= sce.vray
+		VRayExporter= VRayScene.exporter
+
+		geometry_file= get_filenames(sce,'geometry')
+
+		try:
+			bpy.ops.scene.vray_export_meshes(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+				use_instances= VRayExporter.use_instances,
+				check_animated= VRayExporter.check_animated,
+			)
+		except:
+			write_geometry_python(sce, geometry_file)
+
+		return{'FINISHED'}
+
+
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname  = 'VRAY_RENDER'
 	bl_label   = "V-Ray (git)"
@@ -2102,7 +2072,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayBake= vsce.VRayBake
 
 		if ve.auto_meshes:
-			write_geometry(sce, get_filenames(sce,'geometry'))
+			bpy.ops.vray.export_meshes()
+
 		write_scene(sce, bake= VRayBake.use)
 
 		vb_path= vb_script_path()
@@ -2186,209 +2157,3 @@ class VRayRenderer(bpy.types.RenderEngine):
 				time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-
-
-# class VRayRendererPreview(bpy.types.RenderEngine):
-# 	bl_idname  = 'VRAY_RENDER_PREVIEW'
-# 	bl_label   = "V-Ray (git) [material preview]"
-# 	bl_use_preview = True
-	
-# 	def render(self, scene):
-# 		global sce
-		
-# 		sce= scene
-# 		rd=  scene.render
-# 		wo=  scene.world
-
-# 		vsce= sce.vray
-# 		ve= vsce.exporter
-
-# 		wx= rd.resolution_x * rd.resolution_percentage / 100
-# 		wy= rd.resolution_y * rd.resolution_percentage / 100
-
-# 		vb_path= vb_script_path()
-
-# 		params= []
-# 		params.append(vb_binary_path(sce))
-
-# 		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-# 		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
-		
-# 		if sce.name == "preview":
-# 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
-# 			load_file= image_file
-
-# 			filters= {
-# 				'exported_bitmaps':   [],
-# 				'exported_materials': [],
-# 				'exported_proxy':     []
-# 			}
-
-# 			temp_params= {
-# 				'uv_ids': get_uv_layers(sce),
-# 			}
-
-# 			object_params= {
-# 				'meshlight': {
-# 					'on':       False,
-# 					'material': None
-# 				},
-# 				'displace': {
-# 					'texture':  None,
-# 					'params':   None
-# 				},
-# 				'volume':       None,
-# 			}
-
-# 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
-# 			ofile.write("\nSettingsOutput {")
-# 			ofile.write("\n\timg_separateAlpha= 0;")
-# 			ofile.write("\n\timg_width= %s;"%(int(wx)))
-# 			ofile.write("\n\timg_height= %s;"%(int(wy)))
-# 			ofile.write("\n}\n")
-# 			for ob in sce.objects:
-# 				if ob.type in ('LAMP','ARMATURE','EMPTY'):
-# 					continue
-# 				if ob.type == 'CAMERA':
-# 					if ob.name == "Camera":
-# 						write_camera(sce, ofile, camera= ob)
-# 				for ms in ob.material_slots:
-# 					if ms.material:
-# 						if ob.name == "preview":
-# 							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
-# 						elif ms.material.name in ("checkerlight","checkerdark"):
-# 							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
-# 			ofile.close()
-# 			del object_params
-# 			del filters
-		
-# 			params.append('-sceneFile=')
-# 			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
-# 			params.append('-display=')
-# 			params.append("0")
-# 			params.append('-showProgress=')
-# 			params.append("0")
-# 			params.append('-imgFile=')
-# 			params.append(image_file)
-# 		else:
-# 			if ve.auto_meshes:
-# 				write_geometry(sce, get_filenames(sce,'geometry'))
-# 			write_scene(sce)
-
-# 			if(rd.use_border):
-# 				x0= wx * rd.border_min_x
-# 				y0= wy * (1.0 - rd.border_max_y)
-# 				x1= wx * rd.border_max_x
-# 				y1= wy * (1.0 - rd.border_min_y)
-
-# 				region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
-
-# 				if(rd.use_crop_to_border):
-# 					params.append('-crop=')
-# 				else:
-# 					params.append('-region=')
-# 				params.append(region)
-
-# 			params.append('-sceneFile=')
-# 			params.append(get_filenames(sce,'scene'))
-
-# 			params.append('-display=')
-# 			params.append("1")
-
-# 			if ve.image_to_blender:
-# 				params.append('-autoclose=')
-# 				params.append('1')
-
-# 			if ve.animation:
-# 				params.append('-frames=')
-# 				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
-# 			else:
-# 				params.append('-frames=')
-# 				params.append("%d" % sce.frame_current)
-
-# 			params.append('-imgFile=')
-# 			params.append(image_file)
-
-# 		if ve.debug:
-# 			print("V-Ray/Blender: Command: %s"%(params))
-
-# 		if ve.autorun:
-# 			process= subprocess.Popen(params)
-
-# 			while True:
-# 				if self.test_break():
-# 					try:
-# 						process.kill()
-# 					except:
-# 						pass
-# 					break
-
-# 				if process.poll() is not None:
-# 					try:
-# 						if not ve.animation:
-# 							if ve.image_to_blender or sce.name == "preview":
-# 								result= self.begin_result(0, 0, int(wx), int(wy))
-# 								layer= result.layers[0]
-# 								layer.load_from_file(load_file)
-# 								self.end_result(result)
-# 					except:
-# 						pass
-# 					break
-
-# 				time.sleep(0.05)
-# 		else:
-# 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-
-
-# class VRayRendererPreview(bpy.types.RenderEngine):
-# 	bl_label   = "V-Ray (git) [material preview]"
-# 	bl_idname  = 'VRAY_RENDER_PREVIEW'
-# 	bl_use_preview = True
-	
-# 	def render(self, scene):
-# 		global sce
-
-# 		sce= scene
-# 		rd=  scene.render
-		
-# 		wx= rd.resolution_x * rd.resolution_percentage / 100
-# 		wy= rd.resolution_y * rd.resolution_percentage / 100
-
-# 		write_geometry_python(scene, get_filenames(scene,'geometry'))
-# 		write_scene(scene)
-
-# 		image_file= os.path.join(get_filenames(scene,'output'),"preview.exr")
-
-# 		params= []
-# 		params.append(vb_binary_path(scene))
-# 		params.append('-display=')
-# 		params.append("0")
-# 		params.append('-showProgress=')
-# 		params.append("0")
-# 		params.append('-sceneFile=')
-# 		params.append(get_filenames(scene,'scene'))
-# 		params.append('-imgFile=')
-# 		params.append(image_file)
-
-# 		process= subprocess.Popen(params)
-
-# 		while True:
-# 			if self.test_break():
-# 				try:
-# 					process.kill()
-# 				except:
-# 					pass
-# 				break
-
-# 			if process.poll() is not None:
-# 				try:
-# 					result= self.begin_result(0, 0, int(wx), int(wy))
-# 					layer= result.layers[0]
-# 					layer.load_from_file(image_file)
-# 					self.end_result(result)
-# 				except:
-# 					pass
-# 				break
-
-# 			time.sleep(0.05)
-
