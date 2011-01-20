@@ -142,6 +142,36 @@ def write_geometry_python(sce, geometry_file):
 
 	uv_layers= get_uv_layers(sce)
 
+	try:
+		try:
+			bpy.ops.scene.vray_export_meshes(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+				use_instances= VRayExporter.use_instances,
+				check_animated= VRayExporter.check_animated,
+			)
+		except:
+			try:
+				bpy.ops.scene.scene_export(
+					filepath= geometry_file[:-11],
+					use_active_layers= VRayExporter.mesh_active_layers,
+					use_animation= VRayExporter.animation,
+					use_instances= VRayExporter.use_instances,
+					check_animated= VRayExporter.check_animated,
+				)
+			except:
+				bpy.ops.scene.scene_export(
+					filepath= geometry_file[:-11],
+					use_active_layers= VRayExporter.mesh_active_layers,
+					use_animation= VRayExporter.animation,
+				)
+	except:
+		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+
+		uv_layers= get_uv_layers(sce)
+>>>>>>> master
+
 	exported_meshes= []
 
 	def write_mesh(exported_meshes, ob):
@@ -873,6 +903,22 @@ def write_multi_material(ofile, ob):
 
 	return mtl_name
 
+# 'VolumeVRayToon'
+#   lineColor: color = Color(0, 0, 0), The color of cartoon line
+#   widthType: integer = 0
+#   lineWidth: float = 1.5
+#   opacity: float = 1
+#   hideInnerEdges: bool = false
+#   normalThreshold: float = 0.7
+#   overlapThreshold: float = 0.95
+#   traceBias: float = 0.2
+#   doSecondaryRays: bool = false
+#   excludeType: integer = 0
+#   excludeList: plugin, unlimited list
+#   lineColor_tex: acolor texture
+#   lineWidth_tex: float texture
+#   opacity_tex: float texture
+#   distortion_tex: float texture
 
 def write_materials(ofile,ob,filters,object_params):
 	uv_layers= object_params['uv_ids']
@@ -1786,6 +1832,8 @@ def write_scene(sce, bake= False):
 			ob.free_dupli_list()
 
 	def _write_object(ob, params, add_params= None):
+		if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+			return
 		if ob.type == 'LAMP':
 			write_lamp(ob,params,add_params)
 		elif ob.type == 'EMPTY':
@@ -1837,7 +1885,7 @@ def write_scene(sce, bake= False):
 		write_camera(sce,params['files']['camera'],bake= bake)
 
 		for ob in sce.objects:
-			if ob.type in ('CAMERA','ARMATURE'):
+			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 				continue
 
 			if VRayExporter.active_layers:
