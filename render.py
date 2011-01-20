@@ -334,7 +334,7 @@ def write_geometry(sce, geometry_file):
 		sce.frame_set(sce.frame_start)
 
 		for ob in sce.objects:
-			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY'):
+			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY','LATTICE'):
 				continue
 
 			if ob.data.vray.GeomMeshFile.use:
@@ -2205,8 +2205,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		vsce= sce.vray
 		ve= vsce.exporter
 
-		wx= rd.resolution_x * rd.resolution_percentage / 100
-		wy= rd.resolution_y * rd.resolution_percentage / 100
+		wx= int(rd.resolution_x * rd.resolution_percentage / 100)
+		wy= int(rd.resolution_y * rd.resolution_percentage / 100)
 
 		vb_path= vb_script_path()
 
@@ -2217,6 +2217,64 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 		
 		if sce.name == "preview":
+			if wx < 100:
+				return
+
+			# objects=   []
+			# materials= []
+			# textures=  []
+			
+			# preview_type=   None
+			# preview_object= None
+
+			# for ob in sce.objects:
+			# 	if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
+			# 		continue
+			# 	if object_on_visible_layers(sce,ob):
+			# 		objects.append(ob)
+			# 	for slot in ob.material_slots:
+			# 		if slot and slot.material:
+			# 			if slot.material not in materials:
+			# 				materials.append(slot.material)
+			# 				for texture_slot in slot.material.texture_slots:
+			# 					if texture_slot and texture_slot.texture:
+			# 						if texture_slot.texture not in textures and texture_slot.texture.name != 'fakeshadow':
+			# 							textures.append(texture_slot.texture)
+
+			# for ob in objects:
+			# 	print("Object: %s" % ob.name)
+			# for ma in materials:
+			# 	print("Material: %s" % ma.name)
+			# for tex in textures:
+			# 	print("Texture: %s" % tex.name)
+
+			# for ob in sce.objects:
+			# 	if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
+			# 		continue
+			# 	if not object_on_visible_layers(sce,ob):
+			# 		continue
+			# 	if ob.name == 'texture':
+			# 		preview_type=   'TEXTURE'
+			# 		preview_object=  ob
+			# 		break
+			# 	elif ob.name.find('preview') != -1:
+			# 		preview_type=   'MATERIAL'
+			# 		preview_object=  ob
+			# 		break
+
+			# if not preview_type or not preview_object:
+			# 	return
+			
+			# print("Preview type: %s" % preview_type)
+			# print("Preview object: %s" % preview_object.name)
+
+			# for slot in preview_object.material_slots:
+			# 	if slot and slot.material:
+			# 		print(slot.material)
+			# 		for texture_slot in slot.material.texture_slots:
+			# 			if texture_slot and texture_slot.texture:
+			# 				print(texture_slot.texture)
+
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
 			load_file= image_file
 
@@ -2245,25 +2303,26 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
 			ofile.write("\nSettingsOutput {")
 			ofile.write("\n\timg_separateAlpha= 0;")
-			ofile.write("\n\timg_width= %s;"%(int(wx)))
-			ofile.write("\n\timg_height= %s;"%(int(wy)))
+			ofile.write("\n\timg_width= %s;" % wx)
+			ofile.write("\n\timg_height= %s;" % wy)
 			ofile.write("\n}\n")
 			for ob in sce.objects:
-				if ob.type in ('LAMP','ARMATURE','EMPTY'):
-					continue
 				if ob.type == 'CAMERA':
 					if ob.name == "Camera":
 						write_camera(sce, ofile, camera= ob)
+					continue
+				if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
+					continue
+				if object_on_visible_layers(sce,ob):
+					continue
 				for ms in ob.material_slots:
 					if ms.material:
-						if ob.name == "preview":
+						if ob.name.find("preview") != -1:
 							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
 						elif ms.material.name in ("checkerlight","checkerdark"):
 							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
 			ofile.close()
-			del object_params
-			del filters
-		
+
 			params.append('-sceneFile=')
 			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
 			params.append('-display=')
@@ -2272,12 +2331,13 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append("0")
 			params.append('-imgFile=')
 			params.append(image_file)
+
 		else:
 			if ve.auto_meshes:
 				write_geometry(sce, get_filenames(sce,'geometry'))
 			write_scene(sce)
 
-			if(rd.use_border):
+			if rd.use_border:
 				x0= wx * rd.border_min_x
 				y0= wy * (1.0 - rd.border_max_y)
 				x1= wx * rd.border_max_x
@@ -2311,9 +2371,6 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append('-imgFile=')
 			params.append(image_file)
 
-		if ve.debug:
-			print("V-Ray/Blender: Command: %s"%(params))
-
 		if ve.autorun:
 			process= subprocess.Popen(params)
 
@@ -2329,7 +2386,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 					try:
 						if not ve.animation:
 							if ve.image_to_blender or sce.name == "preview":
-								result= self.begin_result(0, 0, int(wx), int(wy))
+								result= self.begin_result(0, 0, wx, wy)
 								layer= result.layers[0]
 								layer.load_from_file(load_file)
 								self.end_result(result)
@@ -2340,4 +2397,5 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 				time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
+			print("V-Ray/Blender: Command: %s"%(params))
 

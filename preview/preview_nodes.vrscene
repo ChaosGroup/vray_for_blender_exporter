@@ -5,7 +5,13 @@ Node Node_preview {
 	objectID= 0;
 	geometry= Geom_Sphere;
 	material= PREVIEW;
-	transform= interpolate((2,Transform(Matrix(Vector(1.000000, 0.000000, 0.000000),Vector(0.000000, 1.000000, 0.000000),Vector(0.000000, 0.000000, 1.000000)),Vector(0.000000, 0.000000, 1.486360))));
+    transform= interpolate((1,Transform(
+        Matrix(
+             Vector(1.200000, 0.000000, 0.000000),
+             Vector(0.000000, 0.000000, 1.200000),
+             Vector(0.000000, 1.200000, 0.000000)
+        ),
+        Vector(0.0, 0.7, 1.8))));
 }
 
 MtlMulti Material_Data_checkers_001 {
