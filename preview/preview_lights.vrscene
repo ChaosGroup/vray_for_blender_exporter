@@ -33,7 +33,7 @@ LightOmni LightOmni_vb25_preview_area_001 {
 	causticMult= interpolate((2,1.000000));
 	cutoffThreshold= interpolate((2,0.001000));
 	affectDiffuse= interpolate((2,1));
-	affectSpecular= interpolate((2,1));
+	affectSpecular= interpolate((2,0));
 	bumped_below_surface_check= interpolate((2,0));
 	nsamples= interpolate((2,0));
 	diffuse_contribution= interpolate((2,1.000000));
@@ -49,14 +49,14 @@ LightOmni LightOmni_vb25_preview_area_001 {
 
 LightOmni LightOmni_vb25_preview_area {
 	enabled= interpolate((2,1));
-	shadows= interpolate((2,1));
+	shadows= interpolate((2,0));
 	shadowColor= interpolate((2,Color(0.000,0.000,0.000)));
 	shadowBias= interpolate((2,0.000000));
 	causticSubdivs= interpolate((2,1000));
 	causticMult= interpolate((2,1.000000));
 	cutoffThreshold= interpolate((2,0.001000));
 	affectDiffuse= interpolate((2,1));
-	affectSpecular= interpolate((2,1));
+	affectSpecular= interpolate((2,0));
 	bumped_below_surface_check= interpolate((2,0));
 	nsamples= interpolate((2,0));
 	diffuse_contribution= interpolate((2,1.000000));
