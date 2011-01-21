@@ -313,4 +313,4 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.operator('vray_create_proxy', icon='OUTLINER_OB_MESH')
+		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')

@@ -125,7 +125,7 @@ except:
 	none_matrix= mathutils.Matrix((0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0))
 
 def color(text, color=None):
-	if not color or PLATFORM == 'win32':
+	if not color or not PLATFORM == 'linux2':
 		return text
 	if color == 'green':
 		return "\033[0;32m%s\033[0m" % text

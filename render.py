@@ -134,255 +134,204 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 	os.remove(hq_file.name)
 
 
-def write_geometry(sce, geometry_file):
+def write_geometry_python(sce, geometry_file):
+	sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
 
-	try:
-		try:
-			bpy.ops.scene.vray_export_meshes(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-				use_instances= VRayExporter.use_instances,
-				check_animated= VRayExporter.check_animated,
-			)
-		except:
-			try:
-				bpy.ops.scene.scene_export(
-					filepath= geometry_file[:-11],
-					use_active_layers= VRayExporter.mesh_active_layers,
-					use_animation= VRayExporter.animation,
-					use_instances= VRayExporter.use_instances,
-					check_animated= VRayExporter.check_animated,
-				)
-			except:
-				bpy.ops.scene.scene_export(
-					filepath= geometry_file[:-11],
-					use_active_layers= VRayExporter.mesh_active_layers,
-					use_animation= VRayExporter.animation,
-				)
-	except:
-		sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+	uv_layers= get_uv_layers(sce)
 
-		uv_layers= get_uv_layers(sce)
+	exported_meshes= []
 
-		exported_meshes= []
+	def write_mesh(exported_meshes, ob):
+		me= ob.create_mesh(sce, True, 'RENDER')
 
-		def write_mesh(exported_meshes, ob):
-			me= ob.create_mesh(sce, True, 'RENDER')
+		me_name= get_name(ob.data, 'Geom')
 
-			me_name= get_name(ob.data, 'Geom')
+		if VRayExporter.use_instances:
+			if me_name in exported_meshes:
+				return
+			exported_meshes.append(me_name)
 
-			if VRayExporter.use_instances:
-				if me_name in exported_meshes:
-					return
-				exported_meshes.append(me_name)
-
-			if VRayExporter.debug:
-				print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
-					  %(sce.frame_current,
-						ob.name,
-						ob.data.name))
+		if VRayExporter.debug:
+			print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
+				  %(sce.frame_current,
+					ob.name,
+					ob.data.name))
+		else:
+			if PLATFORM == "win32":
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
+								 %(sce.frame_current, ob.data.name))
 			else:
-				if PLATFORM == "win32":
-					sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
-									 %(sce.frame_current, ob.data.name))
-				else:
-					sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
-									 %(sce.frame_current, ob.data.name))
-				sys.stdout.flush()
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
+								 %(sce.frame_current, ob.data.name))
+			sys.stdout.flush()
 
-			ofile.write("\nGeomStaticMesh %s {"%(me_name))
+		ofile.write("\nGeomStaticMesh %s {"%(me_name))
 
-			ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
-			for v in me.vertices:
-				if(v.index):
+		ofile.write("\n\tvertices= interpolate((%d, ListVector("%(sce.frame_current))
+		for v in me.vertices:
+			if(v.index):
+				ofile.write(",")
+			ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
+		ofile.write(")));")
+
+		ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+			if len(f.vertices) == 4:
+				ofile.write("%d,%d,%d,%d,%d,%d"%(
+					f.vertices[0], f.vertices[1], f.vertices[2],
+					f.vertices[2], f.vertices[3], f.vertices[0]))
+			else:
+				ofile.write("%d,%d,%d"%(
+					f.vertices[0], f.vertices[1], f.vertices[2]))
+		ofile.write(")));")
+
+		ofile.write("\n\tface_mtlIDs= ListInt(")
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+			if len(f.vertices) == 4:
+				ofile.write("%d,%d"%(
+					f.material_index + 1, f.material_index + 1))
+			else:
+				ofile.write("%d"%(
+					f.material_index + 1))
+		ofile.write(");")
+
+		ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+
+			if len(f.vertices) == 4:
+				vertices= (0,1,2,2,3,0)
+			else:
+				vertices= (0,1,2)
+
+			comma= 0
+			for v in vertices:
+				if comma:
 					ofile.write(",")
-				ofile.write("Vector(%.6f,%.6f,%.6f)"%(tuple(v.co)))
-			ofile.write(")));")
+				comma= 1
 
-			ofile.write("\n\tfaces= interpolate((%d, ListInt("%(sce.frame_current))
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-				if len(f.vertices) == 4:
-					ofile.write("%d,%d,%d,%d,%d,%d"%(
-						f.vertices[0], f.vertices[1], f.vertices[2],
-						f.vertices[2], f.vertices[3], f.vertices[0]))
+				if f.use_smooth:
+					ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+						tuple(me.vertices[f.vertices[v]].normal)
+					))
 				else:
-					ofile.write("%d,%d,%d"%(
-						f.vertices[0], f.vertices[1], f.vertices[2]))
-			ofile.write(")));")
+					ofile.write("Vector(%.6f,%.6f,%.6f)"%(
+						tuple(f.normal)
+					))
+		ofile.write(")));")
 
-			ofile.write("\n\tface_mtlIDs= ListInt(")
-			for f in me.faces:
-				if f.index:
+		ofile.write("\n\tfaceNormals= ListInt(")
+		k= 0
+		for f in me.faces:
+			if f.index:
+				ofile.write(",")
+
+			if len(f.vertices) == 4:
+				vertices= 6
+			else:
+				vertices= 3
+
+			for v in range(vertices):
+				if v:
 					ofile.write(",")
-				if len(f.vertices) == 4:
-					ofile.write("%d,%d"%(
-						f.material_index + 1, f.material_index + 1))
-				else:
-					ofile.write("%d"%(
-						f.material_index + 1))
-			ofile.write(");")
+				ofile.write("%d"%(k))
+				k+= 1
+		ofile.write(");")
 
-			ofile.write("\n\tnormals= interpolate((%d, ListVector("%(sce.frame_current))
-			for f in me.faces:
-				if f.index:
+		if len(me.uv_textures):
+			ofile.write("\n\tmap_channels= List(")
+
+			for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
+				if uv_texture_idx:
 					ofile.write(",")
 
-				if len(f.vertices) == 4:
-					vertices= (0,1,2,2,3,0)
-				else:
-					vertices= (0,1,2)
+				uv_layer_index= get_uv_layer_id(sce, uv_layers, uv_texture.name)
 
-				comma= 0
-				for v in vertices:
-					if comma:
+				ofile.write("\n\t\t// %s"%(uv_texture.name))
+				ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
+
+				for f in range(len(uv_texture.data)):
+					if f:
 						ofile.write(",")
-					comma= 1
 
-					if f.use_smooth:
-						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-							tuple(me.vertices[f.vertices[v]].normal)
+					face= uv_texture.data[f]
+
+					for i in range(len(face.uv)):
+						if i:
+							ofile.write(",")
+						ofile.write("Vector(%.6f,%.6f,0.0)"%(
+							face.uv[i][0],
+							face.uv[i][1]
 						))
+
+				ofile.write("),ListInt(")
+
+				k= 0
+				for f in range(len(uv_texture.data)):
+					if f:
+						ofile.write(",")
+
+					face= uv_texture.data[f]
+
+					if len(face.uv) == 4:
+						ofile.write("%i,%i,%i,%i,%i,%i" % (k,k+1,k+2,k+2,k+3,k))
+						k+= 4
 					else:
-						ofile.write("Vector(%.6f,%.6f,%.6f)"%(
-							tuple(f.normal)
-						))
-			ofile.write(")));")
+						ofile.write("%i,%i,%i" % (k,k+1,k+2))
+						k+= 3
+				ofile.write("))")
 
-			ofile.write("\n\tfaceNormals= ListInt(")
-			k= 0
-			for f in me.faces:
-				if f.index:
-					ofile.write(",")
-
-				if len(f.vertices) == 4:
-					vertices= 6
-				else:
-					vertices= 3
-
-				for v in range(vertices):
-					if v:
-						ofile.write(",")
-					ofile.write("%d"%(k))
-					k+= 1
 			ofile.write(");")
+		ofile.write("\n}\n")
 
-			if len(me.uv_textures):
-				ofile.write("\n\tmap_channels= List(")
+	for t in range(sce.render.threads):
+		ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
+		ofile.close()
 
-				for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
-					if uv_texture_idx:
-						ofile.write(",")
-						
-					uv_layer_index= get_uv_layer_id(sce, uv_layers, uv_texture.name)
+	ofile= open(geometry_file, 'w')
+	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
+	ofile.write("// Geometry file\n")
 
-					ofile.write("\n\t\t// %s"%(uv_texture.name))
-					ofile.write("\n\t\tList(%d,ListVector("%(uv_layer_index))
+	timer= time.clock()
 
-					for f in range(len(uv_texture.data)):
-						if f:
-							ofile.write(",")
+	OBJECTS= []
+	
+	for ob in sce.objects:
+		if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY','LATTICE'):
+			continue
+		if ob.data.vray.GeomMeshFile.use:
+			continue
+		if VRayExporter.mesh_active_layers:
+			if not object_on_visible_layers(sce,ob):
+				continue
 
-						face= uv_texture.data[f]
+		OBJECTS.append(ob)
 
-						for i in range(len(face.uv)):
-							if i:
-								ofile.write(",")
-							ofile.write("Vector(%.6f,%.6f,0.0)"%(
-								face.uv[i][0],
-								face.uv[i][1]
-							))
-
-					ofile.write("),ListInt(")
-
-					k= 0
-					for f in range(len(uv_texture.data)):
-						if f:
-							ofile.write(",")
-
-						face= uv_texture.data[f]
-
-						if len(face.uv) == 4:
-							ofile.write("%i,%i,%i,%i,%i,%i" % (k,k+1,k+2,k+2,k+3,k))
-							k+= 4
-						else:
-							ofile.write("%i,%i,%i" % (k,k+1,k+2))
-							k+= 3
-					ofile.write("))")
-					
-				ofile.write(");")
-			ofile.write("\n}\n")
-
-		for t in range(sce.render.threads):
-			ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
-			ofile.close()
-
-		ofile= open(geometry_file, 'w')
-		ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-		ofile.write("// Geometry file\n")
-
-		timer= time.clock()
-
-		STATIC_OBJECTS= []
-		DYNAMIC_OBJECTS= []
-
+	if VRayExporter.animation:
 		cur_frame= sce.frame_current
 		sce.frame_set(sce.frame_start)
-
-		for ob in sce.objects:
-			if ob.type in ('LAMP','CAMERA','ARMATURE','EMPTY','LATTICE'):
-				continue
-
-			if ob.data.vray.GeomMeshFile.use:
-				continue
-
-			if VRayExporter.mesh_active_layers:
-				if not object_on_visible_layers(sce,ob):
-					continue
-
-			dynamic= False
-			if ob.data.animation_data:
-				dynamic= True
-			else:
-				for m in ob.modifiers:
-					# TODO: add more modifiers
-					if m.type in ('ARMATURE', 'SOFT_BODY'):
-						dynamic= True
-						break
-
-			if dynamic:
-				DYNAMIC_OBJECTS.append(ob)
-			else:
-				STATIC_OBJECTS.append(ob)
-
-		for ob in STATIC_OBJECTS:
+		f= sce.frame_start
+		while(f <= sce.frame_end):
+			exported_meshes= []
+			sce.frame_set(f)
+			for ob in OBJECTS:
+				write_mesh(exported_meshes,ob)
+			f+= sce.frame_step
+		sce.frame_set(cur_frame)
+	else:
+		for ob in OBJECTS:
 			write_mesh(exported_meshes,ob)
 
-		if VRayExporter.animation and len(DYNAMIC_OBJECTS):
-			f= sce.frame_start
-			while(f <= sce.frame_end):
-				exported_meshes= []
-				sce.frame_set(f)
-				for ob in DYNAMIC_OBJECTS:
-					write_mesh(exported_meshes,ob)
-				f+= sce.frame_step
-		else:
-			for ob in DYNAMIC_OBJECTS:
-				write_mesh(exported_meshes,ob)
-
-		sce.frame_set(cur_frame)
-
-		del exported_meshes
-
-		del STATIC_OBJECTS
-		del DYNAMIC_OBJECTS
-
-		ofile.close()
-		print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
+	ofile.close()
+	print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -393,8 +342,8 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 	for p,particle in enumerate(ps.particles):
 		sys.stdout.write("V-Ray/Blender: Object: %s => Hair: %i\r" % (ob.name, p))
 		sys.stdout.flush()
-		num_hair_vertices.append(str(len(particle.is_hair)))
-		for segment in particle.is_hair:
+		num_hair_vertices.append(str(len(particle.hair)))
+		for segment in particle.hair:
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
 			widths.append(str(0.01)) # TODO
 
@@ -479,43 +428,59 @@ def lamp_defaults(la):
 	}
 
 def material_defaults(ma):
-	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
-	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
-	EnvironmentFog=  ma.vray.EnvironmentFog
+	VRayMaterial=    ma.vray
+	BRDFVRayMtl=     VRayMaterial.BRDFVRayMtl
+	BRDFSSS2Complex= VRayMaterial.BRDFSSS2Complex
+	EnvironmentFog=  VRayMaterial.EnvironmentFog
 
-	return {
-		'diffuse':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
-		'roughness': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE'),
-		'opacity':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
-		
-		'reflect_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE'),
-		'hilight_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE'),
-		
-		'reflect':             (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE'),
-		'anisotropy':          (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE'),
-		'anisotropy_rotation': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE'),
-		'refract':             (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE'),
-		'refract_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE'),
-		'translucency_color':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE'),
+	if VRayMaterial.type == 'MTL':
+		return {
+			'diffuse':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
+			'roughness': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE'),
+			'opacity':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
 
-		'fresnel_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-		'refract_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-		'normal':       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-		'displacement': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-
-		'overall_color':       (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),                   0, 'NONE'),
-		'sub_surface_color':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.sub_surface_color)),  0, 'NONE'),
-		'scatter_radius':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.scatter_radius)),     0, 'NONE'),
-		'diffuse_color':       (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)),      0, 'NONE'),
-		'diffuse_amount':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFSSS2Complex.diffuse_amount]*3)), 0, 'NONE'),
-		'specular_color':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.specular_color)),     0, 'NONE'),
-		'specular_amount':     ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-		'specular_glossiness': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+			'reflect_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE'),
+			'hilight_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE'),
 		
-		'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
-		'emission_tex': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
-		'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
-	}
+			'reflect':             (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE'),
+			'anisotropy':          (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE'),
+			'anisotropy_rotation': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE'),
+			'refract':             (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE'),
+			'refract_glossiness':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE'),
+			'translucency_color':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE'),
+
+			'fresnel_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+			'refract_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+			'normal':       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+			'displacement': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+		}
+
+	elif VRayMaterial.type == 'EMIT':
+		return {
+			'diffuse':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
+			'opacity':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
+		}
+	
+	elif VRayMaterial.type == 'SSS':
+		return {
+			'overall_color':       (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),                   0, 'NONE'),
+			'sub_surface_color':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.sub_surface_color)),  0, 'NONE'),
+			'scatter_radius':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.scatter_radius)),     0, 'NONE'),
+			'diffuse_color':       (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)),      0, 'NONE'),
+			'diffuse_amount':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFSSS2Complex.diffuse_amount]*3)), 0, 'NONE'),
+			'specular_color':      (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.specular_color)),     0, 'NONE'),
+			'specular_amount':     ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+			'specular_glossiness': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+		}
+		
+	elif VRayMaterial.type == 'VOL':
+		return {
+			'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
+			'emission_tex': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
+			'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
+		}
+	else:
+		return None
 
 def write_lamp_textures(ofile, params):
 	la= params['lamp']
@@ -812,6 +777,7 @@ def	write_material(ma, filters, object_params, ofile, name= None, ob= None, para
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
+	#ofile.write("\n\tbrdf= %s;"%(a(sce,brdf_name)))
 	ofile.write("\n\tbrdf= %s;" % brdf_name)
 	ofile.write("\n}\n")
 
@@ -1785,7 +1751,10 @@ def write_scene(sce, bake= False):
 						continue
 
 					for p,particle in enumerate(ps.particles):
-						sys.stdout.write("V-Ray/Blender: Object: \033[0;33m%s\033[0m => Particle: \033[0;32m%i\033[0m\r" % (ob.name, p))
+						if PLATFORM == "linux2":
+							sys.stdout.write("V-Ray/Blender: Object: \033[0;33m%s\033[0m => Particle: \033[0;32m%i\033[0m\r" % (ob.name, p))
+						else:
+							sys.stdout.write("V-Ray/Blender: Object: %s => Particle: %i\r" % (ob.name, p))
 						sys.stdout.flush()
 						
 						location= particle.location
@@ -1955,25 +1924,12 @@ def write_scene(sce, bake= False):
 '''
   V-Ray Renderer
 '''
-class SCENE_OT_vray_export_meshes(bpy.types.Operator):
-	bl_idname = "vray_export_meshes"
-	bl_label = "Export meshes"
-	bl_description = "Export Meshes"
-
-	def invoke(self, context, event):
-		sce= context.scene
-
-		write_geometry(sce, get_filenames(sce,'geometry'))
-
-		return{'FINISHED'}
-
-
-class SCENE_OT_vray_create_proxy(bpy.types.Operator):
-	bl_idname = "vray_create_proxy"
-	bl_label = "Create proxy"
+class VRAY_OT_create_proxy(bpy.types.Operator):
+	bl_idname      = "vray.create_proxy"
+	bl_label       = "Create proxy"
 	bl_description = "Creates proxy from selection."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		sce= context.scene
 		timer= time.clock()
 
@@ -2085,9 +2041,38 @@ class SCENE_OT_vray_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+class VRAY_OT_write_geometry(bpy.types.Operator):
+	bl_idname      = "vray.write_geometry"
+	bl_label       = "Export meshes"
+	bl_description = "Export meshes into vrscene file."
+
+	def execute(self, context):
+		sce= context.scene
+		# TODO: Ask ideasman
+		#sce= bpy.data.scenes.active
+
+		VRayScene= sce.vray
+		VRayExporter= VRayScene.exporter
+
+		geometry_file= get_filenames(sce,'geometry')
+
+		try:
+			bpy.ops.vray.export_meshes(
+				filepath= geometry_file[:-11],
+				use_active_layers= VRayExporter.mesh_active_layers,
+				use_animation= VRayExporter.animation,
+				use_instances= VRayExporter.use_instances,
+				check_animated= VRayExporter.check_animated,
+			)
+		except:
+			write_geometry_python(sce, geometry_file)
+
+		return{'FINISHED'}
+
+
 class VRayRenderer(bpy.types.RenderEngine):
-	bl_idname  = 'VRAY_RENDER'
-	bl_label   = "V-Ray (git)"
+	bl_idname      = 'VRAY_RENDER'
+	bl_label       = "V-Ray (git)"
 	bl_use_preview = False
 	
 	def render(self, scene):
@@ -2104,7 +2089,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayBake= vsce.VRayBake
 
 		if ve.auto_meshes:
-			write_geometry(sce, get_filenames(sce,'geometry'))
+			bpy.ops.vray.write_geometry()
+
 		write_scene(sce, bake= VRayBake.use)
 
 		vb_path= vb_script_path()
@@ -2158,9 +2144,6 @@ class VRayRenderer(bpy.types.RenderEngine):
 		params.append('-imgFile=')
 		params.append(image_file)
 
-		if ve.debug:
-			print("V-Ray/Blender: Command: %s" % ' '.join(params))
-
 		if ve.autorun:
 			process= subprocess.Popen(params)
 
@@ -2175,9 +2158,6 @@ class VRayRenderer(bpy.types.RenderEngine):
 				if process.poll() is not None:
 					try:
 						if not ve.animation and ve.image_to_blender:
-							# if rd.use_border and not rd.use_crop_to_border:
-							# 	wx= rd.resolution_x * rd.resolution_percentage / 100
-							# 	wy= rd.resolution_y * rd.resolution_percentage / 100
 							result= self.begin_result(0, 0, int(wx), int(wy))
 							result.layers[0].load_from_file(load_file)
 							self.end_result(result)
@@ -2188,11 +2168,12 @@ class VRayRenderer(bpy.types.RenderEngine):
 				time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
+			print("V-Ray/Blender: Command: %s" % ' '.join(params))
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):
-	bl_idname  = 'VRAY_RENDER_PREVIEW'
-	bl_label   = "V-Ray (git) [material preview]"
+	bl_idname      = 'VRAY_RENDER_PREVIEW'
+	bl_label       = "V-Ray (git) [material preview]"
 	bl_use_preview = True
 	
 	def render(self, scene):
@@ -2208,72 +2189,15 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		wx= int(rd.resolution_x * rd.resolution_percentage / 100)
 		wy= int(rd.resolution_y * rd.resolution_percentage / 100)
 
-		vb_path= vb_script_path()
+		vb_path=   vb_script_path()
+		vray_path= vb_binary_path(sce)
 
 		params= []
-		params.append(vb_binary_path(sce))
+		params.append(vray_path)
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
-		
 		if sce.name == "preview":
 			if wx < 100:
 				return
-
-			# objects=   []
-			# materials= []
-			# textures=  []
-			
-			# preview_type=   None
-			# preview_object= None
-
-			# for ob in sce.objects:
-			# 	if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
-			# 		continue
-			# 	if object_on_visible_layers(sce,ob):
-			# 		objects.append(ob)
-			# 	for slot in ob.material_slots:
-			# 		if slot and slot.material:
-			# 			if slot.material not in materials:
-			# 				materials.append(slot.material)
-			# 				for texture_slot in slot.material.texture_slots:
-			# 					if texture_slot and texture_slot.texture:
-			# 						if texture_slot.texture not in textures and texture_slot.texture.name != 'fakeshadow':
-			# 							textures.append(texture_slot.texture)
-
-			# for ob in objects:
-			# 	print("Object: %s" % ob.name)
-			# for ma in materials:
-			# 	print("Material: %s" % ma.name)
-			# for tex in textures:
-			# 	print("Texture: %s" % tex.name)
-
-			# for ob in sce.objects:
-			# 	if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
-			# 		continue
-			# 	if not object_on_visible_layers(sce,ob):
-			# 		continue
-			# 	if ob.name == 'texture':
-			# 		preview_type=   'TEXTURE'
-			# 		preview_object=  ob
-			# 		break
-			# 	elif ob.name.find('preview') != -1:
-			# 		preview_type=   'MATERIAL'
-			# 		preview_object=  ob
-			# 		break
-
-			# if not preview_type or not preview_object:
-			# 	return
-			
-			# print("Preview type: %s" % preview_type)
-			# print("Preview object: %s" % preview_object.name)
-
-			# for slot in preview_object.material_slots:
-			# 	if slot and slot.material:
-			# 		print(slot.material)
-			# 		for texture_slot in slot.material.texture_slots:
-			# 			if texture_slot and texture_slot.texture:
-			# 				print(texture_slot.texture)
 
 			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
 			load_file= image_file
@@ -2333,8 +2257,11 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 			params.append(image_file)
 
 		else:
+			image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+			load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
+
 			if ve.auto_meshes:
-				write_geometry(sce, get_filenames(sce,'geometry'))
+				bpy.ops.vray.write_geometry()
 			write_scene(sce)
 
 			if rd.use_border:
@@ -2397,5 +2324,4 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 				time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-			print("V-Ray/Blender: Command: %s"%(params))
-
+			print("V-Ray/Blender: Command: %s" % ' '.join(params))
