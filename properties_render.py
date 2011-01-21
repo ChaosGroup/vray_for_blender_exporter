@@ -956,7 +956,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
-			col.operator('vray.export_meshes', icon='OUTLINER_OB_MESH')
+			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
 
 		split= layout.split()
 		col= split.column()
