@@ -160,11 +160,11 @@ def write_geometry_python(sce, geometry_file):
 					ob.name,
 					ob.data.name))
 		else:
-			if PLATFORM == "win32":
-				sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
+			if PLATFORM == "linux2":
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
 								 %(sce.frame_current, ob.data.name))
 			else:
-				sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
+				sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
 								 %(sce.frame_current, ob.data.name))
 			sys.stdout.flush()
 
@@ -1883,10 +1883,10 @@ def write_scene(sce, bake= False):
 				if ob.data:
 					debug(sce,"  Data animated: %d"%(1 if ob.data.animation_data else 0))
 			if not VRayExporter.debug:
-				if PLATFORM == "win32":
-					sys.stdout.write("V-Ray/Blender: [%d] %s: %s                              \r"%(sce.frame_current, ob.type, ob.name))
-				else:
+				if PLATFORM == "linux2":
 					sys.stdout.write("V-Ray/Blender: [%d] %s: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.type, ob.name))
+				else:
+					sys.stdout.write("V-Ray/Blender: [%d] %s: %s                              \r"%(sce.frame_current, ob.type, ob.name))
 				sys.stdout.flush()
 
 			_write_object(ob, params)
