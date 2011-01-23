@@ -557,6 +557,7 @@ def write(ofile, sce, params):
 		else:
 			value= getattr(TexNoiseMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+	ofile.write("\n\tuvwgen= UVWGenChannel_default;") # TEMP
 	ofile.write("\n}\n")
 
 	return tex_name
