@@ -244,8 +244,8 @@ class DataButtonsPanel():
 
 
 class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
-	bl_label = "Proxy"
-	bl_default_closed = True
+	bl_label   = "Proxy"
+	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 

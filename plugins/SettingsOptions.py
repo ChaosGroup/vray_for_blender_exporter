@@ -226,13 +226,15 @@ def add_properties(parent_struct):
 	)
 
 
-def write(ofile, sce, rna_pointer):
-	VRayScene= sce.vray
+def write(ofile, scene, rna_pointer):
+	VRayScene=       scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
-	ofile.write("\n%s {" % PLUG)
+	ofile.write("\n%s %s {" % (PLUG, PLUG))
 	for param in PARAMS:
 		if param == 'mtl_override':
+			# Not implemented in V-Ray plugin
+			# override is done in "Node" export function
 			continue
 		else:
 			value= getattr(SettingsOptions, param)

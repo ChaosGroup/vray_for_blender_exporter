@@ -634,7 +634,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 
 				split= layout.split()
 				col= split.column()
-				col.operator('vray_add_sky', icon='TEXTURE')
+				col.operator('vray.add_sky', icon='TEXTURE')
 
 		elif lamp.type == 'SPOT':
 			if vl.spot_type == 'SPOT':
@@ -788,11 +788,11 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 
 
 class VRAY_OT_add_sky(bpy.types.Operator):
-	bl_idname = "vray_add_sky"
-	bl_label  = "Add Sky texture"
+	bl_idname      = "vray.add_sky"
+	bl_label       = "Add Sky texture"
 	bl_description = "Add Sky texture to the background."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		sce= context.scene
 
 		try:

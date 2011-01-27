@@ -1,28 +1,26 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -32,7 +30,7 @@ import bpy
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.plugin_manager import *
+from vb25.plugins import *
 
 
 OBJECT_PARAMS= {
@@ -581,20 +579,6 @@ PHYS= {
 	'VIDEO':     2
 }
 
-SEQTYPE= {
-	'HILBERT':   5,
-	'TRIANGLE':  4,
-	'IOSPIRAL':  3,
-	'TBCHECKER': 2,
-	'LRWIPE':    1,
-	'TBWIPE':    0
-}
-
-XYMEANS= {
-	'BUCKETS': 1,
-	'SIZE':    0
-}
-
 COLOR_MAPPING_TYPE= {
 	'LNR':  0,
 	'EXP':  1,
@@ -611,62 +595,6 @@ IMAGE_SAMPLER_TYPE= {
 	'SBD': 2
 }
 
-PRIMARY= {
-	'IM':  0,
-	'PM':  1,
-	'BF':  2,
-	'LC':  3
-}
-
-SECONDARY= {
-	'NONE':  0,
-	'PM':    1,
-	'BF':    2,
-	'LC':    3
-}
-
-SCALE= {
-	'SCREEN':  0,
-	'WORLD':   1
-}
-
-IM_MODE= {
-	'SINGLE':    0,
-	'INC':       1,
-	'FILE':      2,
-	'ADD':       3,
-	'ADD_INC':   4,
-	'BUCKET':    5,
-	'ANIM_PRE':  6,
-	'ANIM_REND': 7
-}
-
-INT_MODE= {
-	'VORONOI':   0,
-	'LEAST':     1,
-	'DELONE':    2,
-	'WEIGHTED':  3
-}
-
-LOOK_TYPE= {
-	'QUAD':     0,
-	'NEAREST':  1,
-	'OVERLAP':  2,
-	'DENSITY':  3
-}
-
-LC_FILT= {
-	'NONE':    0,
-	'NEAREST': 1,
-	'FIXED':   2
-}
-
-LC_MODE= {
-	'SINGLE':  0,
-	'FLY':     1,
-	'FILE':    2,
-	'PPT':     3
-}
 
 BRDF_TYPE= {
 	'PHONG': 0,

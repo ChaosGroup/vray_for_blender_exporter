@@ -119,8 +119,8 @@ def add_properties(parent_struct):
 		name= "Mode",
 		description= "Caustics computaion mode.",
 		items= (
-			('FILE',"From file",""),
-			('NEW',"New","")
+			('FILE', "From file", ""),
+			('NEW',  "New",       ""),
 		),
 		default= 'NEW'
 	)

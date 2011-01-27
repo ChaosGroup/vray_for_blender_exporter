@@ -1,28 +1,26 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -43,7 +41,7 @@ import mathutils
 ''' vb modules '''
 from vb25.utils import *
 from vb25.shaders import *
-from vb25.plugin_manager import *
+from vb25.plugins import *
 
 ''' vb dev modules '''
 try:
@@ -135,7 +133,7 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 
 
 def write_geometry_python(sce, geometry_file):
-	sys.stdout.write("V-Ray/Blender: Exporting meshes...\n")
+	debug(sce, "Writing meshes...")
 
 	VRayScene= sce.vray
 	VRayExporter= VRayScene.exporter
@@ -154,19 +152,14 @@ def write_geometry_python(sce, geometry_file):
 				return
 			exported_meshes.append(me_name)
 
-		if VRayExporter.debug:
-			print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
-				  %(sce.frame_current,
-					ob.name,
-					ob.data.name))
-		else:
-			if PLATFORM == "win32":
-				sys.stdout.write("V-Ray/Blender: [%i] Mesh: %s                              \r"
-								 %(sce.frame_current, ob.data.name))
+			if PLATFORM == "linux2":
+				debug(sce,
+					"{0}: Mesh: \033[0;32m{1:<32}\033[0m".format(sce.frame_current, ob.data.name),
+					True if VRayExporter.debug else False)
 			else:
-				sys.stdout.write("V-Ray/Blender: [%i] Mesh: \033[0;32m%s\033[0m                              \r"
-								 %(sce.frame_current, ob.data.name))
-			sys.stdout.flush()
+				debug(sce,
+					"{0}: Mesh: {1:<32}".format(sce.frame_current, ob.data.name),
+					True if VRayExporter.debug else False)
 
 		ofile.write("\nGeomStaticMesh %s {"%(me_name))
 
@@ -333,7 +326,7 @@ def write_geometry_python(sce, geometry_file):
 			write_mesh(exported_meshes,ob)
 
 	ofile.close()
-	print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
+	debug(sce, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -1488,188 +1481,6 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n}\n")
 
 
-def write_settings(sce,ofile):
-	rd= sce.render
-	
-	VRayScene=    sce.vray
-	VRayExporter= VRayScene.exporter
-	VRayDR=       VRayScene.VRayDR
-	
-	ofile.write("// V-Ray/Blender %s\n"%(VERSION))
-	ofile.write("// Settings\n\n")
-
-	for f in ('materials', 'lights', 'nodes', 'camera'):
-		if VRayDR.on:
-			if VRayDR.type == 'UU':
-				ofile.write("#include \"%s\"\n" % get_filenames(sce,f))
-			elif VRayDR.type == 'WU':
-				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(sce,f)))))
-			else:
-				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(sce,f)))))
-		else:
-			ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(sce,f))))
-
-	for t in range(rd.threads):
-		ofile.write("#include \"%s_%.2i.vrscene\"\n" % (os.path.basename(get_filenames(sce,'geometry'))[:-11], t))
-
-	wx= rd.resolution_x * rd.resolution_percentage / 100
-	wy= rd.resolution_y * rd.resolution_percentage / 100
-
-	ofile.write("\nSettingsOutput {")
-	ofile.write("\n\timg_separateAlpha= %d;"%(0))
-	ofile.write("\n\timg_width= %s;"%(int(wx)))
-	if VRayScene.VRayBake.use:
-		ofile.write("\n\timg_height= %s;"%(int(wx)))
-	else:
-		ofile.write("\n\timg_height= %s;"%(int(wy)))
-	if VRayExporter.animation:
-		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(sce.camera.name),get_render_file_format(VRayExporter,rd.file_format)))
-		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(sce,'output')))
-		ofile.write("\n\timg_file_needFrameNumber= 1;")
-		ofile.write("\n\tanim_start= %d;"%(sce.frame_start))
-		ofile.write("\n\tanim_end= %d;"%(sce.frame_end))
-		ofile.write("\n\tframe_start= %d;"%(sce.frame_start))
-		ofile.write("\n\tframes_per_second= %d;"%(1.0) )
-		ofile.write("\n\tframes= %d-%d;"%(sce.frame_start, sce.frame_end))
-	ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
-	ofile.write("\n\tframe_stamp_text= \"%s\";"%("vb25 (git) | V-Ray Standalone %%vraycore | %%rendertime"))
-	ofile.write("\n}\n")
-
-	module= VRayScene.SettingsImageSampler
-	if module.filter_type != 'NONE':
-		ofile.write(AA_FILTER_TYPE[module.filter_type])
-		ofile.write("\n\tsize= %.3f;"%(module.filter_size))
-		ofile.write("\n}\n")
-
-	for module in MODULES:
-		vmodule= getattr(VRayScene, module)
-
-		ofile.write("\n%s {"%(module))
-		if module == 'SettingsImageSampler':
-			ofile.write("\n\ttype= %d;"%(IMAGE_SAMPLER_TYPE[vmodule.type]))
-		elif module == 'SettingsColorMapping':
-			ofile.write("\n\ttype= %d;"%(COLOR_MAPPING_TYPE[vmodule.type]))
-		elif module == 'SettingsRegionsGenerator':
-			ofile.write("\n\tseqtype= %d;"%(SEQTYPE[vmodule.seqtype]))
-			ofile.write("\n\txymeans= %d;"%(XYMEANS[vmodule.xymeans]))
-
-		for param in MODULES[module]:
-			ofile.write("\n\t%s= %s;"%(param, p(getattr(vmodule, param))))
-		ofile.write("\n}\n")
-
-	for plugin in SETTINGS_PLUGINS:
-		if hasattr(VRayScene,plugin.PLUG):
-			rna_pointer= getattr(VRayScene,plugin.PLUG)
-			if hasattr(plugin,'write'):
-				plugin.write(ofile,sce,rna_pointer)
-
-	dmc= VRayScene.SettingsDMCSampler
-	gi=  VRayScene.SettingsGI
-	im=  VRayScene.SettingsGI.SettingsIrradianceMap
-	lc=  VRayScene.SettingsGI.SettingsLightCache
-	bf=  VRayScene.SettingsGI.SettingsDMCGI
-	if gi.on:
-		ofile.write("\nSettingsGI {")
-		ofile.write("\n\ton= 1;")
-		ofile.write("\n\tprimary_engine= %s;"%(PRIMARY[gi.primary_engine]))
-		ofile.write("\n\tsecondary_engine= %s;"%(SECONDARY[gi.secondary_engine]))
-		ofile.write("\n\tprimary_multiplier= %s;"%(gi.primary_multiplier))
-		ofile.write("\n\tsecondary_multiplier= %s;"%(gi.secondary_multiplier))
-		ofile.write("\n\treflect_caustics= %s;"%(p(gi.reflect_caustics)))
-		ofile.write("\n\trefract_caustics= %s;"%(p(gi.refract_caustics)))
-		ofile.write("\n\tsaturation= %.6f;"%(gi.saturation))
-		ofile.write("\n\tcontrast= %.6f;"%(gi.contrast))
-		ofile.write("\n\tcontrast_base= %.6f;"%(gi.contrast_base))
-		ofile.write("\n}\n")
-
-		ofile.write("\nSettingsIrradianceMap {")
-		ofile.write("\n\tmin_rate= %i;"%(im.min_rate))
-		ofile.write("\n\tmax_rate= %i;"%(im.max_rate))
-		ofile.write("\n\tsubdivs= %i;"%(im.subdivs))
-		ofile.write("\n\tinterp_samples= %i;"%(im.interp_samples))
-		ofile.write("\n\tinterp_frames= %i;"%(im.interp_frames))
-		ofile.write("\n\tcalc_interp_samples= %i;"%(im.calc_interp_samples))
-		ofile.write("\n\tcolor_threshold= %.6f;"%(im.color_threshold))
-		ofile.write("\n\tnormal_threshold= %.6f;"%(im.normal_threshold))
-		ofile.write("\n\tdistance_threshold= %.6f;"%(im.distance_threshold))
-		ofile.write("\n\tdetail_enhancement= %i;"%(im.detail_enhancement))
-		ofile.write("\n\tdetail_radius= %.6f;"%(im.detail_radius))
-		ofile.write("\n\tdetail_subdivs_mult= %.6f;"%(im.detail_subdivs_mult))
-		ofile.write("\n\tdetail_scale= %i;"%(SCALE[im.detail_scale]))
-		ofile.write("\n\tinterpolation_mode= %i;"%(INT_MODE[im.interpolation_mode]))
-		ofile.write("\n\tlookup_mode= %i;"%(LOOK_TYPE[im.lookup_mode]))
-		ofile.write("\n\tshow_calc_phase= %i;"%(im.show_calc_phase))
-		ofile.write("\n\tshow_direct_light= %i;"%(im.show_direct_light))
-		ofile.write("\n\tshow_samples= %i;"%(im.show_samples))
-		ofile.write("\n\tmultipass= %i;"%(im.multipass))
-		ofile.write("\n\tcheck_sample_visibility= %i;"%(im.check_sample_visibility))
-		ofile.write("\n\trandomize_samples= %i;"%(im.randomize_samples))
-		ofile.write("\n\tmode= %d;"%(IM_MODE[im.mode]))
-		ofile.write("\n\tauto_save= %d;"%(im.auto_save))
-		ofile.write("\n\tauto_save_file= \"%s\";"%(bpy.path.abspath(im.auto_save_file)))
-		ofile.write("\n\tfile= \"%s\";"%(im.file))
-		ofile.write("\n\tdont_delete= false;")
-		ofile.write("\n}\n")
-
-		ofile.write("\nSettingsDMCGI {")
-		ofile.write("\n\tsubdivs= %i;"%(bf.subdivs))
-		ofile.write("\n\tdepth= %i;"%(bf.depth))
-		ofile.write("\n}\n")
-
-		ofile.write("\nSettingsLightCache {")
-		ofile.write("\n\tsubdivs= %.0f;"%(lc.subdivs * dmc.subdivs_mult))
-		ofile.write("\n\tsample_size= %.6f;"%(lc.sample_size))
-		ofile.write("\n\tnum_passes= %i;"% (rd.threads if lc.num_passes_auto else lc.num_passes))
-		ofile.write("\n\tdepth= %i;"%(lc.depth))
-		ofile.write("\n\tfilter_type= %i;"%(LC_FILT[lc.filter_type]))
-		ofile.write("\n\tfilter_samples= %i;"%(lc.filter_samples))
-		ofile.write("\n\tfilter_size= %.6f;"%(lc.filter_size))
-		ofile.write("\n\tprefilter= %i;"%(lc.prefilter))
-		ofile.write("\n\tprefilter_samples= %i;"%(lc.prefilter_samples))
-		ofile.write("\n\tshow_calc_phase= %i;"%(lc.show_calc_phase))
-		ofile.write("\n\tstore_direct_light= %i;"%(lc.store_direct_light))
-		ofile.write("\n\tuse_for_glossy_rays= %i;"%(lc.use_for_glossy_rays))
-		ofile.write("\n\tworld_scale= %i;"%(SCALE[lc.world_scale]))
-		ofile.write("\n\tadaptive_sampling= %i;"%(lc.adaptive_sampling))
-		ofile.write("\n\tmode= %d;"%(LC_MODE[lc.mode]))
-		ofile.write("\n\tauto_save= %d;"%(lc.auto_save))
-		ofile.write("\n\tauto_save_file= \"%s\";"%(bpy.path.abspath(lc.auto_save_file)))
-		ofile.write("\n\tfile= \"%s\";"%(lc.file))
-		ofile.write("\n\tdont_delete= false;")
-		ofile.write("\n}\n")
-
-	ofile.write("\nSettingsEXR {")
-	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
-	ofile.write("\n\tbits_per_channel= %d;" % (16 if rd.use_exr_half else 32))
-	ofile.write("\n}\n")
-
-	ofile.write("\nSettingsJPEG SettingsJPEG {")
-	ofile.write("\n\tquality= %d;" % rd.file_quality)
-	ofile.write("\n}\n")
-
-	ofile.write("\nSettingsPNG SettingsPNG {")
-	ofile.write("\n\tcompression= %d;" % int(rd.file_quality / 10))
-	ofile.write("\n\tbits_per_channel= 16;")
-	ofile.write("\n}\n")
-
-	# ofile.write("\nRTEngine {")
-	# ofile.write("\n\tseparate_window= 1;")
-	# ofile.write("\n\ttrace_depth= 3;")
-	# ofile.write("\n\tuse_gi= 1;")
-	# ofile.write("\n\tgi_depth= 3;")
-	# ofile.write("\n\tgi_reflective_caustics= 1;")
-	# ofile.write("\n\tgi_refractive_caustics= 1;")
-	# ofile.write("\n\tuse_opencl= 1;")
-	# ofile.write("\n}\n")	
-
-	for channel in VRayScene.render_channels:
-		plugin= get_plugin(CHANNEL_PLUGINS, channel.type)
-		if plugin:
-			plugin.write(ofile, getattr(channel,plugin.PLUG), sce, channel.name)
-
-	ofile.write("\n")
-
-
 def write_scene(sce, bake= False):
 	VRayScene= sce.vray
 	VRayExporter=    VRayScene.exporter
@@ -1922,7 +1733,6 @@ def write_scene(sce, bake= False):
 	sys.stdout.flush()
 
 
-
 '''
   V-Ray Renderer
 '''
@@ -2043,15 +1853,204 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+class VRAY_OT_write_scene(bpy.types.Operator):
+	bl_idname      = "vray.write_scene"
+	bl_label       = "Export scene"
+	bl_description = "Export scene to \"vrscene\" file."
+
+	export_path= bpy.props.StringProperty(
+		name= "Export path",
+		description= "Scene export path.",
+		maxlen= 1024,
+		default= ""
+	)
+
+	preview= bpy.props.BoolProperty(
+		name= "Preview",
+		description= "Write material preview scene.",
+		default= False
+	)
+
+	scene=  None
+	camera= None
+
+	EnvironmentFog= []
+	VolumeVRayToon= []
+
+	def write_settings(self):
+		VRayScene=    self.scene.vray
+		VRayExporter= VRayScene.exporter
+		VRayDR=       VRayScene.VRayDR
+
+		ofile= open(os.path.join(bpy.path.abspath(self.export_path), "scene.vrscene"), 'w')
+		
+		ofile.write("// V-Ray/Blender %s\n" % VERSION)
+		ofile.write("// Settings\n\n")
+
+		for f in ('materials', 'lights', 'nodes', 'camera'):
+			if VRayDR.on:
+				if VRayDR.type == 'UU':
+					ofile.write("#include \"%s\"\n" % get_filenames(self.scene,f))
+				elif VRayDR.type == 'WU':
+					ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(self.scene,f)))))
+				else:
+					ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(self.scene,f)))))
+			else:
+				ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(self.scene,f))))
+
+		for t in range(self.scene.render.threads):
+			ofile.write("#include \"%s_%.2i.vrscene\"\n" % (os.path.basename(get_filenames(self.scene,'geometry'))[:-11], t))
+
+		wx= int(self.scene.render.resolution_x * self.scene.render.resolution_percentage / 100)
+		wy= int(self.scene.render.resolution_y * self.scene.render.resolution_percentage / 100)
+
+		ofile.write("\nSettingsOutput {")
+		ofile.write("\n\timg_separateAlpha= %d;"%(0))
+		ofile.write("\n\timg_width= %s;" % wx)
+		if VRayScene.VRayBake.use:
+			ofile.write("\n\timg_height= %s;" % wx)
+		else:
+			ofile.write("\n\timg_height= %s;" % wy)
+		if VRayExporter.animation:
+			ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(self.scene.camera.name),get_render_file_format(VRayExporter,self.scene.render.file_format)))
+			ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(self.scene,'output')))
+			ofile.write("\n\timg_file_needFrameNumber= 1;")
+			ofile.write("\n\tanim_start= %d;"%(self.scene.frame_start))
+			ofile.write("\n\tanim_end= %d;"%(self.scene.frame_end))
+			ofile.write("\n\tframe_start= %d;"%(self.scene.frame_start))
+			ofile.write("\n\tframes_per_second= %d;"%(1.0) )
+			ofile.write("\n\tframes= %d-%d;"%(self.scene.frame_start, self.scene.frame_end))
+		ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
+		ofile.write("\n\tframe_stamp_text= \"%s\";"%("vb25 (git) | V-Ray Standalone %%vraycore | %%rendertime"))
+		ofile.write("\n}\n")
+
+		SettingsImageSamplerFilter= VRayScene.SettingsImageSampler
+		if SettingsImageSamplerFilter.filter_type != 'NONE':
+			ofile.write(AA_FILTER_TYPE[SettingsImageSamplerFilter.filter_type])
+			ofile.write("\n\tsize= %.3f;" % SettingsImageSamplerFilter.filter_size)
+			ofile.write("\n}\n")
+
+		for module in MODULES:
+			vmodule= getattr(VRayScene, module)
+
+			ofile.write("\n%s {"%(module))
+			if module == 'SettingsImageSampler':
+				ofile.write("\n\ttype= %d;"%(IMAGE_SAMPLER_TYPE[vmodule.type]))
+			elif module == 'SettingsColorMapping':
+				ofile.write("\n\ttype= %d;"%(COLOR_MAPPING_TYPE[vmodule.type]))
+
+			for param in MODULES[module]:
+				ofile.write("\n\t%s= %s;"%(param, p(getattr(vmodule, param))))
+			ofile.write("\n}\n")
+
+		ofile.write("\nSettingsEXR SettingsEXR {")
+		ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
+		ofile.write("\n\tbits_per_channel= %d;" % (16 if self.scene.render.use_exr_half else 32))
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsJPEG SettingsJPEG {")
+		ofile.write("\n\tquality= %d;" % self.scene.render.file_quality)
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsPNG SettingsPNG {")
+		ofile.write("\n\tcompression= %d;" % (int(self.scene.render.file_quality / 10) if self.scene.render.file_quality < 90 else 90))
+		ofile.write("\n\tbits_per_channel= 16;")
+		ofile.write("\n}\n")
+
+		for plugin in SETTINGS_PLUGINS:
+			if hasattr(plugin,'write'):
+				rna_pointer= getattr(VRayScene,plugin.PLUG)
+				plugin.write(ofile, self.scene, rna_pointer)
+
+		for render_channel in VRayScene.render_channels:
+			plugin= get_plugin(CHANNEL_PLUGINS, render_channel.type)
+			if plugin:
+				plugin.write(ofile, getattr(render_channel,plugin.PLUG), self.scene, render_channel.name)
+
+		# print('ID', get_plugin_property(SettingsIrradianceMap,'detail_scale'))
+
+		ofile.write("\n")
+
+	
+	def write_frame(self):
+		timer= time.clock()
+
+		debug(self.scene, "Writing frame (%i)..."%(self.scene.frame_current), False)
+
+		VRayScene=       self.scene.vray
+		VRayExporter=    VRayScene.exporter
+		SettingsOptions= VRayScene.SettingsOptions
+
+		for ob in self.scene.objects:
+			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+				continue
+
+			if VRayExporter.active_layers:
+				if not object_on_visible_layers(self.scene,ob):
+					if ob.type == 'LAMP':
+						if not VRayScene.use_hidden_lights:
+							continue
+					elif not SettingsOptions.geom_doHidden:
+						continue
+					else:
+						continue
+
+			if ob.hide_render:
+				if ob.type == 'LAMP':
+					if not VRayScene.use_hidden_lights:
+						continue
+				else:
+					if not SettingsOptions.geom_doHidden:
+						continue
+
+			if PLATFORM == "linux2":
+				debug(self.scene, "{0}: \033[0;32m{1:<32}\033[0m".format(ob.type, ob.name), True if VRayExporter.debug else False)
+			else:
+				debug(self.scene, "{0}: {1:<32}".format(ob.type, ob.name), True if VRayExporter.debug else False)
+
+		debug(self.scene, "Writing frame {0}... done {1:<64}".format(self.scene.frame_current, "[%.2f]"%(time.clock() - timer)))
+
+	def execute(self, context):
+		self.scene= context.scene
+
+		VRayScene= self.scene.vray
+		VRayExporter= VRayScene.exporter
+
+		if not self.export_path:
+			debug(self.scene, "Export output path is not set!", error= True)
+			return {'CANCELLED'}
+
+		debug(self.scene, "Writing scene...")
+
+		timer= time.clock()
+
+		if VRayExporter.animation:
+			selected_frame= self.scene.frame_current
+			f= self.scene.frame_start
+			while(f <= self.scene.frame_end):
+				self.scene.frame_set(f)
+				self.write_frame()
+				f+= self.scene.frame_step
+			self.scene.frame_set(selected_frame)
+		else:
+			self.write_frame()
+
+		self.write_settings()
+
+		debug(self.scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+		
+		return {'FINISHED'}
+
+
 class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_idname      = "vray.write_geometry"
 	bl_label       = "Export meshes"
 	bl_description = "Export meshes into vrscene file."
 
+	export_path=  bpy.props.StringProperty(name= "Export path", description= "Geometry export path.", maxlen= 1024, default= "")
+
 	def execute(self, context):
 		sce= context.scene
-		# TODO: Ask ideasman
-		#sce= bpy.data.scenes.active
 
 		VRayScene= sce.vray
 		VRayExporter= VRayScene.exporter
@@ -2069,108 +2068,116 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 		except:
 			write_geometry_python(sce, geometry_file)
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "V-Ray (git)"
-	bl_use_preview = False
+	bl_use_preview =  False
 	
 	def render(self, scene):
-		global sce
+		VRayScene= scene.vray
+		VRayExporter= VRayScene.exporter
 
-		sce= scene
-		rd=  scene.render
-		wo=  scene.world
-
-		vsce= sce.vray
-		ve= vsce.exporter
-		dr= vsce.VRayDR
-
-		VRayBake= vsce.VRayBake
-
-		if ve.auto_meshes:
+		if VRayExporter.auto_meshes:
 			bpy.ops.vray.write_geometry()
 
-		write_scene(sce, bake= VRayBake.use)
+		bpy.ops.vray.write_scene(export_path= "/tmp/vb25")
+		
+		# global sce
 
-		vb_path= vb_script_path()
+		# sce= scene
+		# rd=  scene.render
+		# wo=  scene.world
 
-		params= []
-		params.append(vb_binary_path(sce))
+		# vsce= sce.vray
+		# ve= vsce.exporter
+		# dr= vsce.VRayDR
 
-		image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-		load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
+		# VRayBake= vsce.VRayBake
 
-		wx= rd.resolution_x * rd.resolution_percentage / 100
-		wy= rd.resolution_y * rd.resolution_percentage / 100
+		# if ve.auto_meshes:
+		# 	bpy.ops.vray.write_geometry()
 
-		if rd.use_border:
-			x0= wx * rd.border_min_x
-			y0= wy * (1.0 - rd.border_max_y)
-			x1= wx * rd.border_max_x
-			y1= wy * (1.0 - rd.border_min_y)
+		# write_scene(sce, bake= VRayBake.use)
 
-			if rd.use_crop_to_border:
-				params.append('-crop=')
-			else:
-				params.append('-region=')
-			params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
+		# vb_path= vb_script_path()
 
-		params.append('-sceneFile=')
-		params.append(get_filenames(sce,'scene'))
+		# params= []
+		# params.append(vb_binary_path(sce))
 
-		params.append('-display=')
-		params.append('1')
+		# image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
+		# load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
 
-		if ve.image_to_blender:
-			params.append('-autoclose=')
-			params.append('1')
+		# wx= rd.resolution_x * rd.resolution_percentage / 100
+		# wy= rd.resolution_y * rd.resolution_percentage / 100
 
-		params.append('-frames=')
-		if ve.animation:
-			params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
-		else:
-			params.append("%d" % sce.frame_current)
+		# if rd.use_border:
+		# 	x0= wx * rd.border_min_x
+		# 	y0= wy * (1.0 - rd.border_max_y)
+		# 	x1= wx * rd.border_max_x
+		# 	y1= wy * (1.0 - rd.border_min_y)
 
-		if dr.on:
-			if len(dr.nodes):
-				params.append('-distributed=')
-				params.append('1')
-				params.append('-portNumber=')
-				params.append(str(dr.port))
-				params.append('-renderhost=')
-				params.append("\"%s\"" % ';'.join([n.address for n in dr.nodes]))
+		# 	if rd.use_crop_to_border:
+		# 		params.append('-crop=')
+		# 	else:
+		# 		params.append('-region=')
+		# 	params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
+
+		# params.append('-sceneFile=')
+		# params.append(get_filenames(sce,'scene'))
+
+		# params.append('-display=')
+		# params.append('1')
+
+		# if ve.image_to_blender:
+		# 	params.append('-autoclose=')
+		# 	params.append('1')
+
+		# params.append('-frames=')
+		# if ve.animation:
+		# 	params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
+		# else:
+		# 	params.append("%d" % sce.frame_current)
+
+		# if dr.on:
+		# 	if len(dr.nodes):
+		# 		params.append('-distributed=')
+		# 		params.append('1')
+		# 		params.append('-portNumber=')
+		# 		params.append(str(dr.port))
+		# 		params.append('-renderhost=')
+		# 		params.append("\"%s\"" % ';'.join([n.address for n in dr.nodes]))
 				
-		params.append('-imgFile=')
-		params.append(image_file)
+		# params.append('-imgFile=')
+		# params.append(image_file)
 
-		if ve.autorun:
-			process= subprocess.Popen(params)
+		# if ve.autorun:
+		# 	process= subprocess.Popen(params)
 
-			while True:
-				if self.test_break():
-					try:
-						process.kill()
-					except:
-						pass
-					break
+		# 	while True:
+		# 		if self.test_break():
+		# 			try:
+		# 				process.kill()
+		# 			except:
+		# 				pass
+		# 			break
 
-				if process.poll() is not None:
-					try:
-						if not ve.animation and ve.image_to_blender:
-							result= self.begin_result(0, 0, int(wx), int(wy))
-							result.layers[0].load_from_file(load_file)
-							self.end_result(result)
-					except:
-						pass
-					break
+		# 		if process.poll() is not None:
+		# 			try:
+		# 				if not ve.animation and ve.image_to_blender:
+		# 					result= self.begin_result(0, 0, int(wx), int(wy))
+		# 					result.layers[0].load_from_file(load_file)
+		# 					self.end_result(result)
+		# 			except:
+		# 				pass
+		# 			break
 
-				time.sleep(0.05)
-		else:
-			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-			print("V-Ray/Blender: Command: %s" % ' '.join(params))
+		# 		time.sleep(0.05)
+		# else:
+		# 	print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
+		# 	print("V-Ray/Blender: Command: %s" % ' '.join(params))
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):
@@ -2327,4 +2334,3 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 			print("V-Ray/Blender: Command: %s" % ' '.join(params))
-

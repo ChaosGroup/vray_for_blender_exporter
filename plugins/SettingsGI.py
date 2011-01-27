@@ -1,28 +1,26 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -42,7 +40,7 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
+import vb25.utils
 
 
 class SettingsGI(bpy.types.IDPropertyGroup):
@@ -65,10 +63,10 @@ def add_properties(parent_struct):
 		name= "Primary engine",
 		description= "Primary diffuse bounces engines.",
 		items= (
-			('IM',  "Irradiance map", ""),
-			# ('PM',  "Photon map", ""),
-			('BF',  "Brute force", ""),
-			('LC',  "Light cache", "")
+			('IM', "Irradiance map",      ""), # 0
+			('BF', "Brute force",         ""), # 2
+			('LC', "Light cache",         ""), # 3
+			('SH', "Spherical harmonics", ""), # 4
 		),
 		default= 'IM'
 	)
@@ -77,24 +75,11 @@ def add_properties(parent_struct):
 		name= "Secondary engine",
 		description= "Secondary diffuse bounces engines.",
 		items= (
-			('NONE',  "None", ""),
-			# ('PM',    "Photon map", ""),
-			('BF',    "Brute force", ""),
-			('LC',    "Light cache", "")
+			('NONE', "None",        ""), # 0
+			('BF',   "Brute force", ""), # 2
+			('LC',   "Light cache", "")  # 3
 		),
 		default= 'LC'
-	)
-
-	SettingsGI.preset= EnumProperty(
-		name= "Preset",
-		description= "GI preset.",
-		items= (
-			# ('SALUTO',"SALuto",""),
-			('DRAFT',"Draft",""),
-			('QUAL',"Quality",""),
-			('NONE',"None","")
-		),
-		default= 'NONE'
 	)
 
 	SettingsGI.primary_multiplier= FloatProperty(
@@ -718,3 +703,138 @@ def add_properties(parent_struct):
 		soft_max= 100.0,
 		default= 0.0
 	)
+
+def write(ofile, scene, rna_pointer):
+	VRayScene=             scene.vray
+	SettingsDMCSampler=    VRayScene.SettingsDMCSampler
+	SettingsGI=            VRayScene.SettingsGI
+	SettingsIrradianceMap= SettingsGI.SettingsIrradianceMap
+	SettingsLightCache=    SettingsGI.SettingsLightCache
+	SettingsDMCGI=         SettingsGI.SettingsDMCGI
+
+	PRIMARY_ENGINE= {
+		'IM':  0,
+		'PM':  1,
+		'BF':  2,
+		'LC':  3
+	}
+
+	SECONDARY_ENGINE= {
+		'NONE':  0,
+		'PM':    1,
+		'BF':    2,
+		'LC':    3
+	}
+
+	WORLD_SCALE= {
+		'SCREEN':  0,
+		'WORLD':   1
+	}
+	
+	IM_MODE= {
+		'SINGLE':	 0,
+		'INC':		 1,
+		'FILE':		 2,
+		'ADD':		 3,
+		'ADD_INC':	 4,
+		'BUCKET':	 5,
+		'ANIM_PRE':	 6,
+		'ANIM_REND': 7,
+	}
+
+	INTERPOLATION_MODE= {
+		'VORONOI':	 0,
+		'LEAST':	 1,
+		'DELONE':	 2,
+		'WEIGHTED':	 3,
+	}
+
+	LOOKUP_MODE= {
+		'QUAD':		0,
+		'NEAREST':	1,
+		'OVERLAP':	2,
+		'DENSITY':	3,
+	}
+
+	FILTER_TYPE= {
+		'NONE':	   0,
+		'NEAREST': 1,
+		'FIXED':   2,
+	}
+
+	LC_MODE= {
+		'SINGLE':  0,
+		'FLY':	   1,
+		'FILE':	   2,
+		'PPT':	   3,
+	}
+
+	if SettingsGI.on:
+		ofile.write("\nSettingsGI SettingsGI {")
+		ofile.write("\n\ton= 1;")
+		ofile.write("\n\tprimary_engine= %s;" % PRIMARY_ENGINE[SettingsGI.primary_engine])
+		ofile.write("\n\tsecondary_engine= %s;" % SECONDARY_ENGINE[SettingsGI.secondary_engine])
+		ofile.write("\n\tprimary_multiplier= %.3f;" % SettingsGI.primary_multiplier)
+		ofile.write("\n\tsecondary_multiplier= %.3f;" % SettingsGI.secondary_multiplier)
+		ofile.write("\n\treflect_caustics= %i;" % SettingsGI.reflect_caustics)
+		ofile.write("\n\trefract_caustics= %i;" % SettingsGI.refract_caustics)
+		ofile.write("\n\tsaturation= %.3f;" % SettingsGI.saturation)
+		ofile.write("\n\tcontrast= %.3f;" % SettingsGI.contrast)
+		ofile.write("\n\tcontrast_base= %.3f;" % SettingsGI.contrast_base)
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsIrradianceMap SettingsIrradianceMap {")
+		ofile.write("\n\tmin_rate= %i;" % SettingsIrradianceMap.min_rate)
+		ofile.write("\n\tmax_rate= %i;" % SettingsIrradianceMap.max_rate)
+		ofile.write("\n\tsubdivs= %i;" % SettingsIrradianceMap.subdivs)
+		ofile.write("\n\tinterp_samples= %i;" % SettingsIrradianceMap.interp_samples)
+		ofile.write("\n\tinterp_frames= %i;" % SettingsIrradianceMap.interp_frames)
+		ofile.write("\n\tcalc_interp_samples= %i;" % SettingsIrradianceMap.calc_interp_samples)
+		ofile.write("\n\tcolor_threshold= %.6f;" % SettingsIrradianceMap.color_threshold)
+		ofile.write("\n\tnormal_threshold= %.6f;" % SettingsIrradianceMap.normal_threshold)
+		ofile.write("\n\tdistance_threshold= %.6f;" % SettingsIrradianceMap.distance_threshold)
+		ofile.write("\n\tdetail_enhancement= %i;" % SettingsIrradianceMap.detail_enhancement)
+		ofile.write("\n\tdetail_radius= %.6f;" % SettingsIrradianceMap.detail_radius)
+		ofile.write("\n\tdetail_subdivs_mult= %.6f;" % SettingsIrradianceMap.detail_subdivs_mult)
+		ofile.write("\n\tdetail_scale= %i;" % WORLD_SCALE[SettingsIrradianceMap.detail_scale])
+		ofile.write("\n\tinterpolation_mode= %i;" % INTERPOLATION_MODE[SettingsIrradianceMap.interpolation_mode])
+		ofile.write("\n\tlookup_mode= %i;" % LOOKUP_MODE[SettingsIrradianceMap.lookup_mode])
+		ofile.write("\n\tshow_calc_phase= %i;" % SettingsIrradianceMap.show_calc_phase)
+		ofile.write("\n\tshow_direct_light= %i;" % SettingsIrradianceMap.show_direct_light)
+		ofile.write("\n\tshow_samples= %i;" % SettingsIrradianceMap.show_samples)
+		ofile.write("\n\tmultipass= %i;" % SettingsIrradianceMap.multipass)
+		ofile.write("\n\tcheck_sample_visibility= %i;" % SettingsIrradianceMap.check_sample_visibility)
+		ofile.write("\n\trandomize_samples= %i;" % SettingsIrradianceMap.randomize_samples)
+		ofile.write("\n\tmode= %d;" % IM_MODE[SettingsIrradianceMap.mode])
+		ofile.write("\n\tauto_save= %d;" % SettingsIrradianceMap.auto_save)
+		ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.auto_save_file))
+		ofile.write("\n\tfile= \"%s\";" % SettingsIrradianceMap.file)
+		ofile.write("\n\tdont_delete= false;")
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsDMCGI SettingsDMCGI {")
+		ofile.write("\n\tsubdivs= %i;" % SettingsDMCGI.subdivs)
+		ofile.write("\n\tdepth= %i;" % SettingsDMCGI.depth)
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsLightCache SettingsLightCache {")
+		ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * SettingsDMCSampler.subdivs_mult))
+		ofile.write("\n\tsample_size= %.6f;" % SettingsLightCache.sample_size)
+		ofile.write("\n\tnum_passes= %i;"% (scene.render.threads if SettingsLightCache.num_passes_auto else SettingsLightCache.num_passes))
+		ofile.write("\n\tdepth= %i;" % SettingsLightCache.depth)
+		ofile.write("\n\tfilter_type= %i;" % FILTER_TYPE[SettingsLightCache.filter_type])
+		ofile.write("\n\tfilter_samples= %i;" % SettingsLightCache.filter_samples)
+		ofile.write("\n\tfilter_size= %.6f;" % SettingsLightCache.filter_size)
+		ofile.write("\n\tprefilter= %i;" % SettingsLightCache.prefilter)
+		ofile.write("\n\tprefilter_samples= %i;" % SettingsLightCache.prefilter_samples)
+		ofile.write("\n\tshow_calc_phase= %i;" % SettingsLightCache.show_calc_phase)
+		ofile.write("\n\tstore_direct_light= %i;" % SettingsLightCache.store_direct_light)
+		ofile.write("\n\tuse_for_glossy_rays= %i;" % SettingsLightCache.use_for_glossy_rays)
+		ofile.write("\n\tworld_scale= %i;" % WORLD_SCALE[SettingsLightCache.world_scale])
+		ofile.write("\n\tadaptive_sampling= %i;" % SettingsLightCache.adaptive_sampling)
+		ofile.write("\n\tmode= %d;" % LC_MODE[SettingsLightCache.mode])
+		ofile.write("\n\tauto_save= %d;" % SettingsLightCache.auto_save)
+		ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsLightCache.auto_save_file))
+		ofile.write("\n\tfile= \"%s\";" % SettingsLightCache.file)
+		ofile.write("\n\tdont_delete= false;")
+		ofile.write("\n}\n")

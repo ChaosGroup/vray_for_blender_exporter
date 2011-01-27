@@ -105,14 +105,6 @@ MODULES= {
 		'amount',
 		'relative'
 	),
-	
-	'SettingsRegionsGenerator': (
-        'xc',
-        'yc',
-        # 'xymeans',
-        # 'seqtype',
-        'reverse'
-	)
 }
 
 
@@ -136,16 +128,22 @@ def color(text, color=None):
 	else:
 		return text
 
+def get_plugin_property(rna_pointer, property):
+	return rna_pointer.get(property, getattr(rna_pointer, property))
+
 # The most powerfull unique name generator =)
 def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
-def	debug(sce, s, error= False):
-	if sce.vray.exporter.debug:
-		out= color("V-Ray/Blender: ", 'green')
-		if error: out+= color("Error! ", 'red')
-		out+= "%s"%(s)
-		print("%s"%(out))
+def debug(scene, message, newline= True, error= False):
+	sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
+		time.strftime("%Y/%b/%d|%H:%m:%S"),
+		color("Error! ", 'red') if error else '',
+		message,
+		'\n' if newline else '\r')
+	)
+	if not newline:
+		sys.stdout.flush()
 
 def p(t):
 	if type(t) == bool:
@@ -211,7 +209,7 @@ def get_uv_layers(sce):
 
 	if sce.vray.exporter.debug:
 		for uv_layer in uv_layers:
-			print("V-Ray/Blender: UV Layer: %s => %i" % (uv_layer, uv_layers[uv_layer]))
+			print("V-Ray/Blender: UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
 
 	return uv_layers
 
@@ -440,8 +438,6 @@ def get_filenames(sce, filetype):
 			filepath= create_dir(export_dir)
 		else:
 			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
-
-	debug(sce,"Filepath (%s): %s" % (filetype,filepath))
 
 	return filepath
 

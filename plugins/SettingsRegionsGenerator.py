@@ -33,21 +33,13 @@ NAME= 'Regions Generator'
 PLUG= 'SettingsRegionsGenerator'
 DESC= "Regions generator settings."
 
-PARAMS= (
-	'xc',
-	'yc',
-	'xymeans',
-	'seqtype',
-	'reverse'
-)
-
 
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
+import vb25.utils
 
 
 class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
@@ -64,12 +56,12 @@ def add_properties(parent_struct):
 		name= "Type",
 		description= "Determines the order in which the regions are rendered.",
 		items=(
-			('HILBERT',   "Hilbert",          ""),
-			('TRIANGLE',  "Triangulation",    ""),
-			('IOSPIRAL',  "(TODO) IOSPIRAL",  ""),
-			('TBCHECKER', "(TODO) TBCHECKER", ""),
-			('LRWIPE',    "(TODO) LRWIPE",    ""),
-			('TBWIPE',    "(TODO) TBWIPE",    "") # 0
+			('HILBERT',   "Hilbert",       ""),
+			('TRIANGLE',  "Triangulation", ""),
+			('IOSPIRAL',  "Spiral",        ""),
+			('TBCHECKER', "Checker",       ""),
+			('LRWIPE',    "Left-right",    ""),
+			('TBWIPE',    "Top-bottom",    "") # 0
 		),
 		default= 'TRIANGLE'
 	)
@@ -92,7 +84,7 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.lock_size= BoolProperty(
 		name= "Lock size",
-		description= "Lock bucker size (x = y).",
+		description= "Lock bucket size (x = y).",
 		default= True
 	)
 
@@ -111,3 +103,33 @@ def add_properties(parent_struct):
 		max= 100,
 		default= 32
 	)
+
+
+def write(ofile, scene, rna_pointer):
+	VRayScene=                scene.vray
+	SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
+
+	SEQTYPE= {
+		'HILBERT':   5,
+		'TRIANGLE':  4,
+		'IOSPIRAL':  3,
+		'TBCHECKER': 2,
+		'LRWIPE':    1,
+		'TBWIPE':    0,
+	}
+
+	XYMEANS= {
+		'BUCKETS': 1,
+		'SIZE':    0,
+	}
+
+	ofile.write("\nSettingsRegionsGenerator SettingsRegionsGenerator {")
+	ofile.write("\n\txc= %i;" % SettingsRegionsGenerator.xc)
+	if SettingsRegionsGenerator.lock_size:
+		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.xc)
+	else:
+		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.yc)
+	ofile.write("\n\treverse= %i;" % SettingsRegionsGenerator.reverse)
+	ofile.write("\n\tseqtype= %i;" % SEQTYPE[SettingsRegionsGenerator.seqtype])
+	ofile.write("\n\txymeans= %i;" % XYMEANS[SettingsRegionsGenerator.xymeans])
+	ofile.write("\n}\n")
