@@ -55,7 +55,7 @@ if base_dir is not None:
 	if not plugins_dir in sys.path:
 		sys.path.append(plugins_dir)
 
-	plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname.endswith(".py")]
+	plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname.endswith(".py") and not fname == "__init__.py"]
 	plugins= [__import__(fname) for fname in plugins_files]
 
 	for plugin in plugins:

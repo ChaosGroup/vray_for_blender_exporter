@@ -1556,10 +1556,9 @@ def write_settings(sce,ofile):
 		ofile.write("\n}\n")
 
 	for plugin in SETTINGS_PLUGINS:
-		if hasattr(VRayScene,plugin.PLUG):
+		if hasattr(plugin,'write'):
 			rna_pointer= getattr(VRayScene,plugin.PLUG)
-			if hasattr(plugin,'write'):
-				plugin.write(ofile,sce,rna_pointer)
+			plugin.write(ofile,sce,rna_pointer)
 
 	dmc= VRayScene.SettingsDMCSampler
 	gi=  VRayScene.SettingsGI
