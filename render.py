@@ -426,7 +426,7 @@ def material_defaults(ma):
 	VRayMaterial=    ma.vray
 	BRDFVRayMtl=     VRayMaterial.BRDFVRayMtl
 	BRDFSSS2Complex= VRayMaterial.BRDFSSS2Complex
-	EnvironmentFog=  VRayMaterial.EnvironmentFog
+	# EnvironmentFog=  VRayMaterial.EnvironmentFog
 
 	if VRayMaterial.type == 'MTL':
 		return {
@@ -468,12 +468,13 @@ def material_defaults(ma):
 			'specular_glossiness': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
 		}
 		
-	elif VRayMaterial.type == 'VOL':
-		return {
-			'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
-			'emission_tex': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
-			'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
-		}
+	# elif VRayMaterial.type == 'VOL':
+	# 	return {
+	# 		'color_tex':    (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
+	# 		'emission_tex': (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
+	# 		'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
+	# 	}
+
 	else:
 		return None
 
@@ -530,7 +531,7 @@ def write_material_textures(ofile, params):
 
 	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
-	EnvironmentFog=  ma.vray.EnvironmentFog
+	# EnvironmentFog=  ma.vray.EnvironmentFog
 
 	defaults= material_defaults(ma)
 
@@ -2041,8 +2042,7 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 				f+= self.scene.frame_step
 			self.scene.frame_set(selected_frame)
 		else:
-			write_scene(self.scene)
-			#self.write_frame()
+			self.write_frame()
 
 		self.write_settings()
 
