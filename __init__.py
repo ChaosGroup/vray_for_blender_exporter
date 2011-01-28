@@ -39,6 +39,10 @@
 # 	"category":    "Render"
 # }
 
+from vb25 import plugins
+from vb25 import shaders
+from vb25 import preset
+from vb25 import render
 from vb25 import properties_camera
 from vb25 import properties_lamp
 from vb25 import properties_material
@@ -47,10 +51,7 @@ from vb25 import properties_world
 from vb25 import properties_object
 from vb25 import properties_data
 from vb25 import properties_render
-from vb25 import plugins
-from vb25 import shaders
-from vb25 import render
-from vb25 import preset
+from vb25 import properties_scene
 
 def register():
 	plugins.add_properties()

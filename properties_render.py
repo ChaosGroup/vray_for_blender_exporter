@@ -62,7 +62,7 @@ class VRayBake(bpy.types.IDPropertyGroup):
 	pass
 
 VRayScene.VRayBake= PointerProperty(
-	name= "VRayBake",
+	name= "Bake",
 	type=  VRayBake,
 	description= "Texture baking settings."
 )
@@ -100,7 +100,7 @@ class SettingsDefaultDisplacement(bpy.types.IDPropertyGroup):
 	pass
 
 VRayScene.SettingsDefaultDisplacement= PointerProperty(
-	name= "SettingsDefaultDisplacement",
+	name= "Default Displacement",
 	type=  SettingsDefaultDisplacement,
 	description= "Default displacement settings."
 )
@@ -718,13 +718,6 @@ VRayDR.shared_dir= StringProperty(
 	description= "Distributed rendering shader directory."
 )
 
-VRayDR.nodes_selected= IntProperty(
-	name= "Render Node Index",
-	default= -1,
-	min= -1,
-	max= 100
-)
-
 VRayDR.type= EnumProperty(
 	name= "Type",
 	description= "Distributed rendering network type.",
@@ -744,6 +737,13 @@ VRayDR.nodes= CollectionProperty(
 	name= "Render Nodes",
 	type=  VRayRenderNode,
 	description= "V-Ray render nodes."
+)
+
+VRayDR.nodes_selected= IntProperty(
+	name= "Render Node Index",
+	default= -1,
+	min= -1,
+	max= 100
 )
 
 VRayRenderNode.address= StringProperty(
@@ -784,9 +784,9 @@ class VRAY_MT_global_preset(bpy.types.Menu):
 class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
-	bl_description= "Add render channel"
+	bl_description= "Add render channel."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		sce= context.scene
 		vsce= sce.vray
 
@@ -801,9 +801,9 @@ class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_remove'
 	bl_label=       "Remove Render Channel"
-	bl_description= "Remove render channel"
+	bl_description= "Remove render channel."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		sce= context.scene
 		vsce= sce.vray
 		
@@ -819,9 +819,9 @@ class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 class RENDER_NODES_OT_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
 	bl_label=       "Add Render Node"
-	bl_description= "Add render node"
+	bl_description= "Add render node."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		vs= context.scene.vray
 		module= vs.VRayDR
 
@@ -833,7 +833,7 @@ class RENDER_NODES_OT_add(bpy.types.Operator):
 
 class RENDER_NODES_OT_del(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_remove'
-	bl_label=       "Remove Render Nodel"
+	bl_label=       "Remove Render Node"
 	bl_description= "Remove render node"
 
 	def invoke(self, context, event):

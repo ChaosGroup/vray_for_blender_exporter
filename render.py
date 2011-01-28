@@ -1111,16 +1111,21 @@ def write_object(ob, params, add_params= None):
 		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 
 
-def write_environment(ofile, volumes= None):
+def write_environment(params):
+	ofile=   params['files']['camera']
+	sce=     params['scene']
+
+	volumes= params.get('volume')
+
 	wo= sce.world
 
-	bg_tex= None
-	gi_tex= None
+	bg_tex=      None
+	gi_tex=      None
 	reflect_tex= None
 	refract_tex= None
 
-	bg_tex_mult= 1.0
-	gi_tex_mult= 1.0
+	bg_tex_mult=      1.0
+	gi_tex_mult=      1.0
 	reflect_tex_mult= 1.0
 	refract_tex_mult= 1.0
 
@@ -1132,7 +1137,10 @@ def write_environment(ofile, volumes= None):
 					 'texture': slot.texture,
 					 'environment': True,
 					 'rotate': {'angle': VRaySlot.texture_rotation_h,
-								'axis': 'Z'}}
+								'axis': 'Z'},
+					 'transform': ({'rotate': {'angle': VRaySlot.texture_rotation_h, 'axis': 'Z'}},
+								   {'rotate': {'angle': VRaySlot.texture_rotation_v, 'axis': 'Y'}}),
+			}
 
 			if slot.use_map_blend:
 				bg_tex= write_texture(ofile, sce, params)
@@ -1665,8 +1673,8 @@ def write_scene(sce, bake= False):
 			params['visibility']= visibility
 			debug(sce, "Hide from view: %s" %  visibility)
 
-		write_environment(params['files']['camera'])
-		write_camera(sce,params['files']['camera'],bake= bake)
+		write_environment(params)
+		write_camera(sce, params['files']['camera'])
 
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
@@ -1720,10 +1728,10 @@ def write_scene(sce, bake= False):
 	else:
 		write_frame(ca)
 
-	if len(types['volume']):
-		write_environment(files['nodes'],[write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
+	# if len(types['volume']):
+	# 	write_environment(files['nodes'], params, volume= [write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
 
-	write_settings(sce,files['scene'])
+	# write_settings(sce,files['scene'])
 
 	for key in files:
 		files[key].write("\n// vim: set syntax=on syntax=c:\n\n")
@@ -2033,7 +2041,8 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 				f+= self.scene.frame_step
 			self.scene.frame_set(selected_frame)
 		else:
-			self.write_frame()
+			write_scene(self.scene)
+			#self.write_frame()
 
 		self.write_settings()
 

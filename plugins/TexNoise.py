@@ -31,10 +31,11 @@ from vb25.utils import *
 from vb25.shaders import *
 
 TYPE= 'TEXTURE'
-ID=   'TexNoiseMax'
+
+ID=   'TEXNOISEMAX'
 NAME= 'Noise'
 PLUG= 'TexNoiseMax'
-DESC= "TexNoiseMax."
+DESC= "3ds max like noise texture."
 PID=  5
 
 PARAMS= (
@@ -545,6 +546,8 @@ def write(ofile, sce, params):
 	slot= params.get('slot')
 	texture= params.get('texture')
 
+	uvwgen= write_UVWGenChannel(ofile, sce, params)
+
 	tex_name= params['name'] if 'name' in params else get_random_string()
 
 	TexNoiseMax= getattr(texture.vray, PLUG)
@@ -554,6 +557,8 @@ def write(ofile, sce, params):
 			value= _TYPE[TexNoiseMax.type]
 		elif param == 'placement_type':
 			value= _PLACEMENT_TYPE[TexNoiseMax.placement_type]
+		elif param == 'uvwgen':
+			value= uvwgen
 		else:
 			value= getattr(TexNoiseMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
