@@ -1,28 +1,26 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -43,6 +41,9 @@ import tempfile
 ''' Blender modules '''
 import bpy
 import mathutils
+
+''' vb modules '''
+from vb25.plugins import *
 
 
 TEX_TYPES= ('IMAGE', 'VRAY')
@@ -166,8 +167,8 @@ def p(t):
 	else:
 		return "%s"%(t)
 
-def a(sce,t):
-	return "interpolate((%i,%s))"%(sce.frame_current,p(t))
+def a(scene, t):
+	return "interpolate((%i,%s))" % (scene.frame_current, p(t))
 
 def transform(m):
 	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))"\
@@ -184,12 +185,6 @@ def clean_string(s):
 		if not ((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')):
 			s= s.replace(c, "_")
 	return s
-
-def rel_path(filepath):
-	if filepath[:2] == "//":
-		return True
-	else:
-		return False
 
 def get_uv_layer_id(sce, uv_layers, uv_layer_name):
 	if uv_layer_name == "":
@@ -209,24 +204,39 @@ def get_uv_layers(sce):
 
 	if sce.vray.exporter.debug:
 		for uv_layer in uv_layers:
-			print("V-Ray/Blender: UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
+			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
 
 	return uv_layers
 
-def get_data_by_name(sce, data, name):
-	if data == 'objects':
+def get_name(data, prefix= None, dupli_name= None):
+	name= data.name
+	if dupli_name:
+		name= "%s_%s"%(dupli_name,name)
+	if prefix:
+		name= "%s_%s"%(prefix,name)
+	if data.library:
+		name+= '_' + get_filename(data.library.filepath)
+	return clean_string(name)
+
+def get_data_by_name(sce, data_type, name):
+	if data_type == 'objects':
 		if name in sce.objects:
 			return sce.objects[name]
-	elif data in ('textures','materials','meshes'):
-		if name in bpy.data[data]:
-			return bpy.data[data][name]
+	elif data_type in ('textures','materials','meshes'):
+		if name in bpy.data[data_type]:
+			return bpy.data[data_type][name]
 	return None
 
-def get_filename(fn):
-	(filepath, filename)= os.path.split(bpy.path.abspath(fn))
-	return filename
+def get_filename(filepath):
+	return os.path.split(bpy.path.abspath(filepath))[1]
 
 def get_full_filepath(sce,ob,filepath):
+	def rel_path(filepath):
+		if filepath[:2] == "//":
+			return True
+		else:
+			return False
+
 	VRayDR= sce.vray.VRayDR
 
 	if ob.library and filepath[:2] == '//':
@@ -286,34 +296,18 @@ def get_render_file_format(ve,file_format):
 		file_format= 'png'
 	return file_format.lower()
 	
-def get_name(data, prefix= None, dupli_name= None):
-	name= data.name
-	if dupli_name:
-		name= "%s_%s"%(dupli_name,name)
-	if prefix:
-		name= "%s_%s"%(prefix,name)
-	if data.library:
-		name+= '_' + get_filename(data.library.filepath)
-	return clean_string(name)
-
 def object_on_visible_layers(sce,ob):
 	for l in range(20):
 		if ob.layers[l] and sce.layers[l]:
 			return True
 	return False
 
-def vb_script_path():
-	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
-		if vb_path:
-			return vb_path
-	return ''
-
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	pc_binary= "vb_proxy"
 	if PLATFORM == 'win32':
 		pc_binary+= ".exe"
-	if vb_script_path():
-		p= os.path.join(vb_script_path(),pc_binary)
+	if get_vray_exporter_path():
+		p= os.path.join(get_vray_exporter_path(),pc_binary)
 		if os.path.exists(p):
 			pc_binary= p
 
@@ -326,7 +320,13 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 
 	os.system(' '.join(params))
 
-def vb_binary_path(sce):
+def get_vray_exporter_path():
+	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
+		if vb_path:
+			return vb_path
+	return ''
+
+def get_vray_standalone_path(sce):
 	VRayExporter= sce.vray.exporter
 
 	vray_bin= "vray"
@@ -374,55 +374,55 @@ def vb_binary_path(sce):
 
 	return vray_bin
 
-def get_plugin(plugins, plugin_id):
-	for plugin in plugins:
-		if plugin.ID == plugin_id:
-			return plugin
-	return None
-
-def get_filenames(sce, filetype):
+def get_filenames(scene, filetype):
 	def create_dir(directory):
-		if PLATFORM != 'win32':
-			directory= directory.replace('\\','/')
+		# if PLATFORM != 'win32':
+		# 	directory= directory.replace('\\','/')
 		if not os.path.exists(directory):
-			print("V-Ray/Blender: Path doesn't exist, trying to create...")
-			print("V-Ray/Blender: Creating directory: %s"%(directory))
+			debug(scene, "Path \"%\" doesn't exist, trying to create... " % directory, newline= False)
 			try:
 				os.mkdir(directory)
+				debug(scene, "done!")
 			except:
-				print("V-Ray/Blender: Creating directory \"%s\" failed!"%(directory))
 				directory= tempfile.gettempdir()
-				print("V-Ray/Blender: Using default exporting path: \"%s\""%(directory))
+				debug(scene, "failed!")
+				debug(scene, "Using default exporting path: %s"%(directory))
 		return directory
 
-	ve= sce.vray.exporter
-	VRayDR= sce.vray.VRayDR
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
+	VRayDR=       VRayScene.VRayDR
 	
 	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
+
+	# Blend-file name without extension
 	blendfile_name= blendfile_name[:-6]
 
+	# Default export directory is system's %TMP%
 	default_dir= tempfile.gettempdir()
-	export_dir= default_dir
 
-	export_file= 'scene'
-	if ve.output_unique:
-		export_file= blendfile_name
+	# Export directory
+	export_dir= default_dir
+	export_file= blendfile_name if VRayExporter.output_unique else 'scene'
 
 	if VRayDR.on:
-		export_dir= os.path.join(bpy.path.abspath(VRayDR.shared_dir), blendfile_name + os.sep)
+		export_dir= os.path.join(
+			bpy.path.abspath(VRayDR.shared_dir),
+			blendfile_name + os.sep
+		)
 	else:
-		if ve.output == 'USER':
-			if ve.output_dir == "":
-				export_dir= default_dir
+		if VRayExporter.output == 'USER':
+			if VRayExporter.output_dir:
+				export_dir= bpy.path.abspath(VRayExporter.output_dir)
 			else:
-				export_dir= bpy.path.abspath(ve.output_dir)
-		elif ve.output == 'SCENE':
+				export_dir= default_dir
+		elif VRayExporter.output == 'SCENE':
 			export_dir= blendfile_path
 
-		if ve.output != 'USER':
+		if VRayExporter.output != 'USER':
 			export_dir= os.path.join(export_dir,"vb25")
 
-	filepath= export_dir
+	filepath=  default_dir if blendfile_name == 'startup' else export_dir
 
 	if filetype in ('scene', 'materials', 'lights', 'nodes', 'camera'):
 		filepath= os.path.join(create_dir(export_dir), "%s_%s.vrscene" % (export_file,filetype))
@@ -434,7 +434,7 @@ def get_filenames(sce, filetype):
 		filepath= create_dir(os.path.join(export_dir,filetype))
 
 	elif filetype == 'output':
-		if blendfile_name == 'startup.blend':
+		if blendfile_name == 'startup':
 			filepath= create_dir(export_dir)
 		else:
 			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
@@ -442,37 +442,33 @@ def get_filenames(sce, filetype):
 	return filepath
 
 
-CONVERT_BLEND_TYPE= {
-	'MIX':          'OVER',
-	'SCREEN':       'OVER',
-	'DIVIDE':       'OVER',
-	'HUE':          'OVER',
-	'VALUE':        'OVER',
-	'COLOR':        'OVER',
-	'SOFT LIGHT':   'OVER',
-	'LINEAR LIGHT': 'OVER',
-	'OVERLAY':      'OVER',
-	'ADD':          'ADD',
-	'SUBTRACT':     'SUBTRACT',
-	'MULTIPLY':     'MULTIPLY',
-	'DIFFERENCE':   'DIFFERENCE',
-	'DARKEN':       'DARKEN',
-	'LIGHTEN':      'LIGHTEN',
-	'SATURATION':   'SATURATE',
-}
-
-
-#debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))
-
-
 class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname = "vray.convert_scene"
-	bl_label  = "Convert materials"
+	bl_idname      = "vray.convert_scene"
+	bl_label       = "Convert materials"
 	bl_description = "Convert scene materials from Blender Internal to V-Ray."
 
-	def invoke(self, context, event):
+	CONVERT_BLEND_TYPE= {
+		'MIX':          'OVER',
+		'SCREEN':       'OVER',
+		'DIVIDE':       'OVER',
+		'HUE':          'OVER',
+		'VALUE':        'OVER',
+		'COLOR':        'OVER',
+		'SOFT LIGHT':   'OVER',
+		'LINEAR LIGHT': 'OVER',
+		'OVERLAY':      'OVER',
+		'ADD':          'ADD',
+		'SUBTRACT':     'SUBTRACT',
+		'MULTIPLY':     'MULTIPLY',
+		'DIFFERENCE':   'DIFFERENCE',
+		'DARKEN':       'DARKEN',
+		'LIGHTEN':      'LIGHTEN',
+		'SATURATION':   'SATURATE',
+	}
+
+	def execute(self, context):
 		for ma in bpy.data.materials:
-			print("V-Ray/Blender: Processing material: %s" % ma.name)
+			debug(context.scene, "Converting material: %s" % ma.name)
 			
 			rm= ma.raytrace_mirror
 			rt= ma.raytrace_transparency
@@ -500,30 +496,30 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 					VRaySlot=    slot.texture.vray_slot
 					VRayTexture= slot.texture.vray
 
-					VRaySlot.blend_mode= CONVERT_BLEND_TYPE[slot.blend_type]
+					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
 					
 					if slot.use_map_emit:
 						VRayMaterial.type= 'EMIT'
 
-			if ma.type == 'VOLUME':
-				VRayMaterial.type= 'VOL'
+			# if ma.type == 'VOLUME':
+			# 	VRayMaterial.type= 'VOL'
 				
 		return{'FINISHED'}
 
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
-	bl_idname = "vray.flip_resolution"
-	bl_label  = "Flip resolution"
+	bl_idname      = "vray.flip_resolution"
+	bl_label       = "Flip resolution"
 	bl_description = "Flip render resolution."
 
-	def invoke(self, context, event):
+	def execute(self, context):
 		scene= context.scene
 		rd=    scene.render
 
 		VRayScene= scene.vray
 
 		if VRayScene.image_aspect_lock:
-			VRayScene.image_aspect= 1 / VRayScene.image_aspect
+			VRayScene.image_aspect= 1.0 / VRayScene.image_aspect
 
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x

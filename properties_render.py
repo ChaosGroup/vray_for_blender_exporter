@@ -569,6 +569,18 @@ VRayExporter.use_material_nodes= BoolProperty(
 	default= False
 )
 
+VRayExporter.use_render_operator= BoolProperty(
+	name= "Use render operator",
+	description= "Use render operator.",
+	default= False
+)
+
+VRayExporter.detach= BoolProperty(
+	name= "Detach renderer process",
+	description= "Detach renderer process.",
+	default= False
+)
+
 VRayExporter.mesh_active_layers= BoolProperty(
 	name= "Export meshes from active layers",
 	description= "Export meshes from active layers only.",
@@ -685,6 +697,12 @@ VRayExporter.output_dir= StringProperty(
 VRayExporter.output_unique= BoolProperty(
 	name= "Use unique file name",
 	description= "Use unique file name.",
+	default= False
+)
+
+VRayExporter.auto_save_render= BoolProperty(
+	name= "Save render",
+	description= "Save render automatically.",
 	default= False
 )
 
@@ -951,7 +969,10 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.operator('render.render', text="Image", icon='RENDER_STILL')
+		if ve.use_render_operator:
+			col.operator('vray.render', text="Image", icon='RENDER_STILL')
+		else:
+			col.operator('render.render', text="Image", icon='RENDER_STILL')
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
@@ -1071,6 +1092,8 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(ve, 'debug')
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'compat_mode')
+		col.prop(ve, 'use_render_operator')
+		col.prop(ve, 'auto_save_render')
 		sub= col.column()
 		sub.active= False
 		sub.prop(ve, 'image_to_blender')
@@ -1089,6 +1112,7 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
+		col.prop(ve, 'detach')
 		col.prop(ve, 'detect_vray')
 		if not ve.detect_vray:
 			split= layout.split()

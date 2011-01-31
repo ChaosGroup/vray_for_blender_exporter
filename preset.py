@@ -67,7 +67,7 @@ class VBPresetBase():
 
 			filename= self.as_filename(self.name)
 			
-			target_path= os.path.normpath(os.path.join(vb_script_path(), "presets", self.preset_subdir))
+			target_path= os.path.normpath(os.path.join(get_vray_exporter_path(), "presets", self.preset_subdir))
 
 			filepath= os.path.join(target_path, filename) + ".py"
 			
@@ -94,7 +94,7 @@ class VBPresetBase():
 		else:
 			preset_active = preset_menu_class.bl_label
 
-			filepath= os.path.join(vb_script_path(), "presets", self.preset_subdir, preset_active+".py")
+			filepath= os.path.join(get_vray_exporter_path(), "presets", self.preset_subdir, preset_active+".py")
 
 			if not os.path.exists(filepath):
 				return {'CANCELLED'}

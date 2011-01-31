@@ -29,6 +29,7 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.shaders import *
+from vb25.ui.ui import *
 
 TYPE= 'TEXTURE'
 
@@ -570,14 +571,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-class TPTexNoiseMax():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-class VRAY_TP_TexNoiseMax(TPTexNoiseMax, bpy.types.Panel):
+class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 	bl_label       = NAME
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -587,7 +581,7 @@ class VRAY_TP_TexNoiseMax(TPTexNoiseMax, bpy.types.Panel):
 		if not tex:
 			return False
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and tex.vray.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and tex.vray.type == ID) and (base_poll(__class__, context)))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -648,4 +642,3 @@ class VRAY_TP_TexNoiseMax(TPTexNoiseMax, bpy.types.Panel):
 		# col.prop(TexNoiseMax, 'un_noise_phase')
 
 bpy.types.register(VRAY_TP_TexNoiseMax)
-

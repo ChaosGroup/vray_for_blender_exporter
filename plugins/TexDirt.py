@@ -65,12 +65,13 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.shaders import *
+from vb25.ui.ui import *
 
-
-class TexDirt(bpy.types.IDPropertyGroup):
-    pass
 
 def add_properties(VRayTexture):
+	class TexDirt(bpy.types.IDPropertyGroup):
+		pass
+	
 	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",
 		type=  TexDirt,
@@ -296,16 +297,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexDirtTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
+class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -317,7 +309,7 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (base_poll(__class__, context)))
 	
 	def draw(self, context):
 		tex= context.texture

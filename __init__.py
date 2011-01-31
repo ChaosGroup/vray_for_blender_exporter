@@ -31,7 +31,7 @@
 # 	"version":     (0, 0, 1),
 # 	"blender":     (2, 5, 6),
 # 	"api":         34471,
-# 	"location":    "Info Header (engine dropdown)",
+# 	"location":    "Info Header",
 # 	"description": "V-Ray Standalone integration for Blender",
 # 	"warning":     "",
 # 	"wiki_url":    "http://github.com/bdancer/vb25/wiki",
@@ -39,22 +39,38 @@
 # 	"category":    "Render"
 # }
 
+import bpy
+
 from vb25 import plugins
+from vb25 import ui
+from vb25 import properties_camera
+from vb25 import properties_data
+from vb25 import properties_lamp 
+from vb25 import properties_material
+from vb25 import properties_object
+from vb25 import properties_texture
+from vb25 import properties_render
+from vb25 import properties_world
 from vb25 import shaders
 from vb25 import preset
 from vb25 import render
-from vb25 import properties_camera
-from vb25 import properties_lamp
-from vb25 import properties_material
-from vb25 import properties_texture
-from vb25 import properties_world
-from vb25 import properties_object
-from vb25 import properties_data
-from vb25 import properties_render
-from vb25 import properties_scene
+from vb25 import render_ops
 
 def register():
+	keymap= bpy.context.window_manager.keyconfigs.default.keymaps['Screen']
+	keymap.items.new(
+		idname= 'vray.render',
+		type=   'F12',
+		value=  'PRESS',
+		oskey=   True,
+	)
+
 	plugins.add_properties()
 
 def unregister():
+	keymap= bpy.context.window_manager.keyconfigs.default.keymaps['Screen']
+	for keymap_item in keymap.items:
+		if keymap_item.idname == 'vray.render':
+			keymap.items.remove(keymap_item)
+
 	plugins.remove_properties()
