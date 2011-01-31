@@ -566,6 +566,47 @@ def add_properties(rna_pointer):
   Write plugins settings to file
 '''
 def write(ofile, sce, params):
+	def write_EnvironmentFog(ofile,volume,material):
+		LIGHT_MODE= {
+			'ADDGIZMO':    4,
+			'INTERGIZMO':  3,
+			'OVERGIZMO':   2,
+			'PERGIZMO':    1,
+			'NO':          0
+		}
+
+		plugin= 'EnvironmentFog'
+		name= "%s_%s" % (plugin,material)
+
+		ofile.write("\n%s %s {"%(plugin,name))
+		ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
+		for param in volume[material]['params']:
+			if param == 'light_mode':
+				value= LIGHT_MODE[volume[material]['params'][param]]
+			elif param in ('density_tex','fade_out_tex','emission_mult_tex'):
+				value= "%s::out_intensity" % volume[material]['params'][param]
+			else:
+				value= volume[material]['params'][param]
+			ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+		ofile.write("\n}\n")
+
+		return name
+
+	def write_EnvFogMeshGizmo(ofile, node_name, node_geometry, node_matrix):
+		plugin= 'EnvFogMeshGizmo'
+		name= "%s_%s" % (plugin,node_name)
+
+		ofile.write("\n%s %s {"%(plugin,name))
+		ofile.write("\n\ttransform= %s;" % a(sce,transform(node_matrix)))
+		ofile.write("\n\tgeometry= %s;" % node_geometry)
+		#ofile.write("\n\tlights= %s;" % )
+		#ofile.write("\n\tfade_out_radius= %s;" % )
+		ofile.write("\n}\n")
+
+		return name
+
+	# TODO:
+	
 	pass
 
 

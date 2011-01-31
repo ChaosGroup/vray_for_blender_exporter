@@ -41,10 +41,8 @@ import mathutils
 ''' vb modules '''
 from vb25.utils import *
 from vb25.shaders import *
-from vb25.plugin_manager import *
+from vb25.plugins import *
 
-
-uv_layers= object_params['uv_ids']
 
 def get_brdf_type(ma):
 	vma= ma.vray
@@ -143,11 +141,13 @@ def write_node(ofile, ma, nt, no):
 
 def write_node_material(params):
 	ofile= params['file']
-	ob= params['object']
-	ma= params['material']
+	ob=    params['object']
+	ma=    params['material']
+	uvs=   params['object']['uv_ids']
 
 	params['node_tree']= node_tree
-		
+
+
 	debug(sce,"Writing node material: %s"%(ma.name))
 	node_tree= ma.node_tree
 	for node in node_tree.nodes:

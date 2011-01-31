@@ -44,10 +44,7 @@ from vb25.shaders import *
 from vb25.plugins import *
 
 ''' vb dev modules '''
-try:
-	from vb25.nodes import *
-except:
-	pass
+from vb25.nodes import *
 
 
 '''
@@ -332,7 +329,7 @@ def write_mesh_file(ofile, exported_proxy, ob):
 
 
 '''
-  MATERIALS
+  MATERIALS & TEXTURES
 '''
 def lamp_defaults(la):
 	VRayLamp= la.vray
@@ -845,10 +842,6 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 	return object_list
 
 
-def write_visible_from_view(ofile, name, base_mtl, params):
-	return ma_name
-
-
 def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,ob,params):
 	visibility= params['visibility']
 
@@ -1106,47 +1099,6 @@ def write_environment(params):
 		ofile.write("\n\tenvironment_volume= List(%s);"%(','.join(volumes)))
 
 	ofile.write("\n}\n")
-
-
-def write_EnvironmentFog(ofile,volume,material):
-	LIGHT_MODE= {
-		'ADDGIZMO':    4,
-		'INTERGIZMO':  3,
-		'OVERGIZMO':   2,
-		'PERGIZMO':    1,
-		'NO':          0
-	}
-
-	plugin= 'EnvironmentFog'
-	name= "%s_%s" % (plugin,material)
-
-	ofile.write("\n%s %s {"%(plugin,name))
-	ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
-	for param in volume[material]['params']:
-		if param == 'light_mode':
-			value= LIGHT_MODE[volume[material]['params'][param]]
-		elif param in ('density_tex','fade_out_tex','emission_mult_tex'):
-			value= "%s::out_intensity" % volume[material]['params'][param]
-		else:
-			value= volume[material]['params'][param]
-		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
-	ofile.write("\n}\n")
-
-	return name
-
-
-def write_EnvFogMeshGizmo(ofile, node_name, node_geometry, node_matrix):
-	plugin= 'EnvFogMeshGizmo'
-	name= "%s_%s" % (plugin,node_name)
-
-	ofile.write("\n%s %s {"%(plugin,name))
-	ofile.write("\n\ttransform= %s;" % a(sce,transform(node_matrix)))
-	ofile.write("\n\tgeometry= %s;" % node_geometry)
-	#ofile.write("\n\tlights= %s;" % )
-	#ofile.write("\n\tfade_out_radius= %s;" % )
-	ofile.write("\n}\n")
-
-	return name
 
 
 def write_LightMesh(ofile, ob, params, name, geometry, matrix):
