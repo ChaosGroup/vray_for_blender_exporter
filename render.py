@@ -47,10 +47,13 @@ from vb25.plugins import *
 from vb25.nodes import *
 
 
+VERSION= '2.5.10'
+
+
 '''
   MESHES
 '''
-def write_geometry_python(sce, geometry_file):
+def write_geometry(sce):
 	debug(sce, "Writing meshes...")
 
 	VRayScene= sce.vray
@@ -203,6 +206,8 @@ def write_geometry_python(sce, geometry_file):
 			ofile.write(");")
 		ofile.write("\n}\n")
 
+	geometry_file= get_filenames(sce,'geometry')
+
 	for t in range(sce.render.threads):
 		ofile= open(geometry_file[:-11]+"_%.2i.vrscene"%(t), 'w')
 		ofile.close()
@@ -312,17 +317,21 @@ def write_mesh_displace(ofile, mesh, params):
 
 def write_mesh_file(ofile, exported_proxy, ob):
 	proxy= ob.data.vray.GeomMeshFile
-	proxy_name= "Proxy_%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
+	proxy_name= "PR%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
 
-	if proxy_name not in exported_proxy:
-		exported_proxy.append(proxy_name)
+	if proxy.anim_type not in ('STILL'):
+		proxy_name= "OB%sPR%s" % (clean_string(ob.data.name), clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7]))
+
+	if proxy_name in exported_proxy:
+		return proxy_name
+	exported_proxy.append(proxy_name)
 		
-		ofile.write("\nGeomMeshFile %s {" % proxy_name)
-		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,ob,proxy.file))
-		ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
-		ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
-		ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
-		ofile.write("\n}\n")
+	ofile.write("\nGeomMeshFile %s {" % proxy_name)
+	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(sce,ob,proxy.file))
+	ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
+	ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
+	ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
+	ofile.write("\n}\n")
 
 	return proxy_name
 
@@ -785,22 +794,6 @@ def write_multi_material(ofile, ob):
 
 	return mtl_name
 
-# 'VolumeVRayToon'
-#   lineColor: color = Color(0, 0, 0), The color of cartoon line
-#   widthType: integer = 0
-#   lineWidth: float = 1.5
-#   opacity: float = 1
-#   hideInnerEdges: bool = false
-#   normalThreshold: float = 0.7
-#   overlapThreshold: float = 0.95
-#   traceBias: float = 0.2
-#   doSecondaryRays: bool = false
-#   excludeType: integer = 0
-#   excludeList: plugin, unlimited list
-#   lineColor_tex: acolor texture
-#   lineWidth_tex: float texture
-#   opacity_tex: float texture
-#   distortion_tex: float texture
 
 def write_materials(ofile,ob,filters,object_params):
 	uv_layers= object_params['uv_ids']
@@ -822,24 +815,6 @@ def write_materials(ofile,ob,filters,object_params):
 		else:
 			ma_name= write_multi_material(ofile, ob)
 	return ma_name
-
-
-def generate_object_list(object_names_string= None, group_names_string= None):
-	object_list= []
-
-	if object_names_string:
-		ob_names= object_names_string.split(';')
-		for ob_name in ob_names:
-			if ob_name in bpy.data.objects:
-				object_list.append(bpy.data.objects[ob_name])
-
-	if group_names_string:
-		gr_names= group_names_string.split(';')
-		for gr_name in gr_names:
-			if gr_name in bpy.data.groups:
-				object_list.extend(bpy.data.groups[gr_name].objects)
-
-	return object_list
 
 
 def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,ob,params):
@@ -1237,11 +1212,7 @@ def write_lamp(ob, params, add_params= None):
 	ofile.write("\n}\n")
 
 
-def write_camera(sce, ofile, camera= None, bake= False):
-	def get_distance(ob1, ob2):
-		vec= ob1.location - ob2.location
-		return vec.length
-		
+def write_camera(sce, ofile, camera= None):
 	def get_lens_shift(ob):
 		camera= ob.data
 		shift= 0.0
@@ -1268,32 +1239,28 @@ def write_camera(sce, ofile, camera= None, bake= False):
 				shift= 0.0
 		return shift
 
-	ca= camera if camera is not None else sce.camera
+	ofile=  params['files']['camera']
+	scene=  params['scene']
+	camera= params['camera'] if params['camera'] else scene.camera
 
-	if ca is not None:
-		VRayCamera= ca.data.vray
+	if camera is not None:
+		VRayScene= scene.vray
+		VRayBake=  VRayScene.VRayBake
+
+		VRayCamera=     camera.data.vray
 		SettingsCamera= VRayCamera.SettingsCamera
 		CameraPhysical= VRayCamera.CameraPhysical
 
-		wx= sce.render.resolution_x * sce.render.resolution_percentage / 100
-		wy= sce.render.resolution_y * sce.render.resolution_percentage / 100
+		fov= VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
 
-		aspect= float(wx) / float(wy)
+		aspect= float(scene.render.resolution_x) / float(scene.render.resolution_y)
 
-		fov= ca.data.angle
-		if VRayCamera.override_fov:
-			fov= VRayCamera.fov
-			
 		if aspect < 1.0:
 			fov= fov * aspect
 
-		if bake:
-			VRayBake= sce.vray.VRayBake
-			bake_ob= None
+		if VRayBake.use:
+			bake_ob= get_data_by_name(scene, 'objects', VRayBake.object)
 		
-			if VRayBake.object in bpy.data.objects:
-				bake_ob= bpy.data.objects[VRayBake.object]
-
 			if bake_ob:
 				ofile.write("\nUVWGenChannel UVWGenChannel_BakeView {")
 				ofile.write("\n\tuvw_transform=Transform(")
@@ -1306,26 +1273,26 @@ def write_camera(sce, ofile, camera= None, bake= False):
 				ofile.write("\n\t);")
 				ofile.write("\n\tuvw_channel=1;")
 				ofile.write("\n}\n")
-				ofile.write("\nBakeView {")
+				ofile.write("\nBakeView BakeView {")
 				ofile.write("\n\tbake_node= %s;" % get_name(bake_ob,"Node"))
 				ofile.write("\n\tbake_uvwgen= UVWGenChannel_BakeView;")
 				ofile.write("\n\tdilation= %i;" % VRayBake.dilation)
 				ofile.write("\n\tflip_derivs= %i;" % VRayBake.flip_derivs)
 				ofile.write("\n}\n")
 			else:
-				print("V-Ray/Blender: Error! No object selected for baking!")
-
+				debug(scene, "No object selected for baking!", error=True)
+				return
 		else:
 			ofile.write("\nRenderView RenderView {")
-			ofile.write("\n\ttransform= %s;"%(a(sce,transform(ca.matrix_world))))
-			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+			ofile.write("\n\ttransform= %s;" % a(scene, transform(ca.matrix_world)))
+			ofile.write("\n\tfov= %s;" % a(scene, fov))
 			if SettingsCamera.type != 'SPHERIFICAL':
 				ofile.write("\n\tclipping= 1;")
-				ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
-				ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
+				ofile.write("\n\tclipping_near= %s;" % a(scene, ca.data.clip_start))
+				ofile.write("\n\tclipping_far= %s;" % a(scene, ca.data.clip_end))
 			if ca.data.type == 'ORTHO':
 				ofile.write("\n\torthographic= 1;")
-				ofile.write("\n\torthographicWidth= %s;" % a(sce,ca.data.ortho_scale))
+				ofile.write("\n\torthographicWidth= %s;" % a(scene, ca.data.ortho_scale))
 			ofile.write("\n}\n")
 
 		ofile.write("\nSettingsCamera Camera {")
@@ -1333,8 +1300,8 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n\ttype= 7;")
 			ofile.write("\n\theight= %s;" % a(sce,ca.data.ortho_scale))
 		else:
-			ofile.write("\n\ttype= %i;"%(CAMERA_TYPE[SettingsCamera.type]))
-		ofile.write("\n\tfov= %s;"%(a(sce,fov)))
+			ofile.write("\n\ttype= %i;" % CAMERA_TYPE[SettingsCamera.type])
+		ofile.write("\n\tfov= %s;" % a(sce,fov))
 		ofile.write("\n}\n")
 
 		focus_distance= ca.data.dof_distance
@@ -1363,8 +1330,135 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\n}\n")
 
 
-def write_scene(sce, bake= False):
-	VRayScene= sce.vray
+def get_visibility_lists(camera):
+	VRayCamera= camera.data.vray
+
+	visibility= {
+		'all':     [],
+		'camera':  [],
+		'gi':      [],
+		'reflect': [],
+		'refract': [],
+		'shadows': [],
+	}
+
+	if VRayCamera.hide_from_view:
+		for hide_type in visibility:
+			if getattr(VRayCamera, 'hf_%s' % hide_type):
+				if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
+					visibility[hide_type]= generate_object_list(group_names_string= 'hf_%s' % ca.name)
+				else:
+					visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
+
+	return visibility
+
+
+def write_settings(scene):
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
+	VRayDR=       VRayScene.VRayDR
+
+	ofile= open(get_filenames(scene,'scene'), 'w')
+
+	ofile.write("// V-Ray/Blender %s\n" % VERSION)
+	ofile.write("// Settings\n\n")
+
+	for f in ('materials', 'lights', 'nodes', 'camera'):
+		if VRayDR.on:
+			if VRayDR.type == 'UU':
+				ofile.write("#include \"%s\"\n" % get_filenames(scene,f))
+			elif VRayDR.type == 'WU':
+				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+			else:
+				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+		else:
+			ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(scene,f))))
+
+	for t in range(scene.render.threads):
+		ofile.write("#include \"%s_%.2i.vrscene\"\n" % (os.path.basename(get_filenames(scene,'geometry'))[:-11], t))
+
+	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
+	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
+
+	ofile.write("\nSettingsOutput {")
+	ofile.write("\n\timg_separateAlpha= %d;"%(0))
+	ofile.write("\n\timg_width= %s;" % wx)
+	if VRayScene.VRayBake.use:
+		ofile.write("\n\timg_height= %s;" % wx)
+	else:
+		ofile.write("\n\timg_height= %s;" % wy)
+	if VRayExporter.animation:
+		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(scene.camera.name),get_render_file_format(VRayExporter,scene.render.file_format)))
+		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(scene,'output')))
+		ofile.write("\n\timg_file_needFrameNumber= 1;")
+		ofile.write("\n\tanim_start= %d;"%(scene.frame_start))
+		ofile.write("\n\tanim_end= %d;"%(scene.frame_end))
+		ofile.write("\n\tframe_start= %d;"%(scene.frame_start))
+		ofile.write("\n\tframes_per_second= %d;"%(1.0) )
+		ofile.write("\n\tframes= %d-%d;"%(scene.frame_start, scene.frame_end))
+	ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
+	ofile.write("\n\tframe_stamp_text= \"%s\";"%("vb25 (git) | V-Ray Standalone %%vraycore | %%rendertime"))
+	ofile.write("\n}\n")
+
+	SettingsImageSamplerFilter= VRayScene.SettingsImageSampler
+	if SettingsImageSamplerFilter.filter_type != 'NONE':
+		ofile.write(AA_FILTER_TYPE[SettingsImageSamplerFilter.filter_type])
+		ofile.write("\n\tsize= %.3f;" % SettingsImageSamplerFilter.filter_size)
+		ofile.write("\n}\n")
+
+	for module in MODULES:
+		vmodule= getattr(VRayScene, module)
+
+		ofile.write("\n%s {"%(module))
+		if module == 'SettingsImageSampler':
+			ofile.write("\n\ttype= %d;"%(IMAGE_SAMPLER_TYPE[vmodule.type]))
+		elif module == 'SettingsColorMapping':
+			ofile.write("\n\ttype= %d;"%(COLOR_MAPPING_TYPE[vmodule.type]))
+
+		for param in MODULES[module]:
+			ofile.write("\n\t%s= %s;"%(param, p(getattr(vmodule, param))))
+		ofile.write("\n}\n")
+
+	ofile.write("\nSettingsEXR SettingsEXR {")
+	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
+	ofile.write("\n\tbits_per_channel= %d;" % (16 if scene.render.use_exr_half else 32))
+	ofile.write("\n}\n")
+
+	ofile.write("\nSettingsJPEG SettingsJPEG {")
+	ofile.write("\n\tquality= %d;" % scene.render.file_quality)
+	ofile.write("\n}\n")
+
+	ofile.write("\nSettingsPNG SettingsPNG {")
+	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 90))
+	ofile.write("\n\tbits_per_channel= 16;")
+	ofile.write("\n}\n")
+
+	for plugin in SETTINGS_PLUGINS:
+		if hasattr(plugin, 'write'):
+			if hasattr(plugin, 'PLUG'):
+				rna_pointer= getattr(VRayScene, plugin.PLUG)
+				plugin.write(ofile, scene, rna_pointer)
+			else:
+				plugin.write(ofile, scene, {})
+
+	for render_channel in VRayScene.render_channels:
+		plugin= get_plugin_by_id(CHANNEL_PLUGINS, render_channel.type)
+		if plugin:
+			plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
+
+	# plug= get_plugin_by_name('TexSky')
+	# if plug:
+	# 	print(plug.NAME)
+
+	# print('ID', get_plugin_property(SettingsIrradianceMap,'detail_scale'))
+
+	ofile.write("\n")
+
+
+def write_scene(sce):
+	scene= sce
+	
+	VRayScene=       scene.vray
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
@@ -1510,6 +1604,14 @@ def write_scene(sce, bake= False):
 			write_object(ob,params,add_params)
 
 	def write_frame(camera= None):
+		timer= time.clock()
+
+		debug(scene, "Writing frame (%i)..."%(scene.frame_current), False)
+
+		VRayScene=       scene.vray
+		VRayExporter=    VRayScene.exporter
+		SettingsOptions= VRayScene.SettingsOptions
+
 		params= {
 			'scene': sce,
 			'camera': camera,
@@ -1522,45 +1624,26 @@ def write_scene(sce, bake= False):
 			},
 			'types': types,
 			'uv_ids': get_uv_layers(sce),
+			'camera': camera,
 		}
 
 		if camera:
-			VRayCamera= ca.data.vray
+			params['visibility']= get_visibility_lists(camera)
+			debug(sce, "Hide from view:")
+			for key in params['visibility']:
+				debug(sce, "  %s: %s" % (key.capitalize(), params['visibility'][key]))
 
-			visibility= {
-				'all':     [],
-				'camera':  [],
-				'gi':      [],
-				'reflect': [],
-				'refract': [],
-				'shadows': [],
-			}
-
-			if VRayCamera.hide_from_view:
-				for hide_type in visibility:
-					if getattr(VRayCamera, 'hf_%s' % hide_type):
-						if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
-							visibility[hide_type]= generate_object_list(group_names_string= 'hf_%s' % ca.name)
-						else:
-							visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
-
-			params['visibility']= visibility
-			debug(sce, "Hide from view: %s" %  visibility)
-
-		write_environment(params)
-		write_camera(sce, params['files']['camera'])
-
-		for ob in sce.objects:
+		for ob in scene.objects:
 			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 				continue
 
 			if VRayExporter.active_layers:
-				if not object_on_visible_layers(sce,ob):
+				if not object_on_visible_layers(scene,ob):
 					if ob.type == 'LAMP':
-						if VRayScene.use_hidden_lights:
-							pass
-					elif SettingsOptions.geom_doHidden:
-						pass
+						if not VRayScene.use_hidden_lights:
+							continue
+					elif not SettingsOptions.geom_doHidden:
+						continue
 					else:
 						continue
 
@@ -1572,24 +1655,21 @@ def write_scene(sce, bake= False):
 					if not SettingsOptions.geom_doHidden:
 						continue
 
-			debug(sce,"[%s]: %s"%(ob.type,ob.name))
-			debug(sce,"  Animated: %d"%(1 if ob.animation_data else 0))
-			if hasattr(ob,'data'):
-				if ob.data:
-					debug(sce,"  Data animated: %d"%(1 if ob.data.animation_data else 0))
-			if not VRayExporter.debug:
-				if PLATFORM == "win32":
-					sys.stdout.write("V-Ray/Blender: [%d] %s: %s                              \r"%(sce.frame_current, ob.type, ob.name))
-				else:
-					sys.stdout.write("V-Ray/Blender: [%d] %s: \033[0;32m%s\033[0m                              \r"%(sce.frame_current, ob.type, ob.name))
-				sys.stdout.flush()
+			if PLATFORM == "linux2":
+				debug(scene, "{0}: \033[0;32m{1:<32}\033[0m".format(ob.type, ob.name), True if VRayExporter.debug else False)
+			else:
+				debug(scene, "{0}: {1:<32}".format(ob.type, ob.name), True if VRayExporter.debug else False)
 
-			_write_object(ob, params)
+			#_write_object(ob, params)
 
-		del params
+		#write_environment(params)
+		#write_camera(params)
 
-	sys.stdout.write("V-Ray/Blender: Writing scene...\n")
+		debug(scene, "Writing frame {0}... done {1:<64}".format(scene.frame_current, "[%.2f]"%(time.clock() - timer)))
+
 	timer= time.clock()
+
+	debug(sce, "Writing scene...")
 
 	if VRayExporter.animation:
 		selected_frame= sce.frame_current
@@ -1601,15 +1681,11 @@ def write_scene(sce, bake= False):
 		sce.frame_set(selected_frame)
 	else:
 		write_frame(ca)
-
-	# if len(types['volume']):
-	# 	write_environment(files['nodes'], params, volume= [write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
-
-	# write_settings(sce,files['scene'])
+		
+	write_settings(sce)
 
 	for key in files:
 		files[key].write("\n// vim: set syntax=on syntax=c:\n\n")
 		files[key].close()
 
-	sys.stdout.write("V-Ray/Blender: Writing scene done. [%.2f]                    \n" % (time.clock() - timer))
-	sys.stdout.flush()
+	debug(sce, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))

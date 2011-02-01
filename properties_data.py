@@ -87,7 +87,7 @@ GeomMeshFile.anim_type= EnumProperty(
 		('PINGPONG', "Ping-pong", "."),
 		('STILL',    "Still",     ".")
 	),
-	default= 'LOOP'
+	default= 'STILL'
 )
 
 GeomMeshFile.mode= EnumProperty(

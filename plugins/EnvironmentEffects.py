@@ -606,6 +606,7 @@ def write(ofile, sce, params):
 		return name
 
 	# TODO:
+	# write_environment(files['nodes'], params, volume= [write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']])
 	
 	pass
 

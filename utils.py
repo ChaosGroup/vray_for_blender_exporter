@@ -45,10 +45,6 @@ import mathutils
 ''' vb modules '''
 from vb25.plugins import *
 
-
-TEX_TYPES= ('IMAGE', 'VRAY')
-
-
 MODULES= {
 	'SettingsRaycaster': (
 		'maxLevels',
@@ -108,14 +104,12 @@ MODULES= {
 	),
 }
 
-
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 
-try:
-	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
-except:
-	none_matrix= mathutils.Matrix((0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0))
+TEX_TYPES= ('IMAGE', 'VRAY')
+
+none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
@@ -136,12 +130,12 @@ def get_plugin_property(rna_pointer, property):
 def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
-def debug(scene, message, newline= True, error= False):
+def debug(scene, message, newline= True, cr= True, error= False):
 	sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
 		time.strftime("%Y/%b/%d|%H:%m:%S"),
 		color("Error! ", 'red') if error else '',
 		message,
-		'\n' if newline else '\r')
+		'\n' if newline else '\r' if cr else '')
 	)
 	if not newline:
 		sys.stdout.flush()
@@ -207,6 +201,23 @@ def get_uv_layers(sce):
 			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
 
 	return uv_layers
+
+def generate_object_list(object_names_string= None, group_names_string= None):
+	object_list= []
+
+	if object_names_string:
+		ob_names= object_names_string.split(';')
+		for ob_name in ob_names:
+			if ob_name in bpy.data.objects:
+				object_list.append(bpy.data.objects[ob_name])
+
+	if group_names_string:
+		gr_names= group_names_string.split(';')
+		for gr_name in gr_names:
+			if gr_name in bpy.data.groups:
+				object_list.extend(bpy.data.groups[gr_name].objects)
+
+	return object_list
 
 def get_name(data, prefix= None, dupli_name= None):
 	name= data.name
@@ -302,6 +313,10 @@ def object_on_visible_layers(sce,ob):
 			return True
 	return False
 
+def get_distance(ob1, ob2):
+	vec= ob1.location - ob2.location
+	return vec.length
+
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	pc_binary= "vb_proxy"
 	if PLATFORM == 'win32':
@@ -379,7 +394,7 @@ def get_filenames(scene, filetype):
 		# if PLATFORM != 'win32':
 		# 	directory= directory.replace('\\','/')
 		if not os.path.exists(directory):
-			debug(scene, "Path \"%\" doesn't exist, trying to create... " % directory, newline= False)
+			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory, newline= False)
 			try:
 				os.mkdir(directory)
 				debug(scene, "done!")

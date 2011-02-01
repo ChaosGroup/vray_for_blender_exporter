@@ -34,7 +34,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.ui import *
+from vb25.ui.ui import *
 
 
 class VRAY_OT_effect_add(bpy.types.Operator):

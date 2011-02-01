@@ -48,6 +48,7 @@ from vb25 import properties_data
 from vb25 import properties_lamp 
 from vb25 import properties_material
 from vb25 import properties_object
+from vb25 import properties_scene
 from vb25 import properties_texture
 from vb25 import properties_render
 from vb25 import properties_world
