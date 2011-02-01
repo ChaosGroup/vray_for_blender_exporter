@@ -736,16 +736,18 @@ def write_UVWGenChannel(ofile, sce, params):
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
-	ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
-	ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
-	ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
-	ofile.write("\n\t\tMatrix(")
-	ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
-	ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
-	ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
-	ofile.write("\n\t\t),")
-	ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
-	ofile.write("\n\t)));")
+	if hasattr(texture,'use_mirror_x'):
+		ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
+		ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
+	if hasattr(texture,'repeat_x'):
+		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
+		ofile.write("\n\t\tMatrix(")
+		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
+		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
+		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+		ofile.write("\n\t\t),")
+		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
+		ofile.write("\n\t)));")
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
@@ -874,9 +876,10 @@ def write_TexBitmap(ofile, sce, params):
 
 
 def write_TexPlugin(ofile, sce, params):
-	if 'texture' in params:
-		VRayTexture= params['texture'].vray
-		plugin= get_plugin(TEX_PLUGINS, VRayTexture.type)
+	texture= params.get('texture')
+	if texture:
+		VRayTexture= texture.vray
+		plugin= get_plugin_by_id(TEX_PLUGINS, VRayTexture.type)
 		if plugin:
 			return plugin.write(ofile, sce, params)
 

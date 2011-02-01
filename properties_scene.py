@@ -209,3 +209,27 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 				split= layout.split()
 				col= split.column()
 				col.label(text="Strange, but this effect type doesn\'t exist...")
+
+
+class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
+	bl_label   = "Tools"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return base_poll(__class__, context)
+
+	def draw(self, context):
+		layout= self.layout
+
+		wide_ui= context.region.width > narrowui
+
+		VRayScene= context.scene.vray
+
+		split= layout.split()
+		col= split.column()
+		col.operator("vray.convert_materials", icon="MATERIAL")
+
+

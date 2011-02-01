@@ -173,10 +173,8 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 	)
 
 	def execute(self, context):
-		scene= context.scene
 
-		vb25.render.write_scene(scene)
-		vb25.render.write_settings(scene)
+		vb25.render.write_scene(context.scene)
 		
 		return {'FINISHED'}
 
@@ -187,21 +185,8 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_description = "Export meshes into vrscene file."
 
 	def execute(self, context):
-		scene=        context.scene
-		VRayScene=    scene.vray
-		VRayExporter= VRayScene.exporter
 
-		try:
-			bpy.ops.vray.export_meshes(
-				filepath= get_filenames(scene,'geometry')[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-				use_instances= VRayExporter.use_instances,
-				debug= VRayExporter.debug,
-				check_animated= VRayExporter.check_animated,
-			)
-		except:
-			vb25.render.write_geometry(scene)
+		vb25.render.write_geometry(context.scene)
 
 		return {'FINISHED'}
 
@@ -212,95 +197,8 @@ class VRAY_OT_run(bpy.types.Operator):
 	bl_description = "Run V-Ray renderer."
 
 	def execute(self, context):
-		scene= context.scene
-		
-		VRayScene= scene.vray
-		VRayExporter= VRayScene.exporter
-		VRayDR=       VRayScene.VRayDR
 
-		vray_exporter=   get_vray_exporter_path()
-		vray_standalone= get_vray_standalone_path(scene)
-
-		resolution_x= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
-		resolution_y= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
-
-		params= []
-		params.append(vray_standalone)
-
-		params.append('-sceneFile=')
-		params.append(get_filenames(scene,'scene'))
-
-		if scene.render.use_border:
-			x0= resolution_x * scene.render.border_min_x
-			y0= resolution_y * (1.0 - scene.render.border_max_y)
-			x1= resolution_x * scene.render.border_max_x
-			y1= resolution_y * (1.0 - scene.render.border_min_y)
-
-			if scene.render.use_crop_to_border:
-				params.append('-crop=')
-			else:
-				params.append('-region=')
-			params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
-
-		params.append('-frames=')
-		if VRayExporter.animation:
-			params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end,int(scene.frame_step)))
-		else:
-			params.append("%d" % scene.frame_current)
-
-		if VRayDR.on:
-			if len(VRayDR.nodes):
-				params.append('-distributed=')
-				params.append('1')
-				params.append('-portNumber=')
-				params.append(str(VRayDR.port))
-				params.append('-renderhost=')
-				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
-				
-		if VRayExporter.auto_save_render:
-			params.append('-imgFile=')
-			params.append(image_file)
-
-		params.append('-display=')
-		params.append('1')
-
-		if VRayExporter.image_to_blender:
-			params.append('-autoclose=')
-			params.append('1')
-
-		if VRayExporter.autorun:
-			if VRayExporter.detach:
-				command= "(%s)&" % (' '.join(params))
-				if PLATFORM == "win32":
-					command= "start \"VRAYSTANDALONE\" /B /BELOWNORMAL \"%s\" %s" % (params[0], ' '.join(params[1:]))
-				os.system(command)
-			else:
-				process= subprocess.Popen(params)
-
-				while True:
-					if self.test_break():
-						try:
-							process.kill()
-						except:
-							pass
-						break
-
-					if process.poll() is not None:
-						try:
-							if not ve.animation and ve.image_to_blender:
-								result= self.begin_result(0, 0, resolution_x, resolution_y)
-								result.layers[0].load_from_file(load_file)
-								self.end_result(result)
-						except:
-							pass
-						break
-
-					time.sleep(0.1)
-
-		else:
-			debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
-			debug(scene, "Command: %s" % ' '.join(params))
-
+		vb25.render.run(None, context.scene)
 				
 		return {'FINISHED'}
 
@@ -318,9 +216,7 @@ class VRAY_OT_render(bpy.types.Operator):
 
 		if VRayExporter.auto_meshes:
 			bpy.ops.vray.write_geometry()
-
 		bpy.ops.vray.write_scene()
-
 		bpy.ops.vray.run()
 
 		return {'FINISHED'}
@@ -332,101 +228,13 @@ class VRayRenderer(bpy.types.RenderEngine):
 	bl_use_preview =  False
 	
 	def render(self, scene):
-		bpy.ops.vray.render()
-		
-		# global sce
+		VRayScene= scene.vray
+		VRayExporter= VRayScene.exporter
 
-		# sce= scene
-		# rd=  scene.render
-		# wo=  scene.world
-
-		# vsce= sce.vray
-		# ve= vsce.exporter
-		# dr= vsce.VRayDR
-
-		# VRayBake= vsce.VRayBake
-
-		# if ve.auto_meshes:
-		# 	bpy.ops.vray.write_geometry()
-
-		# write_scene(sce, bake= VRayBake.use)
-
-		# vb_path= get_vray_exporter_path()
-
-		# params= []
-		# params.append(get_vray_standalone_path(sce))
-
-		# image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-		# load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
-
-		# wx= rd.resolution_x * rd.resolution_percentage / 100
-		# wy= rd.resolution_y * rd.resolution_percentage / 100
-
-		# if rd.use_border:
-		# 	x0= wx * rd.border_min_x
-		# 	y0= wy * (1.0 - rd.border_max_y)
-		# 	x1= wx * rd.border_max_x
-		# 	y1= wy * (1.0 - rd.border_min_y)
-
-		# 	if rd.use_crop_to_border:
-		# 		params.append('-crop=')
-		# 	else:
-		# 		params.append('-region=')
-		# 	params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
-
-		# params.append('-sceneFile=')
-		# params.append(get_filenames(sce,'scene'))
-
-		# params.append('-display=')
-		# params.append('1')
-
-		# if ve.image_to_blender:
-		# 	params.append('-autoclose=')
-		# 	params.append('1')
-
-		# params.append('-frames=')
-		# if ve.animation:
-		# 	params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
-		# else:
-		# 	params.append("%d" % sce.frame_current)
-
-		# if dr.on:
-		# 	if len(dr.nodes):
-		# 		params.append('-distributed=')
-		# 		params.append('1')
-		# 		params.append('-portNumber=')
-		# 		params.append(str(dr.port))
-		# 		params.append('-renderhost=')
-		# 		params.append("\"%s\"" % ';'.join([n.address for n in dr.nodes]))
-				
-		# params.append('-imgFile=')
-		# params.append(image_file)
-
-		# if ve.autorun:
-		# 	process= subprocess.Popen(params)
-
-		# 	while True:
-		# 		if self.test_break():
-		# 			try:
-		# 				process.kill()
-		# 			except:
-		# 				pass
-		# 			break
-
-		# 		if process.poll() is not None:
-		# 			try:
-		# 				if not ve.animation and ve.image_to_blender:
-		# 					result= self.begin_result(0, 0, int(wx), int(wy))
-		# 					result.layers[0].load_from_file(load_file)
-		# 					self.end_result(result)
-		# 			except:
-		# 				pass
-		# 			break
-
-		# 		time.sleep(0.05)
-		# else:
-		# 	print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-		# 	print("V-Ray/Blender: Command: %s" % ' '.join(params))
+		if VRayExporter.use_render_operator:
+			vb25.render.render(self, scene)
+		else:
+			bpy.ops.vray.render()
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):

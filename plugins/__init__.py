@@ -47,6 +47,18 @@ CHANNEL_PLUGINS_TYPES= []
 
 SETTINGS_PLUGINS= []
 
+def get_plugin_by_id(plugins, plugin_id):
+	for plugin in plugins:
+		if plugin.ID == plugin_id:
+			return plugin
+	return None
+
+def get_plugin_by_name(plugins, plugin_name):
+	for plugin in plugins:
+		if plugin.PLUG == plugin_name:
+			return plugin
+	return None
+
 base_dir= get_vray_exporter_path()
 if base_dir is not None:
 	plugins_dir= os.path.join(base_dir,"plugins")
@@ -75,40 +87,31 @@ if base_dir is not None:
 	
 	sys.stdout.write("V-Ray/Blender: Loading modules... {0:<64}\r".format("done."))
 
-def get_plugin_by_id(plugins, plugin_id):
-	for plugin in plugins:
-		if plugin.ID == plugin_id:
-			return plugin
-	return None
-
-def get_plugin_by_name(plugin_name):
-	for plugin in PLUGINS:
-		if plugin.PLUG == plugin_name:
-			return plugin
-	return None
-
-def load_plugins(plugins, parent_struct, items= False):
-	if items:
-		enum_items= []
-		enum_items.append(('NONE',"None",""))
-		for plugin in plugins:
-			enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
-		return enum_items
-	else:
-		for plugin in plugins:
-			plugin.add_properties(parent_struct)
-
 
 class VRayTexture(bpy.types.IDPropertyGroup):
 	pass
 
+
 class VRayScene(bpy.types.IDPropertyGroup):
 	pass
+
 
 class VRayRenderChannel(bpy.types.IDPropertyGroup):
 	pass
 
+
 def add_properties():
+	def load_plugins(plugins, parent_struct, items= False):
+		if items:
+			enum_items= []
+			enum_items.append(('NONE',"None",""))
+			for plugin in plugins:
+				enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
+			return enum_items
+		else:
+			for plugin in plugins:
+				plugin.add_properties(parent_struct)
+
 	'''
 	  Blender GUI as is
 	'''

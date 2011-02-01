@@ -571,7 +571,7 @@ VRayExporter.use_material_nodes= BoolProperty(
 
 VRayExporter.use_render_operator= BoolProperty(
 	name= "Use render operator",
-	description= "Use render operator.",
+	description= "Use bpy.ops.render.render() operator.",
 	default= False
 )
 
@@ -625,8 +625,8 @@ VRayExporter.use_hair= BoolProperty(
 
 VRayExporter.use_instances= BoolProperty(
 	name= "Instances",
-	description= "Use instances (saves memory and faster export)",
-	default= True
+	description= "Use instances (Alt+D meshes will be the same; saves memory and faster export)",
+	default= False
 )
 
 VRayExporter.camera_loop= BoolProperty(
@@ -704,6 +704,12 @@ VRayExporter.auto_save_render= BoolProperty(
 	name= "Save render",
 	description= "Save render automatically.",
 	default= False
+)
+
+VRayExporter.display= BoolProperty(
+	name= "Display VFB",
+	description= "Display VFB.",
+	default= True
 )
 
 
@@ -970,9 +976,9 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		if ve.use_render_operator:
-			col.operator('vray.render', text="Image", icon='RENDER_STILL')
-		else:
 			col.operator('render.render', text="Image", icon='RENDER_STILL')
+		else:
+			col.operator('vray.render', text="Image", icon='RENDER_STILL')
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
@@ -994,7 +1000,18 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
 		col.prop(ve, 'active_layers')
-		col.prop(SettingsOptions, 'gi_dontRenderImage')
+		if vs.SettingsGI.on:
+			col.prop(SettingsOptions, 'gi_dontRenderImage')
+
+		# split= layout.split()
+		# col= split.column()
+		col.label(text="Options:")
+		col.prop(ve, 'use_material_nodes')
+		col.prop(ve, 'auto_save_render')
+		if not ve.detach:
+			sub= col.column()
+			sub.active= False
+			sub.prop(ve, 'image_to_blender')
 
 
 class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
@@ -1089,14 +1106,10 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		sub= col.column()
 		sub.active= False
 		sub.prop(ve, 'auto_meshes')
-		col.prop(ve, 'debug')
-		col.prop(ve, 'use_material_nodes')
-		col.prop(ve, 'compat_mode')
 		col.prop(ve, 'use_render_operator')
-		col.prop(ve, 'auto_save_render')
-		sub= col.column()
-		sub.active= False
-		sub.prop(ve, 'image_to_blender')
+		col.prop(ve, 'compat_mode')
+		col.prop(ve, 'display')
+		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Mesh export:")
@@ -1112,12 +1125,17 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(ve, 'detach')
 		col.prop(ve, 'detect_vray')
 		if not ve.detect_vray:
 			split= layout.split()
 			col= split.column()
 			col.prop(ve, 'vray_binary')
+		split= layout.split()
+		col= split.column()
+		col.prop(ve, 'detach', text="Detach process")
+		if wide_ui:
+			col= split.column()
+		col.prop(ve, 'log_window')
 
 		layout.separator()
 
@@ -1139,13 +1157,7 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		sub= col.column()
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, "threads")
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.operator("vray.convert_scene", icon="MATERIAL")
-		
+	
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"

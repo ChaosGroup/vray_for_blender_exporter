@@ -454,11 +454,19 @@ def get_filenames(scene, filetype):
 		else:
 			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
 
+	debug(scene, filepath)
+
 	return filepath
 
 
+def print_dict(scene, title, params):
+	debug(scene, "%s:" % title)
+	for key in params:
+		debug(scene, "  %s: %s" % (key, params[key]))
+	
+
 class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname      = "vray.convert_scene"
+	bl_idname      = "vray.convert_materials"
 	bl_label       = "Convert materials"
 	bl_description = "Convert scene materials from Blender Internal to V-Ray."
 
