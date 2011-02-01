@@ -774,7 +774,7 @@ def write_UVWGenProjection(ofile, sce, params):
 	uvw_name= params['name'] + 'UVP'
 
 	VRayTexture= texture.vray
-	VRayTexture.uvwgen= uvw_name
+	#VRayTexture.uvwgen= uvw_name
 
 	if VRayTexture.object:
 		ob= get_data_by_name(sce, 'objects', VRayTexture.object)
@@ -799,7 +799,7 @@ def write_UVWGenChannel(ofile, sce, params):
 	uvw_channel= 1
 	VRaySlot= texture.vray_slot
 	VRayTexture= texture.vray
-	VRaySlot.uvwgen= uvw_name
+	#VRaySlot.uvwgen= uvw_name
 
 	if slot and 'uv_ids' in params:
 		uvw_channel= get_uv_layer_id(sce, params['uv_ids'], slot.uv_layer)
