@@ -34,57 +34,6 @@ from vb25.plugins import *
 
 
 OBJECT_PARAMS= {
-	'GeomDisplacedMesh': (
-		'displacement_amount',
-		'displacement_shift',
-		'water_level',
-        'use_globals',
-        'view_dep',
-        'edge_length',
-        'max_subdivs',
-        'keep_continuity',
-        'map_channel',
-        'use_bounds',
-        'min_bound',
-        'max_bound',
-        'resolution',
-        'precision',
-        'tight_bounds',
-        'filter_texture',
-        'filter_blur'
-	),
-	'EnvironmentFog': (
-		#'gizmos',
-		'emission',
-		#'emission_tex',
-		'color',
-		#'color_tex',
-		'distance',
-		'density',
-		#'density_tex',
-		'use_height',
-		'height',
-		'subdivs',
-		'affect_background',
-		'yup',
-		'fade_out_radius',
-		'per_object_fade_out_radius',
-		'use_fade_out_tex',
-		#'fade_out_tex',
-		'edge_fade_out',
-		'fade_out_type',
-		'scatter_gi',
-		'scatter_bounces',
-		'simplify_gi',
-		'step_size',
-		'max_steps',
-		'tex_samples',
-		'cutoff_threshold',
-		'light_mode',
-		#'lights',
-		'use_shade_instance'
-	),
-	
 	'BRDFSSS2Complex': (
 		'prepass_rate',
 		'interpolation_accuracy',
@@ -879,7 +828,7 @@ def write_TexPlugin(ofile, sce, params):
 	texture= params.get('texture')
 	if texture:
 		VRayTexture= texture.vray
-		plugin= get_plugin_by_id(TEX_PLUGINS, VRayTexture.type)
+		plugin= get_plugin_by_id(PLUGINS['TEXTURE'], VRayTexture.type)
 		if plugin:
 			return plugin.write(ofile, sce, params)
 

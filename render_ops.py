@@ -41,6 +41,91 @@ import vb25.proxy
 from vb25.utils import *
 
 
+class VRAY_OT_convert_scene(bpy.types.Operator):
+	bl_idname      = "vray.convert_materials"
+	bl_label       = "Convert materials"
+	bl_description = "Convert scene materials from Blender Internal to V-Ray."
+
+	CONVERT_BLEND_TYPE= {
+		'MIX':          'OVER',
+		'SCREEN':       'OVER',
+		'DIVIDE':       'OVER',
+		'HUE':          'OVER',
+		'VALUE':        'OVER',
+		'COLOR':        'OVER',
+		'SOFT LIGHT':   'OVER',
+		'LINEAR LIGHT': 'OVER',
+		'OVERLAY':      'OVER',
+		'ADD':          'ADD',
+		'SUBTRACT':     'SUBTRACT',
+		'MULTIPLY':     'MULTIPLY',
+		'DIFFERENCE':   'DIFFERENCE',
+		'DARKEN':       'DARKEN',
+		'LIGHTEN':      'LIGHTEN',
+		'SATURATION':   'SATURATE',
+	}
+
+	def execute(self, context):
+		for ma in bpy.data.materials:
+			debug(context.scene, "Converting material: %s" % ma.name)
+			
+			rm= ma.raytrace_mirror
+			rt= ma.raytrace_transparency
+			
+			VRayMaterial= ma.vray
+			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
+
+			if ma.emit > 0.0:
+				VRayMaterial.type= 'EMIT'
+
+			if rm.use:
+				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
+				BRDFVRayMtl.reflect_glossiness= rm.gloss_factor
+				BRDFVRayMtl.reflect_subdivs= rm.gloss_samples
+				BRDFVRayMtl.reflect_depth= rm.depth
+				BRDFVRayMtl.option_cutoff= rm.gloss_threshold
+				BRDFVRayMtl.anisotropy= 1.0 - rm.gloss_anisotropic
+
+				if rm.fresnel > 0.0:
+					BRDFVRayMtl.fresnel= True
+					BRDFVRayMtl.fresnel_ior= rm.fresnel
+			
+			for slot in ma.texture_slots:
+				if slot and slot.texture and slot.texture.type in TEX_TYPES:
+					VRaySlot=    slot.texture.vray_slot
+					VRayTexture= slot.texture.vray
+
+					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
+					
+					if slot.use_map_emit:
+						VRayMaterial.type= 'EMIT'
+
+			# if ma.type == 'VOLUME':
+			# 	VRayMaterial.type= 'VOL'
+				
+		return{'FINISHED'}
+
+
+class VRAY_OT_flip_resolution(bpy.types.Operator):
+	bl_idname      = "vray.flip_resolution"
+	bl_label       = "Flip resolution"
+	bl_description = "Flip render resolution."
+
+	def execute(self, context):
+		scene= context.scene
+		rd=    scene.render
+
+		VRayScene= scene.vray
+
+		if VRayScene.image_aspect_lock:
+			VRayScene.image_aspect= 1.0 / VRayScene.image_aspect
+
+		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
+		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
+		
+		return{'FINISHED'}
+
+
 class VRAY_OT_create_proxy(bpy.types.Operator):
 	bl_idname      = "vray.create_proxy"
 	bl_label       = "Create proxy"
@@ -161,16 +246,32 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
-class VRAY_OT_write_scene(bpy.types.Operator):
+class VRAY_OT_preview(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
 	bl_label       = "Export scene"
 	bl_description = "Export scene to \"vrscene\" file."
 
-	preview= bpy.props.BoolProperty(
-		name= "Preview",
-		description= "Write material preview scene.",
-		default= False
+	type= bpy.props.EnumProperty(
+		name= "Type",
+		description= "Preview type.",
+		items= (
+			('TEXTURE',  "Texture",  ""),
+			('MATERIAL', "Material", ""),
+		),
+		default= 'MATERIAL'
 	)
+
+	def execute(self, context):
+
+		vb25.render.preview(context.scene, self.type)
+		
+		return {'FINISHED'}
+
+
+class VRAY_OT_write_scene(bpy.types.Operator):
+	bl_idname      = "vray.write_scene"
+	bl_label       = "Export scene"
+	bl_description = "Export scene to \"vrscene\" file."
 
 	def execute(self, context):
 
@@ -222,6 +323,10 @@ class VRAY_OT_render(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+
+'''
+  RENDER ENGINE
+'''
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "V-Ray (git)"
@@ -234,7 +339,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		if VRayExporter.use_render_operator:
 			vb25.render.render(self, scene)
 		else:
-			bpy.ops.vray.render()
+			#bpy.ops.vray.render()
+			vb25.render.render(self, scene)
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):

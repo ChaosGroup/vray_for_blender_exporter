@@ -30,6 +30,11 @@ def base_poll(cls, context):
 	rd= context.scene.render
 	return (rd.engine in cls.COMPAT_ENGINES)
 
+class VRayDataPanel():
+	bl_space_type  = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context     = 'data'
+
 class VRayScenePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'

@@ -71,6 +71,7 @@ PARAMS= (
 	'low',
 	'high',
 	'type',
+	'uvwgen',
 )
 
 class TexNoiseMax(bpy.types.IDPropertyGroup):

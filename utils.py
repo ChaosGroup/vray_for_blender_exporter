@@ -202,6 +202,23 @@ def get_uv_layers(sce):
 
 	return uv_layers
 
+def get_uv_layers_map(sce):
+	uv_layers= {}
+	uv_id= 1
+	for ma in bpy.data.materials:
+		for slot in ma.texture_slots:
+			if slot and slot.texture:
+				if slot.texture.vray.texture_coords == 'UV':
+					if slot.uv_layer and slot.uv_layer not in uv_layers:
+						uv_layers[slot.uv_layer]= uv_id
+						uv_id+= 1
+
+	if sce.vray.exporter.debug:
+		for uv_layer in uv_layers:
+			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
+
+	return uv_layers
+
 def generate_object_list(object_names_string= None, group_names_string= None):
 	object_list= []
 
@@ -219,14 +236,30 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 
 	return object_list
 
-def get_name(data, prefix= None, dupli_name= None):
-	name= data.name
-	if dupli_name:
-		name= "%s_%s"%(dupli_name,name)
+# def get_name(data, bus):
+# 	name= data.name
+# 	if bus['object']['particle'].get('name'):
+# 		name= "%s_%s" % (bus['object']['particle']['name'], name)
+# 	if bus['object']['dupli'].get('name'):
+# 		name= "%s_%s" % (bus['object']['dupli']['name'], name)
+# 	if issubclass(type(data), bpy.types.Lamp):
+# 		name= 'LA'+name
+# 	elif issubclass(type(data), bpy.types.Texture):
+# 		name= 'TE'+name
+# 	elif type(data) == bpy.types.Material:
+# 		name= 'MA'+name
+# 	else:
+# 		name= 'OB'+name
+# 	if data.library:
+# 		name+= "%s%s" % ('LI', get_filename(data.library.filepath))
+# 	return clean_string(name)
+
+def get_name(ob, prefix= None):
+	name= ob.name
 	if prefix:
-		name= "%s_%s"%(prefix,name)
-	if data.library:
-		name+= '_' + get_filename(data.library.filepath)
+		name= prefix+name
+	if ob.library:
+		name+= "%s%s" % ('LI', get_filename(ob.library.filepath))
 	return clean_string(name)
 
 def get_data_by_name(sce, data_type, name):
@@ -292,8 +325,8 @@ def get_full_filepath(sce,ob,filepath):
 
 	return src_file
 
-def get_render_file_format(ve,file_format):
-	if ve.image_to_blender:
+def get_render_file_format(VRayExporter, file_format):
+	if VRayExporter.image_to_blender:
 		return 'exr'
 	if file_format in ('JPEG','JPEG2000'):
 		file_format= 'jpg'
@@ -391,17 +424,15 @@ def get_vray_standalone_path(sce):
 
 def get_filenames(scene, filetype):
 	def create_dir(directory):
-		# if PLATFORM != 'win32':
-		# 	directory= directory.replace('\\','/')
 		if not os.path.exists(directory):
-			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory, newline= False)
+			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory)
 			try:
 				os.mkdir(directory)
-				debug(scene, "done!")
+				debug(scene, "Path \"%s\" doesn't exist, trying to create... done." % directory)
 			except:
 				directory= tempfile.gettempdir()
-				debug(scene, "failed!")
-				debug(scene, "Using default exporting path: %s"%(directory))
+				debug(scene, "Directory creation failed!")
+				debug(scene, "Using default exporting path: %s" % directory)
 		return directory
 
 	VRayScene=    scene.vray
@@ -439,7 +470,7 @@ def get_filenames(scene, filetype):
 
 	filepath=  default_dir if blendfile_name == 'startup' else export_dir
 
-	if filetype in ('scene', 'materials', 'lights', 'nodes', 'camera'):
+	if filetype in ('scene', 'materials', 'lights', 'nodes', 'camera', 'environment'):
 		filepath= os.path.join(create_dir(export_dir), "%s_%s.vrscene" % (export_file,filetype))
 
 	elif filetype == 'geometry':
@@ -452,9 +483,9 @@ def get_filenames(scene, filetype):
 		if blendfile_name == 'startup':
 			filepath= create_dir(export_dir)
 		else:
-			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
+			filepath= create_dir(bpy.path.abspath(scene.render.filepath))
 
-	debug(scene, filepath)
+	# debug(scene, "%s: %s" % (filetype.capitalize(), filepath))
 
 	return filepath
 
@@ -462,89 +493,11 @@ def get_filenames(scene, filetype):
 def print_dict(scene, title, params):
 	debug(scene, "%s:" % title)
 	for key in params:
-		debug(scene, "  %s: %s" % (key, params[key]))
-	
-
-class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname      = "vray.convert_materials"
-	bl_label       = "Convert materials"
-	bl_description = "Convert scene materials from Blender Internal to V-Ray."
-
-	CONVERT_BLEND_TYPE= {
-		'MIX':          'OVER',
-		'SCREEN':       'OVER',
-		'DIVIDE':       'OVER',
-		'HUE':          'OVER',
-		'VALUE':        'OVER',
-		'COLOR':        'OVER',
-		'SOFT LIGHT':   'OVER',
-		'LINEAR LIGHT': 'OVER',
-		'OVERLAY':      'OVER',
-		'ADD':          'ADD',
-		'SUBTRACT':     'SUBTRACT',
-		'MULTIPLY':     'MULTIPLY',
-		'DIFFERENCE':   'DIFFERENCE',
-		'DARKEN':       'DARKEN',
-		'LIGHTEN':      'LIGHTEN',
-		'SATURATION':   'SATURATE',
-	}
-
-	def execute(self, context):
-		for ma in bpy.data.materials:
-			debug(context.scene, "Converting material: %s" % ma.name)
-			
-			rm= ma.raytrace_mirror
-			rt= ma.raytrace_transparency
-			
-			VRayMaterial= ma.vray
-			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
-
-			if ma.emit > 0.0:
-				VRayMaterial.type= 'EMIT'
-
-			if rm.use:
-				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
-				BRDFVRayMtl.reflect_glossiness= rm.gloss_factor
-				BRDFVRayMtl.reflect_subdivs= rm.gloss_samples
-				BRDFVRayMtl.reflect_depth= rm.depth
-				BRDFVRayMtl.option_cutoff= rm.gloss_threshold
-				BRDFVRayMtl.anisotropy= 1.0 - rm.gloss_anisotropic
-
-				if rm.fresnel > 0.0:
-					BRDFVRayMtl.fresnel= True
-					BRDFVRayMtl.fresnel_ior= rm.fresnel
-			
-			for slot in ma.texture_slots:
-				if slot and slot.texture and slot.texture.type in TEX_TYPES:
-					VRaySlot=    slot.texture.vray_slot
-					VRayTexture= slot.texture.vray
-
-					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
-					
-					if slot.use_map_emit:
-						VRayMaterial.type= 'EMIT'
-
-			# if ma.type == 'VOLUME':
-			# 	VRayMaterial.type= 'VOL'
-				
-		return{'FINISHED'}
-
-
-class VRAY_OT_flip_resolution(bpy.types.Operator):
-	bl_idname      = "vray.flip_resolution"
-	bl_label       = "Flip resolution"
-	bl_description = "Flip render resolution."
-
-	def execute(self, context):
-		scene= context.scene
-		rd=    scene.render
-
-		VRayScene= scene.vray
-
-		if VRayScene.image_aspect_lock:
-			VRayScene.image_aspect= 1.0 / VRayScene.image_aspect
-
-		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
-		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
-		
-		return{'FINISHED'}
+		if type(params[key]) == dict:
+			print_dict(scene, key, params[key])
+		elif type(params[key]) in (list,tuple):
+			debug(scene, "    %s" % (key))
+			for item in params[key]:
+				debug(scene, item)
+		else:
+			debug(scene, "  %s: %s" % (key, params[key]))

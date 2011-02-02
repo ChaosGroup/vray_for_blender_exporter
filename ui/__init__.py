@@ -24,9 +24,9 @@
 
 '''
 
-from vb25.ui import ui
+from vb25.ui import properties_data
+from vb25.ui import properties_particles
 # from vb25.ui import properties_camera
-# from vb25.ui import properties_data
 # from vb25.ui import properties_lamp 
 # from vb25.ui import properties_material
 # from vb25.ui import properties_object

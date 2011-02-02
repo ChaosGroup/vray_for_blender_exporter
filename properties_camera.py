@@ -60,6 +60,12 @@ VRayCamera.override_fov= BoolProperty(
 	default= False
 )
 
+VRayCamera.use_camera_loop= BoolProperty(
+	name= "Use in camera loop",
+	description= "Use camera in \"Camera loop\".",
+	default= False
+)
+
 VRayCamera.fov= FloatProperty(
 	name= "FOV",
 	description= "Field of vision.",
