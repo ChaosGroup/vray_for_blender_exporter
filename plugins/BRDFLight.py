@@ -38,7 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFLight'
 PID=   3
 
-NAME= 'BRDFLight'
+NAME= 'Light'
 DESC= "V-Ray light shader."
 
 PARAMS= (

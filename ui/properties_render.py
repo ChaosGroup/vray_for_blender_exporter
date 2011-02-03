@@ -175,9 +175,6 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'active_layers')
 		if vs.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
-
-		# split= layout.split()
-		# col= split.column()
 		col.label(text="Options:")
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'auto_save_render')

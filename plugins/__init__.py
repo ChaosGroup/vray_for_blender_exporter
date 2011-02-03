@@ -65,20 +65,27 @@ def load_plugins(plugins, parent_struct):
 	for key in plugins:
 		plugins[key].add_properties(parent_struct)
 
-def gen_menu_items(plugins):
-	plugs= [plug for plug in plugins if hasattr(plug, 'PID')]
+def gen_menu_items(plugins, none_item= True):
+	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID')]
 
 	# We need to sort plugins by PID so that adding new plugins
-	# won't mess enum indexes
+	# won't mess enum indexes in existing scenes
 	plugs= sorted(plugs, key=lambda plug: plug.PID)
 	
 	enum_items= []
-	enum_items.append(('NONE', "None", ""))
-	for plugin in plugins:
-		if hasattr(plugin,'ID'): # Don't remeber why this needed (
+	if none_item:
+		enum_items.append(('NONE', "None", ""))
+	for plugin in plugs:
+		if hasattr(plugin,'ID'):
 			enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
-	return enum_items
+
+	print("Debug information. Remove this from release!")
+	for item in enum_items:
+		print(item)
 	
+	return enum_items
+
+
 base_dir= get_vray_exporter_path()
 if base_dir is not None:
 	plugins_dir= os.path.join(base_dir,"plugins")
@@ -96,6 +103,7 @@ if base_dir is not None:
 
 	sys.stdout.write("V-Ray/Blender: Loading plugins... {0:<64}\n".format("done."))
 
+	print("Debug information. Remove this from release!")
 	for plugin_type in PLUGINS:
 		print(plugin_type)
 		for plugin in PLUGINS[plugin_type]:
@@ -143,7 +151,8 @@ def add_properties():
 		name= "V-Ray Material Settings",
 		type=  VRayMaterial,
 		description= "V-Ray material settings"
-		)
+	)
+
 	bpy.types.Mesh.vray= PointerProperty(
 		name= "V-Ray Mesh Settings",
 		type=  VRayMesh,
@@ -184,6 +193,9 @@ def add_properties():
 		max= 100
 	)
 
+	'''
+	  Passes types
+	'''
 	VRayRenderChannel.type= EnumProperty(
 		name= "Channel Type",
 		description= "Render channel type.",
@@ -192,13 +204,24 @@ def add_properties():
 	)
 
 	'''
-	  Texture
+	  Texture types
 	'''
 	VRayTexture.type= EnumProperty(
 		name= "Texture Type",
 		description= "V-Ray texture type.",
 		items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
 		default= 'NONE'
+	)
+
+	'''
+	  BRDF types
+	'''
+	brdfs= gen_menu_items(PLUGINS['BRDF'], none_item= False)
+	VRayMaterial.brdf= EnumProperty(
+		name= "BRDF Type",
+		description= "BRDF type.",
+		items= (tuple(brdfs)),
+		default= brdfs[0][0]
 	)
 
 	'''
@@ -215,11 +238,11 @@ def add_properties():
 	'''
 	  Add some specific settings
 	'''
-	PLUGINS['SETTINGS']['SettingsEnvironmet'].add_properties(VRayMaterial)
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRayTexture)
 	PLUGINS['MATERIAL']['MtlOverride'].add_properties(VRayObject)
 	PLUGINS['MATERIAL']['MtlWrapper'].add_properties(VRayObject)
 	PLUGINS['MATERIAL']['MtlRenderStats'].add_properties(VRayObject)
+	PLUGINS['SETTINGS']['SettingsEnvironmet'].add_properties(VRayMaterial)
 
 
 def remove_properties():

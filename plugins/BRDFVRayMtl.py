@@ -38,9 +38,9 @@ TYPE= 'BRDF'
 ID=   'BRDFVRayMtl'
 PID=   1
 
-NAME= "Standard material"
+NAME= "Standard"
 UI=   "Standard"
-DESC= "BRDFSSS2Complex settings."
+DESC= "BRDFVRayMtl settings."
 
 
 PARAMS= (
@@ -499,3 +499,6 @@ def add_properties(rna_pointer):
 		default= 0
 	)
 
+
+def write(bus):
+	pass

@@ -119,8 +119,10 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 			vray= mat.vray
 			if wide_ui:
 				layout.prop(vray, 'type', expand=True)
+				layout.prop(vray, 'brdf', expand=True)
 			else:
 				layout.prop(vray, 'type')
+				layout.prop(vray, 'brdf')
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):

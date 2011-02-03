@@ -145,7 +145,7 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return (context.camera and base_poll(__class__, context))
 
 	def draw_header(self, context):
 		ca= context.camera
@@ -243,7 +243,7 @@ class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return (context.camera and base_poll(__class__, context))
 
 	def draw_header(self, context):
 		ca= context.camera

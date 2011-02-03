@@ -33,10 +33,9 @@ from vb25.ui.ui import *
 
 
 TYPE= 'SETTINGS'
+ID=   'RTEngine'
 
-ID=   'RTENGINE'
 NAME= 'Realtime Engine'
-PLUG= 'RTEngine'
 DESC= "V-Ray Realtime Engine."
 
 PARAMS= (
@@ -226,7 +225,7 @@ def write(bus):
 	}
 
 	if RTEngine.enabled:
-		ofile.write("\n%s %s {" % (PLUG, PLUG))
+		ofile.write("\n%s %s {" % (ID, ID))
 		for param in PARAMS:
 			if param == 'stereo_mode':
 				value= STEREO_MODE[RTEngine.stereo_mode]
@@ -249,7 +248,7 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		scene= context.scene
 		rd=    scene.render
-		if not hasattr(scene.vray, PLUG):
+		if not hasattr(scene.vray, ID):
 			return False
 		use=   scene.vray.RTEngine.enabled
 		return (use and base_poll(__class__, context))
@@ -260,7 +259,7 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 
 		VRayScene= context.scene.vray
 
-		RTEngine= getattr(VRayScene, PLUG)
+		RTEngine= getattr(VRayScene, ID)
 
 		split= layout.split()
 		col= split.column()

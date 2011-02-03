@@ -1347,6 +1347,9 @@ def write_scene(scene):
 	# Settings bus
 	bus= {}
 
+	# Plugins
+	bus['plugins']= PLUGINS
+
 	# Output files
 	bus['files']= files
 	
