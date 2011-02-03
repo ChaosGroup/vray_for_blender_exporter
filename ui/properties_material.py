@@ -33,6 +33,7 @@ import bpy
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.plugins import *
 
 
 import properties_material
@@ -655,12 +656,12 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayMaterial, 'material_id_number')
-		# if wide_ui:
-		# 	col= split.column()
-		# else:
-		# 	sub= col.column()
-		# sub.active= VRayMaterial.material_id_number
-		# sub.prop(VRayMaterial, 'material_id_color', text="")
+		if wide_ui:
+			col= split.column()
+		else:
+			col= col.column()
+		col.active= VRayMaterial.material_id_number
+		col.prop(VRayMaterial, 'material_id_color', text="")
 
 		split= layout.split()
 		split.active= MtlRenderStats.use
@@ -684,3 +685,37 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 			sub.active= MtlRenderStats.visibility
 		sub.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
 		sub.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
+
+
+class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
+	bl_label   = "Outline"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		return base_poll(__class__, context)
+
+	def draw_header(self, context):
+		ma= active_node_mat(context.material)
+		VRayMaterial= ma.vray
+		VolumeVRayToon= VRayMaterial.VolumeVRayToon
+		self.layout.prop(VolumeVRayToon, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > 200
+		layout= self.layout
+
+		ob= context.object
+		ma= active_node_mat(context.material)
+
+		VRayMaterial= ma.vray
+		VolumeVRayToon= VRayMaterial.VolumeVRayToon
+
+		layout.active= VolumeVRayToon.use
+
+		PLUGINS['SETTINGS']['SettingsEnvironmet'].draw_VolumeVRayToon(context, layout, VRayMaterial)

@@ -33,41 +33,6 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-class VRAY_OT_effect_add(bpy.types.Operator):
-	bl_idname=      'vray.effect_add'
-	bl_label=       "Add Effect"
-	bl_description= "Add effect."
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-
-		VRayEffects.effects.add()
-		VRayEffects.effects[-1].name= "Effect"
-
-		return{'FINISHED'}
-
-
-class VRAY_OT_effect_remove(bpy.types.Operator):
-	bl_idname=      'vray.effect_remove'
-	bl_label=       "Remove Effect"
-	bl_description= "Remove effect."
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-				
-		if VRayEffects.effects_selected >= 0:
-			VRayEffects.effects.remove(VRayEffects.effects_selected)
-			VRayEffects.effects_selected-= 1
-
-		return{'FINISHED'}
-
-'''
-  GUI
-'''
 class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Effects"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -92,9 +57,15 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 		row.template_list(VRayEffects, 'effects',
 						  VRayEffects, 'effects_selected',
 						  rows= 3)
-		col= row.column(align=True)
-		col.operator('vray.effect_add',    text="", icon="ZOOMIN")
-		col.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+		col= row.column()
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
+		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator("vray.effect_up", icon='MOVE_UP_VEC', text="")
+		subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
 		if VRayEffects.effects_selected >= 0:
 			layout.separator()

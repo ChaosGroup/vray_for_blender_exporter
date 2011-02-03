@@ -41,6 +41,85 @@ import vb25.proxy
 from vb25.utils import *
 
 
+class VRAY_OT_effect_add(bpy.types.Operator):
+	bl_idname=      'vray.effect_add'
+	bl_label=       "Add Effect"
+	bl_description= "Add effect."
+
+	def execute(self, context):
+		VRayScene= context.scene.vray
+
+		VRayEffects= VRayScene.VRayEffects
+
+		VRayEffects.effects.add()
+		VRayEffects.effects[-1].name= "Effect"
+
+		return {'FINISHED'}
+
+
+class VRAY_OT_effect_remove(bpy.types.Operator):
+	bl_idname=      'vray.effect_remove'
+	bl_label=       "Remove Effect"
+	bl_description= "Remove effect."
+
+	def execute(self, context):
+		VRayScene= context.scene.vray
+
+		VRayEffects= VRayScene.VRayEffects
+				
+		if VRayEffects.effects_selected >= 0:
+			VRayEffects.effects.remove(VRayEffects.effects_selected)
+			VRayEffects.effects_selected-= 1
+
+		return {'FINISHED'}
+
+
+# class VRAY_OT_effect_up(bpy.types.Operator):
+# 	bl_idname=      'vray.effect_up'
+# 	bl_label=       "Move Effect Up"
+# 	bl_description= "Move effect up."
+
+# 	def execute(self, context):
+# 		VRayScene= context.scene.vray
+
+# 		VRayEffects= VRayScene.VRayEffects
+
+# 		if VRayEffects.effects_selected >= 0:
+# 			if VRayEffects.effects_selected == 0:
+# 				return {'FINISHED'}
+
+# 			sel= VRayEffects.effects_selected
+			
+# 			VRayEffects.effects[sel], VRayEffects.effects[sel - 1] = VRayEffects.effects[sel - 1], VRayEffects.effects[sel]
+
+# 			VRayEffects.effects_selected-= 1
+
+# 		return {'FINISHED'}
+
+
+# class VRAY_OT_effect_down(bpy.types.Operator):
+# 	bl_idname=      'vray.effect_down'
+# 	bl_label=       "Move Effect Down"
+# 	bl_description= "Move effect down."
+
+# 	def execute(self, context):
+# 		VRayScene= context.scene.vray
+
+# 		VRayEffects= VRayScene.VRayEffects
+
+# 		if VRayEffects.effects_selected >= 0:
+# 			if VRayEffects.effects_selected == len(VRayEffects.effects) - 1:
+# 				return {'FINISHED'}
+
+# 			sel= VRayEffects.effects_selected
+			
+# 			VRayEffects.effects[sel], VRayEffects.effects[sel + 1] = VRayEffects.effects[sel + 1], VRayEffects.effects[sel]
+
+# 			VRayEffects.effects_selected+= 1
+
+# 		return {'FINISHED'}
+
+
 class VRAY_OT_channel_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
