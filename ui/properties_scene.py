@@ -62,10 +62,10 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 		subsub= sub.column(align=True)
 		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
 		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
-		sub= col.row()
-		subsub= sub.column(align=True)
-		subsub.operator("vray.effect_up", icon='MOVE_UP_VEC', text="")
-		subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
+		# sub= col.row()
+		# subsub= sub.column(align=True)
+		# subsub.operator("vray.effect_up", icon='MOVE_UP_VEC', text="")
+		# subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
 		if VRayEffects.effects_selected >= 0:
 			layout.separator()
