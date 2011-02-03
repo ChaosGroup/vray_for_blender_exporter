@@ -25,23 +25,20 @@
 '''
 
 
-TYPE= 'MATERIAL'
-
-ID=   'MTL2SIDED'
-NAME= 'Mtl2Sided'
-UI=   "Two-sided"
-PLUG= 'Mtl2Sided'
-DESC= "Mtl2Sided settings."
-
-PID=   130
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+
+TYPE= 'MATERIAL'
+ID=   'Mtl2Sided'
+
+NAME= 'Mtl2Sided'
+UI=   "Two-sided"
+DESC= "Mtl2Sided settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

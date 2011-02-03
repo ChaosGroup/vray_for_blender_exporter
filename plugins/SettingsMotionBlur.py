@@ -22,20 +22,20 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 from vb25.ui.ui import *
 
-TYPE= 'CAMERA'
 
-ID=   'SETTINGSMOTIONBLUR'
+TYPE= 'CAMERA'
+ID=   'SettingsMotionBlur'
+
 NAME= 'Motion Blur'
-PLUG= 'SettingsMotionBlur'
 DESC= "V-Ray SettingsMotionBlur settings."
 
 PARAMS= (

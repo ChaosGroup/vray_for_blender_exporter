@@ -35,13 +35,13 @@ from vb25.ui.ui import *
 
 
 TYPE= 'SETTINGS'
+ID=   'SettingsImageSampler'
 
-ID=   'SETTINGSIMAGESAMPLER'
 NAME= 'Image sampler'
-PLUG= 'SettingsImageSampler'
 DESC= "Image sampler options."
 
 PARAMS= (
+	'type',
 	'fixed_subdivs',
 	'dmc_minSubdivs',
 	'dmc_threshold',
@@ -210,3 +210,41 @@ def add_properties(rna_pointer):
 		default= 2
 	)
 
+
+def write(bus):
+	FILTER_TYPE= {
+		'AREA'     : "\nFilterArea {",
+		'BOX'      : "\nFilterBox {",
+		'TRIANGLE' : "\nFilterTriangle {",
+		'LANC'     : "\nFilterLanczos {",
+		'SINC'     : "\nFilterSinc {",
+		'GAUSS'    : "\nFilterGaussian {",
+		'CATMULL'  : "\nFilterCatmullRom {"
+	}
+
+	TYPE= {
+		'FXD': 0,
+		'DMC': 1,
+		'SBD': 2,
+	}
+
+	ofile= bus['files']['scene']
+	scene= bus['scene']
+
+	VRayScene= scene.vray
+	SettingsImageSampler=       VRayScene.SettingsImageSampler
+	SettingsImageSamplerFilter= VRayScene.SettingsImageSampler
+
+	ofile.write("\n%s %s {" % (ID, ID))
+	for param in PARAMS:
+		if param == 'type':
+			value= TYPE[SettingsImageSampler.type]
+		else:
+			value= getattr(SettingsImageSampler, param)
+		ofile.write("\n\t%s= %s;" % (param, p(value)))
+	ofile.write("\n}\n")
+
+	if SettingsImageSamplerFilter.filter_type != 'NONE':
+		ofile.write(FILTER_TYPE[SettingsImageSamplerFilter.filter_type])
+		ofile.write("\n\tsize= %.3f;" % SettingsImageSamplerFilter.filter_size)
+		ofile.write("\n}\n")

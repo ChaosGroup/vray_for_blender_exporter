@@ -207,8 +207,12 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(ofile, scene, rna_pointer):
-	RTEngine= scene.vray.RTEngine
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene= scene.vray
+	RTEngine=  VRayScene.RTEngine
 
 	STEREO_MODE= {
 		'STEREO': 1,

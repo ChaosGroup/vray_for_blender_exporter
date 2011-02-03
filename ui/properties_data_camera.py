@@ -130,6 +130,12 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		col.prop(ca, 'dof_object', text="")
 		col.prop(ca, 'dof_distance', text="Distance")
 
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayCamera, 'use_camera_loop')
+
 
 class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Physical"

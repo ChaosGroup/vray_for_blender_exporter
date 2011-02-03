@@ -29,6 +29,9 @@
 import bpy
 from bpy.props import *
 
+''' vb modules '''
+from vb25.utils import *
+
 
 TYPE= 'SETTINGS'
 ID=   'BakeView'
@@ -78,3 +81,34 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+
+def write(bus):
+	ofile=  bus['files']['camera']
+	scene=  bus['scene']
+	camera= bus['camera']
+
+	VRayScene= scene.vray
+	VRayBake=  VRayScene.VRayBake
+
+	if VRayBake.use and VRayBake.bake_node:
+		bake_node= get_data_by_name(scene, 'objects', VRayBake.bake_node)
+		if bake_node:
+			ofile.write("\nUVWGenChannel BakeViewUVW {")
+			ofile.write("\n\tuvw_transform=Transform(")
+			ofile.write("\n\t\tMatrix(")
+			ofile.write("\n\t\tVector(1.0,0.0,0.0),")
+			ofile.write("\n\t\tVector(0.0,1.0,0.0),")
+			ofile.write("\n\t\tVector(0.0,0.0,1.0)")
+			ofile.write("\n\t\t),")
+			ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+			ofile.write("\n\t);")
+			ofile.write("\n\tuvw_channel=1;")
+			ofile.write("\n}\n")
+			ofile.write("\nBakeView BakeView {")
+			ofile.write("\n\tbake_node= %s;" % get_name(bake_node, pefix="OB"))
+			ofile.write("\n\tbake_uvwgen= BakeViewUVW;")
+			ofile.write("\n\tdilation= %i;" % VRayBake.dilation)
+			ofile.write("\n\tflip_derivs= %i;" % VRayBake.flip_derivs)
+			ofile.write("\n}\n")
+		else:
+			debug(scene, "Bake object not found.", error=True)

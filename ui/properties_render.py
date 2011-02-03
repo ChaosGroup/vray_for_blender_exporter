@@ -171,6 +171,7 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 			col= split.column()
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
+		col.prop(ve, 'camera_loop')
 		col.prop(ve, 'active_layers')
 		if vs.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')

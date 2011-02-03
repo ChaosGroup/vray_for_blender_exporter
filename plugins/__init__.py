@@ -218,6 +218,7 @@ def add_properties():
 	PLUGINS['SETTINGS']['SettingsEnvironmet'].add_properties(VRayMaterial)
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRayTexture)
 	PLUGINS['MATERIAL']['MtlOverride'].add_properties(VRayObject)
+	PLUGINS['MATERIAL']['MtlWrapper'].add_properties(VRayObject)
 	PLUGINS['MATERIAL']['MtlRenderStats'].add_properties(VRayObject)
 
 

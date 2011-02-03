@@ -1,4 +1,5 @@
 '''
+
   V-Ray/Blender
 
   http://vray.cgdo.ru
@@ -20,7 +21,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+
 '''
+
 
 ''' Blender modules '''
 import bpy
@@ -31,11 +34,11 @@ from vb25.utils import *
 from vb25.shaders import *
 from vb25.ui.ui import *
 
-TYPE= 'CAMERA'
 
-ID=   'SETTINGSCAMERADOF'
+TYPE= 'CAMERA'
+ID=   'SettingsCameraDof'
+
 NAME= 'Depth of field'
-PLUG= 'SettingsCameraDof'
 DESC= "V-Ray SettingsCameraDof settings."
 
 PARAMS= (

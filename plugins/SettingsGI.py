@@ -24,16 +24,6 @@
 
 '''
 
-TYPE= 'SETTINGS'
-
-ID=   'SETTINGSGI'
-NAME= 'Global Illumination'
-PLUG= 'SettingsGI'
-DESC= "Global illumination settings."
-
-PARAMS= (
-)
-
 
 ''' Blender modules '''
 import bpy
@@ -43,10 +33,20 @@ from bpy.props import *
 import vb25.utils
 
 
-class SettingsGI(bpy.types.IDPropertyGroup):
-	pass
+TYPE= 'SETTINGS'
+ID=   'SettingsGI'
+
+NAME= 'Global Illumination'
+DESC= "Global illumination settings."
+
+PARAMS= (
+)
+
 
 def add_properties(parent_struct):
+	class SettingsGI(bpy.types.IDPropertyGroup):
+		pass
+
 	parent_struct.SettingsGI= PointerProperty(
 		type= SettingsGI,
 		name= NAME,
@@ -704,7 +704,11 @@ def add_properties(parent_struct):
 		default= 0.0
 	)
 
-def write(ofile, scene, rna_pointer):
+
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
 	VRayScene=             scene.vray
 	SettingsDMCSampler=    VRayScene.SettingsDMCSampler
 	SettingsGI=            VRayScene.SettingsGI

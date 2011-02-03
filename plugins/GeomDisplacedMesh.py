@@ -22,21 +22,21 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 from vb25.ui.ui import *
 
-TYPE= 'GEOMETRY'
 
-ID=   'GEOMDISPLACEDMESH'
+TYPE= 'GEOMETRY'
+ID=   'GeomDisplacedMesh'
+
 NAME= 'Displace'
-PLUG= 'GeomDisplacedMesh'
-DESC= "V-Ray bump shader."
+DESC= "Displace settings."
 
 PARAMS= (
 	'displacement_amount',

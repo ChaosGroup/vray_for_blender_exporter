@@ -26,14 +26,11 @@
 
 
 TYPE= 'MATERIAL'
+ID=   'MtlWrapper'
 
-ID=   'MTLWRAPPER'
-NAME= 'MtlWrapper'
+NAME= 'Wrapper'
 UI=   "Wrapper"
-PLUG= 'MtlWrapper'
 DESC= "MtlWrapper settings."
-
-PID=   130
 
 PARAMS= (
 )

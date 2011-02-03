@@ -35,13 +35,13 @@ from vb25.ui.ui import *
 
 
 TYPE= 'SETTINGS'
+ID=   'SettingsColorMapping'
 
-ID=   'SETTINGSCOLORMAPPING'
 NAME= 'Color mapping'
-PLUG= 'SettingsColorMapping'
 DESC= "Color mapping options."
 
 PARAMS= (
+	'type',
 	'affect_background',
 	'dark_mult',
 	'bright_mult',
@@ -159,3 +159,29 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+
+def write(bus):
+	TYPE= {
+		'LNR':  0,
+		'EXP':  1,
+		'HSV':  2,
+		'INT':  3,
+		'GCOR': 4,
+		'GINT': 5,
+		'REIN': 6,
+	}
+
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene=            scene.vray
+	SettingsColorMapping= VRayScene.SettingsColorMapping
+
+	ofile.write("\n%s %s {" % (ID, ID))
+	for param in PARAMS:
+		if param == 'type':
+			value= TYPE[SettingsColorMapping.type]
+		else:
+			value= getattr(SettingsColorMapping, param)
+		ofile.write("\n\t%s= %s;" % (param, p(value)))
+	ofile.write("\n}\n")

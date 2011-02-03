@@ -26,13 +26,6 @@
 
 '''
 
-TYPE= 'SETTINGS'
-
-ID=   'SETTINGSRG'
-NAME= 'Regions Generator'
-PLUG= 'SettingsRegionsGenerator'
-DESC= "Regions generator settings."
-
 
 ''' Blender modules '''
 import bpy
@@ -42,10 +35,17 @@ from bpy.props import *
 import vb25.utils
 
 
-class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
-	pass
+TYPE= 'SETTINGS'
+ID=   'SettingsRegionsGenerator'
+
+NAME= 'Regions Generator'
+DESC= "Regions generator settings."
+
 
 def add_properties(parent_struct):
+	class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
+		pass
+	
 	parent_struct.SettingsRegionsGenerator= PointerProperty(
 		type= SettingsRegionsGenerator,
 		name= NAME,
@@ -105,7 +105,10 @@ def add_properties(parent_struct):
 	)
 
 
-def write(ofile, scene, rna_pointer):
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
 	VRayScene=                scene.vray
 	SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 

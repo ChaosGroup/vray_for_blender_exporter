@@ -37,10 +37,9 @@ from vb25.ui.ui import *
 
 
 TYPE= 'SETTINGS'
+ID=   'SettingsCaustics'
 
-ID=   'SETTINGSCAUSTICS'
 NAME= 'Caustics'
-PLUG= 'SettingsCaustics'
 DESC= "Caustics settings."
 
 PARAMS= (
@@ -163,20 +162,26 @@ def add_properties(parent_struct):
 '''
   OUTPUT
 '''
-def write(ofile, sce, rna_pointer):
+def write(bus):
 	MODE= {
 		'FILE': 1,
 		'NEW':  0
 	}
-	
-	ofile.write("\n%s {" % PLUG)
+
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene=        scene.vray
+	SettingsCaustics= VRayScene.SettingsCaustics
+
+	ofile.write("\n%s {" % ID)
 	for param in PARAMS:
 		if param in ('file','auto_save_file'):
-			value= "\"%s\"" % getattr(rna_pointer,param)
+			value= "\"%s\"" % getattr(SettingsCaustics, param)
 		elif param == 'mode':
-			value= MODE[rna_pointer.mode]
+			value= MODE[SettingsCaustics.mode]
 		else:
-			value= getattr(rna_pointer,param)
+			value= getattr(SettingsCaustics, param)
 		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
@@ -194,7 +199,7 @@ class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		scene= context.scene
 		rd=    scene.render
-		if not hasattr(scene.vray, PLUG):
+		if not hasattr(scene.vray, ID):
 			return False
 		show= scene.vray.SettingsCaustics.on
 		return (show and base_poll(__class__, context))
@@ -204,7 +209,7 @@ class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 		layout= self.layout
 
 		vsce= context.scene.vray
-		vmodule= getattr(vsce, PLUG)
+		vmodule= getattr(vsce, ID)
 
 		layout.prop(vmodule,'mode')
 

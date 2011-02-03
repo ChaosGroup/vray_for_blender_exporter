@@ -22,20 +22,20 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 from vb25.ui.ui import *
 
-TYPE= 'CAMERA'
 
-ID=   'SETTINGSCAMERA'
-NAME= 'SettingsCamera'
-PLUG= 'SettingsCamera'
+TYPE= 'CAMERA'
+ID=   'SettingsCamera'
+
+NAME= 'Camera'
 DESC= "V-Ray SettingsCamera settings."
 
 PARAMS= (
@@ -99,3 +99,39 @@ def add_properties(rna_pointer):
 		default=1.0
 	)
 
+
+def write(bus):
+	TYPE= {
+		'DEFAULT':           0,
+		'SPHERIFICAL':       1,
+		'CYLINDRICAL_POINT': 2,
+		'CYLINDRICAL_ORTHO': 3,
+		'BOX':               4,
+		'FISH_EYE':          5,
+		'WARPED_SPHERICAL':  6,
+		'ORTHOGONAL':        7,
+		'PINHOLE':           8,
+	}
+
+	ofile=  bus['files']['camera']
+	scene=  bus['scene']
+	camera= bus['camera']
+
+	VRayCamera=     camera.data.vray
+	SettingsCamera= VRayCamera.SettingsCamera
+
+	fov= VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+
+	aspect= scene.render.resolution_x / scene.render.resolution_y
+
+	if aspect < 1.0:
+		fov= fov * aspect
+
+	ofile.write("\nSettingsCamera CA%s {" % clean_string(camera.name))
+	if camera.data.type == 'ORTHO':
+		ofile.write("\n\ttype= 7;")
+		ofile.write("\n\theight= %s;" % a(scene, camera.data.ortho_scale))
+	else:
+		ofile.write("\n\ttype= %i;" % TYPE[SettingsCamera.type])
+	ofile.write("\n\tfov= %s;" % a(scene, fov))
+	ofile.write("\n}\n")

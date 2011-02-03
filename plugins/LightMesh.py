@@ -25,23 +25,20 @@
 '''
 
 
-TYPE= 'MATERIAL'
-
-ID=   'LIGHTMESH'
-NAME= 'LightMesh'
-UI=   "Mesh light"
-PLUG= 'LightMesh'
-DESC= "LightMesh settings."
-
-PID=   140
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+
+TYPE= 'MATERIAL'
+ID=   'LightMesh'
+
+NAME= 'LightMesh'
+UI=   "Mesh light"
+DESC= "LightMesh settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

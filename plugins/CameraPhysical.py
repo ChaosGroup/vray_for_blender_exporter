@@ -22,14 +22,15 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 from vb25.ui.ui import *
+
 
 TYPE= 'CAMERA'
 ID=   'CameraPhysical'
@@ -323,3 +324,75 @@ def add_properties(rna_pointer):
 		max=100,
 		default=6
 	)
+
+
+def write(bus):
+	def get_lens_shift(ob):
+		camera= ob.data
+		shift= 0.0
+		constraint= None
+		if len(ob.constraints) > 0:
+			for co in ob.constraints:
+				if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
+					constraint= co
+					break
+		if constraint:
+			constraint_ob= constraint.target
+			if constraint_ob:
+				z_shift= ob.location[2] - constraint_ob.location[2]
+				x= ob.location[0] - constraint_ob.location[0]
+				y= ob.location[1] - constraint_ob.location[1]
+				l= math.sqrt( x * x + y * y )
+				shift= -1 * z_shift / l
+		else:
+			rx= ob.rotation_euler[0]
+			lsx= rx - math.pi / 2
+			if math.fabs(lsx) > 0.0001:
+				shift= math.tan(lsx)
+			if math.fabs(shift) > math.pi:
+				shift= 0.0
+		return shift
+
+	TYPE= {
+		'STILL':     0,
+		'CINEMATIC': 1,
+		'VIDEO':     2,
+	}
+
+	ofile=  bus['files']['camera']
+	scene=  bus['scene']
+	camera= bus['camera']
+
+	VRayCamera=     camera.data.vray
+	CameraPhysical= VRayCamera.CameraPhysical
+
+	fov= VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+
+	aspect= scene.render.resolution_x / scene.render.resolution_y
+
+	if aspect < 1.0:
+		fov= fov * aspect
+
+	focus_distance= camera.data.dof_distance
+	if camera.data.dof_object:
+		focus_distance= get_distance(ca,camera.data.dof_object)
+
+	if focus_distance < 0.001:
+		focus_distance= 200.0
+
+	if CameraPhysical.use:
+		ofile.write("\nCameraPhysical PhysicalCamera {")
+		ofile.write("\n\ttype= %d;" % TYPE[CameraPhysical.type])
+		ofile.write("\n\tspecify_focus= 1;")
+		ofile.write("\n\tfocus_distance= %s;" % a(scene,focus_distance))
+		ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
+		ofile.write("\n\tfov= %s;" % a(scene,fov))
+		ofile.write("\n\twhite_balance= %s;" % a(scene, CameraPhysical.white_balance))
+		for param in PARAMS:
+			if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
+				value= get_lens_shift(ca)
+			else:
+				value= getattr(CameraPhysical,param)
+			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+		ofile.write("\n}\n")
+

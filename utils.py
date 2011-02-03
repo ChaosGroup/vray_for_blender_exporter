@@ -103,7 +103,10 @@ def p(t):
 		return "%s"%(t)
 
 def a(scene, t):
-	return "interpolate((%i,%s))" % (scene.frame_current, p(t))
+	if scene.vray.exporter.animation:
+		return "interpolate((%i,%s))" % (scene.frame_current, p(t))
+	else:
+		return p(t)
 
 def transform(m):
 	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))"\

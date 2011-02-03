@@ -484,39 +484,6 @@ PROXY_ANIM_TYPE= {
 	'STILL'    : 3
 }
 
-AA_FILTER_TYPE= {
-	'AREA'     : "\nFilterArea {",
-	'BOX'      : "\nFilterBox {",
-	'TRIANGLE' : "\nFilterTriangle {",
-	'LANC'     : "\nFilterLanczos {",
-	'SINC'     : "\nFilterSinc {",
-	'GAUSS'    : "\nFilterGaussian {",
-	'CATMULL'  : "\nFilterCatmullRom {"
-}
-
-PHYS= {
-	'STILL':     0,
-	'CINEMATIC': 1,
-	'VIDEO':     2
-}
-
-COLOR_MAPPING_TYPE= {
-	'LNR':  0,
-	'EXP':  1,
-	'HSV':  2,
-	'INT':  3,
-	'GCOR': 4,
-	'GINT': 5,
-	'REIN': 6
-}
-
-IMAGE_SAMPLER_TYPE= {
-	'FXD': 0,
-	'DMC': 1,
-	'SBD': 2
-}
-
-
 BRDF_TYPE= {
 	'PHONG': 0,
 	'BLINN': 1,
@@ -539,18 +506,6 @@ GLOSSY_RAYS= {
 ENERGY_MODE= {
 	'MONO':  1,
 	'COLOR': 0
-}
-
-CAMERA_TYPE= {
-	'DEFAULT':            0,
-	'SPHERIFICAL':        1,
-	'CYLINDRICAL_POINT':  2,
-	'CYLINDRICAL_ORTHO':  3,
-	'BOX':                4,
-	'FISH_EYE':           5,
-	'WARPED_SPHERICAL':   6,
-	'ORTHOGONAL':         7,
-	'PINHOLE':            8
 }
 
 BITMAP_FILTER_TYPE= {

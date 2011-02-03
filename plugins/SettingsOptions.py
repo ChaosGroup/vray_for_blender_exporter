@@ -226,7 +226,10 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(ofile, scene, rna_pointer):
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
 	VRayScene=       scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
@@ -240,5 +243,3 @@ def write(ofile, scene, rna_pointer):
 			value= getattr(SettingsOptions, param)
 		ofile.write("\n\t%s= %s;" % (param, p(value)))
 	ofile.write("\n}\n")
-
-	
