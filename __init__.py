@@ -32,7 +32,7 @@
 # 	"blender":     (2, 5, 6),
 # 	"api":         34471,
 # 	"location":    "Info Header",
-# 	"description": "V-Ray Standalone integration for Blender",
+# 	"description": "V-Ray Standalone integration for Blender.",
 # 	"warning":     "",
 # 	"wiki_url":    "http://github.com/bdancer/vb25/wiki",
 # 	"tracker_url": "http://github.com/bdancer/vb25/issues",
@@ -43,15 +43,6 @@ import bpy
 
 from vb25 import plugins
 from vb25 import ui
-from vb25 import properties_camera
-from vb25 import properties_data
-from vb25 import properties_lamp 
-from vb25 import properties_material
-from vb25 import properties_object
-from vb25 import properties_scene
-from vb25 import properties_texture
-from vb25 import properties_render
-from vb25 import properties_world
 from vb25 import shaders
 from vb25 import preset
 from vb25 import render

@@ -41,6 +41,72 @@ import vb25.proxy
 from vb25.utils import *
 
 
+class VRAY_OT_channel_add(bpy.types.Operator):
+	bl_idname=      'vray.render_channels_add'
+	bl_label=       "Add Render Channel"
+	bl_description= "Add render channel."
+
+	def execute(self, context):
+		sce= context.scene
+		vsce= sce.vray
+
+		render_channels= vsce.render_channels
+
+		render_channels.add()
+		render_channels[-1].name= "RenderChannel"
+
+		return{'FINISHED'}
+
+
+class VRAY_OT_channel_del(bpy.types.Operator):
+	bl_idname=      'vray.render_channels_remove'
+	bl_label=       "Remove Render Channel"
+	bl_description= "Remove render channel."
+
+	def execute(self, context):
+		sce= context.scene
+		vsce= sce.vray
+		
+		render_channels= vsce.render_channels
+		
+		if vsce.render_channels_index >= 0:
+		   render_channels.remove(vsce.render_channels_index)
+		   vsce.render_channels_index-= 1
+
+		return{'FINISHED'}
+
+
+class VRAY_OT_node_add(bpy.types.Operator):
+	bl_idname=      'vray.render_nodes_add'
+	bl_label=       "Add Render Node"
+	bl_description= "Add render node."
+
+	def execute(self, context):
+		vs= context.scene.vray
+		module= vs.VRayDR
+
+		module.nodes.add()
+		module.nodes[-1].name= "Render Node"
+
+		return{'FINISHED'}
+
+
+class VRAY_OT_node_del(bpy.types.Operator):
+	bl_idname=      'vray.render_nodes_remove'
+	bl_label=       "Remove Render Node"
+	bl_description= "Remove render node"
+
+	def execute(self, context):
+		vs= context.scene.vray
+		module= vs.VRayDR
+
+		if module.nodes_selected >= 0:
+		   module.nodes.remove(module.nodes_selected)
+		   module.nodes_selected-= 1
+
+		return{'FINISHED'}
+
+
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname      = "vray.convert_materials"
 	bl_label       = "Convert materials"

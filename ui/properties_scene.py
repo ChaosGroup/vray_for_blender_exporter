@@ -25,12 +25,8 @@
 '''
 
 
-''' Python modules '''
-import os
-
 ''' Blender modules '''
 import bpy
-from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *

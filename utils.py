@@ -45,65 +45,6 @@ import mathutils
 ''' vb modules '''
 from vb25.plugins import *
 
-MODULES= {
-	'SettingsRaycaster': (
-		'maxLevels',
-		'minLeafSize',
-		'faceLevelCoef',
-		'dynMemLimit',
-	),
-	
-	'SettingsUnitsInfo': (
-		'meters_scale',
-		'photometric_scale'
-	),
-
-	'SettingsDMCSampler': (
-		'time_dependent',
-		'adaptive_amount',
-		'adaptive_threshold',
-		'adaptive_min_samples',
-		'subdivs_mult'
-	),
-
-	'SettingsImageSampler': (
-		'fixed_subdivs',
-		'dmc_minSubdivs',
-		'dmc_threshold',
-		'dmc_show_samples',
-		'subdivision_minRate',
-		'subdivision_maxRate',
-		'subdivision_threshold',
-		'subdivision_edges',
-		'subdivision_normals',
-		'subdivision_normals_threshold',
-		'subdivision_jitter',
-		'subdivision_show_samples'
-	),
-
-	'SettingsColorMapping': (
-		'affect_background',
-		'dark_mult',
-		'bright_mult',
-		'gamma',
-		'subpixel_mapping',
-		'clamp_output',
-		'clamp_level',
-		'adaptation_only',
-		'linearWorkflow'
-	),
-
-	'SettingsDefaultDisplacement': (
-		'override_on',
-		'edgeLength',
-		'viewDependent',
-		'maxSubdivs',
-		'tightBounds',
-		'amount',
-		'relative'
-	),
-}
-
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 

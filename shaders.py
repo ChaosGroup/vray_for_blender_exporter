@@ -120,34 +120,6 @@ OBJECT_PARAMS= {
 		'environment_priority',
 	),
 	
-	'CameraPhysical': (
-		'film_width',
-		'focal_length',
-		'zoom_factor',
-		'distortion',
-		'distortion_type',
-		'f_number',
-		'lens_shift',
-		'shutter_speed',
-		'shutter_angle',
-		'shutter_offset',
-		'latency',
-		'ISO',
-		'dof_display_threshold',
-		'exposure',
-		'vignetting',
-		'blades_enable',
-		'blades_num',
-		'blades_rotation',
-		'center_bias',
-		'anisotropy',
-		'use_dof',
-		'use_moblur',
-		'subdivs'
-		#'lens_file',
-		#'horizontal_shift'
-	),
-
 	'LightOmni': (
 		'enabled',
 		#'color_tex',

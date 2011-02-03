@@ -26,6 +26,16 @@
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
 TYPE= 'SETTINGS'
 
 ID=   'SETTINGSCAUSTICS'
@@ -48,18 +58,10 @@ PARAMS= (
 )
 
 
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-class SettingsCaustics(bpy.types.IDPropertyGroup):
-	pass
-
 def add_properties(parent_struct):
+	class SettingsCaustics(bpy.types.IDPropertyGroup):
+		pass
+	
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
 		type=  SettingsCaustics,
@@ -183,26 +185,19 @@ def write(ofile, sce, rna_pointer):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class SettingsCausticsPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
-
-
-class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
+class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		sce= context.scene
-		rd= sce.render
-		show= sce.vray.SettingsCaustics.on
-		return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES) and (show)
+		scene= context.scene
+		rd=    scene.render
+		if not hasattr(scene.vray, PLUG):
+			return False
+		show= scene.vray.SettingsCaustics.on
+		return (show and base_poll(__class__, context))
 	
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

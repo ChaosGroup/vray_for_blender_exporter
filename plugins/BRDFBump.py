@@ -22,20 +22,21 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 from vb25.ui.ui import *
+
 
 TYPE= 'BRDF'
 
-ID=   'BRDFBUMP'
+ID=   'BRDFBump'
+
 NAME= 'Bump'
-PLUG= 'BRDFBump'
 DESC= "V-Ray bump shader."
 
 PARAMS= (
@@ -89,7 +90,7 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(params):
+def write(bus):
 	MAP_TYPE= {
 		'EXPLICIT': 6,
 		'WORLD':    4,
@@ -99,12 +100,11 @@ def write(params):
 		'BUMP'   :  0,
 	}
 
-	ofile=     params['file']
-	scene=     params['scene']
-	base_brdf= params['base_brdf']
-
-	textures=  params['textures']['mapto']
-	slot=      params['textures']['values']['normal_slot']
+	ofile=     bus['file']
+	scene=     bus['scene']
+	textures=  bus['textures']['mapto']
+	slot=      bus['textures']['values']['normal_slot']
+	base_brdf= bus['base_brdf']
 
 	VRayTexture= slot.texture.vray
 	VRaySlot=    slot.texture.vray_slot
@@ -125,3 +125,6 @@ def write(params):
 
 	return brdf_name
 
+
+def draw():
+	pass

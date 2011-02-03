@@ -31,858 +31,30 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.plugins import *
-
-
-VRayScene.use_hidden_lights= BoolProperty(
-	name= "Hidden lights",
-	description= "Render hidden lights.",
-	default= False
-)
-
-VRayScene.image_aspect= FloatProperty(
-	name= "Image aspect",
-	description= "Image aspect.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 3,
-	default= 1.333
-)
-
-VRayScene.image_aspect_lock= BoolProperty(
-	name= "Lock aspect",
-	description= "Lock image aspect.",
-	default= False
-)
-
-
-class VRayBake(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.VRayBake= PointerProperty(
-	name= "Bake",
-	type=  VRayBake,
-	description= "Texture baking settings."
-)
-
-VRayBake.use= BoolProperty(
-	name= "Bake",
-	description= "Bake to texture.",
-	default= False
-)
-
-VRayBake.object= StringProperty(
-	name= "Object",
-	subtype= 'NONE',
-	description= "Object to bake."
-)
-
-VRayBake.dilation= IntProperty(
-	name= "Dilation",
-	description= "Number of pixels to expand around geometry.",
-	min= 0,
-	max= 1000,
-	soft_min= 0,
-	soft_max= 100,
-	default= 2,
-)
-
-VRayBake.flip_derivs= BoolProperty(
-	name= "Flip derivatives",
-	description= "Flip the texture direction derivatives (reverses bump mapping).",
-	default= False
-)
-
-
-class SettingsDefaultDisplacement(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsDefaultDisplacement= PointerProperty(
-	name= "Default Displacement",
-	type=  SettingsDefaultDisplacement,
-	description= "Default displacement settings."
-)
-
-SettingsDefaultDisplacement.override_on= BoolProperty(
-	name= "Override",
-	description= "Override settings globally.",
-	default= False
-)
-
-SettingsDefaultDisplacement.edgeLength= FloatProperty(
-	name= "Edge length",
-	description= "Max. height",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 3,
-	default= 4
-)
-
-SettingsDefaultDisplacement.viewDependent= BoolProperty(
-	name= "View dependent",
-	description= "Determines if view-dependent tesselation is used.",
-	default= True
-)
-
-SettingsDefaultDisplacement.maxSubdivs= IntProperty(
-	name= "Max subdivs",
-	description= "Determines the maximum subdivisions for a triangle of the original mesh.",
-	min= 0,
-	max= 2048,
-	soft_min= 0,
-	soft_max= 1024,
-	default= 256
-)
-
-SettingsDefaultDisplacement.tightBounds= BoolProperty(
-	name= "Tight bounds",
-	description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
-	default= True
-)
-
-SettingsDefaultDisplacement.amount= FloatProperty(
-	name= "Amount",
-	description= "Determines the displacement amount for white areas in the displacement map.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 3,
-	default= 1
-)
-
-SettingsDefaultDisplacement.relative= BoolProperty(
-	name= "Relative",
-	description= "TODO.",
-	default= False
-)
-
-
-class SettingsDMCSampler(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsDMCSampler= PointerProperty(
-	name= "DMC Sampler",
-	type=  SettingsDMCSampler,
-	description= "DMC Sampler settings."
-)
-
-SettingsDMCSampler.adaptive_threshold= FloatProperty(
-	name= "Noise threshold",
-	description= "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.001,
-	soft_max= 0.1,
-	default= 0.01,
-	precision= 3
-)
-
-SettingsDMCSampler.adaptive_min_samples= IntProperty(
-	name= "Min samples",
-	description= "The minimum number of samples that must be made before the early termination algorithm is used.",
-	min= 1,
-	max= 100,
-	default= 8
-)
-
-SettingsDMCSampler.adaptive_amount= FloatProperty(
-	name= "Adaptive amount",
-	description= "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 0.85,
-	precision= 2
-)
-
-SettingsDMCSampler.time_dependent= BoolProperty(
-	name= "Time dependent",
-	description= "This make the samping pattern change with time.",
-	default= 0
-)
-
-SettingsDMCSampler.subdivs_mult= FloatProperty(
-	name= "Subdivs mult",
-	description= "This will multiply all subdivs values everywhere during rendering.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	default= 1.0
-)
-
-
-class SettingsColorMapping(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsColorMapping= PointerProperty(
-	name= "Color Mapping",
-	type=  SettingsColorMapping,
-	description= "Color mapping settings."
-)
-
-SettingsColorMapping.type= EnumProperty(
-	name= "Type",
-	description= "Color mapping type.",
-	items= (
-		('LNR',"Linear",""),
-		('EXP',"Exponential",""),
-		('HSV',"HSV exponential",""),
-		('INT',"Intensity exponential",""),
-		('GCOR',"Gamma correction",""),
-		('GINT',"Intensity gamma",""),
-		('REIN',"Reinhard","")
-	),
-	default= "LNR"
-)
-
-SettingsColorMapping.affect_background= BoolProperty(
-	name= "Affect background",
-	description= "Affect colors belonging to the background.",
-	default= True
-)
-
-SettingsColorMapping.dark_mult= FloatProperty(
-	name= "Dark multiplier",
-	description= "Multiplier for dark colors.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 1.0
-)
-
-SettingsColorMapping.bright_mult= FloatProperty(
-	name= "Bright multiplier",
-	description= "Multiplier for bright colors.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 1.0
-)
-
-SettingsColorMapping.gamma= FloatProperty(
-	name= "Gamma",
-	description= "Gamma correction for the output image regardless of the color mapping mode.",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 1.0,
-	soft_max= 2.2,
-	default= 1.0
-)
-
-SettingsColorMapping.input_gamma= FloatProperty(
-	name= "Input gamma",
-	description= "Input gamma for textures.",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 1.0,
-	soft_max= 2.2,
-	default= 1.0
-)
-
-SettingsColorMapping.clamp_output= BoolProperty(
-	name= "Clamp output",
-	description= "Clamp colors after color mapping.",
-	default= True
-)
-
-SettingsColorMapping.clamp_level= FloatProperty(
-	name= "Clamp level",
-	description= "The level at which colors will be clamped.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 100.0,
-	default= 1.0
-)
-
-SettingsColorMapping.subpixel_mapping= BoolProperty(
-	name= "Sub-pixel mapping",
-	description= "This option controls whether color mapping will be applied to the final image pixels, or to the individual sub-pixel samples.",
-	default= False
-)
-
-SettingsColorMapping.adaptation_only= BoolProperty(
-	name= "Adaptation only",
-	description= "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly).",
-	default= False
-)
-
-SettingsColorMapping.linearWorkflow= BoolProperty(
-	name= "Linear workflow",
-	description= "When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene.",
-	default= False
-)
-
-
-class SettingsImageSampler(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsImageSampler= PointerProperty(
-	name= "Image Sampler",
-	type=  SettingsImageSampler,
-	description= "Image Sampler settings."
-)
-
-SettingsImageSampler.filter_type= EnumProperty(
-	name= "Filter type",
-	description= "Antialiasing filter.",
-	items= (
-		('NONE',"None",""),
-		('GAUSS',"Gaussian",""),
-		('SINC',"Sinc",""),
-		('CATMULL',"CatmullRom",""),
-		('LANC',"Lanczos",""),
-		('TRIANGLE',"Triangle",""),
-		('BOX',"Box",""),
-		('AREA',"Area","")
-	),
-	default= "NONE"
-)
-
-SettingsImageSampler.filter_size= FloatProperty(
-	name= "Filter size",
-	description= "Filter size.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	default= 1.5
-)
-
-SettingsImageSampler.type= EnumProperty(
-	name= "Type",
-	description= "Image sampler type.",
-	items= (
-		('FXD',"Fixed",""),
-		('DMC',"Adaptive DMC",""),
-		('SBD',"Adaptive subdivision","")
-	),
-	default= "DMC"
-)
-
-SettingsImageSampler.dmc_minSubdivs= IntProperty(
-	name= "Min subdivs",
-	description= "The initial (minimum) number of samples taken for each pixel.",
-	min= 1,
-	max= 100,
-	default= 1
-)
-
-SettingsImageSampler.dmc_maxSubdivs= IntProperty(
-	name= "Max subdivs",
-	description= "The maximum number of samples for a pixel.",
-	min= 1,
-	max= 100,
-	default= 4
-)
-
-SettingsImageSampler.dmc_treshhold_use_dmc= BoolProperty(
-	name= "Use DMC sampler threshold",
-	description= "Use threshold specified in the \"DMC sampler\"",
-	default= 1
-)
-
-SettingsImageSampler.dmc_threshold= FloatProperty(
-	name= "Color threshold",
-	description= "The threshold that will be used to determine if a pixel needs more samples.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 0.01
-)
-
-SettingsImageSampler.dmc_show_samples= BoolProperty(
-	name= "Show samples",
-	description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
-	default= 0
-)
-
-SettingsImageSampler.fixed_subdivs= IntProperty(
-	name= "Subdivs",
-	description= "The number of samples per pixel.",
-	min= 1,
-	max= 100,
-	default= 1
-)
-
-SettingsImageSampler.subdivision_show_samples= BoolProperty(
-	name= "Show samples",
-	description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
-	default= 0
-)
-
-SettingsImageSampler.subdivision_normals= BoolProperty(
-	name= "Normals",
-	description= "This will supersample areas with sharply varying normals.",
-	default= 0
-)
-
-SettingsImageSampler.subdivision_normals_threshold= FloatProperty(
-	name= "Normals threshold",
-	description= "Normals threshold.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 0.05
-)
-
-SettingsImageSampler.subdivision_jitter= BoolProperty(
-	name= "Randomize samples",
-	description= "Displaces the samples slightly to produce better antialiasing of nearly horizontal or vertical lines.",
-	default= 1
-)
-
-SettingsImageSampler.subdivision_threshold= FloatProperty(
-	name= "Color threshold",
-	description= "Determines the sensitivity of the sampler to changes in pixel intensity.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 0.1
-)
-
-SettingsImageSampler.subdivision_edges= BoolProperty(
-	name= "Object outline",
-	description= "This will cause the image sampler to always supersample object edges.",
-	default= 0
-)
-
-SettingsImageSampler.subdivision_minRate= IntProperty(
-	name= "Min rate",
-	description= "Minimum number of samples per pixel.",
-	min= -10,
-	max= 50,
-	default= -1
-)
-
-SettingsImageSampler.subdivision_maxRate= IntProperty(
-	name= "Max rate",
-	description= "Maximum number of samples per pixel.",
-	min= -10,
-	max= 50,
-	default= 2
-)
-
-
-class SettingsRaycaster(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsRaycaster= PointerProperty(
-	name= "Raycaster",
-	type=  SettingsRaycaster,
-	description= "Raycaster settings."
-)
-
-SettingsRaycaster.maxLevels= IntProperty(
-	name= "Max. tree depth",
-	description= "Maximum BSP tree depth.",
-	min= 50,
-	max= 100,
-	default= 80
-)
-
-SettingsRaycaster.minLeafSize= FloatProperty(
-	name= "Min. leaf size",
-	description= "Minimum size of a leaf node.",
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 0.0
-)
-
-SettingsRaycaster.faceLevelCoef= FloatProperty(
-	name= "Face/level",
-	description= "Maximum amount of triangles in a leaf node.",
-	min= 0.0,
-	max= 10.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	default= 1.0
-)
-
-SettingsRaycaster.dynMemLimit= IntProperty(
-	name= "Dynamic memory limit",
-	description= "RAM limit for the dynamic raycasters.",
-	min= 0,
-	max= 100000,
-	default= 1024
-)
-
-
-class SettingsUnitsInfo(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.SettingsUnitsInfo= PointerProperty(
-	name= "Units",
-	type=  SettingsUnitsInfo,
-	description="Units settings."
-)
-
-SettingsUnitsInfo.photometric_scale= FloatProperty(
-	name= "Photometric scale",
-	description= "Photometric scale.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	precision= 4,
-	default= 0.002
-)
-
-SettingsUnitsInfo.meters_scale= FloatProperty(
-	name= "Meters scale",
-	description= "Meters scale.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 3,
-	default= 1.0
-)
-
-
-class VRayExporter(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.exporter= PointerProperty(
-	name= "Exporter",
-	type=  VRayExporter,
-	description= "Exporter settings."
-)
-
-VRayExporter.use_material_nodes= BoolProperty(
-	name= "Use material nodes",
-	description= "Use material nodes.",
-	default= False
-)
-
-VRayExporter.use_render_operator= BoolProperty(
-	name= "Use render operator",
-	description= "Use bpy.ops.render.render() operator.",
-	default= False
-)
-
-VRayExporter.detach= BoolProperty(
-	name= "Detach renderer process",
-	description= "Detach renderer process.",
-	default= False
-)
-
-VRayExporter.mesh_active_layers= BoolProperty(
-	name= "Export meshes from active layers",
-	description= "Export meshes from active layers only.",
-	default= False
-)
-
-VRayExporter.use_displace= BoolProperty(
-	name= "Use displace",
-	description= "Use displace.",
-	default= True
-)
-
-VRayExporter.image_to_blender= BoolProperty(
-	name= "Image to Blender",
-	description= "Pass image to Blender on render end.",
-	default= False
-)
-
-VRayExporter.log_window= BoolProperty(
-	name= "Show log window",
-	description= "Show log window (Linux).",
-	default= False
-)
-
-VRayExporter.animation= BoolProperty(
-	name= "Animation",
-	description= "Render animation.",
-	default= False
-)
-
-VRayExporter.check_animated= BoolProperty(
-	name= "Check animated",
-	description= "Detect animated meshes.",
-	default= False
-)
-
-VRayExporter.use_hair= BoolProperty(
-	name= "Hair",
-	description= "Render hair.",
-	default= True
-)
-
-VRayExporter.use_instances= BoolProperty(
-	name= "Instances",
-	description= "Use instances (Alt+D meshes will be the same; saves memory and faster export)",
-	default= False
-)
-
-VRayExporter.camera_loop= BoolProperty(
-	name= "Camera loop",
-	description= "Render views from all cameras.",
-	default= False
-)
-
-VRayExporter.compat_mode= BoolProperty(
-	name= "Compatibility mode",
-	description= "Shading compatibility mode for old versions of V-Ray.",
-	default= False
-)
-
-VRayExporter.active_layers= BoolProperty(
-	name= "Active layers",
-	description= "Render objects only from visible layers.",
-	default= True
-)
-
-VRayExporter.auto_meshes= BoolProperty(
-	name= "Auto export meshes",
-	description= "Export meshes automatically before render.",
-	default= 0
-)
-
-VRayExporter.autorun= BoolProperty(
-	name= "Autorun",
-	description= "Start V-Ray automatically after export.",
-	default= 1
-)
-
-VRayExporter.debug= BoolProperty(
-	name= "Debug",
-	description= "Enable script\'s debug output.",
-	default= 0
-)
-
-VRayExporter.output= EnumProperty(
-	name= "Exporting directory",
-	description= "Exporting directory.",
-	items= (
-		('USER',"User-defined directory",""),
-		('SCENE',"Scene file directory",""),
-		('TMP',"Global TMP directory","")
-	),
-	default= 'TMP'
-)
-
-VRayExporter.detect_vray= BoolProperty(
-	name= "Detect V-Ray",
-	description= "Detect V-Ray binary location.",
-	default= True
-)
-
-VRayExporter.vray_binary= StringProperty(
-	name= "Path",
-	subtype= 'FILE_PATH',
-	description= "Path to V-Ray binary. Don\'t use relative path here - use absolute!"
-)
-
-VRayExporter.output_dir= StringProperty(
-	name= "Directory",
-	subtype= 'DIR_PATH',
-	description= "User-defined output directory."
-)
-
-VRayExporter.output_unique= BoolProperty(
-	name= "Use unique file name",
-	description= "Use unique file name.",
-	default= False
-)
-
-VRayExporter.auto_save_render= BoolProperty(
-	name= "Save render",
-	description= "Save render automatically.",
-	default= False
-)
-
-VRayExporter.display= BoolProperty(
-	name= "Display VFB",
-	description= "Display VFB.",
-	default= True
-)
-
-
-class VRayDR(bpy.types.IDPropertyGroup):
-	pass
-
-VRayScene.VRayDR= PointerProperty(
-	name= "Distributed rendering",
-	type=  VRayDR,
-	description= "Distributed rendering settings."
-)
-
-VRayDR.on= BoolProperty(
-	name= "Distributed rendering",
-	description= "Distributed rendering.",
-	default= False
-)
-
-VRayDR.port= IntProperty(
-	name= "Distributed rendering port",
-	description= "Distributed rendering port.",
-	min= 0,
-	max= 65535,
-	default= 20204
-)
-
-VRayDR.shared_dir= StringProperty(
-	name= "Shared directory",
-	subtype= 'DIR_PATH',
-	description= "Distributed rendering shader directory."
-)
-
-VRayDR.type= EnumProperty(
-	name= "Type",
-	description= "Distributed rendering network type.",
-	items= (
-		('WW', "Windows - Windows", "Window master & Windows nodes."),
-		('WU', "Windows - Unix",    "Window master & Unix nodes."),
-		('UU', "Unix - Unix",       "Unix master & Unix nodes.")
-	),
-	default= 'WU'
-)
-
-
-class VRayRenderNode(bpy.types.IDPropertyGroup):
-	pass
-
-VRayDR.nodes= CollectionProperty(
-	name= "Render Nodes",
-	type=  VRayRenderNode,
-	description= "V-Ray render nodes."
-)
-
-VRayDR.nodes_selected= IntProperty(
-	name= "Render Node Index",
-	default= -1,
-	min= -1,
-	max= 100
-)
-
-VRayRenderNode.address= StringProperty(
-	name= "IP/Hostname",
-	description= "Render node IP or hostname."
-)
-
+from vb25.ui.ui import *
 	
 
-'''
-	GUI
-'''
 import properties_render
-# properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER')
-# properties_render.RENDER_PT_dimensions.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_render
 
 
-narrowui= 200
-
-
-class RENDER_MT_VRAY_im_preset(bpy.types.Menu):
+class VRAY_MT_preset_IM(bpy.types.Menu):
 	bl_label= "Irradiance Map Presets"
 	preset_subdir= os.path.join("..", "io", "vb25", "presets", "im")
-	preset_operator = "script.execute_preset"
-	draw = bpy.types.Menu.draw_preset
+	preset_operator= "script.execute_preset"
+	draw= bpy.types.Menu.draw_preset
 
 
-class VRAY_MT_global_preset(bpy.types.Menu):
+class VRAY_MT_preset_global(bpy.types.Menu):
 	bl_label= "V-Ray Global Presets"
 	preset_subdir= os.path.join("..", "io", "vb25", "presets", "render")
-	preset_operator = "script.execute_preset"
-	draw = bpy.types.Menu.draw_preset
+	preset_operator= "script.execute_preset"
+	draw= bpy.types.Menu.draw_preset
 
 
-class RENDER_CHANNELS_OT_add(bpy.types.Operator):
-	bl_idname=      'vray.render_channels_add'
-	bl_label=       "Add Render Channel"
-	bl_description= "Add render channel."
-
-	def execute(self, context):
-		sce= context.scene
-		vsce= sce.vray
-
-		render_channels= vsce.render_channels
-
-		render_channels.add()
-		render_channels[-1].name= "RenderChannel"
-
-		return{'FINISHED'}
-
-
-class RENDER_CHANNELS_OT_del(bpy.types.Operator):
-	bl_idname=      'vray.render_channels_remove'
-	bl_label=       "Remove Render Channel"
-	bl_description= "Remove render channel."
-
-	def execute(self, context):
-		sce= context.scene
-		vsce= sce.vray
-		
-		render_channels= vsce.render_channels
-		
-		if vsce.render_channels_index >= 0:
-		   render_channels.remove(vsce.render_channels_index)
-		   vsce.render_channels_index-= 1
-
-		return{'FINISHED'}
-
-
-class RENDER_NODES_OT_add(bpy.types.Operator):
-	bl_idname=      'vray.render_nodes_add'
-	bl_label=       "Add Render Node"
-	bl_description= "Add render node."
-
-	def execute(self, context):
-		vs= context.scene.vray
-		module= vs.VRayDR
-
-		module.nodes.add()
-		module.nodes[-1].name= "Render Node"
-
-		return{'FINISHED'}
-
-
-class RENDER_NODES_OT_del(bpy.types.Operator):
-	bl_idname=      'vray.render_nodes_remove'
-	bl_label=       "Remove Render Node"
-	bl_description= "Remove render node"
-
-	def invoke(self, context, event):
-		vs= context.scene.vray
-		module= vs.VRayDR
-
-		if module.nodes_selected >= 0:
-		   module.nodes.remove(module.nodes_selected)
-		   module.nodes_selected-= 1
-
-		return{'FINISHED'}
-
-
-def base_poll(cls, context):
-	rd= context.scene.render
-	return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES)
-
-
-class RenderButtonsPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
-
-
-class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RENDER_dimensions(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Dimensions"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -956,7 +128,7 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 		subrow.prop(rd, "frame_map_new", text="New")
 
 
-class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Render"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1014,7 +186,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 			sub.prop(ve, 'image_to_blender')
 
 
-class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -1075,7 +247,7 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
 
-class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -1093,7 +265,7 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		ve= context.scene.vray.exporter
 
 		row= layout.row(align=True)
-		row.menu("VRAY_MT_global_preset", text=bpy.types.VRAY_MT_global_preset.bl_label)
+		row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
 		row.operator("vray.preset_add", text="", icon="ZOOMIN")
 		row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
 
@@ -1159,7 +331,7 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		sub.prop(rd, "threads")
 	
 
-class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_vray_cm(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1200,7 +372,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(cm, "clamp_level")
 
 
-class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_vray_aa(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1263,7 +435,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(module, "filter_size")
 
 
-class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_vray_dmc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "DMC sampler"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1291,7 +463,7 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(module, "adaptive_min_samples")
 
 
-class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1352,7 +524,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(module, "secondary_engine", text="")
 
 
-class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_im(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1380,7 +552,7 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 			col.label(text="Preset:")
 			if wide_ui:
 				col= split.column()
-			col.menu('RENDER_MT_VRAY_im_preset', text="Preset")
+			col.menu('VRAY_MT_preset_IM', text="Preset")
 
 			split= layout.split()
 			split.label(text="Basic parameters:")
@@ -1465,7 +637,7 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 			colR.prop(module,"auto_save_file", text="")
 
 
-class RENDER_PT_bf(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_bf(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1492,7 +664,7 @@ class RENDER_PT_bf(RenderButtonsPanel, bpy.types.Panel):
 			col.prop(module, "depth")
 
 
-class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
+class RENDER_PT_lc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1581,7 +753,7 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 			colR.prop(module,"auto_save_file", text="")
 
 
-class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Channels"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -1632,7 +804,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
 
 
-class RENDER_PT_vray_displace(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Displace"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1662,7 +834,7 @@ class RENDER_PT_vray_displace(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(SettingsDefaultDisplacement, 'relative')
 
 
-class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Distributed rendering"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -1715,7 +887,7 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 			layout.prop(render_node, 'address')
 
 
-class VRAY_RENDER_bake(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RENDER_bake(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 	
@@ -1744,7 +916,7 @@ class VRAY_RENDER_bake(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(VRayBake, 'flip_derivs')
 
 
-class VRAY_RENDER_SettingsSystem(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "System"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -1805,7 +977,7 @@ class VRAY_RENDER_SettingsSystem(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(SettingsRegionsGenerator, 'lock_size')
 
 
-class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
+class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "About"
 	bl_options = {'DEFAULT_CLOSED'}
 

@@ -1,36 +1,44 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
 TYPE= 'SETTINGS'
 
-ID=   'SETTINGSOPTIONS'
+ID=   'SettingsOptions'
+
 NAME= 'Render Options'
-PLUG= 'SettingsOptions'
 DESC= "Render options."
 
 PARAMS= (
@@ -59,61 +67,53 @@ PARAMS= (
 )
 
 
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-class SettingsOptions(bpy.types.IDPropertyGroup):
-	pass
-
-def add_properties(parent_struct):
-	setattr(parent_struct, PLUG, PointerProperty(type= SettingsOptions,
-												 name= NAME,
-												 description= DESC))
+def add_properties(rna_pointer):
+	class SettingsOptions(bpy.types.IDPropertyGroup):
+		pass
+	
+	setattr(rna_pointer, PLUG, PointerProperty(type= SettingsOptions,
+											   name= NAME,
+											   description= DESC))
 	
 	SettingsOptions.geom_displacement= BoolProperty(
 		name= "Displacement",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
 	SettingsOptions.geom_doHidden= BoolProperty(
 		name= "Render hidden",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= False
 	)
 	
 	SettingsOptions.light_doLights= BoolProperty(
 		name= "Lights",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
 	SettingsOptions.light_doDefaultLights= BoolProperty(
 		name= "Default lights",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= False
 	)
 	
 	SettingsOptions.light_doHiddenLights= BoolProperty(
 		name= "Hidden lights",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= False
 	)
 	
 	SettingsOptions.light_doShadows= BoolProperty(
 		name= "Shadows",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
 	SettingsOptions.light_onlyGI= BoolProperty(
 		name= "Show GI only",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= False
 	)
 	
@@ -125,7 +125,7 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.mtl_reflectionRefraction= BoolProperty(
 		name= "Reflection/refraction",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
@@ -147,13 +147,13 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.mtl_doMaps= BoolProperty(
 		name= "Textures",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
 	SettingsOptions.mtl_filterMaps= BoolProperty(
 		name= "Filter textures",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 	
@@ -221,7 +221,7 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.misc_lowThreadPriority= BoolProperty(
 		name= "Low thread priority",
-		description= "TODO.",
+		description= "No tooltip yet :(",
 		default= True
 	)
 
@@ -233,7 +233,7 @@ def write(ofile, scene, rna_pointer):
 	ofile.write("\n%s %s {" % (PLUG, PLUG))
 	for param in PARAMS:
 		if param == 'mtl_override':
-			# Not implemented in V-Ray plugin
+			# Not implemented in V-Ray plugin:
 			# override is done in "Node" export function
 			continue
 		else:

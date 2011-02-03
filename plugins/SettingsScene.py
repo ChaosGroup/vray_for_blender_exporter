@@ -1,6 +1,5 @@
 '''
-
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
 
@@ -21,42 +20,46 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
 '''
 
-narrowui= 200
+''' Blender modules '''
+import bpy
+from bpy.props import *
 
-def base_poll(cls, context):
-	rd= context.scene.render
-	return (rd.engine in cls.COMPAT_ENGINES)
+''' vb modules '''
+from vb25.ui.ui import *
 
-class VRayDataPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'data'
+TYPE= 'SETTINGS'
 
-class VRayMaterialPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'material'
+ID=   'SETTINGSCENE'
+NAME= 'Scene settings'
+DESC= "Misc. scene settings."
 
-class VRayObjectPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'object'
+PARAMS= (
+)
 
-class VRayRenderPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
 
-class VRayScenePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'scene'
+def add_properties(rna_pointer):
+	rna_pointer.use_hidden_lights= BoolProperty(
+		name= "Hidden lights",
+		description= "Render hidden lights.",
+		default= False
+	)
 
-class VRayTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
+	rna_pointer.image_aspect= FloatProperty(
+		name= "Image aspect",
+		description= "Image aspect.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1.333
+	)
+
+	rna_pointer.image_aspect_lock= BoolProperty(
+		name= "Lock aspect",
+		description= "Lock image aspect.",
+		default= False
+	)
 

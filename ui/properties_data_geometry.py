@@ -45,7 +45,7 @@ for member in dir(properties_data_mesh):
 del properties_data_mesh
 
 
-class DATA_PT_vray_proxy(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Proxy"
 	bl_options = {'DEFAULT_CLOSED'}
 	
@@ -116,3 +116,4 @@ class DATA_PT_vray_proxy(VRayDataPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
+

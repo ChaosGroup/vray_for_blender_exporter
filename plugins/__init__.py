@@ -37,14 +37,15 @@ from bpy.props import *
 from vb25.utils import *
 
 
-# TODO: list to dict
 PLUGINS= {
-	'MATERIAL':      [],
-	'GEOMETRY':      [],
-	'BRDF':          [],
-	'TEXTURE':       [],
-	'SETTINGS':      [],
-	'RENDERCHANNEL': [],
+	'CAMERA':        {},
+	'MATERIAL':      {},
+	'GEOMETRY':      {},
+	'OBJECT':        {},
+	'BRDF':          {},
+	'TEXTURE':       {},
+	'SETTINGS':      {},
+	'RENDERCHANNEL': {},
 }
 
 
@@ -86,30 +87,39 @@ if base_dir is not None:
 	for plugin in plugins:
 		sys.stdout.write("V-Ray/Blender: Loading module: {0:<64}\r".format(plugin.__name__))
 		sys.stdout.flush()
-		PLUGINS[plugin.TYPE].append(plugin)
+		PLUGINS[plugin.TYPE][plugin.ID]= plugin
 
-	TEX_PLUGINS= sorted(PLUGINS['TEXTURE'], key=lambda plug: plug.PID)
-	CHANNEL_PLUGINS= sorted(PLUGINS['RENDERCHANNEL'], key=lambda plug: plug.PID)
+	# PLUGINS['TEXTURE']=       sorted(PLUGINS['TEXTURE'],       key=lambda plug: plug.PID)
+	# PLUGINS['RENDERCHANNEL']= sorted(PLUGINS['RENDERCHANNEL'], key=lambda plug: plug.PID)
 	
-	sys.stdout.write("V-Ray/Blender: Loading modules... {0:<64}\r".format("done."))
+	sys.stdout.write("V-Ray/Blender: Loading modules... {0:<64}\n".format("done."))
+	sys.stdout.flush()
 
+	for plugin_type in PLUGINS:
+		print("Type: %s" % plugin_type)
+		for plugin in PLUGINS[plugin_type]:
+			print("  %s" % PLUGINS[plugin_type][plugin].NAME)
 
-class VRayMesh(bpy.types.IDPropertyGroup):
-    pass
-
-class VRayTexture(bpy.types.IDPropertyGroup):
-	pass
-
-class VRayScene(bpy.types.IDPropertyGroup):
-	pass
-
-class VRayRenderChannel(bpy.types.IDPropertyGroup):
-	pass
 
 def add_properties():
-	'''
-	  RNA pointers
-	'''
+	class VRayCamera(bpy.types.IDPropertyGroup):
+		pass
+
+	class VRayMesh(bpy.types.IDPropertyGroup):
+		pass
+
+	class VRayMaterial(bpy.types.IDPropertyGroup):
+		pass
+
+	class VRayTexture(bpy.types.IDPropertyGroup):
+		pass
+
+	class VRayScene(bpy.types.IDPropertyGroup):
+		pass
+
+	class VRayRenderChannel(bpy.types.IDPropertyGroup):
+		pass
+
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
@@ -122,16 +132,27 @@ def add_properties():
 		description= "V-Ray Renderer settings."
 	)
 
+	bpy.types.Material.vray= PointerProperty(
+		name= "V-Ray Material Settings",
+		type=  VRayMaterial,
+		description= "V-Ray material settings"
+		)
 	bpy.types.Mesh.vray= PointerProperty(
-		name= "V-Ray Object Data Settings",
+		name= "V-Ray Mesh Settings",
 		type=  VRayMesh,
-		description= "V-Ray object data settings."
+		description= "V-Ray geometry settings."
 	)
 
 	bpy.types.Curve.vray= PointerProperty(
-		name= "V-Ray Object Data Settings",
+		name= "V-Ray Curve Settings",
 		type=  VRayMesh,
-		description= "V-Ray object data settings."
+		description= "V-Ray geometry settings."
+	)
+
+	bpy.types.Camera.vray= PointerProperty(
+		name= "V-Ray Camera Settings",
+		type=  VRayCamera,
+		description= "V-Ray Camera / DoF / Motion Blur settings."
 	)
 
 	'''
@@ -170,9 +191,11 @@ def add_properties():
 	'''
 	  Add plugin properties
 	'''
-	load_plugins(PLUGINS['SETTINGS'], VRayScene)
-	load_plugins(PLUGINS['TEXTURE'],  VRayTexture)
-	load_plugins(PLUGINS['GEOMETRY'], VRayMesh)
+	# load_plugins(PLUGINS['SETTINGS'], VRayScene)
+	# load_plugins(PLUGINS['TEXTURE'],  VRayTexture)
+	# load_plugins(PLUGINS['GEOMETRY'], VRayMesh)
+	# load_plugins(PLUGINS['CAMERA'],   VRayCamera)
+	# load_plugins(PLUGINS['MATERIAL'], VRayMaterial)
 
 
 def remove_properties():

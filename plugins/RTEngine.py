@@ -22,12 +22,15 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.ui.ui import *
+
 
 TYPE= 'SETTINGS'
 
@@ -234,14 +237,7 @@ def write(ofile, scene, rna_pointer):
 '''
   GUI
 '''
-narrowui= 200
-
-class RPRTEngine():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
-
-class VRAY_RP_RTEngine(RPRTEngine, bpy.types.Panel):
+class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 	bl_label       = "Realtime engine"
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -249,8 +245,10 @@ class VRAY_RP_RTEngine(RPRTEngine, bpy.types.Panel):
 	def poll(cls, context):
 		scene= context.scene
 		rd=    scene.render
+		if not hasattr(scene.vray, PLUG):
+			return False
 		use=   scene.vray.RTEngine.enabled
-		return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES) and (use)
+		return (use and base_poll(__class__, context))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

@@ -319,3 +319,137 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.render.threads",
 	]
 
+
+# '''
+#   BRDFSSS2Complex preset generator
+# '''
+# import os
+# SSS2= {
+# 	'Skin_brown': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (169, 123, 92),
+# 		'sub_surface_color':    (169, 123, 92),
+# 		'scatter_radius':       (155, 94, 66),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Skin_pink': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (203, 169, 149),
+# 		'sub_surface_color':    (203, 169, 149),
+# 		'scatter_radius':       (177, 105, 84),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Skin_yellow': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (204, 165, 133),
+# 		'sub_surface_color':    (204, 165, 133),
+# 		'scatter_radius':       (177, 105, 84),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Milk_skimmed': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (230, 230, 210),
+# 		'sub_surface_color':    (230, 230, 210),
+# 		'scatter_radius':       (245, 184, 107),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Milk_whole': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (242, 239, 222),
+# 		'sub_surface_color':    (242, 239, 222),
+# 		'scatter_radius':       (188, 146,  90),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.9,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Marble_white': {
+# 		'ior':                  1.5,
+# 		'diffuse_color':        (238, 233, 228),
+# 		'sub_surface_color':    (238, 233, 228),
+# 		'scatter_radius':       (235, 190, 160),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       -0.25,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.7
+# 	},
+# 	'Ketchup': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (102, 28,  0),
+# 		'sub_surface_color':    (102, 28,  0),
+# 		'scatter_radius':       (176, 62, 50),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.9,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.7
+# 	},
+# 	'Cream': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (224, 201, 117),
+# 		'sub_surface_color':    (224, 201, 117),
+# 		'scatter_radius':       (215, 153,  81),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.6
+# 	},
+# 	'Potato': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (224, 201, 117),
+# 		'sub_surface_color':    (224, 201, 117),
+# 		'scatter_radius':       (215, 153,  81),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Spectration': {
+# 		'ior':                  1.5,
+# 		'diffuse_color':        (255, 255, 255),
+# 		'sub_surface_color':    (255, 255, 255),
+# 		'scatter_radius':       (  0,   0,   0),
+# 		'scatter_radius_mult':  0.0,
+# 		'phase_function':       0.0,
+# 		'specular_amount':      0.0,
+# 		'specular_glossiness':  0.0
+# 	},
+# 	'Water_clear': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (  0,   0,   0),
+# 		'sub_surface_color':    (  0,   0,   0),
+# 		'scatter_radius':       (255, 255, 255),
+# 		'scatter_radius_mult':  300.0,
+# 		'phase_function':       0.95,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  1.0
+# 	}
+# }
+# def generate_presets():
+# 	for preset in SSS2:
+# 		ofile= open("/home/bdancer/devel/vrayblender/exporter/vb25/presets/sss/%s.py"%(preset), 'w')
+# 		ofile.write("import bpy\n")
+# 		for param in SSS2[preset]:
+# 			ps= SSS2[preset][param]
+# 			if type(ps) == tuple:
+# 				pss= ""
+# 				for c in ps:
+# 					pss+= "%.3f,"%(float(c / 255.0))
+# 				ps= pss[:-1]
+# 			s= "bpy.context.active_object.active_material.vray.BRDFSSS2Complex.%s = %s\n"%("%s"%(param), ps)
+# 			ofile.write(s.replace(')','').replace('(',''))
+# 		ofile.write("\n")
+# 		ofile.close()
+# generate_presets()
+
