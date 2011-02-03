@@ -1632,6 +1632,8 @@ def write_settings(sce,ofile):
 		ofile.write("\n\tauto_save= %d;"%(lc.auto_save))
 		ofile.write("\n\tauto_save_file= \"%s\";"%(bpy.path.abspath(lc.auto_save_file)))
 		ofile.write("\n\tfile= \"%s\";"%(lc.file))
+		ofile.write("\n\tretrace_enabled= %d;"%(lc.retrace_enabled))
+		ofile.write("\n\tretrace_threshold= %.3f;"%(lc.retrace_threshold))
 		ofile.write("\n\tdont_delete= false;")
 		ofile.write("\n}\n")
 
