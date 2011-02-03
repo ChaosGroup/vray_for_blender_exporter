@@ -33,9 +33,10 @@ from vb25.utils   import *
 from vb25.shaders import *
 from vb25.ui.ui   import *
 
-TYPE= 'SETTINGS'
 
-ID=   'ENVIRONMENTEFFECTS'
+TYPE= 'SETTINGS'
+ID=   'SettingsEnvironmet'
+
 NAME= 'Environment Effects'
 DESC= "Environment effects."
 
@@ -97,6 +98,18 @@ def add_properties(rna_pointer):
 
 	class VRayEffects(bpy.types.IDPropertyGroup):
 		pass
+
+	rna_pointer.EnvironmentFog= PointerProperty(
+		name= "EnvironmentFog",
+		type=  EnvironmentFog,
+		description= "EnvironmentFog settings."
+	)
+
+	rna_pointer.VolumeVRayToon= PointerProperty(
+		name= "VolumeVRayToon",
+		type=  VolumeVRayToon,
+		description= "VolumeVRayToon settings."
+	)
 
 	rna_pointer.VRayEffects= PointerProperty(
 		name= "Environment Effects",

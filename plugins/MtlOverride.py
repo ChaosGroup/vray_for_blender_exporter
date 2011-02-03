@@ -25,23 +25,21 @@
 '''
 
 
-TYPE= 'MATERIAL'
-
-ID=   'MTLOVERRIDE'
-NAME= 'MtlOverride'
-UI=   "Override"
-PLUG= 'MtlOverride'
-DESC= "MtlOverride settings."
-
-PID=   110
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+
+TYPE= 'MATERIAL'
+ID=   'MtlOverride'
+PID=   110
+
+NAME= 'Override'
+UI=   "Override"
+DESC= "MtlOverride settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

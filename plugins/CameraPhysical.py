@@ -32,10 +32,9 @@ from vb25.shaders import *
 from vb25.ui.ui import *
 
 TYPE= 'CAMERA'
+ID=   'CameraPhysical'
 
-ID=   'CAMERAPHYSICAL'
 NAME= 'Physical camera'
-PLUG= 'CameraPhysical'
 DESC= "V-Ray CameraPhysical settings."
 
 PARAMS= (

@@ -71,9 +71,9 @@ def add_properties(rna_pointer):
 	class SettingsOptions(bpy.types.IDPropertyGroup):
 		pass
 	
-	setattr(rna_pointer, PLUG, PointerProperty(type= SettingsOptions,
-											   name= NAME,
-											   description= DESC))
+	setattr(rna_pointer, ID, PointerProperty(type= SettingsOptions,
+											 name= NAME,
+											 description= DESC))
 	
 	SettingsOptions.geom_displacement= BoolProperty(
 		name= "Displacement",
@@ -230,7 +230,7 @@ def write(ofile, scene, rna_pointer):
 	VRayScene=       scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
-	ofile.write("\n%s %s {" % (PLUG, PLUG))
+	ofile.write("\n%s %s {" % (ID, ID))
 	for param in PARAMS:
 		if param == 'mtl_override':
 			# Not implemented in V-Ray plugin:

@@ -25,20 +25,23 @@
 '''
 
 
-TYPE= 'TEXTURE'
-
-ID=   'TEXCOMMON'
-NAME= 'General texture setings'
-DESC= "Common V-Ray Texture settings."
-PID=   100
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
+TYPE= 'TEXTURE'
+ID=   'TEXCOMMON'
+
+NAME= 'General texture setings'
+DESC= "Common V-Ray Texture settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

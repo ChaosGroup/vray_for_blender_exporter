@@ -26,11 +26,10 @@
 
 
 TYPE= 'MATERIAL'
+ID=   'Material'
 
-ID=   'MATERIALCOMMON'
 NAME= 'General material setings'
 DESC= "General V-Ray material settings."
-PID=   110
 
 PARAMS= (
 )
@@ -58,8 +57,8 @@ def add_properties(rna_pointer):
 		name= "Emitter type",
 		description= "This determines the type of BRDF (the shape of the hilight).",
 		items= (
-			('MTL',  "Material",   "TODO."),
-			('MESH', "Mesh light", "TODO.")
+			('MTL',  "Material",   "Light material."),
+			('MESH', "Mesh light", "Mesh light.")
 		),
 		default= 'MTL'
 	)

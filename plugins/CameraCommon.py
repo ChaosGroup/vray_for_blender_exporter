@@ -33,10 +33,9 @@ from vb25.ui.ui import *
 
 
 TYPE= 'CAMERA'
+ID=   'Camera'
 
-ID=   'CAMERA'
 NAME= 'Camera'
-PLUG=  None
 DESC= "V-Ray camera settings."
 
 PARAMS= (

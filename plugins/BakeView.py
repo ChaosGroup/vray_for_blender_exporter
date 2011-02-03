@@ -25,23 +25,19 @@
 '''
 
 
-TYPE= 'SETTINGS'
-
-ID=   'BAKEVIEW'
-NAME= 'VRayBake'
-UI=   "Bake"
-PLUG= 'BakeView'
-DESC= "Bake settings."
-
-PID=   140
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+
+TYPE= 'SETTINGS'
+ID=   'BakeView'
+
+NAME= 'Bake'
+DESC= "Bake settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

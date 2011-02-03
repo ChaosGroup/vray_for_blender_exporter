@@ -25,23 +25,25 @@
 '''
 
 
-TYPE= 'MATERIAL'
-
-ID=   'BRDFSSS2Complex'
-
-NAME= 'BRDFSSS2Complex'
-UI=   "SSS"
-DESC= "BRDFSSS2Complex settings."
-
-PID=   2
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
+TYPE= 'BRDF'
+ID=   'BRDFSSS2Complex'
+PID=   2
+
+NAME= 'Fast SSS'
+UI=   "SSS"
+DESC= "BRDFSSS2Complex settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

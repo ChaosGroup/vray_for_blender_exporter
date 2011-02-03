@@ -1,5 +1,6 @@
 '''
-  V-Ray/Blender
+
+  V-Ray/Blender 2.5
 
   http://vray.cgdo.ru
 
@@ -20,6 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+
 '''
 
 
@@ -33,7 +35,6 @@ from vb25.ui.ui import *
 
 
 TYPE= 'BRDF'
-
 ID=   'BRDFBump'
 
 NAME= 'Bump'

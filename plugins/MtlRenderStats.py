@@ -25,23 +25,21 @@
 '''
 
 
-TYPE= 'MATERIAL'
-
-ID=   'MTLRENDERSTATS'
-NAME= 'MtlRenderStats'
-UI=   "Render"
-PLUG= 'MtlRenderStats'
-DESC= "MtlRenderStats settings."
-
-PID=   130
-
-PARAMS= (
-)
-
-
 ''' Blender modules '''
 import bpy
 from bpy.props import *
+
+
+TYPE= 'MATERIAL'
+ID=   'MtlRenderStats'
+PID=   130
+
+NAME= 'Render Stats'
+UI=   "Render"
+DESC= "MtlRenderStats settings."
+
+PARAMS= (
+)
 
 
 def add_properties(rna_pointer):

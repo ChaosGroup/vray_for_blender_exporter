@@ -25,156 +25,428 @@
 '''
 
 
-TYPE= 'MATERIAL'
+''' Blender modules '''
+import bpy
+from bpy.props import *
 
-ID=   'BRDFSSS2Complex'
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
 
-NAME= 'BRDFSSS2Complex'
-UI=   "SSS"
+
+TYPE= 'BRDF'
+ID=   'BRDFVRayMtl'
+PID=   1
+
+NAME= "Standard material"
+UI=   "Standard"
 DESC= "BRDFSSS2Complex settings."
 
-PID=   2
 
 PARAMS= (
 )
 
 
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-
 def add_properties(rna_pointer):
-	class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
+	class BRDFVRayMtl(bpy.types.IDPropertyGroup):
 		pass
 
-	rna_pointer.BRDFSSS2Complex= PointerProperty(
-		name= "BRDFSSS2Complex",
-		type=  BRDFSSS2Complex,
-		description= "V-Ray BRDFSSS2Complex settings"
+	rna_pointer.BRDFVRayMtl= PointerProperty(
+		name= "BRDFVRayMtl",
+		type=  BRDFVRayMtl,
+		description= "V-Ray BRDFVRayMtl settings."
 	)
 
-	BRDFSSS2Complex.prepass_rate= IntProperty(
-		name= "Prepass rate",
-		description= "Sampling density for the illumination map.",
-		min= -10,
-		max= 10,
-		default= -1
-	)
-
-	BRDFSSS2Complex.interpolation_accuracy= FloatProperty(
-		name= "Interpolation accuracy",
-		description= "Interpolation accuracy for the illumination map; normally 1.0 is fine.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	BRDFSSS2Complex.scale= FloatProperty(
-		name= "Scale",
-		description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle.",
-		min= 0.0,
-		max= 1000.0,
-		soft_min= 0.0,
-		soft_max= 1000.0,
-		precision= 4,
-		default= 1
-	)
-
-	BRDFSSS2Complex.ior= FloatProperty(
-		name= "IOR",
-		description= 'TODO.',
-		min= 0.0,
-		max= 30.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.5
-	)
-
-	BRDFSSS2Complex.diffuse_amount= FloatProperty(
-		name= "Diffuse amount",
-		description= 'TODO.',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		precision= 3,
-		default= 0.0
-	)
-
-	BRDFSSS2Complex.scatter_radius= FloatVectorProperty(
-		name= "Scatter radius",
-		description= 'TODO.',
+	BRDFVRayMtl.fog_color= FloatVectorProperty(
+		name= "Fog color",
+		description= "Fog color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (0.92,0.52,0.175)
+		default= (1.0,1.0,1.0)
 	)
 
-	BRDFSSS2Complex.scatter_radius_mult= FloatProperty(
-		name= "Scatter radius",
-		description= 'TODO.',
+	BRDFVRayMtl.refract_color= FloatVectorProperty(
+		name= "Refraction color",
+		description= "Refraction color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	BRDFVRayMtl.reflect_color= FloatVectorProperty(
+		name= "Reflection color",
+		description= "Reflection color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	BRDFVRayMtl.reflect_exit_color= FloatVectorProperty(
+		name= "Reflection exit color",
+		description= "Reflection exit color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	BRDFVRayMtl.fresnel= BoolProperty(
+		name= "Frensnel reflections",
+		description= "Enable frensnel reflections.",
+		default= False
+	)
+
+	BRDFVRayMtl.fresnel_ior_lock= BoolProperty(
+		name= "Frensnel reflections lock",
+		description= "",
+		default= False
+	)
+
+	BRDFVRayMtl.dispersion_on= BoolProperty(
+		name= "Dispersion",
+		description= "Enable dispersion.",
+		default= False
+	)
+
+	BRDFVRayMtl.dispersion= IntProperty(
+		name= "Abbe",
+		description= "Abbe value.",
+		min= 1,
+		max= 1024,
+		soft_min= 1,
+		soft_max= 100,
+		default= 50
+	)
+
+	BRDFVRayMtl.fresnel_ior= FloatProperty(
+		name= "Fresnel IOR",
+		description= "",
+		min= 0.0,
+		max= 30.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		default= 1.6
+	)
+
+	BRDFVRayMtl.refract_ior= FloatProperty(
+		name= "Refractions IOR",
+		description= "The IOR for refractions.",
+		min= 0.0,
+		max= 30.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		default= 1.6
+	)
+
+	BRDFVRayMtl.reflect_subdivs= IntProperty(
+		name= "Reflection subdivs",
+		description= "Subdivs for glossy reflections",
+		min= 1,
+		max= 256,
+		default= 8
+	)
+
+	BRDFVRayMtl.reflect_depth= IntProperty(
+		name= "Reflections depth",
+		description= "The maximum depth for reflections.",
+		min= 1,
+		max= 256,
+		default= 5
+	)
+
+	BRDFVRayMtl.refract_depth= IntProperty(
+		name= "Refractions depth",
+		description= "The maximum depth for refractions.",
+		min= 1,
+		max= 256,
+		default= 5
+	)
+
+	BRDFVRayMtl.refract_subdivs= IntProperty(
+		name= "Refraction subdivs",
+		description= "Subdivs for glossy refractions",
+		min= 1,
+		max= 256,
+		default= 8
+	)
+
+	BRDFVRayMtl.roughness= FloatProperty(
+		name= "Roughness",
+		description= "",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 0.0
+	)
+
+	BRDFVRayMtl.hilight_glossiness= FloatProperty(
+		name= "Hilight glossiness",
+		description= "The glossiness of the hilights.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
+	)
+
+	BRDFVRayMtl.reflect_glossiness= FloatProperty(
+		name= "Reflection glossiness",
+		description= "The glossiness of the reflections.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
+	)
+
+	BRDFVRayMtl.refract_glossiness= FloatProperty(
+		name= "Refraction glossiness",
+		description= "The glossiness of the refractions.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
+	)
+
+	BRDFVRayMtl.hilight_glossiness_lock= BoolProperty(
+		name= "Hilight glossiness lock",
+		description= "",
+		default= True
+	)
+
+	BRDFVRayMtl.hilight_soften= FloatProperty(
+		name= "Hilight soften",
+		description= "How much to soften hilights and reflections at grazing light angles",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 0.0
+	)
+
+	BRDFVRayMtl.reflect_dim_distance_on= BoolProperty(
+		name= "reflect dim distance on",
+		description= "True to enable dim distance",
+		default= False
+	)
+
+	BRDFVRayMtl.reflect_dim_distance_falloff= FloatProperty(
+		name= "reflect dim distance falloff",
+		description= "Fall off for the dim distance",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 10.0,
 		precision= 3,
-		default= 1.0
+		default= 0
 	)
 
-	BRDFSSS2Complex.overall_color= FloatVectorProperty(
-		name= "Overall color",
-		description= 'TODO.',
-		subtype= 'COLOR',
+	BRDFVRayMtl.anisotropy_derivation= IntProperty(
+		name= "anisotropy derivation",
+		description= "What method to use for deriving anisotropy axes (0 - local object axis; 1 - a specified uvw generator)",
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 10,
+		default= 0
+	)
+
+	BRDFVRayMtl.anisotropy_axis= IntProperty(
+		name= "anisotropy axis",
+		description= "Which local object axis to use when anisotropy_derivation is 0",
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 10,
+		default= 2
+	)
+
+	BRDFVRayMtl.refract_affect_shadows= BoolProperty(
+		name= "Affect shadows",
+		description= "",
+		default= False
+	)
+
+	BRDFVRayMtl.refract_affect_alpha= BoolProperty(
+		name= "Affect alpha",
+		description= "",
+		default= False
+	)
+
+	BRDFVRayMtl.fog_mult= FloatProperty(
+		name= "Fog multiplier",
+		description= "Multiplier for the absorption.",
 		min= 0.0,
-		max= 1.0,
+		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (1.0,1.0,1.0)
+		precision= 4,
+		default= 0.1
 	)
 
-	BRDFSSS2Complex.diffuse_color= FloatVectorProperty(
-		name= "Diffuse color",
-		description= 'TODO.',
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
+	BRDFVRayMtl.fog_unit_scale_on= BoolProperty(
+		name= "Fog unit scale",
+		description= "Enable unit scale multiplication, when calculating absorption",
+		default= True
+	)
+
+	BRDFVRayMtl.fog_bias= FloatProperty(
+		name= "Fog bias",
+		description= "Bias for the absorption.",
+		min= -100.0,
+		max= 100.0,
+		soft_min= -1.0,
 		soft_max= 1.0,
-		default= (0.5,0.5,0.5)
+		precision= 4,
+		default= 0.0
 	)
 
-	BRDFSSS2Complex.sub_surface_color= FloatVectorProperty(
-		name= "Sub surface color",
-		description= 'TODO.',
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0.5,0.5,0.5)
-	)
-
-	BRDFSSS2Complex.phase_function= FloatProperty(
-		name= "Phase function",
-		description= 'TODO.',
+	BRDFVRayMtl.anisotropy= FloatProperty(
+		name= "Anisotropy",
+		description= "The anisotropy for glossy reflections.",
 		min= -1.0,
 		max= 1.0,
 		soft_min= -1.0,
 		soft_max= 1.0,
+		default= 0.0
+	)
+
+	BRDFVRayMtl.anisotropy_rotation= FloatProperty(
+		name= "Rotation",
+		description= "The rotation of the anisotropy axes.",
+		min= 0.0,
+		max= 360.0,
+		soft_min= 0.0,
+		soft_max= 360.0,
+		default= 0.0
+	)
+
+	BRDFVRayMtl.brdf_type= EnumProperty(
+		name= "BRDF type",
+		description= "This determines the type of BRDF (the shape of the hilight).",
+		items= (
+			('PHONG',"Phong","Phong hilight/reflections."),
+			('BLINN',"Blinn","Blinn hilight/reflections."),
+			('WARD',"Ward","Ward hilight/reflections.")
+		),
+		default= 'BLINN'
+	)
+
+	BRDFVRayMtl.refract_trace= BoolProperty(
+		name= "Trace refractions",
+		description= "",
+		default= True
+	)
+
+	BRDFVRayMtl.refract_exit_color= FloatVectorProperty(
+		name= "Refraction exit color",
+		description= "The color to use when maximum depth is reached when refract_exit_color_on is true",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0,0,0)
+	)
+
+	BRDFVRayMtl.refract_exit_color_on= BoolProperty(
+		name= "Use refraction exit color",
+		description= "If false, when the maximum refraction depth is reached, the material is assumed transparent, instead of terminating the ray",
+		default= False
+	)
+
+	BRDFVRayMtl.reflect_trace= BoolProperty(
+		name= "Trace reflections",
+		description= 'TODO.',
+		default= True
+	)
+
+	BRDFVRayMtl.option_reflect_on_back= BoolProperty(
+		name= "Reflect on back side",
+		description= "",
+		default= False
+	)
+
+	BRDFVRayMtl.option_double_sided= BoolProperty(
+		name= "Double-sided",
+		description= "",
+		default= True
+	)
+
+	BRDFVRayMtl.option_glossy_rays_as_gi= EnumProperty(
+		name= "Glossy rays as GI",
+		description= "Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always",
+		items= (
+			('ALWAYS',"Always",""),
+			('GI',"Only for GI rays",""),
+			('NEVER',"Never","")
+		),
+		default= 'GI'
+	)
+
+	BRDFVRayMtl.option_cutoff= FloatProperty(
+		name= "Cutoff",
+		description= "Specifies a cutoff threshold for tracing reflections/refractions",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
 		precision= 3,
+		default= 0.001
+	)
+
+	BRDFVRayMtl.option_use_irradiance_map= BoolProperty(
+		name= "Use irradiance map",
+		description= "false to perform local brute-force GI calculatons and true to use the current GI engine",
+		default= True
+	)
+
+	BRDFVRayMtl.option_energy_mode= EnumProperty(
+		name= "Energy mode",
+		description= "Energy preservation mode for reflections and refractions.",
+		items= (
+			('MONO',"Monochrome",""),
+			('COLOR',"Color","")
+		),
+		default= 'COLOR'
+	)
+
+	BRDFVRayMtl.environment_priority= IntProperty(
+		name= "Environment priority",
+		description= "Environment override priority (used when several materials override it along a ray path)",
+		min= 0,
+		max= 100,
 		default= 0
 	)
 
-	BRDFSSS2Complex.specular_color= FloatVectorProperty(
-		name= "Specular color",
-		description= "Specular color.",
+	BRDFVRayMtl.translucency= EnumProperty(
+		name= "Translucency",
+		description= "Translucency mode",
+		items= (
+			('HYBRID',"Hybrid model",""),
+			('SOFT',"Soft (water) model",""),
+			('HARD',"Hard (wax) model",""),
+			('NONE',"None","")
+		),
+		default= 'NONE'
+	)
+
+	BRDFVRayMtl.translucency_color= FloatVectorProperty(
+		name= "Translucency_color",
+		description= "Filter color for the translucency effect.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -183,17 +455,9 @@ def add_properties(rna_pointer):
 		default= (1.0,1.0,1.0)
 	)
 
-	BRDFSSS2Complex.specular_subdivs= IntProperty(
-		name= "Specular subdivs",
-		description= "Specular subdivs.",
-		min= 0,
-		max= 10,
-		default= 8
-	)
-
-	BRDFSSS2Complex.specular_amount= FloatProperty(
-		name= "Specular amount",
-		description= "Specular amount.",
+	BRDFVRayMtl.translucency_light_mult= FloatProperty(
+		name= "Translucency light mult",
+		description= "A multiplier for the calculated lighting for the translucency effect",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -202,96 +466,36 @@ def add_properties(rna_pointer):
 		default= 1
 	)
 
-	BRDFSSS2Complex.specular_glossiness= FloatProperty(
-		name= "Specular glossiness",
-		description= 'TODO.',
+	BRDFVRayMtl.translucency_thickness= FloatProperty(
+		name= "Translucency thickness",
+		description= "Maximum distance to trace inside the object.",
+		min= 0.0,
+		max= 100000.0,
+		soft_min= 0.0,
+		soft_max= 10000.0,
+		precision= 3,
+		default= 1000.0
+	)
+
+	BRDFVRayMtl.translucency_scatter_dir= FloatProperty(
+		name= "Translucency scatter dir",
+		description= "Scatter direction (0.0 is backward, 1.0 is forward)",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
 		precision= 3,
-		default= 0.6
+		default= 0.5
 	)
 
-	BRDFSSS2Complex.cutoff_threshold= FloatProperty(
-		name= "Cutoff threshold",
-		description= 'TODO.',
+	BRDFVRayMtl.translucency_scatter_coeff= FloatProperty(
+		name= "Translucency scatter coeff",
+		description= "Scattering cone (0.0 - no scattering, 1.0 - full scattering",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
 		precision= 3,
-		default= 0.01
-	)
-
-	BRDFSSS2Complex.trace_reflections= BoolProperty(
-		name= "Trace reflections",
-		description= "TODO.",
-		default= True
-	)
-
-	BRDFSSS2Complex.reflection_depth= IntProperty(
-		name= "Reflection depth",
-		description= 'TODO.',
-		min= 0,
-		max= 10,
-		default= 5
-	)
-
-	BRDFSSS2Complex.single_scatter= EnumProperty(
-		name= "Single scatter",
-		description= 'TODO.',
-		items= (
-			('NONE',"None",""),
-			('SIMPLE',"Simple",""),
-			('SOLID',"Raytraced (solid)",""),
-			('REFR',"Raytraced (refractive)","")
-		),
-		default= "SIMPLE"
-	)
-
-	BRDFSSS2Complex.subdivs= IntProperty(
-		name= "Subdivs",
-		description= 'TODO.',
-		min= 0,
-		max= 10,
-		default= 8
-	)
-
-	BRDFSSS2Complex.refraction_depth= IntProperty(
-		name= "Refraction depth",
-		description= 'TODO.',
-		min= 0,
-		max= 10,
-		default= 5
-	)
-
-	BRDFSSS2Complex.front_scatter= BoolProperty(
-		name= "Front scatter",
-		description= 'TODO.',
-		default= True
-	)
-
-	BRDFSSS2Complex.back_scatter= BoolProperty(
-		name= "Back scatter",
-		description= 'TODO.',
-		default= True
-	)
-
-	BRDFSSS2Complex.scatter_gi= BoolProperty(
-		name= "Scatter GI",
-		description= 'TODO.',
-		default= False
-	)
-
-	BRDFSSS2Complex.prepass_blur= FloatProperty(
-		name= "Prepass blur",
-		description= 'TODO.',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		precision= 3,
-		default= 1.2
+		default= 0
 	)
 

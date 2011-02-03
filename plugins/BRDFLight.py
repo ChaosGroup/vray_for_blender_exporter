@@ -1,5 +1,6 @@
 '''
-  V-Ray/Blender
+
+  V-Ray/Blender 2.5
 
   http://vray.cgdo.ru
 
@@ -20,6 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+
 '''
 
 
@@ -27,15 +29,14 @@
 import bpy
 from bpy.props import *
 
-
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
 
 
-TYPE= 'MATERIAL'
-
+TYPE= 'BRDF'
 ID=   'BRDFLight'
+PID=   3
 
 NAME= 'BRDFLight'
 DESC= "V-Ray light shader."
