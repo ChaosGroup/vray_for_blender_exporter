@@ -70,9 +70,9 @@ def gen_menu_items(plugins, none_item= True):
 			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
 			enum_items.append((plugin.ID, ui_label, plugin.DESC))
 
-	print("Debug information. Remove this from release!")
+	print("<Debug information. Remove this from release!>")
 	for item in enum_items:
-		print(item)
+		print(" ", item)
 	
 	return enum_items
 
@@ -88,20 +88,19 @@ if base_dir is not None:
 	plugins= [__import__(fname) for fname in plugins_files]
 
 	for plugin in plugins:
-		sys.stdout.write("V-Ray/Blender: Loading plugin: {0:<64}\r".format(plugin.__name__))
-		sys.stdout.flush()
+		debug(None, "Loading plugin: {0:<32}".format(plugin.__name__), newline= False)
 		PLUGINS[plugin.TYPE][plugin.ID]= plugin
 
-	sys.stdout.write("V-Ray/Blender: Loading plugins... {0:<64}\n".format("done."))
+	debug(None, "Loading plugins... {0:<32}".format("done."))
 
-	print("Debug information. Remove this from release!")
-	for plugin_type in PLUGINS:
-		print(plugin_type)
-		for plugin in PLUGINS[plugin_type]:
-			print("  %s" % PLUGINS[plugin_type][plugin].ID)
+	# print("Debug information. Remove this from release!")
+	# for plugin_type in PLUGINS:
+	# 	print(plugin_type)
+	# 	for plugin in PLUGINS[plugin_type]:
+	# 		print("  %s" % PLUGINS[plugin_type][plugin].ID)
+
 else:
-	sys.stdout.write("V-Ray/Blender: Plugins not found!\n")
-sys.stdout.flush()
+	debug(None, "Plugins not found!", error= True)
 
 
 def add_properties():

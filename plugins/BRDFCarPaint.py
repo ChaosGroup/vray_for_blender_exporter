@@ -38,7 +38,7 @@ ID=   'BRDFCarPaint'
 PID=   7
 
 NAME= 'BRDFCarPaint'
-UI=   "Car"
+UI=   "Car Paint"
 DESC= "BRDFCarPaint."
 
 
