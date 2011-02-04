@@ -385,6 +385,10 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 				subsub.operator("vray.brdf_up",   icon='MOVE_UP_VEC',   text="")
 				subsub.operator("vray.brdf_down", icon='MOVE_DOWN_VEC', text="")
 
+				split= layout.split()
+				col= split.column()
+				col.prop(vma, 'additive_mode')
+
 				if vma.brdf_selected >= 0:
 					layout.separator()
 

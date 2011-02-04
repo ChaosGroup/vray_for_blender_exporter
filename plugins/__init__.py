@@ -229,6 +229,12 @@ def add_properties():
 		max= 100
 	)
 
+	VRayMaterial.additive_mode= BoolProperty(
+		name= "Additive \"Shellac\" mode",
+		description= "Additive \"Shellac\" blending mode.",
+		default= False
+	)
+
 	brdfs= gen_menu_items(PLUGINS['BRDF'], none_item= False)
 	
 	VRayBRDF.type= EnumProperty(
