@@ -504,14 +504,10 @@ def add_properties(rna_pointer):
 	)
 
 	# doubleSided
-	BRDFCarPaint.doubleSided= IntProperty(
+	BRDFCarPaint.doubleSided= BoolProperty(
 		name= "Double-sided",
 		description= "TODO: Tooltip.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 1
+		default= True
 	)
 
 	# subdivs
@@ -577,37 +573,6 @@ def write(ofile, scene, params):
 def gui(context, layout, BRDFCarPaint):
 	wide_ui= context.region.width > narrowui
 
-	layout.label(text="Base")
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFCarPaint, 'base_color', text="")
-	col.prop_search(BRDFCarPaint, 'base_color_tex',
-					bpy.data, 'textures',
-					text= "")
-	if wide_ui:
-		col= split.column()
-	col.prop(BRDFCarPaint, 'base_reflection', text="Reflection")
-	col.prop(BRDFCarPaint, 'base_glossiness', text="Glossiness")
-
-	layout.label(text="Flake")
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFCarPaint, 'flake_color', text="")
-	col.prop_search(BRDFCarPaint, 'flake_color_tex',
-					bpy.data, 'textures',
-					text= "")
-	col.prop(BRDFCarPaint, 'flake_glossiness', text="Glossiness")
-	col.prop(BRDFCarPaint, 'flake_orientation', text="Orientation")
-	col.prop(BRDFCarPaint, 'flake_density', text="Density")
-	if wide_ui:
-		col= split.column()
-	col.prop(BRDFCarPaint, 'flake_scale', text="Scale")
-	col.prop(BRDFCarPaint, 'flake_size', text="Size")
-	col.prop(BRDFCarPaint, 'flake_seed', text="Seed")
-	col.prop(BRDFCarPaint, 'flake_map_size', text="Map size")
-	col.prop(BRDFCarPaint, 'flake_filtering_mode', text="Filtering")
-	# col.prop(BRDFCarPaint, 'flake_uvwgen')
-
 	layout.label(text="Coat")
 	split= layout.split()
 	col= split.column()
@@ -624,22 +589,48 @@ def gui(context, layout, BRDFCarPaint):
 	# col.prop(BRDFCarPaint, 'coat_bump_amount')
 	# col.prop(BRDFCarPaint, 'coat_bump_type')
 
+	layout.label(text="Flake")
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFCarPaint, 'flake_color', text="")
+	col.prop_search(BRDFCarPaint, 'flake_color_tex',
+					bpy.data, 'textures',
+					text= "")
+	col.prop(BRDFCarPaint, 'flake_glossiness', text="Glossiness")
+	col.prop(BRDFCarPaint, 'flake_orientation', text="Orientation")
+	col.prop(BRDFCarPaint, 'flake_density', text="Density")
+	col.prop(BRDFCarPaint, 'flake_seed', text="Seed")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFCarPaint, 'flake_scale', text="Scale")
+	col.prop(BRDFCarPaint, 'flake_size', text="Size")
+	col.prop(BRDFCarPaint, 'flake_map_size', text="Map size")
+	col.prop(BRDFCarPaint, 'flake_filtering_mode', text="Filtering")
+	# col.prop(BRDFCarPaint, 'flake_uvwgen')
+	col.prop(BRDFCarPaint, 'mapping_type', text="Type")
+	if BRDFCarPaint.mapping_type == 'EXPLICIT':
+		col.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
+
+	layout.label(text="Base")
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFCarPaint, 'base_color', text="")
+	col.prop_search(BRDFCarPaint, 'base_color_tex',
+					bpy.data, 'textures',
+					text= "")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFCarPaint, 'base_reflection', text="Reflection")
+	col.prop(BRDFCarPaint, 'base_glossiness', text="Glossiness")
+
 	layout.separator()
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'doubleSided')
 	col.prop(BRDFCarPaint, 'subdivs')
-	if wide_ui:
-		col= split.column()
-	col.prop(BRDFCarPaint, 'traceReflections')
 	col.prop(BRDFCarPaint, 'cutoff_threshold')
-
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFCarPaint, 'mapping_type', text="Type")
 	if wide_ui:
 		col= split.column()
-	sub= col.column()
-	sub.active= BRDFCarPaint.mapping_type == 'EXPLICIT'
-	sub.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
+	col.prop(BRDFCarPaint, 'doubleSided')
+	col.prop(BRDFCarPaint, 'traceReflections')
+
