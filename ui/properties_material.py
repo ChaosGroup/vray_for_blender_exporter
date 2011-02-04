@@ -394,8 +394,9 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 					brdf= vma.brdfs[vma.brdf_selected]
 
-					layout.prop(brdf, 'use')
-					layout.prop(brdf, 'name')
+					row= layout.row(align=True)
+					row.prop(brdf, 'use', text="")
+					row.prop(brdf, 'name', text="")
 					layout.prop(brdf, 'type', text="Type")
 					layout.prop(brdf, 'weight')
 					

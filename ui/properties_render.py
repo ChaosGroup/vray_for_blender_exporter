@@ -762,6 +762,10 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		return base_poll(__class__, context)
 
+	def draw_header(self, context):
+		VRayScene= context.scene.vray
+		self.layout.prop(VRayScene, 'render_channels_use', text="")
+
 	def draw(self, context):
 		wide_ui = context.region.width > narrowui
 		layout= self.layout
@@ -769,6 +773,8 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 		sce= context.scene
 		vsce= sce.vray
 		render_channels= vsce.render_channels
+
+		layout.active= vsce.render_channels_use
 
 		row= layout.row()
 		row.template_list(vsce, 'render_channels',

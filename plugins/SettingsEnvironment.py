@@ -124,6 +124,12 @@ def add_properties(rna_pointer):
 		description= "V-Ray environment effect."
 	)
 
+	VRayEffects.use= BoolProperty(
+		name= "Use effects",
+		description= "Use effects.",
+		default= False
+	)
+
 	VRayEffects.effects_selected= IntProperty(
 		name= "Selected Environment Effect",
 		description= "Selected environment effect.",

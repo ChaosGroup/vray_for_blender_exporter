@@ -1008,11 +1008,13 @@ def write_settings(bus):
 			plugin= PLUGINS['SETTINGS'][key]
 			if hasattr(plugin, 'write'):
 				plugin.write(bus)
-		
-	for render_channel in VRayScene.render_channels:
-		plugin= PLUGINS['RENDERCHANNELS'].get(render_channel.type)
-		if plugin:
-			plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
+
+	if VRayScene.render_channels_use:
+		for render_channel in VRayScene.render_channels:
+			if render_channel.use:
+				plugin= PLUGINS['RENDERCHANNELS'].get(render_channel.type)
+				if plugin:
+					plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
 
 	ofile.write("\n")
 

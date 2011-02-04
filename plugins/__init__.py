@@ -180,6 +180,12 @@ def add_properties():
 		description= "V-Ray render channels."
 	)
 
+	VRayScene.render_channels_use= BoolProperty(
+		name= "Use render channels",
+		description= "Use render channels.",
+		default= False
+	)
+
 	VRayScene.render_channels_index= IntProperty(
 		name= "Render Channel Index",
 		default= -1,

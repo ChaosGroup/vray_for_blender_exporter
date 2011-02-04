@@ -43,14 +43,19 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 	def poll(cls, context):
 		return base_poll(__class__, context)
 
+	def draw_header(self, context):
+		VRayScene= context.scene.vray
+		self.layout.prop(VRayScene.VRayEffects, 'use', text="")
+
 	def draw(self, context):
 		layout= self.layout
 
 		wide_ui= context.region.width > narrowui
 
 		VRayScene= context.scene.vray
-
 		VRayEffects= VRayScene.VRayEffects
+
+		layout.active= VRayEffects.use
 
 		split= layout.split()
 		row= split.row()
