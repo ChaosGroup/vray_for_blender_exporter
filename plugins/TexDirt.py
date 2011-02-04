@@ -324,11 +324,15 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(vtex,'white_color',text="Unoccluded color")
-		col.prop_search(vtex, 'white_color_tex', bpy.data, 'textures', text= "")
+		col.prop_search(vtex, 'white_color_tex',
+						bpy.data, 'textures',
+						text= "")
 		if wide_ui:
 			col= split.column()
 		col.prop(vtex,'black_color',text="Occluded color")
-		col.prop_search(vtex, 'black_color_tex', bpy.data, 'textures', text= "")
+		col.prop_search(vtex, 'black_color_tex',
+						bpy.data, 'textures',
+						text= "")
 
 		layout.separator()
 

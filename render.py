@@ -1302,9 +1302,6 @@ def write_scene(scene):
 	# Scene
 	bus['scene']= scene
 	
-	# Camera
-	bus['camera']= scene.camera
-
 	# V-Ray uses UV indexes, Blender uses UV names
 	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
@@ -1385,14 +1382,18 @@ def write_scene(scene):
 		# Stores ({'plugin': plugin.ID, 'objects': ({'object': ob, 'rna_pointer': settings_data}))
 		bus['special_types']= []
 
-		# Visibility list for "Hide from view" and "Camera loop" features
-		bus['visibility']= get_visibility_lists(bus['camera'])
-
 		# Fake frame for "Camera loop"
 		if VRayExporter.camera_loop:
 			for key in bus['files']:
 				if key in ('nodes','camera'):
 					bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
+		else:
+			# Camera
+			# Here for "Camera bind" support
+			bus['camera']= scene.camera
+
+		# Visibility list for "Hide from view" and "Camera loop" features
+		bus['visibility']= get_visibility_lists(bus['camera'])
 
 		# Hide from view debug data
 		if VRayExporter.debug:

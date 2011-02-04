@@ -230,8 +230,8 @@ def add_properties():
 	)
 
 	VRayMaterial.additive_mode= BoolProperty(
-		name= "Additive \"Shellac\" mode",
-		description= "Additive \"Shellac\" blending mode.",
+		name= "Additive \"shellac\" mode",
+		description= "Additive \"shellac\" blending mode.",
 		default= False
 	)
 
@@ -242,6 +242,17 @@ def add_properties():
 		description= "BRDF type.",
 		items= (tuple(brdfs)),
 		default= brdfs[0][0]
+	)
+
+	VRayBRDF.weight= FloatVectorProperty(
+		name= "Weight",
+		description= "Weight.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (1.0,1.0,1.0)
 	)
 
 	'''

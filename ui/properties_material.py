@@ -396,7 +396,8 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 					layout.prop(brdf, 'name')
 					layout.prop(brdf, 'type', text="Type")
-
+					layout.prop(brdf, 'weight')
+					
 					layout.separator()
 
 					rna_pointer= getattr(brdf, brdf.type)
