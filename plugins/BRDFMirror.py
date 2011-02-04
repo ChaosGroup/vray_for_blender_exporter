@@ -38,6 +38,7 @@ ID=   'BRDFMirror'
 PID=   6
 
 NAME= 'BRDFMirror'
+UI=   "Mirror"
 DESC= "BRDFMirror."
 
 

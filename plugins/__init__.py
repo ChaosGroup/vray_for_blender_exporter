@@ -67,7 +67,8 @@ def gen_menu_items(plugins, none_item= True):
 		enum_items.append(('NONE', "None", ""))
 	for plugin in plugs:
 		if hasattr(plugin,'ID'):
-			enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
+			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
+			enum_items.append((plugin.ID, ui_label, plugin.DESC))
 
 	print("Debug information. Remove this from release!")
 	for item in enum_items:
@@ -242,6 +243,12 @@ def add_properties():
 		description= "BRDF type.",
 		items= (tuple(brdfs)),
 		default= brdfs[0][0]
+	)
+
+	VRayBRDF.use= BoolProperty(
+		name= "Use BRDF",
+		description= "Use BRDF.",
+		default= True
 	)
 
 	VRayBRDF.weight= FloatVectorProperty(

@@ -39,6 +39,7 @@ ID=   'BRDFLight'
 PID=   3
 
 NAME= 'BRDFLight'
+UI=   "Light"
 DESC= "V-Ray light shader."
 
 PARAMS= (

@@ -39,6 +39,7 @@ ID=   'BRDFSSS2Complex'
 PID=   2
 
 NAME= 'BRDFSSS2Complex'
+UI=   "Fast SSS"
 DESC= "BRDFSSS2Complex settings."
 
 PARAMS= (

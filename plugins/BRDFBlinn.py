@@ -39,6 +39,7 @@ ID=   'BRDFBlinn'
 PID=   4
 
 NAME= 'BRDFBlinn'
+UI=   "Blinn"
 DESC= "BRDFBlinn."
 
 PARAMS= (
@@ -323,7 +324,7 @@ def add_properties(rna_pointer):
 
 	# subdivs
 	BRDFBlinn.subdivs= IntProperty(
-		name= "subdivs",
+		name= "Subdivs",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,

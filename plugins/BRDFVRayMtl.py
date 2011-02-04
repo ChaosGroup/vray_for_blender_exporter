@@ -39,6 +39,7 @@ ID=   'BRDFVRayMtl'
 PID=   1
 
 NAME= "BRDFVRayMtl"
+UI=   "VRayMtl"
 DESC= "BRDFVRayMtl settings."
 
 

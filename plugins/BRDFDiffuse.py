@@ -39,6 +39,7 @@ ID=   'BRDFDiffuse'
 PID=   5
 
 NAME= 'BRDFDiffuse'
+UI=   "Diffuse"
 DESC= "BRDFDiffuse."
 
 PARAMS= (
