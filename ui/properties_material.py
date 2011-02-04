@@ -367,7 +367,74 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 				col.prop(BRDFSSS2Complex, 'prepass_blur')
 
 			elif vma.type == 'CAR':
-				layout.label(text="Coming soon!")
+				BRDFCarPaint= vma.BRDFCarPaint
+
+				layout.label(text="Base")
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFCarPaint, 'base_color', text="")
+				col.prop_search(BRDFCarPaint, 'base_color_tex',
+								bpy.data, 'textures',
+								text= "")
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFCarPaint, 'base_reflection', text="Reflection")
+				col.prop(BRDFCarPaint, 'base_glossiness', text="Glossiness")
+
+				layout.label(text="Flake")
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFCarPaint, 'flake_color', text="")
+				col.prop_search(BRDFCarPaint, 'flake_color_tex',
+								bpy.data, 'textures',
+								text= "")
+				col.prop(BRDFCarPaint, 'flake_glossiness', text="Glossiness")
+				col.prop(BRDFCarPaint, 'flake_orientation', text="Orientation")
+				col.prop(BRDFCarPaint, 'flake_density', text="Density")
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFCarPaint, 'flake_scale', text="Scale")
+				col.prop(BRDFCarPaint, 'flake_size', text="Size")
+				col.prop(BRDFCarPaint, 'flake_seed', text="Seed")
+				col.prop(BRDFCarPaint, 'flake_map_size', text="Map size")
+				col.prop(BRDFCarPaint, 'flake_filtering_mode', text="Filtering")
+				# col.prop(BRDFCarPaint, 'flake_uvwgen')
+
+				layout.label(text="Coat")
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFCarPaint, 'coat_color', text="")
+				col.prop_search(BRDFCarPaint, 'coat_color_tex',
+								bpy.data, 'textures',
+								text= "")
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFCarPaint, 'coat_strength', text="Strength")
+				col.prop(BRDFCarPaint, 'coat_glossiness', text="Glossiness")
+				# col.prop(BRDFCarPaint, 'coat_bump_float')
+				# col.prop(BRDFCarPaint, 'coat_bump_color')
+				# col.prop(BRDFCarPaint, 'coat_bump_amount')
+				# col.prop(BRDFCarPaint, 'coat_bump_type')
+
+				layout.separator()
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFCarPaint, 'doubleSided')
+				col.prop(BRDFCarPaint, 'subdivs')
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFCarPaint, 'traceReflections')
+				col.prop(BRDFCarPaint, 'cutoff_threshold')
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFCarPaint, 'mapping_type', text="Type")
+				if wide_ui:
+					col= split.column()
+				sub= col.column()
+				sub.active= BRDFCarPaint.mapping_type == 'EXPLICIT'
+				sub.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
 
 			else:
 				row= layout.row()

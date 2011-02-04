@@ -83,7 +83,7 @@ def add_properties(rna_pointer):
 
 	# base_color
 	BRDFCarPaint.base_color= FloatVectorProperty(
-		name= "base color",
+		name= "Base color",
 		description= "TODO: Tooltip.",
 		subtype= 'COLOR',
 		min= 0.0,
@@ -93,14 +93,20 @@ def add_properties(rna_pointer):
 		default= (0.3,0.4,0.5)
 	)
 
+	BRDFCarPaint.base_color_tex= StringProperty(
+		name= "Base color texture",
+		description= "Base color texture",
+		default= ""
+	)
+
 	BRDFCarPaint.map_base_color= BoolProperty(
-		name= "base color",
+		name= "Base color texture",
 		description= "TODO: Tooltip",
 		default= False
 	)
 
 	BRDFCarPaint.base_color_mult= FloatProperty(
-		name= "base color",
+		name= "Base color texture multiplier",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -112,7 +118,7 @@ def add_properties(rna_pointer):
 
 	# base_reflection
 	BRDFCarPaint.base_reflection= FloatProperty(
-		name= "base reflection",
+		name= "Base reflection",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -178,6 +184,12 @@ def add_properties(rna_pointer):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		default= (0.3,0.4,0.8)
+	)
+
+	BRDFCarPaint.flake_color_tex= StringProperty(
+		name= "Flake color texture",
+		description= "Base color texture",
+		default= ""
 	)
 
 	BRDFCarPaint.map_flake_color= BoolProperty(
@@ -325,6 +337,7 @@ def add_properties(rna_pointer):
 	)
 
 	# flake_uvwgen
+
 	# coat_color
 	BRDFCarPaint.coat_color= FloatVectorProperty(
 		name= "coat color",
@@ -335,6 +348,12 @@ def add_properties(rna_pointer):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		default= (1,1,1)
+	)
+
+	BRDFCarPaint.coat_color_tex= StringProperty(
+		name= "Coat color texture",
+		description= "Base color texture",
+		default= ""
 	)
 
 	BRDFCarPaint.map_coat_color= BoolProperty(
@@ -478,19 +497,15 @@ def add_properties(rna_pointer):
 	)
 
 	# traceReflections
-	BRDFCarPaint.traceReflections= IntProperty(
-		name= "traceReflections",
+	BRDFCarPaint.traceReflections= BoolProperty(
+		name= "Trace reflections",
 		description= "TODO: Tooltip.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 1
+		default= True
 	)
 
 	# doubleSided
 	BRDFCarPaint.doubleSided= IntProperty(
-		name= "doubleSided",
+		name= "Double-sided",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,
@@ -501,7 +516,7 @@ def add_properties(rna_pointer):
 
 	# subdivs
 	BRDFCarPaint.subdivs= IntProperty(
-		name= "subdivs",
+		name= "Subdivs",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,
@@ -512,7 +527,7 @@ def add_properties(rna_pointer):
 
 	# cutoff_threshold
 	BRDFCarPaint.cutoff_threshold= FloatProperty(
-		name= "cutoff threshold",
+		name= "Cut-off",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -523,25 +538,25 @@ def add_properties(rna_pointer):
 	)
 
 	# mapping_type
-	BRDFCarPaint.mapping_type= IntProperty(
-		name= "mapping type",
-		description= "The mapping method for the flakes (0 - explicit mapping channel, 1 - triplanar projection in object space).",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
+	BRDFCarPaint.mapping_type= EnumProperty(
+		name= "Mapping type",
+		description= "The mapping method for the flakes (0 - , 1 - ).",
+		items= (
+			('EXPLICIT',  "Explicit", "Explicit mapping channel"),
+			('TRIPLANAR', "Object",   "Triplanar projection in object space"),
+		),
+		default= 'EXPLICIT'
 	)
 
 	# mapping_channel
 	BRDFCarPaint.mapping_channel= IntProperty(
-		name= "mapping channel",
+		name= "Mapping channel",
 		description= "The mapping channel when the mapping_type is 0.",
 		min= 0,
 		max= 100,
 		soft_min= 0,
 		soft_max= 10,
-		default= 0
+		default= 1
 	)
 
 
@@ -562,40 +577,69 @@ def write(ofile, scene, params):
 def gui(context, layout, BRDFCarPaint):
 	wide_ui= context.region.width > narrowui
 
+	layout.label(text="Base")
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'base_color')
-	col.prop(BRDFCarPaint, 'base_reflection')
-	col.prop(BRDFCarPaint, 'base_glossiness')
-	col.prop(BRDFCarPaint, 'coat_color')
-	col.prop(BRDFCarPaint, 'coat_strength')
-	col.prop(BRDFCarPaint, 'coat_glossiness')
+	col.prop(BRDFCarPaint, 'base_color', text="")
+	col.prop_search(BRDFCarPaint, 'base_color_tex',
+					bpy.data, 'textures',
+					text= "")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFCarPaint, 'base_reflection', text="Reflection")
+	col.prop(BRDFCarPaint, 'base_glossiness', text="Glossiness")
+
+	layout.label(text="Flake")
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFCarPaint, 'flake_color', text="")
+	col.prop_search(BRDFCarPaint, 'flake_color_tex',
+					bpy.data, 'textures',
+					text= "")
+	col.prop(BRDFCarPaint, 'flake_glossiness', text="Glossiness")
+	col.prop(BRDFCarPaint, 'flake_orientation', text="Orientation")
+	col.prop(BRDFCarPaint, 'flake_density', text="Density")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFCarPaint, 'flake_scale', text="Scale")
+	col.prop(BRDFCarPaint, 'flake_size', text="Size")
+	col.prop(BRDFCarPaint, 'flake_seed', text="Seed")
+	col.prop(BRDFCarPaint, 'flake_map_size', text="Map size")
+	col.prop(BRDFCarPaint, 'flake_filtering_mode', text="Filtering")
+	# col.prop(BRDFCarPaint, 'flake_uvwgen')
+
+	layout.label(text="Coat")
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFCarPaint, 'coat_color', text="")
+	col.prop_search(BRDFCarPaint, 'coat_color_tex',
+					bpy.data, 'textures',
+					text= "")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFCarPaint, 'coat_strength', text="Strength")
+	col.prop(BRDFCarPaint, 'coat_glossiness', text="Glossiness")
 	# col.prop(BRDFCarPaint, 'coat_bump_float')
 	# col.prop(BRDFCarPaint, 'coat_bump_color')
 	# col.prop(BRDFCarPaint, 'coat_bump_amount')
-	col.prop(BRDFCarPaint, 'coat_bump_type')
-	if wide_ui:
-		col= split.column()
-	col.prop(BRDFCarPaint, 'flake_color')
-	col.prop(BRDFCarPaint, 'flake_glossiness')
-	col.prop(BRDFCarPaint, 'flake_orientation')
-	col.prop(BRDFCarPaint, 'flake_density')
-	col.prop(BRDFCarPaint, 'flake_scale')
-	col.prop(BRDFCarPaint, 'flake_size')
-	col.prop(BRDFCarPaint, 'flake_map_size')
-	col.prop(BRDFCarPaint, 'flake_filtering_mode')
-	col.prop(BRDFCarPaint, 'flake_seed')
-	# col.prop(BRDFCarPaint, 'flake_uvwgen')
+	# col.prop(BRDFCarPaint, 'coat_bump_type')
 
 	layout.separator()
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'traceReflections')
 	col.prop(BRDFCarPaint, 'doubleSided')
 	col.prop(BRDFCarPaint, 'subdivs')
 	if wide_ui:
 		col= split.column()
+	col.prop(BRDFCarPaint, 'traceReflections')
 	col.prop(BRDFCarPaint, 'cutoff_threshold')
-	col.prop(BRDFCarPaint, 'mapping_type')
-	col.prop(BRDFCarPaint, 'mapping_channel')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFCarPaint, 'mapping_type', text="Type")
+	if wide_ui:
+		col= split.column()
+	sub= col.column()
+	sub.active= BRDFCarPaint.mapping_type == 'EXPLICIT'
+	sub.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
