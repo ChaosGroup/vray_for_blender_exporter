@@ -142,6 +142,12 @@ def add_properties(rna_pointer):
 		default= 'FOG'
 	)
 
+	EnvironmentEffect.use= BoolProperty(
+		name= "Use effect",
+		description= "Use effect.",
+		default= True
+	)
+
 	EnvironmentEffect.EnvironmentFog= PointerProperty(
 		name= "EnvironmentFog",
 		type=  EnvironmentFog,
@@ -765,7 +771,6 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 	#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
 	#col.prop(EnvironmentFog, 'yup')
 
-
 	layout.separator()
 	
 	split= layout.split()
@@ -846,32 +851,3 @@ def gui(context, layout, VRayEffects):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Strange, but this effect type doesn\'t exist...")
-
-
-
-'''
-  GUI panels
-'''
-class VRAY_RP_effects(VRayRenderPanel, bpy.types.Panel):
-	bl_label   = "Effects"
-	bl_options = {'DEFAULT_CLOSED'}
-	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return base_poll(__class__, context)
-
-	def draw(self, context):
-		layout= self.layout
-
-		wide_ui= context.region.width > narrowui
-
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-
-		gui(context, layout, VRayEffects)
-
-
-#bpy.types.register(VRAY_RP_effects)

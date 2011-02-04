@@ -390,7 +390,7 @@ def write(bus):
 		ofile.write("\n\twhite_balance= %s;" % a(scene, CameraPhysical.white_balance))
 		for param in PARAMS:
 			if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
-				value= get_lens_shift(ca)
+				value= get_lens_shift(camera)
 			else:
 				value= getattr(CameraPhysical,param)
 			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))

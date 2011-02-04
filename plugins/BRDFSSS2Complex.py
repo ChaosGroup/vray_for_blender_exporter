@@ -38,8 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFSSS2Complex'
 PID=   2
 
-NAME= 'Fast SSS'
-UI=   "SSS"
+NAME= 'BRDFSSS2Complex'
 DESC= "BRDFSSS2Complex settings."
 
 PARAMS= (
@@ -297,3 +296,85 @@ def add_properties(rna_pointer):
 		default= 1.2
 	)
 
+
+
+def gui(context, layout, BRDFSSS2Complex):
+	wide_ui= context.region.width > narrowui
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="General:")
+
+	split= layout.split()
+	col= split.column()
+	col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'prepass_rate')
+	col.prop(BRDFSSS2Complex, 'scale')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'ior')
+	col.prop(BRDFSSS2Complex, 'interpolation_accuracy', text='Accuracy')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'overall_color')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'diffuse_color')
+	split= layout.split()
+	col= split.column()
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'diffuse_amount', text="Amount")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'sub_surface_color')
+	col.prop(BRDFSSS2Complex, 'phase_function')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'scatter_radius', text="Scatter color")
+	col.prop(BRDFSSS2Complex, 'scatter_radius_mult', text="Radius")
+
+	split= layout.split()
+	col= split.column()
+	col.label(text='Specular layer:')
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'specular_color', text='')
+	col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
+	col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'trace_reflections')
+	if BRDFSSS2Complex.trace_reflections:
+		if wide_ui:
+			col= split.column()
+		col.prop(BRDFSSS2Complex, 'reflection_depth')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'single_scatter')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFSSS2Complex, 'subdivs')
+	col.prop(BRDFSSS2Complex, 'refraction_depth')
+	col.prop(BRDFSSS2Complex, 'cutoff_threshold')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFSSS2Complex, 'front_scatter')
+	col.prop(BRDFSSS2Complex, 'back_scatter')
+	col.prop(BRDFSSS2Complex, 'scatter_gi')
+	col.prop(BRDFSSS2Complex, 'prepass_blur')

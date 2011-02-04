@@ -38,8 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFVRayMtl'
 PID=   1
 
-NAME= "Standard"
-UI=   "Standard"
+NAME= "BRDFVRayMtl"
 DESC= "BRDFVRayMtl settings."
 
 
@@ -55,6 +54,27 @@ def add_properties(rna_pointer):
 		name= "BRDFVRayMtl",
 		type=  BRDFVRayMtl,
 		description= "V-Ray BRDFVRayMtl settings."
+	)
+
+	BRDFVRayMtl.diffuse= FloatVectorProperty(
+		name= "Diffuse",
+		description= "Diffuse color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.75,0.75,0.75)
+	)
+
+	BRDFVRayMtl.opacity= FloatProperty(
+		name= "Opacity",
+		description= "Opacity.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
 	)
 
 	BRDFVRayMtl.fog_color= FloatVectorProperty(
@@ -502,3 +522,118 @@ def add_properties(rna_pointer):
 
 def write(bus):
 	pass
+
+
+def gui(context, layout, BRDFVRayMtl):
+	wide_ui= context.region.width > narrowui
+
+	row= layout.row()
+	colL= row.column()
+	colL.label(text="Diffuse")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'diffuse', text="")
+	col.prop(BRDFVRayMtl, 'roughness')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'opacity')
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Reflections")
+
+	split= layout.split()
+	col= split.column(align=True)
+	col.prop(BRDFVRayMtl, 'reflect_color', text="")
+	if not BRDFVRayMtl.hilight_glossiness_lock:
+		col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
+	col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
+	col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
+	col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'brdf_type', text="")
+	col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
+
+	if not BRDFVRayMtl.brdf_type == 'PHONG':
+		col.prop(BRDFVRayMtl, "anisotropy")
+		col.prop(BRDFVRayMtl, "anisotropy_rotation")
+	col.prop(BRDFVRayMtl, "fresnel")
+	if BRDFVRayMtl.fresnel:
+		col.prop(BRDFVRayMtl, "fresnel_ior")
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Refractions")
+	sub= col.column(align=True)
+	sub.prop(BRDFVRayMtl, 'refract_color', text="")
+	sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
+	sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
+	sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
+	sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
+	if wide_ui:
+		col= split.column()
+	col.label(text="Fog")
+	sub= col.column(align=True)
+	sub.prop(BRDFVRayMtl, 'fog_color', text="")
+	sub.prop(BRDFVRayMtl, 'fog_mult')
+	sub.prop(BRDFVRayMtl, 'fog_bias')
+	sub= col.column(align=True)
+	sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
+	sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'dispersion_on')
+	if wide_ui:
+		col= split.column()
+	if BRDFVRayMtl.dispersion_on:
+		col.prop(BRDFVRayMtl, 'dispersion')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'translucency')
+	if(BRDFVRayMtl.translucency != 'NONE'):
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'translucency_color', text="")
+		col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
+		if wide_ui:
+			col= split.column()
+		col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
+		col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
+		col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'reflect_trace')
+	col.prop(BRDFVRayMtl, 'refract_trace')
+	col.prop(BRDFVRayMtl, 'option_cutoff')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'option_double_sided')
+	col.prop(BRDFVRayMtl, 'option_reflect_on_back')
+	col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'reflect_exit_color')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'refract_exit_color')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
+	col.prop(BRDFVRayMtl, 'option_energy_mode')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'environment_priority')

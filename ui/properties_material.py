@@ -120,10 +120,8 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 			vray= mat.vray
 			if wide_ui:
 				layout.prop(vray, 'type', expand=True)
-				layout.prop(vray, 'brdf', expand=True)
 			else:
 				layout.prop(vray, 'type')
-				layout.prop(vray, 'brdf')
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
@@ -144,233 +142,264 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 		ob= context.object
 
 		mat= active_node_mat(context.material)
-		vma= mat.vray
-				
-		if vma.type == 'MTL':
-			BRDFVRayMtl= vma.BRDFVRayMtl
-			
-			raym= mat.raytrace_mirror
-			rayt= mat.raytrace_transparency
 
-			row= layout.row()
-			colL= row.column()
-			colL.label(text="Diffuse")
+		if mat:
+			vma= mat.vray
 
-			split= layout.split()
-			col= split.column()
-			col.prop(mat, "diffuse_color", text="")
-			col.prop(BRDFVRayMtl, 'roughness')
-			if wide_ui:
-				col= split.column()
-			col.prop(mat, 'alpha')
+			if vma.type == 'MTL':
+				BRDFVRayMtl=  vma.BRDFVRayMtl
 
-			split= layout.split()
-			col= split.column()
-			col.label(text="Reflections")
+				row= layout.row()
+				colL= row.column()
+				colL.label(text="Diffuse")
 
-			split= layout.split()
-			col= split.column(align=True)
-			col.prop(BRDFVRayMtl, 'reflect_color', text="")
-			if not BRDFVRayMtl.hilight_glossiness_lock:
-				col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
-			col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
-			col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
-			col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFVRayMtl, 'brdf_type', text="")
-			col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
-
-			if not BRDFVRayMtl.brdf_type == 'PHONG':
-				col.prop(BRDFVRayMtl, "anisotropy")
-				col.prop(BRDFVRayMtl, "anisotropy_rotation")
-			col.prop(BRDFVRayMtl, "fresnel")
-			if BRDFVRayMtl.fresnel:
-				col.prop(BRDFVRayMtl, "fresnel_ior")
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="Refractions")
-			sub= col.column(align=True)
-			sub.prop(BRDFVRayMtl, 'refract_color', text="")
-			sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
-			sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
-			sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
-			sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
-			if wide_ui:
-				col= split.column()
-			col.label(text="Fog")
-			sub= col.column(align=True)
-			sub.prop(BRDFVRayMtl, 'fog_color', text="")
-			sub.prop(BRDFVRayMtl, 'fog_mult')
-			sub.prop(BRDFVRayMtl, 'fog_bias')
-			sub= col.column(align=True)
-			sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
-			sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
-
-			if not ve.compat_mode:
 				split= layout.split()
 				col= split.column()
-				col.prop(BRDFVRayMtl, 'dispersion_on')
+				col.prop(mat, "diffuse_color", text="")
+				col.prop(BRDFVRayMtl, 'roughness')
 				if wide_ui:
 					col= split.column()
-				if BRDFVRayMtl.dispersion_on:
-					col.prop(BRDFVRayMtl, 'dispersion')
+				col.prop(mat, 'alpha')
+
+				split= layout.split()
+				col= split.column()
+				col.label(text="Reflections")
+
+				split= layout.split()
+				col= split.column(align=True)
+				col.prop(BRDFVRayMtl, 'reflect_color', text="")
+				if not BRDFVRayMtl.hilight_glossiness_lock:
+					col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
+				col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
+				col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
+				col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFVRayMtl, 'brdf_type', text="")
+				col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
+
+				if not BRDFVRayMtl.brdf_type == 'PHONG':
+					col.prop(BRDFVRayMtl, "anisotropy")
+					col.prop(BRDFVRayMtl, "anisotropy_rotation")
+				col.prop(BRDFVRayMtl, "fresnel")
+				if BRDFVRayMtl.fresnel:
+					col.prop(BRDFVRayMtl, "fresnel_ior")
+
+				split= layout.split()
+				col= split.column()
+				col.label(text="Refractions")
+				sub= col.column(align=True)
+				sub.prop(BRDFVRayMtl, 'refract_color', text="")
+				sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
+				sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
+				sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
+				sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
+				if wide_ui:
+					col= split.column()
+				col.label(text="Fog")
+				sub= col.column(align=True)
+				sub.prop(BRDFVRayMtl, 'fog_color', text="")
+				sub.prop(BRDFVRayMtl, 'fog_mult')
+				sub.prop(BRDFVRayMtl, 'fog_bias')
+				sub= col.column(align=True)
+				sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
+				sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
+
+				if not ve.compat_mode:
+					split= layout.split()
+					col= split.column()
+					col.prop(BRDFVRayMtl, 'dispersion_on')
+					if wide_ui:
+						col= split.column()
+					if BRDFVRayMtl.dispersion_on:
+						col.prop(BRDFVRayMtl, 'dispersion')
+
+					layout.separator()
+
+					split= layout.split()
+					col= split.column()
+					col.prop(BRDFVRayMtl, 'translucency')
+					if(BRDFVRayMtl.translucency != 'NONE'):
+						split= layout.split()
+						col= split.column()
+						col.prop(BRDFVRayMtl, 'translucency_color', text="")
+						col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
+						if wide_ui:
+							col= split.column()
+						col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
+						col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
+						col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
+
+			elif vma.type == 'EMIT':
+				row= layout.row()
+				colL= row.column()
+				colL.label(text="Color")
+
+				row= layout.row()
+				col= row.column()
+				col.prop(mat, 'diffuse_color', text="")
+				if wide_ui:
+					col= row.column()
+				if not vma.emitter_type == 'MESH':
+					col.prop(mat, 'alpha')
 
 				layout.separator()
 
 				split= layout.split()
 				col= split.column()
-				col.prop(BRDFVRayMtl, 'translucency')
-				if(BRDFVRayMtl.translucency != 'NONE'):
+				col.prop(vma, 'emitter_type')
+
+				layout.separator()
+
+				if vma.emitter_type == 'MESH':
+					LightMesh= vma.LightMesh
+
 					split= layout.split()
 					col= split.column()
-					col.prop(BRDFVRayMtl, 'translucency_color', text="")
-					col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
+					col.prop(LightMesh, 'enabled', text="On")
+					col.prop(LightMesh, 'lightPortal', text="Mode")
+					if LightMesh.lightPortal == 'NORMAL':
+						col.prop(LightMesh, 'units', text="Units")
+						col.prop(LightMesh, 'intensity', text="Intensity")
+					col.prop(LightMesh, 'subdivs')
+					col.prop(LightMesh, 'causticSubdivs', text="Caustics")
 					if wide_ui:
 						col= split.column()
-					col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
-					col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
-					col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
+					col.prop(LightMesh, 'invisible')
+					col.prop(LightMesh, 'affectDiffuse')
+					col.prop(LightMesh, 'affectSpecular')
+					col.prop(LightMesh, 'affectReflections')
+					col.prop(LightMesh, 'noDecay')
+					col.prop(LightMesh, 'doubleSided')
+					col.prop(LightMesh, 'storeWithIrradianceMap')
+				else:
+					emit= vma.BRDFLight
 
-		elif vma.type == 'EMIT':
-			row= layout.row()
-			colL= row.column()
-			colL.label(text="Color")
+					split= layout.split()
+					col= split.column()
+					col.prop(mat, 'emit', text="Intensity")
+					if wide_ui:
+						col= split.column()
+					col.prop(emit, 'emitOnBackSide')
+					col.prop(emit, 'compensateExposure', text="Compensate exposure")
+					col.prop(emit, 'doubleSided')
 
-			row= layout.row()
-			col= row.column()
-			col.prop(mat, 'diffuse_color', text="")
-			if wide_ui:
-				col= row.column()
-			if not vma.emitter_type == 'MESH':
-				col.prop(mat, 'alpha')
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.prop(vma, 'emitter_type')
-
-			layout.separator()
-
-			if vma.emitter_type == 'MESH':
-				LightMesh= vma.LightMesh
+			elif vma.type == 'SSS':
+				BRDFSSS2Complex= vma.BRDFSSS2Complex
 
 				split= layout.split()
 				col= split.column()
-				col.prop(LightMesh, 'enabled', text="On")
-				col.prop(LightMesh, 'lightPortal', text="Mode")
-				if LightMesh.lightPortal == 'NORMAL':
-					col.prop(LightMesh, 'units', text="Units")
-					col.prop(LightMesh, 'intensity', text="Intensity")
-				col.prop(LightMesh, 'subdivs')
-				col.prop(LightMesh, 'causticSubdivs', text="Caustics")
+				col.label(text="General:")
+
+				split= layout.split()
+				col= split.column()
+				col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'prepass_rate')
+				col.prop(BRDFSSS2Complex, 'scale')
 				if wide_ui:
 					col= split.column()
-				col.prop(LightMesh, 'invisible')
-				col.prop(LightMesh, 'affectDiffuse')
-				col.prop(LightMesh, 'affectSpecular')
-				col.prop(LightMesh, 'affectReflections')
-				col.prop(LightMesh, 'noDecay')
-				col.prop(LightMesh, 'doubleSided')
-				col.prop(LightMesh, 'storeWithIrradianceMap')
+				col.prop(BRDFSSS2Complex, 'ior')
+				col.prop(BRDFSSS2Complex, 'interpolation_accuracy', text='Accuracy')
+
+				layout.separator()
+
+				split= layout.split()
+				col= split.column()
+				#col.prop(BRDFSSS2Complex, 'overall_color')
+				col.prop(mat, 'diffuse_color', text="Overall color")
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'diffuse_color')
+				split= layout.split()
+				col= split.column()
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'diffuse_amount', text="Amount")
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'sub_surface_color')
+				col.prop(BRDFSSS2Complex, 'phase_function')
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'scatter_radius', text="Scatter color")
+				col.prop(BRDFSSS2Complex, 'scatter_radius_mult', text="Radius")
+
+				split= layout.split()
+				col= split.column()
+				col.label(text='Specular layer:')
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'specular_color', text='')
+				col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
+				col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'trace_reflections')
+				if BRDFSSS2Complex.trace_reflections:
+					if wide_ui:
+						col= split.column()
+					col.prop(BRDFSSS2Complex, 'reflection_depth')
+
+				layout.separator()
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'single_scatter')
+
+				split= layout.split()
+				col= split.column()
+				col.prop(BRDFSSS2Complex, 'subdivs')
+				col.prop(BRDFSSS2Complex, 'refraction_depth')
+				col.prop(BRDFSSS2Complex, 'cutoff_threshold')
+				if wide_ui:
+					col= split.column()
+				col.prop(BRDFSSS2Complex, 'front_scatter')
+				col.prop(BRDFSSS2Complex, 'back_scatter')
+				col.prop(BRDFSSS2Complex, 'scatter_gi')
+				col.prop(BRDFSSS2Complex, 'prepass_blur')
+
+			elif vma.type == 'CAR':
+				layout.label(text="Coming soon!")
+
 			else:
-				emit= vma.BRDFLight
+				row= layout.row()
+				row.template_list(vma, 'brdfs',
+								  vma, 'brdf_selected',
+								  rows= 4)
 
-				split= layout.split()
-				col= split.column()
-				col.prop(mat, 'emit', text="Intensity")
-				if wide_ui:
-					col= split.column()
-				col.prop(emit, 'emitOnBackSide')
-				col.prop(emit, 'compensateExposure', text="Compensate exposure")
-				col.prop(emit, 'doubleSided')
+				col= row.column()
+				sub= col.row()
+				subsub= sub.column(align=True)
+				subsub.operator('vray.brdf_add',    text="", icon="ZOOMIN")
+				subsub.operator('vray.brdf_remove', text="", icon="ZOOMOUT")
+				sub= col.row()
+				subsub= sub.column(align=True)
+				subsub.operator("vray.brdf_up",   icon='MOVE_UP_VEC',   text="")
+				subsub.operator("vray.brdf_down", icon='MOVE_DOWN_VEC', text="")
 
-		elif vma.type == 'SSS':
-			BRDFSSS2Complex= vma.BRDFSSS2Complex
+				if vma.brdf_selected >= 0:
+					layout.separator()
 
-			split= layout.split()
-			col= split.column()
-			col.label(text="General:")
+					brdf= vma.brdfs[vma.brdf_selected]
 
-			split= layout.split()
-			col= split.column()
-			col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
+					layout.prop(brdf, 'name')
+					layout.prop(brdf, 'type', text="Type")
 
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'prepass_rate')
-			col.prop(BRDFSSS2Complex, 'scale')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'ior')
-			col.prop(BRDFSSS2Complex, 'interpolation_accuracy', text='Accuracy')
+					layout.separator()
 
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			#col.prop(BRDFSSS2Complex, 'overall_color')
-			col.prop(mat, 'diffuse_color', text="Overall color")
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'diffuse_color')
-			split= layout.split()
-			col= split.column()
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'diffuse_amount', text="Amount")
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'sub_surface_color')
-			col.prop(BRDFSSS2Complex, 'phase_function')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'scatter_radius', text="Scatter color")
-			col.prop(BRDFSSS2Complex, 'scatter_radius_mult', text="Radius")
-
-			split= layout.split()
-			col= split.column()
-			col.label(text='Specular layer:')
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'specular_color', text='')
-			col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
-			col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'trace_reflections')
-			if BRDFSSS2Complex.trace_reflections:
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'reflection_depth')
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'single_scatter')
-
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFSSS2Complex, 'subdivs')
-			col.prop(BRDFSSS2Complex, 'refraction_depth')
-			col.prop(BRDFSSS2Complex, 'cutoff_threshold')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFSSS2Complex, 'front_scatter')
-			col.prop(BRDFSSS2Complex, 'back_scatter')
-			col.prop(BRDFSSS2Complex, 'scatter_gi')
-			col.prop(BRDFSSS2Complex, 'prepass_blur')
-
-		elif vma.type == 'CAR':
-			layout.label(text="Coming soon!")
+					rna_pointer= getattr(brdf, brdf.type)
+					if rna_pointer:
+						plugin= PLUGINS['BRDF'].get(brdf.type)
+						if plugin:
+							plugin.gui(context, layout, rna_pointer)
 
 
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):

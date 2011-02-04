@@ -1010,7 +1010,7 @@ def write_settings(bus):
 				plugin.write(bus)
 		
 	for render_channel in VRayScene.render_channels:
-		plugin= get_plugin_by_id(PLUGINS['RENDERCHANNELS'], render_channel.type)
+		plugin= PLUGINS['RENDERCHANNELS'].get(render_channel.type)
 		if plugin:
 			plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
 
@@ -1296,63 +1296,9 @@ def write_scene(scene):
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
-	files= {
-		'lights':      open(get_filenames(scene,'lights'),      'w'),
-		'materials':   open(get_filenames(scene,'materials'),   'w'),
-		'nodes':       open(get_filenames(scene,'nodes'),       'w'),
-		'camera':      open(get_filenames(scene,'camera'),      'w'),
-		'scene':       open(get_filenames(scene,'scene'),       'w'),
-		'environment': open(get_filenames(scene,'environment'), 'w'),
-	}
-
-	for key in files:
-		files[key].write("// V-Ray/Blender %s\n" % VERSION)
-
-	files['nodes'].write("// Nodes\n")
-	files['lights'].write("// Lights\n")
-	files['camera'].write("// Camera\n")
-	files['environment'].write("// Environment\n")
-	files['materials'].write("// Materials\n")
-
-	files['materials'].write("\n// Default materials")
-	files['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
-	files['materials'].write("\n\tuvw_channel= 1;")
-	files['materials'].write("\n\tuvw_transform= Transform(")
-	files['materials'].write("\n\t\tMatrix(")
-	files['materials'].write("\n\t\t\tVector(1.0,0.0,0.0),")
-	files['materials'].write("\n\t\t\tVector(0.0,1.0,0.0),")
-	files['materials'].write("\n\t\t\tVector(0.0,0.0,1.0)")
-	files['materials'].write("\n\t\t),")
-	files['materials'].write("\n\t\tVector(0.0,0.0,0.0)")
-	files['materials'].write("\n\t);")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\nTexChecker Texture_Test_Checker {")
-	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\nTexChecker Texture_no_texture {")
-	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\nBRDFDiffuse BRDFDiffuse_no_material {")
-	files['materials'].write("\n\tcolor=Color(0.5, 0.5, 0.5);")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\nMtlSingleBRDF Material_no_material {")
-	files['materials'].write("\n\tbrdf= BRDFDiffuse_no_material;")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\nTexAColor TexAColor_default_blend {")
-	files['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
-	files['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
-	files['materials'].write("\n}\n")
-	files['materials'].write("\n// Scene materials\n")
-
 	# Settings bus
 	bus= {}
 
-	# Plugins
-	bus['plugins']= PLUGINS
-
-	# Output files
-	bus['files']= files
-	
 	# Scene
 	bus['scene']= scene
 	
@@ -1362,6 +1308,59 @@ def write_scene(scene):
 	# V-Ray uses UV indexes, Blender uses UV names
 	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
+
+	# Output files
+	bus['files']= {}
+	bus['files']['lights']=      open(get_filenames(scene,'lights'),      'w')
+	bus['files']['materials']=   open(get_filenames(scene,'materials'),   'w')
+	bus['files']['nodes']=       open(get_filenames(scene,'nodes'),       'w')
+	bus['files']['camera']=      open(get_filenames(scene,'camera'),      'w')
+	bus['files']['scene']=       open(get_filenames(scene,'scene'),       'w')
+	bus['files']['environment']= open(get_filenames(scene,'environment'), 'w')
+
+	# Plugins
+	bus['plugins']= PLUGINS
+
+	# Some failsafe defaults
+	bus['defaults']= {}
+	bus['defaults']['material']= "Material_no_material"
+	bus['defaults']['texture']= "Texture_no_texture"
+
+	for key in bus['files']:
+		bus['files'][key].write("// V-Ray/Blender %s" % VERSION)
+
+	bus['files']['nodes'].write("\n// Nodes")
+	bus['files']['lights'].write("\n// Lights")
+	bus['files']['camera'].write("\n// Camera")
+	bus['files']['environment'].write("\n// Environment")
+	bus['files']['materials'].write("\n// Materials")
+
+	bus['files']['materials'].write("\n// Default materials")
+	bus['files']['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
+	bus['files']['materials'].write("\n\tuvw_channel= 1;")
+	bus['files']['materials'].write("\n\tuvw_transform= Transform(")
+	bus['files']['materials'].write("\n\t\tMatrix(")
+	bus['files']['materials'].write("\n\t\t\tVector(1.0,0.0,0.0),")
+	bus['files']['materials'].write("\n\t\t\tVector(0.0,1.0,0.0),")
+	bus['files']['materials'].write("\n\t\t\tVector(0.0,0.0,1.0)")
+	bus['files']['materials'].write("\n\t\t),")
+	bus['files']['materials'].write("\n\t\tVector(0.0,0.0,0.0)")
+	bus['files']['materials'].write("\n\t);")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\nTexChecker %s {" % bus['defaults']['texture'])
+	bus['files']['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\nBRDFDiffuse BRDFDiffuse_no_material {")
+	bus['files']['materials'].write("\n\tcolor=Color(0.5, 0.5, 0.5);")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
+	bus['files']['materials'].write("\n\tbrdf= BRDFDiffuse_no_material;")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\nTexAColor TexAColor_default_blend {")
+	bus['files']['materials'].write("\n\tuvwgen= UVWGenChannel_default;")
+	bus['files']['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\n// Scene materials\n")
 
 	def write_frame(bus):
 		timer= time.clock()
@@ -1383,19 +1382,19 @@ def write_scene(scene):
 
 		# Special data types
 		# For example, export VolumeFog or VRayToon from material settings
-		# Stores ({'plugin', 'object_list': ({'object', 'rna_pointer'}))
+		# Stores ({'plugin': plugin.ID, 'objects': ({'object': ob, 'rna_pointer': settings_data}))
 		bus['special_types']= []
 
 		# Visibility list for "Hide from view" and "Camera loop" features
 		bus['visibility']= get_visibility_lists(bus['camera'])
 
-		# Write fake frame for "Camera loop"
+		# Fake frame for "Camera loop"
 		if VRayExporter.camera_loop:
-			for key in files:
+			for key in bus['files']:
 				if key in ('nodes','camera'):
-					files[key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
+					bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
 
-		# Debug data
+		# Hide from view debug data
 		if VRayExporter.debug:
 			print_dict(scene, "Hide from view", bus['visibility'])
 
@@ -1408,18 +1407,15 @@ def write_scene(scene):
 					if ob.type == 'LAMP':
 						if not VRayScene.use_hidden_lights:
 							continue
-					elif not SettingsOptions.geom_doHidden:
-						continue
-					else:
+					if not SettingsOptions.geom_doHidden:
 						continue
 
 			if ob.hide_render:
 				if ob.type == 'LAMP':
 					if not VRayScene.use_hidden_lights:
 						continue
-				else:
-					if not SettingsOptions.geom_doHidden:
-						continue
+				if not SettingsOptions.geom_doHidden:
+					continue
 
 			if PLATFORM == "linux2":
 				debug(scene, "{0}: \033[0;32m{1:<32}\033[0m".format(ob.type, ob.name), True if VRayExporter.debug else False)
@@ -1481,9 +1477,9 @@ def write_scene(scene):
 		
 	write_settings(bus)
 
-	for key in files:
-		files[key].write("\n// vim: set syntax=on syntax=c:\n\n")
-		files[key].close()
+	for key in bus['files']:
+		bus['files'][key].write("\n// vim: set syntax=on syntax=c:\n\n")
+		bus['files'][key].close()
 
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 

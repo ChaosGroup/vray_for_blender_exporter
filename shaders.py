@@ -751,13 +751,13 @@ def write_TexBitmap(ofile, sce, params):
 	return tex_name
 
 
-def write_TexPlugin(ofile, sce, params):
-	texture= params.get('texture')
+def write_TexPlugin(ofile, sce, bus):
+	texture= bus.get('texture')
 	if texture:
 		VRayTexture= texture.vray
-		plugin= get_plugin_by_id(PLUGINS['TEXTURE'], VRayTexture.type)
+		plugin= PLUGINS['TEXTURE'].get(VRayTexture.type)
 		if plugin:
-			return plugin.write(ofile, sce, params)
+			return plugin.write(ofile, sce, bus)
 
 
 def write_texture(ofile, sce, params):

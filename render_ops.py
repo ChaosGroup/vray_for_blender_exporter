@@ -41,6 +41,9 @@ import vb25.proxy
 from vb25.utils import *
 
 
+'''
+  Effects operators
+'''
 class VRAY_OT_effect_add(bpy.types.Operator):
 	bl_idname=      'vray.effect_add'
 	bl_label=       "Add Effect"
@@ -50,7 +53,6 @@ class VRAY_OT_effect_add(bpy.types.Operator):
 		VRayScene= context.scene.vray
 
 		VRayEffects= VRayScene.VRayEffects
-
 		VRayEffects.effects.add()
 		VRayEffects.effects[-1].name= "Effect"
 
@@ -74,52 +76,103 @@ class VRAY_OT_effect_remove(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-# class VRAY_OT_effect_up(bpy.types.Operator):
-# 	bl_idname=      'vray.effect_up'
-# 	bl_label=       "Move Effect Up"
-# 	bl_description= "Move effect up."
+'''
+  Material operators
+'''
+def active_node_mat(mat):
+    if mat:
+        mat_node= mat.active_node_material
+        if mat_node:
+            return mat_node
+        else:
+            return mat
+    return None
 
-# 	def execute(self, context):
-# 		VRayScene= context.scene.vray
 
-# 		VRayEffects= VRayScene.VRayEffects
+class VRAY_OT_brdf_add(bpy.types.Operator):
+	bl_idname=      'vray.brdf_add'
+	bl_label=       "Add BRDF"
+	bl_description= "Add BRDF."
 
-# 		if VRayEffects.effects_selected >= 0:
-# 			if VRayEffects.effects_selected == 0:
-# 				return {'FINISHED'}
-
-# 			sel= VRayEffects.effects_selected
+	def execute(self, context):
+		ma= active_node_mat(context.material)
+		if ma:
+			VRayMaterial= ma.vray
 			
-# 			VRayEffects.effects[sel], VRayEffects.effects[sel - 1] = VRayEffects.effects[sel - 1], VRayEffects.effects[sel]
-
-# 			VRayEffects.effects_selected-= 1
-
-# 		return {'FINISHED'}
-
-
-# class VRAY_OT_effect_down(bpy.types.Operator):
-# 	bl_idname=      'vray.effect_down'
-# 	bl_label=       "Move Effect Down"
-# 	bl_description= "Move effect down."
-
-# 	def execute(self, context):
-# 		VRayScene= context.scene.vray
-
-# 		VRayEffects= VRayScene.VRayEffects
-
-# 		if VRayEffects.effects_selected >= 0:
-# 			if VRayEffects.effects_selected == len(VRayEffects.effects) - 1:
-# 				return {'FINISHED'}
-
-# 			sel= VRayEffects.effects_selected
+			VRayMaterial.brdfs.add()
+			VRayMaterial.brdfs[-1].name= "BRDF"
 			
-# 			VRayEffects.effects[sel], VRayEffects.effects[sel + 1] = VRayEffects.effects[sel + 1], VRayEffects.effects[sel]
+			return {'FINISHED'}
 
-# 			VRayEffects.effects_selected+= 1
-
-# 		return {'FINISHED'}
+		return {'CHANCELED'}
 
 
+class VRAY_OT_brdf_remove(bpy.types.Operator):
+	bl_idname=      'vray.brdf_remove'
+	bl_label=       "Remove BRDF"
+	bl_description= "Remove BRDF."
+
+	def execute(self, context):
+		ma= active_node_mat(context.material)
+		if ma:
+			VRayMaterial= ma.vray
+				
+			if VRayMaterial.brdf_selected >= 0:
+				VRayMaterial.brdfs.remove(VRayMaterial.brdf_selected)
+				VRayMaterial.brdf_selected-= 1
+
+			return {'FINISHED'}
+
+		return {'CHANCELED'}
+
+
+class VRAY_OT_brdf_up(bpy.types.Operator):
+	bl_idname=      'vray.brdf_up'
+	bl_label=       "Move BRDF up"
+	bl_description= "Move BRDF up."
+
+	def execute(self, context):
+		ma= active_node_mat(context.material)
+		if ma:
+			VRayMaterial= ma.vray
+
+			if VRayMaterial.brdf_selected <= 0:
+				return {'FINISHED'}
+
+			VRayMaterial.brdfs.move(VRayMaterial.brdf_selected,
+									VRayMaterial.brdf_selected - 1)
+			VRayMaterial.brdf_selected-= 1
+
+			return {'FINISHED'}
+
+		return {'CHANCELED'}
+
+
+class VRAY_OT_brdf_down(bpy.types.Operator):
+	bl_idname=      'vray.brdf_down'
+	bl_label=       "Move BRDF down"
+	bl_description= "Move BRDF down."
+
+	def execute(self, context):
+		ma= active_node_mat(context.material)
+		if ma:
+			VRayMaterial= ma.vray
+
+			if VRayMaterial.brdf_selected == len(VRayMaterial.brdfs) - 1:
+				return {'FINISHED'}
+
+			VRayMaterial.brdfs.move(VRayMaterial.brdf_selected,
+									VRayMaterial.brdf_selected + 1)
+			VRayMaterial.brdf_selected+= 1
+
+			return {'FINISHED'}
+
+		return {'CHANCELED'}
+
+
+'''
+  Render channel operators
+'''
 class VRAY_OT_channel_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
@@ -155,6 +208,9 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+'''
+  DR node operators
+'''
 class VRAY_OT_node_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
 	bl_label=       "Add Render Node"
@@ -186,6 +242,9 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+'''
+  Some usefull utils
+'''
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname      = "vray.convert_materials"
 	bl_label       = "Convert materials"

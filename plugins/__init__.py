@@ -49,22 +49,12 @@ PLUGINS= {
 }
 
 
-def get_plugin_by_id(plugins, plugin_id):
-	for plugin in plugins:
-		if plugin.ID == plugin_id:
-			return plugin
-	return None
-
-def get_plugin_by_name(plugins, plugin_name):
-	for plugin in plugins:
-		if plugin.PLUG == plugin_name:
-			return plugin
-	return None
-
-def load_plugins(plugins, parent_struct):
+def load_plugins(plugins, rna_pointer):
 	for key in plugins:
-		plugins[key].add_properties(parent_struct)
+		plugins[key].add_properties(rna_pointer)
 
+
+# Generate menu items from plugins
 def gen_menu_items(plugins, none_item= True):
 	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID')]
 
@@ -135,6 +125,9 @@ def add_properties():
 	class VRayRenderChannel(bpy.types.IDPropertyGroup):
 		pass
 
+	class VRayBRDF(bpy.types.IDPropertyGroup):
+		pass
+	
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
@@ -203,6 +196,12 @@ def add_properties():
 		default= 'NONE'
 	)
 
+	VRayRenderChannel.use= BoolProperty(
+		name= "Use channel",
+		description= "Channel.",
+		default= True
+	)
+
 	'''
 	  Texture types
 	'''
@@ -216,8 +215,23 @@ def add_properties():
 	'''
 	  BRDF types
 	'''
+	VRayMaterial.brdfs= CollectionProperty(
+		name= "BRDFs",
+		type=  VRayBRDF,
+		description= "Material shaders collection."
+	)
+
+	VRayMaterial.brdf_selected= IntProperty(
+		name= "Selected BRDF",
+		description= "Selected BRDF.",
+		default= -1,
+		min= -1,
+		max= 100
+	)
+
 	brdfs= gen_menu_items(PLUGINS['BRDF'], none_item= False)
-	VRayMaterial.brdf= EnumProperty(
+	
+	VRayBRDF.type= EnumProperty(
 		name= "BRDF Type",
 		description= "BRDF type.",
 		items= (tuple(brdfs)),
@@ -225,7 +239,7 @@ def add_properties():
 	)
 
 	'''
-	  Add plugin properties
+	  Loading plugin properties
 	'''
 	load_plugins(PLUGINS['SETTINGS'],      VRayScene)
 	load_plugins(PLUGINS['TEXTURE'],       VRayTexture)
@@ -233,16 +247,18 @@ def add_properties():
 	load_plugins(PLUGINS['CAMERA'],        VRayCamera)
 	load_plugins(PLUGINS['MATERIAL'],      VRayMaterial)
 	load_plugins(PLUGINS['BRDF'],          VRayMaterial)
+	load_plugins(PLUGINS['BRDF'],          VRayBRDF)
 	load_plugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
 
-	'''
-	  Add some specific settings
-	'''
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRayTexture)
+
+	PLUGINS['SETTINGS']['SettingsEnvironmet'].add_properties(VRayMaterial)
+
 	PLUGINS['MATERIAL']['MtlOverride'].add_properties(VRayObject)
 	PLUGINS['MATERIAL']['MtlWrapper'].add_properties(VRayObject)
 	PLUGINS['MATERIAL']['MtlRenderStats'].add_properties(VRayObject)
-	PLUGINS['SETTINGS']['SettingsEnvironmet'].add_properties(VRayMaterial)
+	PLUGINS['MATERIAL']['LightMesh'].add_properties(VRayObject)
+	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRayObject)
 
 
 def remove_properties():

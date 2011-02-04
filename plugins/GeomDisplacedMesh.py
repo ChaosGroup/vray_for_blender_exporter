@@ -59,147 +59,200 @@ PARAMS= (
 )
 
 def add_properties(rna_pointer):
-	class GeomMeshFile(bpy.types.IDPropertyGroup):
+	class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
 		pass
 
-	rna_pointer.GeomMeshFile= PointerProperty(
-		name= "V-Ray Proxy",
-		type=  GeomMeshFile,
-		description= "V-Ray proxy settings."
+	rna_pointer.GeomDisplacedMesh= PointerProperty(
+		name= "GeomDisplacedMesh",
+		type=  GeomDisplacedMesh,
+		description= "GeomDisplacedMesh texture slot settings."
 	)
 
-	GeomMeshFile.use= BoolProperty(
-		name= "Use Proxy",
-		description= "Use proxy mesh.",
+	GeomDisplacedMesh.use= BoolProperty(
+		name= "Override displacement settings",
+		description= "Override material displacement settings.",
 		default= False
 	)
 
-	GeomMeshFile.file= StringProperty(
-		name= "File",
-		subtype= 'FILE_PATH',
-		description= "Proxy file."
-	)
-
-	GeomMeshFile.anim_type= EnumProperty(
-		name= "Animation type",
-		description= "Proxy animation type.",
+	GeomDisplacedMesh.type= EnumProperty(
+		name= "Type",
+		description= "Displacement type.",
 		items= (
-			('LOOP',     "Loop",      "."),
-			('ONCE',     "Once",      "."),
-			('PINGPONG', "Ping-pong", "."),
-			('STILL',    "Still",     ".")
-			),
-		default= 'STILL'
-	)
-	
-	GeomMeshFile.mode= EnumProperty(
-		name= "Mode",
-		description= "Proxy creation mode.",
-		items= (
-			('NONE',    "None",        "Don\'t attach proxy."),
-			('NEW',     "New object",  "Attach proxy to new object."),
-			('THIS',    "This object", "Attach proxy to this object."),
-			('REPLACE', "Replace",     "Replace this object with proxy."),
+			('2D',  "2D",     "2D displacement."),
+			('NOR', "Normal", "Normal displacement."),
+			('3D',  "Vector", "Vector displacement.")
 		),
-		default= 'NONE'
+		default= 'NOR'
 	)
 
-	GeomMeshFile.anim_speed= FloatProperty(
-		name= "Speed",
-		description= "Animated proxy playback speed.",
+	GeomDisplacedMesh.amount_type= EnumProperty(
+		name= "Amount type",
+		description= "Displacement amount type.",
+		items= (
+			('MULT', "Multiply", "Multiply material amount."),
+			('OVER', "Override", "Override material amount.")
+		),
+		default= 'OVER'
+	)
+
+	GeomDisplacedMesh.displacement_amount= FloatProperty(
+		name= "Amount",
+		description= "Displacement amount.",
+		min= -100.0,
+		max= 100.0,
+		soft_min= -0.1,
+		soft_max= 0.1,
+		precision= 5,
+		default= 0.02
+	)
+
+	GeomDisplacedMesh.amount_mult= FloatProperty(
+		name= "Mult",
+		description= "Displacement amount multiplier.",
 		min= 0.0,
-		max= 1000.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	GeomMeshFile.anim_offset= FloatProperty(
-		name= "Offset",
-		description= "Animated proxy initial frame offset.",
-		min= -1000.0,
-		max= 1000.0,
-		soft_min= -10.0,
-		soft_max= 10.0,
-		default= 0.0
-	)
-
-	GeomMeshFile.scale= FloatProperty(
-		name= "Scale",
-		description= "Size scaling factor.",
-		min= 0.0,
-		max= 1000.0,
+		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 2.0,
+		precision= 3,
 		default= 1.0
 	)
 
-	GeomMeshFile.apply_transforms= BoolProperty(
-		name= "Apply transform",
-		description= "Apply rotation, location and scale.",
-		default= False
+	GeomDisplacedMesh.displacement_shift= FloatProperty(
+		name="Shift",
+		description="",
+		min=-100.0,
+		max=100.0,
+		soft_min=-1.0,
+		soft_max=1.0,
+		precision=4,
+		default=0.0
 	)
 
-	GeomMeshFile.add_suffix= BoolProperty(
-		name= "Add suffix",
-		description= "Add \"_proxy\" suffix to object and mesh names.",
+	GeomDisplacedMesh.water_level= FloatProperty(
+		name="Water level",
+		description="",
+		min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
+		default=0.0
+	)
+
+	GeomDisplacedMesh.use_globals= BoolProperty(
+		name= "Use globals",
+		description= "If true, the global displacement quality settings will be used.",
 		default= True
 	)
 
-	GeomMeshFile.dirpath= StringProperty(
-		name= "Path",
-		subtype= 'DIR_PATH',
-		description= "Proxy generation directory.",
-		default= "//proxy"
+	GeomDisplacedMesh.view_dep= BoolProperty(
+		name= "View dependent",
+		description= "Determines if view-dependent tesselation is used",
+		default= True
 	)
 
-	GeomMeshFile.filename= StringProperty(
-		name= "Name",
-		subtype= 'NONE',
-		description= "Proxy file name. If empty object's name is used.",
-		default= ""
+	GeomDisplacedMesh.edge_length= FloatProperty(
+		name= "Edge length",
+		description= "Determines the approximate edge length for the sub-triangles",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 4
 	)
 
-	GeomMeshFile.animation= BoolProperty(
-		name= "Animation",
-		description= "Animated proxy.",
+	GeomDisplacedMesh.max_subdivs= IntProperty(
+		name= "Max subdivs",
+		description= "Determines the maximum subdivisions for a triangle of the original mesh",
+		min= 0,
+		max= 2048,
+		soft_min= 0,
+		soft_max= 1024,
+		default= 256
+	)
+
+	GeomDisplacedMesh.keep_continuity= BoolProperty(
+		name= "Keep continuity",
+		description= "If true, the plugin will attempt to keep the continuity of the displaced surface",
 		default= False
 	)
 
-	GeomMeshFile.animation_range= EnumProperty(
-		name= "Animation range",
-		description= "Animation range type.",
-		items= (
-			('MANUAL', "Manual", "."),
-			('SCENE',  "Scene",     ".")
-		),
-		default= 'SCENE'
-	)
-
-	GeomMeshFile.add_velocity= BoolProperty(
-		name= "Add velocity",
-		description= "This makes it possible to add motion blur to the final animation. However exporting this extra information takes longer. If you are not going to need motion blur it makes sense to disable this option.",
-		default= False
-	)
-
-	GeomMeshFile.frame_start= IntProperty(
-		name= "Start frame",
-		description= "Proxy generation start frame.",
-		min= 1,
-		max= 1000,
-		soft_min= 1,
-		soft_max= 250,
+	GeomDisplacedMesh.map_channel= IntProperty(
+		name= "Map channel",
+		description= "The mapping channel to use for vector and 2d displacement.",
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 10,
 		default= 1
 	)
 
-	GeomMeshFile.frame_end= IntProperty(
-		name= "End frame",
-		description= "Proxy generation end frame.",
-		min= 1,
-		max= 1000,
-		soft_min= 1,
-		soft_max= 250,
-		default= 250
+	GeomDisplacedMesh.use_bounds= BoolProperty(
+		name= "Use bounds",
+		description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically.",
+		default= False
+	)
+
+	GeomDisplacedMesh.min_bound= FloatVectorProperty(
+		name= "Min bound",
+		description= "The lowest value for the displacement texture",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0,0,0)
+	)
+
+	GeomDisplacedMesh.max_bound= FloatVectorProperty(
+		name= "Max bound",
+		description= "The biggest value for the displacement texture",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (1,1,1)
+	)
+
+	GeomDisplacedMesh.resolution= IntProperty(
+		name= "Resolution",
+		description= "Resolution at which to sample the displacement map for 2d displacement.",
+		min= 0,
+		max= 2048,
+		soft_min= 0,
+		soft_max= 512,
+		default= 256
+	)
+
+	GeomDisplacedMesh.precision= IntProperty(
+		name= "Precision",
+		description= "Increase for curved surfaces to avoid artifacts.",
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 10,
+		default= 8
+	)
+
+	GeomDisplacedMesh.tight_bounds= BoolProperty(
+		name= "Tight bounds",
+		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
+		default= False
+	)
+
+	GeomDisplacedMesh.filter_texture= BoolProperty(
+		name= "Filter texture",
+		description= "Filter the texture for 2d displacement.",
+		default= False
+	)
+
+	GeomDisplacedMesh.filter_blur= FloatProperty(
+		name= "Blur",
+		description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0.001
 	)
 
 

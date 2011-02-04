@@ -38,7 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFLight'
 PID=   3
 
-NAME= 'Light'
+NAME= 'BRDFLight'
 DESC= "V-Ray light shader."
 
 PARAMS= (
@@ -52,6 +52,27 @@ def add_properties(rna_pointer):
 		name= "BRDFLight",
 		type=  BRDFLight,
 		description= "V-Ray BRDFLight settings"
+	)
+
+	BRDFLight.color= FloatVectorProperty(
+		name= "Color",
+		description= "Color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (1.0,1.0,1.0)
+	)
+
+	BRDFLight.colorMultiplier= FloatProperty(
+		name= "Multiplier",
+		description= "Color multiplier.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
 	)
 
 	BRDFLight.doubleSided= BoolProperty(
@@ -71,3 +92,34 @@ def add_properties(rna_pointer):
 		description= 'TODO.',
 		default= False
 	)
+
+	BRDFLight.transparency= FloatProperty(
+		name= "Transparency",
+		description= "Transparency of the BRDF.",
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= 1.0
+	)
+
+
+
+def gui(context, layout, BRDFLight):
+	wide_ui= context.region.width > narrowui
+
+	layout.prop(BRDFLight, 'transparency')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFLight, 'color', text="")
+	col.prop(BRDFLight, 'colorMultiplier', text="Intensity")
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFLight, 'emitOnBackSide')
+	col.prop(BRDFLight, 'compensateExposure', text="Compensate exposure")
+	col.prop(BRDFLight, 'doubleSided')
+
+

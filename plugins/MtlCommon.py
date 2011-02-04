@@ -49,6 +49,7 @@ def add_properties(rna_pointer):
 			('SSS',  "SSS",      "Fast SSS material."),
 			('EMIT', "Light",    "Light emitting material / mesh light ."),
 			('CAR',  "Car",      "Car paint material."),
+			('BRDF', "Layered",  "Custom material from BRDFs."),
 		),
 		default= 'MTL'
 	)
@@ -83,4 +84,4 @@ def add_properties(rna_pointer):
 		soft_max= 1.0,
 		default= (1.0,1.0,1.0)
 	)
-
+	

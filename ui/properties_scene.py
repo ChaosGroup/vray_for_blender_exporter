@@ -56,26 +56,23 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 		row= split.row()
 		row.template_list(VRayEffects, 'effects',
 						  VRayEffects, 'effects_selected',
-						  rows= 3)
+						  rows= 4)
 		col= row.column()
 		sub= col.row()
 		subsub= sub.column(align=True)
 		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
 		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
-		# sub= col.row()
-		# subsub= sub.column(align=True)
-		# subsub.operator("vray.effect_up", icon='MOVE_UP_VEC', text="")
-		# subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
 		if VRayEffects.effects_selected >= 0:
 			layout.separator()
 
 			effect= VRayEffects.effects[VRayEffects.effects_selected]
 
-			split= layout.split()
-			col= split.column()
-			col.prop(effect, 'name')
-			col.prop(effect, 'type')
+			row= layout.row(align=True)
+			row.prop(effect, 'use', text="")
+			row.prop(effect, 'name', text="")
+
+			layout.prop(effect, 'type')
 
 			layout.separator()
 

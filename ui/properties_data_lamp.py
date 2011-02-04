@@ -67,6 +67,25 @@ VRayLamp.units= EnumProperty(
 	default= 'DEFAULT'
 )
 
+VRayLamp.color_type= EnumProperty(
+	name= "Color type",
+	description= "Color type.",
+	items= (
+		('KELVIN', "Kelvin", ""),
+		('RGB',    "RGB",    ""),
+	),
+	default= 'RGB'
+)
+
+VRayLamp.kelvin= IntProperty(
+	name= "Kelvin",
+	description= "Kelvin temperature.",
+	min= 1000,
+	max= 40000,
+	step= 100,
+	default= 5000
+)
+
 VRayLamp.use_include_exclude= BoolProperty(
 	name= "Use Include / Exclude",
 	description= "Use Include / Exclude.",
@@ -541,7 +560,11 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
-			col.prop(lamp,'color', text="")
+			col.prop(vl, 'color_type', text="")
+			if vl.color_type == 'RGB':
+				col.prop(lamp, 'color', text="")
+			else:
+				col.prop(vl, 'kelvin', text="Temp")
 		if lamp.type == 'AREA':
 			col.prop(vl,'lightPortal', text="Mode")
 		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):

@@ -32,6 +32,7 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.plugins import *
 	
 
 import properties_render
@@ -769,25 +770,31 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 		vsce= sce.vray
 		render_channels= vsce.render_channels
 
-		split= layout.split()
-		row= split.row()
-		row.template_list(vsce, 'render_channels', vsce, 'render_channels_index', rows= 3)
-		col= row.column(align=True)
-		col.operator('vray.render_channels_add',    text="", icon="ZOOMIN")
-		col.operator('vray.render_channels_remove', text="", icon="ZOOMOUT")
+		row= layout.row()
+		row.template_list(vsce, 'render_channels',
+						  vsce, 'render_channels_index',
+						  rows= 4)
+		col= row.column()
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator('vray.render_channels_add',	   text="", icon="ZOOMIN")
+		subsub.operator('vray.render_channels_remove', text="", icon="ZOOMOUT")
 
 		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
 			render_channel= render_channels[vsce.render_channels_index]
 		
 			layout.separator()
 
-			layout.prop(render_channel, 'name')
+			row= layout.row(align=True)
+			row.prop(render_channel, 'use', text="")
+			row.prop(render_channel, 'name', text="")
+
 			layout.prop(render_channel, 'type', text="Type")
 
 			layout.separator()
 
 			if render_channel.type != 'NONE':
-				plugin= get_plugin(CHANNEL_PLUGINS, render_channel.type)
+				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin is not None:
 					render_channel_data= getattr(render_channel,plugin.PLUG)
 
@@ -803,7 +810,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 
 class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
-	bl_label = "Displace"
+	bl_label = "Displacement"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -821,12 +828,16 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
+		col.prop(SettingsDefaultDisplacement, 'override_on')
+
+		split= layout.split()
+		split.active= SettingsDefaultDisplacement.override_on
+		col= split.column()
 		col.prop(SettingsDefaultDisplacement, 'amount')
 		col.prop(SettingsDefaultDisplacement, 'edgeLength')
 		col.prop(SettingsDefaultDisplacement, 'maxSubdivs')
 		if wide_ui:
 			col= split.column()
-		col.prop(SettingsDefaultDisplacement, 'override_on')
 		col.prop(SettingsDefaultDisplacement, 'viewDependent')
 		col.prop(SettingsDefaultDisplacement, 'tightBounds')
 		col.prop(SettingsDefaultDisplacement, 'relative')
