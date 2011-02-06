@@ -219,9 +219,6 @@ def gui(context, layout, BRDFLayered, material= None):
 	if BRDFLayered.brdf_selected >= 0:
 		layout.separator()
 
-		# Box border
-		layout= layout.box()
-		
 		brdf= BRDFLayered.brdfs[BRDFLayered.brdf_selected]
 		
 		if wide_ui:
@@ -267,4 +264,4 @@ def gui(context, layout, BRDFLayered, material= None):
 		if rna_pointer:
 			plugin= PLUGINS['BRDF'].get(brdf.type)
 			if plugin:
-				plugin.gui(context, layout, rna_pointer)
+				plugin.gui(context, layout.box(), rna_pointer)

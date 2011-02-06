@@ -291,7 +291,9 @@ def object_on_visible_layers(sce,ob):
 	return False
 
 def get_distance(ob1, ob2):
-	vec= ob1.location - ob2.location
+	p1= ob1.matrix_world[3]
+	p2= ob2.matrix_world[3]
+	vec= p1 - p2
 	return vec.length
 
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
