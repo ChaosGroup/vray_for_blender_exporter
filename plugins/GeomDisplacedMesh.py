@@ -257,8 +257,6 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	# if bus['node']['displace'] and VRayExporter.use_displace:
-
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
 	ob=    bus['node']['object']
@@ -266,6 +264,12 @@ def write(bus):
 	
 	textures=  bus['textures']['mapto']
 	slot=      bus['textures']['values']['displacement_slot']
+
+	VRayScene= scene.vray
+	VRayExporter= VRayScene.exporter
+	
+	if not (bus['node']['displace'] and VRayExporter.use_displace):
+		return
 
 	VRaySlot= slot.texture.vray_slot
 	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
