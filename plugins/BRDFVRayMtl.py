@@ -526,7 +526,7 @@ def write(bus):
 	pass
 
 
-def gui(context, layout, BRDFVRayMtl):
+def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
 
 	row= layout.row()
@@ -535,11 +535,17 @@ def gui(context, layout, BRDFVRayMtl):
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFVRayMtl, 'diffuse', text="")
+	if material:
+		col.prop(material, "diffuse_color", text="")
+	else:
+		col.prop(BRDFVRayMtl, 'diffuse', text="")
 	col.prop(BRDFVRayMtl, 'roughness')
 	if wide_ui:
 		col= split.column()
-	col.prop(BRDFVRayMtl, 'opacity')
+	if material:
+		col.prop(material, 'alpha')
+	else:
+		col.prop(BRDFVRayMtl, 'opacity')
 
 	split= layout.split()
 	col= split.column()
@@ -598,7 +604,7 @@ def gui(context, layout, BRDFVRayMtl):
 	split= layout.split()
 	col= split.column()
 	col.prop(BRDFVRayMtl, 'translucency')
-	if(BRDFVRayMtl.translucency != 'NONE'):
+	if BRDFVRayMtl.translucency != 'NONE':
 		split= layout.split()
 		col= split.column()
 		col.prop(BRDFVRayMtl, 'translucency_color', text="")
@@ -609,33 +615,34 @@ def gui(context, layout, BRDFVRayMtl):
 		col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
 		col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
 
-	layout.separator()
+	if not material:
+		layout.separator()
 
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFVRayMtl, 'reflect_trace')
-	col.prop(BRDFVRayMtl, 'refract_trace')
-	col.prop(BRDFVRayMtl, 'option_cutoff')
-	if wide_ui:
+		split= layout.split()
 		col= split.column()
-	col.prop(BRDFVRayMtl, 'option_double_sided')
-	col.prop(BRDFVRayMtl, 'option_reflect_on_back')
-	col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
+		col.prop(BRDFVRayMtl, 'reflect_trace')
+		col.prop(BRDFVRayMtl, 'refract_trace')
+		col.prop(BRDFVRayMtl, 'option_cutoff')
+		if wide_ui:
+			col= split.column()
+		col.prop(BRDFVRayMtl, 'option_double_sided')
+		col.prop(BRDFVRayMtl, 'option_reflect_on_back')
+		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
 
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFVRayMtl, 'reflect_exit_color')
-	if wide_ui:
+		split= layout.split()
 		col= split.column()
-	col.prop(BRDFVRayMtl, 'refract_exit_color')
+		col.prop(BRDFVRayMtl, 'reflect_exit_color')
+		if wide_ui:
+			col= split.column()
+		col.prop(BRDFVRayMtl, 'refract_exit_color')
 
-	layout.separator()
+		layout.separator()
 
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
-	col.prop(BRDFVRayMtl, 'option_energy_mode')
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
+		col.prop(BRDFVRayMtl, 'option_energy_mode')
 
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFVRayMtl, 'environment_priority')
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'environment_priority')

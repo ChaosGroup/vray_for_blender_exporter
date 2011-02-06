@@ -180,7 +180,7 @@ def write(ofile, scene, params):
 '''
   GUI
 '''
-def gui(context, layout, BRDFLayered):
+def gui(context, layout, BRDFLayered, material= None):
 	wide_ui= context.region.width > narrowui
 
 	row= layout.row()
@@ -218,6 +218,9 @@ def gui(context, layout, BRDFLayered):
 
 	if BRDFLayered.brdf_selected >= 0:
 		layout.separator()
+
+		# Box border
+		layout= layout.box()
 		
 		brdf= BRDFLayered.brdfs[BRDFLayered.brdf_selected]
 		

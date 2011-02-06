@@ -115,11 +115,11 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				layout.template_ID(space, "pin_id")
 
 		if mat:
-			vray= mat.vray
+			VRayMaterial= mat.vray
 			if wide_ui:
-				layout.prop(vray, 'type', expand=True)
+				layout.prop(VRayMaterial, 'type', expand=True)
 			else:
-				layout.prop(vray, 'type')
+				layout.prop(VRayMaterial, 'type')
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
@@ -135,281 +135,13 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
-		sce= context.scene
-		ve= sce.vray.exporter
-		ob= context.object
+		material= active_node_mat(context.material)
+		if material:
+			VRayMaterial= material.vray
 
-		mat= active_node_mat(context.material)
-
-		if mat:
-			VRayMaterial= mat.vray
-
-			if VRayMaterial.type == 'BRDFVRayMtl':
-				BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
-
-				row= layout.row()
-				colL= row.column()
-				colL.label(text="Diffuse")
-
-				split= layout.split()
-				col= split.column()
-				col.prop(mat, "diffuse_color", text="")
-				col.prop(BRDFVRayMtl, 'roughness')
-				if wide_ui:
-					col= split.column()
-				col.prop(mat, 'alpha')
-
-				split= layout.split()
-				col= split.column()
-				col.label(text="Reflections")
-
-				split= layout.split()
-				col= split.column(align=True)
-				col.prop(BRDFVRayMtl, 'reflect_color', text="")
-				if not BRDFVRayMtl.hilight_glossiness_lock:
-					col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
-				col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
-				col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
-				col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFVRayMtl, 'brdf_type', text="")
-				col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
-
-				if not BRDFVRayMtl.brdf_type == 'PHONG':
-					col.prop(BRDFVRayMtl, "anisotropy")
-					col.prop(BRDFVRayMtl, "anisotropy_rotation")
-				col.prop(BRDFVRayMtl, "fresnel")
-				if BRDFVRayMtl.fresnel:
-					col.prop(BRDFVRayMtl, "fresnel_ior")
-
-				split= layout.split()
-				col= split.column()
-				col.label(text="Refractions")
-				sub= col.column(align=True)
-				sub.prop(BRDFVRayMtl, 'refract_color', text="")
-				sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
-				sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
-				sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
-				sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
-				if wide_ui:
-					col= split.column()
-				col.label(text="Fog")
-				sub= col.column(align=True)
-				sub.prop(BRDFVRayMtl, 'fog_color', text="")
-				sub.prop(BRDFVRayMtl, 'fog_mult')
-				sub.prop(BRDFVRayMtl, 'fog_bias')
-				sub= col.column(align=True)
-				sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
-				sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
-
-				if not ve.compat_mode:
-					split= layout.split()
-					col= split.column()
-					col.prop(BRDFVRayMtl, 'dispersion_on')
-					if wide_ui:
-						col= split.column()
-					if BRDFVRayMtl.dispersion_on:
-						col.prop(BRDFVRayMtl, 'dispersion')
-
-					layout.separator()
-
-					split= layout.split()
-					col= split.column()
-					col.prop(BRDFVRayMtl, 'translucency')
-					if(BRDFVRayMtl.translucency != 'NONE'):
-						split= layout.split()
-						col= split.column()
-						col.prop(BRDFVRayMtl, 'translucency_color', text="")
-						col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
-						if wide_ui:
-							col= split.column()
-						col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
-						col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
-						col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
-
-			elif VRayMaterial.type == 'BRDFLight':
-				row= layout.row()
-				colL= row.column()
-				colL.label(text="Color")
-
-				row= layout.row()
-				col= row.column()
-				col.prop(mat, 'diffuse_color', text="")
-				if wide_ui:
-					col= row.column()
-				if not VRayMaterial.emitter_type == 'MESH':
-					col.prop(mat, 'alpha')
-
-				layout.separator()
-
-				emit= VRayMaterial.BRDFLight
-
-				split= layout.split()
-				col= split.column()
-				col.prop(mat, 'emit', text="Intensity")
-				if wide_ui:
-					col= split.column()
-				col.prop(emit, 'emitOnBackSide')
-				col.prop(emit, 'compensateExposure', text="Compensate exposure")
-				col.prop(emit, 'doubleSided')
-
-			elif VRayMaterial.type == 'BRDFSSS2Complex':
-				BRDFSSS2Complex= VRayMaterial.BRDFSSS2Complex
-
-				split= layout.split()
-				col= split.column()
-				col.label(text="General:")
-
-				split= layout.split()
-				col= split.column()
-				col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
-
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'prepass_rate')
-				col.prop(BRDFSSS2Complex, 'scale')
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'ior')
-				col.prop(BRDFSSS2Complex, 'interpolation_accuracy', text='Accuracy')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				#col.prop(BRDFSSS2Complex, 'overall_color')
-				col.prop(mat, 'diffuse_color', text="Overall color")
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'diffuse_color')
-				split= layout.split()
-				col= split.column()
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'diffuse_amount', text="Amount")
-
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'sub_surface_color')
-				col.prop(BRDFSSS2Complex, 'phase_function')
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'scatter_radius', text="Scatter color")
-				col.prop(BRDFSSS2Complex, 'scatter_radius_mult', text="Radius")
-
-				split= layout.split()
-				col= split.column()
-				col.label(text='Specular layer:')
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'specular_color', text='')
-				col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
-				col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
-
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'trace_reflections')
-				if BRDFSSS2Complex.trace_reflections:
-					if wide_ui:
-						col= split.column()
-					col.prop(BRDFSSS2Complex, 'reflection_depth')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'single_scatter')
-
-				split= layout.split()
-				col= split.column()
-				col.prop(BRDFSSS2Complex, 'subdivs')
-				col.prop(BRDFSSS2Complex, 'refraction_depth')
-				col.prop(BRDFSSS2Complex, 'cutoff_threshold')
-				if wide_ui:
-					col= split.column()
-				col.prop(BRDFSSS2Complex, 'front_scatter')
-				col.prop(BRDFSSS2Complex, 'back_scatter')
-				col.prop(BRDFSSS2Complex, 'scatter_gi')
-				col.prop(BRDFSSS2Complex, 'prepass_blur')
-
-			elif VRayMaterial.type == 'BRDFCarPaint':
-				PLUGINS['BRDF']['BRDFCarPaint'].gui(context, layout, VRayMaterial.BRDFCarPaint, in_layered= False)
-
-			else:
-				PLUGINS['BRDF']['BRDFLayered'].gui(context, layout, VRayMaterial.BRDFLayered)
-				
-				# row= layout.row()
-				# row.template_list(VRayMaterial, 'brdfs',
-				# 				  VRayMaterial, 'brdf_selected',
-				# 				  rows= 4)
-
-				# col= row.column()
-				# sub= col.row()
-				# subsub= sub.column(align=True)
-				# subsub.operator('vray.brdf_add',    text="", icon="ZOOMIN")
-				# subsub.operator('vray.brdf_remove', text="", icon="ZOOMOUT")
-				# sub= col.row()
-				# subsub= sub.column(align=True)
-				# subsub.operator("vray.brdf_up",   icon='MOVE_UP_VEC',   text="")
-				# subsub.operator("vray.brdf_down", icon='MOVE_DOWN_VEC', text="")
-
-				# split= layout.split()
-				# col= split.column()
-				# col.prop(vma, 'additive_mode')
-
-				# if VRayMaterial.brdf_selected >= 0:
-				# 	layout.separator()
-
-				# 	brdf= VRayMaterial.brdfs[VRayMaterial.brdf_selected]
-
-				# 	if wide_ui:
-				# 		split= layout.split(percentage=0.2)
-				# 	else:
-				# 		split= layout.split()
-				# 	col= split.column()
-				# 	col.label(text="Name:")
-				# 	if wide_ui:
-				# 		col= split.column()
-				# 	row= col.row(align=True)
-				# 	row.prop(brdf, 'name', text="")
-				# 	row.prop(brdf, 'use', text="")
-
-				# 	if wide_ui:
-				# 		split= layout.split(percentage=0.2)
-				# 	else:
-				# 		split= layout.split()
-				# 	col= split.column()
-				# 	col.label(text="Type:")
-				# 	if wide_ui:
-				# 		col= split.column()
-				# 	col.prop(brdf, 'type', text="")
-
-				# 	if wide_ui:
-				# 		split= layout.split(percentage=0.2)
-				# 	else:
-				# 		split= layout.split()
-				# 	col= split.column()
-				# 	col.label(text="Weight:")
-				# 	if wide_ui:
-				# 		col= split.row(align=True)
-				# 	else:
-				# 		col= col.column(align=True)
-				# 	col.prop(brdf, 'weight', text="")
-				# 	col.prop_search(brdf, 'weight_tex',
-				# 					bpy.data, 'textures',
-				# 					text= "")
-					
-				# 	layout.separator()
-
-				# 	rna_pointer= getattr(brdf, brdf.type)
-				# 	if rna_pointer:
-				# 		plugin= PLUGINS['BRDF'].get(brdf.type)
-				# 		if plugin:
-				# 			plugin.gui(context, layout, rna_pointer)
+			PLUGINS['BRDF'][VRayMaterial.type].gui(context, layout,
+												   getattr(VRayMaterial, VRayMaterial.type),
+												   material)
 
 
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
@@ -420,11 +152,11 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
+		material= active_node_mat(context.material)
+		if material is None:
 			return False
-		vma= active_ma.vray
-		return base_poll(__class__, context) and (vma.type == 'MTL')
+		VRayMaterial= material.vray
+		return VRayMaterial.type == 'BRDFVRayMtl' and base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -432,43 +164,42 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 		
 		ve= context.scene.vray.exporter
 		ob= context.object
-		ma= active_node_mat(context.material)
+		material= active_node_mat(context.material)
 		
-		BRDFVRayMtl= ma.vray.BRDFVRayMtl
+		VRayMaterial= material.vray
+		BRDFVRayMtl= VRayMaterial.BRDFVRayMtl
 
 		split= layout.split()
 		col= split.column()
 		col.prop(BRDFVRayMtl, 'reflect_trace')
 		col.prop(BRDFVRayMtl, 'refract_trace')
-		if ve.compat_mode:
-			col.prop(BRDFVRayMtl, 'option_cutoff')
+		col.prop(BRDFVRayMtl, 'option_cutoff')
 		if wide_ui:
 			col= split.column()
 		col.prop(BRDFVRayMtl, 'option_double_sided')
 		col.prop(BRDFVRayMtl, 'option_reflect_on_back')
 		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
 
-		if not ve.compat_mode:
-			split= layout.split()
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'reflect_exit_color')
+		if wide_ui:
 			col= split.column()
-			col.prop(BRDFVRayMtl, 'reflect_exit_color')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFVRayMtl, 'refract_exit_color')
+		col.prop(BRDFVRayMtl, 'refract_exit_color')
 
-			layout.separator()
-			
-			split= layout.split()
-			col= split.column()
-			col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
-			col.prop(BRDFVRayMtl, 'option_energy_mode')
+		layout.separator()
 
-			split= layout.split()
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
+		col.prop(BRDFVRayMtl, 'option_energy_mode')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(BRDFVRayMtl, 'option_cutoff')
+		if wide_ui:
 			col= split.column()
-			col.prop(BRDFVRayMtl, 'option_cutoff')
-			if wide_ui:
-				col= split.column()
-			col.prop(BRDFVRayMtl, 'environment_priority')
+		col.prop(BRDFVRayMtl, 'environment_priority')
 
 
 class VRAY_MAT_two_sided(VRayMaterialPanel, bpy.types.Panel):
@@ -479,11 +210,7 @@ class VRAY_MAT_two_sided(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
-			return False
-		vma= active_ma.vray
-		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+		return active_node_mat(context.material) and base_poll(__class__, context)
 
 	def draw_header(self, context):
 		ma= active_node_mat(context.material)
@@ -541,11 +268,7 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
-			return False
-		vma= active_ma.vray
-		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+		return active_node_mat(context.material) and base_poll(__class__, context)
 
 	def draw_header(self, context):
 		ma= active_node_mat(context.material)
@@ -590,11 +313,7 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
-			return False
-		vma= active_ma.vray
-		return base_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+		return active_node_mat(context.material) and base_poll(__class__, context)
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)

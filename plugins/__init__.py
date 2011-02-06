@@ -201,7 +201,7 @@ def add_properties():
 
 	VRayRenderChannel.use= BoolProperty(
 		name= "Use channel",
-		description= "Channel.",
+		description= "Use render channel.",
 		default= True
 	)
 

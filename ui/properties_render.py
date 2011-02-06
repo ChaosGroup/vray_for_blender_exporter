@@ -814,6 +814,9 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 			layout.separator()
 
+			# Box border
+			layout= layout.box()
+
 			if render_channel.type != 'NONE':
 				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin is not None:

@@ -107,17 +107,30 @@ def add_properties(rna_pointer):
 
 
 
-def gui(context, layout, BRDFLight):
+def gui(context, layout, BRDFLight, material= None):
 	wide_ui= context.region.width > narrowui
 
-	layout.prop(BRDFLight, 'transparency')
+	if material:
+		layout.label(text="Color")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(material, 'diffuse_color', text="")
+		if wide_ui:
+			col= split.column()
+		col.prop(material, 'alpha')
+	else:
+		layout.prop(BRDFLight, 'transparency')
 
 	layout.separator()
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFLight, 'color', text="")
-	col.prop(BRDFLight, 'colorMultiplier', text="Intensity")
+	if material:
+		col.prop(material, 'emit', text="Intensity")
+	else:
+		col.prop(BRDFLight, 'color', text="")
+		col.prop(BRDFLight, 'colorMultiplier', text="Intensity")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFLight, 'emitOnBackSide')

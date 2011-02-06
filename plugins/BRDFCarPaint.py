@@ -571,7 +571,7 @@ def write(ofile, scene, params):
 '''
   GUI
 '''
-def gui(context, layout, BRDFCarPaint, in_layered= True):
+def gui(context, layout, BRDFCarPaint, material= None):
 	wide_ui= context.region.width > narrowui
 
 	layout.label(text="Coat")
@@ -579,7 +579,7 @@ def gui(context, layout, BRDFCarPaint, in_layered= True):
 	col= split.column()
 	sub= col.column(align=True)
 	sub.prop(BRDFCarPaint, 'coat_color', text="")
-	if in_layered:
+	if not material:
 		sub.prop_search(BRDFCarPaint, 'coat_color_tex',
 						bpy.data, 'textures',
 						text= "")
@@ -597,7 +597,7 @@ def gui(context, layout, BRDFCarPaint, in_layered= True):
 	col= split.column()
 	sub= col.column(align=True)
 	sub.prop(BRDFCarPaint, 'flake_color', text="")
-	if in_layered:
+	if not material:
 		sub.prop_search(BRDFCarPaint, 'flake_color_tex',
 						bpy.data, 'textures',
 						text= "")
@@ -621,7 +621,7 @@ def gui(context, layout, BRDFCarPaint, in_layered= True):
 	col= split.column()
 	sub= col.column(align=True)
 	sub.prop(BRDFCarPaint, 'base_color', text="")
-	if in_layered:
+	if not material:
 		sub.prop_search(BRDFCarPaint, 'base_color_tex',
 						bpy.data, 'textures',
 						text= "")

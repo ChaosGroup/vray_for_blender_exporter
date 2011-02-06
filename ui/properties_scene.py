@@ -98,16 +98,14 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 
 			layout.separator()
 
+			# Box border
+			layout= layout.box()
+
 			if effect.type == 'FOG':
 				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, layout, effect)
 
 			elif effect.type == 'TOON':
 				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, effect)
-
-			else:
-				split= layout.split()
-				col= split.column()
-				col.label(text="Strange, but this effect type doesn\'t exist...")
 
 
 class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):

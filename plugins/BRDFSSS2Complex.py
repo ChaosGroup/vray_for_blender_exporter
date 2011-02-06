@@ -300,7 +300,7 @@ def add_properties(rna_pointer):
 
 
 
-def gui(context, layout, BRDFSSS2Complex):
+def gui(context, layout, BRDFSSS2Complex, material= None):
 	wide_ui= context.region.width > narrowui
 
 	split= layout.split()
@@ -324,7 +324,10 @@ def gui(context, layout, BRDFSSS2Complex):
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFSSS2Complex, 'overall_color')
+	if material:
+		col.prop(material, 'diffuse_color', text="Overall color")
+	else:
+		col.prop(BRDFSSS2Complex, 'overall_color')
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFSSS2Complex, 'diffuse_color')
