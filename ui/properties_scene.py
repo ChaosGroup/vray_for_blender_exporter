@@ -31,6 +31,7 @@ import bpy
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.plugins import *
 
 
 class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
@@ -73,106 +74,35 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 
 			effect= VRayEffects.effects[VRayEffects.effects_selected]
 
-			row= layout.row(align=True)
-			row.prop(effect, 'use', text="")
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Name:")
+			if wide_ui:
+				col= split.column()
+			row= col.row(align=True)
 			row.prop(effect, 'name', text="")
+			row.prop(effect, 'use', text="")
 
-			layout.prop(effect, 'type')
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Type:")
+			if wide_ui:
+				col= split.column()
+			col.prop(effect, 'type', text="")
 
 			layout.separator()
 
 			if effect.type == 'FOG':
-				EnvironmentFog= effect.EnvironmentFog
-
-				split= layout.split()
-				col= split.column()
-				col.prop(EnvironmentFog, 'color')
-				if wide_ui:
-					col= split.column()
-				col.prop(EnvironmentFog, 'emission')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop(EnvironmentFog, 'distance')
-				col.prop(EnvironmentFog, 'density')
-				col.prop(EnvironmentFog, 'subdivs')
-				col.prop(EnvironmentFog, 'scatter_gi')
-				if EnvironmentFog.scatter_gi:
-					col.prop(EnvironmentFog, 'scatter_bounces')
-				col.prop(EnvironmentFog, 'use_height')
-				if EnvironmentFog.use_height:
-					col.prop(EnvironmentFog, 'height')
-				if wide_ui:
-					col= split.column()
-				#col.prop(EnvironmentFog, 'fade_out_type')
-				col.prop(EnvironmentFog, 'fade_out_radius')
-				col.prop(EnvironmentFog, 'affect_background')
-				col.prop(EnvironmentFog, 'use_shade_instance')
-				col.prop(EnvironmentFog, 'simplify_gi')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop(EnvironmentFog, 'light_mode')
-				col.prop(EnvironmentFog, 'fade_out_mode')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop(EnvironmentFog, 'step_size')
-				col.prop(EnvironmentFog, 'max_steps')
-				if wide_ui:
-					col= split.column()
-				col.prop(EnvironmentFog, 'tex_samples')
-				col.prop(EnvironmentFog, 'cutoff_threshold')
-
-				#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
-				#col.prop(EnvironmentFog, 'yup')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop_search(EnvironmentFog, 'objects',
-								context.scene, 'objects', text="Objects")
-				col.prop_search(EnvironmentFog, 'groups',
-								bpy.data, 'groups', text="Groups")
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, layout, effect)
 
 			elif effect.type == 'TOON':
-				VolumeVRayToon= effect.VolumeVRayToon
-
-				split= layout.split()
-				col= split.column()
-				col.prop(VolumeVRayToon, 'lineColor', text="")
-				col.prop(VolumeVRayToon, 'widthType')
-				col.prop(VolumeVRayToon, 'lineWidth')
-				col.prop(VolumeVRayToon, 'opacity')
-				if wide_ui:
-					col= split.column()
-				col.prop(VolumeVRayToon, 'normalThreshold')
-				col.prop(VolumeVRayToon, 'overlapThreshold')
-				col.prop(VolumeVRayToon, 'hideInnerEdges')
-				col.prop(VolumeVRayToon, 'doSecondaryRays')
-				col.prop(VolumeVRayToon, 'traceBias')
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				col.prop(VolumeVRayToon, 'excludeType', text="")
-				col.prop_search(VolumeVRayToon, 'excludeList_objects',
-								context.scene, 'objects', text="Objects")
-				col.prop_search(VolumeVRayToon, 'excludeList_groups',
-								bpy.data, 'groups', text="Groups")
-
-				# col.prop(VolumeVRayToon, 'lineColor_tex')
-				# col.prop(VolumeVRayToon, 'lineWidth_tex')
-				# col.prop(VolumeVRayToon, 'opacity_tex')
-				# col.prop(VolumeVRayToon, 'distortion_tex')
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, effect)
 
 			else:
 				split= layout.split()
@@ -200,5 +130,4 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator("vray.convert_materials", icon="MATERIAL")
-
-
+		col.operator("vray.settings_to_text", icon="RENDER_STILL")

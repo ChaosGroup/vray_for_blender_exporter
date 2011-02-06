@@ -37,8 +37,9 @@ from vb25.ui.ui import *
 TYPE= 'BRDF'
 ID=   'BRDFVRayMtl'
 PID=   1
+MAIN_BRDF= True
 
-NAME= "BRDFVRayMtl"
+NAME= "VRayMtl"
 UI=   "VRayMtl"
 DESC= "BRDFVRayMtl settings."
 

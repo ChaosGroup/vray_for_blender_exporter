@@ -145,7 +145,7 @@ def add_properties(rna_pointer):
 
 	# cutoff
 	BRDFMirror.cutoff= FloatProperty(
-		name= "Cut-off",
+		name= "Cutoff",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -259,21 +259,21 @@ def gui(context, layout, BRDFMirror):
 	wide_ui= context.region.width > narrowui
 	
 	split= layout.split()
-	col= split.column()
+	col= split.column(align=True)
 	col.prop(BRDFMirror, 'color')
 	col.prop_search(BRDFMirror, 'color_tex',
 					bpy.data, 'textures',
 					text= "")
 	if BRDFMirror.color_tex:
-		col.prop(BRDFMirror, 'color_tex_mult')
+		col.prop(BRDFMirror, 'color_tex_mult', text="Mult")
 	if wide_ui:
-		col= split.column()
+		col= split.column(align=True)
 	col.prop(BRDFMirror, 'transparency', text="Reflection")
 	col.prop_search(BRDFMirror, 'transparency_tex',
 					bpy.data, 'textures',
 					text= "")
 	if BRDFMirror.transparency_tex:
-		col.prop(BRDFMirror, 'transparency_tex_mult')
+		col.prop(BRDFMirror, 'transparency_tex_mult', text="Mult")
 
 	layout.separator()
 

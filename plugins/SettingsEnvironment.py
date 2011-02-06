@@ -36,7 +36,7 @@ from vb25.ui.ui   import *
 
 
 TYPE= 'SETTINGS'
-ID=   'SettingsEnvironmet'
+ID=   'SettingsEnvironment'
 
 NAME= 'Environment Effects'
 DESC= "Environment effects."

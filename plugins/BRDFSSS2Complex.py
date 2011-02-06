@@ -37,6 +37,7 @@ from vb25.ui.ui import *
 TYPE= 'BRDF'
 ID=   'BRDFSSS2Complex'
 PID=   2
+MAIN_BRDF= True
 
 NAME= 'BRDFSSS2Complex'
 UI=   "Fast SSS"

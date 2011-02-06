@@ -35,7 +35,8 @@ from vb25.ui.ui import *
 
 TYPE= 'BRDF'
 ID=   'BRDFCarPaint'
-PID=   7
+PID=   4
+MAIN_BRDF= True
 
 NAME= 'BRDFCarPaint'
 UI=   "Car Paint"
@@ -523,7 +524,7 @@ def add_properties(rna_pointer):
 
 	# cutoff_threshold
 	BRDFCarPaint.cutoff_threshold= FloatProperty(
-		name= "Cut-off",
+		name= "Cutoff",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -570,16 +571,18 @@ def write(ofile, scene, params):
 '''
   GUI
 '''
-def gui(context, layout, BRDFCarPaint):
+def gui(context, layout, BRDFCarPaint, in_layered= True):
 	wide_ui= context.region.width > narrowui
 
 	layout.label(text="Coat")
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'coat_color', text="")
-	col.prop_search(BRDFCarPaint, 'coat_color_tex',
-					bpy.data, 'textures',
-					text= "")
+	sub= col.column(align=True)
+	sub.prop(BRDFCarPaint, 'coat_color', text="")
+	if in_layered:
+		sub.prop_search(BRDFCarPaint, 'coat_color_tex',
+						bpy.data, 'textures',
+						text= "")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFCarPaint, 'coat_strength', text="Strength")
@@ -592,10 +595,12 @@ def gui(context, layout, BRDFCarPaint):
 	layout.label(text="Flake")
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'flake_color', text="")
-	col.prop_search(BRDFCarPaint, 'flake_color_tex',
-					bpy.data, 'textures',
-					text= "")
+	sub= col.column(align=True)
+	sub.prop(BRDFCarPaint, 'flake_color', text="")
+	if in_layered:
+		sub.prop_search(BRDFCarPaint, 'flake_color_tex',
+						bpy.data, 'textures',
+						text= "")
 	col.prop(BRDFCarPaint, 'flake_glossiness', text="Glossiness")
 	col.prop(BRDFCarPaint, 'flake_orientation', text="Orientation")
 	col.prop(BRDFCarPaint, 'flake_density', text="Density")
@@ -614,10 +619,12 @@ def gui(context, layout, BRDFCarPaint):
 	layout.label(text="Base")
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFCarPaint, 'base_color', text="")
-	col.prop_search(BRDFCarPaint, 'base_color_tex',
-					bpy.data, 'textures',
-					text= "")
+	sub= col.column(align=True)
+	sub.prop(BRDFCarPaint, 'base_color', text="")
+	if in_layered:
+		sub.prop_search(BRDFCarPaint, 'base_color_tex',
+						bpy.data, 'textures',
+						text= "")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFCarPaint, 'base_reflection', text="Reflection")

@@ -40,18 +40,12 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	rna_pointer.use_hidden_lights= BoolProperty(
-		name= "Hidden lights",
-		description= "Render hidden lights.",
-		default= False
-	)
-
 	rna_pointer.image_aspect= FloatProperty(
 		name= "Image aspect",
 		description= "Image aspect.",
-		min= 0.0,
+		min= 0.1,
 		max= 100.0,
-		soft_min= 0.0,
+		soft_min= 0.1,
 		soft_max= 10.0,
 		precision= 3,
 		default= 1.333

@@ -33,12 +33,16 @@ import time
 
 ''' Blender modules '''
 import bpy
+from bpy.props import *
 
 ''' vb modules '''
 import vb25.render
 import vb25.proxy
 
 from vb25.utils import *
+
+
+VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
 
 
 '''
@@ -89,6 +93,12 @@ def active_node_mat(mat):
     return None
 
 
+def find_brdf_pointer(rna_pointer):
+	if rna_pointer.brdf_selected >= 0 and rna_pointer.brdfs[rna_pointer.brdf_selected].type == 'BRDFLayered':
+		return find_brdf_pointer(getattr(rna_pointer.brdfs[rna_pointer.brdf_selected], 'BRDFLayered'))
+	return rna_pointer
+
+
 class VRAY_OT_brdf_add(bpy.types.Operator):
 	bl_idname=      'vray.brdf_add'
 	bl_label=       "Add BRDF"
@@ -97,10 +107,11 @@ class VRAY_OT_brdf_add(bpy.types.Operator):
 	def execute(self, context):
 		ma= active_node_mat(context.material)
 		if ma:
-			VRayMaterial= ma.vray
-			
-			VRayMaterial.brdfs.add()
-			VRayMaterial.brdfs[-1].name= "BRDF"
+			rna_pointer= ma.vray.BRDFLayered
+			# rna_pointer= find_brdf_pointer(VRayMaterial)
+
+			rna_pointer.brdfs.add()
+			rna_pointer.brdfs[-1].name= "BRDF"
 			
 			return {'FINISHED'}
 
@@ -115,11 +126,12 @@ class VRAY_OT_brdf_remove(bpy.types.Operator):
 	def execute(self, context):
 		ma= active_node_mat(context.material)
 		if ma:
-			VRayMaterial= ma.vray
+			rna_pointer= ma.vray.BRDFLayered
+			# rna_pointer= find_brdf_pointer(VRayMaterial)
 				
-			if VRayMaterial.brdf_selected >= 0:
-				VRayMaterial.brdfs.remove(VRayMaterial.brdf_selected)
-				VRayMaterial.brdf_selected-= 1
+			if rna_pointer.brdf_selected >= 0:
+				rna_pointer.brdfs.remove(rna_pointer.brdf_selected)
+				rna_pointer.brdf_selected-= 1
 
 			return {'FINISHED'}
 
@@ -134,14 +146,15 @@ class VRAY_OT_brdf_up(bpy.types.Operator):
 	def execute(self, context):
 		ma= active_node_mat(context.material)
 		if ma:
-			VRayMaterial= ma.vray
+			rna_pointer= ma.vray.BRDFLayered
+			# rna_pointer= find_brdf_pointer(VRayMaterial)
 
-			if VRayMaterial.brdf_selected <= 0:
+			if rna_pointer.brdf_selected <= 0:
 				return {'FINISHED'}
 
-			VRayMaterial.brdfs.move(VRayMaterial.brdf_selected,
-									VRayMaterial.brdf_selected - 1)
-			VRayMaterial.brdf_selected-= 1
+			rna_pointer.brdfs.move(rna_pointer.brdf_selected,
+								   rna_pointer.brdf_selected - 1)
+			rna_pointer.brdf_selected-= 1
 
 			return {'FINISHED'}
 
@@ -156,14 +169,15 @@ class VRAY_OT_brdf_down(bpy.types.Operator):
 	def execute(self, context):
 		ma= active_node_mat(context.material)
 		if ma:
-			VRayMaterial= ma.vray
+			rna_pointer= ma.vray.BRDFLayered
+			# rna_pointer= find_brdf_pointer(VRayMaterial)
 
-			if VRayMaterial.brdf_selected == len(VRayMaterial.brdfs) - 1:
+			if rna_pointer.brdf_selected == len(rna_pointer.brdfs) - 1:
 				return {'FINISHED'}
 
-			VRayMaterial.brdfs.move(VRayMaterial.brdf_selected,
-									VRayMaterial.brdf_selected + 1)
-			VRayMaterial.brdf_selected+= 1
+			rna_pointer.brdfs.move(rna_pointer.brdf_selected,
+								   rna_pointer.brdf_selected + 1)
+			rna_pointer.brdf_selected+= 1
 
 			return {'FINISHED'}
 
@@ -308,6 +322,22 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 			# 	VRayMaterial.type= 'VOL'
 				
 		return{'FINISHED'}
+
+
+class VRAY_OT_settings_to_text(bpy.types.Operator):
+	bl_idname=      'vray.settings_to_text'
+	bl_label=       "Settings to Text"
+	bl_description= "Export settings to Text."
+
+	bb_code= BoolProperty(
+		name= "Use BB-code",
+		description= "Use BB-code formatting.",
+		default= True
+	)
+
+	def execute(self, context):
+		# TODO:
+		return {'FINISHED'}
 
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
@@ -533,7 +563,7 @@ class VRAY_OT_render(bpy.types.Operator):
 '''
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
-	bl_label       = "V-Ray (git)"
+	bl_label       = "%s" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview =  False
 	
 	def render(self, scene):
@@ -549,7 +579,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER_PREVIEW'
-	bl_label       = "V-Ray (git) [material preview]"
+	bl_label       = "%s [material preview]" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview = True
 	
 	def render(self, scene):

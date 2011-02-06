@@ -214,8 +214,7 @@ class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Lights:")
 		col.prop(SettingsOptions, 'light_doLights')
 		# col.prop(SettingsOptions, 'light_doDefaultLights')
-		# col.prop(SettingsOptions, 'light_doHiddenLights')
-		col.prop(VRayScene, 'use_hidden_lights')
+		col.prop(SettingsOptions, 'light_doHiddenLights')
 		col.prop(SettingsOptions, 'light_doShadows')
 		col.prop(SettingsOptions, 'light_onlyGI')
 
@@ -791,11 +790,27 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 		
 			layout.separator()
 
-			row= layout.row(align=True)
-			row.prop(render_channel, 'use', text="")
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Name:")
+			if wide_ui:
+				col= split.column()
+			row= col.row(align=True)
 			row.prop(render_channel, 'name', text="")
+			row.prop(render_channel, 'use', text="")
 
-			layout.prop(render_channel, 'type', text="Type")
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Type:")
+			if wide_ui:
+				col= split.column()
+			col.prop(render_channel, 'type', text="")
 
 			layout.separator()
 

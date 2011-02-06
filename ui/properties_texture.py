@@ -1142,9 +1142,8 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				factor_but(col, slot, 'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
 				if wide_ui:
 					col= split.column()
-				if not VRayMaterial.emitter_type == 'MESH':
-					#factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
-					factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
+				#factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
+				factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
 
 			elif VRayMaterial.type == 'VOL':
 				split= layout.split()
@@ -1158,9 +1157,9 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 					col= split.column()
 				factor_but(col, VRaySlot, 'map_emission_tex', 'emission_tex_mult', "Emission")
 
-			layout.separator()
-
 			if VRayMaterial.type in ('MTL','SSS'):
+				layout.separator()
+				
 				split= layout.split()
 				col= split.column()
 				col.label(text="Bump / Normal:")
@@ -1231,13 +1230,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(slot,'invert',text="Invert")
 		col.prop(slot,'use_stencil')
-			
-		layout.separator()
-		
-		split= layout.split()
-		col= split.column()
-		col.label(text="NOTE: cause of API limitations some parameters are")
-		col.label(text="texture dependent not slot.")
 
 
 class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):

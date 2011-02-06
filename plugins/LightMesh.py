@@ -30,7 +30,7 @@ import bpy
 from bpy.props import *
 
 
-TYPE= 'MATERIAL'
+TYPE= 'GEOMETRY'
 ID=   'LightMesh'
 
 NAME= 'LightMesh'
@@ -49,6 +49,12 @@ def add_properties(rna_pointer):
 		name= "LightMesh",
 		type=  LightMesh,
 		description= "Mesh light settings"
+	)
+
+	LightMesh.use= BoolProperty(
+		name= "Use mesh light",
+		description= "Use mesh light.",
+		default= False
 	)
 
 	LightMesh.enabled= BoolProperty(
@@ -150,3 +156,35 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+
+def write(bus):
+	scene= bus['scene']
+	ofile= bus['files']['lights']
+	ob=    bus['node']['object']
+
+	plugin= 'LightMesh'
+
+	ma=  params['material']
+	tex= params['texture']
+
+	light= getattr(ma.vray,plugin)
+
+	ofile.write("\n%s %s {" % (plugin,name))
+	ofile.write("\n\ttransform= %s;"%(a(scene,transform(matrix))))
+	for param in OBJECT_PARAMS[plugin]:
+		if param == 'color':
+			if tex:
+				ofile.write("\n\tcolor= %s;" % a(scene,ma.diffuse_color))
+				ofile.write("\n\ttex= %s;" % tex)
+				ofile.write("\n\tuse_tex= 1;")
+			else:
+				ofile.write("\n\tcolor= %s;"%(a(scene,ma.diffuse_color)))
+		elif param == 'geometry':
+			ofile.write("\n\t%s= %s;"%(param, geometry))
+		elif param == 'units':
+			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
+		elif param == 'lightPortal':
+			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
+		else:
+			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(light,param))))
+	ofile.write("\n}\n")

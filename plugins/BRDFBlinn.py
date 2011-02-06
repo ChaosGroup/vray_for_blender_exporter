@@ -36,7 +36,7 @@ from vb25.ui.ui import *
 
 TYPE= 'BRDF'
 ID=   'BRDFBlinn'
-PID=   4
+PID=   7
 
 NAME= 'BRDFBlinn'
 UI=   "Blinn"
@@ -165,7 +165,7 @@ def add_properties(rna_pointer):
 
 	# cutoff
 	BRDFBlinn.cutoff= FloatProperty(
-		name= "Cut-off",
+		name= "Cutoff",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -347,7 +347,7 @@ def add_properties(rna_pointer):
 
 	# soften_edge
 	BRDFBlinn.soften_edge= FloatProperty(
-		name= "soften edge",
+		name= "Soften edge",
 		description= "Soften edge of the BRDF at light/shadow transition.",
 		min= 0.0,
 		max= 100.0,
@@ -359,7 +359,7 @@ def add_properties(rna_pointer):
 
 	# interpolation_on
 	BRDFBlinn.interpolation_on= BoolProperty(
-		name= "interpolation on",
+		name= "Interpolation",
 		description= "TODO: Tooltip.",
 		default= False
 	)
@@ -483,7 +483,7 @@ def add_properties(rna_pointer):
 
 	# fix_dark_edges
 	BRDFBlinn.fix_dark_edges= BoolProperty(
-		name= "fix dark edges",
+		name= "Fix dark edges",
 		description= "true to fix dark edges with glossy reflections; only set this to false for compatibility with older versions.",
 		default= True
 	)
@@ -509,21 +509,23 @@ def gui(context, layout, BRDFBlinn):
 	wide_ui= context.region.width > narrowui
 
 	split= layout.split()
-	col= split.column()
+	col= split.column(align=True)
 	col.prop(BRDFBlinn, 'color')
 	col.prop_search(BRDFBlinn, 'color_tex',
 					bpy.data, 'textures',
 					text= "")
 	if BRDFBlinn.color_tex:
-		col.prop(BRDFBlinn, 'color_tex_mult')
+		col.prop(BRDFBlinn, 'color_tex_mult', text="Mult")
 	if wide_ui:
-		col= split.column()
+		col= split.column(align=True)
 	col.prop(BRDFBlinn, 'transparency', text="Reflection")
 	col.prop_search(BRDFBlinn, 'transparency_tex',
 					bpy.data, 'textures',
 					text= "")
 	if BRDFBlinn.transparency_tex:
-		col.prop(BRDFBlinn, 'transparency_tex_mult')
+		col.prop(BRDFBlinn, 'transparency_tex_mult', text="Mult")
+
+	layout.separator()
 
 	split= layout.split()
 	col= split.column()
@@ -559,8 +561,12 @@ def gui(context, layout, BRDFBlinn):
 	split= layout.split()
 	col= split.column()
 	col.prop(BRDFBlinn, 'glossyAsGI')
+	split= layout.split()
+	col= split.column()
 	col.prop(BRDFBlinn, 'soften_edge')
-	# col.prop(BRDFBlinn, 'fix_dark_edges')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFBlinn, 'fix_dark_edges')
 
 	split= layout.split()
 	col= split.column()

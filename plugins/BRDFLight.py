@@ -37,6 +37,7 @@ from vb25.ui.ui import *
 TYPE= 'BRDF'
 ID=   'BRDFLight'
 PID=   3
+MAIN_BRDF= True
 
 NAME= 'BRDFLight'
 UI=   "Light"

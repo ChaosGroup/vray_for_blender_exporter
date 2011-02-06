@@ -285,32 +285,6 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 	ofile.write("\n}\n")
 
 
-def write_mesh_file(bus):
-	ofile= bus['files']['nodes']
-	scene= bus['scene']
-	ob=    bus['node']['object']
-	
-	proxy= ob.data.vray.GeomMeshFile
-	proxy_name= "PR%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
-
-	if proxy.anim_type not in ('STILL'):
-		proxy_name= "OB%sPR%s" % (clean_string(ob.data.name), clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7]))
-
-	if proxy_name in bus['filter']['proxy']:
-		return proxy_name
-	bus['filter']['proxy'].append(proxy_name)
-		
-	ofile.write("\nGeomMeshFile %s {" % proxy_name)
-	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,proxy.file))
-	ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
-	ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
-	ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
-	ofile.write("\n}\n")
-
-	bus['node']['geometry']= proxy_name
-
-
-
 '''
   MATERIALS & TEXTURES
 '''
@@ -781,35 +755,6 @@ def write_materials(bus):
 	bus['node']['material']= mtl_name
 
 
-def write_LightMesh(ofile, ob, params, name, geometry, matrix):
-	plugin= 'LightMesh'
-
-	ma=  params['material']
-	tex= params['texture']
-
-	light= getattr(ma.vray,plugin)
-
-	ofile.write("\n%s %s {" % (plugin,name))
-	ofile.write("\n\ttransform= %s;"%(a(scene,transform(matrix))))
-	for param in OBJECT_PARAMS[plugin]:
-		if param == 'color':
-			if tex:
-				ofile.write("\n\tcolor= %s;" % a(scene,ma.diffuse_color))
-				ofile.write("\n\ttex= %s;" % tex)
-				ofile.write("\n\tuse_tex= 1;")
-			else:
-				ofile.write("\n\tcolor= %s;"%(a(scene,ma.diffuse_color)))
-		elif param == 'geometry':
-			ofile.write("\n\t%s= %s;"%(param, geometry))
-		elif param == 'units':
-			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
-		elif param == 'lightPortal':
-			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
-		else:
-			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(light,param))))
-	ofile.write("\n}\n")
-
-
 def write_lamp(bus):
 	scene= bus['scene']
 	ofile= bus['files']['lights']
@@ -1033,7 +978,7 @@ def write_node(bus):
 		VRayLamp= lamp.data.vray
 		lamp_name= get_name(lamp, prefix="LA")
 		if not object_on_visible_layers(scene,lamp) or lamp.hide_render:
-			if not scene.vray.use_hidden_lights:
+			if not scene.vray.SettingsOptions.light_doHiddenLights:
 				continue
 		if VRayLamp.use_include_exclude:
 			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
@@ -1099,11 +1044,8 @@ def write_object(bus):
 	# Write object materials
 	write_materials(bus)
 
-	if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
-		write_mesh_file(bus)
-
-	if bus['node']['displace'] and VRayExporter.use_displace:
-		write_mesh_displace(bus)
+	PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
+	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
 
 	if bus['node']['dupli']:
 		# if bus['node']['dupli']['type'] == 'GROUP':
@@ -1113,7 +1055,7 @@ def write_object(bus):
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
 
 	if bus['node']['meshlight']:
-		write_LightMesh(bus)
+		PLUGINS['GEOMETRY']['LightMesh'].write(bus)
 		return
 
 	# if object_params['volume'] is not None:
@@ -1408,14 +1350,14 @@ def write_scene(scene):
 			if VRayExporter.active_layers:
 				if not object_on_visible_layers(scene,ob):
 					if ob.type == 'LAMP':
-						if not VRayScene.use_hidden_lights:
+						if not SettingsOptions.light_doHiddenLights:
 							continue
 					if not SettingsOptions.geom_doHidden:
 						continue
 
 			if ob.hide_render:
 				if ob.type == 'LAMP':
-					if not VRayScene.use_hidden_lights:
+					if not SettingsOptions.light_doHiddenLights:
 						continue
 				if not SettingsOptions.geom_doHidden:
 					continue

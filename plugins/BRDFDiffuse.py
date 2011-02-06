@@ -149,6 +149,12 @@ def add_properties(rna_pointer):
 		default= 0.0
 	)
 
+	BRDFDiffuse.roughness_tex= StringProperty(
+		name= "Roughness texture",
+		description= "Roughness texture.",
+		default= ""
+	)
+
 	BRDFDiffuse.map_roughness= BoolProperty(
 		name= "Roughness texture",
 		description= "Roughness texture.",
@@ -168,7 +174,7 @@ def add_properties(rna_pointer):
 
 	# use_irradiance_map
 	BRDFDiffuse.use_irradiance_map= BoolProperty(
-		name= "Use irradiance map",
+		name= "Use Irradiance map",
 		description= "Use irradiance map.",
 		default= True
 	)
@@ -194,7 +200,7 @@ def gui(context, layout, BRDFDiffuse):
 	wide_ui= context.region.width > narrowui
 
 	split= layout.split()
-	col= split.column()
+	col= split.column(align=True)
 	col.prop(BRDFDiffuse, 'color')
 	col.prop_search(BRDFDiffuse, 'color_tex',
 					bpy.data, 'textures',
@@ -202,7 +208,7 @@ def gui(context, layout, BRDFDiffuse):
 	if BRDFDiffuse.color_tex:
 		col.prop(BRDFDiffuse, 'color_tex_mult', text="Mult")
 	if wide_ui:
-		col= split.column()
+		col= split.column(align=True)
 	col.prop(BRDFDiffuse, 'transparency', text="Opacity")
 	col.prop_search(BRDFDiffuse, 'transparency_tex',
 					bpy.data, 'textures',
@@ -214,7 +220,11 @@ def gui(context, layout, BRDFDiffuse):
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFDiffuse, 'roughness')
+	sub= col.column(align=True)
+	sub.prop(BRDFDiffuse, 'roughness')
+	# sub.prop_search(BRDFDiffuse, 'roughness_tex',
+	# 				bpy.data, 'textures',
+	# 				text= "")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFDiffuse, 'use_irradiance_map')

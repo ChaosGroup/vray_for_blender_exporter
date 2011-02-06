@@ -257,6 +257,8 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
+	# if bus['node']['displace'] and VRayExporter.use_displace:
+
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
 	ob=    bus['node']['object']

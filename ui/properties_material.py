@@ -1,28 +1,26 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -144,10 +142,10 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 		mat= active_node_mat(context.material)
 
 		if mat:
-			vma= mat.vray
+			VRayMaterial= mat.vray
 
-			if vma.type == 'MTL':
-				BRDFVRayMtl=  vma.BRDFVRayMtl
+			if VRayMaterial.type == 'BRDFVRayMtl':
+				BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
 				row= layout.row()
 				colL= row.column()
@@ -230,7 +228,7 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 						col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
 						col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
 
-			elif vma.type == 'EMIT':
+			elif VRayMaterial.type == 'BRDFLight':
 				row= layout.row()
 				colL= row.column()
 				colL.label(text="Color")
@@ -240,52 +238,24 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 				col.prop(mat, 'diffuse_color', text="")
 				if wide_ui:
 					col= row.column()
-				if not vma.emitter_type == 'MESH':
+				if not VRayMaterial.emitter_type == 'MESH':
 					col.prop(mat, 'alpha')
 
 				layout.separator()
 
+				emit= VRayMaterial.BRDFLight
+
 				split= layout.split()
 				col= split.column()
-				col.prop(vma, 'emitter_type')
-
-				layout.separator()
-
-				if vma.emitter_type == 'MESH':
-					LightMesh= vma.LightMesh
-
-					split= layout.split()
+				col.prop(mat, 'emit', text="Intensity")
+				if wide_ui:
 					col= split.column()
-					col.prop(LightMesh, 'enabled', text="On")
-					col.prop(LightMesh, 'lightPortal', text="Mode")
-					if LightMesh.lightPortal == 'NORMAL':
-						col.prop(LightMesh, 'units', text="Units")
-						col.prop(LightMesh, 'intensity', text="Intensity")
-					col.prop(LightMesh, 'subdivs')
-					col.prop(LightMesh, 'causticSubdivs', text="Caustics")
-					if wide_ui:
-						col= split.column()
-					col.prop(LightMesh, 'invisible')
-					col.prop(LightMesh, 'affectDiffuse')
-					col.prop(LightMesh, 'affectSpecular')
-					col.prop(LightMesh, 'affectReflections')
-					col.prop(LightMesh, 'noDecay')
-					col.prop(LightMesh, 'doubleSided')
-					col.prop(LightMesh, 'storeWithIrradianceMap')
-				else:
-					emit= vma.BRDFLight
+				col.prop(emit, 'emitOnBackSide')
+				col.prop(emit, 'compensateExposure', text="Compensate exposure")
+				col.prop(emit, 'doubleSided')
 
-					split= layout.split()
-					col= split.column()
-					col.prop(mat, 'emit', text="Intensity")
-					if wide_ui:
-						col= split.column()
-					col.prop(emit, 'emitOnBackSide')
-					col.prop(emit, 'compensateExposure', text="Compensate exposure")
-					col.prop(emit, 'doubleSided')
-
-			elif vma.type == 'SSS':
-				BRDFSSS2Complex= vma.BRDFSSS2Complex
+			elif VRayMaterial.type == 'BRDFSSS2Complex':
+				BRDFSSS2Complex= VRayMaterial.BRDFSSS2Complex
 
 				split= layout.split()
 				col= split.column()
@@ -366,49 +336,80 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 				col.prop(BRDFSSS2Complex, 'scatter_gi')
 				col.prop(BRDFSSS2Complex, 'prepass_blur')
 
-			elif vma.type == 'CAR':
-				BRDFCarPaint= vma.BRDFCarPaint
-
-				PLUGINS['BRDF']['BRDFCarPaint'].gui(context, layout, BRDFCarPaint)
+			elif VRayMaterial.type == 'BRDFCarPaint':
+				PLUGINS['BRDF']['BRDFCarPaint'].gui(context, layout, VRayMaterial.BRDFCarPaint, in_layered= False)
 
 			else:
-				row= layout.row()
-				row.template_list(vma, 'brdfs',
-								  vma, 'brdf_selected',
-								  rows= 4)
+				PLUGINS['BRDF']['BRDFLayered'].gui(context, layout, VRayMaterial.BRDFLayered)
+				
+				# row= layout.row()
+				# row.template_list(VRayMaterial, 'brdfs',
+				# 				  VRayMaterial, 'brdf_selected',
+				# 				  rows= 4)
 
-				col= row.column()
-				sub= col.row()
-				subsub= sub.column(align=True)
-				subsub.operator('vray.brdf_add',    text="", icon="ZOOMIN")
-				subsub.operator('vray.brdf_remove', text="", icon="ZOOMOUT")
-				sub= col.row()
-				subsub= sub.column(align=True)
-				subsub.operator("vray.brdf_up",   icon='MOVE_UP_VEC',   text="")
-				subsub.operator("vray.brdf_down", icon='MOVE_DOWN_VEC', text="")
+				# col= row.column()
+				# sub= col.row()
+				# subsub= sub.column(align=True)
+				# subsub.operator('vray.brdf_add',    text="", icon="ZOOMIN")
+				# subsub.operator('vray.brdf_remove', text="", icon="ZOOMOUT")
+				# sub= col.row()
+				# subsub= sub.column(align=True)
+				# subsub.operator("vray.brdf_up",   icon='MOVE_UP_VEC',   text="")
+				# subsub.operator("vray.brdf_down", icon='MOVE_DOWN_VEC', text="")
 
-				split= layout.split()
-				col= split.column()
-				col.prop(vma, 'additive_mode')
+				# split= layout.split()
+				# col= split.column()
+				# col.prop(vma, 'additive_mode')
 
-				if vma.brdf_selected >= 0:
-					layout.separator()
+				# if VRayMaterial.brdf_selected >= 0:
+				# 	layout.separator()
 
-					brdf= vma.brdfs[vma.brdf_selected]
+				# 	brdf= VRayMaterial.brdfs[VRayMaterial.brdf_selected]
 
-					row= layout.row(align=True)
-					row.prop(brdf, 'use', text="")
-					row.prop(brdf, 'name', text="")
-					layout.prop(brdf, 'type', text="Type")
-					layout.prop(brdf, 'weight')
+				# 	if wide_ui:
+				# 		split= layout.split(percentage=0.2)
+				# 	else:
+				# 		split= layout.split()
+				# 	col= split.column()
+				# 	col.label(text="Name:")
+				# 	if wide_ui:
+				# 		col= split.column()
+				# 	row= col.row(align=True)
+				# 	row.prop(brdf, 'name', text="")
+				# 	row.prop(brdf, 'use', text="")
+
+				# 	if wide_ui:
+				# 		split= layout.split(percentage=0.2)
+				# 	else:
+				# 		split= layout.split()
+				# 	col= split.column()
+				# 	col.label(text="Type:")
+				# 	if wide_ui:
+				# 		col= split.column()
+				# 	col.prop(brdf, 'type', text="")
+
+				# 	if wide_ui:
+				# 		split= layout.split(percentage=0.2)
+				# 	else:
+				# 		split= layout.split()
+				# 	col= split.column()
+				# 	col.label(text="Weight:")
+				# 	if wide_ui:
+				# 		col= split.row(align=True)
+				# 	else:
+				# 		col= col.column(align=True)
+				# 	col.prop(brdf, 'weight', text="")
+				# 	col.prop_search(brdf, 'weight_tex',
+				# 					bpy.data, 'textures',
+				# 					text= "")
 					
-					layout.separator()
+				# 	layout.separator()
 
-					rna_pointer= getattr(brdf, brdf.type)
-					if rna_pointer:
-						plugin= PLUGINS['BRDF'].get(brdf.type)
-						if plugin:
-							plugin.gui(context, layout, rna_pointer)
+				# 	rna_pointer= getattr(brdf, brdf.type)
+				# 	if rna_pointer:
+				# 		plugin= PLUGINS['BRDF'].get(brdf.type)
+				# 		if plugin:
+				# 			plugin.gui(context, layout, rna_pointer)
 
 
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
@@ -756,4 +757,4 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 
 		layout.active= VolumeVRayToon.use
 
-		PLUGINS['SETTINGS']['SettingsEnvironmet'].draw_VolumeVRayToon(context, layout, VRayMaterial)
+		PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, VRayMaterial)
