@@ -264,8 +264,8 @@ def write(bus):
 	ob=    bus['node']['object']
 	me=    bus['node']['geometry']
 	
-	textures=  params['textures']['mapto']
-	slot=      params['textures']['values']['displacement_slot']
+	textures=  bus['textures']['mapto']
+	slot=      bus['textures']['values']['displacement_slot']
 
 	VRaySlot= slot.texture.vray_slot
 	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
@@ -278,7 +278,7 @@ def write(bus):
 	
 	ofile.write("\nGeomDisplacedMesh %s {" % name)
 	ofile.write("\n\tmesh= %s;" % me)
-	ofile.write("\n\tdisplacement_tex_color= %s;" % params['texture'])
+	ofile.write("\n\tdisplacement_tex_color= %s;" % bus['texture'])
 	if GeomDisplacedMesh.type == '2D':
 		ofile.write("\n\tdisplace_2d= 1;")
 	elif GeomDisplacedMesh.type == '3D':
