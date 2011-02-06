@@ -477,13 +477,6 @@ SKY_MODEL= {
 	'PREETH'   : 0
 }
 
-PROXY_ANIM_TYPE= {
-	'LOOP'     : 0,
-	'ONCE'     : 1,
-	'PINGPONG' : 2,
-	'STILL'    : 3
-}
-
 BRDF_TYPE= {
 	'PHONG': 0,
 	'BLINN': 1,

@@ -188,29 +188,38 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	# if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
+	ANIM_TYPE= {
+		'LOOP'     : 0,
+		'ONCE'     : 1,
+		'PINGPONG' : 2,
+		'STILL'    : 3,
+	}
 
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
 	ob=    bus['node']['object']
-	
-	proxy= ob.data.vray.GeomMeshFile
-	proxy_name= "PR%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
 
-	if proxy.anim_type not in ('STILL'):
-		proxy_name= "OB%sPR%s" % (clean_string(ob.data.name), clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7]))
+	VRayData= ob.data.vray
 
-	if proxy_name in bus['filter']['proxy']:
-		return proxy_name
-	bus['filter']['proxy'].append(proxy_name)
-		
-	ofile.write("\nGeomMeshFile %s {" % proxy_name)
-	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,proxy.file))
-	ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
-	ofile.write("\n\tanim_type= %i;" % PROXY_ANIM_TYPE[proxy.anim_type])
-	ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
-	ofile.write("\n}\n")
+	if hasattr(VRayData,'GeomMeshFile'):
+		GeomMeshFile= VRayData.GeomMeshFile
+		if VRayData.GeomMeshFile.use:
+			proxy_name= "PR%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
 
-	bus['node']['geometry']= proxy_name
+			if proxy.anim_type not in ('STILL'):
+				proxy_name= "OB%sPR%s" % (clean_string(ob.data.name), clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7]))
 
-	return proxy_name
+			if proxy_name in bus['filter']['proxy']:
+				return proxy_name
+			bus['filter']['proxy'].append(proxy_name)
+
+			ofile.write("\nGeomMeshFile %s {" % proxy_name)
+			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,proxy.file))
+			ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
+			ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[proxy.anim_type])
+			ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
+			ofile.write("\n}\n")
+
+			bus['node']['geometry']= proxy_name
+
+			return proxy_name
