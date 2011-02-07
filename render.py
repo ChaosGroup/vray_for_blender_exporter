@@ -47,7 +47,7 @@ from vb25.plugins import *
 from vb25.nodes import *
 
 
-VERSION= '2.5.10'
+VERSION= '2.5'
 
 
 '''
@@ -58,14 +58,13 @@ def write_geometry(scene):
 	VRayExporter= VRayScene.exporter
 	
 	try:
-
 		bpy.ops.vray.export_meshes(
-			filepath= get_filenames(scene,'geometry')[:-11],
+			filepath=          get_filenames(scene,'geometry')[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation= VRayExporter.animation,
-			use_instances= VRayExporter.use_instances,
-			debug= VRayExporter.debug,
-			check_animated= VRayExporter.check_animated,
+			use_animation=     VRayExporter.animation,
+			use_instances=     VRayExporter.use_instances,
+			debug=             VRayExporter.debug,
+			check_animated=    VRayExporter.check_animated,
 		)
 	except:
 		def write_frame(bus):
@@ -85,11 +84,23 @@ def write_geometry(scene):
 					if not object_on_visible_layers(scene,ob):
 						continue
 
+				mesh= ob.create_mesh(scene, True, 'RENDER')
+				mesh_name= get_name(ob.data, prefix='ME')
+
+				if VRayExporter.use_instances:
+					if mesh_name in bus['filter']['mesh']:
+						continue
+					bus['filter']['mesh'].append(mesh_name)
+
+				else:
+					mesh_name= get_name(ob, prefix='ME')
+
 				bus['node']= {}
 
 				# Currently processes object
 				bus['node']['object']= ob
-				bus['node']['mesh']= None
+				bus['node']['mesh']= mesh
+				bus['node']['mesh_name']= mesh_name
 
 				PLUGINS['GEOMETRY']['GeomStaticMesh'].write(bus)
 			
@@ -694,25 +705,23 @@ def write_settings(bus):
 	VRayExporter= VRayScene.exporter
 	VRayDR=       VRayScene.VRayDR
 
-	ofile.write("// Settings\n\n")
-
 	for f in bus['files']:
 		if VRayDR.on:
 			if VRayDR.type == 'UU':
-				ofile.write("#include \"%s\"\n" % get_filenames(scene,f))
+				ofile.write("\n#include \"%s\"" % get_filenames(scene,f))
 			elif VRayDR.type == 'WU':
-				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
 			else:
-				ofile.write("#include \"%s\"\n" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
 		else:
-			ofile.write("#include \"%s\"\n"%(os.path.basename(get_filenames(scene,f))))
-
+			ofile.write("\n#include \"%s\""%(os.path.basename(get_filenames(scene,f))))
 	for t in range(scene.render.threads):
-		ofile.write("#include \"%s_%.2i.vrscene\"\n" % (os.path.basename(get_filenames(scene,'geometry'))[:-11], t))
+		ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(get_filenames(scene,'geometry'))[:-11], t))
+	ofile.write("\n")
 
 	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
 	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
-
+	
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;"%(0))
 	ofile.write("\n\timg_width= %s;" % wx)
@@ -831,7 +840,7 @@ def write_object(bus):
 	VRayData=     ob.data.vray
 
 	bus['node']['name']=      get_name(ob, prefix="OB")
-	bus['node']['geometry']=  get_name(ob.data, prefix="ME")
+	bus['node']['geometry']=  get_name(ob.data, prefix="ME") if VRayExporter.use_instances else get_name(ob, prefix="ME")
 	bus['node']['matrix']=    ob.matrix_world
 
 	# Don't override proxy material, if proxy has multi-material
@@ -853,8 +862,7 @@ def write_object(bus):
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
 
-	if bus['node']['meshlight']:
-		PLUGINS['GEOMETRY']['LightMesh'].write(bus)
+	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
 		return
 
 	# if object_params['volume'] is not None:
@@ -1069,6 +1077,7 @@ def write_scene(scene):
 	for key in bus['files']:
 		bus['files'][key].write("// V-Ray/Blender %s" % VERSION)
 
+	bus['files']['scene'].write("\n// Settings\n")
 	bus['files']['nodes'].write("\n// Nodes\n")
 	bus['files']['lights'].write("\n// Lights\n")
 	bus['files']['camera'].write("\n// Camera\n")

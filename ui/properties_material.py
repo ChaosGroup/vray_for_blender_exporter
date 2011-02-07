@@ -129,7 +129,7 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return context.material and base_poll(__class__, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

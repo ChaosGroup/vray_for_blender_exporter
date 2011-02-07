@@ -49,20 +49,7 @@ from vb25 import render
 from vb25 import render_ops
 
 def register():
-	keymap= bpy.context.window_manager.keyconfigs.default.keymaps['Screen']
-	keymap.items.new(
-		idname= 'vray.render',
-		type=   'F12',
-		value=  'PRESS',
-		oskey=   True,
-	)
-
 	plugins.add_properties()
 
 def unregister():
-	keymap= bpy.context.window_manager.keyconfigs.default.keymaps['Screen']
-	for keymap_item in keymap.items:
-		if keymap_item.idname == 'vray.render':
-			keymap.items.remove(keymap_item)
-
 	plugins.remove_properties()

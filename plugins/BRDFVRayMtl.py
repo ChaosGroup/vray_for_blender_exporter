@@ -580,7 +580,7 @@ def add_properties(rna_pointer):
 '''
   OUTPUT
 '''
-def write(bus):
+def write(bus, BRDFLayered= None):
 	BRDF_TYPE= {
 		'PHONG': 0,
 		'BLINN': 1,

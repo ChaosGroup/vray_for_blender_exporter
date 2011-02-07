@@ -196,14 +196,6 @@ def write(bus):
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 	
-	me= ob.create_mesh(scene, True, 'RENDER')
-	me_name= get_name(ob.data, prefix= 'ME')
-
-	if VRayExporter.use_instances:
-		if me_name in bus['filter']['mesh']:
-			return
-		bus['filter']['mesh'].append(me_name)
-
 	if PLATFORM == "linux2":
 		debug(scene,
 			  "Frame {0}: Mesh: \033[0;32m{1:<32}\033[0m".format(scene.frame_current, ob.data.name),
@@ -212,9 +204,6 @@ def write(bus):
 		debug(scene,
 			  "Frame {0}: Mesh: {1:<32}".format(scene.frame_current, ob.data.name),
 			  True if VRayExporter.debug else False)
-
-	bus['node']['mesh']= me
-	bus['node']['mesh_name']= me_name
 
 	# TODO
 	# if VRayExporter.mesh_ascii:
