@@ -158,7 +158,6 @@ def add_properties(parent_struct):
 
 
 
-
 '''
   OUTPUT
 '''
@@ -174,7 +173,7 @@ def write(bus):
 	VRayScene=        scene.vray
 	SettingsCaustics= VRayScene.SettingsCaustics
 
-	ofile.write("\n%s {" % ID)
+	ofile.write("\n%s %s {" % (ID,ID))
 	for param in PARAMS:
 		if param in ('file','auto_save_file'):
 			value= "\"%s\"" % getattr(SettingsCaustics, param)

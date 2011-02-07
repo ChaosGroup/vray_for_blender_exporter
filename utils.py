@@ -90,17 +90,17 @@ def debug(scene, message, newline= True, cr= True, error= False):
 		sys.stdout.flush()
 
 def p(t):
-	if type(t) == bool:
+	if type(t) is bool:
 		return "%i"%(t)
-	elif type(t) == int:
+	elif type(t) is int:
 		return "%i"%(t)
-	elif type(t) == float:
+	elif type(t) is float:
 		return "%.6f"%(t)
-	elif type(t) == mathutils.Vector:
+	elif type(t) is mathutils.Vector:
 		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
-	elif type(t) == mathutils.Color:
+	elif type(t) is mathutils.Color:
 		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
-	elif type(t) == str:
+	elif type(t) is str:
 		if t == "True":
 			return "1"
 		elif t == "False":

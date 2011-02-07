@@ -34,35 +34,6 @@ from vb25.plugins import *
 
 
 OBJECT_PARAMS= {
-	'BRDFSSS2Complex': (
-		'prepass_rate',
-		'interpolation_accuracy',
-		'scale',
-		'ior',
-		#'overall_color',
-		#'diffuse_color',
-		#'diffuse_amount',
-		#'sub_surface_color',
-		#'scatter_radius',
-		'scatter_radius_mult',
-		'phase_function',
-		#'specular_color',
-		#'specular_amount',
-		#'specular_glossiness',
-		'specular_subdivs',
-		'cutoff_threshold',
-		'trace_reflections',
-		'reflection_depth',
-		#'single_scatter',
-		'subdivs',
-		'refraction_depth',
-		'front_scatter',
-		'back_scatter',
-		'scatter_gi',
-		'prepass_blur'
-		#'channels'
-	),
-
 	'LightOmni': (
 		'enabled',
 		#'color_tex',

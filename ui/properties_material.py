@@ -129,19 +129,22 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return context.material and base_poll(__class__, context)
+		material= active_node_mat(context.material)
+		if material is None:
+			return False
+		return base_poll(__class__, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		material= active_node_mat(context.material)
-		if material:
-			VRayMaterial= material.vray
 
-			PLUGINS['BRDF'][VRayMaterial.type].gui(context, layout,
-												   getattr(VRayMaterial, VRayMaterial.type),
-												   material)
+		VRayMaterial= material.vray
+
+		PLUGINS['BRDF'][VRayMaterial.type].gui(context, layout,
+											   getattr(VRayMaterial, VRayMaterial.type),
+											   material)
 
 
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):

@@ -718,6 +718,36 @@ def write(params):
 
 	ofile.write("\n}\n")
 
+# elif VRayMaterial.type == 'VOL':
+# 	return {
+# 		'color_tex':    (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
+# 		'emission_tex': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
+# 		'density_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
+# 	}
+
+# elif VRayMaterial.type == 'VOL':
+# 	bus['node']['volume']= {}
+# 	for param in OBJECT_PARAMS['EnvironmentFog']:
+# 		if param == 'color':
+# 			value= ma.diffuse_color
+# 		else:
+# 			value= getattr(VRayMaterial.EnvironmentFog,param)
+# 		object_params['volume'][param]= value
+# 	for param in ('color_tex','emission_tex','density_tex'):
+# 		if param in textures['mapto']:
+# 			object_params['volume'][param]= textures['mapto'][param]
+# 	return None
+
+
+# if object_params['volume'] is not None:
+# 	if ma_name not in types['volume'].keys():
+# 		types['volume'][ma_name]= {}
+# 		types['volume'][ma_name]['params']= object_params['volume']
+# 		types['volume'][ma_name]['gizmos']= []
+# 	if ob not in types['volume'][ma_name]:
+# 		types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
+# 	return
+
 
 
 '''

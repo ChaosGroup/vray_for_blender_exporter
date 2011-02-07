@@ -180,9 +180,7 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_material_nodes')
 		col.prop(ve, 'auto_save_render')
 		if not ve.detach:
-			sub= col.column()
-			sub.active= False
-			sub.prop(ve, 'image_to_blender')
+			col.prop(ve, 'image_to_blender')
 
 
 class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
@@ -273,9 +271,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 		col= split.column()
 		col.label(text="Options:")
 		col.prop(ve, 'autorun')
-		sub= col.column()
-		sub.active= False
-		sub.prop(ve, 'auto_meshes')
+		col.prop(ve, 'auto_meshes')
 		col.prop(ve, 'use_render_operator')
 		col.prop(ve, 'compat_mode')
 		col.prop(ve, 'display')
@@ -284,9 +280,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 			col= split.column()
 		col.label(text="Mesh export:")
 		col.prop(ve, 'mesh_active_layers', text= "Active layers")
-		sub= col.column()
-		sub.active= False
-		sub.prop(ve, 'check_animated')
+		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
 		#col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')

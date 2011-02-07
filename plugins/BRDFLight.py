@@ -107,6 +107,30 @@ def add_properties(rna_pointer):
 
 
 
+def get_defaults(bus, BRDFLayered= None):
+	scene= bus['scene']
+	ma=    bus['material']
+
+	defaults= {}
+
+	VRayMaterial= ma.vray
+	BRDFLight=    VRayMaterial.BRDFLight
+
+	if BRDFLayered:
+		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFLight.color)),       0, 'NONE')
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFLight.opacity]*3)), 0, 'NONE')
+	else:
+		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),     0, 'NONE')
+
+	return defaults
+
+
+def write(bus):
+	pass
+
+
+
 def gui(context, layout, BRDFLight, material= None):
 	wide_ui= context.region.width > narrowui
 

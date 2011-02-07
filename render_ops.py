@@ -570,164 +570,26 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayScene= scene.vray
 		VRayExporter= VRayScene.exporter
 
-		if VRayExporter.use_render_operator:
-			vb25.render.render(self, scene)
-		else:
-			#bpy.ops.vray.render()
-			vb25.render.render(self, scene)
+		# if VRayExporter.use_render_operator:
+		# 	vb25.render.render(self, scene)
+		# else:
+		# 	bpy.ops.vray.render()
+		vb25.render.render(self, scene)
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER_PREVIEW'
-	bl_label       = "%s [material preview]" % VRAYBLENDER_MENU_ITEM
+	bl_label       = "%s (material preview)" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview = True
 	
 	def render(self, scene):
-		global sce
-		
-		sce= scene
-		rd=  scene.render
-		wo=  scene.world
+		VRayScene= scene.vray
+		VRayExporter= VRayScene.exporter
 
-		vsce= sce.vray
-		ve= vsce.exporter
-
-		wx= int(rd.resolution_x * rd.resolution_percentage / 100)
-		wy= int(rd.resolution_y * rd.resolution_percentage / 100)
-
-		vb_path=   get_vray_exporter_path()
-		vray_path= get_vray_standalone_path(sce)
-
-		params= []
-		params.append(vray_path)
-
-		if sce.name == "preview":
-			if wx < 100:
+		if scene.name == "preview":
+			if scene.render.resolution_x < 64:
 				return
-
-			image_file= os.path.join(get_filenames(sce,'output'),"preview.exr")
-			load_file= image_file
-
-			filters= {
-				'exported_bitmaps':   [],
-				'exported_materials': [],
-				'exported_proxy':     []
-			}
-
-			temp_params= {
-				'uv_ids': get_uv_layers(sce),
-			}
-
-			object_params= {
-				'meshlight': {
-					'on':       False,
-					'material': None
-				},
-				'displace': {
-					'texture':  None,
-					'params':   None
-				},
-				'volume':       None,
-			}
-
-			ofile= open(os.path.join(vb_path,"preview","preview_materials.vrscene"), 'w')
-			ofile.write("\nSettingsOutput {")
-			ofile.write("\n\timg_separateAlpha= 0;")
-			ofile.write("\n\timg_width= %s;" % wx)
-			ofile.write("\n\timg_height= %s;" % wy)
-			ofile.write("\n}\n")
-			for ob in sce.objects:
-				if ob.type == 'CAMERA':
-					if ob.name == "Camera":
-						write_camera(sce, ofile, camera= ob)
-					continue
-				if ob.type in ('CAMERA','LAMP','EMPTY','ARMATURE','LATTICE'):
-					continue
-				if object_on_visible_layers(sce,ob):
-					continue
-				for ms in ob.material_slots:
-					if ms.material:
-						if ob.name.find("preview") != -1:
-							write_material(ms.material, filters, object_params, ofile, name="PREVIEW", ob= ob, params= temp_params)
-						elif ms.material.name in ("checkerlight","checkerdark"):
-							write_material(ms.material, filters, object_params, ofile, ob= ob, params= temp_params)
-			ofile.close()
-
-			params.append('-sceneFile=')
-			params.append(os.path.join(vb_path,"preview","preview.vrscene"))
-			params.append('-display=')
-			params.append("0")
-			params.append('-showProgress=')
-			params.append("0")
-			params.append('-imgFile=')
-			params.append(image_file)
-
+			vb25.render.render(self, scene, preview=True)
 		else:
-			image_file= os.path.join(get_filenames(sce,'output'),"render_%s.%s" % (clean_string(sce.camera.name),get_render_file_format(ve,rd.file_format)))
-			load_file= os.path.join(get_filenames(sce,'output'),"render_%s.%.4i.%s" % (clean_string(sce.camera.name),sce.frame_current,get_render_file_format(ve,rd.file_format)))
+			vb25.render.render(self, scene)
 
-			if ve.auto_meshes:
-				bpy.ops.vray.write_geometry()
-			write_scene(sce)
-
-			if rd.use_border:
-				x0= wx * rd.border_min_x
-				y0= wy * (1.0 - rd.border_max_y)
-				x1= wx * rd.border_max_x
-				y1= wy * (1.0 - rd.border_min_y)
-
-				region= "%i;%i;%i;%i"%(x0,y0,x1,y1)
-
-				if(rd.use_crop_to_border):
-					params.append('-crop=')
-				else:
-					params.append('-region=')
-				params.append(region)
-
-			params.append('-sceneFile=')
-			params.append(get_filenames(sce,'scene'))
-
-			params.append('-display=')
-			params.append("1")
-
-			if ve.image_to_blender:
-				params.append('-autoclose=')
-				params.append('1')
-
-			if ve.animation:
-				params.append('-frames=')
-				params.append("%d-%d,%d"%(sce.frame_start, sce.frame_end,int(sce.frame_step)))
-			else:
-				params.append('-frames=')
-				params.append("%d" % sce.frame_current)
-
-			params.append('-imgFile=')
-			params.append(image_file)
-
-		if ve.autorun:
-			process= subprocess.Popen(params)
-
-			while True:
-				if self.test_break():
-					try:
-						process.kill()
-					except:
-						pass
-					break
-
-				if process.poll() is not None:
-					try:
-						if not ve.animation:
-							if ve.image_to_blender or sce.name == "preview":
-								result= self.begin_result(0, 0, wx, wy)
-								layer= result.layers[0]
-								layer.load_from_file(load_file)
-								self.end_result(result)
-					except:
-						pass
-					break
-
-				time.sleep(0.05)
-		else:
-			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
-			print("V-Ray/Blender: Command: %s" % ' '.join(params))

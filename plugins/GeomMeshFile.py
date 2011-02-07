@@ -204,20 +204,22 @@ def write(bus):
 	if hasattr(VRayData,'GeomMeshFile'):
 		GeomMeshFile= VRayData.GeomMeshFile
 		if VRayData.GeomMeshFile.use:
-			proxy_name= "PR%s" % clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7])
+			proxy_filename= os.path.basename(os.path.normpath(bpy.path.abspath(GeomMeshFile.file)))[:-7]
+			proxy_name= "PR%s" % clean_string(proxy_filename)
 
-			if proxy.anim_type not in ('STILL'):
-				proxy_name= "OB%sPR%s" % (clean_string(ob.data.name), clean_string(os.path.basename(os.path.normpath(bpy.path.abspath(proxy.file)))[:-7]))
+			if GeomMeshFile.anim_type not in ('STILL'):
+				proxy_name= "OB%sPR%s" % (clean_string(ob.data.name),
+										  clean_string(proxy_filename))
 
 			if proxy_name in bus['filter']['proxy']:
 				return proxy_name
 			bus['filter']['proxy'].append(proxy_name)
 
 			ofile.write("\nGeomMeshFile %s {" % proxy_name)
-			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,proxy.file))
-			ofile.write("\n\tanim_speed= %i;" % proxy.anim_speed)
-			ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[proxy.anim_type])
-			ofile.write("\n\tanim_offset= %i;" % (proxy.anim_offset - 1))
+			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,GeomMeshFile.file))
+			ofile.write("\n\tanim_speed= %i;" % GeomMeshFile.anim_speed)
+			ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[GeomMeshFile.anim_type])
+			ofile.write("\n\tanim_offset= %i;" % (GeomMeshFile.anim_offset - 1))
 			ofile.write("\n}\n")
 
 			bus['node']['geometry']= proxy_name

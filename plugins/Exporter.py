@@ -63,7 +63,7 @@ def add_properties(rna_pointer):
 	VRayExporter.use_render_operator= BoolProperty(
 		name= "Use render operator",
 		description= "Use bpy.ops.render.render() operator.",
-		default= False
+		default= True
 	)
 
 	VRayExporter.detach= BoolProperty(

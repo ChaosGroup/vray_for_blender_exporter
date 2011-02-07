@@ -164,8 +164,11 @@ def write(bus):
 
 	plugin= 'LightMesh'
 
-	ma=  params['material']
-	tex= params['texture']
+	VRayObject= ob.vray
+	LightMesh=  VRayObject.LightMesh
+	
+	ma=  bus['texture']['material']
+	tex= bus['texture']
 
 	light= getattr(ma.vray,plugin)
 

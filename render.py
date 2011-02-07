@@ -53,6 +53,93 @@ VERSION= '2.5'
 '''
   MESHES
 '''
+def write_geometry_python(scene, preview= None):
+	VRayScene= scene.vray
+	VRayExporter= VRayScene.exporter
+
+	def write_frame(bus):
+		# Filters stores already exported data
+		bus['filter']= {}
+		bus['filter']['mesh']= []
+
+		for ob in scene.objects:
+			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
+				continue
+
+			# Skip proxy meshes
+			if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
+				continue
+
+			if VRayExporter.mesh_active_layers or preview:
+				if not object_on_visible_layers(scene,ob):
+					continue
+
+			mesh= ob.create_mesh(scene, True, 'RENDER')
+			mesh_name= get_name(ob.data, prefix='ME')
+
+			if VRayExporter.use_instances:
+				if mesh_name in bus['filter']['mesh']:
+					continue
+				bus['filter']['mesh'].append(mesh_name)
+
+			else:
+				mesh_name= get_name(ob, prefix='ME')
+
+			bus['node']= {}
+
+			# Currently processes object
+			bus['node']['object']= ob
+			bus['node']['mesh']= mesh
+			bus['node']['mesh_name']= mesh_name
+
+			PLUGINS['GEOMETRY']['GeomStaticMesh'].write(bus)
+
+	# Settings bus
+	bus= {}
+
+	# Plugins
+	bus['plugins']= PLUGINS
+
+	# Scene
+	bus['scene']= scene
+
+	# V-Ray uses UV indexes, Blender uses UV names
+	# Here we store UV name->index map
+	bus['uvs']= get_uv_layers_map(scene)
+
+	# Output files
+	bus['files']= {}
+	bus['files']['geometry']= []
+	for thread in range(scene.render.threads):
+		bus['files']['geometry'].append(open(get_filenames(scene,'geometry')[:-11]+"_%.2i.vrscene"%(thread), 'w'))
+
+	for geometry_file in bus['files']['geometry']:
+		geometry_file.write("// V-Ray/Blender %s" % VERSION)
+		geometry_file.write("\n// Geometry file\n")
+
+	timer= time.clock()
+	debug(scene, "Writing meshes...")
+
+	if VRayExporter.animation:
+		cur_frame= scene.frame_current
+		scene.frame_set(scene.frame_start)
+		f= scene.frame_start
+		while(f <= scene.frame_end):
+			exported_meshes= []
+			scene.frame_set(f)
+			write_frame(bus)
+			f+= scene.frame_step
+		scene.frame_set(cur_frame)
+	else:
+		write_frame(bus)
+
+	for geometry_file in bus['files']['geometry']:
+		geometry_file.write("\n// vim: set syntax=on syntax=c:\n\n")
+		geometry_file.close()
+
+	debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+
+
 def write_geometry(scene):
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
@@ -67,87 +154,7 @@ def write_geometry(scene):
 			check_animated=    VRayExporter.check_animated,
 		)
 	except:
-		def write_frame(bus):
-			# Filters stores already exported data
-			bus['filter']= {}
-			bus['filter']['mesh']= []
-
-			for ob in scene.objects:
-				if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
-					continue
-
-				# Skip proxy meshes
-				if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
-					continue
-
-				if VRayExporter.mesh_active_layers:
-					if not object_on_visible_layers(scene,ob):
-						continue
-
-				mesh= ob.create_mesh(scene, True, 'RENDER')
-				mesh_name= get_name(ob.data, prefix='ME')
-
-				if VRayExporter.use_instances:
-					if mesh_name in bus['filter']['mesh']:
-						continue
-					bus['filter']['mesh'].append(mesh_name)
-
-				else:
-					mesh_name= get_name(ob, prefix='ME')
-
-				bus['node']= {}
-
-				# Currently processes object
-				bus['node']['object']= ob
-				bus['node']['mesh']= mesh
-				bus['node']['mesh_name']= mesh_name
-
-				PLUGINS['GEOMETRY']['GeomStaticMesh'].write(bus)
-			
-		# Settings bus
-		bus= {}
-
-		# Plugins
-		bus['plugins']= PLUGINS
-
-		# Scene
-		bus['scene']= scene
-
-		# V-Ray uses UV indexes, Blender uses UV names
-		# Here we store UV name->index map
-		bus['uvs']= get_uv_layers_map(scene)
-
-		# Output files
-		bus['files']= {}
-		bus['files']['geometry']= []
-		for thread in range(scene.render.threads):
-			bus['files']['geometry'].append(open(get_filenames(scene,'geometry')[:-11]+"_%.2i.vrscene"%(thread), 'w'))
-
-		for geometry_file in bus['files']['geometry']:
-			geometry_file.write("// V-Ray/Blender %s" % VERSION)
-			geometry_file.write("\n// Geometry file\n")
-
-		timer= time.clock()
-		debug(scene, "Writing meshes...")
-
-		if VRayExporter.animation:
-			cur_frame= scene.frame_current
-			scene.frame_set(scene.frame_start)
-			f= scene.frame_start
-			while(f <= scene.frame_end):
-				exported_meshes= []
-				scene.frame_set(f)
-				write_frame(bus)
-				f+= scene.frame_step
-			scene.frame_set(cur_frame)
-		else:
-			write_frame(bus)
-
-		for geometry_file in bus['files']['geometry']:
-			geometry_file.write("\n// vim: set syntax=on syntax=c:\n\n")
-			geometry_file.close()
-
-		debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+		write_geometry_python(scene)
 
 
 def write_GeomMayaHair(ofile, ob, ps, name):
@@ -173,49 +180,6 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 '''
   MATERIALS & TEXTURES
 '''
-def lamp_defaults(bus):
-	scene= bus['scene']
-	ob=    bus['node']['object']
-
-	la= ob.data
-
-
-def material_defaults(bus):
-	scene= bus['scene']
-	ma=    bus['material']
-
-	VRayMaterial=    ma.vray
-	BRDFVRayMtl=     VRayMaterial.BRDFVRayMtl
-	BRDFSSS2Complex= VRayMaterial.BRDFSSS2Complex
-
-	if VRayMaterial.type == 'EMIT':
-		return {
-			'diffuse':   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
-			'opacity':   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
-		}
-	
-	elif VRayMaterial.type == 'SSS':
-		return {
-			'overall_color':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),                   0, 'NONE'),
-			'sub_surface_color':   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.sub_surface_color)),  0, 'NONE'),
-			'scatter_radius':      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.scatter_radius)),     0, 'NONE'),
-			'diffuse_color':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)),      0, 'NONE'),
-			'diffuse_amount':      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFSSS2Complex.diffuse_amount]*3)), 0, 'NONE'),
-			'specular_color':      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.specular_color)),     0, 'NONE'),
-			'specular_amount':     ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-			'specular_glossiness': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
-		}
-		
-	# elif VRayMaterial.type == 'VOL':
-	# 	return {
-	# 		'color_tex':    (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
-	# 		'emission_tex': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
-	# 		'density_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
-	# 	}
-
-	else:
-		return None
-
 def write_lamp_textures(bus):
 	ofile= bus['files']['lights']
 	scene= bus['scene']
@@ -279,12 +243,13 @@ def write_material_textures(bus):
 	scene= bus['scene']
 	ma=    bus['material']
 
-	BRDFVRayMtl=     ma.vray.BRDFVRayMtl
-	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
-	# EnvironmentFog=  ma.vray.EnvironmentFog
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
 
-	defaults= material_defaults(bus)
+	VRayMaterial= ma.vray
 
+	defaults= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
+	
 	bus['textures']= {
 		'mapto': {},
 		'values': {
@@ -341,8 +306,9 @@ def write_material_textures(bus):
 						(write_texture_factor(ofile, scene, params), slot.use_stencil, VRaySlot.blend_mode)
 					)
 
-	if len(bus['textures']['mapto']):
-		print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures']['mapto'])
+	if VRayExporter.debug:
+		if len(bus['textures']['mapto']):
+			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures']['mapto'])
 	
 	for key in bus['textures']['mapto']:
 		if len(bus['textures']['mapto'][key]):
@@ -385,20 +351,6 @@ def write_BRDFSSS2Complex(ofile, ma, ma_name, textures):
 	ofile.write("\n}\n")
 
 	return brdf_name
-
-
-# elif VRayMaterial.type == 'VOL':
-# 	bus['node']['volume']= {}
-# 	for param in OBJECT_PARAMS['EnvironmentFog']:
-# 		if param == 'color':
-# 			value= ma.diffuse_color
-# 		else:
-# 			value= getattr(VRayMaterial.EnvironmentFog,param)
-# 		object_params['volume'][param]= value
-# 	for param in ('color_tex','emission_tex','density_tex'):
-# 		if param in textures['mapto']:
-# 			object_params['volume'][param]= textures['mapto'][param]
-# 	return None
 
 
 def	write_material(bus):
@@ -862,17 +814,9 @@ def write_object(bus):
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
 
-	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
-		return
-
-	# if object_params['volume'] is not None:
-	# 	if ma_name not in types['volume'].keys():
-	# 		types['volume'][ma_name]= {}
-	# 		types['volume'][ma_name]['params']= object_params['volume']
-	# 		types['volume'][ma_name]['gizmos']= []
-	# 	if ob not in types['volume'][ma_name]:
-	# 		types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
+	# if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
 	# 	return
+
 
 	complex_material= []
 	complex_material.append(bus['node']['material'])
@@ -923,14 +867,20 @@ def write_object(bus):
 
 
 def _write_object_particles(bus):
-	ob= bus['node']['object']
+	scene= bus['scene']
+	ob=    bus['node']['object']
+
+	VRayScene= scene.vray
+	VRayExporter= VRayScene.exporter
 
 	if len(ob.particle_systems):
+		# Write particle emitter if needed
 		for ps in ob.particle_systems:
 			if ps.settings.use_render_emitter:
 				write_node(bus)
 				break
 
+		# Write particles
 		for ps in ob.particle_systems:
 			ps_material= "Material_no_material"
 			ps_material_idx= ps.settings.material
@@ -1084,7 +1034,7 @@ def write_scene(scene):
 	bus['files']['environment'].write("\n// Environment\n")
 	bus['files']['materials'].write("\n// Materials\n")
 
-	bus['files']['materials'].write("\n// Default materials")
+	bus['files']['materials'].write("\n// Useful defaults")
 	bus['files']['materials'].write("\nUVWGenChannel UVWGenChannel_default {")
 	bus['files']['materials'].write("\n\tuvw_channel= 1;")
 	bus['files']['materials'].write("\n\tuvw_transform= Transform(")
@@ -1237,7 +1187,7 @@ def write_scene(scene):
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
-def run(engine, scene):
+def run(engine, scene, preview= None):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 	VRayDR=       VRayScene.VRayDR
@@ -1292,13 +1242,19 @@ def run(engine, scene):
 		params.append('-imgFile=')
 		params.append(image_file)
 
-	if VRayExporter.display:
+	if preview:
 		params.append('-display=')
-		params.append('1')
-
-	if VRayExporter.image_to_blender:
+		params.append('0')
 		params.append('-autoclose=')
 		params.append('1')
+	else:
+		if VRayExporter.display:
+			params.append('-display=')
+			params.append('1')
+
+		if VRayExporter.image_to_blender:
+			params.append('-autoclose=')
+			params.append('1')
 
 	if VRayExporter.autorun:
 		if VRayExporter.detach:
@@ -1313,7 +1269,7 @@ def run(engine, scene):
 		else:
 			process= subprocess.Popen(params)
 
-			if VRayExporter.image_to_blender and VRayExporter.use_render_operator:
+			if preview or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
 				load_file= os.path.join(get_filenames(scene,'output'),
 										"render_%s.%.4i.%s" % (clean_string(scene.camera.name),
 															   scene.frame_current,
@@ -1344,12 +1300,15 @@ def run(engine, scene):
 		debug(scene, "Command: %s" % ' '.join(params))
 	
 
-def render(engine, scene):
+def render(engine, scene, preview= None):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
-	
-	if VRayExporter.auto_meshes:
-		write_geometry(scene)
+
+	if preview:
+		write_geometry_python(scene, preview)
+	else:
+		if VRayExporter.auto_meshes:
+			write_geometry(scene)
 
 	write_scene(scene)
-	run(engine, scene)
+	run(engine, scene, preview)

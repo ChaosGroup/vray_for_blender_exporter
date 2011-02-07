@@ -106,3 +106,18 @@ def add_properties(rna_pointer):
 		default= 1.0
 	)
 
+
+
+'''
+  OUTPUT
+'''
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	rna_pointer= getattr(scene.vray, ID)
+	ofile.write("\n%s %s {" % (ID,ID))
+	for param in PARAMS:
+		value= getattr(rna_pointer, param)
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n}\n")

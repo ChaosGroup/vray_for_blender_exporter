@@ -44,6 +44,32 @@ UI=   "Fast SSS"
 DESC= "BRDFSSS2Complex settings."
 
 PARAMS= (
+	'prepass_rate',
+	'interpolation_accuracy',
+	'scale',
+	'ior',
+	#'overall_color',
+	#'diffuse_color',
+	#'diffuse_amount',
+	#'sub_surface_color',
+	#'scatter_radius',
+	'scatter_radius_mult',
+	'phase_function',
+	#'specular_color',
+	#'specular_amount',
+	#'specular_glossiness',
+	'specular_subdivs',
+	'cutoff_threshold',
+	'trace_reflections',
+	'reflection_depth',
+	#'single_scatter',
+	'subdivs',
+	'refraction_depth',
+	'front_scatter',
+	'back_scatter',
+	'scatter_gi',
+	'prepass_blur'
+	#'channels'
 )
 
 
@@ -298,6 +324,30 @@ def add_properties(rna_pointer):
 		default= 1.2
 	)
 
+
+def get_defaults(bus, BRDFLayered= None):
+	scene= bus['scene']
+	ma=    bus['material']
+
+	defaults= {}
+
+	VRayMaterial=    ma.vray
+	BRDFSSS2Complex= BRDFLayered.BRDFSSS2Complex if BRDFLayered else VRayMaterial.BRDFSSS2Complex
+
+	if BRDFLayered:
+		defaults['overall_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)), 0, 'NONE')
+	else:
+		defaults['overall_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
+
+	defaults['sub_surface_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.sub_surface_color)),  0, 'NONE')
+	defaults['scatter_radius']=      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.scatter_radius)),     0, 'NONE')
+	defaults['diffuse_color']=       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)),      0, 'NONE')
+	defaults['diffuse_amount']=      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFSSS2Complex.diffuse_amount]*3)), 0, 'NONE')
+	defaults['specular_color']=      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.specular_color)),     0, 'NONE')
+	defaults['specular_amount']=     (a(scene,"AColor(0.0,0.0,0.0,1.0)"), 0, 'NONE')
+	defaults['specular_glossiness']= (a(scene,"AColor(0.0,0.0,0.0,1.0)"), 0, 'NONE')
+
+	return defaults
 
 
 def gui(context, layout, BRDFSSS2Complex, material= None):
