@@ -147,12 +147,14 @@ def write_geometry_python(sce, geometry_file):
 	def write_mesh(exported_meshes, ob):
 		me= ob.create_mesh(sce, True, 'RENDER')
 
-		me_name= get_name(ob.data, 'Geom')
+		me_name= get_name(ob.data, "ME")
 
 		if VRayExporter.use_instances:
 			if me_name in exported_meshes:
 				return
 			exported_meshes.append(me_name)
+		else:
+			me_name= get_name(ob, "ME")
 
 		if VRayExporter.debug:
 			print("V-Ray/Blender: [%i]\n  Object: %s\n    Mesh: %s"
@@ -1036,7 +1038,10 @@ def write_object(ob, params, add_params= None):
 	else:
 		ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 
-	node_geometry= get_name(ob.data,"Geom")
+	node_geometry= get_name(ob, "ME")
+	if VRayExporter.use_instances:
+		node_geometry= get_name(ob.data, "ME")
+
 	if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
 		node_geometry= write_mesh_file(ofile, props['filters']['exported_proxy'], ob)
 

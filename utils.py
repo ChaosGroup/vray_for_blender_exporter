@@ -291,11 +291,11 @@ def get_render_file_format(ve,file_format):
 def get_name(data, prefix= None, dupli_name= None):
 	name= data.name
 	if dupli_name:
-		name= "%s_%s"%(dupli_name,name)
+		name= "%s%s" % (dupli_name,name)
 	if prefix:
-		name= "%s_%s"%(prefix,name)
+		name= "%s%s" % (prefix,name)
 	if data.library:
-		name+= '_' + get_filename(data.library.filepath)
+		name+= 'LI%s' % get_filename(data.library.filepath)
 	return clean_string(name)
 
 def object_on_visible_layers(sce,ob):
