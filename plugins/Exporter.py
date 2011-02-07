@@ -78,6 +78,12 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	VRayExporter.mesh_ascii= BoolProperty(
+		name= "ASCII mesh",
+		description= "Export meshes in ASCII format.",
+		default= False
+	)
+
 	VRayExporter.use_displace= BoolProperty(
 		name= "Use displace",
 		description= "Use displace.",

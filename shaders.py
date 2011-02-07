@@ -63,63 +63,6 @@ OBJECT_PARAMS= {
 		#'channels'
 	),
 
-	'BRDFVRayMtl': (
-		#'opacity',
-		#'iffuse',
-		#'roughness',
-		##'brdf_type',
-		#'reflect',
-		#'reflect_glossiness',
-		#'hilight_glossiness',
-		'hilight_glossiness_lock',
-		'fresnel',
-		#'fresnel_ior',
-		'fresnel_ior_lock',
-		'reflect_subdivs',
-		'reflect_trace',
-		'reflect_depth',
-		'reflect_exit_color',
-		'hilight_soften',
-		##'reflect_dim_distance',
-		'reflect_dim_distance_on',
-		'reflect_dim_distance_falloff',
-		#anisotropy',
-		#anisotropy_rotation',
-		'anisotropy_derivation',
-		'anisotropy_axis',
-		##'anisotropy_uvwgen',
-		#'refract',
-		#'refract_ior',
-		'dispersion_on',
-		'dispersion',
-		'refract_glossiness',
-		'refract_subdivs',
-		'refract_trace',
-		'refract_depth',
-		'refract_exit_color',
-		'refract_exit_color_on',
-		'refract_affect_alpha',
-		'refract_affect_shadows',
-		'fog_color',
-		'fog_mult',
-		'fog_bias',
-		'fog_unit_scale_on',
-		'translucency',
-		#'translucency_color',
-		'translucency_light_mult',
-		'translucency_scatter_dir',
-		'translucency_scatter_coeff',
-		'translucency_thickness',
-		'option_double_sided',
-		'option_reflect_on_back',
-		'option_glossy_rays_as_gi',
-		'option_cutoff',
-		'option_use_irradiance_map',
-		'option_energy_mode',
-		##'environment_override',
-		'environment_priority',
-	),
-	
 	'LightOmni': (
 		'enabled',
 		#'color_tex',
@@ -475,30 +418,6 @@ SKY_MODEL= {
 	'CIEOVER'  : 2,
 	'CIECLEAR' : 1,
 	'PREETH'   : 0
-}
-
-BRDF_TYPE= {
-	'PHONG': 0,
-	'BLINN': 1,
-	'WARD':  2
-}
-
-TRANSLUCENSY= {
-	'HYBRID': 3,
-	'SOFT':   2,
-	'HARD':   1,
-	'NONE':   0
-}
-
-GLOSSY_RAYS= {
-	'ALWAYS': 2,
-	'GI':     1,
-	'NEVER':  0
-}
-
-ENERGY_MODE= {
-	'MONO':  1,
-	'COLOR': 0
 }
 
 BITMAP_FILTER_TYPE= {

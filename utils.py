@@ -50,7 +50,10 @@ HOSTNAME= socket.gethostname()
 
 TEX_TYPES= ('IMAGE', 'VRAY')
 
-none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
+try:
+	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
+except:
+	none_matrix= mathutils.Matrix((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0))
 
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
@@ -72,8 +75,13 @@ def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
 def debug(scene, message, newline= True, cr= True, error= False):
-	sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
-		time.strftime("%Y/%b/%d|%H:%m:%S"),
+	# sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
+	# 	time.strftime("%Y/%b/%d|%H:%m:%S"),
+	# 	color("Error! ", 'red') if error else '',
+	# 	message,
+	# 	'\n' if newline else '\r' if cr else '')
+	# )
+	sys.stdout.write("V-Ray/Blender: %s%s%s" % (
 		color("Error! ", 'red') if error else '',
 		message,
 		'\n' if newline else '\r' if cr else '')
@@ -124,7 +132,7 @@ def clean_string(s):
 			s= s.replace(c, "_")
 	return s
 
-def get_uv_layer_id(sce, uv_layers, uv_layer_name):
+def get_uv_layer_id(uv_layers, uv_layer_name):
 	if uv_layer_name == "":
 		return 1
 	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1

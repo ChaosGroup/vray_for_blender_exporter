@@ -145,7 +145,7 @@ def add_properties(rna_pointer):
 	)
 
 	LightMesh.affectSpecular= BoolProperty(
-		name= "Affect dpecular",
+		name= "Affect specular",
 		description= "true if the light produces specular hilights and false otherwise",
 		default= True
 	)

@@ -45,6 +45,60 @@ DESC= "BRDFVRayMtl settings."
 
 
 PARAMS= (
+	#'opacity',
+	#'iffuse',
+	#'roughness',
+	##'brdf_type',
+	#'reflect',
+	#'reflect_glossiness',
+	#'hilight_glossiness',
+	'hilight_glossiness_lock',
+	'fresnel',
+	#'fresnel_ior',
+	'fresnel_ior_lock',
+	'reflect_subdivs',
+	'reflect_trace',
+	'reflect_depth',
+	'reflect_exit_color',
+	'hilight_soften',
+	##'reflect_dim_distance',
+	'reflect_dim_distance_on',
+	'reflect_dim_distance_falloff',
+	#anisotropy',
+	#anisotropy_rotation',
+	'anisotropy_derivation',
+	'anisotropy_axis',
+	##'anisotropy_uvwgen',
+	#'refract',
+	#'refract_ior',
+	'dispersion_on',
+	'dispersion',
+	'refract_glossiness',
+	'refract_subdivs',
+	'refract_trace',
+	'refract_depth',
+	'refract_exit_color',
+	'refract_exit_color_on',
+	'refract_affect_alpha',
+	'refract_affect_shadows',
+	'fog_color',
+	'fog_mult',
+	'fog_bias',
+	'fog_unit_scale_on',
+	'translucency',
+	#'translucency_color',
+	'translucency_light_mult',
+	'translucency_scatter_dir',
+	'translucency_scatter_coeff',
+	'translucency_thickness',
+	'option_double_sided',
+	'option_reflect_on_back',
+	'option_glossy_rays_as_gi',
+	'option_cutoff',
+	'option_use_irradiance_map',
+	'option_energy_mode',
+	#'environment_override',
+	'environment_priority',
 )
 
 
@@ -522,10 +576,103 @@ def add_properties(rna_pointer):
 	)
 
 
+
+'''
+  OUTPUT
+'''
 def write(bus):
-	pass
+	BRDF_TYPE= {
+		'PHONG': 0,
+		'BLINN': 1,
+		'WARD':  2,
+	}
+	TRANSLUCENSY= {
+		'NONE':   0,
+		'HARD':   1,
+		'SOFT':   2,
+		'HYBRID': 3,
+	}
+	GLOSSY_RAYS= {
+		'NEVER':  0,
+		'GI':     1,
+		'ALWAYS': 2,
+	}
+	ENERGY_MODE= {
+		'COLOR': 0,
+		'MONO':  1,
+	}
+	
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+	ma=    bus['material']
+	
+	textures= bus['textures']['mapto']
+	values=   bus['textures']['values']
+
+	BRDFVRayMtl= ma.vray.BRDFVRayMtl
+
+	defaults= {
+		'diffuse':   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
+		'roughness': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE'),
+		'opacity':   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),              0, 'NONE'),
+		
+		'reflect_glossiness':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE'),
+		'hilight_glossiness':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE'),
+		
+		'reflect':             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE'),
+		'anisotropy':          (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE'),
+		'anisotropy_rotation': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE'),
+		'refract':             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE'),
+		'refract_glossiness':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE'),
+		'translucency_color':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE'),
+
+		'fresnel_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+		'refract_ior':  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+		'normal':       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+		'displacement': ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE'),
+	}
+
+	brdf_name= "BRDFVRayMtl_%s" % clean_string(ma.name)
+
+	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
+	ofile.write("\n\tbrdf_type= %s;"%(a(scene,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
+
+	for key in ('diffuse','reflect','refract','translucency_color'):
+		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else defaults[key][0]))
+
+	for key in ('roughness','reflect_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
+		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(scene,getattr(BRDFVRayMtl,key))))
+
+	if 'opacity' in textures:
+		ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
+	else:
+		ofile.write("\n\topacity= %s;" % a(scene,ma.alpha))
+
+	for param in PARAMS:
+		if param == 'translucency':
+			value= TRANSLUCENSY[BRDFVRayMtl.translucency]
+		elif param == 'anisotropy_rotation':
+			value= BRDFVRayMtl.anisotropy_rotation / 360.0
+		elif param == 'translucency_thickness':
+			value= BRDFVRayMtl.translucency_thickness * 1000000000000
+		elif param == 'option_glossy_rays_as_gi':
+			value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
+		elif param == 'option_energy_mode':
+			value= ENERGY_MODE[BRDFVRayMtl.option_energy_mode]
+		elif param == 'fog_mult':
+			value= BRDFVRayMtl.fog_mult / 100.0
+		else:
+			value= getattr(BRDFVRayMtl,param)
+		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+	ofile.write("\n}\n")
+
+	return brdf_name
 
 
+
+'''
+  GUI
+'''
 def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
 
