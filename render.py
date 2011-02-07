@@ -384,18 +384,16 @@ def	write_material(bus):
 	else:
 		bus['filter']['material'].append(ma)
 
-	brdf_name= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
+	bus['brdf']= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
 
 	if bus['textures']['values']['normal_slot']:
-		brdf_name= PLUGINS['BRDF']['BRDFBump'].write(bus)
-		# {'file':      ofile,
-		#  'scene':     scene,
-		#  'base_brdf': brdf_name,
-		#  'textures':  textures}
+		PLUGINS['BRDF']['BRDFBump'].write(bus)
 
 	complex_material= []
-	for component in (VRayMaterial.Mtl2Sided.use, VRayMaterial.MtlWrapper.use,
-					  VRayMaterial.MtlOverride.use, VRayMaterial.MtlRenderStats.use,
+	for component in (VRayMaterial.Mtl2Sided.use,
+					  VRayMaterial.MtlWrapper.use,
+					  VRayMaterial.MtlOverride.use,
+					  VRayMaterial.MtlRenderStats.use,
 					  VRayMaterial.material_id_number):
 		if component:
 			complex_material.append("MtlComp_%.2d_%s"%(len(complex_material), ma_name))
@@ -403,7 +401,7 @@ def	write_material(bus):
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;" % a(scene,brdf_name))
+	ofile.write("\n\tbrdf= %s;" % a(scene, bus['brdf']))
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:

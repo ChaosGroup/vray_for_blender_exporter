@@ -273,7 +273,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'autorun')
 		col.prop(ve, 'auto_meshes')
 		col.prop(ve, 'use_render_operator')
-		col.prop(ve, 'compat_mode')
+		# col.prop(ve, 'compat_mode')
 		col.prop(ve, 'display')
 		col.prop(ve, 'debug')
 		if wide_ui:
@@ -282,7 +282,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'mesh_active_layers', text= "Active layers")
 		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
-		#col.prop(SettingsOptions, 'geom_displacement')
+		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')
 		
 		layout.separator()

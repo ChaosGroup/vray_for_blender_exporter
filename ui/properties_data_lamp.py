@@ -47,7 +47,6 @@ bpy.types.Lamp.vray= PointerProperty(
 	description= "V-Ray lamp settings"
 )
 
-
 VRayLamp.enabled= BoolProperty(
 	name= "Enabled",
 	description= "Turns the light on and off",
@@ -651,7 +650,6 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'size_multiplier', text= "Size")
 				if wide_ui:
 					col= split.column()
-				col.prop(vl,'invisible')
 				col.prop(vl,'horiz_illum')
 				col.prop(vl,'water_vapour')
 
@@ -670,7 +668,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'ies_file', text="File")
 				col.prop(vl,'soft_shadows')
 
-		elif(lamp.type == 'HEMI'):
+		elif lamp.type == 'HEMI':
 			#  objectID: integer = 0
 			#  use_dome_tex: bool = false
 			#  tex_resolution: integer = 512
@@ -680,10 +678,6 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 			#  tex_adaptive: float = 1
 			#  dome_rayDistance: float = 100000
 			#  dome_rayDistanceMode: integer = 0
-
-			pass
-
-		else:
 			pass
 
 

@@ -101,11 +101,11 @@ def write(bus):
 		'BUMP'   :  0,
 	}
 
-	ofile=     bus['file']
+	ofile=     bus['files']['materials']
 	scene=     bus['scene']
 	textures=  bus['textures']['mapto']
 	slot=      bus['textures']['values']['normal_slot']
-	base_brdf= bus['base_brdf']
+	base_brdf= bus['brdf']
 
 	VRayTexture= slot.texture.vray
 	VRaySlot=    slot.texture.vray_slot
@@ -124,6 +124,8 @@ def write(bus):
 	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 	ofile.write("\n}\n")
 
+	bus['brdf']= brdf_name
+	
 	return brdf_name
 
 
