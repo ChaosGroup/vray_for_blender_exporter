@@ -9,7 +9,7 @@ Node Node_preview {
 }
 
 MtlMulti Material_Data_checkers_001 {
-	mtls_list= List(Material_checkerlight,Material_checkerdark);
+	mtls_list= List(Materialcheckerlight,Materialcheckerdark);
 	ids_list= ListInt(0,1);
 }
 
