@@ -349,8 +349,8 @@ def get_lens_shift(ob):
 			shift= 0.0
 	return shift
 
-def write(bus):
 
+def write(bus):
 	TYPE= {
 		'STILL':     0,
 		'CINEMATIC': 1,
