@@ -2065,6 +2065,16 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
+class VRAY_OT_write_geometry(bpy.types.Operator):
+	bl_idname      = "vray.write_geometry"
+	bl_label       = "Export meshes"
+	bl_description = "Export meshes."
+
+	def execute(self, context):
+		write_geometry(context.scene)
+		return{'FINISHED'}
+
+
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "V-Ray (git)"
