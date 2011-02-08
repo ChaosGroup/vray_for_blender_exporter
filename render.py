@@ -663,8 +663,6 @@ def write_BRDFVRayMtl(ofile, ma, ma_name, mapped_params):
 			value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
 		elif param == 'option_energy_mode':
 			value= ENERGY_MODE[BRDFVRayMtl.option_energy_mode]
-		elif param == 'fog_mult':
-			value= BRDFVRayMtl.fog_mult / 100.0
 		else:
 			value= getattr(BRDFVRayMtl,param)
 		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
