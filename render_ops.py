@@ -40,9 +40,31 @@ import vb25.render
 import vb25.proxy
 
 from vb25.utils import *
+from vb25.plugins import *
 
 
 VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
+
+
+'''
+  Camera operators
+'''
+class VRAY_OT_lens_shift(bpy.types.Operator):
+	bl_idname=      'vray.lens_shift'
+	bl_label=       "Get lens shift"
+	bl_description= "Calculate lens shift."
+
+	@classmethod
+	def poll(cls, context):
+		return (context.camera)
+
+	def execute(self, context):
+		VRayCamera=     context.camera.vray
+		CameraPhysical= VRayCamera.CameraPhysical
+
+		CameraPhysical.lens_shift= PLUGINS['CAMERA']['CameraPhysical'].get_lens_shift(context.object)
+
+		return {'FINISHED'}
 
 
 '''

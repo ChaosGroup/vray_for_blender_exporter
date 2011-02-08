@@ -245,8 +245,8 @@ def add_properties(rna_pointer):
 	)
 
 	CameraPhysical.guess_lens_shift= BoolProperty(
-		name= "Guess lens shift",
-		description= "Guess lens shift.",
+		name= "Auto lens shift",
+		description= "Calculate lens shift automatically.",
 		default= False
 	)
 
@@ -326,32 +326,30 @@ def add_properties(rna_pointer):
 	)
 
 
+def get_lens_shift(ob):
+	shift= 0.0
+	constraint= None
+	if len(ob.constraints) > 0:
+		for co in ob.constraints:
+			if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
+				constraint= co
+				break
+	if constraint:
+		constraint_ob= constraint.target
+		if constraint_ob:
+			z_shift= ob.matrix_world[3][2] - constraint_ob.matrix_world[3][2]
+			l= get_distance(ob, constraint_ob)
+			shift= -1.0 * z_shift / l
+	else:
+		rx= ob.rotation_euler[0]
+		lsx= rx - math.pi / 2
+		if math.fabs(lsx) > 0.0001:
+			shift= math.tan(lsx)
+		if math.fabs(shift) > math.pi:
+			shift= 0.0
+	return shift
+
 def write(bus):
-	def get_lens_shift(ob):
-		camera= ob.data
-		shift= 0.0
-		constraint= None
-		if len(ob.constraints) > 0:
-			for co in ob.constraints:
-				if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
-					constraint= co
-					break
-		if constraint:
-			constraint_ob= constraint.target
-			if constraint_ob:
-				z_shift= ob.location[2] - constraint_ob.location[2]
-				x= ob.location[0] - constraint_ob.location[0]
-				y= ob.location[1] - constraint_ob.location[1]
-				l= math.sqrt( x * x + y * y )
-				shift= -1 * z_shift / l
-		else:
-			rx= ob.rotation_euler[0]
-			lsx= rx - math.pi / 2
-			if math.fabs(lsx) > 0.0001:
-				shift= math.tan(lsx)
-			if math.fabs(shift) > math.pi:
-				shift= 0.0
-		return shift
 
 	TYPE= {
 		'STILL':     0,

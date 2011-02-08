@@ -184,6 +184,7 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 		sub.prop(CameraPhysical, 'distortion')
 		if not CameraPhysical.guess_lens_shift:
 			sub.prop(CameraPhysical, 'lens_shift')
+			sub.operator('vray.lens_shift')
 		sub.prop(CameraPhysical, 'guess_lens_shift')
 		
 		if wide_ui:
