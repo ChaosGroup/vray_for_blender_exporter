@@ -2152,25 +2152,25 @@ class VRayRenderer(bpy.types.RenderEngine):
 		if ve.autorun:
 			process= subprocess.Popen(params)
 
-			while True:
-				if self.test_break():
-					try:
-						process.kill()
-					except:
-						pass
-					break
+			if not ve.animation and ve.image_to_blender:
+				while True:
+					if self.test_break():
+						try:
+							process.kill()
+						except:
+							pass
+						break
 
-				if process.poll() is not None:
-					try:
-						if not ve.animation and ve.image_to_blender:
+					if process.poll() is not None:
+						try:
 							result= self.begin_result(0, 0, int(wx), int(wy))
 							result.layers[0].load_from_file(load_file)
 							self.end_result(result)
-					except:
-						pass
-					break
+						except:
+							pass
+						break
 
-				time.sleep(0.05)
+					time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 			print("V-Ray/Blender: Command: %s" % ' '.join(params))
@@ -2306,27 +2306,26 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		if ve.autorun:
 			process= subprocess.Popen(params)
 
-			while True:
-				if self.test_break():
-					try:
-						process.kill()
-					except:
-						pass
-					break
+			if not ve.animation and ve.image_to_blender or sce.name == "preview":
+				while True:
+					if self.test_break():
+						try:
+							process.kill()
+						except:
+							pass
+						break
 
-				if process.poll() is not None:
-					try:
-						if not ve.animation:
-							if ve.image_to_blender or sce.name == "preview":
-								result= self.begin_result(0, 0, wx, wy)
-								layer= result.layers[0]
-								layer.load_from_file(load_file)
-								self.end_result(result)
-					except:
-						pass
-					break
+					if process.poll() is not None:
+						try:
+							result= self.begin_result(0, 0, wx, wy)
+							layer= result.layers[0]
+							layer.load_from_file(load_file)
+							self.end_result(result)
+						except:
+							pass
+						break
 
-				time.sleep(0.05)
+					time.sleep(0.05)
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 			print("V-Ray/Blender: Command: %s" % ' '.join(params))
