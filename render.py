@@ -336,6 +336,24 @@ def write_geometry_python(sce, geometry_file):
 	print("V-Ray/Blender: Exporting meshes... done [%s]                    "%(time.clock() - timer))
 
 
+def write_geometry(sce):
+	VRayScene= sce.vray
+	VRayExporter= VRayScene.exporter
+
+	geometry_file= get_filenames(sce,'geometry')
+
+	try:
+		bpy.ops.vray.export_meshes(
+			filepath= geometry_file[:-11],
+			use_active_layers= VRayExporter.mesh_active_layers,
+			use_animation= VRayExporter.animation,
+			use_instances= VRayExporter.use_instances,
+			check_animated= VRayExporter.check_animated,
+		)
+	except:
+		write_geometry_python(sce, geometry_file)
+
+
 def write_GeomMayaHair(ofile, ob, ps, name):
 	num_hair_vertices= []
 	hair_vertices=     []
@@ -2047,35 +2065,6 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		return{'FINISHED'}
 
 
-class VRAY_OT_write_geometry(bpy.types.Operator):
-	bl_idname      = "vray.write_geometry"
-	bl_label       = "Export meshes"
-	bl_description = "Export meshes into vrscene file."
-
-	def execute(self, context):
-		sce= context.scene
-		# TODO: Ask ideasman
-		#sce= bpy.data.scenes.active
-
-		VRayScene= sce.vray
-		VRayExporter= VRayScene.exporter
-
-		geometry_file= get_filenames(sce,'geometry')
-
-		try:
-			bpy.ops.vray.export_meshes(
-				filepath= geometry_file[:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation= VRayExporter.animation,
-				use_instances= VRayExporter.use_instances,
-				check_animated= VRayExporter.check_animated,
-			)
-		except:
-			write_geometry_python(sce, geometry_file)
-
-		return{'FINISHED'}
-
-
 class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "V-Ray (git)"
@@ -2095,8 +2084,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayBake= vsce.VRayBake
 
 		if ve.auto_meshes:
-			bpy.ops.vray.write_geometry()
-
+			write_geometry(sce)
+		
 		write_scene(sce, bake= VRayBake.use)
 
 		vb_path= vb_script_path()
