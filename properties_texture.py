@@ -918,21 +918,23 @@ BRDFBump.compute_bump_for_shadows= BoolProperty(
 
 narrowui= 200
 
+from properties_material import active_node_mat
+
 def context_tex_datablock(context):
-    idblock= context.material
-    if idblock:
-        return idblock
+	idblock = context.material
+	if idblock:
+		return active_node_mat(idblock)
 
-    idblock= context.lamp
-    if idblock:
-        return idblock
+	idblock = context.lamp
+	if idblock:
+		return idblock
 
-    idblock= context.world
-    if idblock:
-        return idblock
+	idblock = context.world
+	if idblock:
+		return idblock
 
-    idblock= context.brush
-    return idblock
+	idblock = context.brush
+	return idblock
 
 
 def base_poll(cls, context):
@@ -975,7 +977,15 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 		space = context.space_data
 		tex = context.texture
 		idblock = context_tex_datablock(context)
-		tex_collection = space.pin_id == None and type(idblock) != bpy.types.Brush and not node
+		pin_id = space.pin_id
+
+		if not isinstance(pin_id, bpy.types.Material):
+			pin_id = None
+
+		if not space.use_pin_id:
+			layout.prop(space, "texture_context", expand=True)
+
+		tex_collection = (not space.use_pin_id) and (node is None) and (not isinstance(idblock, bpy.types.Brush))
 
 		if tex_collection:
 			row = layout.row()
@@ -999,9 +1009,6 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 			col.template_ID(space, "pin_id")
 
 		col = split.column()
-
-		if not space.pin_id:
-			col.prop(space, "show_brush_texture", text="Brush", toggle=True)
 
 		if tex:
 			split = layout.split(percentage=0.2)
@@ -1061,7 +1068,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 
 		VRaySlot= texture.vray_slot
 
-		if type(idblock) == bpy.types.Material:
+		if isinstance(idblock, bpy.types.Material):
 			ma= context.material
 			VRayMaterial= ma.vray
 

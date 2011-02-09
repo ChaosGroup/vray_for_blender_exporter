@@ -500,7 +500,9 @@ def material_defaults(ma):
 			'density_tex':  (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
 		}
 	else:
-		return None
+		return {
+			'diffuse':   (a(sce,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),          0, 'NONE'),
+		}
 
 def write_lamp_textures(ofile, params):
 	la= params['lamp']
