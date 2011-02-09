@@ -1214,7 +1214,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				col= split.column()
 			factor_but(col, VRayLight, 'map_intensity', 'intensity_mult', "Intensity")
 
-		elif type(idblock) == bpy.types.World:
+		elif isinstance(idblock, bpy.types.World):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")
