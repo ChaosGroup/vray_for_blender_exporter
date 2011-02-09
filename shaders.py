@@ -783,9 +783,7 @@ def write_UVWGenProjection(ofile, sce, params):
 	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING[VRayTexture.mapping])
 	if ob:
 		mt= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
-		ob_mat= ob.matrix_world.copy()
-		ob_mat.invert()
-		mt*= ob_mat
+		mt*= ob.matrix_world.copy().inverted()
 		ofile.write("\n\tuvw_transform= %s; // %s" % (a(sce,transform(mt)),ob.name))
 	ofile.write("\n}\n")
 
