@@ -73,25 +73,8 @@ def add_properties(rna_pointer):
 	rna_pointer.type= EnumProperty(
 		name= "Type",
 		description= "Material type.",
-		# items= (
-		# 	('MTL',  "Standard", "Standard V-Ray material."),
-		# 	('SSS',  "SSS",      "Fast SSS material."),
-		# 	('EMIT', "Light",    "Light emitting material / mesh light ."),
-		# 	('CAR',  "Car",      "Car paint material."),
-		# 	('BRDF', "Layered",  "Custom material from BRDFs."),
-		# ),
 		items= (tuple(material_types)),
 		default= material_types[0][0]
-	)
-
-	rna_pointer.emitter_type= EnumProperty(
-		name= "Emitter type",
-		description= "This determines the type of BRDF (the shape of the hilight).",
-		items= (
-			('MTL',  "Material",   "Light material."),
-			('MESH', "Mesh light", "Mesh light.")
-		),
-		default= 'MTL'
 	)
 
 	rna_pointer.material_id_number= IntProperty(

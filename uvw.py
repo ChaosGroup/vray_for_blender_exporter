@@ -54,28 +54,33 @@ PROJECTION_MAPPING_TYPE= {
 }
 
 
-def write_UVWGenProjection(ofile, sce, params):
-	ob= params.get('object')
-	slot= params.get('slot')
-	texture= params.get('texture')
+def write_UVWGenProjection(bus):
+	ofile=   bus['files']['material']
+	scene=   bus['scene']
+	ob=      bus['node']['object']
 
-	uvw_name= params['name'] + 'UVP'
+	slot=    bus['texture']['slot']
+	texture= bus['texture']['texture']
+	uvwgen=  bus['texture']['name'] + 'UVP'
 
 	VRayTexture= texture.vray
-	VRayTexture.uvwgen= uvw_name
-
 	if VRayTexture.object:
-		ob= get_data_by_name(sce, 'objects', VRayTexture.object)
+		texture_object= get_data_by_name(sce, 'objects', VRayTexture.object)
+		if texture_object:
+			ob= texture_object
 
-	ofile.write("\nUVWGenProjection %s {" % uvw_name)
+	ofile.write("\nUVWGenProjection %s {" % uvwgen)
 	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING_TYPE[VRayTexture.mapping])
 	if ob:
-		mt= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
-		mt*= ob.matrix_world.copy().invert() 
-		ofile.write("\n\tuvw_transform= %s; // %s" % (a(sce,transform(mt)),ob.name))
+		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
+		uvw_transform*= ob.matrix_world.copy().inverted()
+		ofile.write("\n\tuvw_transform= %s; // %s" % a(sce,transform(uvw_transform)), ob.name)
 	ofile.write("\n}\n")
 
-	return uvw_name
+	# VRayTexture.uvwgen= uvwgen
+	bus['texture']['uvwgen']= uvwgen
+
+	return uvwgen
 
 
 def write_UVWGenChannel(params):

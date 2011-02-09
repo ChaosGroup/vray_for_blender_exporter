@@ -955,9 +955,8 @@ class VRayTexturePanel():
 
 
 class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
-	bl_label   = ""
-	bl_options = {'HIDE_HEADER'}
-
+	bl_label       = ""
+	bl_options     = {'HIDE_HEADER'}
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -966,7 +965,7 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 		if not hasattr(context, "texture_slot"):
 			return False
 		return ((context.material or context.world or context.lamp or context.brush or context.texture)
-				and (engine in cls.COMPAT_ENGINES))
+			and (engine in cls.COMPAT_ENGINES))
 
 	def draw(self, context):
 		layout = self.layout
@@ -975,11 +974,21 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 		space = context.space_data
 		tex = context.texture
 		idblock = context_tex_datablock(context)
-		tex_collection = space.pin_id == None and type(idblock) != bpy.types.Brush and not node
+		pin_id = space.pin_id
+
+		if not isinstance(pin_id, bpy.types.Material):
+			pin_id = None
+
+		if not space.use_pin_id:
+			layout.prop(space, "texture_context", expand=True)
+
+		tex_collection = (not space.use_pin_id) and (node is None) and (not isinstance(idblock, bpy.types.Brush))
 
 		if tex_collection:
 			row = layout.row()
+
 			row.template_list(idblock, "texture_slots", idblock, "active_texture_index", rows=2)
+
 			col = row.column(align=True)
 			col.operator("texture.slot_move", text="", icon='TRIA_UP').type = 'UP'
 			col.operator("texture.slot_move", text="", icon='TRIA_DOWN').type = 'DOWN'
@@ -995,20 +1004,20 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 		elif idblock:
 			col.template_ID(idblock, "texture", new="texture.new")
 
-		if space.pin_id:
+		if pin_id:
 			col.template_ID(space, "pin_id")
 
 		col = split.column()
 
-		if not space.pin_id:
-			col.prop(space, "show_brush_texture", text="Brush", toggle=True)
-
 		if tex:
 			split = layout.split(percentage=0.2)
+
 			if tex.use_nodes:
+
 				if slot:
 					split.label(text="Output:")
 					split.prop(slot, "output_node", text="")
+
 			else:
 				split.label(text="Texture:")
 				split.prop(tex, "type", text="")
