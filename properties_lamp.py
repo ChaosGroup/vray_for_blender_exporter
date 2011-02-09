@@ -628,7 +628,6 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'size_multiplier', text= "Size")
 				if wide_ui:
 					col= split.column()
-				col.prop(vl,'invisible')
 				col.prop(vl,'horiz_illum')
 				col.prop(vl,'water_vapour')
 
