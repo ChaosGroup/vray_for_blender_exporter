@@ -576,14 +576,19 @@ def add_properties(rna_pointer):
 	)
 
 
+
+'''
+  OUTPUT
+'''
 def get_defaults(bus, BRDFLayered= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
-	defaults= {}
+	VRayMaterial= ma.vray
 
-	VRayMaterial=    ma.vray
-	BRDFVRayMtl=     VRayMaterial.BRDFVRayMtl
+	BRDFVRayMtl=  BRDFLayered.BRDFVRayMtl if BRDFLayered else VRayMaterial.BRDFVRayMtl
+
+	defaults= {}
 
 	if BRDFLayered:
 		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.diffuse)),     0, 'NONE')
@@ -612,9 +617,6 @@ def get_defaults(bus, BRDFLayered= None):
 	return defaults
 
 
-'''
-  OUTPUT
-'''
 def write(bus, BRDFLayered= None):
 	BRDF_TYPE= {
 		'PHONG': 0,
@@ -648,7 +650,7 @@ def write(bus, BRDFLayered= None):
 
 	defaults= get_defaults(bus, BRDFLayered)
 
-	brdf_name= "BRDFVRayMtl_%s" % clean_string(ma.name)
+	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
 
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(scene,BRDF_TYPE[BRDFVRayMtl.brdf_type])))

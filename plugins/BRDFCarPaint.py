@@ -557,15 +557,35 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(ofile, scene, params):
-	BRDFCarPaint= getattr(scene.vray, PLUG)
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
+'''
+  OUTPUT
+'''
+def get_defaults(bus):
+	return {}
+
+
+def write(bus, BRDFLayered= None):
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+	ma=    bus['material']
+
+	brdf= "%s_%s" % (ID, clean_string(ma.name))
+
+	VRayMaterial= ma.vray
+	
+	BRDFCarPaint= getattr(BRDFLayered, PLUG) if BRDFLayered else getattr(VRayMaterial, PLUG)
+
+	# Color values if param is not textured
+	defaults= get_defaults(bus, BRDFLayered)
+	
+	ofile.write("\n%s %s {"%(PLUG, brdf))
 	for param in PARAMS:
 		value= getattr(BRDFCarPaint, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return brdf
 
 
 '''

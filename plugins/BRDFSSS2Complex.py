@@ -350,6 +350,39 @@ def get_defaults(bus, BRDFLayered= None):
 	return defaults
 
 
+def write(bus, rna_pointer= None):
+	SINGLE_SCATTER= {
+		'NONE':   0,
+		'SIMPLE': 1,
+		'SOLID':  2,
+		'REFR':   3,
+	}
+
+	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
+
+	brdf_name= "BRDFSSS2Complex_%s"%(ma_name)
+
+	ofile.write("\nBRDFSSS2Complex %s {" % brdf_name)
+
+	for key in ('overall_color','diffuse_color','sub_surface_color','scatter_radius','specular_color'):
+		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else a(scene,getattr(BRDFSSS2Complex,key))))
+
+	for key in ('specular_amount','specular_glossiness','diffuse_amount'):
+		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(scene,getattr(BRDFSSS2Complex,key))))
+
+	for param in OBJECT_PARAMS['BRDFSSS2Complex']:
+		if param == 'single_scatter':
+			value= SINGLE_SCATTER[BRDFSSS2Complex.single_scatter]
+		else:
+			value= getattr(BRDFSSS2Complex,param)
+		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+
+	ofile.write("\n}\n")
+
+	return brdf_name
+
+
+
 def gui(context, layout, BRDFSSS2Complex, material= None):
 	wide_ui= context.region.width > narrowui
 

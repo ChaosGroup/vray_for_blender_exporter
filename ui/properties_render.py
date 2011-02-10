@@ -808,10 +808,10 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 			layout.separator()
 
-			# Box border
-			layout= layout.box()
-
 			if render_channel.type != 'NONE':
+				# Box border
+				layout= layout.box()
+				
 				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin is not None:
 					render_channel_data= getattr(render_channel,plugin.PLUG)
@@ -936,7 +936,7 @@ class VRAY_RENDER_bake(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop_search(VRayBake, 'object',  context.scene, 'objects')
+		col.prop_search(VRayBake, 'bake_node',  context.scene, 'objects')
 		if wide_ui:
 			col= split.column()
 		col.prop(VRayBake, 'dilation')

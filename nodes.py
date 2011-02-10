@@ -124,7 +124,7 @@ def write_node(ofile, ma, nt, no):
 
 		ofile.write("\nBRDFLayered %s {"%(clean_string(brdf_name)))
 		ofile.write("\n\tbrdfs= List(%s,%s);"%(color1, color2))
-		ofile.write("\n\tweights= List(%s,TexAColor_default_blend);"%(weights))
+		ofile.write("\n\tweights= List(%s,TEDefaultBlend);"%(weights))
 		ofile.write("\n\tadditive_mode= 0;") # Shellac
 		ofile.write("\n}\n")
 

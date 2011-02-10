@@ -163,7 +163,12 @@ def add_properties(rna_pointer):
 	# channels List()
 
 	return VRayBRDF
-	
+
+
+
+def get_defaults(bus):
+	return {}
+
 
 def write(ofile, scene, params):
 	BRDFLayered= getattr(scene.vray, PLUG)

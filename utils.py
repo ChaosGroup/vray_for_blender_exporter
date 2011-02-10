@@ -74,6 +74,29 @@ def get_plugin_property(rna_pointer, property):
 def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
 
+# Generate visibility list for "Hide From View"
+def get_visibility_lists(camera):
+	VRayCamera= camera.data.vray
+
+	visibility= {
+		'all':     [],
+		'camera':  [],
+		'gi':      [],
+		'reflect': [],
+		'refract': [],
+		'shadows': [],
+	}
+
+	if VRayCamera.hide_from_view:
+		for hide_type in visibility:
+			if getattr(VRayCamera, 'hf_%s' % hide_type):
+				if getattr(VRayCamera, 'hf_%s_auto' % hide_type):
+					visibility[hide_type]= generate_object_list(group_names_string= 'hf_%s' % camera.name)
+				else:
+					visibility[hide_type]= generate_object_list(getattr(VRayCamera, 'hf_%s_objects' % hide_type), getattr(VRayCamera, 'hf_%s_groups' % hide_type))
+
+	return visibility
+
 def debug(scene, message, newline= True, cr= True, error= False):
 	# sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
 	# 	time.strftime("%Y/%b/%d|%H:%m:%S"),
