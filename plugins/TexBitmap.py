@@ -28,9 +28,10 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
+from vb25.utils   import *
 from vb25.shaders import *
-from vb25.ui.ui import *
+from vb25.ui.ui   import *
+from vb25.uvwgen  import *
 
 
 TYPE= 'TEXTURE'
@@ -157,11 +158,11 @@ def write_BitmapBuffer(bus):
 		'BICUBIC':  1,
 	}
 
-	ofile= bus['files']['texture']
+	ofile= bus['files']['textures']
 	scene= bus['scene']
 
-	slot=    bus['slot']
-	texture= bus['texture']
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
 
 	VRayScene=    scene.vray
 	SettingsColorMapping= VRayScene.SettingsColorMapping
@@ -170,7 +171,7 @@ def write_BitmapBuffer(bus):
 	VRayTexture=  texture.vray
 	BitmapBuffer= texture.image.vray.BitmapBuffer
 
-	filename= get_full_filepath(sce, texture.image, texture.image.filepath)
+	filename= get_full_filepath(scene, texture.image, texture.image.filepath)
 
 	bitmap_name= 'IM' + clean_string(texture.image.name)
 	if texture.image.source == 'SEQUENCE':
@@ -203,23 +204,11 @@ def write_BitmapBuffer(bus):
 
 
 def write(bus):
-	PLACEMENT_TYPE= {
-		'FULL':  0,
-		'CROP':  1,
-		'PLACE': 2,
-	}
-	TILE= {
-		'NOTILE': 0,
-		'TILEUV': 1,
-		'TILEU':  2,
-		'TILEV':  3,
-	}
-
-	ofile= bus['files']['texture']
+	ofile= bus['files']['textures']
 	scene= bus['scene']
 
-	slot=    bus['slot']
-	texture= bus['texture']
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
 
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
@@ -230,14 +219,11 @@ def write(bus):
 
 	tex_name= 'TE' + clean_string(texture.name)
 
-	# Object mapping - so texture is object dependent
+	# If "Object" mapping - texture is object dependent
 	if VRayTexture.texture_coords == 'ORCO':
-		ob= None
+		ob= bus.get('object')
 		if VRayTexture.object:
 			ob= get_data_by_name(scene, 'objects', VRayTexture.object)
-		else:
-			if 'object' in bus:
-				ob= bus['object']
 		if ob:
 			tex_name= 'OB' + clean_string(params['object'].name) + tex_name
 
@@ -249,22 +235,14 @@ def write(bus):
 	bitmap= write_BitmapBuffer(bus)
 
 	if 'environment' in bus:
-		uvwgen= write_UVWGenEnvironment(ofile, sce, params)
+		uvwgen= write_UVWGenEnvironment(bus)
 	else:
-		uvwgen= write_UVWGenChannel(ofile, sce, params)
+		uvwgen= write_UVWGenChannel(bus)
 
 	ofile.write("\nTexBitmap %s {" % tex_name)
 	ofile.write("\n\tbitmap= %s;" % bitmap)
 	ofile.write("\n\tuvwgen= %s;" % uvwgen)
-	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
-	ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
-	ofile.write("\n\tu= %s;" % texture.crop_min_x)
-	ofile.write("\n\tv= %s;" % texture.crop_min_y)
-	ofile.write("\n\tw= %s;" % texture.crop_max_x)
-	ofile.write("\n\th= %s;" % texture.crop_max_y)
-	if slot:
-		ofile.write("\n\tinvert= %d;" % slot.invert)
-	ofile.write("\n\tnouvw_color= AColor(1.0,1.0,1.0,1.0);")
+	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 	ofile.write("\n}\n")
 
 	return tex_name

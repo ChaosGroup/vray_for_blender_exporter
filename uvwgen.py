@@ -33,35 +33,25 @@ from vb25.utils import *
 from vb25.plugins import *
 
 
-ENVIRONMENT_MAPPING_TYPE= {
-	'SPHERE':  'spherical',
-	'ANGULAR': 'angular',
-	'SCREEN':  'screen',
-	'TUBE':    'max_cylindrical',
-	'CUBIC':   'cubic',
-	'MBALL':   'mirror_ball',
-}
-
-PROJECTION_MAPPING_TYPE= {
-	'FLAT':   1,
-	'SPHERE': 2,
-	'TUBE':   3,
-	'BALL':   4,
-	#'CUBE':   5,
-	'CUBE':   6,
-	'TRI':    6,
-	'PERS':   8,
-}
-
-
 def write_UVWGenProjection(bus):
+	TYPE= {
+		'FLAT':   1,
+		'SPHERE': 2,
+		'TUBE':   3,
+		'BALL':   4,
+		#'CUBE':   5,
+		'CUBE':   6,
+		'TRI':    6,
+		'PERS':   8,
+	}
+
 	ofile=   bus['files']['material']
 	scene=   bus['scene']
 	ob=      bus['node']['object']
 
-	slot=    bus['texture']['slot']
-	texture= bus['texture']['texture']
-	uvwgen=  bus['texture']['name'] + 'UVP'
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
+	uvwgen=  bus['mtex']['name'] + 'UVP'
 
 	VRayTexture= texture.vray
 	if VRayTexture.object:
@@ -70,37 +60,30 @@ def write_UVWGenProjection(bus):
 			ob= texture_object
 
 	ofile.write("\nUVWGenProjection %s {" % uvwgen)
-	ofile.write("\n\ttype= %d;" % PROJECTION_MAPPING_TYPE[VRayTexture.mapping])
+	ofile.write("\n\ttype= %d;" % TYPE[VRayTexture.mapping])
 	if ob:
 		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
 		uvw_transform*= ob.matrix_world.copy().inverted()
 		ofile.write("\n\tuvw_transform= %s; // %s" % a(sce,transform(uvw_transform)), ob.name)
 	ofile.write("\n}\n")
 
-	# VRayTexture.uvwgen= uvwgen
-	bus['texture']['uvwgen']= uvwgen
-
 	return uvwgen
 
 
 def write_UVWGenChannel(params):
-	ofile= params['files']['textures']
-	sce=   params['scene']
+	ofile= bus['files']['textures']
+	sce=   bus['scene']
 
-	slot=    params.get('slot')
-	texture= params.get('texture')
-
-	uvw_name= params['name'] + 'UVC'
-
-	uvw_channel= 1
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	uvw_name= bus['mtex']['name'] + 'UVC'
 
 	VRaySlot=    texture.vray_slot
 	VRayTexture= texture.vray
 	
-	VRaySlot.uvwgen= uvw_name
-
-	if slot and 'uv_ids' in params:
-		uvw_channel= get_uv_layer_id(params['uvs'], slot.uv_layer)
+	uvw_channel= 1
+	if slot:
+		uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
 		
 	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
 
@@ -122,22 +105,33 @@ def write_UVWGenChannel(params):
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
+	bus['material']['normal_uvwgen']= uvwgen
+
 	return uvw_name
 
 
-def write_UVWGenEnvironment(ofile, sce, params):
+def write_UVWGenEnvironment(params):
+	MAPPING_TYPE= {
+		'SPHERE':  'spherical',
+		'ANGULAR': 'angular',
+		'SCREEN':  'screen',
+		'TUBE':    'max_cylindrical',
+		'CUBIC':   'cubic',
+		'MBALL':   'mirror_ball',
+	}
+
 	slot= params.get('slot')
 	texture= params.get('texture')
 
 	VRaySlot=    texture.vray_slot
 	VRayTexture= texture.vray
 
-	uvw_name= params['name'] + 'UVE'
+	uvw_name= bus['name'] + 'UVE'
 	
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	if 'rotate' in params:
-		ofile.write("\n\tuvw_matrix= %s;" % transform(mathutils.Matrix.Rotation(math.radians(params['rotate']['angle']), 4, params['rotate']['axis'])))
-	ofile.write("\n\tmapping_type= \"%s\";" % ENVIRONMENT_MAPPING_TYPE[VRayTexture.environment_mapping])
+		ofile.write("\n\tuvw_matrix= %s;" % transform(mathutils.Matrix.Rotation(math.radians(bus['rotate']['angle']), 4, bus['rotate']['axis'])))
+	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[VRayTexture.environment_mapping])
 	ofile.write("\n}\n")
 	
 	return uvw_name

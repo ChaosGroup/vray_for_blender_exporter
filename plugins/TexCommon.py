@@ -122,3 +122,40 @@ def add_properties(rna_pointer):
 		options= {'HIDDEN'},
 		default= ""
 	)
+
+
+
+'''
+  OUTPUT
+'''
+def write(bus):
+	PLACEMENT_TYPE= {
+		'FULL':  0,
+		'CROP':  1,
+		'PLACE': 2,
+	}
+	TILE= {
+		'NOTILE': 0,
+		'TILEUV': 1,
+		'TILEU':  2,
+		'TILEV':  3,
+	}
+
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
+
+	VRayTexture= texture.vray
+	VRaySlot=    texture.vray_slot
+
+	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
+	ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
+	ofile.write("\n\tu= %s;" % texture.crop_min_x)
+	ofile.write("\n\tv= %s;" % texture.crop_min_y)
+	ofile.write("\n\tw= %s;" % texture.crop_max_x)
+	ofile.write("\n\th= %s;" % texture.crop_max_y)
+	ofile.write("\n\tnouvw_color= AColor(1.0,1.0,1.0,1.0);")
+	if slot:
+		ofile.write("\n\tinvert= %d;" % slot.invert)

@@ -289,25 +289,25 @@ def write_lamp_textures(bus):
 					factor=   getattr(VRayLight, key+'_mult')
 
 				if use_slot:
-					if key not in bus['textures']['mapto']: # First texture
-						bus['textures']['mapto'][key]= []
+					if key not in bus['textures']: # First texture
+						bus['textures'][key]= []
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures']['mapto'][key].append(defaults[key])
+							bus['textures'][key].append(defaults[key])
 					params['mapto']=    key
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					bus['textures']['mapto'][key].append((write_texture_factor(ofile, scene, params),
+					bus['textures'][key].append((write_texture_factor(ofile, scene, params),
 														slot.use_stencil,
 														VRaySlot.blend_mode))
-	if len(bus['textures']['mapto']):
-		debug(scene, "Lamp \"%s\" texture stack: %s" % (la.name,bus['textures']['mapto']))
+	if len(bus['textures']):
+		debug(scene, "Lamp \"%s\" texture stack: %s" % (la.name,bus['textures']))
 	
-	for key in bus['textures']['mapto']:
-		if len(bus['textures']['mapto'][key]):
-			bus['textures']['mapto'][key]= write_TexOutput(
+	for key in bus['textures']:
+		if len(bus['textures'][key]):
+			bus['textures'][key]= write_TexOutput(
 				ofile,
-				stack_write_shaders(ofile, stack_collapse_layers(bus['textures']['mapto'][key])),
+				stack_write_shaders(ofile, stack_collapse_layers(bus['textures'][key])),
 				{}
 			)
 
@@ -325,23 +325,16 @@ def write_material_textures(bus):
 	VRayExporter= VRayScene.exporter
 
 	defaults= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
-	
-	bus['textures']= {
-		# Textured parameters
-		'mapto': {},
 
-		# We need to store some slot pointers
-		# to get data further
-		'slots': {
-			'normal':        None,
-			'displacement':  None,
-		},
+	# Mapped parameters
+	bus['textures']= {}
 
-		# BRDFBump "feature"
-		'normal_uvwgen': None,
-	}
+	# Displace settings pointer
+	bus['node']['displace']= None
 
-	bus['node']['displace']= {}
+	# Normal mapping settings pointer and uvwgen
+	bus['material']['normal']=        None
+	bus['material']['normal_uvwgen']= None
 
 	for i,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
@@ -369,7 +362,7 @@ def write_material_textures(bus):
 					if slot.use_map_normal:
 						use_slot= True
 						factor= VRaySlot.normal_mult
-						bus['textures']['values']['normal_slot']= slot
+						bus['material']['normal']= slot
 				else:
 					if getattr(VRaySlot, 'map_'+key):
 						use_slot= True
@@ -379,36 +372,35 @@ def write_material_textures(bus):
 
 				if use_slot:
 					# If texture is first in stack
-					if key not in bus['textures']['mapto']:
-						bus['textures']['mapto'][key]= []
+					if key not in bus['textures']:
+						bus['textures'][key]= []
 						# If this texture will be blended over some value
 						# we need to add this value
 						# (for example, texture blended over diffuse color)
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures']['mapto'][key].append(defaults[key])
+							bus['textures'][key].append(defaults[key])
 
-					params= {}
-					params['mapto']=    key
-					params['slot']=     slot
-					params['texture']=  slot.texture
-					params['factor']=   factor
-					bus['textures']['mapto'][key].append( (write_texture(ofile, scene, params),
-														   slot.use_stencil,
-														   VRaySlot.blend_mode) )
+					bus['mtex']= {}
+					bus['mtex']['mapto']=    key
+					bus['mtex']['slot']=     slot
+					bus['mtex']['texture']=  slot.texture
+					bus['mtex']['factor']=   factor
+
+					# Write texture
+					write_texture(bus)
+
+					# Append texture to stack and write texture with factor
+					bus['textures'][key].append( (write_factor(bus),
+												  slot.use_stencil,
+												  VRaySlot.blend_mode) )
 
 	if VRayExporter.debug:
-		if len(bus['textures']['mapto']):
-			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures']['mapto'])
+		if len(bus['textures']):
+			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures'])
 	
-	for key in bus['textures']['mapto']:
-		if len(bus['textures']['mapto'][key]):
-			bus['textures']['mapto'][key]= write_TexOutput(
-				ofile,
-				stack_write_shaders(ofile, stack_collapse_layers(bus['textures']['mapto'][key])),
-				{} # TODO: TexOutput params
-			)
-
-	bus['node']['displace']['texture']= textures['mapto']['displacement']
+	for key in bus['textures']:
+		if len(bus['textures'][key]):
+			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])))
 
 	return bus['textures']
 
@@ -981,6 +973,7 @@ def write_scene(scene, preview= None):
 	bus['files']= {}
 	bus['files']['lights']=      open(get_filenames(scene,'lights'),      'w')
 	bus['files']['materials']=   open(get_filenames(scene,'materials'),   'w')
+	bus['files']['textures']=    open(get_filenames(scene,'textures'),    'w')
 	bus['files']['nodes']=       open(get_filenames(scene,'nodes'),       'w')
 	bus['files']['camera']=      open(get_filenames(scene,'camera'),      'w')
 	bus['files']['scene']=       open(get_filenames(scene,'scene'),       'w')
