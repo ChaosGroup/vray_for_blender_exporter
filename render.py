@@ -52,6 +52,37 @@ from vb25.nodes import *
 VERSION= '2.5'
 
 
+## Data bus
+# bus= {}
+
+## Currently processed object
+# bus['node']= {}
+# bus['node']['object']= Object
+# bus['node']['displace']['data_pointer']= Texture
+# bus['node']['displace']['texture']= string
+
+## Currently processed material
+# bus['material']= {}
+## BRDFBump nomal mapping uvwgen
+# bus['material']['normal_uvwgen']= string
+## Texture stack
+# bus['material']['textures']= {}
+
+## Currently processed texture
+# bus['mtex']= {}
+# bus['mtex']['slot']
+# bus['mtex']['texture']
+# bus['mtex']['factor']
+# bus['mtex']['blend_mode']
+
+## Exported data
+# bus['filter']= {}
+# bus['filter']['proxy']=    []
+# bus['filter']['bitmap']=   []
+# bus['filter']['texture']=  []
+# bus['filter']['material']= []
+
+
 '''
   MESHES
 '''
