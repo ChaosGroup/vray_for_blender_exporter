@@ -22,6 +22,7 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -31,11 +32,11 @@ from vb25.utils import *
 from vb25.shaders import *
 from vb25.ui.ui import *
 
+
 TYPE= 'TEXTURE'
-
 ID=   'TexBitmap'
-NAME= 'Bitmap'
 
+NAME= 'Bitmap'
 DESC= "Image texture."
 
 
@@ -133,12 +134,6 @@ def add_properties(rna_pointer):
 		name= "Use data window",
 		description= "Use the data window information in OpenEXR files.",
 		default= True
-	)
-
-	rna_pointer.TexNoiseMax= PointerProperty(
-		name= "TexNoiseMax",
-		type=  TexNoiseMax,
-		description= "V-Ray TexNoiseMax settings"
 	)
 
 

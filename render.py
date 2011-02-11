@@ -392,7 +392,7 @@ def write_material_textures(bus):
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					bus['textures']['mapto'][key].append( (write_texture_factor(ofile, scene, params),
+					bus['textures']['mapto'][key].append( (write_texture(ofile, scene, params),
 														   slot.use_stencil,
 														   VRaySlot.blend_mode) )
 

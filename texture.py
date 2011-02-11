@@ -31,34 +31,8 @@ import bpy
 ''' vb modules '''
 from vb25.utils   import *
 from vb25.plugins import *
-from vb25.uvwgen  import *
 
 
-'''
-  General texture export call
-'''
-def write_texture(bus):
-	ofile=   bus['files']['texture']
-	scene=   bus['scene']
-	texture= bus['texture']
-
-	VRayTexture= texture.vray
-
-	if texture.type == 'IMAGE':
-		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
-
-	elif texture.type == 'VRAY':
-		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
-
-	else:
-		debug(sce, "Texture %s: type \'%s\' is not supported." % (texture.name, texture.type), error= True)
-		return None
-
-
-
-'''
-  Useful textures
-'''
 def write_TexAColorOp(ofile, sce, color_a, mult):
 	tex_name= get_random_string()
 	ofile.write("\nTexAColorOp %s {" % tex_name)
@@ -67,12 +41,14 @@ def write_TexAColorOp(ofile, sce, color_a, mult):
 	ofile.write("\n}\n")
 	return tex_name
 
+
 def write_TexInvert(ofile, tex):
 	tex_name= get_random_string()
 	ofile.write("\nTexInvert %s {" % tex_name)
 	ofile.write("\n\ttexture= %s;" % tex)
 	ofile.write("\n}\n")
 	return tex_name
+
 
 def write_TexCompMax(ofile, sce, params):
 	OPERATOR= {
@@ -95,6 +71,7 @@ def write_TexCompMax(ofile, sce, params):
 
 	return tex_name
 
+
 def write_TexFresnel(ofile, sce, ma, ma_name, textures):
 	tex_name= "TexFresnel_%s"%(ma_name)
 
@@ -109,31 +86,21 @@ def write_TexFresnel(ofile, sce, ma, ma_name, textures):
 	return tex_name
 
 
-'''
-  Texture multiply and factor
-'''
-def write_multiply_texture(ofile, sce, input_texture_name, mult_value):
-	if mult_value == 1.0:
-		return input_texture_name
+def write_texture(bus):
+	scene=   bus['scene']
+	texture= bus['texture']
 
-	tex_name= get_random_string()
-		
-	ofile.write("\nTexAColorOp %s {" % tex_name)
-	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-	if mult_value > 1.0:
-		ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
-		ofile.write("\n\tresult_alpha= %s;" % a(sce, 1.0))
+	if texture.type == 'IMAGE':
+		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
+
+	elif texture.type == 'VRAY':
+		VRayTexture= texture.vray
+		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
+
 	else:
-		ofile.write("\n\tmult_a= %s;" % a(sce, 1.0))
-		ofile.write("\n\tresult_alpha= %s;" % a(sce, mult_value))
-	ofile.write("\n}\n")
-				
-	return tex_name
+		debug(sce, "Texture %s: type \'%s\' is not supported." % (texture.name, texture.type), error= True)
+		return None
 
-def write_texture_factor(ofile, sce, params):
-	tex_name= write_texture(ofile, sce, params)
-	tex_name= write_multiply_texture(ofile, sce, tex_name, params['factor'])
-	return tex_name
 
 
 '''
@@ -146,6 +113,38 @@ def write_texture_factor(ofile, sce, params):
   or:
     LAlamp+TEtexture+IDtexture_id_in_stack
 '''
+def write_factor(ofile, sce, input_texture_name, mult_value):
+	if mult_value == 1.0:
+		return input_texture_name
+
+	tex_name= get_random_string()
+
+	if mult_value > 1.0:
+		ofile.write("\nTexOutput %s {" % tex_name)
+		ofile.write("\n\ttexmap= %s;" % input_texture_name)
+		ofile.write("\n\tcolor_mult= %s;" % a(sce, "AColor(%s,%s,%s,1.0)" % ([mult_value]*3)))
+		ofile.write("\n}\n")
+		# ofile.write("\nTexAColorOp %s {" % tex_name)
+		# ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+		# ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
+		# ofile.write("\n\tresult_alpha= 1.0;")
+		# ofile.write("\n}\n")
+	else:
+		ofile.write("\nTexAColorOp %s {" % tex_name)
+		ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+		ofile.write("\n\tmult_a= 1.0;")
+		ofile.write("\n\tresult_alpha= %s;" % a(sce, mult_value))
+		ofile.write("\n}\n")
+				
+	return tex_name
+
+
+def write_stack_factor(ofile, sce, params):
+	tex_name= write_texture(ofile, sce, params)
+	tex_name= write_factor(ofile, sce, tex_name, params['factor'])
+	return tex_name
+
+
 def stack_write_TexLayered(ofile, layers):
 	BLEND_MODES= {
 		'NONE':         '0',
