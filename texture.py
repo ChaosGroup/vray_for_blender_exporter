@@ -35,181 +35,24 @@ from vb25.uvwgen  import *
 
 
 '''
-  Image texture
+  General texture export call
 '''
-def write_BitmapBuffer(bus):
-	FILTER_TYPE= {
-		'NONE':   0,
-		'MIPMAP': 1,
-		'AREA':   2,
-	}
-	COLOR_SPACE= {
-		'LINEAR': 0,
-		'GAMMA':  1,
-		'SRGB':   2,
-	}
-	INTERPOLATION= {
-		'BILINEAR': 0,
-		'BICUBIC':  1,
-	}
-
-	ofile= bus['files']['texture']
-	scene= bus['scene']
-
-	slot=    bus['slot']
-	texture= bus['texture']
-
-	VRayScene=    scene.vray
-	SettingsColorMapping= VRayScene.SettingsColorMapping
-	
-	VRaySlot=     texture.vray_slot
-	VRayTexture=  texture.vray
-	BitmapBuffer= texture.image.vray.BitmapBuffer
-
-	filename= get_full_filepath(sce, texture.image, texture.image.filepath)
-
-	bitmap_name= 'IM' + clean_string(texture.image.name)
-	if texture.image.source == 'SEQUENCE':
-		bitmap_name= 'IM' + texture.image_user.as_pointer()
-
-	# Check if already exported
-	if bitmap_name in bus['filter']['bitmap']:
-		return bitmap_name
-	bus['filter']['bitmap'].append(bitmap_name)
-
-	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
-	ofile.write("\n\tfile= \"%s\";" % filename)
-	ofile.write("\n\tcolor_space= %i;" % COLOR_SPACE[BitmapBuffer.color_space])
-	ofile.write("\n\tinterpolation= %i;" % INTERPOLATION[BitmapBuffer.interpolation])
-	ofile.write("\n\tallow_negative_colors= %i;" % BitmapBuffer.allow_negative_colors)
-	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
-	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
-	ofile.write("\n\tuse_data_window= %i;" % BitmapBuffer.use_data_window)
-	ofile.write("\n}\n")
-	if BitmapBuffer.use_input_gamma:
-		ofile.write("\n\tgamma= %s;" % p(SettingsColorMapping.input_gamma))
-	else:
-		ofile.write("\n\tgamma= %s;" % a(sce, BitmapBuffer.gamma))
-	if texture.image.source == 'SEQUENCE':
-		ofile.write("\n\tframe_sequence= 1;")
-		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
-		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
-
-	return bitmap_name
-
-
-def write_TexBitmap(bus):
-	PLACEMENT_TYPE= {
-		'FULL':  0,
-		'CROP':  1,
-		'PLACE': 2,
-	}
-	TILE= {
-		'NOTILE': 0,
-		'TILEUV': 1,
-		'TILEU':  2,
-		'TILEV':  3,
-	}
-
-	ofile= bus['files']['texture']
-	scene= bus['scene']
-
-	slot=    bus['slot']
+def write_texture(bus):
+	ofile=   bus['files']['texture']
+	scene=   bus['scene']
 	texture= bus['texture']
 
 	VRayTexture= texture.vray
-	VRaySlot=    texture.vray_slot
-
-	if not texture.image:
-		print("V-Ray/Blender: %s Image is not set! (%s)"%(color("Error!",'red'),texture.name))
-		return "Texture_no_texture"
-
-	tex_name= 'TE' + clean_string(texture.name)
-
-	if VRayTexture.texture_coords == 'ORCO':
-		if 'object' in params:
-			tex_name= 'OB' + clean_string(params['object'].name) + tex_name
-
-	if 'filters' in params and 'exported_textures' in params['filters']:
-		if tex_name in params['filters']['exported_textures']:
-			debug(sce, "Filters: %s" % params['filters'])
-			return tex_name
-		params['filters']['exported_textures'].append(tex_name)
-
-	bitmap= write_BitmapBuffer(ofile, sce, params)
-
-	if bitmap is None:
-		return None
-	
-	if 'environment' in params:
-		uvwgen= write_UVWGenEnvironment(ofile, sce, params)
-	else:
-		uvwgen= write_UVWGenChannel(ofile, sce, params)
-
-	ofile.write("\nTexBitmap %s {" % tex_name)
-	ofile.write("\n\tbitmap= %s;" % bitmap)
-	ofile.write("\n\tuvwgen= %s;" % uvwgen)
-	if 'material' in params:
-		ofile.write("\n\tnouvw_color= AColor(%.3f,%.3f,%.3f,1.0);" % tuple(params['material'].diffuse_color))
-	ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
-	ofile.write("\n\tu= %s;" % texture.crop_min_x)
-	ofile.write("\n\tv= %s;" % texture.crop_min_y)
-	ofile.write("\n\tw= %s;" % texture.crop_max_x)
-	ofile.write("\n\th= %s;" % texture.crop_max_y)
-	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[texture.vray.placement_type])
-	if slot:
-		ofile.write("\n\tinvert= %d;"%(slot.invert))
-	ofile.write("\n}\n")
-
-	return tex_name
-
-
-'''
-  Procedural textures
-'''
-def write_TexPlugin(ofile, sce, bus):
-	texture= bus.get('texture')
-	if texture:
-		VRayTexture= texture.vray
-		plugin= PLUGINS['TEXTURE'].get(VRayTexture.type)
-		if plugin:
-			return plugin.write(ofile, sce, bus)
-
-
-'''
-  TEXTURES
-'''
-def write_texture(ofile, sce, params):
-	texture= params['texture']
-
-	texture_name= 'TE' + clean_string(texture.name)
-	if 'material' in params:
-		texture_name= 'MA' + clean_string(params['material'].name) + texture_name
-	if 'mapto' in params:
-		texture_name+= 'TS' + params['mapto']
-
-	params['name']= texture_name
 
 	if texture.type == 'IMAGE':
-		texture_name= write_TexBitmap(ofile, sce, params)
+		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
 
 	elif texture.type == 'VRAY':
-		tex_name= write_TexPlugin(ofile, sce, params)
-		texture_name= "TO%s" % texture_name
-		ofile.write("\nTexOutput %s {" % tex_name)
-		ofile.write("\n\ttexmap= %s;" % tex_name)
-		ofile.write("\n\tinvert= %s;" % a(sce, params['slot'].invert))
-		ofile.write("\n}\n")
+		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
 
 	else:
-		texture_name= None
-		debug(sce, "Texture type [%s] is currently unsupported." % texture.type, error= True)
-
-
-	if texture_name is None:
-		return "Texture_no_texture"
-
-	return texture_name
+		debug(sce, "Texture %s: type \'%s\' is not supported." % (texture.name, texture.type), error= True)
+		return None
 
 
 

@@ -74,10 +74,11 @@ PARAMS= (
 	'uvwgen',
 )
 
-class TexNoiseMax(bpy.types.IDPropertyGroup):
-	pass
 
 def add_properties(rna_pointer):
+	class TexNoiseMax(bpy.types.IDPropertyGroup):
+		pass
+
 	rna_pointer.TexNoiseMax= PointerProperty(
 		name= "TexNoiseMax",
 		type=  TexNoiseMax,

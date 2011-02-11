@@ -35,103 +35,6 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 
-
-class VRayImage(bpy.types.IDPropertyGroup):
-	pass
-
-bpy.types.Image.vray= PointerProperty(
-	name= "V-Ray Image Settings",
-	type=  VRayImage,
-	description= "V-Ray image settings."
-)
-
-class BitmapBuffer(bpy.types.IDPropertyGroup):
-	pass
-
-VRayImage.BitmapBuffer= PointerProperty(
-	name= "BitmapBuffer",
-	type=  BitmapBuffer,
-	description= "BitmapBuffer settings."
-)
-
-BitmapBuffer.filter_type= EnumProperty(
-	name= "Filter type",
-	description= "Filter type.",
-	items= (
-		('NONE',   "None",        ""),
-		('MIPMAP', "Mip-Map",     "Mip-map filtering."),
-		('AREA',   "Area",        "Summed area filtering.")
-	),
-	default= 'AREA'
-)
-
-BitmapBuffer.color_space= EnumProperty(
-	name= "Color space",
-	description= "Color space.",
-	items= (
-		('LINEAR', "Linear",          ""), # 0
-		('GAMMA',  "Gamma corrected", ""),
-		('SRGB',   "sRGB",            "")
-	),
-	default= 'LINEAR'
-)
-
-BitmapBuffer.interpolation= EnumProperty(
-	name= "Interpolation",
-	description= "Interpolation.",
-	items= (
-		('BILINEAR', "Bilinear", ""), # 0
-		('BICUBIC',  "Bicubic",  ""),
-	),
-	default= 'BILINEAR'
-)
-
-BitmapBuffer.filter_blur= FloatProperty(
-	name= "Blur",
-	description= "Filter blur.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= 1.0
-)
-
-BitmapBuffer.gamma= FloatProperty(
-	name= "Gamma",
-	description= "Gamma.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 10.0,
-	precision= 4,
-	default= 1.0
-)
-
-BitmapBuffer.use_input_gamma= BoolProperty(
-	name= "Use \"Input gamma\"",
-	description= "Use \"Input gamma\" from \"Color mapping\" settings.",
-	default= True
-)
-
-BitmapBuffer.gamma_correct= BoolProperty(
-	name= "Invert gamma",
-	description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
-	default= False
-)
-
-BitmapBuffer.allow_negative_colors= BoolProperty(
-	name= "Allow negative colors",
-	description= "If false negative colors will be clamped.",
-	default= False
-)
-
-BitmapBuffer.use_data_window= BoolProperty(
-	name= "Use data window",
-	description= "Use the data window information in OpenEXR files.",
-	default= True
-)
-
-
 class VRaySlot(bpy.types.IDPropertyGroup):
 	pass
 
@@ -153,19 +56,19 @@ VRaySlot.blend_mode= EnumProperty(
 	name= "Blend mode",
 	description= "Blend mode.",
 	items= (
-		('NONE',        "None",       "Tooltip: ..."),
-		('OVER',        "Over",       "Tooltip: ..."),
-		('IN',          "In",         "Tooltip: ..."),
-		('OUT',         "Out",        "Tooltip: ..."),
-		('ADD',         "Add",        "Tooltip: ..."),
-		('SUBTRACT',    "Subtract",   "Tooltip: ..."),
-		('MULTIPLY',    "Multiply",   "Tooltip: ..."),
-		('DIFFERENCE',  "Difference", "Tooltip: ..."),
-		('LIGHTEN',     "Lighten",    "Tooltip: ..."),
-		('DARKEN',      "Darken",     "Tooltip: ..."),
-		('SATURATE',    "Saturate",   "Tooltip: ..."),
-		('DESATUREATE', "Desaturate", "Tooltip: ..."),
-		('ILLUMINATE',  "Illuminate", "Tooltip: ..."),
+		('NONE',        "None",       ""),
+		('OVER',        "Over",       ""),
+		('IN',          "In",         ""),
+		('OUT',         "Out",        ""),
+		('ADD',         "Add",        ""),
+		('SUBTRACT',    "Subtract",   ""),
+		('MULTIPLY',    "Multiply",   ""),
+		('DIFFERENCE',  "Difference", ""),
+		('LIGHTEN',     "Lighten",    ""),
+		('DARKEN',      "Darken",     ""),
+		('SATURATE',    "Saturate",   ""),
+		('DESATUREATE', "Desaturate", ""),
+		('ILLUMINATE',  "Illuminate", ""),
 	),
 	default= 'NONE'
 )
