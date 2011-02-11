@@ -58,11 +58,32 @@ BitmapBuffer.filter_type= EnumProperty(
 	name= "Filter type",
 	description= "Filter type.",
 	items= (
-		('NONE',   "None",        "Tooltip: ..."),
-		('MIPMAP', "Mip-Map",     "Tooltip: ..."),
-		('AREA',   "Summed Area", "Tooltip: ...")
+		('NONE',   "None",        ""),
+		('MIPMAP', "Mip-Map",     "Mip-map filtering."),
+		('AREA',   "Area",        "Summed area filtering.")
 	),
 	default= 'AREA'
+)
+
+BitmapBuffer.color_space= EnumProperty(
+	name= "Color space",
+	description= "Color space.",
+	items= (
+		('LINEAR', "Linear",          ""), # 0
+		('GAMMA',  "Gamma corrected", ""),
+		('SRGB',   "sRGB",            "")
+	),
+	default= 'LINEAR'
+)
+
+BitmapBuffer.interpolation= EnumProperty(
+	name= "Interpolation",
+	description= "Interpolation.",
+	items= (
+		('BILINEAR', "Bilinear", ""), # 0
+		('BICUBIC',  "Bicubic",  ""),
+	),
+	default= 'BILINEAR'
 )
 
 BitmapBuffer.filter_blur= FloatProperty(
@@ -1371,7 +1392,7 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
-	bl_label = "Image Settings"
+	bl_label = "Texture"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
@@ -1394,14 +1415,6 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 			layout.prop(VRayTexture, 'tile', expand=True)
 		else:
 			layout.prop(VRayTexture, 'tile')
-
-		# Move to scene converter
-		# if VRayTexture.tile == 'TILEUV':
-		# 	if tex.extension != 'REPEAT':
-		# 		tex.extension= 'REPEAT'
-		# else:
-		# 	if tex.extension != 'CLIP':
-		# 		tex.extension= 'CLIP'
 
 		if VRayTexture.tile != 'NOTILE':
 			split = layout.split()
@@ -1445,15 +1458,38 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		sub.prop(tex, 'crop_max_x', text='U')
 		sub.prop(tex, 'crop_max_y', text='V')
 
-		layout.separator()
+
+class VRAY_TEX_bitmap(VRayTexturePanel, bpy.types.Panel):
+	bl_label = "Bitmap"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		engine= context.scene.render.engine
+		return tex and ((tex.type == 'IMAGE' and tex.image) and (engine in cls.COMPAT_ENGINES))
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		slot= getattr(context,'texture_slot',None)
+		tex= slot.texture if slot else context.texture
 
 		BitmapBuffer= tex.image.vray.BitmapBuffer
+
+		split= layout.split()
+		col= split.column()
+		col.prop(BitmapBuffer, 'color_space')
 
 		split= layout.split()
 		col= split.column()
 		col.prop(BitmapBuffer, 'filter_type', text="Filter")
 		if BitmapBuffer.filter_type != 'NONE':
 			col.prop(BitmapBuffer, 'filter_blur')
+		if BitmapBuffer.filter_type == 'MIPMAP':
+			col.prop(BitmapBuffer, 'interpolation', text="Interp.")
 		if wide_ui:
 			col= split.column()
 		col.prop(BitmapBuffer, 'use_input_gamma')

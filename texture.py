@@ -37,57 +37,73 @@ from vb25.uvwgen  import *
 '''
   Image texture
 '''
-def write_BitmapBuffer(ofile, sce, params):
-	BITMAP_FILTER_TYPE= {
+def write_BitmapBuffer(bus):
+	FILTER_TYPE= {
 		'NONE':   0,
 		'MIPMAP': 1,
 		'AREA':   2,
 	}
-	
-	slot= params.get('slot')
-	texture= params.get('texture')
+	COLOR_SPACE= {
+		'LINEAR': 0,
+		'GAMMA':  1,
+		'SRGB':   2,
+	}
+	INTERPOLATION= {
+		'BILINEAR': 0,
+		'BICUBIC':  1,
+	}
 
+	ofile= bus['files']['texture']
+	scene= bus['scene']
+
+	slot=    bus['slot']
+	texture= bus['texture']
+
+	VRayScene=    scene.vray
+	SettingsColorMapping= VRayScene.SettingsColorMapping
+	
+	VRaySlot=     texture.vray_slot
+	VRayTexture=  texture.vray
 	BitmapBuffer= texture.image.vray.BitmapBuffer
 
-	filename= get_full_filepath(sce,texture.image,texture.image.filepath)
-	if not sce.vray.VRayDR.on:
-		if not os.path.exists(filename) or not texture.image.filepath:
-			print("V-Ray/Blender: %s Texture: %s => Image file does not exists!"%(color("Error!",'red'),texture.name))
-			return None
+	filename= get_full_filepath(sce, texture.image, texture.image.filepath)
 
+	bitmap_name= 'IM' + clean_string(texture.image.name)
 	if texture.image.source == 'SEQUENCE':
-		bitmap_name= get_random_string()
-	else:
-		bitmap_name= 'IM' + clean_string(texture.image.name)
-		if 'filters' in params:
-			if bitmap_name in params['filters']['exported_bitmaps']:
-				return bitmap_name
-			params['filters']['exported_bitmaps'].append(bitmap_name)
+		bitmap_name= 'IM' + texture.image_user.as_pointer()
+
+	# Check if already exported
+	if bitmap_name in bus['filter']['bitmap']:
+		return bitmap_name
+	bus['filter']['bitmap'].append(bitmap_name)
 
 	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
 	ofile.write("\n\tfile= \"%s\";" % filename)
+	ofile.write("\n\tcolor_space= %i;" % COLOR_SPACE[BitmapBuffer.color_space])
+	ofile.write("\n\tinterpolation= %i;" % INTERPOLATION[BitmapBuffer.interpolation])
+	ofile.write("\n\tallow_negative_colors= %i;" % BitmapBuffer.allow_negative_colors)
+	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
+	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
+	ofile.write("\n\tuse_data_window= %i;" % BitmapBuffer.use_data_window)
+	ofile.write("\n}\n")
 	if BitmapBuffer.use_input_gamma:
-		ofile.write("\n\tgamma= %s;" % p(sce.vray.SettingsColorMapping.input_gamma))
+		ofile.write("\n\tgamma= %s;" % p(SettingsColorMapping.input_gamma))
 	else:
-		ofile.write("\n\tgamma= %s;" % a(sce,BitmapBuffer.gamma))
+		ofile.write("\n\tgamma= %s;" % a(sce, BitmapBuffer.gamma))
 	if texture.image.source == 'SEQUENCE':
 		ofile.write("\n\tframe_sequence= 1;")
 		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
 		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
-	ofile.write("\n\tfilter_type= %d;" % BITMAP_FILTER_TYPE[BitmapBuffer.filter_type])
-	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
-	ofile.write("\n}\n")
 
 	return bitmap_name
 
 
-def write_TexBitmap(ofile, sce, params):
+def write_TexBitmap(bus):
 	PLACEMENT_TYPE= {
 		'FULL':  0,
 		'CROP':  1,
-		'PLACE': 2
+		'PLACE': 2,
 	}
-
 	TILE= {
 		'NOTILE': 0,
 		'TILEUV': 1,
@@ -95,8 +111,11 @@ def write_TexBitmap(ofile, sce, params):
 		'TILEV':  3,
 	}
 
-	slot= params.get('slot')
-	texture= params.get('texture')
+	ofile= bus['files']['texture']
+	scene= bus['scene']
+
+	slot=    bus['slot']
+	texture= bus['texture']
 
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
@@ -179,12 +198,12 @@ def write_texture(ofile, sce, params):
 		texture_name= "TO%s" % texture_name
 		ofile.write("\nTexOutput %s {" % tex_name)
 		ofile.write("\n\ttexmap= %s;" % tex_name)
-		ofile.write("\n\tinvert= %s;" % a(sce, params['slot'].invert)
+		ofile.write("\n\tinvert= %s;" % a(sce, params['slot'].invert))
 		ofile.write("\n}\n")
 
 	else:
 		texture_name= None
-		print("V-Ray/Blender: Texture type [%s] is currently unsupported." % texture.type)
+		debug(sce, "Texture type [%s] is currently unsupported." % texture.type, error= True)
 
 
 	if texture_name is None:

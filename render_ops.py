@@ -306,6 +306,14 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 	}
 
 	def execute(self, context):
+		# TODO:
+		# if VRayTexture.tile == 'TILEUV':
+		# 	if tex.extension != 'REPEAT':
+		# 		tex.extension= 'REPEAT'
+		# else:
+		# 	if tex.extension != 'CLIP':
+		# 		tex.extension= 'CLIP'
+
 		for ma in bpy.data.materials:
 			debug(context.scene, "Converting material: %s" % ma.name)
 			
