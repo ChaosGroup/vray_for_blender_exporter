@@ -42,6 +42,8 @@ import mathutils
 from vb25.utils import *
 from vb25.shaders import *
 from vb25.plugins import *
+# TEMP!
+from vb25.tempparams import *
 
 ''' vb dev modules '''
 from vb25.nodes import *
@@ -81,7 +83,6 @@ def write_geometry_python(scene, preview= None):
 				if mesh_name in bus['filter']['mesh']:
 					continue
 				bus['filter']['mesh'].append(mesh_name)
-
 			else:
 				mesh_name= get_name(ob, prefix='ME')
 
@@ -209,7 +210,7 @@ def write_settings(bus):
 	ofile.write("\nSettingsOutput {")
 	ofile.write("\n\timg_separateAlpha= %d;" % (0))
 	ofile.write("\n\timg_width= %s;" % wx)
-	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy)
+	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
 	if VRayExporter.animation:
 		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(scene.camera.name),get_render_file_format(VRayExporter,scene.render.file_format)))
 		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(scene,'output')))
@@ -326,12 +327,18 @@ def write_material_textures(bus):
 	defaults= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
 	
 	bus['textures']= {
+		# Textured parameters
 		'mapto': {},
+
+		# We need to store some slot pointers
+		# to get data further
 		'slots': {
 			'normal':        None,
-			'normal_uvwgen': None,
 			'displacement':  None,
-		}
+		},
+
+		# BRDFBump "feature"
+		'normal_uvwgen': None,
 	}
 
 	bus['node']['displace']= {}
@@ -371,18 +378,23 @@ def write_material_textures(bus):
 							bus['node']['displace']['slot']= slot
 
 				if use_slot:
-					if key not in bus['textures']['mapto']: # First texture
+					# If texture is first in stack
+					if key not in bus['textures']['mapto']:
 						bus['textures']['mapto'][key]= []
+						# If this texture will be blended over some value
+						# we need to add this value
+						# (for example, texture blended over diffuse color)
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
 							bus['textures']['mapto'][key].append(defaults[key])
+
 					params= {}
 					params['mapto']=    key
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					bus['textures']['mapto'][key].append(
-						(write_texture_factor(ofile, scene, params), slot.use_stencil, VRaySlot.blend_mode)
-					)
+					bus['textures']['mapto'][key].append( (write_texture_factor(ofile, scene, params),
+														   slot.use_stencil,
+														   VRaySlot.blend_mode) )
 
 	if VRayExporter.debug:
 		if len(bus['textures']['mapto']):
@@ -405,13 +417,15 @@ def	write_material(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 	ob=    bus['node']['object']
+
 	ma=    bus['material']
 
 	VRayMaterial= ma.vray
 
 	ma_name= get_name(ma, prefix='MA')
 
-	textures= write_material_textures(bus)
+	# Write material textures
+	write_material_textures(bus)
 
 	# Write material BRDF
 	PLUGINS['BRDF'][VRayMaterial.type].write(bus)
@@ -511,42 +525,64 @@ def write_materials(bus):
 	scene= bus['scene']
 	ob=    bus['node']['object']
 
-	mtls_list= []
-	ids_list=  []
-
+	# Multi-material name
 	mtl_name= get_name(ob, prefix='MA')
 
-	ma_id= 0
+	# Collecting and exporting object materials
+	mtls_list= []
+	ids_list=  []
+	ma_id= 0 # For cases with empty slots
 	if len(ob.material_slots):
-		for i,slot in enumerate(ob.material_slots):
+		for slot in ob.material_slots:
 			ma= slot.material
 			if ma:
+				bus['material']= ma
+
+				# Node material
 				if scene.vray.exporter.use_material_nodes and ma.use_nodes:
 					debug(scene,"Node materials temporarily disabled...")
 					#mtls_list.append(write_node_material(params))
-				bus['material']= ma
-				ma_name= write_material(bus)
-				if ma_name:
-					mtls_list.append(ma_name)
+				else:
+					mtls_list.append(write_material(bus))
 					ma_id+= 1
 					ids_list.append(str(ma_id))
 
-	if len(mtls_list) == 0:
-		mtls_list.append(bus['defaults']['material'])
-		ids_list.append("1")
+	# No materials assigned - use default material
+	if len(mtls_list) == 0: 
+		bus['node']['material']= bus['defaults']['material']
+
+	# Only one material - no need to Multi-material
 	elif len(mtls_list) == 1:
 		bus['node']['material']= mtls_list[0]
-		return
-					
-	ofile.write("\nMtlMulti %s {" % mtl_name)
-	ofile.write("\n\tmtls_list= List(%s);"%(','.join(mtls_list)))
-	ofile.write("\n\tids_list= ListInt(%s);"%(','.join(ids_list)))
-	ofile.write("\n}\n")
 
-	bus['node']['material']= mtl_name
+	# Several materials assigned - need Mutli-material
+	else:
+		bus['node']['material']= mtl_name
+		ofile.write("\nMtlMulti %s {" % mtl_name)
+		ofile.write("\n\tmtls_list= List(%s);" % ','.join(mtls_list))
+		ofile.write("\n\tids_list= ListInt(%s);" % ','.join(ids_list))
+		ofile.write("\n}\n")
 
 
 def write_lamp(bus):
+	LIGHT_PORTAL= {
+		'NORMAL':  0,
+		'PORTAL':  1,
+		'SPORTAL': 2,
+	}
+	SKY_MODEL= {
+		'CIEOVER'  : 2,
+		'CIECLEAR' : 1,
+		'PREETH'   : 0,
+	}
+	UNITS= {
+		'DEFAULT' : 0,
+		'LUMENS'  : 1,
+		'LUMM'    : 2,
+		'WATTSM'  : 3,
+		'WATM'    : 4,
+	}
+
 	scene= bus['scene']
 	ofile= bus['files']['lights']
 	ob=    bus['node']['object']
