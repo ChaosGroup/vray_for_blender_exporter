@@ -39,9 +39,9 @@ import bpy
 import mathutils
 
 ''' vb modules '''
-from vb25.utils import *
-from vb25.shaders import *
+from vb25.utils   import *
 from vb25.plugins import *
+from vb25.texture import *
 # TEMP!
 from vb25.tempparams import *
 

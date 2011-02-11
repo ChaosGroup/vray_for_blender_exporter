@@ -29,9 +29,9 @@
 import bpy
 
 ''' vb modules '''
-from vb25.utils import *
+from vb25.utils   import *
 from vb25.plugins import *
-from vb25.uvw import *
+from vb25.uvwgen  import *
 
 
 '''
@@ -285,6 +285,23 @@ def write_texture_factor(ofile, sce, params):
     LAlamp+TEtexture+IDtexture_id_in_stack
 '''
 def stack_write_TexLayered(ofile, layers):
+	BLEND_MODES= {
+		'NONE':         '0',
+		'STENCIL':      '1',
+		'OVER':         '1',
+		'IN':           '2',
+		'OUT':          '3',
+		'ADD':          '4',
+		'SUBTRACT':     '5',
+		'MULTIPLY':     '6',
+		'DIFFERENCE':   '7',
+		'LIGHTEN':      '8',
+		'DARKEN':       '9',
+		'SATURATE':    '10',
+		'DESATUREATE': '11',
+		'ILLUMINATE':  '12',
+	}
+
 	tex_name= 'TL' + get_random_string()
 	if len(layers) == 1: return layers[0][0]
 	ofile.write("\nTexLayered %s {"%(tex_name))
