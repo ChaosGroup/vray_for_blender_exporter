@@ -28,28 +28,34 @@
 # bl_info= {
 # 	"name":        "V-Ray (git)",
 # 	"author":      "Andrey M. Izrantsev",
-# 	"version":     (0, 0, 1),
+# 	"version":     (2, 0, 0),
 # 	"blender":     (2, 5, 6),
-# 	"api":         34471,
+# 	"api":         34812,
 # 	"location":    "Info Header",
-# 	"description": "V-Ray Standalone integration for Blender.",
+# 	"description": "V-Ray Standalone 2.0 integration.",
 # 	"warning":     "",
 # 	"wiki_url":    "http://github.com/bdancer/vb25/wiki",
 # 	"tracker_url": "http://github.com/bdancer/vb25/issues",
 # 	"category":    "Render"
 # }
 
-import bpy
+if "bpy" in locals():
+	import imp
+	imp.reload(plugins)
+	imp.reload(ui)
+	imp.reload(preset)
+	imp.reload(render_ops)
+else:
+	import bpy
+	from vb25 import plugins
+	from vb25 import ui
+	from vb25 import preset
+	from vb25 import render_ops
 
-from vb25 import plugins
-from vb25 import ui
-from vb25 import shaders
-from vb25 import preset
-from vb25 import render
-from vb25 import render_ops
 
 def register():
 	plugins.add_properties()
+
 
 def unregister():
 	plugins.remove_properties()

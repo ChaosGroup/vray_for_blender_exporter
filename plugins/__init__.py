@@ -107,23 +107,37 @@ def add_properties():
 	class VRayCamera(bpy.types.IDPropertyGroup):
 		pass
 
+	bpy.utils.register_class(VRayCamera)
+
 	class VRayObject(bpy.types.IDPropertyGroup):
 		pass
+
+	bpy.utils.register_class(VRayObject)
 
 	class VRayMesh(bpy.types.IDPropertyGroup):
 		pass
 
+	bpy.utils.register_class(VRayMesh)
+
 	class VRayMaterial(bpy.types.IDPropertyGroup):
 		pass
+
+	bpy.utils.register_class(VRayMaterial)
 
 	class VRayTexture(bpy.types.IDPropertyGroup):
 		pass
 
+	bpy.utils.register_class(VRayTexture)
+
 	class VRayScene(bpy.types.IDPropertyGroup):
 		pass
 
+	bpy.utils.register_class(VRayScene)
+
 	class VRayRenderChannel(bpy.types.IDPropertyGroup):
 		pass
+
+	bpy.utils.register_class(VRayRenderChannel)
 
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
@@ -246,4 +260,9 @@ def add_properties():
 
 
 def remove_properties():
-	pass
+	del bpy.types.Camera.vray
+	del bpy.types.Material.vray
+	del bpy.types.Mesh.vray
+	del bpy.types.Object.vray
+	del bpy.types.Scene.vray
+	del bpy.types.Texture.vray

@@ -906,7 +906,7 @@ def _write_object_particles(bus):
 						size*= 3
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
-					part_transform.resize4x4()
+					part_transform.resize_4x4()
 					part_transform[3][0]= location[0]
 					part_transform[3][1]= location[1]
 					part_transform[3][2]= location[2]

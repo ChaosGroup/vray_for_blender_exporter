@@ -41,6 +41,8 @@ from vb25.utils import *
 class VRayLamp(bpy.types.IDPropertyGroup):
     pass
 
+bpy.utils.register_class(VRayLamp)
+
 bpy.types.Lamp.vray= PointerProperty(
 	name= "V-Ray Lamp Settings",
 	type=  VRayLamp,
