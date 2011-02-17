@@ -54,6 +54,7 @@ except:
 
 VERSION= '2.5.10'
 
+mesh_lights= []
 
 '''
   MESHES
@@ -973,6 +974,8 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 		else:
 			lights.append(lamp_name)
 
+	lights.extend(mesh_lights)
+	
 	base_mtl= material
 	if sce.vray.SettingsOptions.mtl_override_on and sce.vray.SettingsOptions.mtl_override:
 		base_mtl= get_name(bpy.data.materials[sce.vray.SettingsOptions.mtl_override],"Material")
@@ -1693,6 +1696,8 @@ def write_settings(sce,ofile):
 
 
 def write_scene(sce, bake= False):
+	global mesh_lights
+	
 	VRayScene= sce.vray
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
@@ -1882,6 +1887,17 @@ def write_scene(sce, bake= False):
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 				continue
+			for slot in ob.material_slots:
+				if slot.material:
+					VRayMaterial= slot.material.vray
+					if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
+						node_name= get_name(ob,"Node")
+						if node_name not in mesh_lights:
+							mesh_lights.append(node_name)
+
+		for ob in sce.objects:
+			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+				continue
 
 			if VRayExporter.active_layers:
 				if not object_on_visible_layers(sce,ob):
@@ -1900,7 +1916,7 @@ def write_scene(sce, bake= False):
 				else:
 					if not SettingsOptions.geom_doHidden:
 						continue
-
+		
 			debug(sce,"[%s]: %s"%(ob.type,ob.name))
 			debug(sce,"  Animated: %d"%(1 if ob.animation_data else 0))
 			if hasattr(ob,'data'):
