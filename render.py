@@ -42,8 +42,7 @@ import mathutils
 from vb25.utils   import *
 from vb25.plugins import *
 from vb25.texture import *
-# TEMP!
-from vb25.tempparams import *
+from vb25.tempparams import * # TEMP! REMOVE!
 
 ''' vb dev modules '''
 from vb25.nodes import *
@@ -52,35 +51,40 @@ from vb25.nodes import *
 VERSION= '2.5'
 
 
-## Data bus
+#### Data bus
 # bus= {}
 
-## Currently processed object
+### Currently processed object
 # bus['node']= {}
-# bus['node']['object']= Object
-# bus['node']['displace']['data_pointer']= Texture
-# bus['node']['displace']['texture']= string
+# bus['node']['object']= *ob
+# bus['node']['displace']['data_pointer']= *tex
+# bus['node']['displace']['texture']= vr_tex_name
 
-## Currently processed material
+### Currently processed material
 # bus['material']= {}
-## BRDFBump nomal mapping uvwgen
+
+# If some texture need object mapping then material become object dependent
+# bus['material']['orco']= bool
+
+# BRDFBump nomal mapping uvwgen
 # bus['material']['normal_uvwgen']= string
-## Texture stack
+
+# Texture stack
 # bus['material']['textures']= {}
 
-## Currently processed texture
+### Currently processed texture
 # bus['mtex']= {}
 # bus['mtex']['slot']
 # bus['mtex']['texture']
 # bus['mtex']['factor']
 # bus['mtex']['blend_mode']
 
-## Exported data
+### Exported data
 # bus['filter']= {}
-# bus['filter']['proxy']=    []
-# bus['filter']['bitmap']=   []
-# bus['filter']['texture']=  []
-# bus['filter']['material']= []
+## For still proxy
+# bus['filter']['proxy']=  []
+## For not sequenced bitmaps
+# bus['filter']['bitmap']= []
 
 
 '''
