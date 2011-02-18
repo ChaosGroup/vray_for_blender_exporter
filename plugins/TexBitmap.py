@@ -42,7 +42,7 @@ DESC= "Image texture."
 
 
 def add_properties(rna_pointer):
-	class VRayImage(bpy.types.IDPropertyGroup):
+	class VRayImage(bpy.types.PropertyGroup):
 		pass
 
 	bpy.types.Image.vray= PointerProperty(
@@ -51,7 +51,7 @@ def add_properties(rna_pointer):
 		description= "V-Ray image settings."
 	)
 	
-	class BitmapBuffer(bpy.types.IDPropertyGroup):
+	class BitmapBuffer(bpy.types.PropertyGroup):
 		pass
 
 	VRayImage.BitmapBuffer= PointerProperty(

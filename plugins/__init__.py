@@ -104,37 +104,37 @@ else:
 
 
 def add_properties():
-	class VRayCamera(bpy.types.IDPropertyGroup):
+	class VRayCamera(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayCamera)
 
-	class VRayObject(bpy.types.IDPropertyGroup):
+	class VRayObject(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayObject)
 
-	class VRayMesh(bpy.types.IDPropertyGroup):
+	class VRayMesh(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayMesh)
 
-	class VRayMaterial(bpy.types.IDPropertyGroup):
+	class VRayMaterial(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayMaterial)
 
-	class VRayTexture(bpy.types.IDPropertyGroup):
+	class VRayTexture(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayTexture)
 
-	class VRayScene(bpy.types.IDPropertyGroup):
+	class VRayScene(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayScene)
 
-	class VRayRenderChannel(bpy.types.IDPropertyGroup):
+	class VRayRenderChannel(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(VRayRenderChannel)

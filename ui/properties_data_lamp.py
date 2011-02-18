@@ -38,7 +38,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayLamp(bpy.types.IDPropertyGroup):
+class VRayLamp(bpy.types.PropertyGroup):
     pass
 
 bpy.utils.register_class(VRayLamp)

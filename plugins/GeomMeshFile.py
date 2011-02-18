@@ -43,7 +43,7 @@ PARAMS= (
 )
 
 def add_properties(rna_pointer):
-	class GeomMeshFile(bpy.types.IDPropertyGroup):
+	class GeomMeshFile(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.GeomMeshFile= PointerProperty(

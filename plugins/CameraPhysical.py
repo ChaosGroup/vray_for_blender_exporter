@@ -68,7 +68,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class CameraPhysical(bpy.types.IDPropertyGroup):
+	class CameraPhysical(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.CameraPhysical= PointerProperty(

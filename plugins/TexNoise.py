@@ -76,7 +76,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class TexNoiseMax(bpy.types.IDPropertyGroup):
+	class TexNoiseMax(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.TexNoiseMax= PointerProperty(

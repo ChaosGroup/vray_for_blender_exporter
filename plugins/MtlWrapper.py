@@ -42,7 +42,7 @@ from bpy.props import *
 
 
 def add_properties(rna_pointer):
-	class MtlWrapper(bpy.types.IDPropertyGroup):
+	class MtlWrapper(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.MtlWrapper= PointerProperty(

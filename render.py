@@ -906,7 +906,7 @@ def _write_object_particles(bus):
 					location= particle.location
 					size= particle.size
 					if ps.settings.type == 'HAIR':
-						location= particle.is_hair[0].co
+						location= particle.hair[0].co
 						size*= 3
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()

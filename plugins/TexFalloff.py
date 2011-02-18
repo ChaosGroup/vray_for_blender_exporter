@@ -64,7 +64,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexFalloff(bpy.types.IDPropertyGroup):
+class TexFalloff(bpy.types.PropertyGroup):
     pass
 
 def add_properties(VRayTexture):

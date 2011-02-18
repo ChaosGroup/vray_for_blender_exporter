@@ -35,8 +35,10 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 
-class VRaySlot(bpy.types.IDPropertyGroup):
+class VRaySlot(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRaySlot)
 
 bpy.types.Texture.vray_slot= PointerProperty(
 	name= "V-Ray Material Texture Slot",
@@ -547,8 +549,10 @@ VRaySlot.fade_out_tex_mult= FloatProperty(
 )
 
 
-class VRayLight(bpy.types.IDPropertyGroup):
+class VRayLight(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayLight)
 
 VRaySlot.VRayLight= PointerProperty(
 	name= "VRayLight",
@@ -619,8 +623,10 @@ VRayLight.intensity_mult= FloatProperty(
 # )
 
 
-class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
+class GeomDisplacedMesh(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(GeomDisplacedMesh)
 
 VRaySlot.GeomDisplacedMesh= PointerProperty(
 	name= "GeomDisplacedMesh",
@@ -789,8 +795,9 @@ GeomDisplacedMesh.filter_blur= FloatProperty(
 )
 
 
-class BRDFBump(bpy.types.IDPropertyGroup):
+class BRDFBump(bpy.types.PropertyGroup):
 	pass
+
 
 VRaySlot.BRDFBump= PointerProperty(
 	name= "BRDFBump",

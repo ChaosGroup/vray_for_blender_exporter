@@ -35,7 +35,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayWorld(bpy.types.IDPropertyGroup):
+class VRayWorld(bpy.types.PropertyGroup):
 	pass
 
 bpy.types.World.vray= PointerProperty(

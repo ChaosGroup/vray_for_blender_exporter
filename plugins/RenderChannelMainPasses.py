@@ -78,7 +78,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelMainPasses(bpy.types.IDPropertyGroup):
+class RenderChannelMainPasses(bpy.types.PropertyGroup):
 	pass
 
 def add_properties(parent_struct):

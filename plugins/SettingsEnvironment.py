@@ -88,16 +88,16 @@ PARAMS= {
 
 
 def add_properties(rna_pointer):
-	class VolumeVRayToon(bpy.types.IDPropertyGroup):
+	class VolumeVRayToon(bpy.types.PropertyGroup):
 		pass
 
-	class EnvironmentFog(bpy.types.IDPropertyGroup):
+	class EnvironmentFog(bpy.types.PropertyGroup):
 		pass
 
-	class EnvironmentEffect(bpy.types.IDPropertyGroup):
+	class EnvironmentEffect(bpy.types.PropertyGroup):
 		pass
 
-	class VRayEffects(bpy.types.IDPropertyGroup):
+	class VRayEffects(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.EnvironmentFog= PointerProperty(

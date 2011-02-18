@@ -55,10 +55,10 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class VRayBRDF(bpy.types.IDPropertyGroup):
+	class VRayBRDF(bpy.types.PropertyGroup):
 		pass
 
-	class BRDFLayered(bpy.types.IDPropertyGroup):
+	class BRDFLayered(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.BRDFLayered= PointerProperty(

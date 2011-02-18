@@ -44,8 +44,10 @@ PARAMS= (
 )
 
 def add_properties(rna_pointer):
-	class BRDFBump(bpy.types.IDPropertyGroup):
+	class BRDFBump(bpy.types.PropertyGroup):
 		pass
+
+	bpy.utils.register_class(BRDFBump)
 
 	rna_pointer.BRDFBump= PointerProperty(
 		name= "BRDFBump",

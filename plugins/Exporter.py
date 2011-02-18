@@ -45,7 +45,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class VRayExporter(bpy.types.IDPropertyGroup):
+	class VRayExporter(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.exporter= PointerProperty(

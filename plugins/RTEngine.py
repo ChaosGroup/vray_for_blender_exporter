@@ -56,7 +56,7 @@ PARAMS= (
 	'opencl_texsize',
 )
 
-class RTEngine(bpy.types.IDPropertyGroup):
+class RTEngine(bpy.types.PropertyGroup):
 	pass
 
 def add_properties(rna_pointer):

@@ -55,7 +55,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class BRDFDiffuse(bpy.types.IDPropertyGroup):
+	class BRDFDiffuse(bpy.types.PropertyGroup):
 		pass
 	rna_pointer.BRDFDiffuse= PointerProperty(
 		name= "BRDFDiffuse",

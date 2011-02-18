@@ -103,7 +103,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class BRDFVRayMtl(bpy.types.IDPropertyGroup):
+	class BRDFVRayMtl(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.BRDFVRayMtl= PointerProperty(

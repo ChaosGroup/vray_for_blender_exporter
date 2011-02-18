@@ -59,7 +59,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexSky(bpy.types.IDPropertyGroup):
+class TexSky(bpy.types.PropertyGroup):
     pass
 
 def add_properties(VRayTexture):

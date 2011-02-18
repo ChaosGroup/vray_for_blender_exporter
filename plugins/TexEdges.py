@@ -52,7 +52,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexEdges(bpy.types.IDPropertyGroup):
+class TexEdges(bpy.types.PropertyGroup):
     pass
 
 def add_properties(VRayTexture):

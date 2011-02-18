@@ -48,7 +48,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class SettingsUnitsInfo(bpy.types.IDPropertyGroup):
+	class SettingsUnitsInfo(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.SettingsUnitsInfo= PointerProperty(

@@ -49,7 +49,7 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexFresnel(bpy.types.IDPropertyGroup):
+class TexFresnel(bpy.types.PropertyGroup):
     pass
 
 def add_properties(VRayTexture):

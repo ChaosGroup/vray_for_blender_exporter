@@ -42,7 +42,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class LightMesh(bpy.types.IDPropertyGroup):
+	class LightMesh(bpy.types.PropertyGroup):
 		pass
 
 	bpy.utils.register_class(LightMesh)

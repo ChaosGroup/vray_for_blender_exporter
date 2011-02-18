@@ -58,7 +58,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class SettingsImageSampler(bpy.types.IDPropertyGroup):
+	class SettingsImageSampler(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.SettingsImageSampler= PointerProperty(

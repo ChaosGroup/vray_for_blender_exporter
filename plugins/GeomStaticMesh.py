@@ -47,7 +47,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class GeomStaticMesh(bpy.types.IDPropertyGroup):
+	class GeomStaticMesh(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.GeomStaticMesh= PointerProperty(

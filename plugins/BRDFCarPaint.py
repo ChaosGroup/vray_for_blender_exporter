@@ -73,7 +73,7 @@ PARAMS= (
 )
 
 def add_properties(rna_pointer):
-	class BRDFCarPaint(bpy.types.IDPropertyGroup):
+	class BRDFCarPaint(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.BRDFCarPaint= PointerProperty(

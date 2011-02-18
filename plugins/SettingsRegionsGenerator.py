@@ -43,7 +43,7 @@ DESC= "Regions generator settings."
 
 
 def add_properties(parent_struct):
-	class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
+	class SettingsRegionsGenerator(bpy.types.PropertyGroup):
 		pass
 	
 	parent_struct.SettingsRegionsGenerator= PointerProperty(

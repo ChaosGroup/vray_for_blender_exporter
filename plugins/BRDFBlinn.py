@@ -80,7 +80,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class BRDFBlinn(bpy.types.IDPropertyGroup):
+	class BRDFBlinn(bpy.types.PropertyGroup):
 		pass
 	
 	rna_pointer.BRDFBlinn= PointerProperty(

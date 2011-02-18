@@ -43,7 +43,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class MtlRenderStats(bpy.types.IDPropertyGroup):
+	class MtlRenderStats(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.MtlRenderStats= PointerProperty(

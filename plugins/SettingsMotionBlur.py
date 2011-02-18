@@ -43,7 +43,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class SettingsMotionBlur(bpy.types.IDPropertyGroup):
+	class SettingsMotionBlur(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.SettingsMotionBlur= PointerProperty(

@@ -51,7 +51,7 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
-	class SettingsDMCSampler(bpy.types.IDPropertyGroup):
+	class SettingsDMCSampler(bpy.types.PropertyGroup):
 		pass
 
 	rna_pointer.SettingsDMCSampler= PointerProperty(
