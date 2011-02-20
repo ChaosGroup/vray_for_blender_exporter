@@ -1053,9 +1053,12 @@ def write_object(ob, params, add_params= None):
 
 	ma_name= "Material_no_material"
 
-	# Don't override proxy material, if proxy has multi-material
-	if props['material'] is not None and not (hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use):
-		ma_name= props['material']
+	if props['material'] is not None:
+		# Don't override proxy material (proxy could have multi-material)
+		if hasattr(VRayData,'GeomMeshFile') and VRayData.GeomMeshFile.use:
+			ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
+		else:
+			ma_name= props['material']
 	else:
 		ma_name= write_materials(props['files']['materials'],ob,props['filters'],object_params)
 
@@ -1761,7 +1764,7 @@ def write_scene(sce, bake= False):
 			for ps in ob.particle_systems:
 				ps_material= "Material_no_material"
 				ps_material_idx= ps.settings.material
-				if len(ob.material_slots) >= ps_material_idx:
+				if ps_material_idx <= len(ob.material_slots):
 					ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
 
 				if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':

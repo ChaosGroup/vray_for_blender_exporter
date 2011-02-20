@@ -395,7 +395,7 @@ VRayLamp.intensity_multiplier= FloatProperty(
 	max= 100.0,
 	soft_min= 0.0,
 	soft_max= 1.0,
-	precision= 2,
+	precision= 4,
 	default= 1.0
 )
 
