@@ -980,7 +980,7 @@ def write_node(ofile,name,geometry,material,object_id,visible,transform_matrix,o
 	if sce.vray.SettingsOptions.mtl_override_on and sce.vray.SettingsOptions.mtl_override:
 		base_mtl= get_name(bpy.data.materials[sce.vray.SettingsOptions.mtl_override],"Material")
 
-	material= "HideFromView_%s" % get_name(ob,'OB')
+	material= "HFV%s" % (name)
 
 	ofile.write("\nMtlRenderStats %s {" % material)
 	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
@@ -1138,6 +1138,7 @@ def write_object(ob, params, add_params= None):
 		for ps in ob.particle_systems:
 			if ps.settings.use_render_emitter:
 				write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
+				break
 	else:
 		write_node(ofile,node_name,node_geometry,ma_name,ob.pass_index,props['visible'],node_matrix,ob,params)
 
@@ -1799,16 +1800,16 @@ def write_scene(sce, bake= False):
 						part_transform[3][2]= location[2]
 
 						for p_ob in particle_objects:
-							part_name= "EMITTER_%s_%s" % (clean_string(ps.name), p)
+							part_name= "PS%sPA%s" % (clean_string(ps.name), p)
 							if add_params is not None:
 								if 'dupli_name' in add_params:
 									part_name= '_'.join([add_params['dupli_name'],clean_string(ps.name),str(p)])
 									
 							if ps.settings.use_whole_group or ps.settings.use_global_dupli:
 								part_transform= part_transform * p_ob.matrix_world
+
 							part_visibility= True
 							if ps.settings.type == 'EMITTER':
-								#part_visibility= True if particle.alive_state == 'ALIVE' else False
 								part_visibility= True if particle.alive_state not in ('DEAD','UNBORN') else False
 
 							_write_object(p_ob, params, {'dupli': True,
@@ -1887,6 +1888,16 @@ def write_scene(sce, bake= False):
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 				continue
+
+			if VRayExporter.active_layers:
+				if not object_on_visible_layers(sce,ob):
+					if not SettingsOptions.geom_doHidden:
+						continue
+				
+			if ob.hide_render:
+				if not SettingsOptions.geom_doHidden:
+					continue
+
 			for slot in ob.material_slots:
 				if slot.material:
 					VRayMaterial= slot.material.vray
