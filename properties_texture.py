@@ -982,8 +982,9 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 		if not isinstance(pin_id, bpy.types.Material):
 			pin_id = None
 
-		if not space.use_pin_id:
-			layout.prop(space, "texture_context", expand=True)
+		if hasattr(space, "texture_context"):
+			if not space.use_pin_id:
+				layout.prop(space, "texture_context", expand=True)
 
 		tex_collection = (not space.use_pin_id) and (node is None) and (not isinstance(idblock, bpy.types.Brush))
 
