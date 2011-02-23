@@ -1701,6 +1701,9 @@ def write_settings(sce,ofile):
 
 def write_scene(sce, bake= False):
 	global mesh_lights
+
+	# Reset mesh lights list
+	mesh_lights= []
 	
 	VRayScene= sce.vray
 	VRayExporter=    VRayScene.exporter
@@ -1904,10 +1907,12 @@ def write_scene(sce, bake= False):
 			for slot in ob.material_slots:
 				if slot.material:
 					VRayMaterial= slot.material.vray
+					print(ob.name, VRayMaterial.type)
 					if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 						node_name= get_name(ob,"Node")
 						if node_name not in mesh_lights:
 							mesh_lights.append(node_name)
+
 
 		for ob in sce.objects:
 			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
