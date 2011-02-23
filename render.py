@@ -1907,7 +1907,6 @@ def write_scene(sce, bake= False):
 			for slot in ob.material_slots:
 				if slot.material:
 					VRayMaterial= slot.material.vray
-					print(ob.name, VRayMaterial.type)
 					if VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH':
 						node_name= get_name(ob,"Node")
 						if node_name not in mesh_lights:
