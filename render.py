@@ -79,12 +79,14 @@ VERSION= '2.5'
 # bus['mtex']['factor']
 # bus['mtex']['blend_mode']
 
-### Exported data
-# bus['filter']= {}
-## For still proxy
-# bus['filter']['proxy']=  []
-## For not sequenced bitmaps
-# bus['filter']['bitmap']= []
+### Exported data cache
+# bus['cache']= {}
+## Animated proxy data is proxy dependent so caching only type 'STILL'
+# bus['cache']['proxy']=  []
+## Animated bitmap data is bitmap dependent so caching only type 'FILE'
+# bus['cache']['bitmap']= []
+## 'ORCO' textures are object position dependent so caching only type 'UV'
+# bus['cache']['texture_uv']= []
 
 
 '''
@@ -181,6 +183,7 @@ def write_geometry(scene):
 	VRayExporter= VRayScene.exporter
 	
 	try:
+		# Try calling special V-Ray/Blender Build operator
 		bpy.ops.vray.export_meshes(
 			filepath=          get_filenames(scene,'geometry')[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
@@ -190,6 +193,7 @@ def write_geometry(scene):
 			check_animated=    VRayExporter.check_animated,
 		)
 	except:
+		# Use python mesh export
 		write_geometry_python(scene)
 
 
