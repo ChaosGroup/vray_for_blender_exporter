@@ -35,124 +35,119 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayWorld(bpy.types.IDPropertyGroup):
-	pass
+class VRayWorld(bpy.types.PropertyGroup):
+	bg_color= FloatVectorProperty(
+		name= "Background color",
+		description= "Background color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	bg_color_mult= FloatProperty(
+		name= "Background color multiplier",
+		description= "Background color multiplier.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 2.0,
+		precision= 2,
+		default= 1.0
+	)
+
+	gi_override= BoolProperty(
+		name= "Override color for GI",
+		description= "Override color for GI.",
+		default= False
+	)
+
+	gi_color= FloatVectorProperty(
+		name= "GI color",
+		description= "GI (skylight) color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	gi_color_mult= FloatProperty(
+		name= "GI color multiplier",
+		description= "GI color multiplier.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 2.0,
+		precision= 2,
+		default= 1.0
+	)
+
+	reflection_override= BoolProperty(
+		name= "Override color for reflection",
+		description= "Override color for reflection.",
+		default= False
+	)
+
+	reflection_color= FloatVectorProperty(
+		name= "Reflection color",
+		description= "Reflection (skylight) color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	reflection_color_mult= FloatProperty(
+		name= "Reflection color multiplier",
+		description= "Reflection color multiplier.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 2.0,
+		precision= 2,
+		default= 1.0
+	)
+
+	refraction_override= BoolProperty(
+		name= "Override color for refraction",
+		description= "Override color for refraction.",
+		default= False
+	)
+
+	refraction_color= FloatVectorProperty(
+		name= "Refraction color",
+		description= "Refraction (skylight) color.",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.0,0.0,0.0)
+	)
+
+	refraction_color_mult= FloatProperty(
+		name= "Refraction color multiplier",
+		description= "Refraction color multiplier.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 2.0,
+		precision= 2,
+		default= 1.0
+	)
+
+bpy.utils.register_class(VRayWorld)
 
 bpy.types.World.vray= PointerProperty(
 	name= "V-Ray World Settings",
 	type=  VRayWorld,
 	description= "V-Ray world settings."
-)
-
-
-'''
-  SettingsEnvironment
-'''
-
-VRayWorld.bg_color= FloatVectorProperty(
-	name= "Background color",
-	description= "Background color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.0,0.0,0.0)
-)
-
-VRayWorld.bg_color_mult= FloatProperty(
-	name= "Background color multiplier",
-	description= "Background color multiplier.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 2.0,
-	precision= 2,
-	default= 1.0
-)
-
-VRayWorld.gi_override= BoolProperty(
-	name= "Override color for GI",
-	description= "Override color for GI.",
-	default= False
-)
-
-VRayWorld.gi_color= FloatVectorProperty(
-	name= "GI color",
-	description= "GI (skylight) color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.0,0.0,0.0)
-)
-
-VRayWorld.gi_color_mult= FloatProperty(
-	name= "GI color multiplier",
-	description= "GI color multiplier.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 2.0,
-	precision= 2,
-	default= 1.0
-)
-
-VRayWorld.reflection_override= BoolProperty(
-	name= "Override color for reflection",
-	description= "Override color for reflection.",
-	default= False
-)
-
-VRayWorld.reflection_color= FloatVectorProperty(
-	name= "Reflection color",
-	description= "Reflection (skylight) color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.0,0.0,0.0)
-)
-
-VRayWorld.reflection_color_mult= FloatProperty(
-	name= "Reflection color multiplier",
-	description= "Reflection color multiplier.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 2.0,
-	precision= 2,
-	default= 1.0
-)
-
-VRayWorld.refraction_override= BoolProperty(
-	name= "Override color for refraction",
-	description= "Override color for refraction.",
-	default= False
-)
-
-VRayWorld.refraction_color= FloatVectorProperty(
-	name= "Refraction color",
-	description= "Refraction (skylight) color.",
-	subtype= 'COLOR',
-	min= 0.0,
-	max= 1.0,
-	soft_min= 0.0,
-	soft_max= 1.0,
-	default= (0.0,0.0,0.0)
-)
-
-VRayWorld.refraction_color_mult= FloatProperty(
-	name= "Refraction color multiplier",
-	description= "Refraction color multiplier.",
-	min= 0.0,
-	max= 100.0,
-	soft_min= 0.0,
-	soft_max= 2.0,
-	precision= 2,
-	default= 1.0
 )
 
 
@@ -163,25 +158,21 @@ VRayWorld.refraction_color_mult= FloatProperty(
 narrowui= 200
 
 
-def base_poll(cls, context):
-	rd= context.scene.render
-	return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
-
-
-class WorldButtonsPanel():
+class VRayWorldPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'world'
 
+	@classmethod
+	def base_poll(cls, context):
+		rd= context.scene.render
+		return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
 
-class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
+
+class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
 	bl_label = "Environment"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return base_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -218,3 +209,6 @@ class WORLD_PT_vray_environment(WorldButtonsPanel, bpy.types.Panel):
 		factor_but(col, wo.gi_override,         'gi_override',         'gi_color_mult',         'gi_color',         "GI")
 		factor_but(col, wo.reflection_override, 'reflection_override', 'reflection_color_mult', 'reflection_color', "Reflection")
 		factor_but(col, wo.refraction_override, 'refraction_override', 'refraction_color_mult', 'refraction_color', "Refraction")
+
+bpy.utils.register_class(VRAY_WP_environment)
+

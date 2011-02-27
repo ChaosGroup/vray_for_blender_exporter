@@ -35,8 +35,26 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayCamera(bpy.types.IDPropertyGroup):
+class VRayCamera(bpy.types.PropertyGroup):
 	pass
+
+class SettingsCamera(bpy.types.PropertyGroup):
+	pass
+
+class SettingsCameraDof(bpy.types.PropertyGroup):
+	pass
+
+class SettingsMotionBlur(bpy.types.PropertyGroup):
+	pass
+
+class CameraPhysical(bpy.types.PropertyGroup):
+	pass
+
+bpy.utils.register_class(VRayCamera)
+bpy.utils.register_class(SettingsCamera)
+bpy.utils.register_class(SettingsCameraDof)
+bpy.utils.register_class(SettingsMotionBlur)
+bpy.utils.register_class(CameraPhysical)
 
 bpy.types.Camera.vray= PointerProperty(
 	name= "V-Ray Camera Settings",
@@ -135,9 +153,6 @@ for key in ('camera','gi','reflect','refract','shadows'):
 '''
   SettingsCamera
 '''
-class SettingsCamera(bpy.types.IDPropertyGroup):
-	pass
-
 VRayCamera.SettingsCamera= PointerProperty(
 	name= "SettingsCamera",
 	type=  SettingsCamera,
@@ -195,9 +210,6 @@ SettingsCamera.curve= FloatProperty(
 '''
   SettingsCameraDof
 '''
-class SettingsCameraDof(bpy.types.IDPropertyGroup):
-	pass
-
 VRayCamera.SettingsCameraDof= PointerProperty(
 	name= "SettingsCameraDof",
 	type=  SettingsCameraDof,
@@ -274,9 +286,6 @@ SettingsCameraDof.rotation= FloatProperty(
 '''
   SettingsMotionBlur
 '''
-class SettingsMotionBlur(bpy.types.IDPropertyGroup):
-	pass
-
 VRayCamera.SettingsMotionBlur= PointerProperty(
 	name= "SettingsMotionBlur",
 	type=  SettingsMotionBlur,
@@ -337,9 +346,6 @@ SettingsMotionBlur.low_samples= IntProperty(
 '''
   CameraPhysical
 '''
-class CameraPhysical(bpy.types.IDPropertyGroup):
-	pass
-
 VRayCamera.CameraPhysical= PointerProperty(
 	name= "CameraPhysical",
 	type=  CameraPhysical,
@@ -914,3 +920,8 @@ class VRAY_CAMERA_hide_from_view(DataButtonsPanel, bpy.types.Panel):
 			sub.active= not VRayCamera.hf_shadows_auto
 			sub.prop_search(VRayCamera, 'hf_shadows_objects',  context.scene, 'objects')
 			sub.prop_search(VRayCamera, 'hf_shadows_groups',   bpy.data,      'groups')
+
+bpy.utils.register_class(DATA_PT_vray_camera)
+bpy.utils.register_class(VRAY_CAMERA_physical)
+bpy.utils.register_class(VRAY_CAMERA_hide_from_view)
+

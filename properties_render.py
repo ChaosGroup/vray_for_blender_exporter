@@ -59,8 +59,10 @@ VRayScene.image_aspect_lock= BoolProperty(
 )
 
 
-class VRayBake(bpy.types.IDPropertyGroup):
+class VRayBake(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayBake)
 
 VRayScene.VRayBake= PointerProperty(
 	name= "VRayBake",
@@ -97,8 +99,10 @@ VRayBake.flip_derivs= BoolProperty(
 )
 
 
-class SettingsDefaultDisplacement(bpy.types.IDPropertyGroup):
+class SettingsDefaultDisplacement(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsDefaultDisplacement)
 
 VRayScene.SettingsDefaultDisplacement= PointerProperty(
 	name= "SettingsDefaultDisplacement",
@@ -163,8 +167,10 @@ SettingsDefaultDisplacement.relative= BoolProperty(
 )
 
 
-class SettingsDMCSampler(bpy.types.IDPropertyGroup):
+class SettingsDMCSampler(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsDMCSampler)
 
 VRayScene.SettingsDMCSampler= PointerProperty(
 	name= "DMC Sampler",
@@ -219,8 +225,10 @@ SettingsDMCSampler.subdivs_mult= FloatProperty(
 )
 
 
-class SettingsColorMapping(bpy.types.IDPropertyGroup):
+class SettingsColorMapping(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsColorMapping)
 
 VRayScene.SettingsColorMapping= PointerProperty(
 	name= "Color Mapping",
@@ -324,8 +332,10 @@ SettingsColorMapping.linearWorkflow= BoolProperty(
 )
 
 
-class SettingsImageSampler(bpy.types.IDPropertyGroup):
+class SettingsImageSampler(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsImageSampler)
 
 VRayScene.SettingsImageSampler= PointerProperty(
 	name= "Image Sampler",
@@ -477,8 +487,10 @@ SettingsImageSampler.subdivision_maxRate= IntProperty(
 )
 
 
-class SettingsRaycaster(bpy.types.IDPropertyGroup):
+class SettingsRaycaster(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsRaycaster)
 
 VRayScene.SettingsRaycaster= PointerProperty(
 	name= "Raycaster",
@@ -523,8 +535,10 @@ SettingsRaycaster.dynMemLimit= IntProperty(
 )
 
 
-class SettingsUnitsInfo(bpy.types.IDPropertyGroup):
+class SettingsUnitsInfo(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsUnitsInfo)
 
 VRayScene.SettingsUnitsInfo= PointerProperty(
 	name= "Units",
@@ -555,8 +569,10 @@ SettingsUnitsInfo.meters_scale= FloatProperty(
 )
 
 
-class VRayExporter(bpy.types.IDPropertyGroup):
+class VRayExporter(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayExporter)
 
 VRayScene.exporter= PointerProperty(
 	name= "Exporter",
@@ -690,8 +706,10 @@ VRayExporter.output_unique= BoolProperty(
 )
 
 
-class VRayDR(bpy.types.IDPropertyGroup):
+class VRayDR(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayDR)
 
 VRayScene.VRayDR= PointerProperty(
 	name= "Distributed rendering",
@@ -738,8 +756,10 @@ VRayDR.type= EnumProperty(
 )
 
 
-class VRayRenderNode(bpy.types.IDPropertyGroup):
+class VRayRenderNode(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayRenderNode)
 
 VRayDR.nodes= CollectionProperty(
 	name= "Render Nodes",
@@ -774,6 +794,7 @@ class RENDER_MT_VRAY_im_preset(bpy.types.Menu):
 	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 
+bpy.utils.register_class(RENDER_MT_VRAY_im_preset)
 
 class VRAY_MT_global_preset(bpy.types.Menu):
 	bl_label= "V-Ray Global Presets"
@@ -781,6 +802,7 @@ class VRAY_MT_global_preset(bpy.types.Menu):
 	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 
+bpy.utils.register_class(VRAY_MT_global_preset)
 
 class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
@@ -798,6 +820,7 @@ class RENDER_CHANNELS_OT_add(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(RENDER_CHANNELS_OT_add)
 
 class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_remove'
@@ -816,6 +839,7 @@ class RENDER_CHANNELS_OT_del(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(RENDER_CHANNELS_OT_del)
 
 class RENDER_NODES_OT_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
@@ -831,6 +855,7 @@ class RENDER_NODES_OT_add(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(RENDER_NODES_OT_add)
 
 class RENDER_NODES_OT_del(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_remove'
@@ -847,6 +872,7 @@ class RENDER_NODES_OT_del(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(RENDER_NODES_OT_del)
 
 def base_poll(cls, context):
 	rd= context.scene.render
@@ -932,6 +958,7 @@ class VRAY_RENDER_dimensions(RenderButtonsPanel, bpy.types.Panel):
 		subrow.prop(rd, "frame_map_old", text="Old")
 		subrow.prop(rd, "frame_map_new", text="New")
 
+bpy.utils.register_class(VRAY_RENDER_dimensions)
 
 class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
@@ -973,6 +1000,7 @@ class RENDER_PT_vray_render(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(ve, 'active_layers')
 		col.prop(SettingsOptions, 'gi_dontRenderImage')
 
+bpy.utils.register_class(RENDER_PT_vray_render)
 
 class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "Globals"
@@ -1034,6 +1062,7 @@ class VRAY_RENDER_SettingsOptions(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
+bpy.utils.register_class(VRAY_RENDER_SettingsOptions)
 
 class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "Exporter"
@@ -1119,7 +1148,8 @@ class RENDER_PT_vray_exporter(RenderButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator("vray.convert_scene", icon="MATERIAL")
-		
+
+bpy.utils.register_class(RENDER_PT_vray_exporter)		
 
 class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
@@ -1161,6 +1191,7 @@ class RENDER_PT_vray_cm(RenderButtonsPanel, bpy.types.Panel):
 		if cm.clamp_output:
 			col.prop(cm, "clamp_level")
 
+bpy.utils.register_class(RENDER_PT_vray_cm)
 
 class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
@@ -1224,6 +1255,7 @@ class RENDER_PT_vray_aa(RenderButtonsPanel, bpy.types.Panel):
 		if not module.filter_type == 'NONE':
 			col.prop(module, "filter_size")
 
+bpy.utils.register_class(RENDER_PT_vray_aa)
 
 class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "DMC Sampler"
@@ -1252,6 +1284,7 @@ class RENDER_PT_vray_dmc(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(module, "adaptive_amount")
 		col.prop(module, "adaptive_min_samples")
 
+bpy.utils.register_class(RENDER_PT_vray_dmc)
 
 class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
@@ -1313,6 +1346,7 @@ class RENDER_PT_vray_gi(RenderButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(module, "secondary_engine", text="")
 
+bpy.utils.register_class(RENDER_PT_vray_gi)
 
 class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
@@ -1426,6 +1460,7 @@ class RENDER_PT_im(RenderButtonsPanel, bpy.types.Panel):
 			colR.active= module.auto_save
 			colR.prop(module,"auto_save_file", text="")
 
+bpy.utils.register_class(RENDER_PT_im)
 
 class RENDER_PT_bf(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
@@ -1453,6 +1488,7 @@ class RENDER_PT_bf(RenderButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(module, "depth")
 
+bpy.utils.register_class(RENDER_PT_bf)
 
 class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
@@ -1542,6 +1578,7 @@ class RENDER_PT_lc(RenderButtonsPanel, bpy.types.Panel):
 			colR.active= module.auto_save
 			colR.prop(module,"auto_save_file", text="")
 
+bpy.utils.register_class(RENDER_PT_lc)
 
 class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "Channels"
@@ -1593,6 +1630,7 @@ class RENDER_PT_vray_Layers(RenderButtonsPanel, bpy.types.Panel):
 					
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
 
+bpy.utils.register_class(RENDER_PT_vray_Layers)
 
 class RENDER_PT_vray_displace(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Displace"
@@ -1623,6 +1661,7 @@ class RENDER_PT_vray_displace(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(SettingsDefaultDisplacement, 'tightBounds')
 		col.prop(SettingsDefaultDisplacement, 'relative')
 
+bpy.utils.register_class(RENDER_PT_vray_displace)
 
 class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 	bl_label = "Distributed rendering"
@@ -1676,6 +1715,7 @@ class RENDER_PT_vray_dr(RenderButtonsPanel, bpy.types.Panel):
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'address')
 
+bpy.utils.register_class(RENDER_PT_vray_dr)
 
 class VRAY_RENDER_bake(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "Bake"
@@ -1705,6 +1745,7 @@ class VRAY_RENDER_bake(RenderButtonsPanel, bpy.types.Panel):
 		col.prop(VRayBake, 'dilation')
 		col.prop(VRayBake, 'flip_derivs')
 
+bpy.utils.register_class(VRAY_RENDER_bake)
 
 class VRAY_RENDER_SettingsSystem(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "System"
@@ -1766,6 +1807,7 @@ class VRAY_RENDER_SettingsSystem(RenderButtonsPanel, bpy.types.Panel):
 		sub.prop(SettingsRegionsGenerator, 'yc')
 		col.prop(SettingsRegionsGenerator, 'lock_size')
 
+bpy.utils.register_class(VRAY_RENDER_SettingsSystem)
 
 class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 	bl_label   = "About"
@@ -1792,3 +1834,6 @@ class RENDER_PT_vray_about(RenderButtonsPanel, bpy.types.Panel):
 		col.label(text="IRC: irc.freenode.net #vrayblender")
 		col.separator()
 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
+
+bpy.utils.register_class(RENDER_PT_vray_about)
+

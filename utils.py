@@ -515,6 +515,7 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 				
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_convert_scene)
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_idname = "vray.flip_resolution"
@@ -534,3 +535,6 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
 		
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_flip_resolution)
+

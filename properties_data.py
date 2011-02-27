@@ -38,8 +38,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayData(bpy.types.IDPropertyGroup):
+class VRayData(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(VRayData)
 
 bpy.types.Mesh.vray= PointerProperty(
 	name= "V-Ray Object Data Settings",
@@ -57,8 +59,10 @@ bpy.types.Curve.vray= PointerProperty(
 '''
   Plugin: GeomMeshFile
 '''
-class GeomMeshFile(bpy.types.IDPropertyGroup):
+class GeomMeshFile(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(GeomMeshFile)
 
 VRayData.GeomMeshFile= PointerProperty(
 	name= "V-Ray Proxy",
@@ -314,3 +318,6 @@ class DATA_PT_vray_proxy(DataButtonsPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
+
+bpy.utils.register_class(DATA_PT_vray_proxy)
+

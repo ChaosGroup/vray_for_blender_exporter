@@ -50,8 +50,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class SettingsRegionsGenerator(bpy.types.IDPropertyGroup):
+class SettingsRegionsGenerator(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsRegionsGenerator)
 
 def add_properties(parent_struct):
 	parent_struct.SettingsRegionsGenerator= PointerProperty(

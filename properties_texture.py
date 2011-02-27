@@ -35,8 +35,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayImage(bpy.types.IDPropertyGroup):
+class VRayImage(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayImage)
 
 bpy.types.Image.vray= PointerProperty(
 	name= "V-Ray Image Settings",
@@ -44,8 +46,10 @@ bpy.types.Image.vray= PointerProperty(
 	description= "V-Ray image settings."
 )
 
-class BitmapBuffer(bpy.types.IDPropertyGroup):
+class BitmapBuffer(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(BitmapBuffer)
 
 VRayImage.BitmapBuffer= PointerProperty(
 	name= "BitmapBuffer",
@@ -110,8 +114,10 @@ BitmapBuffer.use_data_window= BoolProperty(
 )
 
 
-class VRaySlot(bpy.types.IDPropertyGroup):
+class VRaySlot(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRaySlot)
 
 bpy.types.Texture.vray_slot= PointerProperty(
 	name= "V-Ray Material Texture Slot",
@@ -622,8 +628,10 @@ VRaySlot.fade_out_tex_mult= FloatProperty(
 )
 
 
-class VRayLight(bpy.types.IDPropertyGroup):
+class VRayLight(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(VRayLight)
 
 VRaySlot.VRayLight= PointerProperty(
 	name= "VRayLight",
@@ -694,8 +702,10 @@ VRayLight.intensity_mult= FloatProperty(
 # )
 
 
-class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
+class GeomDisplacedMesh(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(GeomDisplacedMesh)
 
 VRaySlot.GeomDisplacedMesh= PointerProperty(
 	name= "GeomDisplacedMesh",
@@ -864,8 +874,10 @@ GeomDisplacedMesh.filter_blur= FloatProperty(
 )
 
 
-class BRDFBump(bpy.types.IDPropertyGroup):
+class BRDFBump(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(BRDFBump)
 
 VRaySlot.BRDFBump= PointerProperty(
 	name= "BRDFBump",
@@ -1025,6 +1037,7 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 					col= split.column()
 					col.prop(tex.vray, 'type', text="Type")
 
+bpy.utils.register_class(VRAY_TEX_context)
 
 import properties_texture
 properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
@@ -1247,6 +1260,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 		col.label(text="NOTE: cause of API limitations some parameters are")
 		col.label(text="texture dependent not slot.")
 
+bpy.utils.register_class(VRAY_TEX_influence)
 
 class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
@@ -1314,6 +1328,7 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 					col.prop(GeomDisplacedMesh, 'view_dep')
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
+bpy.utils.register_class(VRAY_TEX_displacement)
 
 class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Mapping"
@@ -1386,6 +1401,7 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			sub.active= 0
 			sub.prop(slot, 'scale')
 
+bpy.utils.register_class(VRAY_TEX_mapping)
 
 class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Image Settings"
@@ -1479,3 +1495,6 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 			#col.prop(BitmapBuffer, 'gamma_correct')
 		col.prop(BitmapBuffer, 'allow_negative_colors')
 		col.prop(BitmapBuffer, 'use_data_window')
+
+bpy.utils.register_class(VRAY_TEX_image)
+

@@ -38,8 +38,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayObject(bpy.types.IDPropertyGroup):
+class VRayObject(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(VRayObject)
 
 bpy.types.Object.vray= PointerProperty(
 	name= "V-Ray Object Settings",
@@ -51,8 +53,10 @@ bpy.types.Object.vray= PointerProperty(
 '''
   MtlWrapper
 '''
-class MtlWrapper(bpy.types.IDPropertyGroup):
+class MtlWrapper(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlWrapper)
 
 VRayObject.MtlWrapper= PointerProperty(
 	name= "MtlWrapper",
@@ -248,8 +252,10 @@ MtlWrapper.trace_depth= IntProperty(
 '''
   MtlOverride
 '''
-class MtlOverride(bpy.types.IDPropertyGroup):
+class MtlOverride(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlOverride)
 
 VRayObject.MtlOverride= PointerProperty(
 	name= "MtlOverride",
@@ -305,8 +311,10 @@ MtlOverride.environment_priority= IntProperty(
 '''
   MtlRenderStats
 '''
-class MtlRenderStats(bpy.types.IDPropertyGroup):
+class MtlRenderStats(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlRenderStats)
 
 VRayObject.MtlRenderStats= PointerProperty(
 	name= "MtlRenderStats",
@@ -357,8 +365,10 @@ MtlRenderStats.visibility= BoolProperty(
 )
 
 
-class GeomDisplacedMesh(bpy.types.IDPropertyGroup):
+class GeomDisplacedMesh(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(GeomDisplacedMesh)
 
 VRayObject.GeomDisplacedMesh= PointerProperty(
 	name= "GeomDisplacedMesh",
@@ -614,6 +624,7 @@ class OBJECT_PT_VRAY_override(ObjectButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(MtlOverride, 'environment_priority')
 
+bpy.utils.register_class(OBJECT_PT_VRAY_override)
 
 class OBJECT_PT_VRAY_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
@@ -688,6 +699,7 @@ class OBJECT_PT_VRAY_wrapper(ObjectButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(plugin, 'matte_for_secondary_rays')
 
+bpy.utils.register_class(OBJECT_PT_VRAY_wrapper)
 
 class OBJECT_PT_VRAY_render(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Render"
@@ -733,6 +745,7 @@ class OBJECT_PT_VRAY_render(ObjectButtonsPanel, bpy.types.Panel):
 		sub.prop(plugin, 'reflections_visibility', text="Reflections")
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
+bpy.utils.register_class(OBJECT_PT_VRAY_render)
 
 class VRAY_OB_displacement(ObjectButtonsPanel, bpy.types.Panel):
 	bl_label = "Displacement"
@@ -794,3 +807,6 @@ class VRAY_OB_displacement(ObjectButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(GeomDisplacedMesh, 'view_dep')
 			col.prop(GeomDisplacedMesh, 'tight_bounds')
+
+bpy.utils.register_class(VRAY_OB_displacement)
+

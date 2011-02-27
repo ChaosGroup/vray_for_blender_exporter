@@ -71,10 +71,13 @@ PARAMS= (
 	'type',
 )
 
-class TexNoiseMax(bpy.types.IDPropertyGroup):
-	pass
 
 def add_properties(rna_pointer):
+	class TexNoiseMax(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(TexNoiseMax)
+
 	rna_pointer.TexNoiseMax= PointerProperty(
 		name= "TexNoiseMax",
 		type=  TexNoiseMax,
@@ -643,5 +646,5 @@ class VRAY_TP_TexNoiseMax(TPTexNoiseMax, bpy.types.Panel):
 		# col.prop(TexNoiseMax, 'uv_noise_size')
 		# col.prop(TexNoiseMax, 'un_noise_phase')
 
-bpy.types.register(VRAY_TP_TexNoiseMax)
+bpy.utils.register_class(VRAY_TP_TexNoiseMax)
 

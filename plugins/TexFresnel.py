@@ -49,10 +49,12 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexFresnel(bpy.types.IDPropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexFresnel(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(TexFresnel)
+
 	VRayTexture.TexFresnel= PointerProperty(
 		name= "TexFresnel",
 		type=  TexFresnel,
@@ -178,4 +180,4 @@ class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
 		col.prop(vtex, 'refract_ior')
 	
 
-bpy.types.register(TEXTURE_PT_TexFresnel)
+bpy.utils.register_class(TEXTURE_PT_TexFresnel)

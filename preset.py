@@ -319,3 +319,5 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.render.threads",
 	]
 
+bpy.utils.register_class(vb_preset_global_render)
+

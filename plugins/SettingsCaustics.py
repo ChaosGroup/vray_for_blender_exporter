@@ -56,105 +56,104 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class SettingsCaustics(bpy.types.IDPropertyGroup):
-	pass
-
 def add_properties(parent_struct):
+	class SettingsCaustics(bpy.types.PropertyGroup):
+		on= BoolProperty(
+			name= "On",
+			description= "Enable caustics computation.",
+			default= False
+		)
+
+		max_photons= IntProperty(
+			name= "Max photons",
+			description= "TODO.",
+			min= 0,
+			max= 10000,
+			soft_min= 0,
+			soft_max= 1000,
+			default= 30
+		)
+
+		search_distance= FloatProperty(
+			name= "Search distance",
+			description= "TODO.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.1
+		)
+	
+		max_density= FloatProperty(
+			name= "Max density",
+			description= "TODO.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 0
+		)
+
+		multiplier= FloatProperty(
+			name= "Multiplier",
+			description= "TODO.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 1
+		)
+
+		mode= EnumProperty(
+			name= "Mode",
+			description= "Caustics computaion mode.",
+			items= (
+				('FILE',"From file",""),
+				('NEW',"New","")
+			),
+			default= 'NEW'
+		)
+
+		file= StringProperty(
+			name= "File",
+			subtype= 'FILE_PATH',
+			description= "TODO."
+		)
+	
+		auto_save= BoolProperty(
+			name= "Auto save",
+			description= "TODO.",
+			default= False
+		)
+
+		auto_save_file= StringProperty(
+			name= "Auto save file",
+			subtype= 'FILE_PATH',
+			description= "TODO."
+		)
+
+		show_calc_phase= BoolProperty(
+			name= "Show calc phase",
+			description= "TODO.",
+			default= False
+		)
+
+		# dont_delete= BoolProperty(
+		# 	name= "Don\'t delete",
+		# 	description= "TODO.",
+		# 	default= False
+		# )
+
+	bpy.utils.register_class(SettingsCaustics)
+
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
 		type=  SettingsCaustics,
 		description= "Caustics settings."
 	)
-
-	SettingsCaustics.on= BoolProperty(
-		name= "On",
-		description= "Enable caustics computation.",
-		default= False
-	)
-
-	SettingsCaustics.max_photons= IntProperty(
-		name= "Max photons",
-		description= "TODO.",
-		min= 0,
-		max= 10000,
-		soft_min= 0,
-		soft_max= 1000,
-		default= 30
-	)
-
-	SettingsCaustics.search_distance= FloatProperty(
-		name= "Search distance",
-		description= "TODO.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		precision= 3,
-		default= 0.1
-	)
-	
-	SettingsCaustics.max_density= FloatProperty(
-		name= "Max density",
-		description= "TODO.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0
-	)
-
-	SettingsCaustics.multiplier= FloatProperty(
-		name= "Multiplier",
-		description= "TODO.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	SettingsCaustics.mode= EnumProperty(
-		name= "Mode",
-		description= "Caustics computaion mode.",
-		items= (
-			('FILE',"From file",""),
-			('NEW',"New","")
-		),
-		default= 'NEW'
-	)
-
-	SettingsCaustics.file= StringProperty(
-		name= "File",
-		subtype= 'FILE_PATH',
-		description= "TODO."
-	)
-	
-	SettingsCaustics.auto_save= BoolProperty(
-		name= "Auto save",
-		description= "TODO.",
-		default= False
-	)
-
-	SettingsCaustics.auto_save_file= StringProperty(
-		name= "Auto save file",
-		subtype= 'FILE_PATH',
-		description= "TODO."
-	)
-
-	SettingsCaustics.show_calc_phase= BoolProperty(
-		name= "Show calc phase",
-		description= "TODO.",
-		default= False
-	)
-
-	# SettingsCaustics.dont_delete= BoolProperty(
-	# 	name= "Don\'t delete",
-	# 	description= "TODO.",
-	# 	default= False
-	# )
-
 
 
 
@@ -238,8 +237,5 @@ class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
 			colR.active= vmodule.auto_save
 			colR.prop(vmodule,"auto_save_file", text="")
 
-		
-		
-		
-bpy.types.register(RENDER_PT_SettingsCaustics)
+bpy.utils.register_class(RENDER_PT_SettingsCaustics)
 

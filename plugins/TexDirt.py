@@ -67,10 +67,13 @@ from vb25.utils import *
 from vb25.shaders import *
 
 
-class TexDirt(bpy.types.IDPropertyGroup):
-    pass
 
 def add_properties(VRayTexture):
+	class TexDirt(bpy.types.PropertyGroup):
+	    pass
+
+	bpy.utils.register_class(TexDirt)
+
 	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",
 		type=  TexDirt,
@@ -375,4 +378,4 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 		col.prop(vtex,'environment_occlusion')
 		
 		
-bpy.types.register(TEXTURE_PT_TexDirt)
+bpy.utils.register_class(TEXTURE_PT_TexDirt)

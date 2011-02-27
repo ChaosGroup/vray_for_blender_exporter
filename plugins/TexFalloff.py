@@ -64,10 +64,12 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexFalloff(bpy.types.IDPropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexFalloff(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(TexFalloff)
+
 	VRayTexture.TexFalloff= PointerProperty(
 		name= "TexFalloff",
 		type=  TexFalloff,
@@ -378,4 +380,4 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 		# col.prop(vtex,'blend_input')
 	
 
-bpy.types.register(TEXTURE_PT_TexFalloff)
+bpy.utils.register_class(TEXTURE_PT_TexFalloff)

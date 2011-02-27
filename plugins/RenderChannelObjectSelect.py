@@ -51,8 +51,9 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelObjectSelect(bpy.types.IDPropertyGroup):
+class RenderChannelObjectSelect(bpy.types.PropertyGroup):
     pass
+bpy.utils.register_class(RenderChannelObjectSelect)
 
 def add_properties(parent_struct):
 	parent_struct.RenderChannelObjectSelect= PointerProperty(

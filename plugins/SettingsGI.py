@@ -45,8 +45,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class SettingsGI(bpy.types.IDPropertyGroup):
+class SettingsGI(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsGI)
 
 def add_properties(parent_struct):
 	parent_struct.SettingsGI= PointerProperty(
@@ -160,8 +162,10 @@ def add_properties(parent_struct):
 	)
 
 
-	class SettingsDMCGI(bpy.types.IDPropertyGroup):
+	class SettingsDMCGI(bpy.types.PropertyGroup):
 		pass
+
+	bpy.utils.register_class(SettingsDMCGI)
 
 	SettingsGI.SettingsDMCGI= PointerProperty(
 		name= "DMC GI",
@@ -186,8 +190,10 @@ def add_properties(parent_struct):
 	)
 
 
-	class SettingsIrradianceMap(bpy.types.IDPropertyGroup):
+	class SettingsIrradianceMap(bpy.types.PropertyGroup):
 		pass
+
+	bpy.utils.register_class(SettingsIrradianceMap)
 
 	SettingsGI.SettingsIrradianceMap= PointerProperty(
 		name= "Irradiance Map",
@@ -425,8 +431,10 @@ def add_properties(parent_struct):
 	)
 
 
-	class SettingsLightCache(bpy.types.IDPropertyGroup):
+	class SettingsLightCache(bpy.types.PropertyGroup):
 		pass
+
+	bpy.utils.register_class(SettingsLightCache)
 
 	SettingsGI.SettingsLightCache= PointerProperty(
 		name= "Light Cache",
@@ -614,8 +622,10 @@ def add_properties(parent_struct):
 	)
 
 
-	class SettingsPhotonMap(bpy.types.IDPropertyGroup):
+	class SettingsPhotonMap(bpy.types.PropertyGroup):
 		pass
+
+	bpy.utils.register_class(SettingsPhotonMap)
 
 	SettingsGI.SettingsPhotonMap= PointerProperty(
 		name= "Photon Map",

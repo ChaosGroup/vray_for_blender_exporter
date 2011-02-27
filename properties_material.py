@@ -35,8 +35,18 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayMaterial(bpy.types.IDPropertyGroup):
+class VRayMaterial(bpy.types.PropertyGroup):
     pass
+
+class Mtl2Sided(bpy.types.PropertyGroup):
+    pass
+
+class BRDFVRayMtl(bpy.types.PropertyGroup):
+    pass
+
+bpy.utils.register_class(VRayMaterial)
+bpy.utils.register_class(Mtl2Sided)
+bpy.utils.register_class(BRDFVRayMtl)
 
 bpy.types.Material.vray= PointerProperty(
 	name= "V-Ray Material Settings",
@@ -89,9 +99,6 @@ VRayMaterial.material_id_color= FloatVectorProperty(
 	default= (1.0,1.0,1.0)
 )
 
-
-class Mtl2Sided(bpy.types.IDPropertyGroup):
-    pass
 
 VRayMaterial.Mtl2Sided= PointerProperty(
 	name= "Mtl2Sided",
@@ -167,9 +174,6 @@ Mtl2Sided.force_1sided= BoolProperty(
 	default= True
 )
 
-
-class BRDFVRayMtl(bpy.types.IDPropertyGroup):
-    pass
 
 VRayMaterial.BRDFVRayMtl= PointerProperty(
 	name= "BRDFVRayMtl",
@@ -624,8 +628,10 @@ BRDFVRayMtl.translucency_scatter_coeff= FloatProperty(
 '''
   Plugin: MtlRenderStats
 '''
-class MtlRenderStats(bpy.types.IDPropertyGroup):
+class MtlRenderStats(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlRenderStats)
 
 VRayMaterial.MtlRenderStats= PointerProperty(
 	name= "MtlRenderStats",
@@ -679,8 +685,10 @@ MtlRenderStats.visibility= BoolProperty(
 '''
   Plugin: BRDFLight
 '''
-class BRDFLight(bpy.types.IDPropertyGroup):
+class BRDFLight(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(BRDFLight)
 
 VRayMaterial.BRDFLight= PointerProperty(
 	name= "BRDFLight",
@@ -710,8 +718,10 @@ BRDFLight.compensateExposure= BoolProperty(
 '''
   Plugin: BRDFSSS2Complex
 '''
-class BRDFSSS2Complex(bpy.types.IDPropertyGroup):
+class BRDFSSS2Complex(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(BRDFSSS2Complex)
 
 VRayMaterial.BRDFSSS2Complex= PointerProperty(
 	name= "BRDFSSS2Complex",
@@ -965,8 +975,10 @@ BRDFSSS2Complex.prepass_blur= FloatProperty(
 '''
   Plugin: MtlWrapper
 '''
-class MtlWrapper(bpy.types.IDPropertyGroup):
+class MtlWrapper(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlWrapper)
 
 VRayMaterial.MtlWrapper= PointerProperty(
 	name= "MtlWrapper",
@@ -1162,8 +1174,10 @@ MtlWrapper.trace_depth= IntProperty(
 '''
   MtlOverride
 '''
-class MtlOverride(bpy.types.IDPropertyGroup):
+class MtlOverride(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(MtlOverride)
 
 VRayMaterial.MtlOverride= PointerProperty(
 	name= "MtlOverride",
@@ -1219,8 +1233,10 @@ MtlOverride.environment_priority= IntProperty(
 '''
   LightMesh
 '''
-class LightMesh(bpy.types.IDPropertyGroup):
+class LightMesh(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(LightMesh)
 
 VRayMaterial.LightMesh= PointerProperty(
 	name= "LightMesh",
@@ -1332,8 +1348,10 @@ LightMesh.doubleSided= BoolProperty(
 '''
   Plugin: EnvironmentFog
 '''
-class EnvironmentFog(bpy.types.IDPropertyGroup):
+class EnvironmentFog(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(EnvironmentFog)
 
 VRayMaterial.EnvironmentFog= PointerProperty(
 	name= "EnvironmentFog",
@@ -1731,6 +1749,7 @@ class MATERIAL_MT_VRAY_presets(bpy.types.Menu):
 	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 
+bpy.utils.register_class(MATERIAL_MT_VRAY_presets)
 
 class MaterialButtonsPanel():
 	bl_space_type  = 'PROPERTIES'
@@ -1802,6 +1821,7 @@ class MATERIAL_PT_VRAY_context_material(MaterialButtonsPanel, bpy.types.Panel):
 			else:
 				layout.prop(vray, 'type')
 
+bpy.utils.register_class(MATERIAL_PT_VRAY_context_material)
 
 class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Parameters"
@@ -2102,6 +2122,7 @@ class MATERIAL_PT_VRAY_basic(MaterialButtonsPanel, bpy.types.Panel):
 		elif vma.type == 'CAR':
 			layout.label(text="Coming soon!")
 
+bpy.utils.register_class(MATERIAL_PT_VRAY_basic)
 
 class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Options"
@@ -2161,6 +2182,7 @@ class MATERIAL_PT_VRAY_options(MaterialButtonsPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(BRDFVRayMtl, 'environment_priority')
 
+bpy.utils.register_class(MATERIAL_PT_VRAY_options)
 
 class VRAY_MAT_two_sided(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Two-Sided"
@@ -2223,6 +2245,7 @@ class VRAY_MAT_two_sided(MaterialButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(Mtl2Sided, 'force_1sided')
 
+bpy.utils.register_class(VRAY_MAT_two_sided)
 
 class MATERIAL_PT_VRAY_override(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Override"
@@ -2272,6 +2295,7 @@ class MATERIAL_PT_VRAY_override(MaterialButtonsPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(MtlOverride, 'environment_priority')
 
+bpy.utils.register_class(MATERIAL_PT_VRAY_override)
 
 class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Wrapper"
@@ -2352,6 +2376,7 @@ class MATERIAL_PT_VRAY_wrapper(MaterialButtonsPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(MtlWrapper, 'matte_for_secondary_rays')
 
+bpy.utils.register_class(MATERIAL_PT_VRAY_wrapper)
 
 class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 	bl_label   = "Render"
@@ -2415,3 +2440,6 @@ class MATERIAL_PT_VRAY_render(MaterialButtonsPanel, bpy.types.Panel):
 			sub.active= MtlRenderStats.visibility
 		sub.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
 		sub.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
+
+bpy.utils.register_class(MATERIAL_PT_VRAY_render)
+

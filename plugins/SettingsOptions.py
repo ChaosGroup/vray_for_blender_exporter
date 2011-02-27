@@ -67,8 +67,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class SettingsOptions(bpy.types.IDPropertyGroup):
+class SettingsOptions(bpy.types.PropertyGroup):
 	pass
+
+bpy.utils.register_class(SettingsOptions)
 
 def add_properties(parent_struct):
 	setattr(parent_struct, PLUG, PointerProperty(type= SettingsOptions,

@@ -38,8 +38,10 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class VRayLamp(bpy.types.IDPropertyGroup):
+class VRayLamp(bpy.types.PropertyGroup):
     pass
+
+bpy.utils.register_class(VRayLamp)
 
 bpy.types.Lamp.vray= PointerProperty(
 	name= "V-Ray Lamp Settings",
@@ -516,6 +518,7 @@ class DATA_PT_context_lamp(VRayDataPanel, bpy.types.Panel):
 		else:
 			layout.prop(lamp, 'type')
 
+bpy.utils.register_class(DATA_PT_context_lamp)
 
 class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
@@ -565,6 +568,7 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and vl.radius > 0)):
 			col.prop(vl,'storeWithIrradianceMap')
 
+bpy.utils.register_class(DATA_PT_vray_light)
 
 class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Shape"
@@ -662,6 +666,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 		else:
 			pass
 
+bpy.utils.register_class(DATA_PT_vray_light_shape)
 
 class DATA_PT_vray_light_shadows(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Shadows"
@@ -711,6 +716,7 @@ class DATA_PT_vray_light_shadows(VRayDataPanel, bpy.types.Panel):
 		else:
 			pass
 
+bpy.utils.register_class(DATA_PT_vray_light_shadows)
 
 class DATA_PT_vray_light_advanced(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Advanced"
@@ -756,6 +762,7 @@ class DATA_PT_vray_light_advanced(VRayDataPanel, bpy.types.Panel):
 		else:
 			pass
 
+bpy.utils.register_class(DATA_PT_vray_light_advanced)
 
 class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Include / Exclude"
@@ -785,6 +792,7 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 		col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="Objects")
 		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
 
+bpy.utils.register_class(VRAY_LAMP_include_exclude)
 
 class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_idname = "vray.add_sky"
@@ -807,3 +815,6 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 			print("V-Ray/Blender: Sky texture only availble in \"%s\"!" % color("Special build",'green'))
 		
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_add_sky)
+

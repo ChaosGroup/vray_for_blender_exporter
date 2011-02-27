@@ -76,15 +76,18 @@ if base_dir is not None:
 	sys.stdout.write("V-Ray/Blender: Loading modules... done.                    \n")
 
 
-class VRayTexture(bpy.types.IDPropertyGroup):
+class VRayTexture(bpy.types.PropertyGroup):
 	pass
 
-class VRayScene(bpy.types.IDPropertyGroup):
+class VRayScene(bpy.types.PropertyGroup):
 	pass
 
-class VRayRenderChannel(bpy.types.IDPropertyGroup):
+class VRayRenderChannel(bpy.types.PropertyGroup):
 	pass
 
+bpy.utils.register_class(VRayTexture)
+bpy.utils.register_class(VRayScene)
+bpy.utils.register_class(VRayRenderChannel)
 
 def add_properties():
 	def load_plugins(plugins, parent_struct, items= False):

@@ -52,10 +52,12 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexEdges(bpy.types.IDPropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexEdges(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(TexEdges)
+
 	VRayTexture.TexEdges= PointerProperty(
 		name= "TexEdges",
 		type=  TexEdges,
@@ -195,4 +197,4 @@ class TEXTURE_PT_TexEdges(TexEdgesTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'width')
 
 
-bpy.types.register(TEXTURE_PT_TexEdges)
+bpy.utils.register_class(TEXTURE_PT_TexEdges)

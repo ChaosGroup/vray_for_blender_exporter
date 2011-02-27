@@ -59,10 +59,12 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexSky(bpy.types.IDPropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexSky(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(TexSky)
+
 	VRayTexture.TexSky= PointerProperty(
 		name= "TexSky",
 		type=  TexSky,
@@ -271,4 +273,4 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'water_vapour')
 		
 
-bpy.types.register(TEXTURE_PT_TexSky)
+bpy.utils.register_class(TEXTURE_PT_TexSky)

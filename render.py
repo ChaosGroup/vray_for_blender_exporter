@@ -2098,6 +2098,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_create_proxy)
+
 
 class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_idname      = "vray.write_geometry"
@@ -2107,6 +2109,8 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 	def execute(self, context):
 		write_geometry(context.scene)
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_write_geometry)
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -2363,3 +2367,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		else:
 			print("V-Ray/Blender: Enable \"Autorun\" option to start V-Ray automatically after export.")
 			print("V-Ray/Blender: Command: %s" % ' '.join(params))
+
+
+bpy.utils.register_class(VRayRenderer)
+bpy.utils.register_class(VRayRendererPreview)
+
