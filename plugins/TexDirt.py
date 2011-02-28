@@ -371,4 +371,4 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 		col.prop(vtex,'environment_occlusion')
 		
 		
-bpy.types.register(TEXTURE_PT_TexDirt)
+bpy.utils.register_class(TEXTURE_PT_TexDirt)

@@ -28,19 +28,19 @@
 
 TYPE= 'TEXTURE'
 
-ID=   'TEXEDGES'
+ID=	  'TEXEDGES'
 NAME= 'Edge'
 PLUG= 'TexEdges'
 DESC= "Wire frame texture."
 PID=   4
 
 PARAMS= (
-	'edges_tex',         # acolor texture = AColor(1, 1, 1, 1)
-	'bg_tex',            # acolor texture = AColor(0, 0, 0, 1)
+	'edges_tex',		 # acolor texture = AColor(1, 1, 1, 1)
+	'bg_tex',			 # acolor texture = AColor(0, 0, 0, 1)
 	'show_hidden_edges', # bool = false
-	'width_type',        # integer = 0, 0: World units, 1: Pixels
-	# 'world_width',     # float = 1
-	# 'pixel_width',     # float = 1
+	'width_type',		 # integer = 0, 0: World units, 1: Pixels
+	# 'world_width',	 # float = 1
+	# 'pixel_width',	 # float = 1
 )
 
 
@@ -52,10 +52,11 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexEdges(bpy.types.PropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexEdges(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexEdges)
+	
 	VRayTexture.TexEdges= PointerProperty(
 		name= "TexEdges",
 		type=  TexEdges,
@@ -146,16 +147,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexEdgesTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexEdges(TexEdgesTexturePanel, bpy.types.Panel):
+class VRAY_TP_TexEdges(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -195,4 +187,4 @@ class TEXTURE_PT_TexEdges(TexEdgesTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'width')
 
 
-bpy.types.register(TEXTURE_PT_TexEdges)
+bpy.utils.register_class(VRAY_TP_TexEdges)

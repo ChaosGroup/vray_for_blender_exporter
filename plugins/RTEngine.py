@@ -304,5 +304,5 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 		# col= split.column()
 		# col.prop(RTEngine, 'separate_window')
 
-bpy.types.register(VRAY_RP_RTEngine)
+bpy.utils.register_class(VRAY_RP_RTEngine)
 

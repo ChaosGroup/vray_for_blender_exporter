@@ -178,4 +178,4 @@ class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
 		col.prop(vtex, 'refract_ior')
 	
 
-bpy.types.register(TEXTURE_PT_TexFresnel)
+bpy.utils.register_class(TEXTURE_PT_TexFresnel)

@@ -62,12 +62,14 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.ui.ui import *
 
-
-class TexFalloff(bpy.types.PropertyGroup):
-    pass
 
 def add_properties(VRayTexture):
+	class TexFalloff(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexFalloff)
+	
 	VRayTexture.TexFalloff= PointerProperty(
 		name= "TexFalloff",
 		type=  TexFalloff,
@@ -303,16 +305,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexFalloffTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
+class TEXTURE_PT_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -378,4 +371,4 @@ class TEXTURE_PT_TexFalloff(TexFalloffTexturePanel, bpy.types.Panel):
 		# col.prop(vtex,'blend_input')
 	
 
-bpy.types.register(TEXTURE_PT_TexFalloff)
+bpy.utils.register_class(TEXTURE_PT_TexFalloff)

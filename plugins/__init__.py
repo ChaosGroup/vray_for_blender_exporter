@@ -49,6 +49,7 @@ PLUGINS= {
 }
 
 
+# Load settings to the RNA Pointer
 def load_plugins(plugins, rna_pointer):
 	for key in plugins:
 		plugins[key].add_properties(rna_pointer)
@@ -93,12 +94,6 @@ if base_dir is not None:
 
 	debug(None, "Loading plugins... {0:<32}".format("done."))
 
-	# print("Debug information. Remove this from release!")
-	# for plugin_type in PLUGINS:
-	# 	print(plugin_type)
-	# 	for plugin in PLUGINS[plugin_type]:
-	# 		print("  %s" % PLUGINS[plugin_type][plugin].ID)
-
 else:
 	debug(None, "Plugins not found!", error= True)
 
@@ -106,38 +101,64 @@ else:
 def add_properties():
 	class VRayCamera(bpy.types.PropertyGroup):
 		pass
-
 	bpy.utils.register_class(VRayCamera)
 
 	class VRayObject(bpy.types.PropertyGroup):
 		pass
-
 	bpy.utils.register_class(VRayObject)
 
 	class VRayMesh(bpy.types.PropertyGroup):
 		pass
-
 	bpy.utils.register_class(VRayMesh)
 
 	class VRayMaterial(bpy.types.PropertyGroup):
 		pass
-
 	bpy.utils.register_class(VRayMaterial)
 
 	class VRayTexture(bpy.types.PropertyGroup):
-		pass
-
+		type= EnumProperty(
+			name= "Texture Type",
+			description= "V-Ray texture type.",
+			items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
+			default= 'NONE'
+		)
 	bpy.utils.register_class(VRayTexture)
 
-	class VRayScene(bpy.types.PropertyGroup):
-		pass
-
-	bpy.utils.register_class(VRayScene)
-
 	class VRayRenderChannel(bpy.types.PropertyGroup):
-		pass
+		type= EnumProperty(
+			name= "Channel Type",
+			description= "Render channel type.",
+			items= (tuple(gen_menu_items(PLUGINS['RENDERCHANNEL']))),
+			default= 'NONE'
+		)
 
+		use= BoolProperty(
+			name= "Use channel",
+			description= "Use render channel.",
+			default= True
+		)
 	bpy.utils.register_class(VRayRenderChannel)
+
+	class VRayScene(bpy.types.PropertyGroup):
+		render_channels= CollectionProperty(
+			name= "Render Channels",
+			type=  VRayRenderChannel,
+			description= "V-Ray render channels."
+		)
+
+		render_channels_use= BoolProperty(
+			name= "Use render channels",
+			description= "Use render channels.",
+			default= False
+		)
+
+		render_channels_index= IntProperty(
+			name= "Render Channel Index",
+			default= -1,
+			min= -1,
+			max= 100
+		)
+	bpy.utils.register_class(VRayScene)
 
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
@@ -179,54 +200,6 @@ def add_properties():
 		name= "V-Ray Object Settings",
 		type=  VRayObject,
 		description= "V-Ray Object Settings."
-	)
-
-	'''
-	  Scene
-	'''
-	VRayScene.render_channels= CollectionProperty(
-		name= "Render Channels",
-		type=  VRayRenderChannel,
-		description= "V-Ray render channels."
-	)
-
-	VRayScene.render_channels_use= BoolProperty(
-		name= "Use render channels",
-		description= "Use render channels.",
-		default= False
-	)
-
-	VRayScene.render_channels_index= IntProperty(
-		name= "Render Channel Index",
-		default= -1,
-		min= -1,
-		max= 100
-	)
-
-	'''
-	  Passes types
-	'''
-	VRayRenderChannel.type= EnumProperty(
-		name= "Channel Type",
-		description= "Render channel type.",
-		items= (tuple(gen_menu_items(PLUGINS['RENDERCHANNEL']))),
-		default= 'NONE'
-	)
-
-	VRayRenderChannel.use= BoolProperty(
-		name= "Use channel",
-		description= "Use render channel.",
-		default= True
-	)
-
-	'''
-	  Texture types
-	'''
-	VRayTexture.type= EnumProperty(
-		name= "Texture Type",
-		description= "V-Ray texture type.",
-		items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
-		default= 'NONE'
 	)
 
 	'''

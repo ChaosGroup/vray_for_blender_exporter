@@ -240,5 +240,5 @@ class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 		
 		
 		
-bpy.types.register(RENDER_PT_SettingsCaustics)
+bpy.utils.register_class(RENDER_PT_SettingsCaustics)
 

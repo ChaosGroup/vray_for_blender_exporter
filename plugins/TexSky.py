@@ -59,10 +59,11 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class TexSky(bpy.types.PropertyGroup):
-    pass
-
 def add_properties(VRayTexture):
+	class TexSky(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexSky)
+
 	VRayTexture.TexSky= PointerProperty(
 		name= "TexSky",
 		type=  TexSky,
@@ -215,16 +216,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexSkyTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
+class VRAY_TP_TexSky(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -271,4 +263,4 @@ class TEXTURE_PT_TexSky(TexSkyTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'water_vapour')
 		
 
-bpy.types.register(TEXTURE_PT_TexSky)
+bpy.utils.register_class(VRAY_TP_TexSky)
