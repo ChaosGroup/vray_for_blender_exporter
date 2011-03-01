@@ -57,6 +57,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsColorMapping(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsColorMapping)
 
 	rna_pointer.SettingsColorMapping= PointerProperty(
 		name= "Color Mapping",

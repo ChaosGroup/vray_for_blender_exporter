@@ -60,6 +60,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsImageSampler(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsImageSampler)
 
 	rna_pointer.SettingsImageSampler= PointerProperty(
 		name= "Image Sampler",

@@ -45,6 +45,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class MtlOverride(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(MtlOverride)
 
 	rna_pointer.MtlOverride= PointerProperty(
 		name= "MtlOverride",

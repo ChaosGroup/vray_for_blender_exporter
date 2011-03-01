@@ -53,6 +53,7 @@ from vb25.utils import *
 
 class RenderChannelVelocity(bpy.types.PropertyGroup):
 	pass
+bpy.utils.register_class(RenderChannelVelocity)
 
 def add_properties(parent_struct):
 	parent_struct.RenderChannelVelocity= PointerProperty(

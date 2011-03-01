@@ -45,6 +45,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class GeomMeshFile(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(GeomMeshFile)
 
 	rna_pointer.GeomMeshFile= PointerProperty(
 		name= "V-Ray Proxy",

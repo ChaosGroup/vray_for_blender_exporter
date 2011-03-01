@@ -48,6 +48,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsCameraDof(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsCameraDof)
 
 	rna_pointer.SettingsCameraDof= PointerProperty(
 		name= "SettingsCameraDof",

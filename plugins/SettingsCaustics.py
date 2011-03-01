@@ -60,6 +60,7 @@ PARAMS= (
 def add_properties(parent_struct):
 	class SettingsCaustics(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsCaustics)
 	
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",

@@ -71,6 +71,7 @@ from vb25.ui.ui import *
 def add_properties(VRayTexture):
 	class TexDirt(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(TexDirt)
 	
 	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",

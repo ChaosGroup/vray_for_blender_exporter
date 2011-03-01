@@ -70,6 +70,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsOptions(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsOptions)
 	
 	setattr(rna_pointer, ID, PointerProperty(type= SettingsOptions,
 											 name= NAME,

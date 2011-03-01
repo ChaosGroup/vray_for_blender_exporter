@@ -44,6 +44,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class Mtl2Sided(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(Mtl2Sided)
 
 	rna_pointer.Mtl2Sided= PointerProperty(
 		name= "Mtl2Sided",

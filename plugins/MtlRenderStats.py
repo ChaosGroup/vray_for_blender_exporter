@@ -45,6 +45,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class MtlRenderStats(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(MtlRenderStats)
 
 	rna_pointer.MtlRenderStats= PointerProperty(
 		name= "MtlRenderStats",

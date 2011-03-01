@@ -50,6 +50,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsUnitsInfo(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsUnitsInfo)
 
 	rna_pointer.SettingsUnitsInfo= PointerProperty(
 		name= "Units",

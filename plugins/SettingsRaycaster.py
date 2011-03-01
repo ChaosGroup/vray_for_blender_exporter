@@ -52,6 +52,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsRaycaster(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsRaycaster)
 
 	rna_pointer.SettingsRaycaster= PointerProperty(
 		name= "Raycaster",

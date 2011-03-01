@@ -54,8 +54,21 @@ def load_plugins(plugins, rna_pointer):
 	for key in plugins:
 		plugins[key].add_properties(rna_pointer)
 
+def gen_material_menu_items(plugins):
+	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and hasattr(plugins[plug], 'MAIN_BRDF')]
 
-# Generate menu items from plugins
+	# We need to sort plugins by PID so that adding new plugins
+	# won't mess enum indexes in existing scenes
+	plugs= sorted(plugs, key=lambda plug: plug.PID)
+	
+	enum_items= []
+	for plugin in plugs:
+		if hasattr(plugin,'ID'):
+			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
+			enum_items.append((plugin.ID, ui_label, plugin.DESC))
+
+	return enum_items
+
 def gen_menu_items(plugins, none_item= True):
 	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID')]
 
@@ -71,9 +84,9 @@ def gen_menu_items(plugins, none_item= True):
 			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
 			enum_items.append((plugin.ID, ui_label, plugin.DESC))
 
-	print("<Debug information. Remove this from release!>")
-	for item in enum_items:
-		print(" ", item)
+	# print("<Debug information. Remove this from release!>")
+	# for item in enum_items:
+	# 	print(" ", item)
 	
 	return enum_items
 
@@ -114,6 +127,537 @@ def add_properties():
 	class VRayMaterial(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(VRayMaterial)
+
+	class BRDFLight(bpy.types.PropertyGroup):
+		map_color= BoolProperty(
+			name= "Color",
+			description= "A color texture that if present will override the \"Color\" parameter.",
+			default= True
+		)
+
+		color_mult= FloatProperty(
+			name= "Color texture multiplier",
+			description= "Color texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_shadowColor= BoolProperty(
+			name= "Shadow",
+			description= "A color texture that if present will override the \"Shadow color\" parameter.",
+			default= False
+		)
+
+		shadowColor_mult= FloatProperty(
+			name= "Shadow color texture multiplier",
+			description= "Shadow color texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_intensity= BoolProperty(
+			name= "Intensity",
+			description= "A color texture that if present will override the \"Intensity\" parameter.",
+			default= False
+		)
+
+		intensity_mult= FloatProperty(
+			name= "Intensity texture multiplier",
+			description= "Intensity texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+	bpy.utils.register_class(BRDFLight)
+
+	class VRaySlot(bpy.types.PropertyGroup):
+		uvwgen= StringProperty(
+			name= "UVW Generator",
+			subtype= 'NONE',
+			options= {'HIDDEN'},
+			description= "UVW generator name.",
+			default= "UVWGenChannel_default"
+		)
+
+		blend_mode= EnumProperty(
+			name= "Blend mode",
+			description= "Blend mode.",
+			items= (
+				('NONE',        "None",       ""),
+				('OVER',        "Over",       ""),
+				('IN',          "In",         ""),
+				('OUT',         "Out",        ""),
+				('ADD',         "Add",        ""),
+				('SUBTRACT',    "Subtract",   ""),
+				('MULTIPLY',    "Multiply",   ""),
+				('DIFFERENCE',  "Difference", ""),
+				('LIGHTEN',     "Lighten",    ""),
+				('DARKEN',      "Darken",     ""),
+				('SATURATE',    "Saturate",   ""),
+				('DESATUREATE', "Desaturate", ""),
+				('ILLUMINATE',  "Illuminate", ""),
+			),
+			default= 'NONE'
+		)
+
+		texture_rotation_h= FloatProperty(
+			name= "Horiz. rotation",
+			description= "Horizontal rotation.",
+			min= -360.0,
+			max= 360.0,
+			soft_min= -180.0,
+			soft_max= 180.0,
+			default= 0.0
+		)
+
+		texture_rotation_v= FloatProperty(
+			name= "Vert. rotation",
+			description= "TODO.",
+			min= -360.0,
+			max= 360.0,
+			soft_min= -180.0,
+			soft_max= 180.0,
+			default= 0.0
+		)
+
+		map_displacement= BoolProperty(
+			name= "Displacement",
+			description= "Displacement texture.",
+			default= False
+		)
+
+		displacement_mult= FloatProperty(
+			name= "Displacement texture multiplier",
+			description= "Displacement texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_normal= BoolProperty(
+			name= "Normal",
+			description= "Normal texture.",
+			default= False
+		)
+
+		normal_mult= FloatProperty(
+			name= "Normal texture multiplier",
+			description= "Normal texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_opacity= BoolProperty(
+			name= "Opacity",
+			description= "Opacity texture.",
+			default= False
+		)
+
+		opacity_mult= FloatProperty(
+			name= "Opacity texture multiplier",
+			description= "Opacity texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_roughness= BoolProperty(
+			name= "Roughness",
+			description= "Roughness texture.",
+			default= False
+		)
+
+		roughness_mult= FloatProperty(
+			name= "Roughness texture multiplier",
+			description= "Roughness texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_reflect= BoolProperty(
+			name= "Reflection",
+			description= "Reflection texture.",
+			default= False
+		)
+
+		reflect_mult= FloatProperty(
+			name= "Reflection texture multiplier",
+			description= "Reflection texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_reflect_glossiness= BoolProperty(
+			name= "Reflection glossiness",
+			description= "Reflection glossiness texture.",
+			default= False
+		)
+
+		reflect_glossiness_mult= FloatProperty(
+			name= "Reflection glossiness texture multiplier",
+			description= "Reflection glossiness texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_hilight_glossiness= BoolProperty(
+			name= "Hilight glossiness",
+			description= "Hilight glossiness texture.",
+			default= False
+		)
+
+		hilight_glossiness_mult= FloatProperty(
+			name= "Hilight glossiness texture multiplier",
+			description= "Hilight glossiness texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_anisotropy= BoolProperty(
+			name= "Anisotropy",
+			description= "Anisotropy texture.",
+			default= False
+		)
+
+		anisotropy_mult= FloatProperty(
+			name= "Anisotropy texture multiplier",
+			description= "Anisotropy texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_anisotropy_rotation= BoolProperty(
+			name= "Anisotropy rotation",
+			description= "Anisotropy rotation texture.",
+			default= False
+		)
+
+		anisotropy_rotation_mult= FloatProperty(
+			name= "Anisotropy rotation texture multiplier",
+			description= "Anisotropy rotation texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_fresnel_ior= BoolProperty(
+			name= "Fresnel IOR",
+			description= "Fresnel IOR texture.",
+			default= False
+		)
+
+		fresnel_ior_mult= FloatProperty(
+			name= "Fresnel IOR texture multiplier",
+			description= "Fresnel IOR texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_refract= BoolProperty(
+			name= "Refraction",
+			description= "Refraction texture.",
+			default= False
+		)
+
+		refract_mult= FloatProperty(
+			name= "Refraction texture multiplier",
+			description= "Refraction texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_refract_ior= BoolProperty(
+			name= "Refraction IOR",
+			description= "Refraction IOR texture.",
+			default= False
+		)
+
+		refract_ior_mult= FloatProperty(
+			name= "Refraction IOR texture multiplier",
+			description= "Refraction IOR texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_refract_glossiness= BoolProperty(
+			name= "Refraction glossiness",
+			description= "Refraction glossiness texture.",
+			default= False
+		)
+
+		refract_glossiness_mult= FloatProperty(
+			name= "Refraction glossiness texture multiplier",
+			description= "Refraction glossiness texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_translucency_color= BoolProperty(
+			name= "Translucency",
+			description= "Translucency texture.",
+			default= False
+		)
+
+		translucency_color_mult= FloatProperty(
+			name= "Translucency texture multiplier",
+			description= "Translucency texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+
+		'''
+		  BRDFSSS2Complex
+		'''
+		map_overall_color= BoolProperty(
+			name= "Overall color",
+			description= "Overall color.",
+			default= False
+		)
+
+		overall_color_mult= FloatProperty(
+			name= "Overall color multiplier",
+			description= "Overall color multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_diffuse_color= BoolProperty(
+			name= "Diffuse color",
+			description= "Diffuse color.",
+			default= False
+		)
+
+		diffuse_color_mult= FloatProperty(
+			name= "Diffuse color multiplier",
+			description= "Diffuse color multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_diffuse_amount= BoolProperty(
+			name= "Diffuse amount",
+			description= "Diffuse amount.",
+			default= False
+		)
+
+		diffuse_amount_mult= FloatProperty(
+			name= "Diffuse amount multiplier",
+			description= "Diffuse amount multiplie.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_sub_surface_color= BoolProperty(
+			name= "Sub-surface color",
+			description= "Sub-surface color.",
+			default= False
+		)
+
+		sub_surface_color_mult= FloatProperty(
+			name= "Sub-surface color multiplier",
+			description= "Sub-surface color multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_scatter_radius= BoolProperty(
+			name= "Scatter radius",
+			description= "Scatter radius.",
+			default= False
+		)
+
+		scatter_radius_mult= FloatProperty(
+			name= "Scatter radius multiplier",
+			description= "Scatter radius multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_specular_color= BoolProperty(
+			name= "Specular color",
+			description= "Specular color.",
+			default= False
+		)
+
+		specular_color_mult= FloatProperty(
+			name= "Specular color multiplier",
+			description= "Specular color multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_specular_amount= BoolProperty(
+			name= "Specular amount",
+			description= "Specular amoun.",
+			default= False
+		)
+
+		specular_amount_mult= FloatProperty(
+			name= "Specular amount multiplier.",
+			description= "Specular amount multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_specular_glossiness= BoolProperty(
+			name= "Specular glossiness",
+			description= "Specular glossiness.",
+			default= False
+		)
+
+		specular_glossiness_mult= FloatProperty(
+			name= "Specular glossiness multiplier.",
+			description= "Specular glossiness multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+
+		'''
+		  EnvironmentFog
+		'''
+		map_emission_tex= BoolProperty(
+			name= "Emission",
+			description= "Emission texture.",
+			default= False
+		)
+
+		emission_tex_mult= FloatProperty(
+			name= "Emission texture multiplier",
+			description= "Emission texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_color_tex= BoolProperty(
+			name= "Color",
+			description= "Color texture.",
+			default= False
+		)
+
+		color_tex_mult= FloatProperty(
+			name= "Color texture multiplier",
+			description= "Color texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_density_tex= BoolProperty(
+			name= "Density",
+			description= "Density texture.",
+			default= False
+		)
+
+		density_tex_mult= FloatProperty(
+			name= "Density texture multiplier",
+			description= "Density texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		map_fade_out_tex= BoolProperty(
+			name= "Fade out",
+			description= "Fade out texture.",
+			default= False
+		)
+
+		fade_out_tex_mult= FloatProperty(
+			name= "Fade out texture multiplier",
+			description= "Fade out texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+	bpy.utils.register_class(VRaySlot)
+
+	VRaySlot.BRDFLight= PointerProperty(
+		name= "BRDFLight",
+		type=  BRDFLight,
+		description= "VRay lights texture slot settings."
+	)
 
 	class VRayTexture(bpy.types.PropertyGroup):
 		type= EnumProperty(
@@ -164,6 +708,12 @@ def add_properties():
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
 		description= "V-Ray texture settings."
+	)
+
+	bpy.types.Texture.vray_slot= PointerProperty(
+		name= "V-Ray Material Texture Slot",
+		type=  VRaySlot,
+		description= "V-Ray material texture slot settings."
 	)
 
 	bpy.types.Scene.vray= PointerProperty(
@@ -222,7 +772,8 @@ def add_properties():
 	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayObject)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRayObject)
 
-	PLUGINS['BRDF']['BRDFBump'].add_properties(VRayTexture)
+	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)
+	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRaySlot)
 
 	for key in PLUGINS['BRDF']:
 		if key != 'BRDFBump':

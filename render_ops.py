@@ -66,6 +66,8 @@ class VRAY_OT_lens_shift(bpy.types.Operator):
 
 		return {'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_lens_shift)
+
 
 '''
   Effects operators
@@ -84,6 +86,8 @@ class VRAY_OT_effect_add(bpy.types.Operator):
 
 		return {'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_effect_add)
+
 
 class VRAY_OT_effect_remove(bpy.types.Operator):
 	bl_idname=      'vray.effect_remove'
@@ -100,6 +104,8 @@ class VRAY_OT_effect_remove(bpy.types.Operator):
 			VRayEffects.effects_selected-= 1
 
 		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_effect_remove)
 
 
 '''
@@ -139,6 +145,8 @@ class VRAY_OT_brdf_add(bpy.types.Operator):
 
 		return {'CHANCELED'}
 
+bpy.utils.register_class(VRAY_OT_brdf_add)
+
 
 class VRAY_OT_brdf_remove(bpy.types.Operator):
 	bl_idname=      'vray.brdf_remove'
@@ -158,6 +166,8 @@ class VRAY_OT_brdf_remove(bpy.types.Operator):
 			return {'FINISHED'}
 
 		return {'CHANCELED'}
+
+bpy.utils.register_class(VRAY_OT_brdf_remove)
 
 
 class VRAY_OT_brdf_up(bpy.types.Operator):
@@ -182,6 +192,8 @@ class VRAY_OT_brdf_up(bpy.types.Operator):
 
 		return {'CHANCELED'}
 
+bpy.utils.register_class(VRAY_OT_brdf_up)
+
 
 class VRAY_OT_brdf_down(bpy.types.Operator):
 	bl_idname=      'vray.brdf_down'
@@ -205,6 +217,8 @@ class VRAY_OT_brdf_down(bpy.types.Operator):
 
 		return {'CHANCELED'}
 
+bpy.utils.register_class(VRAY_OT_brdf_down)
+
 
 '''
   Render channel operators
@@ -225,6 +239,8 @@ class VRAY_OT_channel_add(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_channel_add)
+
 
 class VRAY_OT_channel_del(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_remove'
@@ -242,6 +258,8 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 		   vsce.render_channels_index-= 1
 
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_channel_del)
 
 
 '''
@@ -261,6 +279,8 @@ class VRAY_OT_node_add(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_node_add)
+
 
 class VRAY_OT_node_del(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_remove'
@@ -276,6 +296,8 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		   module.nodes_selected-= 1
 
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_node_del)
 
 
 '''
@@ -353,6 +375,8 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 				
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_convert_scene)
+
 
 class VRAY_OT_settings_to_text(bpy.types.Operator):
 	bl_idname=      'vray.settings_to_text'
@@ -368,6 +392,8 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 	def execute(self, context):
 		# TODO:
 		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_settings_to_text)
 
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
@@ -388,6 +414,8 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
 		
 		return{'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_flip_resolution)
 
 
 class VRAY_OT_create_proxy(bpy.types.Operator):
@@ -509,6 +537,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 		return{'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_create_proxy)
+
 
 class VRAY_OT_preview(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
@@ -531,6 +561,8 @@ class VRAY_OT_preview(bpy.types.Operator):
 		
 		return {'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_preview)
+
 
 class VRAY_OT_write_scene(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
@@ -542,6 +574,8 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 		vb25.render.write_scene(context.scene)
 		
 		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_write_scene)
 
 
 class VRAY_OT_write_geometry(bpy.types.Operator):
@@ -555,6 +589,8 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 
 		return {'FINISHED'}
 
+bpy.utils.register_class(VRAY_OT_write_geometry)
+
 
 class VRAY_OT_run(bpy.types.Operator):
 	bl_idname      = "vray.run"
@@ -566,6 +602,8 @@ class VRAY_OT_run(bpy.types.Operator):
 		vb25.render.run(None, context.scene)
 				
 		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_run)
 
 
 class VRAY_OT_render(bpy.types.Operator):
@@ -585,6 +623,8 @@ class VRAY_OT_render(bpy.types.Operator):
 		bpy.ops.vray.run()
 
 		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_render)
 
 
 
@@ -606,6 +646,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 		# 	bpy.ops.vray.render()
 		vb25.render.render(self, scene)
 
+bpy.utils.register_class(VRayRenderer)
+
 
 class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER_PREVIEW'
@@ -623,3 +665,4 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 		else:
 			vb25.render.render(self, scene)
 
+bpy.utils.register_class(VRayRendererPreview)

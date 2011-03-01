@@ -49,6 +49,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class GeomStaticMesh(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(GeomStaticMesh)
 
 	rna_pointer.GeomStaticMesh= PointerProperty(
 		name= "V-Ray Satic Mesh",

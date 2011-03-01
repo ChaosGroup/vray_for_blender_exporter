@@ -46,29 +46,8 @@ PARAMS= (
 )
 
 
-# Generate menu items from plugins
-def gen_menu_items(plugins):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and hasattr(plugins[plug], 'MAIN_BRDF')]
-
-	# We need to sort plugins by PID so that adding new plugins
-	# won't mess enum indexes in existing scenes
-	plugs= sorted(plugs, key=lambda plug: plug.PID)
-	
-	enum_items= []
-	for plugin in plugs:
-		if hasattr(plugin,'ID'):
-			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
-			enum_items.append((plugin.ID, ui_label, plugin.DESC))
-
-	print("<Debug information. Remove this from release!>")
-	for item in enum_items:
-		print(" ", item)
-	
-	return enum_items
-
-
 def add_properties(rna_pointer):
-	material_types= gen_menu_items(PLUGINS['BRDF'])
+	material_types= gen_material_menu_items(PLUGINS['BRDF'])
 	
 	rna_pointer.type= EnumProperty(
 		name= "Type",

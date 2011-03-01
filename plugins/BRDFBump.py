@@ -46,24 +46,12 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFBump(bpy.types.PropertyGroup):
 		pass
-
 	bpy.utils.register_class(BRDFBump)
 
 	rna_pointer.BRDFBump= PointerProperty(
 		name= "BRDFBump",
 		type=  BRDFBump,
 		description= "BRDFBump texture slot settings."
-	)
-
-	BRDFBump.bump_tex_mult= FloatProperty(
-		name= "Amount",
-		description= "Bump amount.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.02
 	)
 
 	BRDFBump.map_type= EnumProperty(
@@ -75,9 +63,20 @@ def add_properties(rna_pointer):
 			('CAMERA',   "Normal (camera)",   "."),
 			('OBJECT',   "Normal (object)",   "."),
 			('TANGENT',  "Normal (tangent)" , "."),
-			('BUMP',     "Bump",              ".")
+			('BUMP',     "Bump",              "."),
 		),
 		default= 'BUMP'
+	)
+
+	BRDFBump.bump_tex_mult= FloatProperty(
+		name= "Amount",
+		description= "Bump amount.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0.02
 	)
 
 	BRDFBump.bump_shadows= BoolProperty(

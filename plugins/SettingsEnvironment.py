@@ -90,15 +90,19 @@ PARAMS= {
 def add_properties(rna_pointer):
 	class VolumeVRayToon(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(VolumeVRayToon)
 
 	class EnvironmentFog(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(EnvironmentFog)
 
 	class EnvironmentEffect(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(EnvironmentEffect)
 
 	class VRayEffects(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(VRayEffects)
 
 	rna_pointer.EnvironmentFog= PointerProperty(
 		name= "EnvironmentFog",

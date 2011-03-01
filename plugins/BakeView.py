@@ -46,7 +46,8 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class VRayBake(bpy.types.PropertyGroup):
 		pass
-
+	bpy.utils.register_class(VRayBake)
+	
 	rna_pointer.VRayBake= PointerProperty(
 		name= "Bake",
 		type=  VRayBake,

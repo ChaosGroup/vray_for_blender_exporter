@@ -54,8 +54,12 @@ else:
 
 
 def register():
+	bpy.utils.register_module(__name__)
+
 	plugins.add_properties()
 
 
 def unregister():
+	bpy.utils.unregister_module(__name__)
+
 	plugins.remove_properties()

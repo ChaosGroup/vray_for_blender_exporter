@@ -82,6 +82,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFBlinn(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(BRDFBlinn)
 	
 	rna_pointer.BRDFBlinn= PointerProperty(
 		name= "BRDFBlinn",

@@ -62,6 +62,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFMirror(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(BRDFMirror)
 
 	rna_pointer.BRDFMirror= PointerProperty(
 		name= "BRDFMirror",

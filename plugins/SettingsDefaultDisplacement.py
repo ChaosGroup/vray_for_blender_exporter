@@ -55,6 +55,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class SettingsDefaultDisplacement(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsDefaultDisplacement)
 
 	rna_pointer.SettingsDefaultDisplacement= PointerProperty(
 		name= "Default Displacement",

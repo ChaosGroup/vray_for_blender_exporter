@@ -54,6 +54,7 @@ from vb25.utils import *
 
 class RenderChannelMultiMatte(bpy.types.PropertyGroup):
     pass
+bpy.utils.register_class(RenderChannelMultiMatte)
 
 def add_properties(parent_struct):
 	parent_struct.RenderChannelMultiMatte= PointerProperty(

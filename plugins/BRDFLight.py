@@ -49,6 +49,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFLight(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(BRDFLight)
 
 	rna_pointer.BRDFLight= PointerProperty(
 		name= "BRDFLight",

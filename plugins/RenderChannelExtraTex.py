@@ -53,6 +53,7 @@ from vb25.shaders import *
 
 class RenderChannelExtraTex(bpy.types.PropertyGroup):
 	pass
+bpy.utils.register_class(RenderChannelExtraTex)
 
 def add_properties(parent_struct):
 	parent_struct.RenderChannelExtraTex= PointerProperty(

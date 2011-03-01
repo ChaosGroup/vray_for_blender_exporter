@@ -47,6 +47,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class VRayDR(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(VRayDR)
 
 	rna_pointer.VRayDR= PointerProperty(
 		name= "Distributed rendering",
@@ -88,6 +89,7 @@ def add_properties(rna_pointer):
 
 	class VRayRenderNode(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(VRayRenderNode)
 
 	VRayDR.nodes= CollectionProperty(
 		name= "Render Nodes",

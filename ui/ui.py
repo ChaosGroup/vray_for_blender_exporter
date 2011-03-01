@@ -24,7 +24,9 @@
 
 '''
 
+
 narrowui= 200
+
 
 def base_poll(cls, context):
 	rd= context.scene.render
@@ -59,4 +61,14 @@ class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
+
+class VRayWorldPanel():
+	bl_space_type  = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context     = 'world'
+
+	@classmethod
+	def poll(cls, context):
+		rd= context.scene.render
+		return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
 

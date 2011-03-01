@@ -105,6 +105,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFVRayMtl(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(BRDFVRayMtl)
 
 	rna_pointer.BRDFVRayMtl= PointerProperty(
 		name= "BRDFVRayMtl",

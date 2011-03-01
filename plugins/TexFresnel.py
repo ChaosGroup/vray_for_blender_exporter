@@ -51,6 +51,7 @@ from vb25.utils import *
 
 class TexFresnel(bpy.types.PropertyGroup):
     pass
+bpy.utils.register_class(TexFresnel)
 
 def add_properties(VRayTexture):
 	VRayTexture.TexFresnel= PointerProperty(

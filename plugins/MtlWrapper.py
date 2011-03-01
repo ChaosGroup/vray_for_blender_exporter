@@ -44,6 +44,7 @@ from bpy.props import *
 def add_properties(rna_pointer):
 	class MtlWrapper(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(MtlWrapper)
 
 	rna_pointer.MtlWrapper= PointerProperty(
 		name= "MtlWrapper",

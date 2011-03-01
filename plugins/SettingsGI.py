@@ -46,6 +46,7 @@ PARAMS= (
 def add_properties(parent_struct):
 	class SettingsGI(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsGI)
 
 	parent_struct.SettingsGI= PointerProperty(
 		type= SettingsGI,
@@ -147,6 +148,7 @@ def add_properties(parent_struct):
 
 	class SettingsDMCGI(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsDMCGI)
 
 	SettingsGI.SettingsDMCGI= PointerProperty(
 		name= "DMC GI",
@@ -173,6 +175,7 @@ def add_properties(parent_struct):
 
 	class SettingsIrradianceMap(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsIrradianceMap)
 
 	SettingsGI.SettingsIrradianceMap= PointerProperty(
 		name= "Irradiance Map",
@@ -412,6 +415,7 @@ def add_properties(parent_struct):
 
 	class SettingsLightCache(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsLightCache)
 
 	SettingsGI.SettingsLightCache= PointerProperty(
 		name= "Light Cache",
@@ -601,6 +605,7 @@ def add_properties(parent_struct):
 
 	class SettingsPhotonMap(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(SettingsPhotonMap)
 
 	SettingsGI.SettingsPhotonMap= PointerProperty(
 		name= "Photon Map",

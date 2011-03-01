@@ -76,6 +76,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class BRDFSSS2Complex(bpy.types.PropertyGroup):
 		pass
+	bpy.utils.register_class(BRDFSSS2Complex)
 
 	rna_pointer.BRDFSSS2Complex= PointerProperty(
 		name= "BRDFSSS2Complex",

@@ -46,97 +46,95 @@ def add_properties(rna_pointer):
 		pass
 	bpy.utils.register_class(VRayImage)
 
+	class BitmapBuffer(bpy.types.PropertyGroup):
+		filter_type= EnumProperty(
+			name= "Filter type",
+			description= "Filter type.",
+			items= (
+				('NONE',   "None",        ""),
+				('MIPMAP', "Mip-Map",     "Mip-map filtering."),
+				('AREA',   "Area",        "Summed area filtering.")
+			),
+			default= 'AREA'
+		)
+
+		color_space= EnumProperty(
+			name= "Color space",
+			description= "Color space.",
+			items= (
+				('LINEAR', "Linear",          ""), # 0
+				('GAMMA',  "Gamma corrected", ""),
+				('SRGB',   "sRGB",            "")
+			),
+			default= 'LINEAR'
+		)
+
+		interpolation= EnumProperty(
+			name= "Interpolation",
+			description= "Interpolation.",
+			items= (
+				('BILINEAR', "Bilinear", ""), # 0
+				('BICUBIC',  "Bicubic",  ""),
+			),
+			default= 'BILINEAR'
+		)
+
+		filter_blur= FloatProperty(
+			name= "Blur",
+			description= "Filter blur.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		gamma= FloatProperty(
+			name= "Gamma",
+			description= "Gamma.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 4,
+			default= 1.0
+		)
+
+		use_input_gamma= BoolProperty(
+			name= "Use \"Input gamma\"",
+			description= "Use \"Input gamma\" from \"Color mapping\" settings.",
+			default= True
+		)
+
+		gamma_correct= BoolProperty(
+			name= "Invert gamma",
+			description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
+			default= False
+		)
+
+		allow_negative_colors= BoolProperty(
+			name= "Allow negative colors",
+			description= "If false negative colors will be clamped.",
+			default= False
+		)
+
+		use_data_window= BoolProperty(
+			name= "Use data window",
+			description= "Use the data window information in OpenEXR files.",
+			default= True
+		)
+	bpy.utils.register_class(BitmapBuffer)
+
 	bpy.types.Image.vray= PointerProperty(
 		name= "V-Ray Image Settings",
 		type=  VRayImage,
 		description= "V-Ray image settings."
 	)
-	
-	class BitmapBuffer(bpy.types.PropertyGroup):
-		pass
-	bpy.utils.register_class(BitmapBuffer)
 
 	VRayImage.BitmapBuffer= PointerProperty(
 		name= "BitmapBuffer",
 		type=  BitmapBuffer,
 		description= "BitmapBuffer settings."
-	)
-
-	BitmapBuffer.filter_type= EnumProperty(
-		name= "Filter type",
-		description= "Filter type.",
-		items= (
-			('NONE',   "None",        ""),
-			('MIPMAP', "Mip-Map",     "Mip-map filtering."),
-			('AREA',   "Area",        "Summed area filtering.")
-		),
-		default= 'AREA'
-	)
-
-	BitmapBuffer.color_space= EnumProperty(
-		name= "Color space",
-		description= "Color space.",
-		items= (
-			('LINEAR', "Linear",          ""), # 0
-			('GAMMA',  "Gamma corrected", ""),
-			('SRGB',   "sRGB",            "")
-		),
-		default= 'LINEAR'
-	)
-
-	BitmapBuffer.interpolation= EnumProperty(
-		name= "Interpolation",
-		description= "Interpolation.",
-		items= (
-			('BILINEAR', "Bilinear", ""), # 0
-			('BICUBIC',  "Bicubic",  ""),
-		),
-		default= 'BILINEAR'
-	)
-
-	BitmapBuffer.filter_blur= FloatProperty(
-		name= "Blur",
-		description= "Filter blur.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	BitmapBuffer.gamma= FloatProperty(
-		name= "Gamma",
-		description= "Gamma.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 4,
-		default= 1.0
-	)
-
-	BitmapBuffer.use_input_gamma= BoolProperty(
-		name= "Use \"Input gamma\"",
-		description= "Use \"Input gamma\" from \"Color mapping\" settings.",
-		default= True
-	)
-
-	BitmapBuffer.gamma_correct= BoolProperty(
-		name= "Invert gamma",
-		description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
-		default= False
-	)
-
-	BitmapBuffer.allow_negative_colors= BoolProperty(
-		name= "Allow negative colors",
-		description= "If false negative colors will be clamped.",
-		default= False
-	)
-
-	BitmapBuffer.use_data_window= BoolProperty(
-		name= "Use data window",
-		description= "Use the data window information in OpenEXR files.",
-		default= True
 	)
 
 
