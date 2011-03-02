@@ -770,6 +770,7 @@ def add_properties():
 	PLUGINS['MATERIAL']['MtlRenderStats'].add_properties(VRayObject)
 
 	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayObject)
+	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayMaterial)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRayObject)
 
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)

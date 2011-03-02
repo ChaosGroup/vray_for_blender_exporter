@@ -76,4 +76,3 @@ def add_properties(rna_pointer):
 		soft_max= 1.0,
 		default= (1.0,1.0,1.0)
 	)
-	
