@@ -60,7 +60,7 @@ def add_properties(rna_pointer):
 	)
 
 	rna_pointer.use_camera_loop= BoolProperty(
-		name= "Use in camera loop",
+		name= "Use in \"Camera loop\"",
 		description= "Use camera in \"Camera loop\".",
 		default= False
 	)

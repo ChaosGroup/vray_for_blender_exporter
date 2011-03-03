@@ -46,11 +46,11 @@ from bpy.props import *
 from vb25.utils import *
 
 
-class RenderChannelRenderID(bpy.types.PropertyGroup):
-	pass
-bpy.utils.register_class(RenderChannelRenderID)
-
 def add_properties(parent_struct):
+	class RenderChannelRenderID(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(RenderChannelRenderID)
+	
 	parent_struct.RenderChannelRenderID= PointerProperty(
 		name= "RenderID",
 		type=  RenderChannelRenderID,
@@ -73,9 +73,8 @@ def write(ofile, render_channel, sce= None, name= None):
 	if name is not None:
 		channel_name= name
 
-	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
-	param= 'name'
-	ofile.write("\n\t%s= \"%s\";"%(param, p(getattr(render_channel, param))))
+	ofile.write("\n%s %s {" % (PLUG, clean_string(channel_name)))
+	ofile.write("\n\tname= \"%s\";" % clean_string(channel_name))
 	ofile.write("\n}\n")
 
 
@@ -84,5 +83,5 @@ def write(ofile, render_channel, sce= None, name= None):
   GUI
 '''
 def draw(rna_pointer, layout, wide_ui):
-	pass
+	layout.label(text="The object's \"Pass index\" contributes the pixel value.")
 

@@ -50,10 +50,7 @@ HOSTNAME= socket.gethostname()
 
 TEX_TYPES= ('IMAGE', 'VRAY')
 
-try:
-	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
-except:
-	none_matrix= mathutils.Matrix((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0))
+none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
@@ -241,16 +238,13 @@ def get_full_filepath(sce,ob,filepath):
 
 	VRayDR= sce.vray.VRayDR
 
-	if ob.library and filepath[:2] == '//':
+	if ob.library and rel_path(filepath):
 		lib_path= os.path.dirname(bpy.path.abspath(ob.library.filepath))
 		filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
 
 	src_file= os.path.normpath(bpy.path.abspath(filepath))
 
-	if PLATFORM != 'win32':
-		src_file= src_file.replace('\\','/')
-
-	src_filename= os.path.split(src_file)[1]
+	src_filename= os.path.basename(src_file)
 
 	if VRayDR.on:
 		dest_path= os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
