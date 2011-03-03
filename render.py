@@ -1472,7 +1472,7 @@ def write_camera(sce, ofile, camera= None, bake= False):
 			ofile.write("\nRenderView RenderView {")
 			ofile.write("\n\ttransform= %s;"%(a(sce,transform(ca.matrix_world))))
 			ofile.write("\n\tfov= %s;"%(a(sce,fov)))
-			if SettingsCamera.type != 'SPHERIFICAL':
+			if SettingsCamera.type not in ('SPHERIFICAL','BOX'):
 				ofile.write("\n\tclipping= 1;")
 				ofile.write("\n\tclipping_near= %s;"%(a(sce,ca.data.clip_start)))
 				ofile.write("\n\tclipping_far= %s;"%(a(sce,ca.data.clip_end)))
