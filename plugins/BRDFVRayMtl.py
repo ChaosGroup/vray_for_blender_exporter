@@ -640,12 +640,10 @@ def write(bus, BRDFLayered= None):
 		'MONO':  1,
 	}
 	
-	ofile= bus['files']['materials']
-	scene= bus['scene']
-	ma=    bus['material']
-	
-	textures= bus['textures']['mapto']
-	values=   bus['textures']['values']
+	ofile=    bus['files']['materials']
+	scene=    bus['scene']
+	ma=       bus['material']
+	textures= bus['textures']
 
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
@@ -684,6 +682,8 @@ def write(bus, BRDFLayered= None):
 			value= getattr(BRDFVRayMtl,param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
 	ofile.write("\n}\n")
+
+	bus['brdf']= brdf_name
 
 	return brdf_name
 

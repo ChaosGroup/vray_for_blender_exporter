@@ -60,10 +60,10 @@ PARAMS= (
 	'coat_color',
 	'coat_strength',
 	'coat_glossiness',
-	'coat_bump_float',
-	'coat_bump_color',
-	'coat_bump_amount',
-	'coat_bump_type',
+	# 'coat_bump_float',
+	# 'coat_bump_color',
+	# 'coat_bump_amount',
+	# 'coat_bump_type',
 	'traceReflections',
 	'doubleSided',
 	'subdivs',
@@ -310,9 +310,9 @@ def add_properties(rna_pointer):
 		name= "flake map size",
 		description= "The size of the internal flakes map.",
 		min= 0,
-		max= 100,
+		max= 10000,
 		soft_min= 0,
-		soft_max= 10,
+		soft_max= 10000,
 		default= 1024
 	)
 
@@ -538,7 +538,7 @@ def add_properties(rna_pointer):
 	# mapping_type
 	BRDFCarPaint.mapping_type= EnumProperty(
 		name= "Mapping type",
-		description= "The mapping method for the flakes (0 - , 1 - ).",
+		description= "The mapping method for the flakes.",
 		items= (
 			('EXPLICIT',  "Explicit", "Explicit mapping channel"),
 			('TRIPLANAR', "Object",   "Triplanar projection in object space"),
@@ -562,11 +562,16 @@ def add_properties(rna_pointer):
 '''
   OUTPUT
 '''
-def get_defaults(bus):
+def get_defaults(bus, BRDFLayered= None):
 	return {}
 
 
 def write(bus, BRDFLayered= None):
+	MAPPING_TYPE= {
+		'EXPLICIT':  0,
+		'TRIPLANAR': 1,
+	}
+
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 	ma=    bus['material']
@@ -575,16 +580,23 @@ def write(bus, BRDFLayered= None):
 
 	VRayMaterial= ma.vray
 	
-	BRDFCarPaint= getattr(BRDFLayered, PLUG) if BRDFLayered else getattr(VRayMaterial, PLUG)
+	BRDFCarPaint= getattr(BRDFLayered, ID) if BRDFLayered else getattr(VRayMaterial, ID)
 
 	# Color values if param is not textured
 	defaults= get_defaults(bus, BRDFLayered)
 	
-	ofile.write("\n%s %s {"%(PLUG, brdf))
+	ofile.write("\n%s %s {"%(ID, brdf))
 	for param in PARAMS:
-		value= getattr(BRDFCarPaint, param)
+		if param == 'mapping_type':
+			value= MAPPING_TYPE[BRDFCarPaint.mapping_type]
+		elif param == 'flake_uvwgen':
+			value= bus['defaults']['uvwgen'];
+		else:
+			value= getattr(BRDFCarPaint, param)
 		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
+
+	bus['brdf']= brdf
 
 	return brdf
 

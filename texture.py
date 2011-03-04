@@ -115,7 +115,8 @@ def write_texture(bus):
   or:
     LAlamp+TEtexture+IDtexture_id_in_stack
 '''
-def write_factor(ofile, sce, input_texture_name, mult_value):
+def write_factor(bus):
+	ofile=   bus['files']['textures']
 	scene=   bus['scene']
 	texture= bus['mtex']['texture']
 	factor=  bus['mtex']['factor']
@@ -145,7 +146,9 @@ def write_factor(ofile, sce, input_texture_name, mult_value):
 	return tex_name
 
 
-def stack_write_TexLayered(ofile, layers):
+def stack_write_TexLayered(bus, layers):
+	ofile= bus['files']['textures']
+
 	BLEND_MODES= {
 		'NONE':         '0',
 		'STENCIL':      '1',
@@ -172,7 +175,8 @@ def stack_write_TexLayered(ofile, layers):
 	return tex_name
 
 
-def stack_write_TexMix(ofile, color1, color2, blend_amount):
+def stack_write_TexMix(bus, color1, color2, blend_amount):
+	ofile= bus['files']['textures']
 	tex_name= 'TM' + get_random_string()
 	ofile.write("\nTexMix %s {" % tex_name)
 	ofile.write("\n\tcolor1= %s;" % color1)
@@ -186,11 +190,11 @@ def stack_write_TexMix(ofile, color1, color2, blend_amount):
 def stack_write_textures(bus, layer):
 	ofile= bus['files']['textures']
 	if type(layer) == dict:
-		color_a= stack_write_textures(ofile, layer['color_a'])
-		color_b= stack_write_textures(ofile, layer['color_b'])
-		layer_name= stack_write_TexMix(ofile, color_a, color_b, layer['blend_amount'])
+		color_a= stack_write_textures(bus, layer['color_a'])
+		color_b= stack_write_textures(bus, layer['color_b'])
+		layer_name= stack_write_TexMix(bus, color_a, color_b, layer['blend_amount'])
 	elif type(layer) == list:
-		layer_name= stack_write_TexLayered(ofile, layer)
+		layer_name= stack_write_TexLayered(bus, layer)
 	return layer_name
 
 
@@ -209,7 +213,7 @@ def stack_collapse_layers(slots):
 	return layers
 
 
-def write_TexOutput(bus, texmap, params):
+def write_TexOutput(bus, texmap):
 	ofile= bus['files']['textures']
 	tex_name= 'TO' + get_random_string()
 	ofile.write("\nTexOutput %s {" % tex_name)

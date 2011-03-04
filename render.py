@@ -183,7 +183,7 @@ def write_geometry(scene):
 	VRayExporter= VRayScene.exporter
 	
 	try:
-		# Try calling special V-Ray/Blender Build operator
+		# Try calling V-Ray/Blender mesh export operator
 		bpy.ops.vray.export_meshes(
 			filepath=          get_filenames(scene,'geometry')[:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
@@ -372,8 +372,8 @@ def write_material_textures(bus):
 	bus['node']['displace']= None
 
 	# Normal mapping settings pointer and uvwgen
-	bus['material']['normal']=        None
-	bus['material']['normal_uvwgen']= None
+	bus['normal']=        None
+	bus['normal_uvwgen']= None
 
 	for i,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
@@ -401,7 +401,7 @@ def write_material_textures(bus):
 					if slot.use_map_normal:
 						use_slot= True
 						factor= VRaySlot.normal_mult
-						bus['material']['normal']= slot
+						bus['normal']= slot
 				else:
 					if getattr(VRaySlot, 'map_'+key):
 						use_slot= True
@@ -1023,6 +1023,7 @@ def write_scene(scene, preview= None):
 	bus['defaults']['brdf']=     "BRDFNOBRDFISSET"
 	bus['defaults']['material']= "MANOMATERIALISSET"
 	bus['defaults']['texture']=  "TENOTEXTUREIESSET"
+	bus['defaults']['uvwgen']=   "DEFAULTUVWC"
 
 	for key in bus['files']:
 		bus['files'][key].write("// V-Ray/Blender %s" % VERSION)

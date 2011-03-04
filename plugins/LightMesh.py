@@ -167,9 +167,12 @@ def write(bus):
 
 	VRayObject= ob.vray
 	LightMesh=  VRayObject.LightMesh
+
+	if not VRayObject.LightMesh.use:
+		return False
 	
-	ma=  bus['texture']['material']
-	tex= bus['texture']
+	ma=  bus['material']
+	tex= bus['mtex']
 
 	light= getattr(ma.vray,plugin)
 
@@ -192,3 +195,5 @@ def write(bus):
 		else:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(light,param))))
 	ofile.write("\n}\n")
+
+	return True

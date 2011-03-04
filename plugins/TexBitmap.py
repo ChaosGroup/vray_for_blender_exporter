@@ -190,7 +190,6 @@ def write_BitmapBuffer(bus):
 	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
 	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
 	ofile.write("\n\tuse_data_window= %i;" % BitmapBuffer.use_data_window)
-	ofile.write("\n}\n")
 	if BitmapBuffer.use_input_gamma:
 		ofile.write("\n\tgamma= %s;" % p(SettingsColorMapping.input_gamma))
 	else:
@@ -199,6 +198,7 @@ def write_BitmapBuffer(bus):
 		ofile.write("\n\tframe_sequence= 1;")
 		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
 		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
+	ofile.write("\n}\n")
 
 	return bitmap_name
 

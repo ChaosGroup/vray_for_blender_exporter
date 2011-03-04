@@ -205,7 +205,7 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 		col.prop(BRDFVRayMtl, 'environment_priority')
 
 
-class VRAY_MAT_two_sided(VRayMaterialPanel, bpy.types.Panel):
+class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Two-Sided"
 	bl_options = {'DEFAULT_CLOSED'}
 	

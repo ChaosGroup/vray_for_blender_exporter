@@ -45,7 +45,7 @@ def write_UVWGenProjection(bus):
 		'PERS':   8,
 	}
 
-	ofile=   bus['files']['material']
+	ofile=   bus['files']['materials']
 	scene=   bus['scene']
 	ob=      bus['node']['object']
 
@@ -64,13 +64,13 @@ def write_UVWGenProjection(bus):
 	if ob:
 		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
 		uvw_transform*= ob.matrix_world.copy().inverted()
-		ofile.write("\n\tuvw_transform= %s; // %s" % a(sce,transform(uvw_transform)), ob.name)
+		ofile.write("\n\tuvw_transform= %s; // %s" % (a(scene,transform(uvw_transform)), ob.name))
 	ofile.write("\n}\n")
 
 	return uvwgen
 
 
-def write_UVWGenChannel(params):
+def write_UVWGenChannel(bus):
 	ofile= bus['files']['textures']
 	sce=   bus['scene']
 
@@ -85,7 +85,7 @@ def write_UVWGenChannel(params):
 	if slot:
 		uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
 		
-	uvwgen= write_UVWGenProjection(ofile, sce, params) if VRayTexture.texture_coords == 'ORCO' else None
+	uvwgen= write_UVWGenProjection(bus) if VRayTexture.texture_coords == 'ORCO' else None
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
@@ -105,7 +105,7 @@ def write_UVWGenChannel(params):
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
-	bus['material']['normal_uvwgen']= uvwgen
+	bus['normal_uvwgen']= uvwgen
 
 	return uvw_name
 

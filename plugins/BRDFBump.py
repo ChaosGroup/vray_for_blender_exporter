@@ -104,30 +104,31 @@ def write(bus):
 
 	ofile=     bus['files']['materials']
 	scene=     bus['scene']
-	textures=  bus['textures']['mapto']
-	slot=      bus['textures']['values']['normal_slot']
+	textures=  bus['textures']
+	slot=      bus['normal']
 	base_brdf= bus['brdf']
 
-	VRayTexture= slot.texture.vray
-	VRaySlot=    slot.texture.vray_slot
-	BRDFBump=    VRaySlot.BRDFBump
+	if slot:
+		VRayTexture= slot.texture.vray
+		VRaySlot=    slot.texture.vray_slot
+		BRDFBump=    VRaySlot.BRDFBump
 
-	brdf_name= "BRDFBump_%s" % base_brdf
+		brdf_name= "BRDFBump_%s" % base_brdf
 
-	ofile.write("\nBRDFBump %s {" % brdf_name)
-	ofile.write("\n\tbase_brdf= %s;" % base_brdf)
-	ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
-	ofile.write("\n\tbump_tex_color= %s;" % textures['normal'])
-	ofile.write("\n\tbump_tex_float= %s;" % textures['normal'])
-	ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-	ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
-	ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
-	ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
-	ofile.write("\n}\n")
+		ofile.write("\nBRDFBump %s {" % brdf_name)
+		ofile.write("\n\tbase_brdf= %s;" % base_brdf)
+		ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
+		ofile.write("\n\tbump_tex_color= %s;" % textures['normal'])
+		ofile.write("\n\tbump_tex_float= %s;" % textures['normal'])
+		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
+		ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
+		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
+		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
+		ofile.write("\n}\n")
 
-	bus['brdf']= brdf_name
-	
-	return brdf_name
+		bus['brdf']= brdf_name
+
+		return brdf_name
 
 
 def draw():
