@@ -855,14 +855,20 @@ def write_BitmapBuffer(ofile, sce, params):
 			print("V-Ray/Blender: %s Texture: %s => Image file does not exists!"%(color("Error!",'red'),texture.name))
 			return None
 
-	if texture.image.source == 'SEQUENCE':
-		bitmap_name= get_random_string()
-	else:
-		bitmap_name= 'IM' + clean_string(texture.image.name)
-		if 'filters' in params:
-			if bitmap_name in params['filters']['exported_bitmaps']:
-				return bitmap_name
-			params['filters']['exported_bitmaps'].append(bitmap_name)
+	# if texture.image.source == 'SEQUENCE':
+	# 	bitmap_name= get_random_string()
+	# else:
+	# 	bitmap_name= 'IM' + clean_string(texture.image.name)
+	# 	if 'filters' in params:
+	# 		if bitmap_name in params['filters']['exported_bitmaps']:
+	# 			return bitmap_name
+	# 		params['filters']['exported_bitmaps'].append(bitmap_name)
+
+	bitmap_name= 'IM' + clean_string(texture.image.name)
+	if 'filters' in params:
+		if bitmap_name in params['filters']['exported_bitmaps']:
+			return bitmap_name
+		params['filters']['exported_bitmaps'].append(bitmap_name)
 
 	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
 	ofile.write("\n\tfile= \"%s\";" % filename)
