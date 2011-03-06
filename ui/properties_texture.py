@@ -54,34 +54,16 @@ def context_tex_datablock(context):
     return idblock
 
 
-def base_poll(cls, context):
-	rd= context.scene.render
-	tex= context.texture
-	if tex is None:
-		return False
-	return ((tex.type != 'NONE' or tex.use_nodes) and (rd.engine in cls.COMPAT_ENGINES))
-
-
-class VRayTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-	@classmethod
-	def poll(cls, context):
-		tex= context.texture
-		return tex and (tex.type != 'NONE' or tex.use_nodes) and (context.scene.render.engine in cls.COMPAT_ENGINES)
-
-
-class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 	bl_label       = ""
 	bl_options     = {'HIDE_HEADER'}
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
 		engine = context.scene.render.engine
-		if not hasattr(context, "texture_slot"):
+		if not hasattr(context, 'texture_slot'):
 			return False
 		return ((context.material or context.world or context.lamp or context.brush or context.texture)
 			and (engine in cls.COMPAT_ENGINES))
@@ -139,7 +121,7 @@ class VRAY_TEX_context(VRayTexturePanel, bpy.types.Panel):
 
 			else:
 				split.label(text="Texture:")
-				split.prop(tex, "type", text="")
+				split.prop(tex, 'type', text="")
 				if tex.type == 'VRAY':
 					split= layout.split()
 					col= split.column()
@@ -154,7 +136,7 @@ properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture
 
 
-class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Influence"
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -205,13 +187,13 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")
-			factor_but(col, slot, 'use_map_blend',       'blend_factor',       "Background")
+			factor_but(col, VRaySlot, 'use_map_env_bg',         'env_bg_factor',         "Background")
 			if wide_ui:
 				col= split.column()
 			col.label(text="Override:")
-			factor_but(col, slot, 'use_map_horizon',     'horizon_factor',     "GI")
-			factor_but(col, slot, 'use_map_zenith_up',   'zenith_up_factor',   "Reflections")
-			factor_but(col, slot, 'use_map_zenith_down', 'zenith_down_factor', "Refractions")
+			factor_but(col, VRaySlot, 'use_map_env_gi',         'env_gi_factor',         "GI")
+			factor_but(col, VRaySlot, 'use_map_env_reflection', 'env_reflection_factor', "Reflections")
+			factor_but(col, VRaySlot, 'use_map_env_refraction', 'env_refraction_factor', "Refractions")
 
 		layout.separator()
 
@@ -227,7 +209,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 		col.prop(slot,'use_stencil')
 
 
-class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -247,7 +229,7 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 			return False
 		
 		VRaySlot= texture.vray_slot
-		return (base_poll(__class__, context) and VRaySlot.map_displacement)
+		return VRaySlot.map_displacement and engine_poll(cls, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -294,7 +276,7 @@ class VRAY_TEX_displacement(VRayTexturePanel, bpy.types.Panel):
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
-class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_mapping(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Mapping"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -352,7 +334,6 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			col.prop(VRaySlot, 'texture_rotation_h')
 			if wide_ui:
 				col= split.column()
-			col.active= False
 			col.prop(VRaySlot, 'texture_rotation_v')
 
 		if slot:
@@ -366,7 +347,7 @@ class VRAY_TEX_mapping(VRayTexturePanel, bpy.types.Panel):
 			sub.prop(slot, 'scale')
 
 
-class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_image(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Texture"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -434,7 +415,7 @@ class VRAY_TEX_image(VRayTexturePanel, bpy.types.Panel):
 		sub.prop(tex, 'crop_max_y', text='V')
 
 
-class VRAY_TEX_bitmap(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Bitmap"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}

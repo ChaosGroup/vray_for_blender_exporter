@@ -110,7 +110,7 @@ def write_UVWGenChannel(bus):
 	return uvw_name
 
 
-def write_UVWGenEnvironment(params):
+def write_UVWGenEnvironment(bus):
 	MAPPING_TYPE= {
 		'SPHERE':  'spherical',
 		'ANGULAR': 'angular',
@@ -120,18 +120,23 @@ def write_UVWGenEnvironment(params):
 		'MBALL':   'mirror_ball',
 	}
 
-	slot= params.get('slot')
-	texture= params.get('texture')
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	VRaySlot=    texture.vray_slot
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
+	uvw_name= tex_name + 'UVE'
+
 	VRayTexture= texture.vray
-
-	uvw_name= bus['name'] + 'UVE'
+	VRaySlot=    texture.vray_slot
 	
+	uvw_matrix= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_h), 4, 'Z') * \
+				mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_v), 4, 'Y')
+
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
-	if 'rotate' in params:
-		ofile.write("\n\tuvw_matrix= %s;" % transform(mathutils.Matrix.Rotation(math.radians(bus['rotate']['angle']), 4, bus['rotate']['axis'])))
 	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[VRayTexture.environment_mapping])
+	ofile.write("\n\tuvw_matrix= %s;" % transform(uvw_matrix))
 	ofile.write("\n}\n")
 	
 	return uvw_name

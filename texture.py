@@ -90,8 +90,10 @@ def write_texture(bus):
 	scene=   bus['scene']
 	texture= bus['mtex']['texture']
 
-	bus['mtex']['name']= 'TE' + clean_string(texture.name)
-
+	if bus['mtex']['name'] in bus['cache']['textures']:
+		return bus['mtex']['name']
+	bus['cache']['textures'].append(bus['mtex']['name'])
+	
 	if texture.type == 'IMAGE':
 		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
 
@@ -124,12 +126,12 @@ def write_factor(bus):
 	if factor == 1.0:
 		return bus['mtex']['name']
 
-	tex_name= 'TF' + bus['mtex']['name']
+	tex_name= "TF%sFC%s" % (bus['mtex']['name'], clean_string("%.3f" % factor))
 
 	if factor > 1.0:
 		ofile.write("\nTexOutput %s {" % tex_name)
-		ofile.write("\n\ttexmap= %s;" % input_texture_name)
-		ofile.write("\n\tcolor_mult= %s;" % a(scene, "AColor(%s,%s,%s,1.0)" % ([factor]*3)))
+		ofile.write("\n\ttexmap= %s;" % bus['mtex']['name'])
+		ofile.write("\n\tcolor_mult= %s;" % a(scene, "AColor(1.0,1.0,1.0,1.0)*%.3f" % factor))
 		ofile.write("\n}\n")
 		# ofile.write("\nTexAColorOp %s {" % tex_name)
 		# ofile.write("\n\tcolor_a= %s;" % input_texture_name)
@@ -138,7 +140,7 @@ def write_factor(bus):
 		# ofile.write("\n}\n")
 	else:
 		ofile.write("\nTexAColorOp %s {" % tex_name)
-		ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+		ofile.write("\n\tcolor_a= %s;" % bus['mtex']['name'])
 		ofile.write("\n\tmult_a= 1.0;")
 		ofile.write("\n\tresult_alpha= %s;" % a(scene, factor))
 		ofile.write("\n}\n")
@@ -215,7 +217,7 @@ def stack_collapse_layers(slots):
 
 def write_TexOutput(bus, texmap):
 	ofile= bus['files']['textures']
-	tex_name= 'TO' + get_random_string()
+	tex_name= "TO%s" % (bus['mtex']['name'])
 	ofile.write("\nTexOutput %s {" % tex_name)
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")

@@ -30,9 +30,12 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
+from vb25.ui.ui   import *
+from vb25.plugins import *
 from vb25.utils   import *
 from vb25.shaders import *
-from vb25.ui.ui   import *
+from vb25.texture import *
+from vb25.uvwgen  import *
 
 
 TYPE= 'SETTINGS'
@@ -42,6 +45,10 @@ NAME= 'Environment Effects'
 DESC= "Environment effects."
 
 PARAMS= {
+	'SettingsEnvironment': (
+		'num_environment_objects', # integer = 0, Used for implementing image planes
+	),
+
 	'EnvironmentFog' : (
 		'gizmos',
 		'emission',
@@ -72,7 +79,7 @@ PARAMS= {
 		'tex_samples',
 		'cutoff_threshold',
 		'light_mode',
-		'lights',
+		# '',
 		'use_shade_instance',
 		'affect_background',
 		'affect_reflections',
@@ -83,6 +90,21 @@ PARAMS= {
 	),
 
 	'VolumeVRayToon': (
+		'lineColor',
+		'widthType',
+		'lineWidth',
+		'opacity',
+		'hideInnerEdges',
+		'normalThreshold',
+		'overlapThreshold',
+		'traceBias',
+		'doSecondaryRays',
+		'excludeType',
+		'excludeList',
+		# 'lineColor_tex',
+		# 'lineWidth_tex',
+		# 'opacity_tex',
+		# 'distortion_tex',
 	),
 }
 
@@ -401,6 +423,47 @@ def add_properties(rna_pointer):
 		description= "TODO: Tooltip",
 		default= ""
 	)
+	# affect_background
+	EnvironmentFog.affect_background= BoolProperty(
+		name= "Affect background",
+		description= "Affect background.",
+		default= True
+	)
+
+	# affect_reflections
+	EnvironmentFog.affect_reflections= BoolProperty(
+		name= "Affect reflections",
+		description= "true if the fog is visible to reflection rays.",
+		default= True
+	)
+
+	# affect_refractions
+	EnvironmentFog.affect_refractions= BoolProperty(
+		name= "Affect refractions",
+		description= "true if the fog is visible to refraction rays.",
+		default= True
+	)
+
+	# affect_shadows
+	EnvironmentFog.affect_shadows= BoolProperty(
+		name= "Affect shadows",
+		description= "true if the fog affects shadow rays.",
+		default= True
+	)
+
+	# affect_gi
+	EnvironmentFog.affect_gi= BoolProperty(
+		name= "Affect GI",
+		description= "true if the fog affects GI rays.",
+		default= True
+	)
+
+	# affect_camera
+	EnvironmentFog.affect_camera= BoolProperty(
+		name= "Affect camera",
+		description= "true if the fog affects primary camera rays.",
+		default= True
+	)
 
 	VolumeVRayToon.use= BoolProperty(
 		name= "Use",
@@ -500,8 +563,8 @@ def add_properties(rna_pointer):
 
 	# doSecondaryRays
 	VolumeVRayToon.doSecondaryRays= BoolProperty(
-		name= "Do reflections / refractons",
-		description= "TODO: Tooltip.",
+		name= "Do sec. rays",
+		description= "Do reflections / refractons.",
 		default= False
 	)
 
@@ -606,24 +669,27 @@ def add_properties(rna_pointer):
 '''
   Write plugins settings to file
 '''
-def write(params):
-	ofile= params['files']['environment']
-	scene= params['scene']
+def write(bus):
+	ofile= bus['files']['environment']
+	scene= bus['scene']
 
-	def write_EnvFogMeshGizmo(ofile, node_name, node_geometry, node_matrix):
-		plugin= 'EnvFogMeshGizmo'
-		name= "%s_%s" % (plugin,node_name)
+	VRayScene= scene.vray
+	VRayExporter= VRayScene.exporter
 
-		ofile.write("\n%s %s {"%(plugin,name))
-		ofile.write("\n\ttransform= %s;" % a(scene,transform(node_matrix)))
-		ofile.write("\n\tgeometry= %s;" % node_geometry)
+	def write_EnvFogMeshGizmo(bus, ob):
+		
+		name= "MG%s" % get_name(ob, prefix='OB')
+
+		ofile.write("\nEnvFogMeshGizmo %s {" % name)
+		ofile.write("\n\tgeometry= %s;" % get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME'))
+		ofile.write("\n\ttransform= %s;" % a(scene, transform(ob.matrix_world)))
 		#ofile.write("\n\tlights= List(%s);" % )
 		#ofile.write("\n\tfade_out_radius= %s;" % )
 		ofile.write("\n}\n")
 
 		return name
 
-	def write_EnvironmentFog(ofile,volume,material):
+	def write_EnvironmentFog_from_material(ofile,volume,material):
 		LIGHT_MODE= {
 			'ADDGIZMO':    4,
 			'INTERGIZMO':  3,
@@ -649,134 +715,168 @@ def write(params):
 
 		return name
 
-	# TODO:
-	#volumes= [write_EnvironmentFog(files['nodes'],types['volume'],vol) for vol in types['volume']]
+	def write_EnvironmentFog(bus, effect, gizmos):
+		LIGHT_MODE= {
+			'ADDGIZMO':    4,
+			'INTERGIZMO':  3,
+			'OVERGIZMO':   2,
+			'PERGIZMO':    1,
+			'NO':          0
+		}
+
+		EnvironmentFog= effect.EnvironmentFog
+
+		name= "EEF%s" % clean_string(effect.name)
+
+		ofile.write("\nEnvironmentFog %s {" % name)
+		for param in PARAMS['EnvironmentFog']:
+			if param.endswith('_tex') or param.endswith('_mult'):
+				continue
+			elif param == 'light_mode':
+				value= LIGHT_MODE[EnvironmentFog.light_mode]
+			elif param == 'gizmos':
+				value= "List(%s)" % ','.join(gizmos)
+			elif param == 'lights':
+				# TODO
+				continue
+			else:
+				value= getattr(EnvironmentFog, param)
+			ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+		ofile.write("\n}\n")
+
+		return name
+
+	def write_VolumeVRayToon(bus, effect, objects):
+		EXCLUDETYPE= {
+			'EXCLUDE': 0,
+			'INCLUDE': 1,
+		}
+		WIDTHTYPE= {
+			'PIXEL': 0,
+			'WORLD': 1,
+		}
+
+		VolumeVRayToon= effect.VolumeVRayToon
+
+		name= "EVT%s" % clean_string(effect.name)
+
+		ofile.write("\nVolumeVRayToon %s {" % name)
+		for param in PARAMS['VolumeVRayToon']:
+			if param == 'excludeType':
+				value= EXCLUDETYPE[VolumeVRayToon.excludeType]
+			elif param == 'widthType':
+				value= WIDTHTYPE[VolumeVRayToon.widthType]
+			elif param == 'excludeList':
+				value= "List(%s)" % ','.join(objects)
+			else:
+				value= getattr(VolumeVRayToon, param)
+			ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+		ofile.write("\n}\n")
+		
+		return name
+	
+	VRayScene=   scene.vray
+	VRayEffects= VRayScene.VRayEffects
+
+	# Processing Effects
+	# TODO: add nodes from materials <= bus['effects']
 	volumes= []
+	for effect in VRayEffects.effects:
+		if effect.use:
+			if effect.type == 'FOG':
+				EnvironmentFog= effect.EnvironmentFog
+				gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)]
+				volumes.append(write_EnvironmentFog(bus, effect, gizmos))
+
+			elif effect.type == 'TOON':
+				VolumeVRayToon= effect.VolumeVRayToon
+				excludeList= generate_object_list(VolumeVRayToon.excludeList_objects, VolumeVRayToon.excludeList_groups)
+				toon_objects= [get_name(ob, prefix='OB') for ob in excludeList]
+				volumes.append(write_VolumeVRayToon(bus, effect, toon_objects))
 
 	world=     scene.world
 	VRayWorld= world.vray
 
-	bg_tex=      None
-	gi_tex=      None
-	reflect_tex= None
-	refract_tex= None
-
-	bg_tex_mult=      1.0
-	gi_tex_mult=      1.0
-	reflect_tex_mult= 1.0
-	refract_tex_mult= 1.0
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
 
 	defaults= {
-		'bg_tex':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),      0, 'NONE'),
-		'gi_tex':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),      0, 'NONE'),
-		'reflect_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflect_color)), 0, 'NONE'),
-		'refract_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refract_color)), 0, 'NONE'),
+		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),      0, 'NONE'),
+		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),      0, 'NONE'),
+		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE'),
+		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE'),
 	}
 
-	for slot in world.texture_slots:
+	bus['env_textures']= {}
+	for i,slot in enumerate(world.texture_slots):
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
 			VRaySlot= slot.texture.vray_slot
 
 			for key in defaults:
-				use_slot= False
-				factor=   1.0
+				if getattr(VRaySlot, 'use_map_'+key):
+					factor= getattr(VRaySlot, key+'_factor')
 
-			# TODO: make own params
-			if slot.use_map_blend:
-				factor= slot.blend_factor
-			if slot.use_map_horizon:
-				factor= slot.horizon_factor
-			if slot.use_map_zenith_up:
-				factor= slot.zenith_up_factor
-			if slot.use_map_zenith_down:
-				factor= slot.zenith_down_factor
+					if key not in bus['env_textures']: # First texture
+						bus['env_textures'][key]= []
+						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
+							bus['env_textures'][key].append(defaults[key])
 
-			bus['mtex']= {}
-			bus['mtex']['mapto']=   key
-			bus['mtex']['slot']=    slot
-			bus['mtex']['texture']= slot.texture
-			bus['mtex']['environment']= True
-			bus['mtex']['factor']=      factor
-			bus['mtex']['transform']= ({'rotate': {'angle': VRaySlot.texture_rotation_h, 'axis': 'Z'}},
-									   {'rotate': {'angle': VRaySlot.texture_rotation_v, 'axis': 'Y'}})
+					bus['mtex']= {}
+					bus['mtex']['mapto']=   key
+					bus['mtex']['slot']=    slot
+					bus['mtex']['texture']= slot.texture
+					bus['mtex']['factor']=  factor
+					bus['mtex']['name']=    clean_string("WT%.2iSL%sTE%s" % (i,
+																			 slot.name,
+																			 slot.texture.name))
+					
+					# Write texture
+					write_texture(bus)
 
-			if slot.use_map_blend:
-				bg_tex= write_texture(ofile, scene, params)
-				bg_tex_mult= slot.blend_factor
-			if slot.use_map_horizon:
-				gi_tex= write_texture(ofile, scene, params)
-				gi_tex_mult= slot.horizon_factor
-			if slot.use_map_zenith_up:
-				reflect_tex= write_texture(ofile, scene, params)
-				reflect_tex_mult= slot.zenith_up_factor
-			if slot.use_map_zenith_down:
-				refract_tex=  write_texture(ofile, scene, params)
-				refract_tex_mult= slot.zenith_down_factor
+					bus['env_textures'][key].append((write_factor(bus),
+													 slot.use_stencil,
+													 VRaySlot.blend_mode))
+	if VRayExporter.debug:
+		if len(bus['env_textures']):
+			debug(scene, "World texture stack: %s" % bus['env_textures'])
+	
+	for key in bus['env_textures']:
+		if len(bus['env_textures'][key]):
+			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])))
 
 	ofile.write("\nSettingsEnvironment {")
-
 	ofile.write("\n\tbg_color= %s;"%(a(scene,VRayWorld.bg_color)))
-	if bg_tex:
-		ofile.write("\n\tbg_tex= %s;"%(bg_tex))
-		ofile.write("\n\tbg_tex_mult= %s;"%(a(scene,bg_tex_mult)))
+	if 'env_bg' in bus['env_textures']:
+		ofile.write("\n\tbg_tex= %s;" % bus['env_textures']['env_bg'])
+		ofile.write("\n\tbg_tex_mult= %s;" % a(scene, VRayWorld.bg_color_mult))
 
 	if VRayWorld.gi_override:
-		ofile.write("\n\tgi_color= %s;"%(a(scene,VRayWorld.gi_color)))
-	if gi_tex:
-		ofile.write("\n\tgi_tex= %s;"%(gi_tex))
-		ofile.write("\n\tgi_tex_mult= %s;"%(a(scene,gi_tex_mult)))
+		ofile.write("\n\tgi_color= %s;" % a(scene, VRayWorld.gi_color))
+	if 'env_gi' in bus['env_textures']:
+		ofile.write("\n\tgi_tex= %s;" % bus['env_textures']['env_gi'])
+		ofile.write("\n\tgi_tex_mult= %s;" % a(scene, VRayWorld.gi_color_mult))
 
 	if VRayWorld.reflection_override:
-		ofile.write("\n\treflect_color= %s;"%(a(scene,VRayWorld.reflection_color)))
-	if reflect_tex:
-		ofile.write("\n\treflect_tex= %s;"%(reflect_tex))
-		ofile.write("\n\treflect_tex_mult= %s;"%(a(scene,reflect_tex_mult)))
+		ofile.write("\n\treflect_color= %s;" % a(scene, VRayWorld.reflection_color))
+	if 'env_reflection' in bus['env_textures']:
+		ofile.write("\n\treflect_tex= %s;" % bus['env_textures']['env_reflection'])
+		ofile.write("\n\treflect_tex_mult= %s;" % a(scene, VRayWorld.reflection_color_mult))
 
 	if VRayWorld.refraction_override:
-		ofile.write("\n\trefract_color= %s;"%(a(scene,VRayWorld.refraction_color)))
-	if refract_tex:
-		ofile.write("\n\trefract_tex= %s;"%(refract_tex))
-		ofile.write("\n\trefract_tex_mult= %s;"%(a(scene,refract_tex_mult)))
+		ofile.write("\n\trefract_color= %s;" % a(scene, VRayWorld.refraction_color))
+	if 'env_refraction' in bus['env_textures']:
+		ofile.write("\n\trefract_tex= %s;" % bus['env_textures']['env_refraction'])
+		ofile.write("\n\trefract_tex_mult= %s;" % a(scene, VRayWorld.refraction_color_mult))
 
-	if volumes:
-		ofile.write("\n\tenvironment_volume= List(%s);"%(','.join(volumes)))
+	ofile.write("\n\tglobal_light_level= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % (VRayWorld.global_light_level)))
 
+	ofile.write("\n\tenvironment_volume= List(%s);" % (','.join(volumes)))
 	ofile.write("\n}\n")
-
-# elif VRayMaterial.type == 'VOL':
-# 	return {
-# 		'color_tex':    (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
-# 		'emission_tex': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
-# 		'density_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
-# 	}
-
-# elif VRayMaterial.type == 'VOL':
-# 	bus['node']['volume']= {}
-# 	for param in OBJECT_PARAMS['EnvironmentFog']:
-# 		if param == 'color':
-# 			value= ma.diffuse_color
-# 		else:
-# 			value= getattr(VRayMaterial.EnvironmentFog,param)
-# 		object_params['volume'][param]= value
-# 	for param in ('color_tex','emission_tex','density_tex'):
-# 		if param in textures['mapto']:
-# 			object_params['volume'][param]= textures['mapto'][param]
-# 	return None
-
-
-# if object_params['volume'] is not None:
-# 	if ma_name not in types['volume'].keys():
-# 		types['volume'][ma_name]= {}
-# 		types['volume'][ma_name]['params']= object_params['volume']
-# 		types['volume'][ma_name]['gizmos']= []
-# 	if ob not in types['volume'][ma_name]:
-# 		types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
-# 	return
 
 
 
 '''
-  Main GUI function
+  GUI
 '''
 def influence(context, layout, slot):
 	VRaySlot= slot.texture.vray_slot
@@ -792,10 +892,22 @@ def influence(context, layout, slot):
 	# 		col= split.column()
 	# 	factor_but(col, VRaySlot, 'map_emission_tex', 'emission_tex_mult', "Emission")
 
+
 def draw_EnvironmentFog(context, layout, rna_pointer):
 	wide_ui= context.region.width > narrowui
 
 	EnvironmentFog= rna_pointer.EnvironmentFog
+
+	split= layout.split()
+	col= split.column()
+	col.prop_search(EnvironmentFog, 'objects',
+					context.scene,  'objects',
+					text="Objects")
+	col.prop_search(EnvironmentFog, 'groups',
+					bpy.data,       'groups',
+					text="Groups")
+
+	layout.separator()
 
 	split= layout.split()
 	col= split.column()
@@ -847,13 +959,16 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 	#col.prop(EnvironmentFog, 'yup')
 
 	layout.separator()
-	
+
 	split= layout.split()
 	col= split.column()
-	col.prop_search(EnvironmentFog, 'objects',
-					context.scene, 'objects', text="Objects")
-	col.prop_search(EnvironmentFog, 'groups',
-					bpy.data, 'groups', text="Groups")
+	col.prop(EnvironmentFog, 'affect_shadows')
+	col.prop(EnvironmentFog, 'affect_gi')
+	col.prop(EnvironmentFog, 'affect_camera')
+	if wide_ui:
+		col= split.column()
+	col.prop(EnvironmentFog, 'affect_reflections')
+	col.prop(EnvironmentFog, 'affect_refractions')
 
 
 def draw_VolumeVRayToon(context, layout, rna_pointer):
@@ -880,16 +995,18 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 	# col.prop(VolumeVRayToon, 'opacity_tex')
 	# col.prop(VolumeVRayToon, 'distortion_tex')
 
-	if not str(type(rna_pointer)) == '<class \'vb25.plugins.VRayMaterial\'>': # Ugly =)
+	if not str(type(rna_pointer)) == "<class 'vb25.plugins.VRayMaterial'>": # Very ugly :(
 		layout.separator()
 
 		split= layout.split()
 		col= split.column()
 		col.prop(VolumeVRayToon, 'excludeType', text="")
 		col.prop_search(VolumeVRayToon, 'excludeList_objects',
-						context.scene, 'objects', text="Objects")
+						context.scene,  'objects',
+						text="Objects")
 		col.prop_search(VolumeVRayToon, 'excludeList_groups',
-						bpy.data, 'groups', text="Groups")
+						bpy.data,       'groups',
+						text="Groups")
 	
 
 def gui(context, layout, VRayEffects):
@@ -926,3 +1043,34 @@ def gui(context, layout, VRayEffects):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Strange, but this effect type doesn\'t exist...")
+
+
+# elif VRayMaterial.type == 'VOL':
+# 	return {
+# 		'color_tex':    (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
+# 		'emission_tex': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
+# 		'density_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
+# 	}
+
+# elif VRayMaterial.type == 'VOL':
+# 	bus['node']['volume']= {}
+# 	for param in OBJECT_PARAMS['EnvironmentFog']:
+# 		if param == 'color':
+# 			value= ma.diffuse_color
+# 		else:
+# 			value= getattr(VRayMaterial.EnvironmentFog,param)
+# 		object_params['volume'][param]= value
+# 	for param in ('color_tex','emission_tex','density_tex'):
+# 		if param in textures['mapto']:
+# 			object_params['volume'][param]= textures['mapto'][param]
+# 	return None
+
+
+# if object_params['volume'] is not None:
+# 	if ma_name not in types['volume'].keys():
+# 		types['volume'][ma_name]= {}
+# 		types['volume'][ma_name]['params']= object_params['volume']
+# 		types['volume'][ma_name]['gizmos']= []
+# 	if ob not in types['volume'][ma_name]:
+# 		types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
+# 	return

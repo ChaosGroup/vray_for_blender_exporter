@@ -202,7 +202,7 @@ class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 		if not hasattr(scene.vray, ID):
 			return False
 		show= scene.vray.SettingsCaustics.on
-		return (show and base_poll(__class__, context))
+		return (show and engine_poll(__class__, context))
 	
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

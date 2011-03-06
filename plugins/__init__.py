@@ -38,14 +38,16 @@ from vb25.utils import *
 
 
 PLUGINS= {
-	'CAMERA':        {},
-	'MATERIAL':      {},
-	'GEOMETRY':      {},
-	'OBJECT':        {},
 	'BRDF':          {},
-	'TEXTURE':       {},
-	'SETTINGS':      {},
+	'CAMERA':        {},
+	'GEOMETRY':      {},
+	'MATERIAL':      {},
+	'OBJECT':        {},
 	'RENDERCHANNEL': {},
+	'SETTINGS':      {},
+	'SLOT':          {},
+	'TEXTURE':       {},
+	'WORLD':         {},
 }
 
 
@@ -128,6 +130,128 @@ def add_properties():
 		pass
 	bpy.utils.register_class(VRayMaterial)
 
+	# Move to World plugin
+	class VRayWorld(bpy.types.PropertyGroup):
+		bg_color= FloatVectorProperty(
+			name= "Background color",
+			description= "Background color.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.0,0.0,0.0)
+		)
+
+		bg_color_mult= FloatProperty(
+			name= "Background color multiplier",
+			description= "Background color multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		gi_override= BoolProperty(
+			name= "Override color for GI",
+			description= "Override color for GI.",
+			default= False
+		)
+
+		gi_color= FloatVectorProperty(
+			name= "GI color",
+			description= "GI (skylight) color.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.0,0.0,0.0)
+		)
+
+		gi_color_mult= FloatProperty(
+			name= "GI color multiplier",
+			description= "GI color multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		reflection_override= BoolProperty(
+			name= "Override color for reflection",
+			description= "Override color for reflection.",
+			default= False
+		)
+
+		reflection_color= FloatVectorProperty(
+			name= "Reflection color",
+			description= "Reflection (skylight) color.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.0,0.0,0.0)
+		)
+
+		reflection_color_mult= FloatProperty(
+			name= "Reflection color multiplier",
+			description= "Reflection color multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		refraction_override= BoolProperty(
+			name= "Override color for refraction",
+			description= "Override color for refraction.",
+			default= False
+		)
+
+		refraction_color= FloatVectorProperty(
+			name= "Refraction color",
+			description= "Refraction (skylight) color.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.0,0.0,0.0)
+		)
+
+		refraction_color_mult= FloatProperty(
+			name= "Refraction color multiplier",
+			description= "Refraction color multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		global_light_level= FloatProperty(
+			name= "Global light level",
+			description= "A global light level multiplier for all lights.",
+			min= 0.0,
+			max= 1000.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 1.0,
+		)
+
+	bpy.utils.register_class(VRayWorld)
+
+	# Move to Slot plugin
 	class BRDFLight(bpy.types.PropertyGroup):
 		map_color= BoolProperty(
 			name= "Color",
@@ -178,6 +302,7 @@ def add_properties():
 		)
 	bpy.utils.register_class(BRDFLight)
 
+	# Move to Slot plugin
 	class VRaySlot(bpy.types.PropertyGroup):
 		uvwgen= StringProperty(
 			name= "UVW Generator",
@@ -651,6 +776,74 @@ def add_properties():
 			soft_max= 1.0,
 			default= 1.0
 		)
+
+		use_map_env_bg= BoolProperty(
+			name= "Background",
+			description= "Background.",
+			default= True
+		)
+
+		env_bg_factor= FloatProperty(
+			name= "Background texture multiplier",
+			description= "Background texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		use_map_env_gi= BoolProperty(
+			name= "GI",
+			description= "Override for GI.",
+			default= False
+		)
+
+		env_gi_factor= FloatProperty(
+			name= "GI texture multiplier",
+			description= "GI texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		use_map_env_reflection= BoolProperty(
+			name= "Reflection",
+			description= "Override for Reflection.",
+			default= False
+		)
+
+		env_reflection_factor= FloatProperty(
+			name= "Reflection texture multiplier",
+			description= "Reflection texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		use_map_env_refraction= BoolProperty(
+			name= "Refraction",
+			description= "Override for Refraction.",
+			default= False
+		)
+
+		env_refraction_factor= FloatProperty(
+			name= "Refraction texture multiplier",
+			description= "Refraction texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
 	bpy.utils.register_class(VRaySlot)
 
 	VRaySlot.BRDFLight= PointerProperty(
@@ -751,6 +944,13 @@ def add_properties():
 		type=  VRayObject,
 		description= "V-Ray Object Settings."
 	)
+
+	bpy.types.World.vray= PointerProperty(
+		name= "V-Ray World Settings",
+		type=  VRayWorld,
+		description= "V-Ray world settings."
+	)
+
 
 	'''
 	  Loading plugin properties

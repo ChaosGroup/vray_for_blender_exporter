@@ -53,7 +53,7 @@ class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return (context.mesh and base_poll(__class__, context))
+		return (context.mesh and engine_poll(__class__, context))
 
 	def draw_header(self, context):
 		ob= context.mesh.vray.GeomMeshFile

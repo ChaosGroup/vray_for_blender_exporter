@@ -202,11 +202,12 @@ def write_BitmapBuffer(bus):
 
 
 def write(bus):
-	ofile= bus['files']['textures']
 	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	slot=    bus['mtex']['slot']
-	texture= bus['mtex']['texture']
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
@@ -215,15 +216,13 @@ def write(bus):
 		debug(scene, "Texture: %s Image file is not set!" % texture.name, error= True)
 		return bus['defaults']['texture']
 
-	tex_name= 'TE' + clean_string(texture.name)
-
 	# If "Object" mapping - texture is object dependent
 	if VRayTexture.texture_coords == 'ORCO':
 		ob= bus.get('object')
 		if VRayTexture.object:
 			ob= get_data_by_name(scene, 'objects', VRayTexture.object)
 		if ob:
-			tex_name= 'OB' + clean_string(params['object'].name) + tex_name
+			tex_name= "OB%s%s" % (clean_string(ob.name), tex_name)
 
 	# Check if already exported
 	if tex_name in bus['filter']['texture']:
@@ -232,7 +231,7 @@ def write(bus):
 
 	bitmap= write_BitmapBuffer(bus)
 
-	if 'environment' in bus:
+	if type(slot) == bpy.types.WorldTextureSlot:
 		uvwgen= write_UVWGenEnvironment(bus)
 	else:
 		uvwgen= write_UVWGenChannel(bus)

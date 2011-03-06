@@ -48,7 +48,8 @@ from vb25.plugins import *
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
 
-TEX_TYPES= ('IMAGE', 'VRAY')
+TEX_TYPES=  ('IMAGE', 'VRAY')
+GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
 
 none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 

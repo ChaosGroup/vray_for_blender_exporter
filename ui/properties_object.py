@@ -37,7 +37,7 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-def base_poll(cls, context):
+def engine_poll(cls, context):
 	rd= context.scene.render
 	return (context.object and (context.object.type not in ('LAMP','CAMERA','ARMATURE'))) and (rd.engine in cls.COMPAT_ENGINES)
 
@@ -50,7 +50,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -94,7 +94,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -168,7 +168,7 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -213,7 +213,7 @@ class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -275,7 +275,7 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object

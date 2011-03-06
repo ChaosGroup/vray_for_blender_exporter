@@ -677,7 +677,7 @@ def write(bus, BRDFLayered= None):
 		elif param == 'option_energy_mode':
 			value= ENERGY_MODE[BRDFVRayMtl.option_energy_mode]
 		elif param == 'fog_mult':
-			value= BRDFVRayMtl.fog_mult / 100.0
+			value= BRDFVRayMtl.fog_mult
 		else:
 			value= getattr(BRDFVRayMtl,param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))

@@ -584,7 +584,7 @@ class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 		if not tex:
 			return False
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and tex.vray.type == ID) and (base_poll(__class__, context)))
+		return ((tex and tex.type == 'VRAY' and tex.vray.type == ID) and (engine_poll(__class__, context)))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

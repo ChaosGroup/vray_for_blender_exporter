@@ -180,7 +180,7 @@ def write(bus):
 	texture=  bus['mtex']['texture']
 	tex_name= bus['mtex']['name']
 
-	TexSky= getattr(tex.vray, PLUG)
+	TexSky= getattr(texture.vray, PLUG)
 
 	# Find Sun lamp
 	sun_light= None

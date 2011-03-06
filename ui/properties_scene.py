@@ -42,7 +42,7 @@ class VRAY_SP_effects(VRayScenePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		VRayScene= context.scene.vray
@@ -116,7 +116,7 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout

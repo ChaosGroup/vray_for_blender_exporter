@@ -252,7 +252,7 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 		if not hasattr(scene.vray, ID):
 			return False
 		use=   scene.vray.RTEngine.enabled
-		return (use and base_poll(__class__, context))
+		return (use and engine_poll(__class__, context))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

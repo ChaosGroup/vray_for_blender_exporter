@@ -310,7 +310,7 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (base_poll(__class__, context)))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine_poll(__class__, context)))
 	
 	def draw(self, context):
 		tex= context.texture

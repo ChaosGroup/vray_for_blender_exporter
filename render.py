@@ -351,6 +351,9 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 ### Currently processed material
 # bus['material']= {}
 
+# Material
+# bus['material']['material']= *material
+
 # If some texture need object mapping then material become object dependent
 # bus['material']['orco']= bool
 
@@ -584,12 +587,14 @@ def write_settings(bus):
   MATERIALS & TEXTURES
 '''
 def write_lamp_textures(bus):
-	ofile= bus['files']['lights']
 	scene= bus['scene']
+	ofile= bus['files']['lights']
 	ob=    bus['node']['object']
 
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
+
 	la= ob.data
-	
 	VRayLamp= la.vray
 
 	defaults= {
@@ -598,11 +603,11 @@ def write_lamp_textures(bus):
 		'shadowColor': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayLamp.shadowColor)),   0, 'NONE'),
 	}
 
-	bus['textures']= {
+	bus['lamp_textures']= {
 		'mapto': {},
 	}
 	
-	for slot in la.texture_slots:
+	for i,slot in enumerate(la.texture_slots):
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
 			VRaySlot= slot.texture.vray_slot
 			VRayLight= VRaySlot.VRayLight
@@ -616,29 +621,35 @@ def write_lamp_textures(bus):
 					factor=   getattr(VRayLight, key+'_mult')
 
 				if use_slot:
-					if key not in bus['textures']: # First texture
-						bus['textures'][key]= []
+					if key not in bus['lamp_textures']: # First texture
+						bus['lamp_textures'][key]= []
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures'][key].append(defaults[key])
-					params['mapto']=    key
-					params['slot']=     slot
-					params['texture']=  slot.texture
-					params['factor']=   factor
-					bus['textures'][key].append((write_texture_factor(ofile, scene, params),
-														slot.use_stencil,
-														VRaySlot.blend_mode))
-	if len(bus['textures']):
-		debug(scene, "Lamp \"%s\" texture stack: %s" % (la.name,bus['textures']))
-	
-	for key in bus['textures']:
-		if len(bus['textures'][key]):
-			bus['textures'][key]= write_TexOutput(
-				ofile,
-				stack_write_shaders(ofile, stack_collapse_layers(bus['textures'][key])),
-				{}
-			)
+							bus['lamp_textures'][key].append(defaults[key])
 
-	return bus['textures']
+					bus['mtex']= {}
+					bus['mtex']['mapto']=   key
+					bus['mtex']['slot']=    slot
+					bus['mtex']['texture']= slot.texture
+					bus['mtex']['factor']=  factor
+					bus['mtex']['name']=    clean_string("LT%.2iSL%sTE%s" % (i,
+																			 slot.name,
+																			 slot.texture.name))
+
+					# Write texture
+					write_texture(bus)
+
+					bus['lamp_textures'][key].append( (write_factor(bus),
+													   slot.use_stencil,
+													   VRaySlot.blend_mode) )
+	if VRayExporter.debug:
+		if len(bus['lamp_textures']):
+			debug(scene, "Lamp \"%s\" texture stack: %s" % (la.name,bus['lamp_textures']))
+	
+	for key in bus['lamp_textures']:
+		if len(bus['lamp_textures'][key]):
+			bus['lamp_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['lamp_textures'][key])))
+
+	return bus['lamp_textures']
 
 
 def write_material_textures(bus):
@@ -708,10 +719,13 @@ def write_material_textures(bus):
 							bus['textures'][key].append(defaults[key])
 
 					bus['mtex']= {}
-					bus['mtex']['mapto']=    key
-					bus['mtex']['slot']=     slot
-					bus['mtex']['texture']=  slot.texture
-					bus['mtex']['factor']=   factor
+					bus['mtex']['mapto']=   key
+					bus['mtex']['slot']=    slot
+					bus['mtex']['texture']= slot.texture
+					bus['mtex']['factor']=  factor
+					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
+																			 slot.name,
+																			 slot.texture.name))
 
 					# Write texture
 					write_texture(bus)
@@ -905,7 +919,7 @@ def write_lamp(bus):
 	scene= bus['scene']
 	ofile= bus['files']['lights']
 	ob=    bus['node']['object']
-	
+
 	lamp= ob.data
 	vl= lamp.vray
 
@@ -1280,8 +1294,11 @@ def _write_object(bus):
 
 def write_scene(scene, preview= None):
 	VRayScene=       scene.vray
+
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
+
+	VRayEffects=     VRayScene.VRayEffects
 
 	# Settings bus
 	bus= {}
@@ -1322,6 +1339,7 @@ def write_scene(scene, preview= None):
 	bus['files']['camera'].write("\n// Camera\n")
 	bus['files']['environment'].write("\n// Environment\n")
 	bus['files']['materials'].write("\n// Materials\n")
+	bus['files']['textures'].write("\n// Textures\n")
 
 	bus['files']['materials'].write("\n// Useful defaults")
 	bus['files']['materials'].write("\nUVWGenChannel DEFAULTUVWC {")
@@ -1350,19 +1368,49 @@ def write_scene(scene, preview= None):
 	bus['files']['materials'].write("\n}\n")
 	bus['files']['materials'].write("\n// Scene materials\n")
 
+	# Processed objects
+	bus['objects']= []
+
+	bus['effects']= {}
+	bus['effects']['fog']= []
+	bus['effects']['toon']= []
+
+	exclude_list= []
+	
+	for effect in VRayEffects.effects:
+		if effect.use:
+			if effect.type == 'FOG':
+				EnvironmentFog= effect.EnvironmentFog
+				fog_objects= generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)
+				for ob in fog_objects:
+					if ob not in exclude_list:
+						exclude_list.append(ob)
+
+	for ob in scene.objects:
+		if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+			continue
+
+		if ob not in exclude_list:
+			bus['objects'].append(ob)
+
+	del exclude_list
+
 	def write_frame(bus):
 		timer= time.clock()
 		scene= bus['scene']
 
 		debug(scene, "Writing frame %i..." % scene.frame_current)
 
-		VRayScene= scene.vray
-		
+		VRayScene=       scene.vray
+
 		VRayExporter=    VRayScene.exporter
 		SettingsOptions= VRayScene.SettingsOptions
 
-		# Filters stores already exported data
-		bus['filter']= {}
+		# Cache stores already exported data
+		bus['cache']= {}
+		bus['cache']['textures']= []
+
+		bus['filter']= {} # TODO: Rename!
 		bus['filter']['proxy']=    []
 		bus['filter']['bitmap']=   []
 		bus['filter']['texture']=  []
@@ -1390,10 +1438,7 @@ def write_scene(scene, preview= None):
 		if VRayExporter.debug:
 			print_dict(scene, "Hide from view", bus['visibility'])
 
-		for ob in scene.objects:
-			if ob.type in ('CAMERA','ARMATURE','LATTICE'):
-				continue
-
+		for ob in bus['objects']:
 			if VRayExporter.active_layers:
 				if not object_on_visible_layers(scene,ob):
 					if ob.type == 'LAMP':
@@ -1601,3 +1646,4 @@ def render(engine, scene, preview= None):
 
 	write_scene(scene, preview)
 	run(engine, scene, preview)
+

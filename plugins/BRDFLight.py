@@ -128,7 +128,9 @@ def get_defaults(bus, BRDFLayered= None):
 
 
 def write(bus):
-	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	material= bus['material']
+	
+	brdf_name= "%s_%s" % (ID, clean_string(material.name))
 
 	bus['brdf']= brdf_name
 

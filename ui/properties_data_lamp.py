@@ -488,7 +488,7 @@ VRayLamp.sky_model= EnumProperty(
 narrowui= 200
 
 
-def base_poll(cls, context):
+def engine_poll(cls, context):
 	rd= context.scene.render
 	return (context.lamp) and (rd.engine in cls.COMPAT_ENGINES)
 
@@ -507,7 +507,7 @@ class DATA_PT_context_lamp(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -544,7 +544,7 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -598,7 +598,7 @@ class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		lamp= context.lamp
-		return (lamp and base_poll(__class__, context))
+		return (lamp and engine_poll(__class__, context))
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -691,7 +691,7 @@ class DATA_PT_vray_light_shadows(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		vl= context.lamp.vray
@@ -740,7 +740,7 @@ class DATA_PT_vray_light_advanced(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -785,7 +785,7 @@ class VRAY_LAMP_include_exclude(VRayDataPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		VRayLamp= context.lamp.vray

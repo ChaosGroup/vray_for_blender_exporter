@@ -62,7 +62,7 @@ class VRAY_RENDER_dimensions(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -136,7 +136,7 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -191,7 +191,7 @@ class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -251,7 +251,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -330,7 +330,7 @@ class RENDER_PT_vray_cm(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -371,7 +371,7 @@ class RENDER_PT_vray_aa(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -434,7 +434,7 @@ class RENDER_PT_vray_dmc(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -464,7 +464,7 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		vs= context.scene.vray
 		module= vs.SettingsGI
-		return base_poll(__class__, context) and module.on
+		return engine_poll(__class__, context) and module.on
 
 	def draw(self, context):
 		layout= self.layout
@@ -524,7 +524,7 @@ class RENDER_PT_im(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		module= context.scene.vray.SettingsGI
-		return base_poll(__class__, context) and module.on and module.primary_engine == 'IM'
+		return engine_poll(__class__, context) and module.on and module.primary_engine == 'IM'
 
 	def draw(self, context):
 		layout= self.layout
@@ -637,7 +637,7 @@ class RENDER_PT_bf(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		module= context.scene.vray.SettingsGI
-		return base_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF')
+		return engine_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF')
 
 	def draw(self, context):
 		layout= self.layout
@@ -664,7 +664,7 @@ class RENDER_PT_lc(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		module= context.scene.vray.SettingsGI
-		return (base_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC'))
+		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC'))
 
 	def draw(self, context):
 		layout= self.layout
@@ -753,7 +753,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		VRayScene= context.scene.vray
@@ -835,7 +835,7 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		VRayExporter= context.scene.vray.exporter
-		return base_poll(__class__, context) and VRayExporter.use_displace
+		return engine_poll(__class__, context) and VRayExporter.use_displace
 
 	def draw(self, context):
 		layout= self.layout
@@ -870,7 +870,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		vs= context.scene.vray
 		module= vs.VRayDR
-		return base_poll(__class__, context) and module.on
+		return engine_poll(__class__, context) and module.on
 
 	def draw(self, context):
 		layout= self.layout
@@ -924,7 +924,7 @@ class VRAY_RENDER_bake(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		VRayScene= context.scene.vray
 		VRayBake= VRayScene.VRayBake
-		return (base_poll(__class__, context) and VRayBake.use)
+		return (engine_poll(__class__, context) and VRayBake.use)
 
 	def draw(self, context):
 		wide_ui= context.region.width > 200
@@ -951,7 +951,7 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -1012,7 +1012,7 @@ class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return base_poll(__class__, context)
+		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout

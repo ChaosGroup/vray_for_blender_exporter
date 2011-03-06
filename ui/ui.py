@@ -28,39 +28,66 @@
 narrowui= 200
 
 
-def base_poll(cls, context):
+def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
+	row= layout.row(align=True)
+	row.prop(rna_pointer,
+			 use,
+			 text= "")
+	sub= row.row()
+	sub.active= getattr(rna_pointer, use)
+	sub.prop(rna_pointer,
+			 factor,
+			 slider= True,
+			 text= label if label else "")
+	if color:
+		sub.prop(rna_pointer, color, text="")
+
+
+def engine_poll(cls, context):
 	rd= context.scene.render
 	return (rd.engine in cls.COMPAT_ENGINES)
+
 
 class VRayDataPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
+
 class VRayMaterialPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'material'
+
 
 class VRayObjectPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'object'
 
+
 class VRayRenderPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'render'
+
 
 class VRayScenePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'scene'
 
+
 class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		return tex and (tex.type != 'NONE' or tex.use_nodes) and engine_poll(cls, context)
+
 
 class VRayWorldPanel():
 	bl_space_type  = 'PROPERTIES'
@@ -70,18 +97,4 @@ class VRayWorldPanel():
 	@classmethod
 	def poll(cls, context):
 		rd= context.scene.render
-		return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
-
-
-def factor_but(layout, rna_pointer, use, factor, label= None):
-	row= layout.row(align=True)
-	row.prop(rna_pointer,
-			 use,
-			 text= "")
-	sub= row.row()
-	sub.active= getattr(rna_pointer, use)
-	sub.prop(rna_pointer,
-			 factor,
-			 slider=True,
-			 text= label if label else "")
-
+		return context.world and engine_poll(cls, context)
