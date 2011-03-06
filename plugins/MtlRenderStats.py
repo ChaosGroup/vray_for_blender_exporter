@@ -39,6 +39,12 @@ UI=   "Render"
 DESC= "MtlRenderStats settings."
 
 PARAMS= (
+	'camera_visibility',
+	'reflections_visibility',
+	'refractions_visibility',
+	'gi_visibility',
+	'shadows_visibility',
+	'visibility'
 )
 
 

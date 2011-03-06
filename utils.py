@@ -210,6 +210,9 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 # 	return clean_string(name)
 
 def get_name(ob, prefix= None):
+	if not ob:
+		return None
+
 	name= ob.name
 	if prefix:
 		name= prefix+name

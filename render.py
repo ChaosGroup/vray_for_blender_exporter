@@ -42,13 +42,301 @@ import mathutils
 from vb25.utils   import *
 from vb25.plugins import *
 from vb25.texture import *
-from vb25.tempparams import * # TEMP! REMOVE!
 
 ''' vb dev modules '''
 from vb25.nodes import *
 
 
 VERSION= '2.5'
+
+
+LIGHT_PARAMS= { # TEMP! REMOVE!
+	'LightOmni': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		#'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		'decay'
+	),
+
+	'LightSphere': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay',
+		'radius',
+		'sphere_segments'
+	),
+
+	'LightRectangle': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		#'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay'
+	),
+
+	'LightDirectMax': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		'intensity',
+		#'intensity_tex',
+		'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		'fallsize',
+	),
+
+	'SunLight': (
+		'turbidity',
+		'ozone',
+		'water_vapour',
+		'intensity_multiplier',
+		'size_multiplier',
+		#'up_vector',
+		'invisible',
+		'horiz_illum',
+		#'sky_model',
+		'shadows',
+		#'atmos_shadows',
+		'shadowBias',
+		'shadow_subdivs',
+		'shadow_color',
+		#'shadow_color_tex',
+		#'photon_radius',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'enabled'
+	),	
+
+	'LightIES': (
+		'enabled',
+		'intensity',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		'shadowSubdivs',
+		'ies_file',
+		#'filter_color',
+		'soft_shadows',
+		#'area_speculars'
+	),
+
+	'LightDome': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		#'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'channels',
+		#'channels_raw',
+		#'channels_diffuse',
+		#'channels_specular',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'subdivs',
+		#'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		#'dome_tex',
+		#'use_dome_tex',
+		#'tex_resolution',
+		#'dome_targetRadius',
+		#'dome_emitRadius',
+		#'dome_spherical',
+		#'tex_adaptive',
+		#'dome_rayDistance',
+		#'dome_rayDistanceMode',
+	),
+
+	'LightSpot': (
+		'enabled',
+		#'color_tex',
+		'shadows',
+		'shadowColor',
+		#'shadowColor_tex',
+		'shadowBias',
+		#'photonSubdivs',
+		'causticSubdivs',
+		#'diffuseMult',
+		'causticMult',
+		'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		'bumped_below_surface_check',
+		'nsamples',
+		'diffuse_contribution',
+		'specular_contribution',
+		#'units',
+		'intensity',
+		#'intensity_tex',
+		'shadowRadius',
+		'areaSpeculars',
+		'shadowSubdivs',
+		#'coneAngle',
+		#'penumbraAngle',
+		#'dropOff',
+		#'falloffType',
+		'decay',
+		#'barnDoor',
+		#'barnDoorLeft',
+		#'barnDoorRight',
+		#'barnDoorTop',
+		#'barnDoorBottom',
+		#'useDecayRegions',
+		#'startDistance1',
+		#'endDistance1',
+		#'startDistance2',
+		#'endDistance2',
+		#'startDistance3',
+		#'endDistance3'
+	),
+
+	'LightMesh': (
+		'enabled',
+		# 'transform',
+		'color',
+		# 'color_tex',
+		# 'shadows',
+		# 'shadowColor',
+		# 'shadowColor_tex',
+		# 'shadowBias',
+		# 'photonSubdivs',
+		'causticSubdivs',
+		# 'diffuseMult',
+		# 'causticMult',
+		# 'cutoffThreshold',
+		'affectDiffuse',
+		'affectSpecular',
+		# 'bumped_below_surface_check',
+		# 'nsamples',
+		# 'diffuse_contribution',
+		# 'specular_contribution',
+		# 'channels',
+		# 'channels_raw',
+		# 'channels_diffuse',
+		# 'channels_specular',
+		'units',
+		'intensity',
+		# 'intensity_tex',
+		'subdivs',
+		'storeWithIrradianceMap',
+		'invisible',
+		'affectReflections',
+		'noDecay',
+		'doubleSided',
+		'lightPortal',
+		'geometry',
+		# 'ignoreLightNormals',
+		# 'tex',
+		# 'use_tex',
+		# 'tex_resolution',
+		# 'cache_tex'
+	),
+}
 
 
 #### Data bus
@@ -509,7 +797,7 @@ def	write_material(bus):
 		base_material= complex_material.pop()
 		ofile.write("\nMtlWrapper %s {"%(complex_material[-1]))
 		ofile.write("\n\tbase_material= %s;"%(base_material))
-		for param in OBJECT_PARAMS['MtlWrapper']:
+		for param in PLUGINS['MATERIAL']['MtlWrapper'].PARAMS:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayMaterial.MtlWrapper,param))))
 		ofile.write("\n}\n")
 
@@ -536,7 +824,7 @@ def	write_material(bus):
 		base_mtl= complex_material.pop()
 		ofile.write("\nMtlRenderStats %s {"%(complex_material[-1]))
 		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
-		for param in OBJECT_PARAMS['MtlRenderStats']:
+		for param in PLUGINS['MATERIAL']['MtlRenderStats'].PARAMS:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayMaterial.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 
@@ -702,7 +990,7 @@ def write_lamp(bus):
 			ofile.write("\n\tv_size= %s;"%(a(scene,lamp.size/2)))
 		ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[vl.lightPortal]))
 
-	for param in OBJECT_PARAMS[lamp_type]:
+	for param in LIGHT_PARAMS[lamp_type]:
 		if param == 'shadow_subdivs':
 			ofile.write("\n\tshadow_subdivs= %s;"%(a(scene,vl.subdivs)))
 		elif param == 'shadowRadius' and lamp_type == 'LightDirectMax':
@@ -828,7 +1116,7 @@ def write_object(bus):
 		ma_name= complex_material[-1]
 		ofile.write("\nMtlWrapper %s {"%(ma_name))
 		ofile.write("\n\tbase_material= %s;"%(base_material))
-		for param in OBJECT_PARAMS['MtlWrapper']:
+		for param in PLUGINS['MATERIAL']['MtlWrapper'].PARAMS:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlWrapper,param))))
 		ofile.write("\n}\n")
 
@@ -857,7 +1145,7 @@ def write_object(bus):
 		ma_name= complex_material[-1]
 		ofile.write("\nMtlRenderStats %s {"%(ma_name))
 		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
-		for param in OBJECT_PARAMS['MtlRenderStats']:
+		for param in PLUGINS['MATERIAL']['MtlRenderStats'].PARAMS:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 

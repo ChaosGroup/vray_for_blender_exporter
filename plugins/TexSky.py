@@ -35,7 +35,6 @@ DESC= "TODO."
 PID=  3
 
 PARAMS= (
-	'auto',
 	#'transform',
 	#'target_transform',
 	'turbidity',
@@ -71,7 +70,7 @@ def add_properties(VRayTexture):
 		description= "V-Ray TexSky settings"
 	)
 
-	TexSky.auto= BoolProperty(
+	TexSky.auto_sun= BoolProperty(
 		name= "Take settings from Sun",
 		description= "Take settings from Sun automatically.",
 		default= True
@@ -167,47 +166,44 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	SKY_MODEL= {
 		'CIEOVER'  : 2,
 		'CIECLEAR' : 1,
 		'PREETH'   : 0
 	}
 
-	slot= params.get('slot')
-	tex= params.get('texture')
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
-	vtex= getattr(tex.vray, PLUG)
+	TexSky= getattr(tex.vray, PLUG)
 
 	# Find Sun lamp
 	sun_light= None
-	if vtex.auto:
-		for ob in sce.objects:
-			if ob.type == 'LAMP':
-				if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
-					sun_light= get_name(ob,"Light")
-					break
+	if TexSky.auto_sun:
+		for ob in [ob for ob in scene.objects if ob.type == 'LAMP']:
+			if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
+				sun_light= get_name(ob,prefix='LA')
+				break
 	else:
-		if vtex.sun:
-			if vtex.sun in bpy.data.objects:
-				sun_light= get_name(bpy.data.objects[vtex.sun],"Light")
+		if TexSky.sun:
+			sun_light= get_name(get_data_by_name(scene, 'objects', TexSky.sun), prefix='LA')
 
 	# Write output
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
 		if param == 'sky_model':
-			ofile.write("\n\t%s= %s;"%(param, SKY_MODEL[vtex.sky_model]))
+			ofile.write("\n\t%s= %s;"%(param, SKY_MODEL[TexSky.sky_model]))
 		elif param == 'sun':
-			if sun_light:
-				ofile.write("\n\t%s= %s;"%(param, sun_light))
-			else:
+			if sun_light is None:
 				continue
-		elif param == 'auto':
-			pass
+			ofile.write("\n\t%s= %s;"%(param, sun_light))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexSky, param))))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -233,7 +229,7 @@ class VRAY_TP_TexSky(VRayTexturePanel, bpy.types.Panel):
 	
 	def draw(self, context):
 		tex= context.texture
-		vtex= getattr(tex.vray, PLUG)
+		TexSky= getattr(tex.vray, PLUG)
 		
 		wide_ui= context.region.width > narrowui
 
@@ -241,27 +237,27 @@ class VRAY_TP_TexSky(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vtex, 'auto')
+		col.prop(TexSky, 'auto_sun')
 
 		split= layout.split()
-		split.active= not vtex.auto
+		split.active= not TexSky.auto_sun
 		col= split.column()
-		col.prop(vtex, 'sky_model')
-		if not vtex.auto:
-			col.prop_search(vtex, 'sun', context.scene, 'objects')
+		col.prop(TexSky, 'sky_model')
+		if not TexSky.auto_sun:
+			col.prop_search(TexSky, 'sun', context.scene, 'objects')
 
 		split= layout.split()
-		split.active= not vtex.auto
+		split.active= not TexSky.auto_sun
 		col= split.column()
-		col.prop(vtex, 'turbidity')
-		col.prop(vtex, 'ozone')
-		col.prop(vtex, 'intensity_multiplier')
-		col.prop(vtex, 'size_multiplier')
+		col.prop(TexSky, 'turbidity')
+		col.prop(TexSky, 'ozone')
+		col.prop(TexSky, 'intensity_multiplier')
+		col.prop(TexSky, 'size_multiplier')
 		if wide_ui:
 			col= split.column()
-		col.prop(vtex, 'invisible')
-		col.prop(vtex, 'horiz_illum')
-		col.prop(vtex, 'water_vapour')
+		col.prop(TexSky, 'invisible')
+		col.prop(TexSky, 'horiz_illum')
+		col.prop(TexSky, 'water_vapour')
 		
 
 bpy.utils.register_class(VRAY_TP_TexSky)

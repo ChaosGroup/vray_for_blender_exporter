@@ -174,8 +174,6 @@ def write_BitmapBuffer(bus):
 	filename= get_full_filepath(scene, texture.image, texture.image.filepath)
 
 	bitmap_name= 'IM' + clean_string(texture.image.name)
-	if texture.image.source == 'SEQUENCE':
-		bitmap_name= 'IM' + texture.image_user.as_pointer()
 
 	# Check if already exported
 	if bitmap_name in bus['filter']['bitmap']:
@@ -193,10 +191,10 @@ def write_BitmapBuffer(bus):
 	if BitmapBuffer.use_input_gamma:
 		ofile.write("\n\tgamma= %s;" % p(SettingsColorMapping.input_gamma))
 	else:
-		ofile.write("\n\tgamma= %s;" % a(sce, BitmapBuffer.gamma))
+		ofile.write("\n\tgamma= %s;" % a(scene, BitmapBuffer.gamma))
 	if texture.image.source == 'SEQUENCE':
 		ofile.write("\n\tframe_sequence= 1;")
-		ofile.write("\n\tframe_number= %s;" % a(sce,sce.frame_current))
+		ofile.write("\n\tframe_number= %s;" % a(scene,scene.frame_current))
 		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
 	ofile.write("\n}\n")
 

@@ -33,6 +33,29 @@ UI=   "Wrapper"
 DESC= "MtlWrapper settings."
 
 PARAMS= (
+	#'base_material',
+	'generate_gi',
+	'receive_gi',
+	'generate_caustics',
+	'receive_caustics',
+	'alpha_contribution',
+	'matte_surface',
+	'shadows',
+	'affect_alpha',
+	'shadow_tint_color',
+	'shadow_brightness',
+	'reflection_amount',
+	'refraction_amount',
+	'gi_amount',
+	'no_gi_on_other_mattes',
+	'matte_for_secondary_rays',
+	'gi_surface_id',
+	'gi_quality_multiplier',
+	#'alpha_contribution_tex',
+	#'shadow_brightness_tex',
+	#'reflection_filter_tex',
+	'trace_depth',
+	#'channels'
 )
 
 

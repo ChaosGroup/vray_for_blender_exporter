@@ -33,9 +33,6 @@ from vb25.utils import *
 from vb25.plugins import *
 from vb25.texture import *
 
-# TEMP!
-from vb25.tempparams import *
-
 
 def write_BRDFGlossy(ofile, sce, ma, ma_name, textures):
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
