@@ -187,6 +187,11 @@ def write(ofile, scene, params):
 '''
   GUI
 '''
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
 def gui(context, layout, BRDFLayered, material= None):
 	wide_ui= context.region.width > narrowui
 

@@ -666,18 +666,39 @@ def write(params):
 	reflect_tex_mult= 1.0
 	refract_tex_mult= 1.0
 
+	defaults= {
+		'bg_tex':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),      0, 'NONE'),
+		'gi_tex':       (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),      0, 'NONE'),
+		'reflect_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflect_color)), 0, 'NONE'),
+		'refract_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refract_color)), 0, 'NONE'),
+	}
+
 	for slot in world.texture_slots:
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
 			VRaySlot= slot.texture.vray_slot
 
-			params= {'slot': slot,
-					 'texture': slot.texture,
-					 'environment': True,
-					 'rotate': {'angle': VRaySlot.texture_rotation_h,
-								'axis': 'Z'},
-					 'transform': ({'rotate': {'angle': VRaySlot.texture_rotation_h, 'axis': 'Z'}},
-								   {'rotate': {'angle': VRaySlot.texture_rotation_v, 'axis': 'Y'}}),
-			}
+			for key in defaults:
+				use_slot= False
+				factor=   1.0
+
+			# TODO: make own params
+			if slot.use_map_blend:
+				factor= slot.blend_factor
+			if slot.use_map_horizon:
+				factor= slot.horizon_factor
+			if slot.use_map_zenith_up:
+				factor= slot.zenith_up_factor
+			if slot.use_map_zenith_down:
+				factor= slot.zenith_down_factor
+
+			bus['mtex']= {}
+			bus['mtex']['mapto']=   key
+			bus['mtex']['slot']=    slot
+			bus['mtex']['texture']= slot.texture
+			bus['mtex']['environment']= True
+			bus['mtex']['factor']=      factor
+			bus['mtex']['transform']= ({'rotate': {'angle': VRaySlot.texture_rotation_h, 'axis': 'Z'}},
+									   {'rotate': {'angle': VRaySlot.texture_rotation_v, 'axis': 'Y'}})
 
 			if slot.use_map_blend:
 				bg_tex= write_texture(ofile, scene, params)
@@ -757,6 +778,20 @@ def write(params):
 '''
   Main GUI function
 '''
+def influence(context, layout, slot):
+	VRaySlot= slot.texture.vray_slot
+
+	# 	split= layout.split()
+	# 	col= split.column()
+	# 	col.label(text="Volume:")
+	# 	split= layout.split()
+	# 	col= split.column()
+	# 	factor_but(col, VRaySlot, 'map_color_tex',    'color_tex_mult',    "Color")
+	# 	factor_but(col, VRaySlot, 'map_density_tex',  'density_tex_mult',  "Density")
+	# 	if wide_ui:
+	# 		col= split.column()
+	# 	factor_but(col, VRaySlot, 'map_emission_tex', 'emission_tex_mult', "Emission")
+
 def draw_EnvironmentFog(context, layout, rna_pointer):
 	wide_ui= context.region.width > narrowui
 

@@ -34,7 +34,7 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
-
+from vb25.plugins import *
 
 
 def context_tex_datablock(context):
@@ -169,16 +169,6 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				and (engine in cls.COMPAT_ENGINES))
 
 	def draw(self, context):
-		def factor_but(layout, slot, toggle, factor, label= None):
-			row= layout.row(align=True)
-			row.prop(slot, toggle, text="")
-			sub= row.row()
-			sub.active= getattr(slot,toggle)
-			if label:
-				sub.prop(slot, factor, slider=True, text=label)
-			else:
-				sub.prop(slot, factor, slider=True)
-
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
@@ -189,130 +179,16 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 
 		VRaySlot= texture.vray_slot
 
-		if type(idblock) == bpy.types.Material:
-			ma= context.material
-			VRayMaterial= ma.vray
+		if issubclass(type(idblock), bpy.types.Material):
+			material=     context.material
+			VRayMaterial= material.vray
 
-
-			if VRayMaterial.type == 'BRDFVRayMtl':
-				split= layout.split()
-				col= split.column()
-				col.label(text="Diffuse:")
-				split= layout.split()
-				col= split.column()
-				factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
-				factor_but(col, VRaySlot, 'map_roughness',         'roughness_mult',       "Roughness")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, slot,     'use_map_alpha',         'alpha_factor',         "Alpha")
-
-				split= layout.split()
-				col= split.column()
-				col.label(text="Reflection:")
-				split= layout.split()
-				col= split.column()
-				factor_but(col, slot,     'use_map_raymir',         'raymir_factor',           "Reflect")
-				factor_but(col, VRaySlot, 'map_reflect_glossiness', 'reflect_glossiness_mult', "Glossiness")
-				factor_but(col, VRaySlot, 'map_hilight_glossiness', 'hilight_glossiness_mult', "Hilight")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, VRaySlot, 'map_anisotropy',          'anisotropy_mult',          "Anisotropy")
-				factor_but(col, VRaySlot, 'map_anisotropy_rotation', 'anisotropy_rotation_mult', "Rotation")
-				factor_but(col, VRaySlot, 'map_fresnel_ior',         'fresnel_ior_mult',         "Fresnel IOR")
-
-				split= layout.split()
-				col= split.column()
-				col.label(text="Refraction:")
-				split= layout.split()
-				col= split.column()
-				factor_but(col, VRaySlot, 'map_refract',            'refract_mult',            "Refract")
-				factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, VRaySlot, 'map_refract_ior',        'refract_ior_mult',        "IOR")
-				factor_but(col, VRaySlot, 'map_refract_glossiness', 'refract_glossiness_mult', "Glossiness")
-
-			elif VRayMaterial.type == 'BRDFSSS2Complex':
-				split= layout.split()
-				col= split.column()
-				col.label(text="SSS:")
-				split= layout.split()
-				col= split.column()
-				factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor',   "Overall")
-				factor_but(col, VRaySlot, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, VRaySlot, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter radius")
-
-				layout.separator()
-
-				split= layout.split()
-				col= split.column()
-				factor_but(col, VRaySlot, 'map_diffuse_color',  'diffuse_color_mult',  "Diffuse")
-				factor_but(col, VRaySlot, 'map_diffuse_amount', 'diffuse_amount_mult', "Amount")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, VRaySlot, 'map_specular_color',      'specular_color_mult',      "Specular")
-				factor_but(col, VRaySlot, 'map_specular_amount',     'specular_amount_mult',     "Amount")
-				factor_but(col, VRaySlot, 'map_specular_glossiness', 'specular_glossiness_mult', "Glossiness")
-
-			elif VRayMaterial.type == 'BRDFLight':
-				split= layout.split()
-				col= split.column()
-				col.label(text="Diffuse:")
-				split= layout.split()
-				col= split.column()
-				factor_but(col, slot, 'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
-				if wide_ui:
-					col= split.column()
-				factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
-
-			# elif VRayMaterial.type == 'VOL':
-			# 	split= layout.split()
-			# 	col= split.column()
-			# 	col.label(text="Volume:")
-			# 	split= layout.split()
-			# 	col= split.column()
-			# 	factor_but(col, VRaySlot, 'map_color_tex',    'color_tex_mult',    "Color")
-			# 	factor_but(col, VRaySlot, 'map_density_tex',  'density_tex_mult',  "Density")
-			# 	if wide_ui:
-			# 		col= split.column()
-			# 	factor_but(col, VRaySlot, 'map_emission_tex', 'emission_tex_mult', "Emission")
+			PLUGINS['BRDF'][VRayMaterial.type].influence(context, layout, slot)
 
 			if VRayMaterial.type in ('BRDFVRayMtl','BRDFSSS2Complex'):
-				layout.separator()
+				PLUGINS['BRDF']['BRDFBump'].influence(context, layout, slot)
 
-				BRDFBump= VRaySlot.BRDFBump
-
-				layout.label(text="Bump / Normal:")
-
-				split= layout.split()
-				col= split.column()
-				row= col.row(align=True)
-				row.prop(slot, 'use_map_normal', text="")
-				sub= row.row()
-				sub.active= getattr(slot,'use_map_normal')
-				sub.prop(VRaySlot, 'normal_mult', slider=True, text="Normal")
-				if wide_ui:
-					col= split.column()
-				col.active= slot.use_map_normal
-				col.prop(BRDFBump,'map_type',text="Type")
-				col.prop(BRDFBump,'bump_tex_mult')
-				col.prop(BRDFBump,'bump_shadows')
-				col.prop(BRDFBump,'compute_bump_for_shadows')
-
-			GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
-
-			layout.label(text="Geometry:")
-
-			split= layout.split()
-			col= split.column()
-			factor_but(col, VRaySlot, 'map_displacement', 'displacement_mult', "Displace")
-			if wide_ui:
-				col= split.column()
-			col.active= VRaySlot.map_displacement
-			col.prop(GeomDisplacedMesh, 'type')
-			col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
+			PLUGINS['GEOMETRY']['GeomDisplacedMesh'].influence(context, layout, slot)
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			VRayLight= VRaySlot.VRayLight
@@ -325,7 +201,7 @@ class VRAY_TEX_influence(VRayTexturePanel, bpy.types.Panel):
 				col= split.column()
 			factor_but(col, VRayLight, 'map_intensity', 'intensity_mult', "Intensity")
 
-		elif type(idblock) == bpy.types.World:
+		elif issubclass(type(idblock), bpy.types.World):
 			split= layout.split()
 			col= split.column()
 			col.label(text="Environment:")

@@ -384,6 +384,35 @@ def write(bus, rna_pointer= None):
 
 
 
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="SSS:")
+	split= layout.split()
+	col= split.column()
+	factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor',   "Overall")
+	factor_but(col, VRaySlot, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, VRaySlot, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter radius")
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	factor_but(col, VRaySlot, 'map_diffuse_color',  'diffuse_color_mult',  "Diffuse")
+	factor_but(col, VRaySlot, 'map_diffuse_amount', 'diffuse_amount_mult', "Amount")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, VRaySlot, 'map_specular_color',      'specular_color_mult',      "Specular")
+	factor_but(col, VRaySlot, 'map_specular_amount',     'specular_amount_mult',     "Amount")
+	factor_but(col, VRaySlot, 'map_specular_glossiness', 'specular_glossiness_mult', "Glossiness")
+
+
 def gui(context, layout, BRDFSSS2Complex, material= None):
 	wide_ui= context.region.width > narrowui
 

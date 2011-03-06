@@ -131,5 +131,37 @@ def write(bus):
 		return brdf_name
 
 
+
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
+	layout.separator()
+
+	BRDFBump= VRaySlot.BRDFBump
+
+	layout.label(text="Bump / Normal:")
+
+	split= layout.split()
+	col= split.column()
+	row= col.row(align=True)
+	row.prop(slot, 'use_map_normal', text="")
+	sub= row.row()
+	sub.active= getattr(slot,'use_map_normal')
+	sub.prop(VRaySlot, 'normal_mult', slider=True, text="Normal")
+	if wide_ui:
+		col= split.column()
+	col.active= slot.use_map_normal
+	col.prop(BRDFBump,'map_type',text="Type")
+	col.prop(BRDFBump,'bump_tex_mult')
+	col.prop(BRDFBump,'bump_shadows')
+	col.prop(BRDFBump,'compute_bump_for_shadows')
+
+
+def gui():
+	pass
+
+
 def draw():
 	pass

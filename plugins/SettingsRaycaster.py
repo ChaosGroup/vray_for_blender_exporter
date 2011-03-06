@@ -90,9 +90,9 @@ def add_properties(rna_pointer):
 
 	SettingsRaycaster.dynMemLimit= IntProperty(
 		name= "Dynamic memory limit",
-		description= "RAM limit for the dynamic raycasters.",
+		description= "RAM limit for the dynamic raycasters (0 = auto).",
 		min= 0,
 		max= 100000,
-		default= 1024
+		default= 0
 	)
 

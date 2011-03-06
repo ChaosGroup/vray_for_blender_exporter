@@ -128,8 +128,28 @@ def get_defaults(bus, BRDFLayered= None):
 
 
 def write(bus):
-	pass
+	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
 
+	bus['brdf']= brdf_name
+
+	return brdf_name
+
+
+
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Diffuse:")
+	split= layout.split()
+	col= split.column()
+	factor_but(col, slot, 'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
 
 
 def gui(context, layout, BRDFLight, material= None):

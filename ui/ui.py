@@ -72,3 +72,16 @@ class VRayWorldPanel():
 		rd= context.scene.render
 		return (context.world) and (rd.engine in cls.COMPAT_ENGINES)
 
+
+def factor_but(layout, rna_pointer, use, factor, label= None):
+	row= layout.row(align=True)
+	row.prop(rna_pointer,
+			 use,
+			 text= "")
+	sub= row.row()
+	sub.active= getattr(rna_pointer, use)
+	sub.prop(rna_pointer,
+			 factor,
+			 slider=True,
+			 text= label if label else "")
+

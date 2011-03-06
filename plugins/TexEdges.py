@@ -114,31 +114,33 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	WIDTH_TYPE= {
 		'PIXEL' : 1,
 		'WORLD' : 0
 	}
 
-	slot= params.get('slot')
-	tex= params.get('texture')
+	ofile= bus['files']['textures']
+	scene= bus['scene']
 
-	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
-	vtex= getattr(tex.vray, PLUG)
+	TexEdges= getattr(texture.vray, PLUG)
 
 	# Write output
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+	ofile.write("\n%s %s {" % (PLUG, tex_name))
 	for param in PARAMS:
 		if param == 'width_type':
-			ofile.write("\n\t%s= %s;"%(param, WIDTH_TYPE[vtex.width_type]))
-			if vtex.width_type == 'PIXEL':
+			ofile.write("\n\t%s= %s;"%(param, WIDTH_TYPE[TexEdges.width_type]))
+			if TexEdges.width_type == 'PIXEL':
 				_param= 'pixel_width'
 			else:
 				_param= 'world_width'
-			ofile.write("\n\t%s= %s;"%(_param, a(sce,getattr(vtex, 'width'))))
+			ofile.write("\n\t%s= %s;"%(_param, a(scene, getattr(TexEdges, 'width'))))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexEdges, param))))
 	ofile.write("\n}\n")
 
 	return tex_name

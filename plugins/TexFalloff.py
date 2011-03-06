@@ -259,7 +259,7 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	TYPE= {
 		'TA':   0,
 		'PP':   1,
@@ -281,21 +281,23 @@ def write(ofile, sce, params):
 		'WZ':    9
 	}
 
-	slot= params.get('slot')
-	tex= params.get('texture')
+	ofile= bus['files']['textures']
+	scene= bus['scene']
 
-	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
-	vtex= getattr(tex.vray, PLUG)
+	TexFalloff= getattr(texture.vray, PLUG)
 
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+	ofile.write("\n%s %s {" % (PLUG, tex_name))
 	for param in PARAMS:
 		if param == 'direction_type':
-			ofile.write("\n\t%s= %s;"%(param, DIRECTION_TYPE[vtex.direction_type]))
+			ofile.write("\n\t%s= %s;"%(param, DIRECTION_TYPE[TexFalloff.direction_type]))
 		elif param == 'type':
-			ofile.write("\n\t%s= %s;"%(param, TYPE[vtex.type]))
+			ofile.write("\n\t%s= %s;"%(param, TYPE[TexFalloff.type]))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexFalloff, param))))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -305,7 +307,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-class TEXTURE_PT_TexFalloff(VRayTexturePanel, bpy.types.Panel):
+class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -371,4 +373,5 @@ class TEXTURE_PT_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 		# col.prop(vtex,'blend_input')
 	
 
-bpy.utils.register_class(TEXTURE_PT_TexFalloff)
+bpy.utils.register_class(VRAY_TP_TexFalloff)
+

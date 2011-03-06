@@ -308,3 +308,21 @@ def write(bus):
 
 	bus['node']['geomtery']= name
 
+
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
+	GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+
+	layout.label(text="Geometry:")
+
+	split= layout.split()
+	col= split.column()
+	factor_but(col, VRaySlot, 'map_displacement', 'displacement_mult', "Displace")
+	if wide_ui:
+		col= split.column()
+	col.active= VRaySlot.map_displacement
+	col.prop(GeomDisplacedMesh, 'type')
+	col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)

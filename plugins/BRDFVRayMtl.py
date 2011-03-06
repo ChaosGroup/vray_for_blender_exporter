@@ -692,6 +692,48 @@ def write(bus, BRDFLayered= None):
 '''
   GUI
 '''
+def influence(context, layout, slot):
+	wide_ui= context.region.width > narrowui
+
+	VRaySlot= slot.texture.vray_slot
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Diffuse:")
+	split= layout.split()
+	col= split.column()
+	factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
+	factor_but(col, VRaySlot, 'map_roughness',         'roughness_mult',       "Roughness")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, slot,     'use_map_alpha',         'alpha_factor',         "Alpha")
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Reflection:")
+	split= layout.split()
+	col= split.column()
+	factor_but(col, slot,     'use_map_raymir',         'raymir_factor',           "Reflect")
+	factor_but(col, VRaySlot, 'map_reflect_glossiness', 'reflect_glossiness_mult', "Glossiness")
+	factor_but(col, VRaySlot, 'map_hilight_glossiness', 'hilight_glossiness_mult', "Hilight")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, VRaySlot, 'map_anisotropy',          'anisotropy_mult',          "Anisotropy")
+	factor_but(col, VRaySlot, 'map_anisotropy_rotation', 'anisotropy_rotation_mult', "Rotation")
+	factor_but(col, VRaySlot, 'map_fresnel_ior',         'fresnel_ior_mult',         "Fresnel IOR")
+
+	split= layout.split()
+	col= split.column()
+	col.label(text="Refraction:")
+	split= layout.split()
+	col= split.column()
+	factor_but(col, VRaySlot, 'map_refract',            'refract_mult',            "Refract")
+	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
+	if wide_ui:
+		col= split.column()
+	factor_but(col, VRaySlot, 'map_refract_ior',        'refract_ior_mult',        "IOR")
+	factor_but(col, VRaySlot, 'map_refract_glossiness', 'refract_glossiness_mult', "Glossiness")
+
 def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
 
