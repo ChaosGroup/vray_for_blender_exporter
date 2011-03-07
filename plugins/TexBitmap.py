@@ -231,10 +231,7 @@ def write(bus):
 
 	bitmap= write_BitmapBuffer(bus)
 
-	if type(slot) == bpy.types.WorldTextureSlot:
-		uvwgen= write_UVWGenEnvironment(bus)
-	else:
-		uvwgen= write_UVWGenChannel(bus)
+	uvwgen= write_uvwgen(bus)
 
 	ofile.write("\nTexBitmap %s {" % tex_name)
 	ofile.write("\n\tbitmap= %s;" % bitmap)

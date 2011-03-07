@@ -550,7 +550,7 @@ def write(ofile, sce, params):
 	slot= params.get('slot')
 	texture= params.get('texture')
 
-	uvwgen= write_UVWGenChannel(ofile, sce, params)
+	uvwgen= write_uvwgen(ofile, sce, params)
 
 	tex_name= params['name'] if 'name' in params else get_random_string()
 

@@ -126,17 +126,29 @@ def write_UVWGenEnvironment(bus):
 	slot=     bus['mtex']['slot']
 	texture=  bus['mtex']['texture']
 	tex_name= bus['mtex']['name']
+
 	uvw_name= tex_name + 'UVE'
 
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
-	
-	uvw_matrix= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_h), 4, 'Z') * \
-				mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_v), 4, 'Y')
+
+	uvw_matrix= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_h), 4, 'Z')
+	if VRayTexture.environment_mapping not in ('SCREEN'):
+		uvw_matrix*= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_v), 4, 'Y')
 
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[VRayTexture.environment_mapping])
-	ofile.write("\n\tuvw_matrix= %s;" % transform(uvw_matrix))
+	ofile.write("\n\tuvw_transform= %s;" % transform(uvw_matrix))
 	ofile.write("\n}\n")
 	
 	return uvw_name
+
+
+def write_uvwgen(bus):
+	slot= bus['mtex']['slot']
+	
+	if type(slot) == bpy.types.WorldTextureSlot:
+		return write_UVWGenEnvironment(bus)
+	else:
+		return write_UVWGenChannel(bus)
+

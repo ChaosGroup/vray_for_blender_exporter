@@ -345,7 +345,7 @@ def add_properties():
 
 		texture_rotation_v= FloatProperty(
 			name= "Vert. rotation",
-			description= "TODO.",
+			description= "Vertical rotation.",
 			min= -360.0,
 			max= 360.0,
 			soft_min= -180.0,

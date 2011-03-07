@@ -480,7 +480,7 @@ def write_geometry(scene):
 			use_active_layers= VRayExporter.mesh_active_layers,
 			use_animation=     VRayExporter.animation,
 			use_instances=     VRayExporter.use_instances,
-			debug=             VRayExporter.debug,
+			debug=             VRayExporter.mesh_debug,
 			check_animated=    VRayExporter.check_animated,
 		)
 

@@ -160,7 +160,13 @@ def add_properties(rna_pointer):
 	VRayExporter.debug= BoolProperty(
 		name= "Debug",
 		description= "Enable script\'s debug output.",
-		default= 0
+		default= False
+	)
+
+	VRayExporter.mesh_debug= BoolProperty(
+		name= "Debug",
+		description= "Enable build debug output.",
+		default= False
 	)
 
 	VRayExporter.output= EnumProperty(

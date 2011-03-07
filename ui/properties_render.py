@@ -284,6 +284,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_instances')
 		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')
+		col.prop(ve, 'mesh_debug')
 		
 		layout.separator()
 
