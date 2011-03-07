@@ -380,7 +380,7 @@ def get_vray_standalone_path(sce):
 
 	return vray_bin
 
-def get_filenames(scene, filetype):
+def get_filenames(scene, filetype, preview= None):
 	def create_dir(directory):
 		if not os.path.exists(directory):
 			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory)
@@ -392,6 +392,14 @@ def get_filenames(scene, filetype):
 				debug(scene, "Directory creation failed!")
 				debug(scene, "Using default exporting path: %s" % directory)
 		return directory
+
+	if preview:
+		if filetype == 'geometry':
+			return os.path.join(create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview')),
+								"%s_geometry_00.vrscene" % filetype)
+		else:
+			return os.path.join(create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview')),
+								"%s.vrscene" % filetype)
 
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter

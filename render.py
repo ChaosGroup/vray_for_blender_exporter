@@ -440,7 +440,7 @@ def write_geometry_python(scene, preview= None):
 	bus['files']= {}
 	bus['files']['geometry']= []
 	for thread in range(scene.render.threads):
-		bus['files']['geometry'].append(open(get_filenames(scene,'geometry')[:-11]+"_%.2i.vrscene"%(thread), 'w'))
+		bus['files']['geometry'].append(open(get_filenames(scene,'geometry',preview)[:-11]+"_%.2i.vrscene"%(thread), 'w'))
 
 	for geometry_file in bus['files']['geometry']:
 		geometry_file.write("// V-Ray/Blender %s" % VERSION)
@@ -528,15 +528,15 @@ def write_settings(bus):
 	for f in bus['files']:
 		if VRayDR.on:
 			if VRayDR.type == 'UU':
-				ofile.write("\n#include \"%s\"" % get_filenames(scene,f))
+				ofile.write("\n#include \"%s\"" % get_filenames(scene,f,bus['preview']))
 			elif VRayDR.type == 'WU':
 				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
 			else:
 				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
 		else:
-			ofile.write("\n#include \"%s\""%(os.path.basename(get_filenames(scene,f))))
+			ofile.write("\n#include \"%s\""%(os.path.basename(get_filenames(scene,f,bus['preview']))))
 	for t in range(scene.render.threads):
-		ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(get_filenames(scene,'geometry'))[:-11], t))
+		ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(get_filenames(scene,'geometry',bus['preview']))[:-11], t))
 	ofile.write("\n")
 
 	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
@@ -689,7 +689,7 @@ def write_material_textures(bus):
 					if slot.use_map_color_diffuse:
 						use_slot= True
 						factor= slot.diffuse_color_factor
-				elif key == 'overall_color' and ma.vray.type == 'SSS':
+				elif key == 'overall_color' and ma.vray.type == 'BRDFSSS2Complex':
 					if slot.use_map_color_diffuse:
 						use_slot= True
 						factor= slot.diffuse_color_factor
@@ -731,7 +731,6 @@ def write_material_textures(bus):
 					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
 																			 slot.name,
 																			 slot.texture.name))
-
 					# Write texture
 					write_texture(bus)
 
@@ -1175,6 +1174,8 @@ def _write_object_particles(bus):
 	scene= bus['scene']
 	ob=    bus['node']['object']
 
+	emitter_node= bus['node']['name']
+
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 
@@ -1190,20 +1191,23 @@ def _write_object_particles(bus):
 			ps_material= "MANOMATERIALISSET"
 			ps_material_idx= ps.settings.material
 			if len(ob.material_slots) >= ps_material_idx:
-				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, "Material")
+				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, prefix='MA')
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
 					hair_geom_name= "HAIR%s" % ps.name
 					hair_node_name= "OB%sHAIR%s" % (ob.name, hair_geom_name)
 
-					write_GeomMayaHair(bus, ps, hair_node_name)
+					write_GeomMayaHair(bus, ps, hair_geom_name)
 
-					bus['node']['geometry']= hair_node_name
+					bus['node']['name']= hair_node_name
+					bus['node']['geometry']= hair_geom_name
 					bus['node']['material']= ps_material
 
 					write_node(bus)
 
+					bus['node']['name']= emitter_node
+					
 			else:
 				particle_objects= []
 				if ps.settings.render_type == 'OBJECT':
@@ -1303,36 +1307,17 @@ def _write_object(bus):
 		_write_object_dupli(bus)
 
 
-def write_scene(scene, preview= None):
+def write_scene(bus):
+	scene= bus['scene']
+
 	VRayScene=       scene.vray
 
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
-	VRayEffects=     VRayScene.VRayEffects
-
-	# Settings bus
-	bus= {}
-
-	# Plugins
-	bus['plugins']= PLUGINS
-
-	# Scene
-	bus['scene']= scene
-	
 	# V-Ray uses UV indexes, Blender uses UV names
 	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
-
-	# Output files
-	bus['files']= {}
-	bus['files']['lights']=      open(get_filenames(scene,'lights'),      'w')
-	bus['files']['materials']=   open(get_filenames(scene,'materials'),   'w')
-	bus['files']['textures']=    open(get_filenames(scene,'textures'),    'w')
-	bus['files']['nodes']=       open(get_filenames(scene,'nodes'),       'w')
-	bus['files']['camera']=      open(get_filenames(scene,'camera'),      'w')
-	bus['files']['scene']=       open(get_filenames(scene,'scene'),       'w')
-	bus['files']['environment']= open(get_filenames(scene,'environment'), 'w')
 
 	# Some failsafe defaults
 	bus['defaults']= {}
@@ -1379,27 +1364,19 @@ def write_scene(scene, preview= None):
 	bus['files']['materials'].write("\n}\n")
 	bus['files']['materials'].write("\n// Scene materials\n")
 
-	if preview:
-		# Override some lamps for preview
+	if bus['preview']:
 		bus['files']['lights'].write("\nLightOmni LALamp {")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tunits= 0;")
 		bus['files']['lights'].write("\n\tenabled= 1;")
 		bus['files']['lights'].write("\n\tshadows= 0;")
-		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
-		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
-		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
-		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
 		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-		bus['files']['lights'].write("\n\taffectSpecular= 1;")
-		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
-		bus['files']['lights'].write("\n\tnsamples= 0;")
-		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
-		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\taffectSpecular= 0;")
+		bus['files']['lights'].write("\n\tspecular_contribution= 0.000000;")
 		bus['files']['lights'].write("\n\tintensity= 150.000000;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
 		bus['files']['lights'].write("\n\tdecay= 2.000000;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
 		bus['files']['lights'].write("\n\tMatrix(")
@@ -1447,16 +1424,11 @@ def write_scene(scene, preview= None):
 		bus['files']['lights'].write("\n\tunits= 0;")
 		bus['files']['lights'].write("\n\tenabled= 1;")
 		bus['files']['lights'].write("\n\tshadows= 0;")
-		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
-		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
-		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
-		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
 		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
 		bus['files']['lights'].write("\n\taffectSpecular= 1;")
 		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
 		bus['files']['lights'].write("\n\tnsamples= 0;")
-		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
 		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
 		bus['files']['lights'].write("\n\tintensity= 300.000000;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
@@ -1471,27 +1443,6 @@ def write_scene(scene, preview= None):
 		bus['files']['lights'].write("\nVector(-10.500286, -12.464991, 3.075305));")
 		bus['files']['lights'].write("\n}\n")
 
-		bus['files']['scene'].write("\nSettingsColorMapping SettingsColorMapping {")
-		bus['files']['scene'].write("\n\ttype= 1;")
-		bus['files']['scene'].write("\n\tsubpixel_mapping= 1;")
-		bus['files']['scene'].write("\n\tclamp_output= 1;")
-		bus['files']['scene'].write("\n\tadaptation_only= 0;")
-		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsDMCSampler SettingsDMCSampler {")
-		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
-		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
-		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsOptions SettingsOptions {")
-		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
-		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 50;")
-		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
-		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
-		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
-		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
-		bus['files']['scene'].write("\n}\n")
-
 	# Processed objects
 	bus['objects']= []
 
@@ -1500,6 +1451,7 @@ def write_scene(scene, preview= None):
 	bus['effects']['toon']= []
 
 	exclude_list= []
+	VRayEffects=  VRayScene.VRayEffects
 	if VRayEffects.use:
 		for effect in VRayEffects.effects:
 			if effect.use:
@@ -1638,14 +1590,39 @@ def write_scene(scene, preview= None):
 		
 	write_settings(bus)
 
-	for key in bus['files']:
-		bus['files'][key].write("\n// vim: set syntax=on syntax=c:\n\n")
-		bus['files'][key].close()
-
+	if bus['preview']:
+		bus['files']['scene'].write("\nSettingsColorMapping {")
+		bus['files']['scene'].write("\n\ttype= 1;")
+		bus['files']['scene'].write("\n\tsubpixel_mapping= 1;")
+		bus['files']['scene'].write("\n\tclamp_output= 1;")
+		bus['files']['scene'].write("\n\tadaptation_only= 0;")
+		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsDMCSampler {")
+		bus['files']['scene'].write("\n\tadaptive_amount= 0.65;")
+		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsOptions {")
+		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_maxDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
+		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
+		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
+		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
+		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsImageSampler {")
+		bus['files']['scene'].write("\n\ttype= 0;")
+		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
+		bus['files']['scene'].write("\n}\n")
+							
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
-def run(engine, scene, preview= None):
+def run(engine, bus):
+	scene= bus['scene']
+
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 	VRayDR=       VRayScene.VRayDR
@@ -1660,9 +1637,9 @@ def run(engine, scene, preview= None):
 	params.append(vray_standalone)
 
 	params.append('-sceneFile=')
-	params.append(get_filenames(scene,'scene'))
+	params.append(get_filenames(scene,'scene',bus['preview']))
 
-	if preview:
+	if bus['preview']:
 		preview_file= os.path.join(tempfile.gettempdir(), "preview.jpg")
 
 		params.append('-imgFile=')
@@ -1671,6 +1648,8 @@ def run(engine, scene, preview= None):
 		params.append('0')
 		params.append('-autoclose=')
 		params.append('1')
+		params.append('-showProgress=')
+		params.append('0')
 
 	else:
 		if scene.render.use_border:
@@ -1705,7 +1684,7 @@ def run(engine, scene, preview= None):
 				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-			image_file= os.path.join(get_filenames(scene,'output'),
+			image_file= os.path.join(get_filenames(scene,'output',bus['preview']),
 									 "render_%s.%s" % (clean_string(scene.camera.name),
 													   get_render_file_format(VRayExporter,scene.render.file_format)))
 			params.append('-imgFile=')
@@ -1732,11 +1711,11 @@ def run(engine, scene, preview= None):
 		else:
 			process= subprocess.Popen(params)
 
-			if preview or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
-				load_file= preview_file if preview else os.path.join(get_filenames(scene,'output'),
-																	 "render_%s.%.4i.%s" % (clean_string(scene.camera.name),
-																							scene.frame_current,
-																							get_render_file_format(VRayExporter,scene.render.file_format)))
+			if bus['preview'] or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
+				load_file= preview_file if bus['preview'] else os.path.join(get_filenames(scene,'output',bus['preview']),
+																			"render_%s.%.4i.%s" % (clean_string(scene.camera.name),
+																								   scene.frame_current,
+																								   get_render_file_format(VRayExporter,scene.render.file_format)))
 				while True:
 					if engine.test_break():
 						try:
@@ -1767,12 +1746,44 @@ def render(engine, scene, preview= None):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 
+	# Settings bus
+	bus= {}
+
+	# Plugins
+	bus['plugins']= PLUGINS
+
+	# Scene
+	bus['scene']= scene
+
+	# Preview
+	bus['preview']= preview
+	
+	# V-Ray uses UV indexes, Blender uses UV names
+	# Here we store UV name->index map
+	bus['uvs']= get_uv_layers_map(scene)
+
+	# Output files
+	bus['files']= {}
+	bus['files']['lights']=      open(get_filenames(scene,'lights', preview),      'w')
+	bus['files']['materials']=   open(get_filenames(scene,'materials', preview),   'w')
+	bus['files']['textures']=    open(get_filenames(scene,'textures', preview),    'w')
+	bus['files']['nodes']=       open(get_filenames(scene,'nodes', preview),       'w')
+	bus['files']['camera']=      open(get_filenames(scene,'camera', preview),      'w')
+	bus['files']['scene']=       open(get_filenames(scene,'scene', preview),       'w')
+	bus['files']['environment']= open(get_filenames(scene,'environment', preview), 'w')
+
 	if preview:
 		write_geometry_python(scene, preview)
 	else:
 		if VRayExporter.auto_meshes:
 			write_geometry(scene)
 
-	write_scene(scene, preview)
-	run(engine, scene, preview)
+	write_scene(bus)
 
+	for key in bus['files']:
+		bus['files'][key].write("\n// vim: set syntax=on syntax=c:\n\n")
+		bus['files'][key].close()
+
+	run(engine, bus)
+
+	del bus

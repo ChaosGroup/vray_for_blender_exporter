@@ -388,6 +388,8 @@ def write(bus, rna_pointer= None):
 
 	ofile.write("\n}\n")
 
+	bus['brdf']= brdf_name
+
 	return brdf_name
 
 

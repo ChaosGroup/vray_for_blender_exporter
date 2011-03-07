@@ -143,6 +143,40 @@ def write_mesh_ascii(bus):
 			k+= 1
 	ofile.write(");")
 
+
+	def edge_visibility(k, ev):
+		if k == 9:
+			ofile.write("%i," % int(ev, 2))
+			return 0, ""
+		return k + 1, ev
+
+	ofile.write("\n\tedge_visibility= ListInt(")
+
+	k= 0
+	ev= ""
+	if len(me.faces) < 5:
+		for f in me.faces:
+			if len(f.vertices) == 4:
+				ev+= "011011"
+			else:
+				ev+= "111"
+		edge_visibility(k, ev)
+	else:
+		k= 0;
+		for f in me.faces:
+			if len(f.vertices) == 4:
+				ev+= "011"
+				k, ev = edge_visibility(k, ev)
+				ev+= "011"
+				k, ev = edge_visibility(k, ev)
+			else:
+				ev+= "111"
+				k, ev = edge_visibility(k, ev)
+		if k:
+			edge_visibility(k, ev)
+	ofile.write("0);")
+
+
 	if len(me.uv_textures):
 		ofile.write("\n\tmap_channels= List(")
 

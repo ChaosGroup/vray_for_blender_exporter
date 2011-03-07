@@ -119,19 +119,47 @@ def get_defaults(bus, BRDFLayered= None):
 
 	if BRDFLayered:
 		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFLight.color)),       0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFLight.opacity]*3)), 0, 'NONE')
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFLight.opacity]*3)), 0, 'NONE')
 	else:
 		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),     0, 'NONE')
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - ma.alpha]*3)),     0, 'NONE')
 
 	return defaults
 
 
-def write(bus):
+def write(bus, BRDFLayered= None):
+	scene=    bus['scene']
+	ofile=    bus['files']['materials']
+
 	material= bus['material']
+	textures= bus['textures']
+
+	BRDFLight= material.vray.BRDFLight
 	
 	brdf_name= "%s_%s" % (ID, clean_string(material.name))
 
+	defaults= get_defaults(bus, BRDFLayered)
+
+	if 'diffuse' in textures:
+		color= textures['diffuse']
+		if 'opacity' in textures:
+			alpha= write_TexInvert(ofile, scene, textures['opacity'])
+			color= write_TexCompMax(ofile, scene, {'name': "%s_alpha" % brdf_name,
+												   'sourceA': alpha,
+												   'sourceB': color,
+												   'opertor': 'Multiply'})
+	else:
+		color= defaults['diffuse'][0]
+
+	ofile.write("\n%s %s {" % (ID, brdf_name))
+	ofile.write("\n\tcolor= %s;" % color)
+	ofile.write("\n\tcolorMultiplier= %s;" % a(scene, material.emit * 10))
+	ofile.write("\n\tcompensateExposure= %s;" % p(BRDFLight.compensateExposure))
+	ofile.write("\n\temitOnBackSide= %s;" % p(BRDFLight.emitOnBackSide))
+	ofile.write("\n\tdoubleSided= %s;" % p(BRDFLight.doubleSided))
+	ofile.write("\n\ttransparency= %s;" % (textures['opacity'] if 'opacity' in textures else defaults['opacity'][0]))
+	ofile.write("\n}\n")
+	
 	bus['brdf']= brdf_name
 
 	return brdf_name
