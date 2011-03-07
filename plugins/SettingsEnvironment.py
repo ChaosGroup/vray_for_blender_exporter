@@ -279,8 +279,8 @@ def add_properties(rna_pointer):
 		name= "Fade out mode",
 		description= "Fade out mode.",
 		items= (
-			('SUBSTRACT',"Substract",""),
-			('MULT',"Multiply","")
+			('SUBSTRACT', "Substract", ""),
+			('MULT',      "Multiply",  ""),
 		),
 		default= 'MULT'
 	)
@@ -366,9 +366,9 @@ def add_properties(rna_pointer):
 		name= "Max steps",
 		description= "Maximum number of steps through the volume",
 		min= 0,
-		max= 100,
+		max= 10000,
 		soft_min= 0,
-		soft_max= 10,
+		soft_max= 10000,
 		default= 1000
 	)
 
@@ -677,7 +677,6 @@ def write(bus):
 	VRayExporter= VRayScene.exporter
 
 	def write_EnvFogMeshGizmo(bus, ob):
-		
 		name= "MG%s" % get_name(ob, prefix='OB')
 
 		ofile.write("\nEnvFogMeshGizmo %s {" % name)
@@ -723,6 +722,10 @@ def write(bus):
 			'PERGIZMO':    1,
 			'NO':          0
 		}
+		FADE_OUT_MODE= {
+			'MULT':      0,
+			'SUBSTRACT': 1,
+		}
 
 		EnvironmentFog= effect.EnvironmentFog
 
@@ -732,6 +735,8 @@ def write(bus):
 		for param in PARAMS['EnvironmentFog']:
 			if param.endswith('_tex') or param.endswith('_mult'):
 				continue
+			elif param == 'fade_out_mode':
+				value= FADE_OUT_MODE[EnvironmentFog.fade_out_mode]
 			elif param == 'light_mode':
 				value= LIGHT_MODE[EnvironmentFog.light_mode]
 			elif param == 'gizmos':
@@ -781,18 +786,19 @@ def write(bus):
 	# Processing Effects
 	# TODO: add nodes from materials <= bus['effects']
 	volumes= []
-	for effect in VRayEffects.effects:
-		if effect.use:
-			if effect.type == 'FOG':
-				EnvironmentFog= effect.EnvironmentFog
-				gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)]
-				volumes.append(write_EnvironmentFog(bus, effect, gizmos))
+	if VRayEffects.use:
+		for effect in VRayEffects.effects:
+			if effect.use:
+				if effect.type == 'FOG':
+					EnvironmentFog= effect.EnvironmentFog
+					gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)]
+					volumes.append(write_EnvironmentFog(bus, effect, gizmos))
 
-			elif effect.type == 'TOON':
-				VolumeVRayToon= effect.VolumeVRayToon
-				excludeList= generate_object_list(VolumeVRayToon.excludeList_objects, VolumeVRayToon.excludeList_groups)
-				toon_objects= [get_name(ob, prefix='OB') for ob in excludeList]
-				volumes.append(write_VolumeVRayToon(bus, effect, toon_objects))
+				elif effect.type == 'TOON':
+					VolumeVRayToon= effect.VolumeVRayToon
+					excludeList= generate_object_list(VolumeVRayToon.excludeList_objects, VolumeVRayToon.excludeList_groups)
+					toon_objects= [get_name(ob, prefix='OB') for ob in excludeList]
+					volumes.append(write_VolumeVRayToon(bus, effect, toon_objects))
 
 	world=     scene.world
 	VRayWorld= world.vray

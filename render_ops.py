@@ -462,6 +462,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath,append=True)
 					frame+= 1
 				sce.frame_set(selected_frame)
+
 			else:
 				vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
 

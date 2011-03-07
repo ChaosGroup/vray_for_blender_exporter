@@ -483,12 +483,17 @@ def write_geometry(scene):
 			debug=             VRayExporter.debug,
 			check_animated=    VRayExporter.check_animated,
 		)
+
 	except:
 		# Use python mesh export
 		write_geometry_python(scene)
 
 
-def write_GeomMayaHair(ofile, ob, ps, name):
+def write_GeomMayaHair(bus, ps, hair_geom_name):
+	scene= bus['scene']
+	ofile= bus['files']['nodes']
+	ob=    bus['node']['object']
+
 	num_hair_vertices= []
 	hair_vertices=     []
 	widths=            []
@@ -501,7 +506,7 @@ def write_GeomMayaHair(ofile, ob, ps, name):
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
 			widths.append(str(0.01)) # TODO
 
-	ofile.write("\nGeomMayaHair %s {" % name)
+	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(scene.frame_current, ','.join(num_hair_vertices)))
 	ofile.write("\n\thair_vertices= interpolate((%d,ListVector(%s)));"%(scene.frame_current,  ','.join(hair_vertices)))
 	ofile.write("\n\twidths= interpolate((%d,ListFloat(%s)));"%(scene.frame_current,          ','.join(widths)))
@@ -538,7 +543,7 @@ def write_settings(bus):
 	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
 	
 	ofile.write("\nSettingsOutput {")
-	ofile.write("\n\timg_separateAlpha= %d;" % (0))
+	ofile.write("\n\timg_noAlpha= %d;" % (0))
 	ofile.write("\n\timg_width= %s;" % wx)
 	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
 	if VRayExporter.animation:
@@ -1189,10 +1194,16 @@ def _write_object_particles(bus):
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= "HAIR_%s" % ps.name
-					hair_node_name= "%s_%s" % (ob.name,hair_geom_name)
+					hair_geom_name= "HAIR%s" % ps.name
+					hair_node_name= "OB%sHAIR%s" % (ob.name, hair_geom_name)
 
-					write_GeomMayaHair(bus)
+					write_GeomMayaHair(bus, ps, hair_node_name)
+
+					bus['node']['geometry']= hair_node_name
+					bus['node']['material']= ps_material
+
+					write_node(bus)
+
 			else:
 				particle_objects= []
 				if ps.settings.render_type == 'OBJECT':
@@ -1368,6 +1379,119 @@ def write_scene(scene, preview= None):
 	bus['files']['materials'].write("\n}\n")
 	bus['files']['materials'].write("\n// Scene materials\n")
 
+	if preview:
+		# Override some lamps for preview
+		bus['files']['lights'].write("\nLightOmni LALamp {")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tunits= 0;")
+		bus['files']['lights'].write("\n\tenabled= 1;")
+		bus['files']['lights'].write("\n\tshadows= 0;")
+		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
+		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
+		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
+		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
+		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 1;")
+		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
+		bus['files']['lights'].write("\n\tnsamples= 0;")
+		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tintensity= 150.000000;")
+		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tdecay= 2.000000;")
+		bus['files']['lights'].write("\n\ttransform= Transform(")
+		bus['files']['lights'].write("\n\tMatrix(")
+		bus['files']['lights'].write("\n\tVector(0.499935, 0.789660, 0.355671),")
+		bus['files']['lights'].write("\n\tVector(-0.672205, 0.094855, 0.734263),")
+		bus['files']['lights'].write("\n\tVector(0.546081, -0.606168, 0.578235)")
+		bus['files']['lights'].write("\n\t),")
+		bus['files']['lights'].write("\n\tVector(15.685226, -7.460007, 2.990525));")
+		bus['files']['lights'].write("\n}\n")
+
+		bus['files']['lights'].write("\nLightSpot LALamp_002 {")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tunits= 0;")
+		bus['files']['lights'].write("\n\tconeAngle= 0.872665;")
+		bus['files']['lights'].write("\n\tpenumbraAngle= -0.465689;")
+		bus['files']['lights'].write("\n\tenabled= 1;")
+		bus['files']['lights'].write("\n\tshadows= 1;")
+		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
+		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
+		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
+		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
+		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 1;")
+		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
+		bus['files']['lights'].write("\n\tnsamples= 0;")
+		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tintensity= 30.000000;")
+		bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
+		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tdecay= 2.000000;")
+		bus['files']['lights'].write("\ntransform= Transform(")
+		bus['files']['lights'].write("\nMatrix(")
+		bus['files']['lights'].write("\nVector(-0.549843, 0.655945, 0.517116),")
+		bus['files']['lights'].write("\nVector(-0.733248, -0.082559, -0.674931),")
+		bus['files']['lights'].write("\nVector(-0.400025, -0.750280, 0.526365)")
+		bus['files']['lights'].write("\n),")
+		bus['files']['lights'].write("\nVector(-5.725639, -13.646054, 8.475835));")
+		bus['files']['lights'].write("\n}\n")
+
+		bus['files']['lights'].write("\nLightOmni LALamp_001 {")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tunits= 0;")
+		bus['files']['lights'].write("\n\tenabled= 1;")
+		bus['files']['lights'].write("\n\tshadows= 0;")
+		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
+		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
+		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
+		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
+		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 1;")
+		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
+		bus['files']['lights'].write("\n\tnsamples= 0;")
+		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tintensity= 300.000000;")
+		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tdecay= 2.000000;")
+		bus['files']['lights'].write("\n\ttransform= Transform(")
+		bus['files']['lights'].write("\nMatrix(")
+		bus['files']['lights'].write("\nVector(0.499935, 0.789660, 0.355671),")
+		bus['files']['lights'].write("\nVector(-0.672205, 0.094855, 0.734263),")
+		bus['files']['lights'].write("\nVector(0.546081, -0.606168, 0.578235)")
+		bus['files']['lights'].write("\n),")
+		bus['files']['lights'].write("\nVector(-10.500286, -12.464991, 3.075305));")
+		bus['files']['lights'].write("\n}\n")
+
+		bus['files']['scene'].write("\nSettingsColorMapping SettingsColorMapping {")
+		bus['files']['scene'].write("\n\ttype= 1;")
+		bus['files']['scene'].write("\n\tsubpixel_mapping= 1;")
+		bus['files']['scene'].write("\n\tclamp_output= 1;")
+		bus['files']['scene'].write("\n\tadaptation_only= 0;")
+		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsDMCSampler SettingsDMCSampler {")
+		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
+		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsOptions SettingsOptions {")
+		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 50;")
+		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
+		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
+		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
+		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
+		bus['files']['scene'].write("\n}\n")
+
 	# Processed objects
 	bus['objects']= []
 
@@ -1376,15 +1500,15 @@ def write_scene(scene, preview= None):
 	bus['effects']['toon']= []
 
 	exclude_list= []
-	
-	for effect in VRayEffects.effects:
-		if effect.use:
-			if effect.type == 'FOG':
-				EnvironmentFog= effect.EnvironmentFog
-				fog_objects= generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)
-				for ob in fog_objects:
-					if ob not in exclude_list:
-						exclude_list.append(ob)
+	if VRayEffects.use:
+		for effect in VRayEffects.effects:
+			if effect.use:
+				if effect.type == 'FOG':
+					EnvironmentFog= effect.EnvironmentFog
+					fog_objects= generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)
+					for ob in fog_objects:
+						if ob not in exclude_list:
+							exclude_list.append(ob)
 
 	for ob in scene.objects:
 		if ob.type in ('CAMERA','ARMATURE','LATTICE'):
@@ -1538,50 +1662,55 @@ def run(engine, scene, preview= None):
 	params.append('-sceneFile=')
 	params.append(get_filenames(scene,'scene'))
 
-	if scene.render.use_border:
-		x0= resolution_x * scene.render.border_min_x
-		y0= resolution_y * (1.0 - scene.render.border_max_y)
-		x1= resolution_x * scene.render.border_max_x
-		y1= resolution_y * (1.0 - scene.render.border_min_y)
-
-		if scene.render.use_crop_to_border:
-			params.append('-crop=')
-		else:
-			params.append('-region=')
-		params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
-
-	params.append('-frames=')
-	if VRayExporter.animation:
-		params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end,int(scene.frame_step)))
-	elif VRayExporter.camera_loop:
-		cameras= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-		if cameras:
-			params.append("1-%d,1" % len(cameras))
-	else:
-		params.append("%d" % scene.frame_current)
-
-	if VRayDR.on:
-		if len(VRayDR.nodes):
-			params.append('-distributed=')
-			params.append('1')
-			params.append('-portNumber=')
-			params.append(str(VRayDR.port))
-			params.append('-renderhost=')
-			params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
-
-	if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-		image_file= os.path.join(get_filenames(scene,'output'),
-								 "render_%s.%s" % (clean_string(scene.camera.name),
-												   get_render_file_format(VRayExporter,scene.render.file_format)))
-		params.append('-imgFile=')
-		params.append(image_file)
-
 	if preview:
+		preview_file= os.path.join(tempfile.gettempdir(), "preview.jpg")
+
+		params.append('-imgFile=')
+		params.append(preview_file)
 		params.append('-display=')
 		params.append('0')
 		params.append('-autoclose=')
 		params.append('1')
+
 	else:
+		if scene.render.use_border:
+			x0= resolution_x * scene.render.border_min_x
+			y0= resolution_y * (1.0 - scene.render.border_max_y)
+			x1= resolution_x * scene.render.border_max_x
+			y1= resolution_y * (1.0 - scene.render.border_min_y)
+
+			if scene.render.use_crop_to_border:
+				params.append('-crop=')
+			else:
+				params.append('-region=')
+			params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
+
+		params.append('-frames=')
+		if VRayExporter.animation:
+			params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end,int(scene.frame_step)))
+		elif VRayExporter.camera_loop:
+			cameras= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
+			if cameras:
+				params.append("1-%d,1" % len(cameras))
+		else:
+			params.append("%d" % scene.frame_current)
+
+		if VRayDR.on:
+			if len(VRayDR.nodes):
+				params.append('-distributed=')
+				params.append('1')
+				params.append('-portNumber=')
+				params.append(str(VRayDR.port))
+				params.append('-renderhost=')
+				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
+
+		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
+			image_file= os.path.join(get_filenames(scene,'output'),
+									 "render_%s.%s" % (clean_string(scene.camera.name),
+													   get_render_file_format(VRayExporter,scene.render.file_format)))
+			params.append('-imgFile=')
+			params.append(image_file)
+
 		if VRayExporter.display:
 			params.append('-display=')
 			params.append('1')
@@ -1604,10 +1733,10 @@ def run(engine, scene, preview= None):
 			process= subprocess.Popen(params)
 
 			if preview or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
-				load_file= os.path.join(get_filenames(scene,'output'),
-										"render_%s.%.4i.%s" % (clean_string(scene.camera.name),
-															   scene.frame_current,
-															   get_render_file_format(VRayExporter,scene.render.file_format)))
+				load_file= preview_file if preview else os.path.join(get_filenames(scene,'output'),
+																	 "render_%s.%.4i.%s" % (clean_string(scene.camera.name),
+																							scene.frame_current,
+																							get_render_file_format(VRayExporter,scene.render.file_format)))
 				while True:
 					if engine.test_break():
 						try:

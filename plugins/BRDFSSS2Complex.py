@@ -359,9 +359,17 @@ def write(bus, rna_pointer= None):
 		'REFR':   3,
 	}
 
+	scene= bus['scene']
+	ofile= bus['files']['materials']
+
+	ma=       bus['material']
+	textures= bus['textures']
+
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
 
-	brdf_name= "BRDFSSS2Complex_%s"%(ma_name)
+	defaults= get_defaults(bus, rna_pointer)
+
+	brdf_name= "BRDFSSS2Complex_%s" % clean_string(ma.name)
 
 	ofile.write("\nBRDFSSS2Complex %s {" % brdf_name)
 
@@ -371,7 +379,7 @@ def write(bus, rna_pointer= None):
 	for key in ('specular_amount','specular_glossiness','diffuse_amount'):
 		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(scene,getattr(BRDFSSS2Complex,key))))
 
-	for param in OBJECT_PARAMS['BRDFSSS2Complex']:
+	for param in PARAMS:
 		if param == 'single_scatter':
 			value= SINGLE_SCATTER[BRDFSSS2Complex.single_scatter]
 		else:
