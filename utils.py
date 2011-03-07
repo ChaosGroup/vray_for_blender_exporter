@@ -302,6 +302,30 @@ def object_on_visible_layers(sce,ob):
 			return True
 	return False
 
+def object_visible(bus, ob):
+	scene= bus['scene']
+
+	VRayScene=       scene.vray
+	VRayExporter=    VRayScene.exporter
+	SettingsOptions= VRayScene.SettingsOptions
+
+	if VRayExporter.active_layers:
+		if not object_on_visible_layers(scene,ob):
+			if ob.type == 'LAMP':
+				if not SettingsOptions.light_doHiddenLights:
+					return False
+			if not SettingsOptions.geom_doHidden:
+				return False
+
+	if ob.hide_render:
+		if ob.type == 'LAMP':
+			if not SettingsOptions.light_doHiddenLights:
+				return False
+		if not SettingsOptions.geom_doHidden:
+			return False
+
+	return True
+
 def get_distance(ob1, ob2):
 	p1= ob1.matrix_world[3]
 	p2= ob2.matrix_world[3]

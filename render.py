@@ -1459,6 +1459,8 @@ def write_scene(bus):
 					EnvironmentFog= effect.EnvironmentFog
 					fog_objects= generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)
 					for ob in fog_objects:
+						if not object_visible(bus, ob):
+							continue
 						if ob not in exclude_list:
 							exclude_list.append(ob)
 
@@ -1515,20 +1517,8 @@ def write_scene(bus):
 			print_dict(scene, "Hide from view", bus['visibility'])
 
 		for ob in bus['objects']:
-			if VRayExporter.active_layers:
-				if not object_on_visible_layers(scene,ob):
-					if ob.type == 'LAMP':
-						if not SettingsOptions.light_doHiddenLights:
-							continue
-					if not SettingsOptions.geom_doHidden:
-						continue
-
-			if ob.hide_render:
-				if ob.type == 'LAMP':
-					if not SettingsOptions.light_doHiddenLights:
-						continue
-				if not SettingsOptions.geom_doHidden:
-					continue
+			if not object_visible(bus, ob):
+				continue
 
 			if PLATFORM == "linux2":
 				debug(scene, "{0}: \033[0;32m{1:<32}\033[0m".format(ob.type, ob.name), True if VRayExporter.debug else False)

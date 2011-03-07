@@ -791,8 +791,9 @@ def write(bus):
 			if effect.use:
 				if effect.type == 'FOG':
 					EnvironmentFog= effect.EnvironmentFog
-					gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)]
-					volumes.append(write_EnvironmentFog(bus, effect, gizmos))
+					gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups) if object_visible(bus,ob)]
+					if gizmos:
+						volumes.append(write_EnvironmentFog(bus, effect, gizmos))
 
 				elif effect.type == 'TOON':
 					VolumeVRayToon= effect.VolumeVRayToon

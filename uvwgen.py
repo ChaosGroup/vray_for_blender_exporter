@@ -45,9 +45,9 @@ def write_UVWGenProjection(bus):
 		'PERS':   8,
 	}
 
-	ofile=   bus['files']['materials']
-	scene=   bus['scene']
-	ob=      bus['node']['object']
+	scene= bus['scene']
+	ofile= bus['files']['textures']
+	ob=    bus['node']['object']
 
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
@@ -76,6 +76,7 @@ def write_UVWGenChannel(bus):
 
 	slot=     bus['mtex']['slot']
 	texture=  bus['mtex']['texture']
+
 	uvw_name= bus['mtex']['name'] + 'UVC'
 
 	VRaySlot=    texture.vray_slot
@@ -101,11 +102,20 @@ def write_UVWGenChannel(bus):
 		ofile.write("\n\t\t),")
 		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
 		ofile.write("\n\t)));")
+	else:
+		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
+		ofile.write("\n\t\tMatrix(")
+		ofile.write("\n\t\t\tVector(1.0,0.0,0.0),")
+		ofile.write("\n\t\t\tVector(0.0,1.0,0.0),")
+		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+		ofile.write("\n\t\t),")
+		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
+		ofile.write("\n\t)));")
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
-	bus['normal_uvwgen']= uvwgen
+	bus['normal_uvwgen']= uvw_name
 
 	return uvw_name
 
@@ -145,10 +155,18 @@ def write_UVWGenEnvironment(bus):
 
 
 def write_uvwgen(bus):
-	slot= bus['mtex']['slot']
-	
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
+
 	if type(slot) == bpy.types.WorldTextureSlot:
 		return write_UVWGenEnvironment(bus)
 	else:
-		return write_UVWGenChannel(bus)
+		VRayTexture= texture.vray
+
+		if VRayTexture.texture_coords == 'ORCO':
+			return write_UVWGenProjection(bus)
+		else:
+			return write_UVWGenChannel(bus)
+
+	
 

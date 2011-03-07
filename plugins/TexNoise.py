@@ -613,8 +613,6 @@ class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 		col.prop(TexNoiseMax, 'high')
 		col.prop(TexNoiseMax, 'phase')
 
-		# layout.separator()
-
 		# # Common params - move to "Common" panel
 		# split= layout.split()
 		# col= split.column()
@@ -628,8 +626,6 @@ class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 		# col.prop(TexNoiseMax, 'nouvw_color')
 		# col.prop(TexNoiseMax, 'use_3d_mapping')
 		# col.prop(TexNoiseMax, 'placement_type')
-		# if wide_ui:
-		# 	col= split.column()
 		# col.prop(TexNoiseMax, 'u')
 		# col.prop(TexNoiseMax, 'v')
 		# col.prop(TexNoiseMax, 'w')
