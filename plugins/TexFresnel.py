@@ -1,33 +1,42 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
 TYPE= 'TEXTURE'
-ID=   'TEXFRESNEL'
+
+ID=   'TexFresnel'
 NAME= 'Fresnel'
 PLUG= 'TexFresnel'
 DESC= "TODO."
@@ -41,19 +50,11 @@ PARAMS= (
 )
 
 
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-class TexFresnel(bpy.types.PropertyGroup):
-    pass
-bpy.utils.register_class(TexFresnel)
-
 def add_properties(VRayTexture):
+	class TexFresnel(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexFresnel)
+
 	VRayTexture.TexFresnel= PointerProperty(
 		name= "TexFresnel",
 		type=  TexFresnel,
@@ -93,6 +94,12 @@ def add_properties(VRayTexture):
 		default= (0.0,0.0,0.0)
 	)
 
+	TexFresnel.white_color_tex= StringProperty(
+		name= "Front texture",
+		description= "Front texture.",
+		default= ""
+	)
+
 	TexFresnel.black_color= FloatVectorProperty(
 		name= "Side color",
 		description= "Reflection (side) color.",
@@ -103,6 +110,13 @@ def add_properties(VRayTexture):
 		soft_max= 1.0,
 		default= (1.0,1.0,1.0)
 	)
+
+	TexFresnel.black_color_tex= StringProperty(
+		name= "Side texture",
+		description= "Side texture.",
+		default= ""
+	)
+
 
 
 def write(ofile, sce, params):
@@ -131,16 +145,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexFresnelPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
+class VRAY_TP_TexFresnel(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -155,28 +160,33 @@ class TEXTURE_PT_TexFresnel(TexFresnelPanel, bpy.types.Panel):
 		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
-		tex= context.texture
-		vtex= tex.vray.TexFresnel
-		
 		wide_ui= context.region.width > narrowui
-
 		layout= self.layout
-
+		
+		tex= context.texture
+		TexFresnel= tex.vray.TexFresnel
+		
 		split= layout.split()
-		col= split.column()
-		col.prop(vtex, 'white_color')
+		col= split.column(align= True)
+		col.prop(TexFresnel, 'white_color')
+		col.prop_search(TexFresnel, 'white_color_tex',
+						bpy.data, 'textures',
+						text= "")
 		if wide_ui:
-			col= split.column()
-		col.prop(vtex, 'black_color')
+			col= split.column(align= True)
+		col.prop(TexFresnel, 'black_color')
+		col.prop_search(TexFresnel, 'black_color_tex',
+						bpy.data, 'textures',
+						text= "")
 
 		layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vtex, 'fresnel_ior')
+		col.prop(TexFresnel, 'fresnel_ior')
 		if wide_ui:
 			col= split.column()
-		col.prop(vtex, 'refract_ior')
+		col.prop(TexFresnel, 'refract_ior')
 	
 
-bpy.utils.register_class(TEXTURE_PT_TexFresnel)
+bpy.utils.register_class(VRAY_TP_TexFresnel)
