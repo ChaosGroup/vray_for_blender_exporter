@@ -37,7 +37,7 @@ from vb25.uvwgen  import *
 
 TYPE= 'TEXTURE'
 
-ID=   'TEXNOISEMAX'
+ID=   'TexNoiseMax'
 NAME= 'Noise'
 PLUG= 'TexNoiseMax'
 DESC= "3ds max like noise texture."
@@ -177,13 +177,13 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(ofile, sce, params):
-	_TYPE= {
+def write(bus):
+	TYPE= {
 		'REGULAR':    0,
 		'FRACTAL':    1,
 		'TRUBULENCE': 2,
 	}
-	_PLACEMENT_TYPE= {
+	PLACEMENT_TYPE= {
 		'FULL':  0,
 		'CROP':  1,
 		'PLACE': 2,
@@ -206,14 +206,14 @@ def write(ofile, sce, params):
 
 	for param in PARAMS:
 		if param == 'type':
-			value= _TYPE[TexNoiseMax.type]
+			value= TYPE[TexNoiseMax.type]
 		elif param == 'placement_type':
-			value= _PLACEMENT_TYPE[TexNoiseMax.placement_type]
+			value= PLACEMENT_TYPE[TexNoiseMax.placement_type]
 		elif param == 'uvwgen':
 			value= uvwgen
 		else:
 			value= getattr(TexNoiseMax, param)
-		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 
 	ofile.write("\n}\n")
 

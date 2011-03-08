@@ -40,28 +40,6 @@ DESC= "TexTiles."
 PID=   8
 
 PARAMS= (
-	'alpha_from_intensity',
-	'invert',
-	'invert_alpha',
-	'color_mult',
-	'color_offset',
-	'alpha_mult',
-	'alpha_offset',
-	'nouvw_color',
-	'placement_type',
-	'u',
-	'v',
-	'w',
-	'h',
-	'jitter',
-	'tile_u',
-	'tile_v',
-	'uv_noise_on',
-	'uv_noise_animate',
-	'uv_noise_amount',
-	'uv_noise_levels',
-	'uv_noise_size',
-	'un_noise_phase',
 	'color_mortar',
 	'color_tiles',
 	'horizontal_count',
@@ -105,23 +83,6 @@ def add_properties(rna_pointer):
 			default= ""
 		)
 
-		map_color_mortar= BoolProperty(
-			name= "color mortar",
-			description= "Mortar color",
-			default= False
-		)
-
-		color_mortar_mult= FloatProperty(
-			name= "Mortar color multiplier",
-			description= "Mortar color.",
-			min= 0.0,
-			max= 100.0,
-			soft_min= 0.0,
-			soft_max= 10.0,
-			precision= 3,
-			default= 1.0
-		)
-
 		# color_tiles
 		color_tiles= FloatVectorProperty(
 			name= "Tiles",
@@ -138,23 +99,6 @@ def add_properties(rna_pointer):
 			name= "Tiles texture ",
 			description= "Tiles color texture.",
 			default= ""
-		)
-
-		map_color_tiles= BoolProperty(
-			name= "color tiles",
-			description= "Tiles color",
-			default= False
-		)
-
-		color_tiles_mult= FloatProperty(
-			name= "color tiles",
-			description= "Tiles color.",
-			min= 0.0,
-			max= 100.0,
-			soft_min= 0.0,
-			soft_max= 10.0,
-			precision= 3,
-			default= 1.0
 		)
 
 		# horizontal_count

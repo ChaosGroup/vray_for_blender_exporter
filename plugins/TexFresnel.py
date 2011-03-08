@@ -119,23 +119,19 @@ def add_properties(VRayTexture):
 
 
 
-def write(ofile, sce, params):
-	slot= params.get('slot')
-	tex= params.get('texture')
+def write(bus):
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
-	vtex= tex.vray.TexFresnel
+	TexFresnel= getattr(texture.vray, PLUG)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
-		if param == 'sky_model':
-			ofile.write("\n\t%s= %s;"%(param, SKY_MODEL[vtex.sky_model]))
-		elif param == 'sun':
-			if(sun_light):
-				ofile.write("\n\t%s= %s;"%(param, sun_light))
-		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+		ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexFresnel, param))))
 	ofile.write("\n}\n")
 
 	return tex_name

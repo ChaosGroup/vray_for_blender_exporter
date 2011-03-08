@@ -254,7 +254,7 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	MODE= {
 		'AO':    0,
 		'PHONG': 1,
@@ -262,10 +262,12 @@ def write(ofile, sce, params):
 		'WARD':  3
 	}
 
-	slot= params.get('slot')
-	texture= params.get('texture')
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	tex_name= params['name'] if 'name' in params else get_random_string()
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
 	TexDirt= getattr(texture.vray, PLUG)
 
@@ -275,7 +277,7 @@ def write(ofile, sce, params):
 		if key_tex:
 			if key_tex in bpy.data.textures:
 				params['texture']= bpy.data.textures[key_tex]
-				mapped_params[key]= write_texture(ofile, sce, params)
+				mapped_params[key]= write_texture(bus)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
@@ -287,7 +289,7 @@ def write(ofile, sce, params):
 			if key in mapped_params:
 				value= mapped_params[key]
 			else: pass
-		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
 	return tex_name
