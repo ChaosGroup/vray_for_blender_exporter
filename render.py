@@ -794,7 +794,7 @@ def write_material_textures(bus):
 	
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
-			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])))
+			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), slot= key)
 
 	return bus['textures']
 
@@ -1686,6 +1686,9 @@ def run(engine, bus):
 
 	params.append('-sceneFile=')
 	params.append(bus['filenames']['scene'])
+
+	params.append('-numThreads=')
+	params.append(str(scene.render.threads))
 
 	if bus['preview']:
 		preview_file= os.path.join(tempfile.gettempdir(), "preview.jpg")
