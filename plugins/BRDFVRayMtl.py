@@ -198,7 +198,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.dispersion= IntProperty(
 		name= "Abbe",
-		description= "Abbe value.",
+		description= "Dispersion Abbe value.",
 		min= 1,
 		max= 1024,
 		soft_min= 1,
@@ -486,7 +486,7 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFVRayMtl.option_use_irradiance_map= BoolProperty(
-		name= "Use irradiance map",
+		name= "Use Irradiance Map",
 		description= "false to perform local brute-force GI calculatons and true to use the current GI engine",
 		default= True
 	)
@@ -663,7 +663,7 @@ def write(bus, BRDFLayered= None):
 	if 'opacity' in textures:
 		ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
 	else:
-		ofile.write("\n\topacity= %s;" % a(scene,ma.alpha))
+		ofile.write("\n\topacity= %s;" % a(scene, BRDFVRayMtl.opacity))
 
 	for param in PARAMS:
 		if param == 'translucency':
@@ -702,20 +702,20 @@ def influence(context, layout, slot):
 	col.label(text="Diffuse:")
 	split= layout.split()
 	col= split.column()
-	factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
-	factor_but(col, VRaySlot, 'map_roughness',         'roughness_mult',       "Roughness")
+	factor_but(col, VRaySlot, 'map_diffuse',             'diffuse_mult',             "Diffuse")
+	factor_but(col, VRaySlot, 'map_roughness',           'roughness_mult',           "Roughness")
 	if wide_ui:
 		col= split.column()
-	factor_but(col, slot,     'use_map_alpha',         'alpha_factor',         "Alpha")
+	factor_but(col, VRaySlot, 'map_opacity',             'opacity_mult',             "Opacity")
 
 	split= layout.split()
 	col= split.column()
 	col.label(text="Reflection:")
 	split= layout.split()
 	col= split.column()
-	factor_but(col, slot,     'use_map_raymir',         'raymir_factor',           "Reflect")
-	factor_but(col, VRaySlot, 'map_reflect_glossiness', 'reflect_glossiness_mult', "Glossiness")
-	factor_but(col, VRaySlot, 'map_hilight_glossiness', 'hilight_glossiness_mult', "Hilight")
+	factor_but(col, VRaySlot, 'map_reflect',             'reflect_mult',             "Reflect")
+	factor_but(col, VRaySlot, 'map_reflect_glossiness',  'reflect_glossiness_mult',  "Glossiness")
+	factor_but(col, VRaySlot, 'map_hilight_glossiness',  'hilight_glossiness_mult',  "Hilight")
 	if wide_ui:
 		col= split.column()
 	factor_but(col, VRaySlot, 'map_anisotropy',          'anisotropy_mult',          "Anisotropy")
@@ -747,13 +747,10 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 		col.prop(material, "diffuse_color", text="")
 	else:
 		col.prop(BRDFVRayMtl, 'diffuse', text="")
-	col.prop(BRDFVRayMtl, 'roughness')
+	col.prop(BRDFVRayMtl, 'roughness', slider=True)
 	if wide_ui:
 		col= split.column()
-	if material:
-		col.prop(material, 'alpha')
-	else:
-		col.prop(BRDFVRayMtl, 'opacity')
+	col.prop(BRDFVRayMtl, 'opacity', slider=True)
 
 	split= layout.split()
 	col= split.column()
@@ -794,7 +791,7 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	sub= col.column(align=True)
 	sub.prop(BRDFVRayMtl, 'fog_color', text="")
 	sub.prop(BRDFVRayMtl, 'fog_mult')
-	sub.prop(BRDFVRayMtl, 'fog_bias')
+	sub.prop(BRDFVRayMtl, 'fog_bias', slider=True)
 	sub= col.column(align=True)
 	sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
 	sub.prop(BRDFVRayMtl, 'refract_affect_shadows')

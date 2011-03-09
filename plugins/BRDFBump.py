@@ -74,9 +74,9 @@ def add_properties(rna_pointer):
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 10.0,
+		soft_max= 1.0,
 		precision= 3,
-		default= 0.02
+		default= 0.2
 	)
 
 	BRDFBump.bump_shadows= BoolProperty(
@@ -153,10 +153,10 @@ def influence(context, layout, slot):
 	if wide_ui:
 		col= split.column()
 	col.active= slot.use_map_normal
-	col.prop(BRDFBump,'map_type',text="Type")
-	col.prop(BRDFBump,'bump_tex_mult')
-	col.prop(BRDFBump,'bump_shadows')
-	col.prop(BRDFBump,'compute_bump_for_shadows')
+	col.prop(BRDFBump, 'map_type', text= "Type")
+	col.prop(BRDFBump, 'bump_tex_mult', slider= True)
+	col.prop(BRDFBump, 'bump_shadows')
+	col.prop(BRDFBump, 'compute_bump_for_shadows')
 
 
 def gui():

@@ -32,6 +32,7 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.plugins import *
 
 
 class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
@@ -63,7 +64,82 @@ class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
 		factor_but(col, VRayWorld, 'refraction_override', 'refraction_color_mult', color= 'refraction_color', label= "Refraction")
 
 		layout.separator()
-		layout.prop(VRayWorld, 'global_light_level')
+		layout.prop(VRayWorld, 'global_light_level', slider= True)
+
+
+class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
+	bl_label   = "Effects"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(__class__, context)
+
+	def draw_header(self, context):
+		VRayScene= context.scene.vray
+		self.layout.prop(VRayScene.VRayEffects, 'use', text="")
+
+	def draw(self, context):
+		layout= self.layout
+
+		wide_ui= context.region.width > narrowui
+
+		VRayScene= context.scene.vray
+		VRayEffects= VRayScene.VRayEffects
+
+		layout.active= VRayEffects.use
+
+		split= layout.split()
+		row= split.row()
+		row.template_list(VRayEffects, 'effects',
+						  VRayEffects, 'effects_selected',
+						  rows= 4)
+		col= row.column()
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
+		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+
+		if VRayEffects.effects_selected >= 0:
+			layout.separator()
+
+			effect= VRayEffects.effects[VRayEffects.effects_selected]
+
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Name:")
+			if wide_ui:
+				col= split.column()
+			row= col.row(align=True)
+			row.prop(effect, 'name', text="")
+			row.prop(effect, 'use', text="")
+
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Type:")
+			if wide_ui:
+				col= split.column()
+			col.prop(effect, 'type', text="")
+
+			layout.separator()
+
+			# Box border
+			layout= layout.box()
+
+			if effect.type == 'FOG':
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, layout, effect)
+
+			elif effect.type == 'TOON':
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, effect)
 
 
 bpy.utils.register_class(VRAY_WP_environment)
+bpy.utils.register_class(VRAY_WP_effects)

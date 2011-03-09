@@ -641,10 +641,6 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayScene= scene.vray
 		VRayExporter= VRayScene.exporter
 
-		# if VRayExporter.use_render_operator:
-		# 	vb25.render.render(self, scene)
-		# else:
-		# 	bpy.ops.vray.render()
 		vb25.render.render(self, scene)
 
 bpy.utils.register_class(VRayRenderer)

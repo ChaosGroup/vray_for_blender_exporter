@@ -153,7 +153,7 @@ def write(bus, BRDFLayered= None):
 
 	ofile.write("\n%s %s {" % (ID, brdf_name))
 	ofile.write("\n\tcolor= %s;" % color)
-	ofile.write("\n\tcolorMultiplier= %s;" % a(scene, material.emit * 10))
+	ofile.write("\n\tcolorMultiplier= %s;" % a(scene, BRDFLight.colorMultiplier))
 	ofile.write("\n\tcompensateExposure= %s;" % p(BRDFLight.compensateExposure))
 	ofile.write("\n\temitOnBackSide= %s;" % p(BRDFLight.emitOnBackSide))
 	ofile.write("\n\tdoubleSided= %s;" % p(BRDFLight.doubleSided))
@@ -185,14 +185,17 @@ def influence(context, layout, slot):
 def gui(context, layout, BRDFLight, material= None):
 	wide_ui= context.region.width > narrowui
 
-	if material:
-		layout.label(text="Color")
+	layout.label(text="Color")
 
-		split= layout.split()
-		col= split.column()
+	split= layout.split()
+	col= split.column()
+	if material:
 		col.prop(material, 'diffuse_color', text="")
-		if wide_ui:
-			col= split.column()
+	else:
+		col.prop(BRDFLight, 'color', text="")
+	if wide_ui:
+		col= split.column()
+	if material:
 		col.prop(material, 'alpha')
 	else:
 		layout.prop(BRDFLight, 'transparency')
@@ -201,11 +204,7 @@ def gui(context, layout, BRDFLight, material= None):
 
 	split= layout.split()
 	col= split.column()
-	if material:
-		col.prop(material, 'emit', text="Intensity")
-	else:
-		col.prop(BRDFLight, 'color', text="")
-		col.prop(BRDFLight, 'colorMultiplier', text="Intensity")
+	col.prop(BRDFLight, 'colorMultiplier', text="Intensity")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFLight, 'emitOnBackSide')

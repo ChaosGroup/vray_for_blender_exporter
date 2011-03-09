@@ -241,10 +241,10 @@ def add_properties():
 		global_light_level= FloatProperty(
 			name= "Global light level",
 			description= "A global light level multiplier for all lights.",
-			min= 0.0,
+			min= 0.001,
 			max= 1000.0,
-			soft_min= 0.0,
-			soft_max= 10.0,
+			soft_min= 0.001,
+			soft_max= 2.0,
 			precision= 3,
 			default= 1.0,
 		)
@@ -330,7 +330,7 @@ def add_properties():
 				('DESATUREATE', "Desaturate", ""),
 				('ILLUMINATE',  "Illuminate", ""),
 			),
-			default= 'NONE'
+			default= 'OVER'
 		)
 
 		texture_rotation_h= FloatProperty(
@@ -351,6 +351,31 @@ def add_properties():
 			soft_min= -180.0,
 			soft_max= 180.0,
 			default= 0.0
+		)
+
+		'''
+		  MAPTO
+		'''
+		map_diffuse= BoolProperty(
+			name= "Diffuse",
+			description= "Diffuse texture.",
+			default= True
+		)
+
+		map_diffuse_invert= BoolProperty(
+			name= "Invert diffuse",
+			description= "Invert diffuse texture.",
+			default= False
+		)
+
+		diffuse_mult= FloatProperty(
+			name= "Diffuse texture multiplier",
+			description= "Diffuse texture multiplier.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
 		)
 
 		map_displacement= BoolProperty(
@@ -423,6 +448,12 @@ def add_properties():
 			default= False
 		)
 
+		map_reflect_invert= BoolProperty(
+			name= "Invert reflection",
+			description= "Invert reflection texture.",
+			default= False
+		)
+		
 		reflect_mult= FloatProperty(
 			name= "Reflection texture multiplier",
 			description= "Reflection texture multiplier.",

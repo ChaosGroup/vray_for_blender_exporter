@@ -401,8 +401,6 @@ def write(bus):
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
 
-	TexPlugin= getattr(VRayTexture, VRayTexture.type)
-
 	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[VRayTexture.placement_type])
 	ofile.write("\n\ttile_u= %d;" % VRayTexture.tile_u)
 	ofile.write("\n\ttile_v= %d;" % VRayTexture.tile_v)
@@ -422,10 +420,26 @@ def write(bus):
 	ofile.write("\n\tuv_noise_size= %s;" % a(scene, VRayTexture.uv_noise_size))
 	# ofile.write("\n\t= %s;" % a(scene, VRayTexture.))
 
-	if hasattr(TexPlugin, 'wrap'):
-		ofile.write("\n\twrap= %s;" % a(scene, VRayTexture.wrap))
-	if hasattr(TexPlugin, 'use_3d_mapping'):
-		ofile.write("\n\tuse_3d_mapping= %s;" % a(scene, VRayTexture.use_3d_mapping))
+	if hasattr(VRayTexture, VRayTexture.type):
+		TexPlugin= getattr(VRayTexture, VRayTexture.type)
+
+		if hasattr(TexPlugin, 'wrap'):
+			ofile.write("\n\twrap= %s;" % a(scene, VRayTexture.wrap))
+
+		if hasattr(TexPlugin, 'use_3d_mapping'):
+			ofile.write("\n\tuse_3d_mapping= %s;" % a(scene, VRayTexture.use_3d_mapping))
+
+
+class VRAY_OT_bake_procedural(bpy.types.Operator):
+	bl_idname=      'vray.bake_procedural'
+	bl_label=       "Bake procedural"
+	bl_description= "Render procedural texture to file."
+
+	def execute(self, context):
+		debug(context.scene, "Bake procedural: In progress...")
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_bake_procedural)
 
 
 class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
@@ -510,6 +524,9 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		# col.prop(VRayTexture, 'alpha_mult')
 		# col.prop(VRayTexture, 'alpha_offset')
 		# col.prop(VRayTexture, 'nouvw_color')
+
+		layout.separator()
+		layout.operator("vray.bake_procedural", icon= 'TEXTURE')
 
 
 bpy.utils.register_class(VRAY_TP_Common)

@@ -199,13 +199,10 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="Options:")
-		split= layout.split()
-		col= split.column()
 		col.prop(VRaySlot,'blend_mode',text="Blend")
 		if wide_ui:
 			col= split.column()
-		col.prop(slot,'invert',text="Invert")
+		# col.prop(slot,'invert',text="Invert")
 		col.prop(slot,'use_stencil')
 
 

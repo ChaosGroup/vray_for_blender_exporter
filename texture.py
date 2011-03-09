@@ -99,6 +99,10 @@ def write_texture(bus):
 
 	elif texture.type == 'VRAY':
 		VRayTexture= texture.vray
+
+		if VRayTexture.type == 'NONE':
+			return None
+
 		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
 
 	else:
@@ -168,7 +172,7 @@ def stack_write_TexLayered(bus, layers):
 		'ILLUMINATE':  '12',
 	}
 
-	tex_name= 'TL' + get_random_string()
+	tex_name= 'TL%s' % (''.join([l[0] for l in layers[1:]]))
 	if len(layers) == 1: return layers[0][0]
 	ofile.write("\nTexLayered %s {"%(tex_name))
 	ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
@@ -179,7 +183,7 @@ def stack_write_TexLayered(bus, layers):
 
 def stack_write_TexMix(bus, color1, color2, blend_amount):
 	ofile= bus['files']['textures']
-	tex_name= 'TM' + get_random_string()
+	tex_name= 'TM%s%s%s'% (color1, color2, blend_amount)
 	ofile.write("\nTexMix %s {" % tex_name)
 	ofile.write("\n\tcolor1= %s;" % color1)
 	ofile.write("\n\tcolor2= %s;" % color2)
@@ -217,7 +221,7 @@ def stack_collapse_layers(slots):
 
 def write_TexOutput(bus, texmap):
 	ofile= bus['files']['textures']
-	tex_name= "TO%s" % (bus['mtex']['name'])
+	tex_name= "TO%s" % (texmap)
 	ofile.write("\nTexOutput %s {" % tex_name)
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")

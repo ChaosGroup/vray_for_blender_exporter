@@ -342,7 +342,11 @@ def write(bus):
 	uvwgen= write_uvwgen(bus)
 
 	TexTiles= getattr(texture.vray, PLUG)
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
+	PLUGINS['TEXTURE']['TexCommon'].write(bus)
+
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
@@ -351,6 +355,7 @@ def write(bus):
 		else:
 			value= getattr(TexTiles, param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+
 	ofile.write("\n}\n")
 
 	return tex_name

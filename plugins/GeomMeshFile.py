@@ -213,6 +213,7 @@ def write(bus):
 										  clean_string(proxy_filename))
 
 			if proxy_name in bus['filter']['proxy']:
+				bus['node']['geometry']= proxy_name
 				return proxy_name
 			bus['filter']['proxy'].append(proxy_name)
 
@@ -224,5 +225,4 @@ def write(bus):
 			ofile.write("\n}\n")
 
 			bus['node']['geometry']= proxy_name
-
 			return proxy_name

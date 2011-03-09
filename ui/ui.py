@@ -33,7 +33,7 @@ def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
 	row.prop(rna_pointer,
 			 use,
 			 text= "")
-	sub= row.row()
+	sub= row.row(align=True)
 	sub.active= getattr(rna_pointer, use)
 	sub.prop(rna_pointer,
 			 factor,
@@ -41,6 +41,10 @@ def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
 			 text= label if label else "")
 	if color:
 		sub.prop(rna_pointer, color, text="")
+
+	invert= use+'_invert'
+	if hasattr(rna_pointer, invert):
+		sub.prop(rna_pointer, invert,text= "")
 
 
 def engine_poll(cls, context):

@@ -81,7 +81,8 @@ def add_properties(rna_pointer):
 		items= (
 			('WW', "Windows - Windows", "Window master & Windows nodes."),
 			('WU', "Windows - Unix",    "Window master & Unix nodes."),
-			('UU', "Unix - Unix",       "Unix master & Unix nodes.")
+			('UU', "Unix - Unix",       "Unix master & Unix nodes."),
+			('UW', "Unix - Windows",    "Unix master & Windows nodes."),
 		),
 		default= 'WU'
 	)

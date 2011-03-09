@@ -404,7 +404,7 @@ def get_vray_standalone_path(sce):
 
 	return vray_bin
 
-def get_filenames(scene, filetype, preview= None):
+def init_files(bus):
 	def create_dir(directory):
 		if not os.path.exists(directory):
 			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory)
@@ -417,13 +417,7 @@ def get_filenames(scene, filetype, preview= None):
 				debug(scene, "Using default exporting path: %s" % directory)
 		return directory
 
-	if preview:
-		if filetype == 'geometry':
-			return os.path.join(create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview')),
-								"%s_geometry_00.vrscene" % filetype)
-		else:
-			return os.path.join(create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview')),
-								"%s.vrscene" % filetype)
+	scene=        bus['scene']
 
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
@@ -437,47 +431,55 @@ def get_filenames(scene, filetype, preview= None):
 	# Default export directory is system's %TMP%
 	default_dir= tempfile.gettempdir()
 
-	# Export directory
-	export_dir= default_dir
-	export_file= blendfile_name if VRayExporter.output_unique else 'scene'
+	# Export and output directory
+	export_filepath= default_dir
+	export_filename= blendfile_name if VRayExporter.output_unique else 'scene'
+	output_filepath= bpy.path.abspath(scene.render.filepath)
 
-	if VRayDR.on:
-		export_dir= os.path.join(
+	# Startup blend-file
+	if blendfile_name == 'startup':
+		export_filepath= os.path.join(export_filepath, "vb25")
+		output_filepath= default_dir
+
+	# Distributed rendering
+	elif VRayDR.on:
+		export_filepath= os.path.join(
 			bpy.path.abspath(VRayDR.shared_dir),
-			blendfile_name + os.sep
+			blendfile_name + os.sep # Unsure that path is finished with separator
 		)
+
+	# Normal rendering
 	else:
 		if VRayExporter.output == 'USER':
 			if VRayExporter.output_dir:
-				export_dir= bpy.path.abspath(VRayExporter.output_dir)
-			else:
-				export_dir= default_dir
+				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
 		elif VRayExporter.output == 'SCENE':
-			export_dir= blendfile_path
+			export_filepath= blendfile_path
 
 		if VRayExporter.output != 'USER':
-			export_dir= os.path.join(export_dir,"vb25")
+			export_filepath= os.path.join(export_filepath, "vb25")
 
-	filepath=  default_dir if blendfile_name == 'startup' else export_dir
+	if bus['preview']:
+		export_filename= 'preview'
+		export_filepath= create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview'))
 
-	if filetype == 'geometry':
-		filepath= os.path.join(create_dir(export_dir), "%s_geometry_00.vrscene" % (export_file))
+	export_directory= create_dir(export_filepath)
+	output_dir= bpy.path.abspath(scene.render.filepath)
 
-	elif filetype == 'lightmaps':
-		filepath= create_dir(os.path.join(export_dir,filetype))
-
-	elif filetype == 'output':
-		if blendfile_name == 'startup':
-			filepath= create_dir(export_dir)
+	for key in ('geometry', 'lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment'):
+		if key == 'geometry':
+			filepath= os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
 		else:
-			filepath= create_dir(bpy.path.abspath(scene.render.filepath))
-	else:
-		filepath= os.path.join(create_dir(export_dir), "%s_%s.vrscene" % (export_file,filetype))
+			filepath= os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key))
+			bus['files'][key]= open(filepath, 'w')
+		bus['filenames'][key]= filepath
 
+	bus['filenames']['output']= create_dir(output_filepath)
+	bus['filenames']['lightmaps']= create_dir(output_filepath)
 
-	# debug(scene, "%s: %s" % (filetype.capitalize(), filepath))
-
-	return filepath
+	if VRayExporter.debug:
+		for key in bus['filenames']:
+			print("{0:12}: {1}".format(key.capitalize(), bus['filenames'][key]))
 
 
 def print_dict(scene, title, params):

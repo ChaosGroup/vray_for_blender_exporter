@@ -383,7 +383,9 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 '''
   MESHES
 '''
-def write_geometry_python(scene, preview= None):
+def write_geometry_python(bus):
+	scene= bus['scene']
+
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 
@@ -400,7 +402,7 @@ def write_geometry_python(scene, preview= None):
 			if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
 				continue
 
-			if VRayExporter.mesh_active_layers or preview:
+			if VRayExporter.mesh_active_layers or bus['preview']:
 				if not object_on_visible_layers(scene,ob):
 					continue
 
@@ -423,24 +425,13 @@ def write_geometry_python(scene, preview= None):
 
 			PLUGINS['GEOMETRY']['GeomStaticMesh'].write(bus)
 
-	# Settings bus
-	bus= {}
-
-	# Plugins
-	bus['plugins']= PLUGINS
-
-	# Scene
-	bus['scene']= scene
-
-	# V-Ray uses UV indexes, Blender uses UV names
-	# Here we store UV name->index map
-	bus['uvs']= get_uv_layers_map(scene)
-
 	# Output files
-	bus['files']= {}
 	bus['files']['geometry']= []
-	for thread in range(scene.render.threads):
-		bus['files']['geometry'].append(open(get_filenames(scene,'geometry',preview)[:-11]+"_%.2i.vrscene"%(thread), 'w'))
+	if bus['preview']:
+		bus['files']['geometry'].append(open(bus['filenames']['geometry'], 'w'))
+	else:
+		for thread in range(scene.render.threads):
+			bus['files']['geometry'].append(open(bus['filenames']['geometry'][:-11]+"_%.2i.vrscene"%(thread), 'w'))
 
 	for geometry_file in bus['files']['geometry']:
 		geometry_file.write("// V-Ray/Blender %s" % VERSION)
@@ -466,17 +457,20 @@ def write_geometry_python(scene, preview= None):
 		geometry_file.write("\n// vim: set syntax=on syntax=c:\n\n")
 		geometry_file.close()
 
+	del bus['files']['geometry']
+	
 	debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
-def write_geometry(scene):
-	VRayScene= scene.vray
+def write_geometry(bus):
+	scene=        bus['scene']
+	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 	
 	try:
 		# Try calling V-Ray/Blender mesh export operator
 		bpy.ops.vray.export_meshes(
-			filepath=          get_filenames(scene,'geometry')[:-11],
+			filepath=          bus['filenames']['geometry'][:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
 			use_animation=     VRayExporter.animation,
 			use_instances=     VRayExporter.use_instances,
@@ -486,7 +480,7 @@ def write_geometry(scene):
 
 	except:
 		# Use python mesh export
-		write_geometry_python(scene)
+		write_geometry_python(bus)
 
 
 def write_GeomMayaHair(bus, ps, hair_geom_name):
@@ -525,30 +519,48 @@ def write_settings(bus):
 	VRayExporter= VRayScene.exporter
 	VRayDR=       VRayScene.VRayDR
 
-	for f in bus['files']:
-		if VRayDR.on:
-			if VRayDR.type == 'UU':
-				ofile.write("\n#include \"%s\"" % get_filenames(scene,f,bus['preview']))
-			elif VRayDR.type == 'WU':
-				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+	for key in bus['filenames']:
+		if key in ('output', 'lightmaps', 'scene'):
+			# Skip paths and some files
+			continue
+
+		if key == 'geometry':
+			if bus['preview']:
+				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames']['geometry']))
 			else:
-				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),os.path.split(bpy.data.filepath)[1][:-6],os.path.basename(get_filenames(scene,f)))))
+				for t in range(scene.render.threads):
+					ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+			continue
+
+		if VRayDR.on: # TODO: fix & improve
+			if VRayDR.type == 'UU':
+				ofile.write("\n#include \"%s\"" % bus['filenames'][key])
+
+			elif VRayDR.type == 'WU':
+				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),
+																os.path.split(bpy.data.filepath)[1][:-6],
+																os.path.basename(bus['filenames'][key]))))
+
+			else:
+				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),
+																os.path.split(bpy.data.filepath)[1][:-6],
+																os.path.basename(bus['filenames'][key]))))
+
 		else:
-			ofile.write("\n#include \"%s\""%(os.path.basename(get_filenames(scene,f,bus['preview']))))
-	for t in range(scene.render.threads):
-		ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(get_filenames(scene,'geometry',bus['preview']))[:-11], t))
+			ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
+
 	ofile.write("\n")
 
 	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
 	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
 	
-	ofile.write("\nSettingsOutput {")
+	ofile.write("\nSettingsOutput SettingsOutput {")
 	ofile.write("\n\timg_noAlpha= %d;" % (0))
 	ofile.write("\n\timg_width= %s;" % wx)
 	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
 	if VRayExporter.animation:
 		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(scene.camera.name),get_render_file_format(VRayExporter,scene.render.file_format)))
-		ofile.write("\n\timg_dir= \"%s\";"%(get_filenames(scene,'output')))
+		ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
 		ofile.write("\n\timg_file_needFrameNumber= 1;")
 		ofile.write("\n\tanim_start= %d;"%(scene.frame_start))
 		ofile.write("\n\tanim_end= %d;"%(scene.frame_end))
@@ -556,16 +568,25 @@ def write_settings(bus):
 		ofile.write("\n\tframes_per_second= %d;"%(1.0) )
 		ofile.write("\n\tframes= %d-%d;"%(scene.frame_start, scene.frame_end))
 	ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
-	ofile.write("\n\tframe_stamp_text= \"%s\";"%("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
+	ofile.write("\n\tframe_stamp_text= \"%s\";" % ("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
 	ofile.write("\n}\n")
 
+	COMPRESSION= {
+		'NONE':  1,
+		'PXR24': 6,
+		'ZIP':   4,
+		'PIZ':   5,
+		'RLE':   2,
+	}
 	ofile.write("\nSettingsEXR SettingsEXR {")
-	ofile.write("\n\tcompression= 0;") # 0 - default, 1 - no compression, 2 - RLE, 3 - ZIPS, 4 - ZIP, 5 - PIZ, 6 - pxr24
+	ofile.write("\n\tcompression= %i;" % COMPRESSION[scene.render.exr_codec])
 	ofile.write("\n\tbits_per_channel= %d;" % (16 if scene.render.use_exr_half else 32))
 	ofile.write("\n}\n")
+
 	ofile.write("\nSettingsJPEG SettingsJPEG {")
 	ofile.write("\n\tquality= %d;" % scene.render.file_quality)
 	ofile.write("\n}\n")
+
 	ofile.write("\nSettingsPNG SettingsPNG {")
 	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 90))
 	ofile.write("\n\tbits_per_channel= 16;")
@@ -583,6 +604,34 @@ def write_settings(bus):
 				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin:
 					plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
+
+	if bus['preview']:
+		# Material / texture preview settings
+		bus['files']['scene'].write("\nSettingsColorMapping {")
+		bus['files']['scene'].write("\n\ttype= 1;")
+		bus['files']['scene'].write("\n\tsubpixel_mapping= 0;")
+		bus['files']['scene'].write("\n\tclamp_output= 0;")
+		bus['files']['scene'].write("\n\tadaptation_only= 0;")
+		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsDMCSampler {")
+		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
+		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.2;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsOptions {")
+		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_maxDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
+		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
+		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
+		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
+		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsImageSampler {")
+		bus['files']['scene'].write("\n\ttype= 0;")
+		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
+		bus['files']['scene'].write("\n}\n")
 
 	ofile.write("\n")
 
@@ -1056,10 +1105,11 @@ def write_node(bus):
 			lights.append(lamp_name)
 
 	node_name= bus['node']['name']
-	base_mtl= bus['node']['material']
+	matrix=    bus['node']['matrix']
+	base_mtl=  bus['node']['material']
 
 	if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-		base_mtl= get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
+		material= get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
 
 	material= "RS%s" % node_name
 
@@ -1077,7 +1127,9 @@ def write_node(bus):
 	ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID',ob.pass_index))
 	ofile.write("\n\tgeometry= %s;" % bus['node']['geometry'])
 	ofile.write("\n\tmaterial= %s;" % material)
-	ofile.write("\n\ttransform= %s;" % a(scene, transform(bus['node']['matrix'])))
+	if bus['node']['particle']:
+		ofile.write("\n\tvisible= %s;" % a(scene, bus['node']['particle']['visible']))
+	ofile.write("\n\ttransform= %s;" % a(scene, transform(matrix)))
 	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
 	ofile.write("\n}\n")
 
@@ -1109,12 +1161,17 @@ def write_object(bus):
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
 
 	# Correct matrix if particles / dupli
-	if bus['node']['dupli']:
+	if bus['node']['particle']:
+		bus['node']['name']=   bus['node']['particle']['name']
+		bus['node']['matrix']= bus['node']['particle']['matrix']
+
+	elif bus['node']['dupli']:
 		# if bus['node']['dupli']['type'] == 'GROUP':
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix'] * bus['node']['matrix']
 		# else:
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
+		
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
@@ -1231,17 +1288,24 @@ def _write_object_particles(bus):
 						size*= 3
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
+
+					if ps.settings.rotation_mode == 'OB_Z':
+						part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
+
 					part_transform.resize_4x4()
+
+					# Location
 					part_transform[3][0]= location[0]
 					part_transform[3][1]= location[1]
 					part_transform[3][2]= location[2]
 
 					for p_ob in particle_objects:
-						part_name= "EMITTER_%s_%s" % (clean_string(ps.name), p)
+						part_name= "EM%sP%s" % (clean_string(ps.name), p)
+
 						if bus['node']['particle'].get('name'):
-							part_name= "%s%s%s" %(bus['node']['particle']['name'],
-												  clean_string(ps.name),
-												  p)
+							part_name= "OB%sPS%sP%s" %(bus['node']['particle']['name'],
+														 clean_string(ps.name),
+														 p)
 												 
 						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
 							part_transform= part_transform * p_ob.matrix_world
@@ -1257,10 +1321,11 @@ def _write_object_particles(bus):
 
 						bus['node']['object']= p_ob
 						bus['node']['base']= ob
-						bus['node']['visible']= part_visibility
+						bus['node']['particle']= {}
 						bus['node']['particle']['name']= part_name
 						bus['node']['particle']['material']= ps_material
 						bus['node']['particle']['matrix']= part_transform
+						bus['node']['particle']['visible']= part_visibility
 
 						_write_object(bus)
 
@@ -1365,6 +1430,26 @@ def write_scene(bus):
 	bus['files']['materials'].write("\n// Scene materials\n")
 
 	if bus['preview']:
+		bus['files']['lights'].write("\nLightDirectMax LALamp_008 {")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tunits= 0;")
+		bus['files']['lights'].write("\n\tshadows= 0;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
+		bus['files']['lights'].write("\n\taffectSpecular= 0;")
+		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\n\tintensity= 3.000000;")
+		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tfallsize= 100.000000;")
+		bus['files']['lights'].write("\n\ttransform= Transform(")
+		bus['files']['lights'].write("\n\tMatrix(")
+		bus['files']['lights'].write("\n\tVector(1.000000, 0.000000, -0.000000),")
+		bus['files']['lights'].write("\n\tVector(0.000000, 0.000000, 1.000000),")
+		bus['files']['lights'].write("\n\tVector(0.000000, -1.000000, 0.000000)")
+		bus['files']['lights'].write("\n\t),")
+		bus['files']['lights'].write("\n\tVector(1.471056, -14.735638, 3.274598));")
+		bus['files']['lights'].write("\n}\n")
+
 		bus['files']['lights'].write("\nLightOmni LALamp {")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tunits= 0;")
@@ -1580,33 +1665,6 @@ def write_scene(bus):
 		
 	write_settings(bus)
 
-	if bus['preview']:
-		bus['files']['scene'].write("\nSettingsColorMapping {")
-		bus['files']['scene'].write("\n\ttype= 1;")
-		bus['files']['scene'].write("\n\tsubpixel_mapping= 1;")
-		bus['files']['scene'].write("\n\tclamp_output= 1;")
-		bus['files']['scene'].write("\n\tadaptation_only= 0;")
-		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsDMCSampler {")
-		bus['files']['scene'].write("\n\tadaptive_amount= 0.65;")
-		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
-		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsOptions {")
-		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
-		bus['files']['scene'].write("\n\tmtl_maxDepth= 1;")
-		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
-		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
-		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
-		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
-		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsImageSampler {")
-		bus['files']['scene'].write("\n\ttype= 0;")
-		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
-		bus['files']['scene'].write("\n}\n")
-							
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
@@ -1627,7 +1685,7 @@ def run(engine, bus):
 	params.append(vray_standalone)
 
 	params.append('-sceneFile=')
-	params.append(get_filenames(scene,'scene',bus['preview']))
+	params.append(bus['filenames']['scene'])
 
 	if bus['preview']:
 		preview_file= os.path.join(tempfile.gettempdir(), "preview.jpg")
@@ -1674,7 +1732,7 @@ def run(engine, bus):
 				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-			image_file= os.path.join(get_filenames(scene,'output',bus['preview']),
+			image_file= os.path.join(bus['filenames']['output'],
 									 "render_%s.%s" % (clean_string(scene.camera.name),
 													   get_render_file_format(VRayExporter,scene.render.file_format)))
 			params.append('-imgFile=')
@@ -1702,7 +1760,7 @@ def run(engine, bus):
 			process= subprocess.Popen(params)
 
 			if bus['preview'] or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
-				load_file= preview_file if bus['preview'] else os.path.join(get_filenames(scene,'output',bus['preview']),
+				load_file= preview_file if bus['preview'] else os.path.join(bus['filenames']['output'],
 																			"render_%s.%.4i.%s" % (clean_string(scene.camera.name),
 																								   scene.frame_current,
 																								   get_render_file_format(VRayExporter,scene.render.file_format)))
@@ -1753,20 +1811,16 @@ def render(engine, scene, preview= None):
 	bus['uvs']= get_uv_layers_map(scene)
 
 	# Output files
-	bus['files']= {}
-	bus['files']['lights']=      open(get_filenames(scene,'lights', preview),      'w')
-	bus['files']['materials']=   open(get_filenames(scene,'materials', preview),   'w')
-	bus['files']['textures']=    open(get_filenames(scene,'textures', preview),    'w')
-	bus['files']['nodes']=       open(get_filenames(scene,'nodes', preview),       'w')
-	bus['files']['camera']=      open(get_filenames(scene,'camera', preview),      'w')
-	bus['files']['scene']=       open(get_filenames(scene,'scene', preview),       'w')
-	bus['files']['environment']= open(get_filenames(scene,'environment', preview), 'w')
+	bus['files']=     {}
+	bus['filenames']= {}
+
+	init_files(bus)
 
 	if preview:
-		write_geometry_python(scene, preview)
+		write_geometry_python(bus)
 	else:
 		if VRayExporter.auto_meshes:
-			write_geometry(scene)
+			write_geometry(bus)
 
 	write_scene(bus)
 

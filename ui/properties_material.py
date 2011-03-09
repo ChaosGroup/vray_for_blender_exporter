@@ -199,9 +199,6 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(BRDFVRayMtl, 'option_cutoff')
-		if wide_ui:
-			col= split.column()
 		col.prop(BRDFVRayMtl, 'environment_priority')
 
 
