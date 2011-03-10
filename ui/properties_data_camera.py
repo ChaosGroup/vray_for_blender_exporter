@@ -203,9 +203,10 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		sub= col.row()
-		sub.label(text="White balance")
+		col.label(text="White balance:")
+		sub= col.row(align= True)
 		sub.prop(CameraPhysical, 'white_balance', text="")
+		sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.data.vray.CameraPhysical.white_balance"
 
 		if wide_ui:
 			col= split.column()

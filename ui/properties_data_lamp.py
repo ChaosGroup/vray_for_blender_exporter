@@ -72,8 +72,8 @@ VRayLamp.color_type= EnumProperty(
 	name= "Color type",
 	description= "Color type.",
 	items= (
-		('KELVIN', "Temperature", ""),
-		('RGB',    "RGB",         ""),
+		('RGB',    "RGB", ""),
+		('KELVIN', "K",   ""),
 	),
 	default= 'RGB'
 )
@@ -221,7 +221,7 @@ VRayLamp.decay= FloatProperty(
 )
 
 VRayLamp.cutoffThreshold= FloatProperty(
-	name= "Cut-off threshold",
+	name= "Cutoff threshold",
 	description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
 	min= 0.0,
 	max= 1.0,
@@ -556,16 +556,21 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayLamp,'enabled', text="On")
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.row().prop(VRayLamp, 'color_type', expand=True)
+			if wide_ui:
+				col= split.column()
+			if VRayLamp.color_type == 'RGB':
+				sub= col.row(align= True)
+				sub.prop(lamp, 'color', text="")
+				sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.data.color"
+			else:
+				col.prop(VRayLamp, 'temperature', text="K")
+
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
-			col.prop(VRayLamp, 'color_type', text="")
-			if VRayLamp.color_type == 'RGB':
-				col.prop(lamp, 'color', text="")
-			else:
-				col.prop(VRayLamp, 'temperature', text="K")
 		if lamp.type == 'AREA':
 			col.prop(VRayLamp,'lightPortal', text="Mode")
 		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
@@ -577,6 +582,8 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 		
 		if wide_ui:
 			col= split.column()
+
+		col.prop(VRayLamp,'enabled', text="On")
 		col.prop(VRayLamp,'invisible')
 		col.prop(VRayLamp,'affectDiffuse')
 		col.prop(VRayLamp,'affectSpecular')
@@ -754,7 +761,7 @@ class DATA_PT_vray_light_advanced(VRayDataPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(vl,'diffuse_contribution', text="Diffuse cont.")
 		col.prop(vl,'specular_contribution', text="Specular cont.")
-		col.prop(vl,'cutoffThreshold', text="Cut-off")
+		col.prop(vl,'cutoffThreshold', text="Cutoff")
 		
 		if wide_ui:
 			col= split.column()

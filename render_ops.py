@@ -628,6 +628,94 @@ class VRAY_OT_render(bpy.types.Operator):
 bpy.utils.register_class(VRAY_OT_render)
 
 
+class VRAY_OT_set_kelvin_color(bpy.types.Operator):
+	bl_idname      = "vray.set_kelvin_color"
+	bl_label       = "Kelvin color"
+	bl_description = "Set color temperature."
+
+	data_path= StringProperty(
+		name= "Data",
+		description= "Data path.",
+		maxlen= 1024,
+		default= ""
+	)
+
+	d_color= EnumProperty(
+		name= "Illuminant series D",
+		description= "Illuminant series D.",
+		items= (
+			('D75',  "D75",  "North sky Daylight."),
+			('D65',  "D65",  "Noon Daylight."),
+			('D55',  "D55",  "Mid-morning / Mid-afternoon Daylight."),
+			('D50',  "D50",  "Horizon Light."), # 0
+		),
+		default= 'D50'
+	)
+
+	use_temperature= BoolProperty(
+		name= "Use temperature",
+		description= "Use temperature.",
+		default= False
+	)
+
+	temperature= IntProperty(
+		name= "Temperature",
+		description= "Kelvin temperature.",
+		min= 1000,
+		max= 40000,
+		step= 100,
+		default= 5000
+	)
+
+	dialog_width= 150 
+
+	def draw(self, context):
+		layout= self.layout
+		layout.prop(self, 'd_color', text= "Type")
+
+		row= layout.split().row(align= True)
+		row.prop(self, 'use_temperature', text= "")
+		row.prop(self, 'temperature', text= "K")
+
+		layout.separator()
+		
+	def invoke(self, context, event):
+		wm= context.window_manager
+		return wm.invoke_props_dialog(self, self.dialog_width)
+
+	def execute(self, context):
+		D_COLOR= {
+			'D75': 7500,
+			'D65': 6500,
+			'D55': 5500,
+			'D50': 5000,
+		}
+		
+		def recoursive_attr(data, attrs):
+			if not attrs:
+				return data
+			attr= attrs.pop()
+			return recoursive_attr(getattr(data, attr), attrs)
+
+		if self.data_path:
+			attrs= self.data_path.split('.')
+			attr= attrs.pop() # Attribute to set
+			attrs.reverse()
+
+			data_pointer= recoursive_attr(context, attrs)
+
+			temperature= D_COLOR[self.d_color]
+
+			if self.use_temperature:
+				temperature= self.temperature
+
+			setattr(data_pointer, attr, tuple(kelvin_to_rgb(temperature)))
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_set_kelvin_color)
+
+
 
 '''
   RENDER ENGINE
