@@ -219,11 +219,9 @@ def stack_collapse_layers(slots):
 	return layers
 
 
-def write_TexOutput(bus, texmap, slot= None): # Fix
+def write_TexOutput(bus, texmap, mapto):
 	ofile= bus['files']['textures']
-	tex_name= "TO%s" % (texmap)
-	if slot:
-		tex_name= "TO%sTE%s" % (slot, texmap)
+	tex_name= "MAPTO%sTE%s" % (mapto, texmap)
 	ofile.write("\nTexOutput %s {" % tex_name)
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")

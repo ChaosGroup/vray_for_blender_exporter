@@ -849,7 +849,7 @@ def write(bus):
 	
 	for key in bus['env_textures']:
 		if len(bus['env_textures'][key]):
-			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])))
+			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])), key)
 
 	ofile.write("\nSettingsEnvironment {")
 	ofile.write("\n\tbg_color= %s;"%(a(scene,VRayWorld.bg_color)))

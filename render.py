@@ -701,7 +701,7 @@ def write_lamp_textures(bus):
 	
 	for key in bus['lamp_textures']:
 		if len(bus['lamp_textures'][key]):
-			bus['lamp_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['lamp_textures'][key])))
+			bus['lamp_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['lamp_textures'][key])), key)
 
 	return bus['lamp_textures']
 
@@ -794,7 +794,7 @@ def write_material_textures(bus):
 	
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
-			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), slot= key)
+			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
 
 	return bus['textures']
 
@@ -810,6 +810,11 @@ def	write_material(bus):
 
 	ma_name= get_name(ma, prefix='MA')
 
+	# TODO: don't cache when Object mapping is used in any texture
+	if ma_name in bus['cache']['materials']:
+		return ma_name
+	bus['cache']['materials'].append(ma_name)
+	
 	# Write material textures
 	write_material_textures(bus)
 
@@ -974,7 +979,7 @@ def write_lamp(bus):
 	ob=    bus['node']['object']
 
 	lamp= ob.data
-	vl= lamp.vray
+	VRayLamp= lamp.vray
 
 	lamp_type= None
 	lamp_name= get_name(ob, prefix='LA')
@@ -989,17 +994,17 @@ def write_lamp(bus):
 		lamp_matrix= bus['node']['particle']['matrix']
 
 	if lamp.type == 'POINT':
-		if vl.radius > 0:
+		if VRayLamp.radius > 0:
 			lamp_type= 'LightSphere'
 		else:
 			lamp_type= 'LightOmni'
 	elif lamp.type == 'SPOT':
-		if vl.spot_type == 'SPOT':
+		if VRayLamp.spot_type == 'SPOT':
 			lamp_type= 'LightSpot'
 		else:
 			lamp_type= 'LightIES'
 	elif lamp.type == 'SUN':
-		if vl.direct_type == 'DIRECT':
+		if VRayLamp.direct_type == 'DIRECT':
 			lamp_type= 'LightDirectMax'
 		else:
 			lamp_type= 'SunLight'
@@ -1015,7 +1020,7 @@ def write_lamp(bus):
 	if 'color' in textures:
 		ofile.write("\n\tcolor_tex= %s;" % textures['color'])
 
-		if lamp.type == 'SUN' and vl.direct_type == 'DIRECT':
+		if lamp.type == 'SUN' and VRayLamp.direct_type == 'DIRECT':
 			ofile.write("\n\tprojector_map= %s;" % textures['color'])
 
 		if lamp.type == 'AREA':
@@ -1032,17 +1037,22 @@ def write_lamp(bus):
 		ofile.write("\n\tintensity_tex= %s;" % a(scene, "%s::out_intensity" % textures['intensity']))
 
 	if 'shadowColor' in textures:
-		if lamp.type == 'SUN' and vl.direct_type == 'DIRECT':
+		if lamp.type == 'SUN' and VRayLamp.direct_type == 'DIRECT':
 			ofile.write("\n\tshadowColor_tex= %s;" % textures['shadowColor'])
 		else:
 			ofile.write("\n\tshadow_color_tex= %s;" % textures['shadowColor'])
 		
 	if lamp_type == 'SunLight':
-		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[vl.sky_model]))
+		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[VRayLamp.sky_model]))
 	else:
-		ofile.write("\n\tcolor= %s;"%(a(scene,"Color(%.6f, %.6f, %.6f)"%(tuple(lamp.color)))))
+		if VRayLamp.color_type == 'RGB':
+			color= lamp.color
+		else:
+			color= kelvin_to_rgb(VRayLamp.temperature)
+		ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
+			
 		if lamp_type != 'LightIES':
-			ofile.write("\n\tunits= %i;"%(UNITS[vl.units]))
+			ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
 
 	if lamp_type == 'LightSpot':
 		ofile.write("\n\tconeAngle= %s;" % a(scene,lamp.spot_size))
@@ -1055,23 +1065,23 @@ def write_lamp(bus):
 		else:
 			ofile.write("\n\tu_size= %s;"%(a(scene,lamp.size/2)))
 			ofile.write("\n\tv_size= %s;"%(a(scene,lamp.size/2)))
-		ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[vl.lightPortal]))
+		ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[VRayLamp.lightPortal]))
 
 	for param in LIGHT_PARAMS[lamp_type]:
 		if param == 'shadow_subdivs':
-			ofile.write("\n\tshadow_subdivs= %s;"%(a(scene,vl.subdivs)))
+			ofile.write("\n\tshadow_subdivs= %s;"%(a(scene,VRayLamp.subdivs)))
 		elif param == 'shadowRadius' and lamp_type == 'LightDirectMax':
-			ofile.write("\n\t%s= %s;" % (param, a(scene,vl.shadowRadius)))
-			ofile.write("\n\tshadowRadius1= %s;" % a(scene,vl.shadowRadius))
-			ofile.write("\n\tshadowRadius2= %s;" % a(scene,vl.shadowRadius))
+			ofile.write("\n\t%s= %s;" % (param, a(scene,VRayLamp.shadowRadius)))
+			ofile.write("\n\tshadowRadius1= %s;" % a(scene,VRayLamp.shadowRadius))
+			ofile.write("\n\tshadowRadius2= %s;" % a(scene,VRayLamp.shadowRadius))
 		elif param == 'intensity' and lamp_type == 'LightIES':
-			ofile.write("\n\tpower= %s;"%(a(scene,vl.intensity)))
+			ofile.write("\n\tpower= %s;"%(a(scene,VRayLamp.intensity)))
 		elif param == 'shadow_color':
-			ofile.write("\n\tshadow_color= %s;"%(a(scene,vl.shadowColor)))
+			ofile.write("\n\tshadow_color= %s;"%(a(scene,VRayLamp.shadowColor)))
 		elif param == 'ies_file':
-			ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(scene,lamp,vl.ies_file)))
+			ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(scene,lamp,VRayLamp.ies_file)))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(vl,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayLamp,param))))
 
 	ofile.write("\n\ttransform= %s;"%(a(scene,transform(lamp_matrix))))
 	ofile.write("\n}\n")
@@ -1380,10 +1390,6 @@ def write_scene(bus):
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
-	# V-Ray uses UV indexes, Blender uses UV names
-	# Here we store UV name->index map
-	bus['uvs']= get_uv_layers_map(scene)
-
 	# Some failsafe defaults
 	bus['defaults']= {}
 	bus['defaults']['brdf']=     "BRDFNOBRDFISSET"
@@ -1405,14 +1411,7 @@ def write_scene(bus):
 	bus['files']['materials'].write("\n// Useful defaults")
 	bus['files']['materials'].write("\nUVWGenChannel DEFAULTUVWC {")
 	bus['files']['materials'].write("\n\tuvw_channel= 1;")
-	bus['files']['materials'].write("\n\tuvw_transform= Transform(")
-	bus['files']['materials'].write("\n\t\tMatrix(")
-	bus['files']['materials'].write("\n\t\t\tVector(1.0,0.0,0.0),")
-	bus['files']['materials'].write("\n\t\t\tVector(0.0,1.0,0.0),")
-	bus['files']['materials'].write("\n\t\t\tVector(0.0,0.0,1.0)")
-	bus['files']['materials'].write("\n\t\t),")
-	bus['files']['materials'].write("\n\t\tVector(0.0,0.0,0.0)")
-	bus['files']['materials'].write("\n\t);")
+	bus['files']['materials'].write("\n\tuvw_transform= Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));")
 	bus['files']['materials'].write("\n}\n")
 	bus['files']['materials'].write("\nTexChecker %s {" % bus['defaults']['texture'])
 	bus['files']['materials'].write("\n\tuvwgen= DEFAULTUVWC;")
@@ -1427,7 +1426,7 @@ def write_scene(bus):
 	bus['files']['materials'].write("\n\tuvwgen= DEFAULTUVWC;")
 	bus['files']['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\n// Scene materials\n")
+	bus['files']['materials'].write("\n// Scene materials")
 
 	if bus['preview']:
 		bus['files']['lights'].write("\nLightDirectMax LALamp_008 {")
@@ -1572,6 +1571,7 @@ def write_scene(bus):
 		# Cache stores already exported data
 		bus['cache']= {}
 		bus['cache']['textures']= []
+		bus['cache']['materials']= []
 
 		bus['filter']= {} # TODO: Rename!
 		bus['filter']['proxy']=    []

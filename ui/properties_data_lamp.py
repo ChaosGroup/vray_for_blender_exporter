@@ -72,14 +72,14 @@ VRayLamp.color_type= EnumProperty(
 	name= "Color type",
 	description= "Color type.",
 	items= (
-		('KELVIN', "Kelvin", ""),
-		('RGB',    "RGB",    ""),
+		('KELVIN', "Temperature", ""),
+		('RGB',    "RGB",         ""),
 	),
 	default= 'RGB'
 )
 
-VRayLamp.kelvin= IntProperty(
-	name= "Kelvin",
+VRayLamp.temperature= IntProperty(
+	name= "Temperature",
 	description= "Kelvin temperature.",
 	min= 1000,
 	max= 40000,
@@ -552,42 +552,42 @@ class DATA_PT_vray_light(VRayDataPanel, bpy.types.Panel):
 
 		ob= context.object
 		lamp= context.lamp
-		vl= lamp.vray
+		VRayLamp= lamp.vray
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vl,'enabled', text="On")
+		col.prop(VRayLamp,'enabled', text="On")
 
 		split= layout.split()
 		col= split.column()
-		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
-			col.prop(vl, 'color_type', text="")
-			if vl.color_type == 'RGB':
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.prop(VRayLamp, 'color_type', text="")
+			if VRayLamp.color_type == 'RGB':
 				col.prop(lamp, 'color', text="")
 			else:
-				col.prop(vl, 'kelvin', text="Temp")
+				col.prop(VRayLamp, 'temperature', text="K")
 		if lamp.type == 'AREA':
-			col.prop(vl,'lightPortal', text="Mode")
-		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
-			col.prop(vl,'units', text="Units")
-		if not ((lamp.type == 'SUN' and vl.direct_type == 'SUN') or (lamp.type == 'AREA' and vl.lightPortal != 'NORMAL')):
-			col.prop(vl,'intensity', text="Intensity")
-		col.prop(vl,'subdivs')
-		col.prop(vl,'causticSubdivs', text="Caustics")
+			col.prop(VRayLamp,'lightPortal', text="Mode")
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.prop(VRayLamp,'units', text="Units")
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.prop(VRayLamp,'intensity', text="Intensity")
+		col.prop(VRayLamp,'subdivs')
+		col.prop(VRayLamp,'causticSubdivs', text="Caustics")
 		
 		if wide_ui:
 			col= split.column()
-		col.prop(vl,'invisible')
-		col.prop(vl,'affectDiffuse')
-		col.prop(vl,'affectSpecular')
-		col.prop(vl,'affectReflections')
-		col.prop(vl,'noDecay')
+		col.prop(VRayLamp,'invisible')
+		col.prop(VRayLamp,'affectDiffuse')
+		col.prop(VRayLamp,'affectSpecular')
+		col.prop(VRayLamp,'affectReflections')
+		col.prop(VRayLamp,'noDecay')
 
 		if(lamp.type == 'AREA'):
-			col.prop(vl,'doubleSided')
+			col.prop(VRayLamp,'doubleSided')
 
-		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and vl.radius > 0)):
-			col.prop(vl,'storeWithIrradianceMap')
+		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and VRayLamp.radius > 0)):
+			col.prop(VRayLamp,'storeWithIrradianceMap')
 
 
 class DATA_PT_vray_light_shape(VRayDataPanel, bpy.types.Panel):
