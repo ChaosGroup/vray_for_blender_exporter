@@ -1,6 +1,6 @@
 '''
 
-  V-Ray/Blender
+  V-Ray/Blender 2.5
 
   http://vray.cgdo.ru
 
@@ -25,22 +25,13 @@
 '''
 
 
-''' Python modules  '''
-import math
-import os
-import string
-import subprocess
-import sys
-import tempfile
-import time
-
 ''' Blender modules '''
 import bpy
 import mathutils
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
+from vb25.textures import *
 from vb25.plugins import *
 
 

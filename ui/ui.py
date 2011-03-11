@@ -57,6 +57,10 @@ class VRayDataPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'data'
 
+	@classmethod
+	def poll(cls, context):
+		return context.lamp and engine_poll(cls, context)
+
 
 class VRayMaterialPanel():
 	bl_space_type  = 'PROPERTIES'
@@ -69,6 +73,15 @@ class VRayObjectPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'object'
 
+
+class VRayParticlePanel():
+	bl_space_type  = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context     = 'particle'
+
+	@classmethod
+	def poll(cls, context):
+		return context.particle_system and engine_poll(cls, context)
 
 class VRayRenderPanel():
 	bl_space_type  = 'PROPERTIES'
@@ -100,5 +113,4 @@ class VRayWorldPanel():
 
 	@classmethod
 	def poll(cls, context):
-		rd= context.scene.render
 		return context.world and engine_poll(cls, context)

@@ -716,7 +716,7 @@ def write_material_textures(bus):
 
 	VRayExporter= VRayScene.exporter
 
-	defaults= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
+	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
 
 	# Mapped parameters
 	bus['textures']= {}
@@ -731,46 +731,24 @@ def write_material_textures(bus):
 	for i,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
 			VRaySlot= slot.texture.vray_slot
-			for key in defaults:
-				factor= 1.0
-				use_slot= False
-				if key == 'diffuse':
-					if slot.use_map_color_diffuse:
-						use_slot= True
-						factor= slot.diffuse_color_factor
-				elif key == 'overall_color' and ma.vray.type == 'BRDFSSS2Complex':
-					if slot.use_map_color_diffuse:
-						use_slot= True
-						factor= slot.diffuse_color_factor
-				elif key == 'reflect':
-					if slot.use_map_raymir:
-						use_slot= True
-						factor= slot.raymir_factor
-				elif key == 'opacity':
-					if slot.use_map_alpha:
-						use_slot= True
-						factor= slot.alpha_factor
-				elif key == 'normal':
-					if slot.use_map_normal:
-						use_slot= True
-						factor= VRaySlot.normal_mult
-						bus['normal']= slot
-				else:
-					if getattr(VRaySlot, 'map_'+key):
-						use_slot= True
-						factor= getattr(VRaySlot, key+'_mult')
-						if key == 'displacement':
-							bus['node']['displace']['slot']= slot
 
-				if use_slot:
-					# If texture is first in stack
-					if key not in bus['textures']:
+			for key in mapped_params:
+				if getattr(VRaySlot, 'map_'+key):
+					factor= getattr(VRaySlot, key+'_mult')
+					
+					if key not in bus['textures']: # If texture is first in stack
 						bus['textures'][key]= []
 						# If this texture will be blended over some value
 						# we need to add this value
 						# (for example, texture blended over diffuse color)
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures'][key].append(defaults[key])
+							bus['textures'][key].append(mapped_params[key])
+
+					if key == 'displacement':
+						bus['node']['displacement']['slot']= slot
+
+					elif key == 'normal':
+						bus['normal']['slot']= slot
 
 					bus['mtex']= {}
 					bus['mtex']['mapto']=   key
@@ -795,6 +773,10 @@ def write_material_textures(bus):
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
 			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
+
+	if 'displacement' in bus['textures']:
+		bus['node']['displacement']['texture']= bus['textures']['displacement']
+
 
 	return bus['textures']
 
@@ -1301,6 +1283,8 @@ def _write_object_particles(bus):
 
 					if ps.settings.rotation_mode == 'OB_Z':
 						part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
+					elif ps.settings.rotation_mode == 'NOR':
+						part_transform*= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Y')
 
 					part_transform.resize_4x4()
 

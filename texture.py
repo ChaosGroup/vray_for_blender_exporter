@@ -153,6 +153,9 @@ def write_factor(bus):
 
 
 def stack_write_TexLayered(bus, layers):
+	if len(layers) == 1:
+		return layers[0][0]
+
 	ofile= bus['files']['textures']
 
 	BLEND_MODES= {
@@ -173,17 +176,16 @@ def stack_write_TexLayered(bus, layers):
 	}
 
 	tex_name= 'TL%s' % (''.join([l[0] for l in layers[1:]]))
-	if len(layers) == 1: return layers[0][0]
-	ofile.write("\nTexLayered %s {"%(tex_name))
-	ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
-	ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l[1]] for l in layers])))
+	ofile.write("\nTexLayered %s {" % tex_name)
+	ofile.write("\n\ttextures= List(%s);" % (','.join([l[0] for l in layers])))
+	ofile.write("\n\tblend_modes= List(%s);" % (','.join([BLEND_MODES[l[1]] for l in layers])))
 	ofile.write("\n}\n")
 	return tex_name
 
 
 def stack_write_TexMix(bus, color1, color2, blend_amount):
 	ofile= bus['files']['textures']
-	tex_name= 'TM%s%s%s'% (color1, color2, blend_amount)
+	tex_name= 'TM%s%s%s' % (color1, color2, blend_amount)
 	ofile.write("\nTexMix %s {" % tex_name)
 	ofile.write("\n\tcolor1= %s;" % color1)
 	ofile.write("\n\tcolor2= %s;" % color2)
@@ -207,7 +209,7 @@ def stack_write_textures(bus, layer):
 def stack_collapse_layers(slots):
 	layers= []
 	for i,slot in enumerate(slots):
-		(texture,stencil,blend_mode)= slot
+		(texture, stencil, blend_mode)= slot
 		if stencil:
 			color_a= layers
 			color_b= stack_collapse_layers(slots[i+1:])
@@ -215,7 +217,7 @@ def stack_collapse_layers(slots):
 				return {'color_a': color_a,
 						'color_b': color_b,
 						'blend_amount': texture}
-		layers.append((texture,blend_mode))
+		layers.append( (texture, blend_mode) )
 	return layers
 
 

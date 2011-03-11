@@ -237,7 +237,7 @@ class VRAY_OT_channel_add(bpy.types.Operator):
 		render_channels.add()
 		render_channels[-1].name= "RenderChannel"
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_channel_add)
 
@@ -257,7 +257,7 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 		   render_channels.remove(vsce.render_channels_index)
 		   vsce.render_channels_index-= 1
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_channel_del)
 
@@ -277,7 +277,7 @@ class VRAY_OT_node_add(bpy.types.Operator):
 		module.nodes.add()
 		module.nodes[-1].name= "Render Node"
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_node_add)
 
@@ -295,7 +295,7 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		   module.nodes.remove(module.nodes_selected)
 		   module.nodes_selected-= 1
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_node_del)
 
@@ -336,6 +336,7 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 		# 	if tex.extension != 'CLIP':
 		# 		tex.extension= 'CLIP'
 
+
 		for ma in bpy.data.materials:
 			debug(context.scene, "Converting material: %s" % ma.name)
 			
@@ -368,12 +369,24 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
 					
 					if slot.use_map_emit:
-						VRayMaterial.type= 'EMIT'
+						VRayMaterial.type= 'BRDFLight'
 
-			# if ma.type == 'VOLUME':
-			# 	VRayMaterial.type= 'VOL'
-				
-		return{'FINISHED'}
+						VRaySlot.map_diffuse=  True
+						VRaySlot.diffuse_mult= slot.emit_factor
+
+					VRaySlot.map_normal=  slot.use_map_normal
+					VRaySlot.BRDFBump.bump_tex_mult= slot.normal_factor
+					
+					VRaySlot.map_diffuse=  slot.use_map_color_diffuse
+					VRaySlot.diffuse_mult= slot.diffuse_color_factor
+
+					VRaySlot.map_reflect=  slot.use_map_raymir
+					VRaySlot.reflect_mult= slot.raymir_factor
+
+					VRaySlot.map_opacity=  slot.use_map_alpha
+					VRaySlot.reflect_mult= slot.alpha_factor
+
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_convert_scene)
 
@@ -413,7 +426,7 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
 		
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_flip_resolution)
 
@@ -536,7 +549,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		else:
 			_create_proxy(context.object)
 
-		return{'FINISHED'}
+		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_create_proxy)
 
@@ -647,7 +660,7 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 			('D75',  "D75",  "North sky Daylight."),
 			('D65',  "D65",  "Noon Daylight."),
 			('D55',  "D55",  "Mid-morning / Mid-afternoon Daylight."),
-			('D50',  "D50",  "Horizon Light."), # 0
+			('D50',  "D50",  "Horizon Light."),
 		),
 		default= 'D50'
 	)
@@ -671,13 +684,13 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 
 	def draw(self, context):
 		layout= self.layout
-		layout.prop(self, 'd_color', text= "Type")
 
 		row= layout.split().row(align= True)
 		row.prop(self, 'use_temperature', text= "")
-		row.prop(self, 'temperature', text= "K")
-
-		layout.separator()
+		if self.use_temperature:
+			row.prop(self, 'temperature', text= "K")
+		else:
+			row.prop(self, 'd_color', text= "Type")
 		
 	def invoke(self, context, event):
 		wm= context.window_manager
@@ -691,18 +704,18 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 			'D50': 5000,
 		}
 		
-		def recoursive_attr(data, attrs):
+		def recursive_attr(data, attrs):
 			if not attrs:
 				return data
 			attr= attrs.pop()
-			return recoursive_attr(getattr(data, attr), attrs)
+			return recursive_attr(getattr(data, attr), attrs)
 
 		if self.data_path:
 			attrs= self.data_path.split('.')
 			attr= attrs.pop() # Attribute to set
 			attrs.reverse()
 
-			data_pointer= recoursive_attr(context, attrs)
+			data_pointer= recursive_attr(context, attrs)
 
 			temperature= D_COLOR[self.d_color]
 
@@ -714,6 +727,32 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_set_kelvin_color)
+
+
+class VRAY_OT_add_sky(bpy.types.Operator):
+	bl_idname      = "vray.add_sky"
+	bl_label       = "Add Sky texture"
+	bl_description = "Add Sky texture to the background."
+
+	def execute(self, context):
+		scene= context.scene
+
+		try:
+			for i,slot in enumerate(scene.world.texture_slots):
+				if not slot:
+					tex= bpy.data.textures.new('VRaySky', type= 'VRAY')
+					tex.vray.type= 'TEXSKY'
+					new_slot= scene.world.texture_slots.create(i)
+					new_slot.texture= tex
+					break
+		except:
+			debug(scene,
+				  "Sky texture only availble in \"%s\"!" % color("Special build",'green'),
+				  error= True)
+		
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_add_sky)
 
 
 

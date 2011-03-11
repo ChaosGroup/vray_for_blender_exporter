@@ -1,35 +1,32 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Group
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
 
 ''' Blender modules '''
 import bpy
-from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
@@ -62,11 +59,9 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		engine = context.scene.render.engine
-		if not hasattr(context, 'texture_slot'):
-			return False
-		return ((context.material or context.world or context.lamp or context.brush or context.texture)
-			and (engine in cls.COMPAT_ENGINES))
+		# if not hasattr(context, 'texture_slot'):
+		# 	return False
+		return (context.material or context.world or context.lamp or context.brush or context.texture) and engine_poll(cls, context)
 
 	def draw(self, context):
 		layout = self.layout
@@ -143,12 +138,7 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		engine= context.scene.render.engine
-		tex= context.texture
-		if not hasattr(context, "texture_slot"):
-			return False
-		return (tex and (context.material or context.world or context.lamp or context.brush or context.texture)
-				and (engine in cls.COMPAT_ENGINES))
+		return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
 
 	def draw(self, context):
 		layout= self.layout
@@ -202,8 +192,11 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 		col.prop(VRaySlot,'blend_mode',text="Blend")
 		if wide_ui:
 			col= split.column()
-		# col.prop(slot,'invert',text="Invert")
 		col.prop(slot,'use_stencil')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(slot,'invert',text="Invert")
 
 
 class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
@@ -278,12 +271,6 @@ class VRAY_TP_mapping(VRayTexturePanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
-	@classmethod
-	def poll(cls, context):
-		tex= context.texture
-		engine= context.scene.render.engine
-		return (tex and (engine in cls.COMPAT_ENGINES))
-
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
@@ -352,8 +339,7 @@ class VRAY_TP_image(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		engine= context.scene.render.engine
-		return tex and ((tex.type == 'IMAGE' and tex.image) and (engine in cls.COMPAT_ENGINES))
+		return super().poll(context) and (tex.type == 'IMAGE' and tex.image)
 
 	def draw(self, context):
 		layout= self.layout
@@ -420,8 +406,7 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		engine= context.scene.render.engine
-		return tex and ((tex.type == 'IMAGE' and tex.image) and (engine in cls.COMPAT_ENGINES))
+		return super().poll(context) and (tex.type == 'IMAGE' and tex.image)
 
 	def draw(self, context):
 		layout= self.layout

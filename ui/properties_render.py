@@ -165,9 +165,7 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_displace', text= "Displace")
 		col.prop(vs.VRayDR, 'on')
 		col.prop(vs.VRayBake, 'use')
-		sub= col.column()
-		sub.active= False
-		sub.prop(vs.RTEngine, 'enabled')
+		col.prop(vs.RTEngine, 'enabled')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")

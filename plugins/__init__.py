@@ -41,6 +41,7 @@ PLUGINS= {
 	'BRDF':          {},
 	'CAMERA':        {},
 	'GEOMETRY':      {},
+	'LIGHT':         {},
 	'MATERIAL':      {},
 	'OBJECT':        {},
 	'RENDERCHANNEL': {},
@@ -130,8 +131,436 @@ def add_properties():
 		pass
 	bpy.utils.register_class(VRayMaterial)
 
-	# Move to World plugin
+	class VRayLight(bpy.types.PropertyGroup):
+		# Move to Light plugin
+		enabled= BoolProperty(
+			name= "Enabled",
+			description= "Turns the light on and off",
+			default= True
+		)
+
+		units= EnumProperty(
+			name= "Intensity units",
+			description= "Units for the intensity.",
+			items= (
+				('DEFAULT',"Default",""),
+				('LUMENS',"Lumens",""),
+				('LUMM',"Lm/m/m/sr",""),
+				('WATTSM',"Watts",""),
+				('WATM',"W/m/m/sr","")
+			),
+			default= 'DEFAULT'
+		)
+
+		color_type= EnumProperty(
+			name= "Color type",
+			description= "Color type.",
+			items= (
+				('RGB',    "RGB", ""),
+				('KELVIN', "K",   ""),
+			),
+			default= 'RGB'
+		)
+
+		temperature= IntProperty(
+			name= "Temperature",
+			description= "Kelvin temperature.",
+			min= 1000,
+			max= 40000,
+			step= 100,
+			default= 5000
+		)
+
+		use_include_exclude= BoolProperty(
+			name= "Use Include / Exclude",
+			description= "Use Include / Exclude.",
+			default= False
+		)
+
+		include_exclude= EnumProperty(
+			name= "Type",
+			description= "Include or exclude object from lightning.",
+			items= (
+				('EXCLUDE',"Exclude",""),
+				('INCLUDE',"Include",""),
+			),
+			default= 'EXCLUDE'
+		)
+
+		include_objects= StringProperty(
+			name= "Include objects",
+			description= "Include objects: name{;name;etc}."
+		)
+
+		include_groups= StringProperty(
+			name= "Include groups",
+			description= "Include groups: name{;name;etc}."
+		)
+
+		fallsize= FloatProperty(
+			name= "Beam radius",
+			description= "Beam radius, 0.0 if the light has no beam radius.",
+			min= 0.0,
+			max= 10000.0,
+			soft_min= 0.0,
+			soft_max= 100.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		direct_type= EnumProperty(
+			name= "Direct type",
+			description= "Direct light type.",
+			items= (
+				('DIRECT', "Direct", ""),
+				('SUN',    "Sun",    ""),
+			),
+			default= 'DIRECT'
+		)
+
+		spot_type= EnumProperty(
+			name= "Spot type",
+			description= "Spot light subtype.",
+			items= (
+				('SPOT', "Spot", ""),
+				('IES',  "IES",  ""),
+			),
+			default= 'SPOT'
+		)
+
+		shadows= BoolProperty(
+			name= "Shadows",
+			description= "Produce shadows.",
+			default= True
+		)
+
+		affectDiffuse= BoolProperty(
+			name= "Affect diffuse",
+			description= "Produces diffuse lighting.",
+			default= True
+		)
+
+		affectSpecular= BoolProperty(
+			name= "Affect specular",
+			description= "Produces specular hilights.",
+			default= True
+		)
+
+		affectReflections= BoolProperty(
+			name= "Affect reflections",
+			description= "Appear in reflections.",
+			default= False
+		)
+
+		shadowColor= FloatVectorProperty(
+			name= "Shadow color",
+			description= "The shadow color. Anything but black is not physically accurate.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.0,0.0,0.0)
+		)
+
+		shadowBias= FloatProperty(
+			name= "Shadow bias",
+			description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.0
+		)
+
+		shadowSubdivs= IntProperty(
+			name= "Shadow subdivs",
+			description= "This value controls the number of samples V-Ray takes to compute area shadows. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
+			min= 0,
+			max= 256,
+			default= 8
+		)
+
+		shadowRadius= FloatProperty(
+			name= "Shadow radius",
+			description= "Shadow radius.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0
+		)
+
+		decay= FloatProperty(
+			name= "Decay",
+			description= "Light decay.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 2
+		)
+
+		cutoffThreshold= FloatProperty(
+			name= "Cutoff threshold",
+			description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 0.1,
+			precision= 3,
+			default= 0.001
+		)
+
+		intensity= FloatProperty(
+			name= "Intensity",
+			description= "Light intensity.",
+			min= 0.0,
+			max= 10000000.0,
+			soft_min= 0.0,
+			soft_max= 100.0,
+			precision= 2,
+			default= 30
+		)
+
+		subdivs= IntProperty(
+			name= "Subdivs",
+			description= "This controls the number of samples for the area shadow. More subdivs produce area shadows with better quality but render slower.",
+			min= 0,
+			max= 256,
+			default= 8
+		)
+
+		storeWithIrradianceMap= BoolProperty(
+			name= "Store with irradiance map",
+			description= "When this option is on and GI calculation is set to Irradiance map V-Ray will calculate the effects of the VRayLightRect and store them in the irradiance map.",
+			default= False
+		)
+
+		invisible= BoolProperty(
+			name= "Invisible",
+			description= "This setting controls whether the shape of the light source is visible in the render result.",
+			default= False
+		)
+
+		noDecay= BoolProperty(
+			name= "No decay",
+			description= "When this option is on the intensity will not decay with distance.",
+			default= False
+		)
+
+		doubleSided= BoolProperty(
+			name= "Double-sided",
+			description= "This option controls whether light is beamed from both sides of the plane.",
+			default= False
+		)
+
+		lightPortal= EnumProperty(
+			name= "Light portal mode",
+			description= "Specifies if the light is a portal light.",
+			items= (
+				('NORMAL',"Normal light",""),
+				('PORTAL',"Portal",""),
+				('SPORTAL',"Simple portal","")
+			),
+			default= 'NORMAL'
+		)
+
+		radius= FloatProperty(
+			name= "Radius",
+			description= "Sphere light radius.",
+			min= 0.0,
+			max= 10000.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.0
+		)
+
+		sphere_segments= IntProperty(
+			name= "Sphere segments",
+			description= "Controls the quality of the light object when it is visible either directly or in reflections.",
+			min= 0,
+			max= 100,
+			default= 20
+		)
+
+		bumped_below_surface_check= BoolProperty(
+			name= "Bumped below surface check",
+			description= "If the bumped normal should be used to check if the light dir is below the surface.",
+			default= False
+		)
+
+		nsamples= IntProperty(
+			name= "Motion blur samples",
+			description= "Motion blur samples.",
+			min= 0,
+			max= 10,
+			default= 0
+		)
+
+		diffuse_contribution= FloatProperty(
+			name= "Diffuse contribution",
+			description= "A multiplier for the effect of the light on the diffuse.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 1
+		)
+
+		specular_contribution= FloatProperty(
+			name= "Specular contribution",
+			description= "A multiplier for the effect of the light on the specular.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 1
+		)
+
+		areaSpeculars= BoolProperty(
+			name= "Area speculars",
+			description= "When this parameter is enabled, the specular highlights will be computed with the real light shape as defined in the .ies files.",
+			default= False
+		)
+
+		ignoreLightNormals= BoolProperty(
+			name= "Ignore light normals",
+			description= "When this option is off, more light is emitted in the direction of the source surface normal.",
+			default= True
+		)
+
+		tex_resolution= IntProperty(
+			name= "Tex resolution",
+			description= "Specifies the resolution at which the texture is sampled when the \"Tex Adaptive\" option is checked.",
+			min= 0,
+			max= 10,
+			default= 512
+		)
+
+		tex_adaptive= BoolProperty(
+			name= "Tex adaptive",
+			description= "When this option is checked V-Ray will use impotance sampling on the texture in order to produce better shadows.",
+			default= True
+		)
+
+		causticSubdivs= IntProperty(
+			name= "Caustic subdivs",
+			description= "Caustic subdivisions. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
+			min= 1,
+			max= 100000,
+			default= 1000
+		)
+
+		causticMult= FloatProperty(
+			name= "Caustics multiplier",
+			description= "Caustics multiplier.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 1
+		)
+
+		ies_file= StringProperty(
+			name= "IES file",
+			subtype= 'FILE_PATH',
+			description= "IES file."
+		)
+
+		soft_shadows= BoolProperty(
+			name= "Soft shadows",
+			description= "Use the shape of the light as described in the IES profile.",
+			default= True
+		)
+
+		turbidity= FloatProperty(
+			name= "Turbidity",
+			description= "This parameter determines the amount of dust in the air and affects the color of the sun and sky.",
+			min= 2.0,
+			max= 100.0,
+			soft_min= 2.0,
+			soft_max= 6.0,
+			precision= 3,
+			default= 3.0
+		)
+
+		intensity_multiplier= FloatProperty(
+			name= "Intensity multiplier",
+			description= "This is an intensity multiplier for the Sun.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 2,
+			default= 1.0
+		)
+
+		ozone= FloatProperty(
+			name= "Ozone",
+			description= "This parameter affects the color of the sun light.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.35
+		)
+
+		water_vapour= FloatProperty(
+			name= "Water vapour",
+			description= "Water vapour.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 2
+		)
+
+		size_multiplier= FloatProperty(
+			name= "Size",
+			description= "This parameter controls the visible size of the sun.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 1
+		)
+
+		horiz_illum= FloatProperty(
+			name= "Horiz illumination",
+			description= "Specifies the intensity (in lx) of the illumination on horizontal surfaces coming from the Sky.",
+			min= 0.0,
+			max= 100000.0,
+			soft_min= 0.0,
+			soft_max= 100000.0,
+			precision= 0,
+			default= 25000
+		)
+
+		sky_model= EnumProperty(
+			name= "Sky model",
+			description= "Allows you to specify the procedural model that will be used to generate the VRaySky texture.",
+			items= (
+				('CIEOVER',"CIE Overcast",""),
+				('CIECLEAR',"CIE Clear",""),
+				('PREETH',"Preetham et al.","")
+			),
+			default= 'PREETH'
+		)
+	bpy.utils.register_class(VRayLight)
+
 	class VRayWorld(bpy.types.PropertyGroup):
+		# Move to World plugin
 		bg_color= FloatVectorProperty(
 			name= "Background color",
 			description= "Background color.",
@@ -248,14 +677,13 @@ def add_properties():
 			precision= 3,
 			default= 1.0,
 		)
-
 	bpy.utils.register_class(VRayWorld)
 
-	# Move to Slot plugin
-	class BRDFLight(bpy.types.PropertyGroup):
+	class VRayLightSlot(bpy.types.PropertyGroup):
+		# Move to Slot plugin
 		map_color= BoolProperty(
 			name= "Color",
-			description= "A color texture that if present will override the \"Color\" parameter.",
+			description= "Color texture.",
 			default= True
 		)
 
@@ -271,7 +699,7 @@ def add_properties():
 
 		map_shadowColor= BoolProperty(
 			name= "Shadow",
-			description= "A color texture that if present will override the \"Shadow color\" parameter.",
+			description= "Shadow color texture.",
 			default= False
 		)
 
@@ -287,7 +715,7 @@ def add_properties():
 
 		map_intensity= BoolProperty(
 			name= "Intensity",
-			description= "A color texture that if present will override the \"Intensity\" parameter.",
+			description= "Intensity texture.",
 			default= False
 		)
 
@@ -300,10 +728,10 @@ def add_properties():
 			soft_max= 1.0,
 			default= 1.0
 		)
-	bpy.utils.register_class(BRDFLight)
+	bpy.utils.register_class(VRayLightSlot)
 
-	# Move to Slot plugin
 	class VRaySlot(bpy.types.PropertyGroup):
+		# Move to Slot plugin
 		uvwgen= StringProperty(
 			name= "UVW Generator",
 			subtype= 'NONE',
@@ -877,9 +1305,9 @@ def add_properties():
 		)
 	bpy.utils.register_class(VRaySlot)
 
-	VRaySlot.BRDFLight= PointerProperty(
-		name= "BRDFLight",
-		type=  BRDFLight,
+	VRaySlot.VRayLight= PointerProperty(
+		name= "VRayLightSlot",
+		type=  VRayLightSlot,
 		description= "VRay lights texture slot settings."
 	)
 
@@ -958,6 +1386,12 @@ def add_properties():
 		description= "V-Ray geometry settings."
 	)
 
+	bpy.types.Lamp.vray= PointerProperty(
+		name= "V-Ray Lamp Settings",
+		type=  VRayLight,
+		description= "V-Ray lamp settings"
+	)
+
 	bpy.types.Curve.vray= PointerProperty(
 		name= "V-Ray Curve Settings",
 		type=  VRayMesh,
@@ -1017,6 +1451,7 @@ def add_properties():
 
 def remove_properties():
 	del bpy.types.Camera.vray
+	del bpy.types.Lamp.vray
 	del bpy.types.Material.vray
 	del bpy.types.Mesh.vray
 	del bpy.types.Object.vray

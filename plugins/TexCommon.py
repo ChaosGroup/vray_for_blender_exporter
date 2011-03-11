@@ -37,7 +37,7 @@ from vb25.ui.ui import *
 TYPE= 'TEXTURE'
 ID=   'TexCommon'
 
-NAME= 'General texture setings'
+NAME= 'Common texture setings'
 DESC= "Common V-Ray Texture settings."
 
 PARAMS= (
