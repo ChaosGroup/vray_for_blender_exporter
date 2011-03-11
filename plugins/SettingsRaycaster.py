@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -38,9 +38,9 @@ from vb25.ui.ui import *
 
 TYPE= 'SETTINGS'
 
-ID=   'SETTINGSRAYCASTER'
+ID=   'SettingsRaycaster'
+
 NAME= 'Raycaster'
-PLUG= 'SettingsRaycaster'
 DESC= "Raycaster options."
 
 PARAMS= (
@@ -98,3 +98,14 @@ def add_properties(rna_pointer):
 		default= 0
 	)
 
+
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	rna_pointer= getattr(scene.vray, ID)
+	ofile.write("\n%s %s {" % (ID,ID))
+	for param in PARAMS:
+		value= getattr(rna_pointer, param)
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n}\n")

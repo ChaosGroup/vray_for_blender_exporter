@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:12]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -110,7 +110,7 @@ def write(bus):
 	ofile=  bus['files']['scene']
 	scene=  bus['scene']
 
-	VRayScene=                scene.vray
+	VRayScene= scene.vray
 	SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 
 	SEQTYPE= {

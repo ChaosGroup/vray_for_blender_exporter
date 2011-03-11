@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -977,15 +977,15 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(SettingsRaycaster, 'dynMemLimit')
 
-		layout.separator()
+		# layout.separator()
 
-		layout.label(text="Units scale:")
-		split= layout.split()
-		col= split.column()
-		col.prop(SettingsUnitsInfo, 'meters_scale', text="Metric")
-		if wide_ui:
-			col= split.column()
-		col.prop(SettingsUnitsInfo, 'photometric_scale', text="Photometric")
+		# layout.label(text="Units scale:")
+		# split= layout.split()
+		# col= split.column()
+		# col.prop(SettingsUnitsInfo, 'meters_scale', text="Metric")
+		# if wide_ui:
+		# 	col= split.column()
+		# col.prop(SettingsUnitsInfo, 'photometric_scale', text="Photometric")
 
 		layout.separator()
 

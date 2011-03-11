@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -38,9 +38,9 @@ from vb25.ui.ui import *
 
 TYPE= 'SETTINGS'
 
-ID=   'SETTINGSUNITSINFO'
+ID=   'SettingsUnitsInfo'
+
 NAME= 'Units'
-PLUG= 'SettingsUnitsInfo'
 DESC= "Units options."
 
 PARAMS= (
@@ -81,4 +81,17 @@ def add_properties(rna_pointer):
 		precision= 3,
 		default= 1.0
 	)
+
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene= scene.vray
+	SettingsUnitsInfo= VRayScene.SettingsUnitsInfo
+	
+	ofile.write("\nSettingsUnitsInfo SettingsUnitsInfo {")
+	# ofile.write("\n\tmeters_scale= %i;" % SettingsUnitsInfo.meters_scale)
+	ofile.write("\n\tmeters_scale= %.4f;" % scene.unit_settings.scale_length)
+	ofile.write("\n\tphotometric_scale= %.4f;" % SettingsUnitsInfo.photometric_scale)
+	ofile.write("\n}\n")
 

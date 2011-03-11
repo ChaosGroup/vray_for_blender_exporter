@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -39,8 +39,8 @@ from vb25.ui.ui import *
 TYPE= 'SETTINGS'
 
 ID=   'SettingsDMCSampler'
+
 NAME= 'DMC sampler'
-PLUG= 'SettingsDMCSampler'
 DESC= "DMC sampler options."
 
 PARAMS= (
@@ -124,3 +124,4 @@ def write(bus):
 		value= getattr(rna_pointer, param)
 		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
+
