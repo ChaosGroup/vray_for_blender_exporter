@@ -4,6 +4,8 @@
 
   http://vray.cgdo.ru
 
+  Time-stamp: "Friday, 11 March 2011 [14:48]"
+
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -44,7 +46,7 @@ from vb25.plugins import *
 from vb25.texture import *
 
 ''' vb dev modules '''
-from vb25.nodes import *
+from vb25.nodes   import *
 
 
 VERSION= '2.5'

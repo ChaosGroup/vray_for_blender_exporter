@@ -3,6 +3,8 @@
 
   http://vray.cgdo.ru
 
+  Time-stamp: " "
+
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 

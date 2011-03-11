@@ -4,6 +4,8 @@
 
   http://vray.cgdo.ru
 
+  Time-stamp: " "
+
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -30,8 +32,8 @@ import bpy
 import mathutils
 
 ''' vb modules '''
-from vb25.utils import *
-from vb25.textures import *
+from vb25.utils   import *
+from vb25.texture import *
 from vb25.plugins import *
 
 

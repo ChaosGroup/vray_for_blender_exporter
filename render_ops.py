@@ -4,6 +4,8 @@
 
   http://vray.cgdo.ru
 
+  Time-stamp: "Saturday, 12 March 2011 [01:45]"
+
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -685,12 +687,20 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 	def draw(self, context):
 		layout= self.layout
 
-		row= layout.split().row(align= True)
-		row.prop(self, 'use_temperature', text= "")
-		if self.use_temperature:
-			row.prop(self, 'temperature', text= "K")
+		if 0:
+			row= layout.split().row(align= True)
+			row.prop(self, 'use_temperature', text= "")
+			if self.use_temperature:
+				row.prop(self, 'temperature', text= "K")
+			else:
+				row.prop(self, 'd_color', text= "Type")
 		else:
-			row.prop(self, 'd_color', text= "Type")
+			split= layout.split()
+			col= split.column()
+			col.prop(self, 'd_color', text= "Type")
+			sub= col.row(align= True)
+			sub.prop(self, 'use_temperature', text= "")
+			sub.prop(self, 'temperature', text= "K")
 		
 	def invoke(self, context, event):
 		wm= context.window_manager

@@ -4,7 +4,9 @@
 
  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
+ Time-stamp: " "
+
+  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
 
  This plugin is protected by the GNU General Public License v.2
