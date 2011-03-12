@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [05:00]"
+  Time-stamp: "Saturday, 12 March 2011 [05:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -193,8 +193,8 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 	brdfs=   []
 	weights= []
-	for brdf in BRDFLayered.brdfs:
-		brdfs.append(PLUGINS['BRDF'][brdf.type].write(bus, brdf, base_name= brdf_name))
+	for i,brdf in enumerate(BRDFLayered.brdfs):
+		brdfs.append(PLUGINS['BRDF'][brdf.type].write(bus, brdf, base_name= "%s%.2i" % (brdf_name,i)))
 		weights.append(p(brdf.weight))
 
 	if len(brdfs) == 1:
