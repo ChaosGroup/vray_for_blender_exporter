@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [04:57]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -583,7 +583,7 @@ def add_properties(rna_pointer):
 '''
   OUTPUT
 '''
-def get_defaults(bus, BRDFLayered= None):
+def mapto(bus, BRDFLayered= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
@@ -649,7 +649,7 @@ def write(bus, BRDFLayered= None):
 
 	BRDFVRayMtl= ma.vray.BRDFVRayMtl
 
-	defaults= get_defaults(bus, BRDFLayered)
+	defaults= mapto(bus, BRDFLayered)
 
 	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
 

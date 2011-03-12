@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 
 
 
-def get_defaults(bus, BRDFLayered= None):
+def mapto(bus, BRDFLayered= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
@@ -140,7 +140,7 @@ def write(bus, BRDFLayered= None):
 	
 	brdf_name= "%s_%s" % (ID, clean_string(material.name))
 
-	defaults= get_defaults(bus, BRDFLayered)
+	defaults= mapto(bus, BRDFLayered)
 
 	if 'diffuse' in textures:
 		color= textures['diffuse']

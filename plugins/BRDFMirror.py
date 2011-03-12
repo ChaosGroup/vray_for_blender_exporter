@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [05:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -75,7 +75,7 @@ def add_properties(rna_pointer):
 	# color
 	BRDFMirror.color= FloatVectorProperty(
 		name= "Color",
-		description= "TODO: Tooltip.",
+		description= "Mirror color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -110,15 +110,25 @@ def add_properties(rna_pointer):
 	)
 
 	# transparency
-	BRDFMirror.transparency= FloatVectorProperty(
+	# BRDFMirror.transparency= FloatVectorProperty(
+	# 	name= "Transparency",
+	# 	description= "TODO: Tooltip.",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (0,0,0)
+	# )
+
+	BRDFMirror.transparency= FloatProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip.",
-		subtype= 'COLOR',
+		description= "BRDF transparency.",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (0,0,0)
+		default= 0.0
 	)
 
 	# transparency_tex
@@ -244,15 +254,31 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(ofile, scene, params):
-	BRDFMirror= getattr(scene.vray, PLUG)
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
+'''
+  OUTPUT
+'''
+def write(bus, VRayBRDF= None, base_name= None):
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+
+	brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+
+	BRDFMirror= getattr(VRayBRDF, ID)
+	
+	ofile.write("\n%s %s {"%(ID, brdf_name))
 	for param in PARAMS:
-		value= getattr(BRDFMirror, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		if param.endswith('_tex'):
+			continue
+		elif param == 'transparency':
+			value= mathutils.Color([1.0 - BRDFMirror.transparency]*3)
+		else:
+			value= getattr(BRDFMirror, param)
+		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return brdf_name
+
 
 
 '''
@@ -263,7 +289,7 @@ def gui(context, layout, BRDFMirror):
 	
 	split= layout.split()
 	col= split.column(align=True)
-	col.prop(BRDFMirror, 'color')
+	col.prop(BRDFMirror, 'color', text="")
 	col.prop_search(BRDFMirror, 'color_tex',
 					bpy.data, 'textures',
 					text= "")
@@ -271,7 +297,7 @@ def gui(context, layout, BRDFMirror):
 		col.prop(BRDFMirror, 'color_tex_mult', text="Mult")
 	if wide_ui:
 		col= split.column(align=True)
-	col.prop(BRDFMirror, 'transparency', text="Reflection")
+	col.prop(BRDFMirror, 'transparency', text="Reflection", slider= True)
 	col.prop_search(BRDFMirror, 'transparency_tex',
 					bpy.data, 'textures',
 					text= "")

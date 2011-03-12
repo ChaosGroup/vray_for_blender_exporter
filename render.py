@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:02]"
+  Time-stamp: "Saturday, 12 March 2011 [04:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -680,7 +680,7 @@ def write_material_textures(bus):
 
 	VRayExporter= VRayScene.exporter
 
-	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].get_defaults(bus)
+	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].mapto(bus)
 
 	# Mapped parameters
 	bus['textures']= {}
@@ -756,7 +756,11 @@ def	write_material(bus):
 
 	ma_name= get_name(ma, prefix='MA')
 
-	# TODO: don't cache when Object mapping is used in any texture
+	# TODO:
+	#  - Don't put material in cache when Object mapping
+	#    is used in any texture
+	#  - Set appropriate material name in this case
+	
 	if ma_name in bus['cache']['materials']:
 		return ma_name
 	bus['cache']['materials'].append(ma_name)
@@ -765,10 +769,10 @@ def	write_material(bus):
 	write_material_textures(bus)
 
 	# Write material BRDF
-	PLUGINS['BRDF'][VRayMaterial.type].write(bus)
+	brdf= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
 
 	# Add BRDFBump if needed
-	PLUGINS['BRDF']['BRDFBump'].write(bus)
+	brdf= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf= brdf)
 
 	# Add wrapper / override / etc
 	complex_material= []
@@ -783,7 +787,7 @@ def	write_material(bus):
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;" % a(scene, bus['brdf']))
+	ofile.write("\n\tbrdf= %s;" % a(scene, brdf))
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:
@@ -1356,25 +1360,25 @@ def write_scene(bus):
 	bus['files']['materials'].write("\n// Materials\n")
 	bus['files']['textures'].write("\n// Textures\n")
 
-	bus['files']['materials'].write("\n// Useful defaults")
-	bus['files']['materials'].write("\nUVWGenChannel DEFAULTUVWC {")
-	bus['files']['materials'].write("\n\tuvw_channel= 1;")
-	bus['files']['materials'].write("\n\tuvw_transform= Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));")
-	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\nTexChecker %s {" % bus['defaults']['texture'])
-	bus['files']['materials'].write("\n\tuvwgen= DEFAULTUVWC;")
-	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
-	bus['files']['materials'].write("\n\tcolor=Color(0.5,0.5,0.5);")
-	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
-	bus['files']['materials'].write("\n\tbrdf= BRDFNOBRDFISSET;")
-	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\nTexAColor TEDefaultBlend {")
-	bus['files']['materials'].write("\n\tuvwgen= DEFAULTUVWC;")
-	bus['files']['materials'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
-	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\n// Scene materials")
+	bus['files']['textures'].write("\n// Useful defaults")
+	bus['files']['textures'].write("\nUVWGenChannel DEFAULTUVWC {")
+	bus['files']['textures'].write("\n\tuvw_channel= 1;")
+	bus['files']['textures'].write("\n\tuvw_transform= Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));")
+	bus['files']['textures'].write("\n}\n")
+	bus['files']['textures'].write("\nTexChecker %s {" % bus['defaults']['texture'])
+	bus['files']['textures'].write("\n\tuvwgen= DEFAULTUVWC;")
+	bus['files']['textures'].write("\n}\n")
+	bus['files']['textures'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
+	bus['files']['textures'].write("\n\tcolor=Color(0.5,0.5,0.5);")
+	bus['files']['textures'].write("\n}\n")
+	bus['files']['textures'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
+	bus['files']['textures'].write("\n\tbrdf= BRDFNOBRDFISSET;")
+	bus['files']['textures'].write("\n}\n")
+	bus['files']['textures'].write("\nTexAColor TEDefaultBlend {")
+	bus['files']['textures'].write("\n\tuvwgen= DEFAULTUVWC;")
+	bus['files']['textures'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
+	bus['files']['textures'].write("\n}\n")
+	bus['files']['textures'].write("\n// Scene textures")
 
 	if bus['preview']:
 		bus['files']['lights'].write("\nLightDirectMax LALamp_008 {")

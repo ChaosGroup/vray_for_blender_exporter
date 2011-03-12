@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:08]"
+  Time-stamp: "Saturday, 12 March 2011 [04:40]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -564,7 +564,7 @@ def add_properties(rna_pointer):
 '''
   OUTPUT
 '''
-def get_defaults(bus, BRDFLayered= None):
+def mapto(bus, BRDFLayered= None):
 	return {}
 
 
@@ -585,7 +585,7 @@ def write(bus, BRDFLayered= None):
 	BRDFCarPaint= getattr(BRDFLayered, ID) if BRDFLayered else getattr(VRayMaterial, ID)
 
 	# Color values if param is not textured
-	defaults= get_defaults(bus, BRDFLayered)
+	mapped_params= mapto(bus, BRDFLayered)
 	
 	ofile.write("\n%s %s {"%(ID, brdf))
 	for param in PARAMS:
@@ -597,8 +597,6 @@ def write(bus, BRDFLayered= None):
 			value= getattr(BRDFCarPaint, param)
 		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
-
-	bus['brdf']= brdf
 
 	return brdf
 

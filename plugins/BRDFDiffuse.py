@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [05:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -184,15 +184,28 @@ def add_properties(rna_pointer):
 
 
 
-def write(ofile, scene, params):
-	BRDFDiffuse= getattr(scene.vray, PLUG)
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
+'''
+  OUTPUT
+'''
+def write(bus, VRayBRDF= None, base_name= None):
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+
+	brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+
+	BRDFDiffuse= getattr(VRayBRDF, ID)
+	
+	ofile.write("\n%s %s {"%(ID, brdf_name))
 	for param in PARAMS:
-		value= getattr(BRDFDiffuse, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		if param.endswith('_tex'):
+			continue
+		else:
+			value= getattr(BRDFDiffuse, param)
+		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return brdf_name
 
 
 

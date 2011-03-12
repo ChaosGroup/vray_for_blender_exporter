@@ -328,7 +328,7 @@ def add_properties(rna_pointer):
 	)
 
 
-def get_defaults(bus, BRDFLayered= None):
+def mapto(bus, BRDFLayered= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
@@ -369,7 +369,7 @@ def write(bus, rna_pointer= None):
 
 	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
 
-	defaults= get_defaults(bus, rna_pointer)
+	defaults= mapto(bus, rna_pointer)
 
 	brdf_name= "BRDFSSS2Complex_%s" % clean_string(ma.name)
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [05:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -75,7 +75,7 @@ PARAMS= (
 	'imap_norm_thresh',
 	'imap_samples',
 	'anisotropy',
-	'anisotropy_uvwgen',
+	# 'anisotropy_uvwgen',
 	'anisotropy_rotation',
 	'fix_dark_edges',
 )
@@ -130,15 +130,25 @@ def add_properties(rna_pointer):
 	)
 
 	# transparency
-	BRDFBlinn.transparency= FloatVectorProperty(
+	# BRDFBlinn.transparency= FloatVectorProperty(
+	# 	name= "Transparency",
+	# 	description= "TODO: Tooltip.",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (0,0,0)
+	# )
+
+	BRDFBlinn.transparency= FloatProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip.",
-		subtype= 'COLOR',
+		description= "BRDF transparency.",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (0,0,0)
+		default= 0.0
 	)
 
 	# transparency_tex
@@ -492,17 +502,39 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(bus):
-	brdf_name= "BRDFBlinn"
 
-	# BRDFBlinn= getattr(scene.vray, PLUG)
-	# ofile.write("\n%s %s {"%(PLUG, tex_name))
-	# for param in PARAMS:
-	# 	value= getattr(BRDFBlinn, param)
-	# 	ofile.write("\n\t%s= %s;"%(param, p(value)))
-	# ofile.write("\n}\n")
+'''
+  OUTPUT
+'''
+def write(bus, VRayBRDF= None, base_name= None):
+	GLOSSY_RAYS= {
+		'NEVER':  0,
+		'GI':     1,
+		'ALWAYS': 2,
+	}
+
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+
+	brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+
+	BRDFBlinn= getattr(VRayBRDF, ID)
+	
+	ofile.write("\n%s %s {"%(ID, brdf_name))
+	for param in PARAMS:
+		if param.endswith('_tex'):
+			continue
+		elif param == 'transparency':
+			value= mathutils.Color([1.0 - BRDFBlinn.transparency]*3)
+		elif param == 'glossyAsGI':
+			value= GLOSSY_RAYS[BRDFBlinn.glossyAsGI]
+		else:
+			value= getattr(BRDFBlinn, param)
+		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
+	ofile.write("\n}\n")
 
 	return brdf_name
+
 
 
 '''
@@ -513,7 +545,7 @@ def gui(context, layout, BRDFBlinn):
 
 	split= layout.split()
 	col= split.column(align=True)
-	col.prop(BRDFBlinn, 'color')
+	col.prop(BRDFBlinn, 'color', text="")
 	col.prop_search(BRDFBlinn, 'color_tex',
 					bpy.data, 'textures',
 					text= "")

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [05:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -170,19 +170,44 @@ def add_properties(rna_pointer):
 
 
 
-def get_defaults(bus):
+'''
+  OUTPUT
+'''
+def mapto(bus, BRDFPlugin= None):
 	return {}
 
 
-def write(ofile, scene, params):
-	BRDFLayered= getattr(scene.vray, PLUG)
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
-	for param in PARAMS:
-		value= getattr(BRDFLayered, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+def write(bus, VRayBRDF= None, base_name= None):
+	ofile= bus['files']['materials']
+	scene= bus['scene']
+
+	material=     bus['material']
+	VRayMaterial= material.vray
+
+	brdf_name= "%s%s" % (ID, clean_string(VRayBRDF.name if VRayBRDF else material.name))
+	
+	BRDFLayered= getattr(VRayBRDF, 'BRDFLayered') if VRayBRDF else getattr(VRayMaterial, 'BRDFLayered')
+
+	if not BRDFLayered.brdfs:
+		return bus['defaults']['brdf']
+
+	brdfs=   []
+	weights= []
+	for brdf in BRDFLayered.brdfs:
+		brdfs.append(PLUGINS['BRDF'][brdf.type].write(bus, brdf, base_name= brdf_name))
+		weights.append(p(brdf.weight))
+
+	if len(brdfs) == 1:
+		return brdfs[0]
+		
+	ofile.write("\nBRDFLayered %s {" % brdf_name)
+	ofile.write("\n\tbrdfs= List(%s);" % ','.join(brdfs))
+	ofile.write("\n\tweights= List(%s);" % ','.join(weights))
+	ofile.write("\n\ttransparency= %s;" % p(BRDFLayered.transparency))
+	ofile.write("\n\tadditive_mode= %s;" % p(BRDFLayered.additive_mode))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return brdf_name
 
 
 

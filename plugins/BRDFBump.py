@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [04:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -94,7 +94,8 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(bus):
+
+def write(bus, base_brdf= None):
 	MAP_TYPE= {
 		'EXPLICIT': 6,
 		'WORLD':    4,
@@ -106,9 +107,11 @@ def write(bus):
 
 	ofile=     bus['files']['materials']
 	scene=     bus['scene']
+
 	textures=  bus['textures']
 	slot=      bus['normal']
-	base_brdf= bus['brdf']
+	if not base_brdf:
+		base_brdf= bus['brdf']
 
 	if slot:
 		VRayTexture= slot.texture.vray
@@ -128,9 +131,9 @@ def write(bus):
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 		ofile.write("\n}\n")
 
-		bus['brdf']= brdf_name
-
 		return brdf_name
+
+	return base_brdf
 
 
 
