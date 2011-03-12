@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [03:08]"
+  Time-stamp: "Saturday, 12 March 2011 [04:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -132,12 +132,6 @@ def add_properties(rna_pointer):
 	VRayExporter.camera_loop= BoolProperty(
 		name= "Camera loop",
 		description= "Render views from all cameras.",
-		default= False
-	)
-
-	VRayExporter.compat_mode= BoolProperty(
-		name= "Compatibility mode",
-		description= "Shading compatibility mode for old versions of V-Ray.",
 		default= False
 	)
 

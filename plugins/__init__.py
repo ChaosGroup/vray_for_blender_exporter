@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [04:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1036,6 +1036,58 @@ def add_properties():
 			soft_min= 0.0,
 			soft_max= 1.0,
 			default= 1.0
+		)
+
+
+		'''
+		  BRDFCarPaint
+		'''
+		map_coat= BoolProperty(
+			name= "Overall color",
+			description= "Overall color.",
+			default= False
+		)
+
+		coat_mult= FloatProperty(
+			name= "Coat texture multiplier",
+			description= "Coat texture multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_flake= BoolProperty(
+			name= "Overall color",
+			description= "Overall color.",
+			default= False
+		)
+
+		flake_mult= FloatProperty(
+			name= "Flake texture multiplier",
+			description= "Flake texture multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
+		)
+
+		map_base= BoolProperty(
+			name= "Overall color",
+			description= "Overall color.",
+			default= False
+		)
+
+		base_mult= FloatProperty(
+			name= "Base texture multiplier",
+			description= "Base texture multiplier.",
+			min=0.0,
+			max=100.0,
+			soft_min=0.0,
+			soft_max=1.0,
+			default=1.0
 		)
 
 

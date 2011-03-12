@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [03:59]"
+  Time-stamp: "Saturday, 12 March 2011 [04:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -333,8 +333,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Options:")
 		col.prop(ve, 'autorun')
 		col.prop(ve, 'auto_meshes')
-		# col.prop(ve, 'use_render_operator')
-		# col.prop(ve, 'compat_mode')
+		col.prop(ve, 'use_render_operator')
 		col.prop(ve, 'display')
 		col.prop(ve, 'debug')
 		if wide_ui:

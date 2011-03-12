@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [04:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -616,10 +616,11 @@ def influence(context, layout, slot):
 	col.label(text="Diffuse:")
 	split= layout.split()
 	col= split.column()
-	factor_but(col, slot, 'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
+	factor_but(col, VRaySlot, 'map_base',  'base_mult',  "Base")
 	if wide_ui:
 		col= split.column()
-	factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
+	factor_but(col, VRaySlot, 'map_coat',  'coat_mult',  "Coat")
+	factor_but(col, VRaySlot, 'map_flake', 'flake_mult', "Flake")
 
 
 def gui(context, layout, BRDFCarPaint, material= None):
