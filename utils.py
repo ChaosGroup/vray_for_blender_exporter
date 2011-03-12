@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [03:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -609,7 +609,6 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 def get_name(ob, prefix= None):
 	if not ob:
 		return None
-
 	name= ob.name
 	if prefix:
 		name= prefix+name
@@ -627,7 +626,7 @@ def get_data_by_name(sce, data_type, name):
 	return None
 
 def get_filename(filepath):
-	return os.path.split(bpy.path.abspath(filepath))[1]
+	return os.path.basename(bpy.path.abspath(filepath))
 
 def get_full_filepath(sce,ob,filepath):
 	def rel_path(filepath):

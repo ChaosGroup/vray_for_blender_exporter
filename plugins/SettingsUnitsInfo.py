@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [02:14]"
+  Time-stamp: "Saturday, 12 March 2011 [03:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -68,7 +68,7 @@ def add_properties(rna_pointer):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		precision= 4,
-		default= 0.002
+		default= 0.001
 	)
 
 	SettingsUnitsInfo.meters_scale= FloatProperty(

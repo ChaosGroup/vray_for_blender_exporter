@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 11 March 2011 [14:48]"
+  Time-stamp: "Saturday, 12 March 2011 [04:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -517,13 +517,14 @@ def write_settings(bus):
 	ofile= bus['files']['scene']
 	scene= bus['scene']
 	
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
-	VRayDR=       VRayScene.VRayDR
+	VRayScene=      scene.vray
+	VRayExporter=   VRayScene.exporter
+	VRayDR=         VRayScene.VRayDR
+	SettingsOutput= VRayScene.SettingsOutput
 
 	for key in bus['filenames']:
 		if key in ('output', 'lightmaps', 'scene'):
-			# Skip paths and some files
+			# Skip some files
 			continue
 
 		if key == 'geometry':
@@ -550,55 +551,16 @@ def write_settings(bus):
 
 		else:
 			ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
-
 	ofile.write("\n")
 
-	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
-	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
-	
-	ofile.write("\nSettingsOutput SettingsOutput {")
-	ofile.write("\n\timg_noAlpha= %d;" % (0))
-	ofile.write("\n\timg_width= %s;" % wx)
-	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
-	if VRayExporter.animation:
-		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(scene.camera.name),get_render_file_format(VRayExporter,scene.render.file_format)))
-		ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
-		ofile.write("\n\timg_file_needFrameNumber= 1;")
-		ofile.write("\n\tanim_start= %d;"%(scene.frame_start))
-		ofile.write("\n\tanim_end= %d;"%(scene.frame_end))
-		ofile.write("\n\tframe_start= %d;"%(scene.frame_start))
-		ofile.write("\n\tframes_per_second= %d;"%(1.0) )
-		ofile.write("\n\tframes= %d-%d;"%(scene.frame_start, scene.frame_end))
-	ofile.write("\n\tframe_stamp_enabled= %d;"%(0))
-	ofile.write("\n\tframe_stamp_text= \"%s\";" % ("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
-	ofile.write("\n}\n")
-
-	COMPRESSION= {
-		'NONE':  1,
-		'PXR24': 6,
-		'ZIP':   4,
-		'PIZ':   5,
-		'RLE':   2,
-	}
-	ofile.write("\nSettingsEXR SettingsEXR {")
-	ofile.write("\n\tcompression= %i;" % COMPRESSION[scene.render.exr_codec])
-	ofile.write("\n\tbits_per_channel= %d;" % (16 if scene.render.use_exr_half else 32))
-	ofile.write("\n}\n")
-
-	ofile.write("\nSettingsJPEG SettingsJPEG {")
-	ofile.write("\n\tquality= %d;" % scene.render.file_quality)
-	ofile.write("\n}\n")
-
-	ofile.write("\nSettingsPNG SettingsPNG {")
-	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 90))
-	ofile.write("\n\tbits_per_channel= 16;")
-	ofile.write("\n}\n")
-
 	for key in PLUGINS['SETTINGS']:
-		if key not in ('BakeView', 'RenderView'):
-			plugin= PLUGINS['SETTINGS'][key]
-			if hasattr(plugin, 'write'):
-				plugin.write(bus)
+		if key in ('BakeView', 'RenderView'):
+			# Skip some plugins
+			continue
+
+		plugin= PLUGINS['SETTINGS'][key]
+		if hasattr(plugin, 'write'):
+			plugin.write(bus)
 
 	if VRayScene.render_channels_use:
 		for render_channel in VRayScene.render_channels:
@@ -1646,12 +1608,17 @@ def write_scene(bus):
 					bus['camera']= camera
 					bus['camera_index']= i
 					write_frame(bus)
+			else:
+				debug(scene, "No cameras selected for \"Camera loop\"!", error= True)
+				return True # Error
 		else:
 			write_frame(bus)
 		
 	write_settings(bus)
 
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+
+	return False # No errors
 
 
 def run(engine, bus):
@@ -1811,12 +1778,13 @@ def render(engine, scene, preview= None):
 		if VRayExporter.auto_meshes:
 			write_geometry(bus)
 
-	write_scene(bus)
+	err= write_scene(bus)
 
 	for key in bus['files']:
 		bus['files'][key].write("\n// vim: set syntax=on syntax=c:\n\n")
 		bus['files'][key].close()
 
-	run(engine, bus)
+	if not err:
+		run(engine, bus)
 
 	del bus

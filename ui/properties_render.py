@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [02:00]"
+  Time-stamp: "Saturday, 12 March 2011 [03:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -37,12 +37,6 @@ from vb25.ui.ui import *
 from vb25.plugins import *
 	
 
-import properties_render
-properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_render.RENDER_PT_output.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-del properties_render
-
-
 class VRAY_MT_preset_IM(bpy.types.Menu):
 	bl_label= "Irradiance Map Presets"
 	preset_subdir= os.path.join("..", "io", "vb25", "presets", "im")
@@ -57,14 +51,10 @@ class VRAY_MT_preset_global(bpy.types.Menu):
 	draw= bpy.types.Menu.draw_preset
 
 
-class VRAY_RENDER_dimensions(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Dimensions"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -131,29 +121,98 @@ class VRAY_RENDER_dimensions(VRayRenderPanel, bpy.types.Panel):
 		subrow.prop(rd, "frame_map_new", text="New")
 
 
-class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
-	bl_label = "Render"
+class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
+	bl_label	   = "Output"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
+		scene= context.scene
+		rd=    scene.render
+
+		file_format = rd.file_format
+
+		VRayScene= scene.vray
+		VRayExporter=   VRayScene.exporter
+		SettingsOutput= VRayScene.SettingsOutput
+
+		layout.prop(rd, "filepath", text="")
+
+		layout.separator()
+
+		split= layout.split(percentage=0.35)
+		col= split.column()
+		col.prop(rd, "file_format", text="")
+
+		if wide_ui:
+			col = split.column()
+
+		if file_format == 'JPEG':
+			col.prop(rd, 'file_quality', slider= True)
+
+		elif file_format == 'PNG':
+			col.prop(rd, 'file_quality', slider= True, text= "Compression")
+
+		elif file_format == 'TIFF':
+			col.prop(rd, 'use_tiff_16bit')
+
+		elif file_format in {'OPEN_EXR', 'MULTILAYER'}:
+			row= col.row()
+			row.prop(rd, 'exr_codec', text='')
+
+			if file_format == 'OPEN_EXR':
+				row.prop(rd, 'use_exr_half', text= "16 bit")
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayExporter, 'auto_save_render')
+		if VRayExporter.auto_save_render:
+			col.prop(SettingsOutput, 'img_separateAlpha')
+			col.prop(SettingsOutput, 'relements_separateFolders')
+		if wide_ui:
+			col = split.column()
+		if not VRayExporter.detach:
+			col.prop(VRayExporter, 'image_to_blender')
+			col.prop(SettingsOutput, 'img_noAlpha')
+			col.prop(rd, "use_overwrite")
+
+
+class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
+	bl_label       = "Render"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		rd= context.scene.render
 		vs= context.scene.vray
 		ve= vs.exporter
 		SettingsOptions= vs.SettingsOptions
 
 		split= layout.split()
 		col= split.column()
-		if ve.use_render_operator:
-			col.operator('render.render', text="Image", icon='RENDER_STILL')
+		if ve.animation:
+			render_label= "Animation"
+			render_icon= 'RENDER_ANIMATION'
+		elif ve.camera_loop:
+			render_label= "Cameras"
+			render_icon= 'RENDER_ANIMATION'
 		else:
-			col.operator('vray.render', text="Image", icon='RENDER_STILL')
+			render_label= "Image"
+			render_icon= 'RENDER_STILL'
+
+		if ve.use_render_operator:
+			col.operator('render.render', text= render_label, icon= render_icon)
+		else:
+			col.operator('vray.render', text= render_label, icon= render_icon)
+
 		if not ve.auto_meshes:
 			if wide_ui:
 				col= split.column()
@@ -172,26 +231,32 @@ class RENDER_PT_vray_render(VRayRenderPanel, bpy.types.Panel):
 			col= split.column()
 		col.label(text="Pipeline:")
 		col.prop(ve, 'animation')
-		col.prop(ve, 'camera_loop')
+		if not ve.animation:
+			col.prop(ve, 'camera_loop')
 		col.prop(ve, 'active_layers')
 		if vs.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.label(text="Options:")
 		col.prop(ve, 'use_material_nodes')
-		col.prop(ve, 'auto_save_render')
-		if not ve.detach:
-			col.prop(ve, 'image_to_blender')
+
+		layout.separator()
+
+		layout.label(text="Threads:")
+		split= layout.split()
+		col= split.column()
+		col.row().prop(rd, "threads_mode", expand=True)
+		if wide_ui:
+			col= split.column(align=True)
+		sub= col.column()
+		sub.enabled= rd.threads_mode == 'FIXED'
+		sub.prop(rd, "threads")
 
 
-class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -243,15 +308,11 @@ class VRAY_RENDER_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
 
-class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -272,7 +333,7 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Options:")
 		col.prop(ve, 'autorun')
 		col.prop(ve, 'auto_meshes')
-		col.prop(ve, 'use_render_operator')
+		# col.prop(ve, 'use_render_operator')
 		# col.prop(ve, 'compat_mode')
 		col.prop(ve, 'display')
 		col.prop(ve, 'debug')
@@ -311,27 +372,11 @@ class RENDER_PT_vray_exporter(VRayRenderPanel, bpy.types.Panel):
 			col.prop(ve, 'output_dir')
 		col.prop(ve, 'output_unique')
 
-		layout.separator()
 
-		layout.label(text="Threads:")
-		split= layout.split()
-		col= split.column()
-		col.row().prop(rd, "threads_mode", expand=True)
-		if wide_ui:
-			col= split.column(align=True)
-		sub= col.column()
-		sub.enabled= rd.threads_mode == 'FIXED'
-		sub.prop(rd, "threads")
-	
-
-class RENDER_PT_vray_cm(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -365,14 +410,10 @@ class RENDER_PT_vray_cm(VRayRenderPanel, bpy.types.Panel):
 			col.prop(cm, "clamp_level")
 
 
-class RENDER_PT_vray_aa(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -428,14 +469,10 @@ class RENDER_PT_vray_aa(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module, "filter_size")
 
 
-class RENDER_PT_vray_dmc(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "DMC sampler"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -463,9 +500,8 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		vs= context.scene.vray
-		module= vs.SettingsGI
-		return engine_poll(__class__, context) and module.on
+		SettingsGI= context.scene.vray.SettingsGI
+		return super().poll(context) and SettingsGI.on
 
 	def draw(self, context):
 		layout= self.layout
@@ -517,7 +553,7 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 		col.prop(module, "secondary_engine", text="")
 
 
-class RENDER_PT_im(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -630,7 +666,7 @@ class RENDER_PT_im(VRayRenderPanel, bpy.types.Panel):
 			colR.prop(module,"auto_save_file", text="")
 
 
-class RENDER_PT_bf(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -657,7 +693,7 @@ class RENDER_PT_bf(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module, "depth")
 
 
-class RENDER_PT_lc(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -915,7 +951,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 			layout.prop(render_node, 'address')
 
 
-class VRAY_RENDER_bake(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 	

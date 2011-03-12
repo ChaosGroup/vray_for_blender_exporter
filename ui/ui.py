@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [02:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -85,10 +85,15 @@ class VRayParticlePanel():
 	def poll(cls, context):
 		return context.particle_system and engine_poll(cls, context)
 
+
 class VRayRenderPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'render'
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(cls, context)
 
 
 class VRayScenePanel():
