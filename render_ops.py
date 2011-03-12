@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [01:45]"
+  Time-stamp: "Saturday, 12 March 2011 [06:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -110,6 +110,50 @@ class VRAY_OT_effect_remove(bpy.types.Operator):
 bpy.utils.register_class(VRAY_OT_effect_remove)
 
 
+class VRAY_OT_effect_up(bpy.types.Operator):
+	bl_idname=      'vray.effect_up'
+	bl_label=       "Move effect up"
+	bl_description= "Move effect up."
+
+	def execute(self, context):
+		VRayScene= context.scene.vray
+
+		VRayEffects= VRayScene.VRayEffects
+
+		if VRayEffects.effects_selected <= 0:
+			return {'CANCELLED'}
+
+		VRayEffects.effects.move(VRayEffects.effects_selected,
+								 VRayEffects.effects_selected - 1)
+		VRayEffects.effects_selected-= 1
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_effect_up)
+
+
+class VRAY_OT_effect_down(bpy.types.Operator):
+	bl_idname=      'vray.effect_down'
+	bl_label=       "Move effect down"
+	bl_description= "Move effect down."
+
+	def execute(self, context):
+		VRayScene= context.scene.vray
+
+		VRayEffects= VRayScene.VRayEffects
+
+		if VRayEffects.effects_selected == len(VRayEffects.effects) - 1:
+			return {'CANCELLED'}
+
+		VRayEffects.effects.move(VRayEffects.effects_selected,
+								 VRayEffects.effects_selected + 1)
+		VRayEffects.effects_selected+= 1
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_effect_down)
+
+
 '''
   Material operators
 '''
@@ -145,7 +189,7 @@ class VRAY_OT_brdf_add(bpy.types.Operator):
 			
 			return {'FINISHED'}
 
-		return {'CHANCELED'}
+		return {'CANCELLED'}
 
 bpy.utils.register_class(VRAY_OT_brdf_add)
 
@@ -167,7 +211,7 @@ class VRAY_OT_brdf_remove(bpy.types.Operator):
 
 			return {'FINISHED'}
 
-		return {'CHANCELED'}
+		return {'CANCELLED'}
 
 bpy.utils.register_class(VRAY_OT_brdf_remove)
 
@@ -192,7 +236,7 @@ class VRAY_OT_brdf_up(bpy.types.Operator):
 
 			return {'FINISHED'}
 
-		return {'CHANCELED'}
+		return {'CANCELLED'}
 
 bpy.utils.register_class(VRAY_OT_brdf_up)
 
@@ -216,8 +260,6 @@ class VRAY_OT_brdf_down(bpy.types.Operator):
 			rna_pointer.brdf_selected+= 1
 
 			return {'FINISHED'}
-
-		return {'CHANCELED'}
 
 bpy.utils.register_class(VRAY_OT_brdf_down)
 

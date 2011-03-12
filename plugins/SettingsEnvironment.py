@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [06:12]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -473,6 +473,12 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	VolumeVRayToon.override_material= BoolProperty(
+		name= "Override material",
+		description= "Override outline set in materials.",
+		default= False
+	)
+
 	# lineColor
 	VolumeVRayToon.lineColor= FloatVectorProperty(
 		name= "Color",
@@ -671,6 +677,39 @@ def add_properties(rna_pointer):
 '''
   Write plugins settings to file
 '''
+def write_VolumeVRayToon_from_material(bus):
+	WIDTHTYPE= {
+		'PIXEL': 0,
+		'WORLD': 1,
+	}
+
+	ofile= bus['files']['environment']
+	scene= bus['scene']
+
+	ob= bus['node']['object']
+	ma= bus['material']
+
+	VRayMaterial= ma.vray
+	
+	VolumeVRayToon= VRayMaterial.VolumeVRayToon
+
+	toon_name= clean_string("MT%s%s" % (ob.name, ma.name))
+
+	ofile.write("\nVolumeVRayToon %s {" % toon_name)
+	for param in PARAMS['VolumeVRayToon']:
+		if param == 'excludeType':
+			value= 1
+		elif param == 'excludeList':
+			value= "List(%s)" % get_name(ob, prefix='OB')
+		elif param == 'widthType':
+			value= WIDTHTYPE[VolumeVRayToon.widthType]
+		else:
+			value= getattr(VolumeVRayToon, param)
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+	ofile.write("\n}\n")
+
+	return toon_name
+
 def write(bus):
 	ofile= bus['files']['environment']
 	scene= bus['scene']
@@ -786,7 +825,6 @@ def write(bus):
 	VRayEffects= VRayScene.VRayEffects
 
 	# Processing Effects
-	# TODO: add nodes from materials <= bus['effects']
 	volumes= []
 	if VRayEffects.use:
 		for effect in VRayEffects.effects:
@@ -799,9 +837,18 @@ def write(bus):
 
 				elif effect.type == 'TOON':
 					VolumeVRayToon= effect.VolumeVRayToon
+
 					excludeList= generate_object_list(VolumeVRayToon.excludeList_objects, VolumeVRayToon.excludeList_groups)
 					toon_objects= [get_name(ob, prefix='OB') for ob in excludeList]
+
+					if not VolumeVRayToon.override_material:
+						if VolumeVRayToon.excludeType == 'EXCLUDE':
+							toon_objects.extend( [ get_name(ob, prefix='OB') for ob in bus['effects']['toon']['objects'] ] )
+
 					volumes.append(write_VolumeVRayToon(bus, effect, toon_objects))
+
+	volumes.reverse()
+	volumes.extend(bus['effects']['toon']['effects'])
 
 	world=     scene.world
 	VRayWorld= world.vray
@@ -1006,6 +1053,10 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 
 	if not str(type(rna_pointer)) == "<class 'vb25.plugins.VRayMaterial'>": # Very ugly :(
 		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VolumeVRayToon, 'override_material')
 
 		split= layout.split()
 		col= split.column()

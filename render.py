@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:38]"
+  Time-stamp: "Saturday, 12 March 2011 [06:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -858,6 +858,12 @@ def	write_material(bus):
 		ofile.write("\n\tmaterial_id_color= %s;" % p(VRayMaterial.material_id_color))
 		ofile.write("\n}\n")
 
+	if VRayMaterial.VolumeVRayToon.use:
+		bus['effects']['toon']['effects'].append(
+			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
+		)
+		bus['effects']['toon']['objects'].append(bus['node']['object'])
+
 	return ma_name
 
 
@@ -1483,8 +1489,11 @@ def write_scene(bus):
 	bus['objects']= []
 
 	bus['effects']= {}
-	bus['effects']['fog']= []
-	bus['effects']['toon']= []
+	bus['effects']['fog']= {}
+
+	bus['effects']['toon']= {}
+	bus['effects']['toon']['effects']= []
+	bus['effects']['toon']['objects']= []
 
 	exclude_list= []
 	VRayEffects=  VRayScene.VRayEffects

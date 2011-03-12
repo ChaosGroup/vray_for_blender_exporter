@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [05:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -159,8 +159,9 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 			PLUGINS['BRDF'][VRayMaterial.type].influence(context, layout, slot)
 
-			if VRayMaterial.type in ('BRDFVRayMtl','BRDFSSS2Complex'):
-				PLUGINS['BRDF']['BRDFBump'].influence(context, layout, slot)
+			layout.separator()
+
+			PLUGINS['BRDF']['BRDFBump'].influence(context, layout, slot)
 
 			PLUGINS['GEOMETRY']['GeomDisplacedMesh'].influence(context, layout, slot)
 
@@ -438,3 +439,4 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 			#col.prop(BitmapBuffer, 'gamma_correct')
 		col.prop(BitmapBuffer, 'allow_negative_colors')
 		col.prop(BitmapBuffer, 'use_data_window')
+

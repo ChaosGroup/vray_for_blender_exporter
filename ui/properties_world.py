@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [06:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -103,6 +103,10 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 		subsub= sub.column(align=True)
 		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
 		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator("vray.effect_up",   icon='MOVE_UP_VEC',   text="")
+		subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
 		if VRayEffects.effects_selected >= 0:
 			layout.separator()
