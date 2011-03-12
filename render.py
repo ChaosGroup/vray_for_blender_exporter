@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:25]"
+  Time-stamp: "Saturday, 12 March 2011 [09:41]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -761,7 +761,7 @@ def	write_material(bus):
 	#    is used in any texture
 	#  - Set appropriate material name in this case
 	
-	if append_unique(bus['cache']['materials'], ma_name):
+	if not append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
 	
 	# Write material textures

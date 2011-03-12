@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [05:01]"
+  Time-stamp: "Saturday, 12 March 2011 [09:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -553,7 +553,7 @@ def gui(context, layout, BRDFBlinn):
 		col.prop(BRDFBlinn, 'color_tex_mult', text="Mult")
 	if wide_ui:
 		col= split.column(align=True)
-	col.prop(BRDFBlinn, 'transparency', text="Reflection")
+	col.prop(BRDFBlinn, 'transparency', text= "Reflection", slider= True)
 	col.prop_search(BRDFBlinn, 'transparency_tex',
 					bpy.data, 'textures',
 					text= "")

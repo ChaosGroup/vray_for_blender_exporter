@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:10]"
+  Time-stamp: "Saturday, 12 March 2011 [09:42]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -597,31 +597,23 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 bpy.utils.register_class(VRAY_OT_create_proxy)
 
+def init(context):
+	scene= context.scene
+	
+	bus= {}
+	bus['plugins']= PLUGINS
+	bus['scene']= scene
+	bus['preview']= False
+	bus['uvs']= get_uv_layers_map(scene)
 
-class VRAY_OT_preview(bpy.types.Operator):
-	bl_idname      = "vray.write_scene"
-	bl_label       = "Export scene"
-	bl_description = "Export scene to \"vrscene\" file."
+	bus['files']=     {}
+	bus['filenames']= {}
 
-	type= bpy.props.EnumProperty(
-		name= "Type",
-		description= "Preview type.",
-		items= (
-			('TEXTURE',  "Texture",  ""),
-			('MATERIAL', "Material", ""),
-		),
-		default= 'MATERIAL'
-	)
+	init_files(bus)
 
-	def execute(self, context):
+	return bus
 
-		vb25.render.preview(context.scene, self.type)
-		
-		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_preview)
-
-
+	
 class VRAY_OT_write_scene(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
 	bl_label       = "Export scene"
@@ -629,7 +621,7 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 
 	def execute(self, context):
 
-		vb25.render.write_scene(context.scene)
+		vb25.render.write_scene(init(context))
 		
 		return {'FINISHED'}
 
@@ -643,7 +635,7 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 
 	def execute(self, context):
 
-		vb25.render.write_geometry(context.scene)
+		vb25.render.write_geometry(init(context))
 
 		return {'FINISHED'}
 

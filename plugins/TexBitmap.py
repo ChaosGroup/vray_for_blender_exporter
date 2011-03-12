@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [08:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -204,6 +204,13 @@ def write_BitmapBuffer(bus):
 
 
 def write(bus):
+	TILE= {
+		'NOTILE': 0,
+		'TILEUV': 1,
+		'TILEU':  2,
+		'TILEV':  3,
+	}
+
 	scene= bus['scene']
 	ofile= bus['files']['textures']
 
@@ -238,6 +245,7 @@ def write(bus):
 	ofile.write("\nTexBitmap %s {" % tex_name)
 	ofile.write("\n\tbitmap= %s;" % bitmap)
 	ofile.write("\n\tuvwgen= %s;" % uvwgen)
+	ofile.write("\n\ttile= %d;" % TILE[VRayTexture.tile])
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 	ofile.write("\n}\n")
 

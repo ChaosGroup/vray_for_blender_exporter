@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [08:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -92,21 +92,20 @@ def write_texture(bus):
 	scene=   bus['scene']
 	texture= bus['mtex']['texture']
 
-	if bus['mtex']['name'] in bus['cache']['textures']:
+	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
 		return bus['mtex']['name']
-	bus['cache']['textures'].append(bus['mtex']['name'])
-	
+
 	if texture.type == 'IMAGE':
 		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
 
 	elif texture.type == 'VRAY':
 		VRayTexture= texture.vray
-
+		
 		if VRayTexture.type == 'NONE':
 			return None
 
 		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
-
+		
 	else:
 		debug(sce, "Texture %s: type \'%s\' is not supported." % (texture.name, texture.type), error= True)
 		return None
@@ -126,6 +125,7 @@ def write_texture(bus):
 def write_factor(bus):
 	ofile=   bus['files']['textures']
 	scene=   bus['scene']
+
 	texture= bus['mtex']['texture']
 	factor=  bus['mtex']['factor']
 
@@ -135,15 +135,16 @@ def write_factor(bus):
 	tex_name= "TF%sFC%s" % (bus['mtex']['name'], clean_string("%.3f" % factor))
 
 	if factor > 1.0:
-		ofile.write("\nTexOutput %s {" % tex_name)
-		ofile.write("\n\ttexmap= %s;" % bus['mtex']['name'])
-		ofile.write("\n\tcolor_mult= %s;" % a(scene, "AColor(1.0,1.0,1.0,1.0)*%.3f" % factor))
-		ofile.write("\n}\n")
-		# ofile.write("\nTexAColorOp %s {" % tex_name)
-		# ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-		# ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
-		# ofile.write("\n\tresult_alpha= 1.0;")
-		# ofile.write("\n}\n")
+		if 1:
+			ofile.write("\nTexOutput %s {" % tex_name)
+			ofile.write("\n\ttexmap= %s;" % bus['mtex']['name'])
+			ofile.write("\n\tcolor_mult= %s;" % a(scene, "AColor(%.3f,%.3f,%.3f,1.0)" % tuple([factor]*3)))
+			ofile.write("\n}\n")
+		else:
+			ofile.write("\nTexAColorOp %s {" % tex_name)
+			ofile.write("\n\tcolor_a= %s;" % input_texture_name)
+			ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
+			ofile.write("\n}\n")
 	else:
 		ofile.write("\nTexAColorOp %s {" % tex_name)
 		ofile.write("\n\tcolor_a= %s;" % bus['mtex']['name'])
@@ -154,6 +155,26 @@ def write_factor(bus):
 	return tex_name
 
 
+def remove_alpha(bus):
+	ofile=   bus['files']['textures']
+	scene=   bus['scene']
+
+	texture= bus['mtex']['texture']
+
+	tex_name= "NOALPHA%s" % (bus['mtex']['name'])
+
+	ofile.write("\nTexAColorOp %s {" % tex_name)
+	ofile.write("\n\tcolor_a= %s;" % bus['mtex']['name'])
+	ofile.write("\n\tmult_a= 1.0;")
+	ofile.write("\n\tresult_alpha= 1.0;")
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+'''
+  TEXTURE STACK
+'''
 def stack_write_TexLayered(bus, layers):
 	if len(layers) == 1:
 		return layers[0][0]

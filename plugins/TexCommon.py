@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [09:16]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -114,6 +114,12 @@ def add_properties(rna_pointer):
 		default= 'TILEUV'
 	)
 
+	rna_pointer.remove_alpha= BoolProperty(
+		name= "Remove alpha",
+		description= "Reset alpha channel.",
+		default= False
+	)
+
 	# use_3d_mapping
 	rna_pointer.use_3d_mapping= BoolProperty(
 		name= "Use 3D mapping",
@@ -151,7 +157,7 @@ def add_properties(rna_pointer):
 	
 	# color_mult
 	rna_pointer.color_mult= FloatVectorProperty(
-		name= "color mult",
+		name= "Color mult",
 		description= "A multiplier for the texture color.",
 		subtype= 'COLOR',
 		min= 0.0,
@@ -163,7 +169,7 @@ def add_properties(rna_pointer):
 
 	# color_offset
 	rna_pointer.color_offset= FloatVectorProperty(
-		name= "color offset",
+		name= "Color offset",
 		description= "An additional offset for the texture color.",
 		subtype= 'COLOR',
 		min= 0.0,
@@ -175,7 +181,7 @@ def add_properties(rna_pointer):
 
 	# alpha_mult
 	rna_pointer.alpha_mult= FloatProperty(
-		name= "alpha mult",
+		name= "Alpha mult",
 		description= "A multiplier for the texture alpha.",
 		min= 0.0,
 		max= 100.0,
@@ -187,19 +193,19 @@ def add_properties(rna_pointer):
 	
 	# alpha_offset
 	rna_pointer.alpha_offset= FloatProperty(
-		name= "alpha offset",
+		name= "Alpha offset",
 		description= "An additional offset for the texture alpha.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
+		min= -1.0,
+		max=  1.0,
+		soft_min= -1.0,
+		soft_max= 1.0,
 		precision= 3,
 		default= 0
 	)
 
 	# nouvw_color
 	rna_pointer.nouvw_color= FloatVectorProperty(
-		name= "nouvw color",
+		name= "No UV color",
 		description= "The color when there are no valid uvw coordinates.",
 		subtype= 'COLOR',
 		min= 0.0,
@@ -420,7 +426,12 @@ def write(bus):
 	ofile.write("\n\tuv_noise_amount= %s;" % a(scene, VRayTexture.uv_noise_amount))
 	ofile.write("\n\tuv_noise_levels= %s;" % a(scene, VRayTexture.uv_noise_levels))
 	ofile.write("\n\tuv_noise_size= %s;" % a(scene, VRayTexture.uv_noise_size))
-	# ofile.write("\n\t= %s;" % a(scene, VRayTexture.))
+
+	ofile.write("\n\tcolor_mult= %s;" % a(scene, VRayTexture.color_mult))
+	ofile.write("\n\tcolor_offset= %s;" % a(scene, VRayTexture.color_offset))
+	ofile.write("\n\talpha_mult= %s;" % a(scene, VRayTexture.alpha_mult))
+	ofile.write("\n\talpha_offset= %s;" % a(scene, VRayTexture.alpha_offset))
+	ofile.write("\n\tnouvw_color= %s;" % a(scene, VRayTexture.nouvw_color))
 
 	if hasattr(VRayTexture, VRayTexture.type):
 		TexPlugin= getattr(VRayTexture, VRayTexture.type)
@@ -451,7 +462,7 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and tex.type == 'VRAY' and tex.vray.type != 'NONE' and engine_poll(cls, context)
+		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -461,7 +472,7 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 
 		VRayTexture= tex.vray
 
-		TexPlugin= getattr(VRayTexture, VRayTexture.type)
+		TexPlugin= getattr(VRayTexture, VRayTexture.type) if tex.type == 'VRAY' else None
 
 		layout.prop(VRayTexture, 'placement_type', expand= True)
 
@@ -490,19 +501,14 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayTexture, 'invert')
-		sub= col.column()
-		sub.active= VRayTexture.invert
-		sub.prop(VRayTexture, 'invert_alpha')
-		col.prop(VRayTexture, 'alpha_from_intensity')
-		if wide_ui:
-			col= split.column()
-		if hasattr(TexPlugin, 'use_3d_mapping'):
-			col.prop(VRayTexture, 'use_3d_mapping')
-		if hasattr(TexPlugin, 'wrap'):
-			col.prop(VRayTexture, 'wrap')
-
-		layout.separator()
+		if TexPlugin:
+			if hasattr(TexPlugin, 'use_3d_mapping'):
+				col.prop(VRayTexture, 'use_3d_mapping')
+			if wide_ui:
+				col= split.column()
+			if hasattr(TexPlugin, 'wrap'):
+				col.prop(VRayTexture, 'wrap')
+			layout.separator()
 
 		box= layout.box()
 		box.prop(VRayTexture, 'uv_noise_on', text= "UV noise")
@@ -517,15 +523,26 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		col.prop(VRayTexture, 'uv_noise_levels')
 		col.prop(VRayTexture, 'uv_noise_size')
 
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(VRayTexture, 'color_mult')
-		# col.prop(VRayTexture, 'color_offset')
-		# if wide_ui:
-		# 	col= split.column()
-		# col.prop(VRayTexture, 'alpha_mult')
-		# col.prop(VRayTexture, 'alpha_offset')
-		# col.prop(VRayTexture, 'nouvw_color')
+		box= layout.box()
+		split= box.split()
+		col= split.column()
+		col.label(text="Color:")
+		sub= col.column(align= True)
+		sub.prop(VRayTexture, 'color_mult', text="")
+		sub.prop(VRayTexture, 'color_offset', text="")
+		col.prop(VRayTexture, 'invert')
+		# col.prop(VRayTexture, 'nouvw_color', text="")
+		if wide_ui:
+			col= split.column()
+		col.label(text="Alpha:")
+		sub= col.column(align= True)
+		sub.prop(VRayTexture, 'alpha_mult', text="Mult")
+		sub.prop(VRayTexture, 'alpha_offset', text="Offset")
+		sub= col.column()
+		sub.active= VRayTexture.invert
+		sub.prop(VRayTexture, 'invert_alpha')
+		# col.prop(VRayTexture, 'remove_alpha')
+		col.prop(VRayTexture, 'alpha_from_intensity')
 
 		layout.separator()
 		layout.operator("vray.bake_procedural", icon= 'TEXTURE')

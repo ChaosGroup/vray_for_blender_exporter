@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:24]"
+  Time-stamp: "Saturday, 12 March 2011 [08:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -542,9 +542,9 @@ def transform(m):
 
 def append_unique(array, item):
 	if item in array:
-		return True
+		return False
 	array.append(item)
-	return False
+	return True
 
 def clean_string(s):
 	s= s.replace("+", "p")
