@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:51]"
+  Time-stamp: "Saturday, 12 March 2011 [13:46]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -756,11 +756,17 @@ def	write_material(bus):
 
 	ma_name= get_name(ma, prefix='MA')
 
+	# Check Toon before cache
+	if VRayMaterial.VolumeVRayToon.use:
+		bus['effects']['toon']['effects'].append(
+			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
+			)
+		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
+
 	# TODO:
 	#  - Don't put material in cache when Object mapping
 	#    is used in any texture
 	#  - Set appropriate material name in this case
-	
 	if not append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
 	
@@ -856,12 +862,6 @@ def	write_material(bus):
 		ofile.write("\n\tmaterial_id_number= %i;" % VRayMaterial.material_id_number)
 		ofile.write("\n\tmaterial_id_color= %s;" % p(VRayMaterial.material_id_color))
 		ofile.write("\n}\n")
-
-	if VRayMaterial.VolumeVRayToon.use:
-		bus['effects']['toon']['effects'].append(
-			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
-		)
-		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
 
 	return ma_name
 
