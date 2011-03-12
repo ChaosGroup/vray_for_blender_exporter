@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:02]"
+  Time-stamp: "Saturday, 12 March 2011 [06:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -761,9 +761,8 @@ def	write_material(bus):
 	#    is used in any texture
 	#  - Set appropriate material name in this case
 	
-	if ma_name in bus['cache']['materials']:
+	if append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
-	bus['cache']['materials'].append(ma_name)
 	
 	# Write material textures
 	write_material_textures(bus)
@@ -862,7 +861,7 @@ def	write_material(bus):
 		bus['effects']['toon']['effects'].append(
 			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
 		)
-		bus['effects']['toon']['objects'].append(bus['node']['object'])
+		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
 
 	return ma_name
 
