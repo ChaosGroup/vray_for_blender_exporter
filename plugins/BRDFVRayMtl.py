@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:57]"
+  Time-stamp: "Saturday, 12 March 2011 [10:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -620,7 +620,7 @@ def mapto(bus, BRDFLayered= None):
 	return defaults
 
 
-def write(bus, BRDFLayered= None):
+def write(bus, VRayBRDF= None, base_name= None):
 	BRDF_TYPE= {
 		'PHONG': 0,
 		'BLINN': 1,
@@ -647,11 +647,13 @@ def write(bus, BRDFLayered= None):
 	ma=       bus['material']
 	textures= bus['textures']
 
-	BRDFVRayMtl= ma.vray.BRDFVRayMtl
-
-	defaults= mapto(bus, BRDFLayered)
-
 	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	if base_name:
+		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+
+	BRDFVRayMtl= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFVRayMtl
+
+	defaults= mapto(bus, VRayBRDF)
 
 	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
 	ofile.write("\n\tbrdf_type= %s;"%(a(scene,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
@@ -684,8 +686,6 @@ def write(bus, BRDFLayered= None):
 			value= getattr(BRDFVRayMtl,param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
 	ofile.write("\n}\n")
-
-	bus['brdf']= brdf_name
 
 	return brdf_name
 

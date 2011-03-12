@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Saturday, 12 March 2011 [10:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -353,7 +353,7 @@ def mapto(bus, BRDFLayered= None):
 	return defaults
 
 
-def write(bus, rna_pointer= None):
+def write(bus, VRayBRDF= None, base_name= None):
 	SINGLE_SCATTER= {
 		'NONE':   0,
 		'SIMPLE': 1,
@@ -367,11 +367,13 @@ def write(bus, rna_pointer= None):
 	ma=       bus['material']
 	textures= bus['textures']
 
-	BRDFSSS2Complex= ma.vray.BRDFSSS2Complex
+	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	if base_name:
+		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 
-	defaults= mapto(bus, rna_pointer)
+	BRDFSSS2Complex= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFSSS2Complex
 
-	brdf_name= "BRDFSSS2Complex_%s" % clean_string(ma.name)
+	defaults= mapto(bus, VRayBRDF)
 
 	ofile.write("\nBRDFSSS2Complex %s {" % brdf_name)
 
@@ -389,8 +391,6 @@ def write(bus, rna_pointer= None):
 		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
 
 	ofile.write("\n}\n")
-
-	bus['brdf']= brdf_name
 
 	return brdf_name
 

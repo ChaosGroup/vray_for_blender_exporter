@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:42]"
+  Time-stamp: "Saturday, 12 March 2011 [09:48]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -597,15 +597,30 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 bpy.utils.register_class(VRAY_OT_create_proxy)
 
+
+'''
+  EXPORT OPERATORS
+'''
 def init(context):
 	scene= context.scene
 	
+	# Settings bus
 	bus= {}
+
+	# Plugins
 	bus['plugins']= PLUGINS
+
+	# Scene
 	bus['scene']= scene
-	bus['preview']= False
+
+	# Preview
+	bus['preview']= preview
+	
+	# V-Ray uses UV indexes, Blender uses UV names
+	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
 
+	# Output files
 	bus['files']=     {}
 	bus['filenames']= {}
 
@@ -613,7 +628,6 @@ def init(context):
 
 	return bus
 
-	
 class VRAY_OT_write_scene(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
 	bl_label       = "Export scene"

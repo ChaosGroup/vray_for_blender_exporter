@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:40]"
+  Time-stamp: "Saturday, 12 March 2011 [10:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -568,7 +568,7 @@ def mapto(bus, BRDFLayered= None):
 	return {}
 
 
-def write(bus, BRDFLayered= None):
+def write(bus, VRayBRDF= None, base_name= None):
 	MAPPING_TYPE= {
 		'EXPLICIT':  0,
 		'TRIPLANAR': 1,
@@ -578,16 +578,16 @@ def write(bus, BRDFLayered= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
-	brdf= "%s_%s" % (ID, clean_string(ma.name))
+	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	if base_name:
+		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 
-	VRayMaterial= ma.vray
-	
-	BRDFCarPaint= getattr(BRDFLayered, ID) if BRDFLayered else getattr(VRayMaterial, ID)
+	BRDFCarPaint= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFCarPaint
 
 	# Color values if param is not textured
-	mapped_params= mapto(bus, BRDFLayered)
+	mapped_params= mapto(bus, VRayBRDF)
 	
-	ofile.write("\n%s %s {"%(ID, brdf))
+	ofile.write("\n%s %s {"%(ID, brdf_name))
 	for param in PARAMS:
 		if param == 'mapping_type':
 			value= MAPPING_TYPE[BRDFCarPaint.mapping_type]
@@ -598,7 +598,8 @@ def write(bus, BRDFLayered= None):
 		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return brdf
+	return brdf_name
+
 
 
 '''
