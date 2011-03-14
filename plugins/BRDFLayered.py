@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:05]"
+  Time-stamp: "Monday, 14 March 2011 [18:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -184,7 +184,9 @@ def write(bus, VRayBRDF= None, base_name= None):
 	material=     bus['material']
 	VRayMaterial= material.vray
 
-	brdf_name= "%s%s" % (ID, clean_string(VRayBRDF.name if VRayBRDF else material.name))
+	brdf_name= "%s_%s" % (ID, get_name(material, prefix='MA'))
+	if base_name:
+		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 	
 	BRDFLayered= getattr(VRayBRDF, 'BRDFLayered') if VRayBRDF else getattr(VRayMaterial, 'BRDFLayered')
 

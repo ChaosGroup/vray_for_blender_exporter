@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [15:14]"
+  Time-stamp: "Monday, 14 March 2011 [17:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -907,9 +907,6 @@ def init_files(bus):
 
 		elif VRayExporter.output == 'SCENE':
 			export_filepath= blendfile_path
-
-		if VRayExporter.output != 'USER':
-			export_filepath= os.path.join(export_filepath, "vb25")
 
 		if VRayExporter.output_unique:
 			export_filename= blendfile_name

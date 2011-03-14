@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 14 March 2011 [18:15]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -121,7 +121,7 @@ def mapto(bus, BRDFLayered= None):
 
 	if BRDFLayered:
 		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFLight.color)),       0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFLight.opacity]*3)), 0, 'NONE')
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFLight.transparency]*3)), 0, 'NONE')
 	else:
 		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
 		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - ma.alpha]*3)),     0, 'NONE')
@@ -129,7 +129,7 @@ def mapto(bus, BRDFLayered= None):
 	return defaults
 
 
-def write(bus, BRDFLayered= None):
+def write(bus, VRayBRDF= None, base_name= None):
 	scene=    bus['scene']
 	ofile=    bus['files']['materials']
 
@@ -138,9 +138,11 @@ def write(bus, BRDFLayered= None):
 
 	BRDFLight= material.vray.BRDFLight
 	
-	brdf_name= "%s_%s" % (ID, clean_string(material.name))
+	brdf_name= "%s_%s" % (ID, get_name(material, prefix='MA'))
+	if base_name:
+		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 
-	defaults= mapto(bus, BRDFLayered)
+	defaults= mapto(bus, VRayBRDF)
 
 	if 'diffuse' in textures:
 		color= textures['diffuse']
@@ -187,7 +189,7 @@ def influence(context, layout, slot):
 def gui(context, layout, BRDFLight, material= None):
 	wide_ui= context.region.width > narrowui
 
-	layout.label(text="Color")
+	layout.label(text="Color:")
 
 	split= layout.split()
 	col= split.column()
@@ -198,9 +200,9 @@ def gui(context, layout, BRDFLight, material= None):
 	if wide_ui:
 		col= split.column()
 	if material:
-		col.prop(material, 'alpha')
+		col.prop(BRDFLight, 'transparency', text="Alpha", slider= True)
 	else:
-		layout.prop(BRDFLight, 'transparency')
+		col.prop(BRDFLight, 'transparency', slider= True)
 
 	layout.separator()
 

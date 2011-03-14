@@ -578,7 +578,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	scene= bus['scene']
 	ma=    bus['material']
 
-	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	brdf_name= "%s_%s" % (ID, get_name(ma, prefix='MA'))
 	if base_name:
 		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 

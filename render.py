@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [17:34]"
+  Time-stamp: "Monday, 14 March 2011 [18:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -750,11 +750,10 @@ def	write_material(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 	ob=    bus['node']['object']
+	base=  bus['node']['base']
 	ma=    bus['material']
 
-	print(ma.name, ma.library)
-	base=  bus['node'].get('base')
-	if base:
+	if base.dupli_type == 'GROUP':
 		base_material_names= []
 		for slot in base.material_slots:
 			if slot and slot.material:
@@ -763,7 +762,6 @@ def	write_material(bus):
 			slot= base.material_slots.get(ma.name)
 			ma= slot.material
 			bus['material']= ma
-			print("Overridden material: ", ma.name, ma.library)
 
 	VRayMaterial= ma.vray
 
@@ -1152,6 +1150,7 @@ def write_object(bus):
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix'] * bus['node']['matrix']
 		# else:
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
+		bus['node']['name']=   bus['node']['dupli']['name']
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
 
 	# Mesh-light
@@ -1324,7 +1323,7 @@ def _write_object_dupli(bus):
 		for dup_id,dup_ob in enumerate(ob.dupli_list):
 			bus['node']['object']= dup_ob.object
 			bus['node']['base']= ob
-			bus['node']['dupli']['name']= "OB%sDO%s" % (ob.name,dup_id)
+			bus['node']['dupli']['name']= "OB%sDO%s" % (clean_string(ob.name), dup_id)
 			bus['node']['dupli']['matrix']= dup_ob.matrix
 			bus['node']['dupli']['type']= ob.dupli_type
 

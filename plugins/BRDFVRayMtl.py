@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [14:37]"
+  Time-stamp: "Monday, 14 March 2011 [18:07]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -647,7 +647,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	ma=       bus['material']
 	textures= bus['textures']
 
-	brdf_name= "%s_%s" % (ID, clean_string(ma.name))
+	brdf_name= "%s_%s" % (ID, get_name(ma, prefix='MA'))
 	if base_name:
 		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
 
