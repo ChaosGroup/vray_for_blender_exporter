@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:42]"
+  Time-stamp: "Monday, 14 March 2011 [08:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -408,7 +408,10 @@ def write_geometry_python(bus):
 				if not object_on_visible_layers(scene,ob):
 					continue
 
-			mesh= ob.to_mesh(scene, True, 'RENDER')
+			try:
+				mesh= ob.to_mesh(scene, True, 'RENDER')
+			except:
+				mesh= ob.create_mesh(scene, True, 'RENDER')
 			mesh_name= get_name(ob.data, prefix='ME')
 
 			if VRayExporter.use_instances:
