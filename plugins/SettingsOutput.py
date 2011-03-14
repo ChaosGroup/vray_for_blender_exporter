@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:47]"
+  Time-stamp: "Monday, 14 March 2011 [09:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -118,12 +118,13 @@ def write(bus):
 	file_format= get_render_file_format(VRayExporter, scene.render.file_format)
 
 	ofile.write("\nSettingsOutput SettingsOutput {")
+	if VRayExporter.auto_save_render:
+		ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
+		ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
 	ofile.write("\n\timg_noAlpha= %d;" % SettingsOutput.img_noAlpha)
 	ofile.write("\n\timg_separateAlpha= %d;" % SettingsOutput.img_separateAlpha)
 	ofile.write("\n\timg_width= %s;" % wx)
 	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
-	ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
-	ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
 	ofile.write("\n\timg_file_needFrameNumber= %d;" % SettingsOutput.img_file_needFrameNumber)
 	ofile.write("\n\tanim_start= %d;" % scene.frame_start)
 	ofile.write("\n\tanim_end= %d;" % scene.frame_end)

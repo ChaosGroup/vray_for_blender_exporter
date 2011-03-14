@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [08:20]"
+  Time-stamp: "Monday, 14 March 2011 [11:21]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -158,8 +158,6 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 			VRayMaterial= material.vray
 
 			PLUGINS['BRDF'][VRayMaterial.type].influence(context, layout, slot)
-
-			layout.separator()
 
 			PLUGINS['BRDF']['BRDFBump'].influence(context, layout, slot)
 

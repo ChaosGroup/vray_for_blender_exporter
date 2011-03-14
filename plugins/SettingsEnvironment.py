@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:12]"
+  Time-stamp: "Monday, 14 March 2011 [15:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -894,7 +894,7 @@ def write(bus):
 													 VRaySlot.blend_mode))
 	if VRayExporter.debug:
 		if len(bus['env_textures']):
-			debug(scene, "World texture stack: %s" % bus['env_textures'])
+			print_dict(scene, "World texture stack", bus['env_textures'])
 	
 	for key in bus['env_textures']:
 		if len(bus['env_textures'][key]):

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [02:51]"
+  Time-stamp: "Monday, 14 March 2011 [17:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -69,11 +69,19 @@ class VRayMaterialPanel():
 	bl_region_type = 'WINDOW'
 	bl_context     = 'material'
 
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(cls, context)
+
 
 class VRayObjectPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'object'
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(cls, context)
 
 
 class VRayParticlePanel():
@@ -100,6 +108,10 @@ class VRayScenePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'scene'
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(cls, context)
 
 
 class VRayTexturePanel():

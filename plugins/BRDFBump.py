@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [05:32]"
+  Time-stamp: "Monday, 14 March 2011 [14:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -116,6 +116,7 @@ def write(bus, base_brdf= None):
 	if slot:
 		VRayTexture= slot.texture.vray
 		VRaySlot=    slot.texture.vray_slot
+		
 		BRDFBump=    VRaySlot.BRDFBump
 
 		brdf_name= "BRDFBump_%s" % base_brdf
@@ -141,23 +142,25 @@ def influence(context, layout, slot):
 	wide_ui= context.region.width > narrowui
 
 	VRaySlot= slot.texture.vray_slot
+	BRDFBump= VRaySlot.BRDFBump
 
 	layout.separator()
-
-	BRDFBump= VRaySlot.BRDFBump
 
 	layout.label(text="Bump / Normal:")
 
 	split= layout.split()
 	col= split.column()
 	row= col.row(align=True)
-	row.prop(slot, 'use_map_normal', text="")
-	sub= row.row()
-	sub.active= getattr(slot,'use_map_normal')
+	row.prop(VRaySlot, 'map_normal', text="")
+	sub= row.row(align=True)
+	sub.active= VRaySlot.map_normal
 	sub.prop(VRaySlot, 'normal_mult', slider=True, text="Normal")
+	sub.prop(VRaySlot, 'map_normal_invert', text="")
+
 	if wide_ui:
 		col= split.column()
-	col.active= slot.use_map_normal
+
+	col.active= VRaySlot.map_normal
 	col.prop(BRDFBump, 'map_type', text= "Type")
 	col.prop(BRDFBump, 'bump_tex_mult', slider= True)
 	col.prop(BRDFBump, 'bump_shadows')

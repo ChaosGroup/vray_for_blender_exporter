@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [09:03]"
+  Time-stamp: "Monday, 14 March 2011 [17:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -584,19 +584,18 @@ def write_settings(bus):
 		bus['files']['scene'].write("\nSettingsDMCSampler {")
 		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
 		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
-		bus['files']['scene'].write("\n\tsubdivs_mult= 0.2;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsOptions {")
 		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
 		bus['files']['scene'].write("\n\tmtl_maxDepth= 1;")
 		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
 		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
-		bus['files']['scene'].write("\n\tmtl_override_on= 0;")
 		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
 		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsImageSampler {")
-		bus['files']['scene'].write("\n\ttype= 0;")
+		bus['files']['scene'].write("\n\ttype= 0;") # Fastest result, but no AA :(
 		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
 		bus['files']['scene'].write("\n}\n")
 
@@ -659,12 +658,12 @@ def write_lamp_textures(bus):
 					# Write texture
 					write_texture(bus)
 
-					bus['lamp_textures'][key].append( (write_factor(bus),
+					bus['lamp_textures'][key].append( (stack_write_texture(bus),
 													   slot.use_stencil,
 													   VRaySlot.blend_mode) )
 	if VRayExporter.debug:
 		if len(bus['lamp_textures']):
-			debug(scene, "Lamp \"%s\" texture stack: %s" % (la.name,bus['lamp_textures']))
+			print_dict(scene, "Lamp \"%s\" texture stack" % la.name, bus['lamp_textures'])
 	
 	for key in bus['lamp_textures']:
 		if len(bus['lamp_textures'][key]):
@@ -718,9 +717,9 @@ def write_material_textures(bus):
 						bus['normal']['slot']= slot
 
 					bus['mtex']= {}
-					bus['mtex']['mapto']=   key
 					bus['mtex']['slot']=    slot
 					bus['mtex']['texture']= slot.texture
+					bus['mtex']['mapto']=   key
 					bus['mtex']['factor']=  factor
 					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
 																			 slot.name,
@@ -729,7 +728,7 @@ def write_material_textures(bus):
 					write_texture(bus)
 
 					# Append texture to stack and write texture with factor
-					bus['textures'][key].append( (write_factor(bus),
+					bus['textures'][key].append( (stack_write_texture(bus),
 												  slot.use_stencil,
 												  VRaySlot.blend_mode) )
 
@@ -744,7 +743,6 @@ def write_material_textures(bus):
 	if 'displacement' in bus['textures']:
 		bus['node']['displacement']['texture']= bus['textures']['displacement']
 
-
 	return bus['textures']
 
 
@@ -752,8 +750,20 @@ def	write_material(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 	ob=    bus['node']['object']
-
 	ma=    bus['material']
+
+	print(ma.name, ma.library)
+	base=  bus['node'].get('base')
+	if base:
+		base_material_names= []
+		for slot in base.material_slots:
+			if slot and slot.material:
+				base_material_names.append(slot.material.name)
+		if ma.name in base_material_names:
+			slot= base.material_slots.get(ma.name)
+			ma= slot.material
+			bus['material']= ma
+			print("Overridden material: ", ma.name, ma.library)
 
 	VRayMaterial= ma.vray
 
@@ -763,7 +773,7 @@ def	write_material(bus):
 	if VRayMaterial.VolumeVRayToon.use:
 		bus['effects']['toon']['effects'].append(
 			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
-			)
+		)
 		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
 
 	# TODO:
@@ -1119,6 +1129,10 @@ def write_object(bus):
 	bus['node']['geometry']=  get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
 	bus['node']['matrix']=    ob.matrix_world
 
+	# Skip if object is just dupli holder
+	if ob.dupli_type == 'GROUP':
+		return
+
 	# Write object materials
 	write_materials(bus)
 
@@ -1139,7 +1153,6 @@ def write_object(bus):
 		# else:
 		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
 		bus['node']['matrix']= bus['node']['dupli']['matrix']
-		
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
@@ -1306,7 +1319,7 @@ def _write_object_dupli(bus):
 	ob= bus['node']['object']
 
 	if ob.dupli_type in ('VERTS','FACES','GROUP'):
-		ob.create_dupli_list(bus['scene'])
+		ob.dupli_list_create(bus['scene'])
 
 		for dup_id,dup_ob in enumerate(ob.dupli_list):
 			bus['node']['object']= dup_ob.object
@@ -1321,7 +1334,7 @@ def _write_object_dupli(bus):
 			bus['node']['base']= ob
 			bus['node']['dupli']= {}
 
-		ob.free_dupli_list()
+		ob.dupli_list_clear()
 
 
 def _write_object(bus):
@@ -1386,107 +1399,88 @@ def write_scene(bus):
 	bus['files']['textures'].write("\n// Scene textures")
 
 	if bus['preview']:
-		bus['files']['lights'].write("\nLightDirectMax LALamp_008 {")
-		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-		bus['files']['lights'].write("\n\tunits= 0;")
-		bus['files']['lights'].write("\n\tshadows= 0;")
-		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
-		bus['files']['lights'].write("\n\taffectSpecular= 0;")
-		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
-		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\nLightDirectMax LALamp_008 { // PREVIEW")
 		bus['files']['lights'].write("\n\tintensity= 3.000000;")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tshadows= 0;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
+		bus['files']['lights'].write("\n\taffectSpecular= 0;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-		bus['files']['lights'].write("\n\tfallsize= 100.000000;")
+		bus['files']['lights'].write("\n\tfallsize= 100.0;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
-		bus['files']['lights'].write("\n\tMatrix(")
-		bus['files']['lights'].write("\n\tVector(1.000000, 0.000000, -0.000000),")
-		bus['files']['lights'].write("\n\tVector(0.000000, 0.000000, 1.000000),")
-		bus['files']['lights'].write("\n\tVector(0.000000, -1.000000, 0.000000)")
-		bus['files']['lights'].write("\n\t),")
-		bus['files']['lights'].write("\n\tVector(1.471056, -14.735638, 3.274598));")
+		bus['files']['lights'].write("\n\t\tMatrix(")
+		bus['files']['lights'].write("\n\t\t\tVector(1.000000, 0.000000, -0.000000),")
+		bus['files']['lights'].write("\n\t\t\tVector(0.000000, 0.000000, 1.000000),")
+		bus['files']['lights'].write("\n\t\t\tVector(0.000000, -1.000000, 0.000000)")
+		bus['files']['lights'].write("\n\t\t),")
+		bus['files']['lights'].write("\n\t\tVector(1.471056, -14.735638, 3.274598));")
 		bus['files']['lights'].write("\n}\n")
 
-		bus['files']['lights'].write("\nLightOmni LALamp {")
+		bus['files']['lights'].write("\nLightSpot LALamp_002 { // PREVIEW")
+		bus['files']['lights'].write("\n\tintensity= 80.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-		bus['files']['lights'].write("\n\tunits= 0;")
-		bus['files']['lights'].write("\n\tenabled= 1;")
+		bus['files']['lights'].write("\n\tconeAngle= 1.3;")
+		bus['files']['lights'].write("\n\tpenumbraAngle= -0.4;")
+		bus['files']['lights'].write("\n\tshadows= 1;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
+		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 1;")
+		bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tdecay= 1.0;")
+		bus['files']['lights'].write("\n\ttransform= Transform(")
+		bus['files']['lights'].write("\n\t\tMatrix(")
+		bus['files']['lights'].write("\n\t\t\tVector(-0.549843, 0.655945, 0.517116),")
+		bus['files']['lights'].write("\n\t\t\tVector(-0.733248, -0.082559, -0.674931),")
+		bus['files']['lights'].write("\n\t\t\tVector(-0.400025, -0.750280, 0.526365)")
+		bus['files']['lights'].write("\n\t\t),")
+		bus['files']['lights'].write("\n\t\tVector(-5.725639, -13.646054, 8.5));")
+		bus['files']['lights'].write("\n}\n")
+
+		bus['files']['lights'].write("\nLightOmni LALamp { // PREVIEW")
+		bus['files']['lights'].write("\n\tintensity= 350.000000;")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tshadows= 0;")
-		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
 		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
 		bus['files']['lights'].write("\n\taffectSpecular= 0;")
 		bus['files']['lights'].write("\n\tspecular_contribution= 0.000000;")
-		bus['files']['lights'].write("\n\tintensity= 150.000000;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
 		bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
-		bus['files']['lights'].write("\n\tdecay= 2.000000;")
+		bus['files']['lights'].write("\n\tdecay= 2.0;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
-		bus['files']['lights'].write("\n\tMatrix(")
-		bus['files']['lights'].write("\n\tVector(0.499935, 0.789660, 0.355671),")
-		bus['files']['lights'].write("\n\tVector(-0.672205, 0.094855, 0.734263),")
-		bus['files']['lights'].write("\n\tVector(0.546081, -0.606168, 0.578235)")
-		bus['files']['lights'].write("\n\t),")
-		bus['files']['lights'].write("\n\tVector(15.685226, -7.460007, 2.990525));")
+		bus['files']['lights'].write("\n\t\tMatrix(")
+		bus['files']['lights'].write("\n\t\t\tVector(0.499935, 0.789660, 0.355671),")
+		bus['files']['lights'].write("\n\t\t\tVector(-0.672205, 0.094855, 0.734263),")
+		bus['files']['lights'].write("\n\t\t\tVector(0.546081, -0.606168, 0.578235)")
+		bus['files']['lights'].write("\n\t\t),")
+		bus['files']['lights'].write("\n\t\tVector(15.685226, -7.460007, 3.0));")
 		bus['files']['lights'].write("\n}\n")
 
-		bus['files']['lights'].write("\nLightSpot LALamp_002 {")
-		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-		bus['files']['lights'].write("\n\tunits= 0;")
-		bus['files']['lights'].write("\n\tconeAngle= 0.872665;")
-		bus['files']['lights'].write("\n\tpenumbraAngle= -0.465689;")
-		bus['files']['lights'].write("\n\tenabled= 1;")
-		bus['files']['lights'].write("\n\tshadows= 1;")
-		bus['files']['lights'].write("\n\tshadowColor= Color(0.000,0.000,0.000);")
-		bus['files']['lights'].write("\n\tshadowBias= 0.000000;")
-		bus['files']['lights'].write("\n\tcausticSubdivs= 1000;")
-		bus['files']['lights'].write("\n\tcausticMult= 1.000000;")
-		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
-		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-		bus['files']['lights'].write("\n\taffectSpecular= 1;")
-		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
-		bus['files']['lights'].write("\n\tnsamples= 0;")
-		bus['files']['lights'].write("\n\tdiffuse_contribution= 1.000000;")
-		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
-		bus['files']['lights'].write("\n\tintensity= 30.000000;")
-		bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
-		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
-		bus['files']['lights'].write("\n\tdecay= 2.000000;")
-		bus['files']['lights'].write("\ntransform= Transform(")
-		bus['files']['lights'].write("\nMatrix(")
-		bus['files']['lights'].write("\nVector(-0.549843, 0.655945, 0.517116),")
-		bus['files']['lights'].write("\nVector(-0.733248, -0.082559, -0.674931),")
-		bus['files']['lights'].write("\nVector(-0.400025, -0.750280, 0.526365)")
-		bus['files']['lights'].write("\n),")
-		bus['files']['lights'].write("\nVector(-5.725639, -13.646054, 8.475835));")
-		bus['files']['lights'].write("\n}\n")
-
-		bus['files']['lights'].write("\nLightOmni LALamp_001 {")
-		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-		bus['files']['lights'].write("\n\tunits= 0;")
-		bus['files']['lights'].write("\n\tenabled= 1;")
-		bus['files']['lights'].write("\n\tshadows= 0;")
-		bus['files']['lights'].write("\n\tcutoffThreshold= 0.001000;")
-		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-		bus['files']['lights'].write("\n\taffectSpecular= 1;")
-		bus['files']['lights'].write("\n\tbumped_below_surface_check= 0;")
-		bus['files']['lights'].write("\n\tnsamples= 0;")
-		bus['files']['lights'].write("\n\tspecular_contribution= 1.000000;")
+		bus['files']['lights'].write("\nLightOmni LALamp_001 { // PREVIEW")
 		bus['files']['lights'].write("\n\tintensity= 300.000000;")
+		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
+		bus['files']['lights'].write("\n\tshadows= 0;")
+		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
+		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 1;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
 		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
-		bus['files']['lights'].write("\n\tdecay= 2.000000;")
+		bus['files']['lights'].write("\n\tdecay= 2.0;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
-		bus['files']['lights'].write("\nMatrix(")
-		bus['files']['lights'].write("\nVector(0.499935, 0.789660, 0.355671),")
-		bus['files']['lights'].write("\nVector(-0.672205, 0.094855, 0.734263),")
-		bus['files']['lights'].write("\nVector(0.546081, -0.606168, 0.578235)")
-		bus['files']['lights'].write("\n),")
-		bus['files']['lights'].write("\nVector(-10.500286, -12.464991, 3.075305));")
+		bus['files']['lights'].write("\n\t\tMatrix(")
+		bus['files']['lights'].write("\n\t\t\tVector(0.499935, 0.789660, 0.355671),")
+		bus['files']['lights'].write("\n\t\t\tVector(-0.672205, 0.094855, 0.734263),")
+		bus['files']['lights'].write("\n\t\t\tVector(0.546081, -0.606168, 0.578235)")
+		bus['files']['lights'].write("\n\t\t),")
+		bus['files']['lights'].write("\n\t\tVector(-10.500286, -12.464991, 4.0));")
 		bus['files']['lights'].write("\n}\n")
 
 	# Processed objects
 	bus['objects']= []
 
+	# Effects from material / object settings
 	bus['effects']= {}
 	bus['effects']['fog']= {}
 
@@ -1494,6 +1488,7 @@ def write_scene(bus):
 	bus['effects']['toon']['effects']= []
 	bus['effects']['toon']['objects']= []
 
+	# Prepare exclude for effects
 	exclude_list= []
 	VRayEffects=  VRayScene.VRayEffects
 	if VRayEffects.use:
@@ -1551,7 +1546,7 @@ def write_scene(bus):
 		# Visibility list for "Hide from view" and "Camera loop" features
 		bus['visibility']= get_visibility_lists(bus['camera'])
 
-		# Hide from view debug data
+		# "Hide from view" debug data
 		if VRayExporter.debug:
 			print_dict(scene, "Hide from view", bus['visibility'])
 
@@ -1559,8 +1554,9 @@ def write_scene(bus):
 			if not object_visible(bus, ob):
 				continue
 
-			debug(scene, "{0}: {1:<32}".format(ob.type, color(ob.name, 'green')), True if VRayExporter.debug else False)
+			debug(scene, "{0}: {1:<32}".format(ob.type, color(ob.name, 'green')), VRayExporter.debug)
 
+			# Node struct
 			bus['node']= {}
 
 			# Currently processes object

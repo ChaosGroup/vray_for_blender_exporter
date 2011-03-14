@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [10:04]"
+  Time-stamp: "Monday, 14 March 2011 [14:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -407,9 +407,9 @@ def add_properties(rna_pointer):
 		name= "Rotation",
 		description= "The rotation of the anisotropy axes.",
 		min= 0.0,
-		max= 360.0,
+		max= 1.0,
 		soft_min= 0.0,
-		soft_max= 360.0,
+		soft_max= 1.0,
 		default= 0.0
 	)
 
@@ -449,19 +449,19 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_trace= BoolProperty(
 		name= "Trace reflections",
-		description= 'TODO.',
+		description= "Trace reflections.",
 		default= True
 	)
 
 	BRDFVRayMtl.option_reflect_on_back= BoolProperty(
 		name= "Reflect on back side",
-		description= "",
+		description= "Reflect on back side.",
 		default= False
 	)
 
 	BRDFVRayMtl.option_double_sided= BoolProperty(
 		name= "Double-sided",
-		description= "",
+		description= "Double-sided.",
 		default= True
 	)
 
@@ -722,7 +722,7 @@ def influence(context, layout, slot):
 		col= split.column()
 	factor_but(col, VRaySlot, 'map_anisotropy',          'anisotropy_mult',          "Anisotropy")
 	factor_but(col, VRaySlot, 'map_anisotropy_rotation', 'anisotropy_rotation_mult', "Rotation")
-	factor_but(col, VRaySlot, 'map_fresnel_ior',         'fresnel_ior_mult',         "Fresnel IOR")
+	factor_but(col, VRaySlot, 'map_fresnel_ior',         'fresnel_ior_mult',         "Fresnel")
 
 	split= layout.split()
 	col= split.column()
@@ -730,11 +730,11 @@ def influence(context, layout, slot):
 	split= layout.split()
 	col= split.column()
 	factor_but(col, VRaySlot, 'map_refract',            'refract_mult',            "Refract")
-	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
+	factor_but(col, VRaySlot, 'map_refract_glossiness', 'refract_glossiness_mult', "Glossiness")
 	if wide_ui:
 		col= split.column()
 	factor_but(col, VRaySlot, 'map_refract_ior',        'refract_ior_mult',        "IOR")
-	factor_but(col, VRaySlot, 'map_refract_glossiness', 'refract_glossiness_mult', "Glossiness")
+	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
 
 def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
@@ -763,7 +763,7 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	col.prop(BRDFVRayMtl, 'reflect_color', text="")
 	if not BRDFVRayMtl.hilight_glossiness_lock:
 		col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
-	col.prop(BRDFVRayMtl, "reflect_glossiness", text="Glossiness", slider=True)
+	col.prop(BRDFVRayMtl, 'reflect_glossiness', text="Glossiness", slider=True)
 	col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
 	col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
 	if wide_ui:
@@ -772,11 +772,12 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
 
 	if not BRDFVRayMtl.brdf_type == 'PHONG':
-		col.prop(BRDFVRayMtl, "anisotropy")
-		col.prop(BRDFVRayMtl, "anisotropy_rotation")
-	col.prop(BRDFVRayMtl, "fresnel")
+		sub= col.column(align= True)
+		sub.prop(BRDFVRayMtl, 'anisotropy', slider= True)
+		sub.prop(BRDFVRayMtl, 'anisotropy_rotation', slider= True)
+	col.prop(BRDFVRayMtl, 'fresnel')
 	if BRDFVRayMtl.fresnel:
-		col.prop(BRDFVRayMtl, "fresnel_ior")
+		col.prop(BRDFVRayMtl, 'fresnel_ior')
 
 	split= layout.split()
 	col= split.column()

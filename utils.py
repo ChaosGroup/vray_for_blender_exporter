@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:59]"
+  Time-stamp: "Monday, 14 March 2011 [15:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -481,6 +481,22 @@ def debug(scene, message, newline= True, cr= True, error= False):
 		sys.stdout.flush()
 
 
+# Prints dictionary
+def print_dict(scene, title, params, spacing= 2):
+	debug(scene, "%s:" % title)
+	for key in params:
+		if type(params[key]) == dict:
+			spacing*= 2
+			print_dict(scene, key, params[key], spacing)
+			spacing/= 2
+		elif type(params[key]) in (list,tuple):
+			debug(scene, "%s%s" % (''.join([' ']*spacing), key))
+			for item in params[key]:
+				debug(scene, ''.join([' ']*spacing*2) + str(item))
+		else:
+			debug(scene, "%s%s: %s" % (''.join([' ']*spacing), key, params[key]))
+
+
 # Property
 def p(t):
 	if type(t) is bool:
@@ -548,7 +564,7 @@ def append_unique(array, item):
 # V-Ray uses UV indexes, Blender uses UV names
 # Here we store UV name->index map
 def get_uv_layer_id(uv_layers, uv_layer_name):
-	if uv_layer_name == "":
+	if not uv_layer_name:
 		return 1
 	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1
 
@@ -565,7 +581,7 @@ def get_uv_layers_map(sce):
 
 	if sce.vray.exporter.debug:
 		for uv_layer in uv_layers:
-			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
+			print_dict(sce, "UV layer name map", uv_layers)
 
 	return uv_layers
 
@@ -612,6 +628,8 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 
 	return object_list
 
+
+# Naming
 # def get_name(data, bus):
 # 	name= data.name
 # 	if bus['object']['particle'].get('name'):
@@ -629,7 +647,6 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 # 	if data.library:
 # 		name+= "%s%s" % ('LI', get_filename(data.library.filepath))
 # 	return clean_string(name)
-
 def get_name(ob, prefix= None):
 	if not ob:
 		return None
@@ -640,6 +657,8 @@ def get_name(ob, prefix= None):
 		name+= "%s%s" % ('LI', get_filename(ob.library.filepath))
 	return clean_string(name)
 
+
+# Get data by name
 def get_data_by_name(sce, data_type, name):
 	if data_type == 'objects':
 		if name in sce.objects:
@@ -649,9 +668,14 @@ def get_data_by_name(sce, data_type, name):
 			return bpy.data[data_type][name]
 	return None
 
+
+# Get file name
 def get_filename(filepath):
 	return os.path.basename(bpy.path.abspath(filepath))
 
+
+# Get full filepath
+# Also copies file to DR shared folder
 def get_full_filepath(sce,ob,filepath):
 	def rel_path(filepath):
 		if filepath[:2] == "//":
@@ -700,6 +724,8 @@ def get_full_filepath(sce,ob,filepath):
 
 	return src_file
 
+
+# Render file format
 def get_render_file_format(VRayExporter, file_format):
 	if VRayExporter.image_to_blender:
 		return 'exr'
@@ -709,18 +735,22 @@ def get_render_file_format(VRayExporter, file_format):
 		file_format= 'exr'
 	elif file_format == 'MULTILAYER':
 		file_format= 'vrimg'
-	elif file_format in ('TARGA', 'TARGA_RAW'):
+	elif file_format in ('TARGA','TARGA_RAW'):
 		file_format= 'tga'
 	else:
 		file_format= 'png'
-	return file_format.lower()
+	return file_format
 	
+
+# True if object on active layer
 def object_on_visible_layers(sce,ob):
 	for l in range(20):
 		if ob.layers[l] and sce.layers[l]:
 			return True
 	return False
 
+
+# True if object is visible
 def object_visible(bus, ob):
 	scene= bus['scene']
 
@@ -745,18 +775,24 @@ def object_visible(bus, ob):
 
 	return True
 
+
+# Distance between 2 objects
 def get_distance(ob1, ob2):
 	p1= ob1.matrix_world[3]
 	p2= ob2.matrix_world[3]
 	vec= p1 - p2
 	return vec.length
 
+
+# VRayProxy Creator call
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	pc_binary= "vb_proxy"
 	if PLATFORM == 'win32':
 		pc_binary+= ".exe"
-	if get_vray_exporter_path():
-		p= os.path.join(get_vray_exporter_path(),pc_binary)
+
+	vray_exporter_path= get_vray_exporter_path()
+	if vray_exporter_path:
+		p= os.path.join(vray_exporter_path, pc_binary)
 		if os.path.exists(p):
 			pc_binary= p
 
@@ -769,12 +805,16 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 
 	os.system(' '.join(params))
 
+
+# Returns path to vb25 folder
 def get_vray_exporter_path():
 	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
 		if vb_path:
 			return vb_path
 	return ''
 
+
+# Detects V-Ray Standalone installation
 def get_vray_standalone_path(sce):
 	VRayExporter= sce.vray.exporter
 
@@ -823,6 +863,8 @@ def get_vray_standalone_path(sce):
 
 	return vray_bin
 
+
+# Inits directories / files
 def init_files(bus):
 	def create_dir(directory):
 		if not os.path.exists(directory):
@@ -852,11 +894,13 @@ def init_files(bus):
 	default_dir= tempfile.gettempdir()
 
 	# Export and output directory
-	export_filepath= default_dir
+	export_filepath= os.path.join(default_dir, "vb25")
 	export_filename= "scene"
 	output_filepath= default_dir
 
 	if bpy.data.filepath:
+		output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
+
 		if VRayExporter.output == 'USER':
 			if VRayExporter.output_dir:
 				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
@@ -869,8 +913,6 @@ def init_files(bus):
 
 		if VRayExporter.output_unique:
 			export_filename= blendfile_name
-
-		output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
 
 		# Distributed rendering
 		if VRayDR.on:
@@ -919,24 +961,10 @@ def init_files(bus):
 
 	if VRayExporter.debug:
 		debug(scene, "Files:")
-		for key in bus['filenames']:
+		for key in sorted(bus['filenames'].keys()):
 			debug(scene, "  {0:16}: {1}".format(key.capitalize(), bus['filenames'][key]))
 
 
-def print_dict(scene, title, params):
-	debug(scene, "%s:" % title)
-	for key in params:
-		if type(params[key]) == dict:
-			print_dict(scene, key, params[key])
-		elif type(params[key]) in (list,tuple):
-			debug(scene, "    %s" % (key))
-			for item in params[key]:
-				debug(scene, item)
-		else:
-			debug(scene, "  %s: %s" % (key, params[key]))
-
-
+# Converts kelvin temperature to color
 def kelvin_to_rgb(temperature):
 	return mathutils.Color(COLOR_TABLE[str(int(temperature / 100) * 100)])
-
-

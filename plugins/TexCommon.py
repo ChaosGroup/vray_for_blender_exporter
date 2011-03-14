@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:16]"
+  Time-stamp: "Monday, 14 March 2011 [10:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -409,28 +409,29 @@ def write(bus):
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
 
-	ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[VRayTexture.placement_type])
-	ofile.write("\n\ttile_u= %d;" % VRayTexture.tile_u)
-	ofile.write("\n\ttile_v= %d;" % VRayTexture.tile_v)
-	ofile.write("\n\tu= %s;" % a(scene, VRayTexture.u))
-	ofile.write("\n\tv= %s;" % a(scene, VRayTexture.v))
-	ofile.write("\n\tw= %s;" % a(scene, VRayTexture.w))
-	ofile.write("\n\th= %s;" % a(scene, VRayTexture.h))
-	ofile.write("\n\tjitter= %s;" % a(scene, VRayTexture.jitter))
-	ofile.write("\n\tinvert= %s;" % a(scene, VRayTexture.invert))
-	ofile.write("\n\tinvert_alpha= %s;" % a(scene, VRayTexture.invert_alpha))
-	ofile.write("\n\talpha_from_intensity= %s;" % a(scene, VRayTexture.alpha_from_intensity))
-	ofile.write("\n\tuv_noise_on= %s;" % a(scene, VRayTexture.uv_noise_on))
-	ofile.write("\n\tuv_noise_animate= %s;" % a(scene, VRayTexture.uv_noise_animate))
-	ofile.write("\n\tun_noise_phase= %s;" % a(scene, VRayTexture.un_noise_phase))
-	ofile.write("\n\tuv_noise_amount= %s;" % a(scene, VRayTexture.uv_noise_amount))
-	ofile.write("\n\tuv_noise_levels= %s;" % a(scene, VRayTexture.uv_noise_levels))
-	ofile.write("\n\tuv_noise_size= %s;" % a(scene, VRayTexture.uv_noise_size))
+	if VRayTexture.type not in ('TexFalloff'):
+		ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[VRayTexture.placement_type])
+		ofile.write("\n\ttile_u= %d;" % VRayTexture.tile_u)
+		ofile.write("\n\ttile_v= %d;" % VRayTexture.tile_v)
+		ofile.write("\n\tu= %s;" % a(scene, VRayTexture.u))
+		ofile.write("\n\tv= %s;" % a(scene, VRayTexture.v))
+		ofile.write("\n\tw= %s;" % a(scene, VRayTexture.w))
+		ofile.write("\n\th= %s;" % a(scene, VRayTexture.h))
+		ofile.write("\n\tjitter= %s;" % a(scene, VRayTexture.jitter))
+		ofile.write("\n\tuv_noise_on= %s;" % a(scene, VRayTexture.uv_noise_on))
+		ofile.write("\n\tuv_noise_animate= %s;" % a(scene, VRayTexture.uv_noise_animate))
+		ofile.write("\n\tun_noise_phase= %s;" % a(scene, VRayTexture.un_noise_phase))
+		ofile.write("\n\tuv_noise_amount= %s;" % a(scene, VRayTexture.uv_noise_amount))
+		ofile.write("\n\tuv_noise_levels= %s;" % a(scene, VRayTexture.uv_noise_levels))
+		ofile.write("\n\tuv_noise_size= %s;" % a(scene, VRayTexture.uv_noise_size))
 
+	ofile.write("\n\tinvert= %s;" % a(scene, VRayTexture.invert))
 	ofile.write("\n\tcolor_mult= %s;" % a(scene, VRayTexture.color_mult))
 	ofile.write("\n\tcolor_offset= %s;" % a(scene, VRayTexture.color_offset))
+	ofile.write("\n\tinvert_alpha= %s;" % a(scene, VRayTexture.invert_alpha))
 	ofile.write("\n\talpha_mult= %s;" % a(scene, VRayTexture.alpha_mult))
 	ofile.write("\n\talpha_offset= %s;" % a(scene, VRayTexture.alpha_offset))
+	ofile.write("\n\talpha_from_intensity= %s;" % a(scene, VRayTexture.alpha_from_intensity))
 	ofile.write("\n\tnouvw_color= %s;" % a(scene, VRayTexture.nouvw_color))
 
 	if hasattr(VRayTexture, VRayTexture.type):

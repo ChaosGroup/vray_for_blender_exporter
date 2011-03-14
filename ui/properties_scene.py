@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 14 March 2011 [17:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -41,18 +41,25 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
-
 	def draw(self, context):
-		layout= self.layout
-
 		wide_ui= context.region.width > narrowui
 
-		VRayScene= context.scene.vray
+		layout= self.layout
 
-		split= layout.split()
+		box= layout.box()
+		box.label(text="Scene:")
+		split= box.split()
 		col= split.column()
-		col.operator("vray.convert_materials", icon="MATERIAL")
-		col.operator("vray.settings_to_text", icon="RENDER_STILL")
+		col.operator("vray.convert_materials", icon='MATERIAL')
+		if wide_ui:
+			col= split.column()
+		col.operator("vray.settings_to_text", icon='RENDER_STILL')
+
+		layout.separator()
+
+		box= layout.box()
+		box.label(text="Object:")
+		split= box.split()
+		col= split.column()
+		col.operator("vray.copy_linked_materials", icon='MATERIAL')
+		

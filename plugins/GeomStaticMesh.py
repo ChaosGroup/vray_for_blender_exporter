@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [09:02]"
+  Time-stamp: "Monday, 14 March 2011 [14:44]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -235,7 +235,7 @@ def write(bus):
 	
 	debug(scene,
 		  "Frame {0}: Mesh: \033[0;32m{1:<32}\033[0m".format(scene.frame_current, color(ob.data.name, 'green')),
-		  True if VRayExporter.debug else False)
+		  newline= VRayExporter.debug)
 
 	# TODO
 	# if VRayExporter.mesh_ascii:

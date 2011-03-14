@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 14 March 2011 [14:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -165,7 +165,7 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 		
 		ve= context.scene.vray.exporter
 		ob= context.object
@@ -222,7 +222,7 @@ class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 	def draw(self, context):
 		layout= self.layout
 
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ma= active_node_mat(context.material)
 
@@ -278,7 +278,7 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 		self.layout.prop(MtlOverride, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 		ma= active_node_mat(context.material)
@@ -323,7 +323,7 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 		self.layout.prop(MtlWrapper, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 		ma= active_node_mat(context.material)
@@ -403,7 +403,7 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 		self.layout.prop(MtlRenderStats, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 		ma= active_node_mat(context.material)
@@ -467,7 +467,7 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 		self.layout.prop(VolumeVRayToon, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		ob= context.object

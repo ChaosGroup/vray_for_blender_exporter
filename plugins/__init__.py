@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:10]"
+  Time-stamp: "Monday, 14 March 2011 [15:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -814,6 +814,12 @@ def add_properties():
 			default= False
 		)
 
+		map_displacement_invert= BoolProperty(
+			name= "Invert displacement texture",
+			description= "Invert displacement texture.",
+			default= False
+		)
+
 		displacement_mult= FloatProperty(
 			name= "Displacement texture multiplier",
 			description= "Displacement texture multiplier.",
@@ -827,6 +833,12 @@ def add_properties():
 		map_normal= BoolProperty(
 			name= "Normal",
 			description= "Normal texture.",
+			default= False
+		)
+
+		map_normal_invert= BoolProperty(
+			name= "Invert normal texture",
+			description= "Invert normal texture.",
 			default= False
 		)
 
@@ -846,6 +858,12 @@ def add_properties():
 			default= False
 		)
 
+		map_opacity_invert= BoolProperty(
+			name= "Invert opacity texture",
+			description= "Invert opacity texture.",
+			default= False
+		)
+
 		opacity_mult= FloatProperty(
 			name= "Opacity texture multiplier",
 			description= "Opacity texture multiplier.",
@@ -862,6 +880,12 @@ def add_properties():
 			default= False
 		)
 
+		map_roughness_invert= BoolProperty(
+			name= "Invert roughness texture",
+			description= "Invert roughness texture.",
+			default= False
+		)
+
 		roughness_mult= FloatProperty(
 			name= "Roughness texture multiplier",
 			description= "Roughness texture multiplier.",
@@ -875,6 +899,12 @@ def add_properties():
 		map_reflect= BoolProperty(
 			name= "Reflection",
 			description= "Reflection texture.",
+			default= False
+		)
+
+		map_reflect_invert= BoolProperty(
+			name= "Invert reflection texture",
+			description= "Invert reflection texture.",
 			default= False
 		)
 
@@ -900,6 +930,12 @@ def add_properties():
 			default= False
 		)
 
+		map_reflect_glossiness_invert= BoolProperty(
+			name= "Invert reflection glossiness texture",
+			description= "Invert reflection glossiness texture.",
+			default= False
+		)
+
 		reflect_glossiness_mult= FloatProperty(
 			name= "Reflection glossiness texture multiplier",
 			description= "Reflection glossiness texture multiplier.",
@@ -913,6 +949,12 @@ def add_properties():
 		map_hilight_glossiness= BoolProperty(
 			name= "Hilight glossiness",
 			description= "Hilight glossiness texture.",
+			default= False
+		)
+
+		map_hilight_glossiness_invert= BoolProperty(
+			name= "Invert hilight_glossiness texture",
+			description= "Invert hilight_glossiness texture.",
 			default= False
 		)
 
@@ -932,6 +974,12 @@ def add_properties():
 			default= False
 		)
 
+		map_anisotropy_invert= BoolProperty(
+			name= "Invert anisotropy texture",
+			description= "Invert anisotropy texture.",
+			default= False
+		)
+
 		anisotropy_mult= FloatProperty(
 			name= "Anisotropy texture multiplier",
 			description= "Anisotropy texture multiplier.",
@@ -945,6 +993,12 @@ def add_properties():
 		map_anisotropy_rotation= BoolProperty(
 			name= "Anisotropy rotation",
 			description= "Anisotropy rotation texture.",
+			default= False
+		)
+
+		map_anisotropy_rotation_invert= BoolProperty(
+			name= "Invert anisotropy rotation texture",
+			description= "Invert anisotropy rotation texture.",
 			default= False
 		)
 
@@ -964,6 +1018,12 @@ def add_properties():
 			default= False
 		)
 
+		map_fresnel_ior_invert= BoolProperty(
+			name= "Invert fresnel IOR texture",
+			description= "Invert fresnel IOR texture.",
+			default= False
+		)
+
 		fresnel_ior_mult= FloatProperty(
 			name= "Fresnel IOR texture multiplier",
 			description= "Fresnel IOR texture multiplier.",
@@ -977,6 +1037,12 @@ def add_properties():
 		map_refract= BoolProperty(
 			name= "Refraction",
 			description= "Refraction texture.",
+			default= False
+		)
+
+		map_refract_invert= BoolProperty(
+			name= "Invert refraction texture",
+			description= "Invert refraction texture.",
 			default= False
 		)
 
@@ -996,6 +1062,12 @@ def add_properties():
 			default= False
 		)
 
+		map_refract_ior_invert= BoolProperty(
+			name= "Invert refraction IOR texture",
+			description= "Invert refraction IOR texture.",
+			default= False
+		)
+
 		refract_ior_mult= FloatProperty(
 			name= "Refraction IOR texture multiplier",
 			description= "Refraction IOR texture multiplier.",
@@ -1012,6 +1084,13 @@ def add_properties():
 			default= False
 		)
 
+
+		map_refract_glossiness_invert= BoolProperty(
+			name= "Invert refraction glossiness texture",
+			description= "Invert refraction glossiness texture.",
+			default= False
+		)
+
 		refract_glossiness_mult= FloatProperty(
 			name= "Refraction glossiness texture multiplier",
 			description= "Refraction glossiness texture multiplier.",
@@ -1025,6 +1104,12 @@ def add_properties():
 		map_translucency_color= BoolProperty(
 			name= "Translucency",
 			description= "Translucency texture.",
+			default= False
+		)
+
+		map_translucency_invert= BoolProperty(
+			name= "Invert translucency texture",
+			description= "Invert translucency texture.",
 			default= False
 		)
 

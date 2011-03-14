@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:29]"
+  Time-stamp: "Monday, 14 March 2011 [14:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -255,18 +255,6 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Options:")
 		col.prop(ve, 'use_material_nodes')
 
-		layout.separator()
-
-		layout.label(text="Threads:")
-		split= layout.split()
-		col= split.column()
-		col.row().prop(rd, "threads_mode", expand=True)
-		if wide_ui:
-			col= split.column(align=True)
-		sub= col.column()
-		sub.enabled= rd.threads_mode == 'FIXED'
-		sub.prop(rd, "threads")
-
 
 class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Globals"
@@ -276,7 +264,7 @@ class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		VRayScene= context.scene.vray
 		VRayExporter=    VRayScene.exporter
@@ -978,7 +966,7 @@ class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 		return (engine_poll(__class__, context) and VRayBake.use)
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		VRayScene= context.scene.vray
 		VRayBake= VRayScene.VRayBake
@@ -1006,13 +994,27 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
+
+		rd= context.scene.render
 
 		VRayScene= context.scene.vray
 		SettingsRaycaster=        VRayScene.SettingsRaycaster
 		SettingsUnitsInfo=        VRayScene.SettingsUnitsInfo
 		SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 		SettingsOptions=          VRayScene.SettingsOptions
+
+		layout.label(text="Threads:")
+		split= layout.split()
+		col= split.column()
+		col.row().prop(rd, "threads_mode", expand=True)
+		if wide_ui:
+			col= split.column(align=True)
+		sub= col.column()
+		sub.enabled= rd.threads_mode == 'FIXED'
+		sub.prop(rd, 'threads', text="Count")
+
+		layout.separator()
 
 		layout.label(text="Raycaster parameters:")
 		split= layout.split()

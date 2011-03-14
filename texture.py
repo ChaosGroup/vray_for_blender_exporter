@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [08:56]"
+  Time-stamp: "Monday, 14 March 2011 [11:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -44,14 +44,6 @@ def write_TexAColorOp(ofile, sce, color_a, mult):
 	return tex_name
 
 
-def write_TexInvert(ofile, tex):
-	tex_name= get_random_string()
-	ofile.write("\nTexInvert %s {" % tex_name)
-	ofile.write("\n\ttexture= %s;" % tex)
-	ofile.write("\n}\n")
-	return tex_name
-
-
 def write_TexCompMax(ofile, sce, params):
 	OPERATOR= {
 		'Add':        0,
@@ -83,6 +75,18 @@ def write_TexFresnel(ofile, sce, ma, ma_name, textures):
 	else:
 		ofile.write("\n\tblack_color= %s;" % a(sce,"AColor(%.6f, %.6f, %.6f, 1.0)"%(tuple([1.0 - c for c in ma.vray_reflect_color]))))
 	ofile.write("\n\tfresnel_ior= %s;" % a(sce,ma.vray.BRDFVRayMtl.fresnel_ior))
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_TexInvert(bus):
+	ofile= bus['files']['textures']
+
+	tex_name= "TI%s" % bus['mtex']['name']
+
+	ofile.write("\nTexInvert %s {" % tex_name)
+	ofile.write("\n\ttexture= %s;" % bus['mtex']['name'])
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -132,7 +136,7 @@ def write_factor(bus):
 	if factor == 1.0:
 		return bus['mtex']['name']
 
-	tex_name= "TF%sFC%s" % (bus['mtex']['name'], clean_string("%.3f" % factor))
+	tex_name= "TF%sF%s" % (bus['mtex']['name'], clean_string("%.3f" % factor))
 
 	if factor > 1.0:
 		if 1:
@@ -154,6 +158,24 @@ def write_factor(bus):
 				
 	return tex_name
 
+
+def stack_write_texture(bus):
+	slot=    bus['mtex']['slot']
+	texture= bus['mtex']['texture']
+	mapto=   bus['mtex']['mapto']
+
+	VRayTexture= texture.vray
+	VRaySlot=    texture.vray_slot
+
+	bus['mtex']['name']= write_factor(bus)
+
+	mapto_invert= 'map_%s_invert' % mapto
+	if hasattr(VRaySlot, mapto_invert):
+		if getattr(VRaySlot, mapto_invert):
+			bus['mtex']['name']= write_TexInvert(bus)
+
+	return bus['mtex']['name']
+			
 
 def remove_alpha(bus):
 	ofile=   bus['files']['textures']
@@ -251,3 +273,6 @@ def write_TexOutput(bus, texmap, mapto):
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")
 	return tex_name
+
+
+

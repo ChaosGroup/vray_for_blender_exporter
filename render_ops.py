@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [10:25]"
+  Time-stamp: "Monday, 14 March 2011 [17:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -811,6 +811,41 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_add_sky)
+
+
+
+'''
+  LINK MATERIAL OVERRIDE
+'''
+class VRAY_OT_copy_linked_materials(bpy.types.Operator):
+	bl_idname      = "vray.copy_linked_materials"
+	bl_label       = "Copy linked materials"
+	bl_description = "Copy linked materials."
+
+	def execute(self, context):
+		scene=  context.scene
+		object= context.active_object
+
+		if object.dupli_type == 'GROUP':
+			object.dupli_list_create(scene)
+
+			for dup_ob in object.dupli_list:
+				ob= dup_ob.object
+				for slot in ob.material_slots:
+					ma= slot.material
+					if ma:
+						materials= [slot.material for slot in object.material_slots]
+						if ma not in materials:
+							debug(scene, "Adding material: %s" % (ma.name))
+							object.data.materials.append(ma)
+
+			object.dupli_list_clear()
+
+			return {'FINISHED'}
+
+		return {'CANCELLED'}
+
+bpy.utils.register_class(VRAY_OT_copy_linked_materials)
 
 
 

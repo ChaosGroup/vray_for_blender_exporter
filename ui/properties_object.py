@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 14 March 2011 [14:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -60,7 +60,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 
@@ -104,7 +104,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 		plugin= ob.vray.MtlWrapper
@@ -178,7 +178,7 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > 200
+		wide_ui= context.region.width > narrowui
 
 		ob= context.object
 		plugin= ob.vray.MtlRenderStats
