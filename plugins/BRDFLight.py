@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [18:15]"
+  Time-stamp: "Monday, 14 March 2011 [18:16]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,8 +32,9 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.texture import *
+from vb25.utils   import *
+from vb25.ui.ui   import *
 
 
 TYPE= 'BRDF'

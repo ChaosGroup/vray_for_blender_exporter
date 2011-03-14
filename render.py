@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [18:08]"
+  Time-stamp: "Monday, 14 March 2011 [18:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -623,9 +623,7 @@ def write_lamp_textures(bus):
 		'shadowColor': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayLamp.shadowColor)),   0, 'NONE'),
 	}
 
-	bus['lamp_textures']= {
-		'mapto': {},
-	}
+	bus['lamp_textures']= {}
 	
 	for i,slot in enumerate(la.texture_slots):
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
@@ -951,7 +949,7 @@ def write_lamp(bus):
 	lamp_name= get_name(ob, prefix='LA')
 	lamp_matrix= ob.matrix_world
 
-	textures= write_lamp_textures(bus)['mapto']
+	textures= write_lamp_textures(bus)
 
 	if bus['node']['dupli'].get('matrix'):
 		lamp_matrix= bus['node']['dupli']['matrix']
