@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 14 March 2011 [09:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -233,14 +233,9 @@ def write(bus):
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 	
-	if PLATFORM == "linux2":
-		debug(scene,
-			  "Frame {0}: Mesh: \033[0;32m{1:<32}\033[0m".format(scene.frame_current, ob.data.name),
-			  True if VRayExporter.debug else False)
-	else:
-		debug(scene,
-			  "Frame {0}: Mesh: {1:<32}".format(scene.frame_current, ob.data.name),
-			  True if VRayExporter.debug else False)
+	debug(scene,
+		  "Frame {0}: Mesh: \033[0;32m{1:<32}\033[0m".format(scene.frame_current, color(ob.data.name, 'green')),
+		  True if VRayExporter.debug else False)
 
 	# TODO
 	# if VRayExporter.mesh_ascii:

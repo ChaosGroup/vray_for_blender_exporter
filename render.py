@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:51]"
+  Time-stamp: "Monday, 14 March 2011 [09:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -397,7 +397,7 @@ def write_geometry_python(bus):
 		bus['filter']['mesh']= []
 
 		for ob in scene.objects:
-			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
+			if ob.type not in GEOM_TYPES:
 				continue
 
 			# Skip proxy meshes
@@ -1243,10 +1243,7 @@ def _write_object_particles(bus):
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					if PLATFORM == "linux2":
-						sys.stdout.write("V-Ray/Blender: Object: \033[0;33m%s\033[0m => Particle: \033[0;32m%i\033[0m\r" % (ob.name, p))
-					else:
-						sys.stdout.write("V-Ray/Blender: Object: %s => Particle: %i\r" % (ob.name, p))
+					sys.stdout.write("V-Ray/Blender: Object: %s => Particle: %i\r" % (color(ob.name,'yellow'), color(p, 'green')))
 					sys.stdout.flush()
 
 					location= particle.location
@@ -1542,11 +1539,6 @@ def write_scene(bus):
 		bus['filter']['texture']=  []
 		bus['filter']['material']= []
 
-		# Special data types
-		# For example, export VolumeFog or VRayToon from material settings
-		# Stores ({'plugin': plugin.ID, 'objects': ({'object': ob, 'rna_pointer': settings_data}))
-		bus['special_types']= []
-
 		# Fake frame for "Camera loop"
 		if VRayExporter.camera_loop:
 			for key in bus['files']:
@@ -1554,7 +1546,6 @@ def write_scene(bus):
 					bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
 		else:
 			# Camera
-			# Here for "Camera bind" support
 			bus['camera']= scene.camera
 
 		# Visibility list for "Hide from view" and "Camera loop" features
@@ -1568,10 +1559,7 @@ def write_scene(bus):
 			if not object_visible(bus, ob):
 				continue
 
-			if PLATFORM == "linux2":
-				debug(scene, "{0}: \033[0;32m{1:<32}\033[0m".format(ob.type, ob.name), True if VRayExporter.debug else False)
-			else:
-				debug(scene, "{0}: {1:<32}".format(ob.type, ob.name), True if VRayExporter.debug else False)
+			debug(scene, "{0}: {1:<32}".format(ob.type, color(ob.name, 'green')), True if VRayExporter.debug else False)
 
 			bus['node']= {}
 

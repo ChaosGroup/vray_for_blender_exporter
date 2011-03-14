@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:48]"
+  Time-stamp: "Monday, 14 March 2011 [08:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -449,6 +449,8 @@ GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
 
 none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 
+
+# Colorize sting on Linux
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
 		return text
@@ -461,12 +463,112 @@ def color(text, color=None):
 	else:
 		return text
 
-def get_plugin_property(rna_pointer, property):
-	return rna_pointer.get(property, getattr(rna_pointer, property))
+
+# Log message
+def debug(scene, message, newline= True, cr= True, error= False):
+	# sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
+	# 	time.strftime("%Y/%b/%d|%H:%m:%S"),
+	# 	color("Error! ", 'red') if error else '',
+	# 	message,
+	# 	'\n' if newline else '\r' if cr else '')
+	# )
+	sys.stdout.write("V-Ray/Blender: %s%s%s" % (
+		color("Error! ", 'red') if error else '',
+		message,
+		'\n' if newline else '\r' if cr else '')
+	)
+	if not newline:
+		sys.stdout.flush()
+
+
+# Property
+def p(t):
+	if type(t) is bool:
+		return "%i"%(t)
+	elif type(t) is int:
+		return "%i"%(t)
+	elif type(t) is float:
+		return "%.6f"%(t)
+	elif type(t) is mathutils.Vector:
+		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
+	elif type(t) is mathutils.Color:
+		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
+	elif type(t) is str:
+		if t == "True":
+			return "1"
+		elif t == "False":
+			return "0"
+		else:
+			return t
+	else:
+		return "%s"%(t)
+
+
+# Animated property
+def a(scene, t):
+	if scene.vray.exporter.animation:
+		return "interpolate((%i,%s))" % (scene.frame_current, p(t))
+	else:
+		return p(t)
+
+
+# Transform matrix string
+def transform(m):
+	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))"\
+            %(m[0][0], m[0][1], m[0][2],\
+              m[1][0], m[1][1], m[1][2],\
+              m[2][0], m[2][1], m[2][2],\
+              m[3][0], m[3][1], m[3][2])
+
+
+# Clean string from forbidden chars
+def clean_string(s):
+	s= s.replace("+", "p")
+	s= s.replace("-", "m")
+	for i in range(len(s)):
+		c= s[i]
+		if not ((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')):
+			s= s.replace(c, "_")
+	return s
+
 
 # The most powerfull unique name generator =)
 def get_random_string():
 	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
+
+
+# Append to list only if item not already in list
+def append_unique(array, item):
+	if item in array:
+		return False
+	array.append(item)
+	return True
+
+
+# V-Ray uses UV indexes, Blender uses UV names
+# Here we store UV name->index map
+def get_uv_layer_id(uv_layers, uv_layer_name):
+	if uv_layer_name == "":
+		return 1
+	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1
+
+def get_uv_layers_map(sce):
+	uv_layers= {}
+	uv_id= 1
+	for ma in bpy.data.materials:
+		for slot in ma.texture_slots:
+			if slot and slot.texture:
+				if slot.texture.vray.texture_coords == 'UV':
+					if slot.uv_layer and slot.uv_layer not in uv_layers:
+						uv_layers[slot.uv_layer]= uv_id
+						uv_id+= 1
+
+	if sce.vray.exporter.debug:
+		for uv_layer in uv_layers:
+			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
+
+	return uv_layers
+
 
 # Generate visibility list for "Hide From View"
 def get_visibility_lists(camera):
@@ -491,92 +593,8 @@ def get_visibility_lists(camera):
 
 	return visibility
 
-def debug(scene, message, newline= True, cr= True, error= False):
-	# sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
-	# 	time.strftime("%Y/%b/%d|%H:%m:%S"),
-	# 	color("Error! ", 'red') if error else '',
-	# 	message,
-	# 	'\n' if newline else '\r' if cr else '')
-	# )
-	sys.stdout.write("V-Ray/Blender: %s%s%s" % (
-		color("Error! ", 'red') if error else '',
-		message,
-		'\n' if newline else '\r' if cr else '')
-	)
-	if not newline:
-		sys.stdout.flush()
 
-def p(t):
-	if type(t) is bool:
-		return "%i"%(t)
-	elif type(t) is int:
-		return "%i"%(t)
-	elif type(t) is float:
-		return "%.6f"%(t)
-	elif type(t) is mathutils.Vector:
-		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
-	elif type(t) is mathutils.Color:
-		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
-	elif type(t) is str:
-		if t == "True":
-			return "1"
-		elif t == "False":
-			return "0"
-		else:
-			return t
-	else:
-		return "%s"%(t)
-
-def a(scene, t):
-	if scene.vray.exporter.animation:
-		return "interpolate((%i,%s))" % (scene.frame_current, p(t))
-	else:
-		return p(t)
-
-def transform(m):
-	return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))"\
-            %(m[0][0], m[0][1], m[0][2],\
-              m[1][0], m[1][1], m[1][2],\
-              m[2][0], m[2][1], m[2][2],\
-              m[3][0], m[3][1], m[3][2])
-
-def append_unique(array, item):
-	if item in array:
-		return False
-	array.append(item)
-	return True
-
-def clean_string(s):
-	s= s.replace("+", "p")
-	s= s.replace("-", "m")
-	for i in range(len(s)):
-		c= s[i]
-		if not ((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')):
-			s= s.replace(c, "_")
-	return s
-
-def get_uv_layer_id(uv_layers, uv_layer_name):
-	if uv_layer_name == "":
-		return 1
-	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1
-
-def get_uv_layers_map(sce):
-	uv_layers= {}
-	uv_id= 1
-	for ma in bpy.data.materials:
-		for slot in ma.texture_slots:
-			if slot and slot.texture:
-				if slot.texture.vray.texture_coords == 'UV':
-					if slot.uv_layer and slot.uv_layer not in uv_layers:
-						uv_layers[slot.uv_layer]= uv_id
-						uv_id+= 1
-
-	if sce.vray.exporter.debug:
-		for uv_layer in uv_layers:
-			debug(sce, "UV layer name map: \"%s\" => %i" % (uv_layer, uv_layers[uv_layer]))
-
-	return uv_layers
-
+# Generate list objects from ';' separated object and group strings
 def generate_object_list(object_names_string= None, group_names_string= None):
 	object_list= []
 
