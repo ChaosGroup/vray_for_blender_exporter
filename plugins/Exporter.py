@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:05]"
+  Time-stamp: "Monday, 14 March 2011 [08:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -95,7 +95,7 @@ def add_properties(rna_pointer):
 
 	VRayExporter.image_to_blender= BoolProperty(
 		name= "Image to Blender",
-		description= "Pass image to Blender on render end.",
+		description= "Pass image to Blender on render end (EXR file format is used).",
 		default= False
 	)
 

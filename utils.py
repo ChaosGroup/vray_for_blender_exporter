@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:48]"
+  Time-stamp: "Monday, 14 March 2011 [08:48]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -818,11 +818,12 @@ def init_files(bus):
 				debug(scene, "Using default exporting path: %s" % directory)
 		return directory
 
-	scene=        bus['scene']
+	scene= bus['scene']
 
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
-	VRayDR=       VRayScene.VRayDR
+	VRayScene=      scene.vray
+	VRayExporter=   VRayScene.exporter
+	VRayDR=         VRayScene.VRayDR
+	SettingsOutput= VRayScene.SettingsOutput
 	
 	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
 
@@ -834,38 +835,37 @@ def init_files(bus):
 
 	# Export and output directory
 	export_filepath= default_dir
-	export_filename= blendfile_name if VRayExporter.output_unique else 'scene'
-	output_filepath= bpy.path.abspath(scene.render.filepath)
+	export_filename= "scene"
+	output_filepath= default_dir
 
-	# Startup blend-file
-	if blendfile_name == 'startup':
-		export_filepath= os.path.join(export_filepath, "vb25")
-		output_filepath= default_dir
-
-	# Distributed rendering
-	elif VRayDR.on:
-		export_filepath= os.path.join(
-			bpy.path.abspath(VRayDR.shared_dir),
-			blendfile_name + os.sep # Unsure that path is finished with separator
-		)
-
-	# Normal rendering
-	else:
+	if bpy.data.filepath:
 		if VRayExporter.output == 'USER':
 			if VRayExporter.output_dir:
 				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
+
 		elif VRayExporter.output == 'SCENE':
 			export_filepath= blendfile_path
 
 		if VRayExporter.output != 'USER':
 			export_filepath= os.path.join(export_filepath, "vb25")
 
+		if VRayExporter.output_unique:
+			export_filename= blendfile_name
+
+		output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
+
+		# Distributed rendering
+		if VRayDR.on:
+			export_filepath= os.path.join(
+				bpy.path.abspath(VRayDR.shared_dir),
+				blendfile_name + os.sep # Unsure that path is finished with separator
+			)
+
 	if bus['preview']:
 		export_filename= 'preview'
 		export_filepath= create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview'))
 
 	export_directory= create_dir(export_filepath)
-	output_dir= bpy.path.abspath(scene.render.filepath)
 
 	for key in ('geometry', 'lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment'):
 		if key == 'geometry':
@@ -875,12 +875,34 @@ def init_files(bus):
 			bus['files'][key]= open(filepath, 'w')
 		bus['filenames'][key]= filepath
 
+	# Render output dir
 	bus['filenames']['output']= create_dir(output_filepath)
-	bus['filenames']['lightmaps']= create_dir(output_filepath)
+
+	# Render output file name
+	ext= get_render_file_format(VRayExporter, scene.render.file_format)
+	file_name= "render"
+	if SettingsOutput.img_file:
+		file_name= SettingsOutput.img_file
+		if file_name.find("%C") != -1:
+			file_name= file_name.replace("%C", scene.camera.name)
+		if file_name.find("%S") != -1:
+			file_name= file_name.replace("%S", scene.name)
+		file_name= clean_string(file_name)
+		load_file_name= file_name
+	bus['filenames']['output_filename']= "%s.%s" % (file_name, ext)
+
+	# Render output - load file name
+	if SettingsOutput.img_file_needFrameNumber:
+		load_file_name= "%s.%.4i" % (load_file_name, scene.frame_current)
+	bus['filenames']['output_loadfile']=  "%s.%s" % (load_file_name, ext)
+
+	# Lightmaps path
+	# bus['filenames']['lightmaps']= default_dir
 
 	if VRayExporter.debug:
+		debug(scene, "Files:")
 		for key in bus['filenames']:
-			print("{0:12}: {1}".format(key.capitalize(), bus['filenames'][key]))
+			debug(scene, "  {0:16}: {1}".format(key.capitalize(), bus['filenames'][key]))
 
 
 def print_dict(scene, title, params):

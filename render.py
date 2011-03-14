@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [06:49]"
+  Time-stamp: "Monday, 14 March 2011 [08:42]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -523,7 +523,7 @@ def write_settings(bus):
 	SettingsOutput= VRayScene.SettingsOutput
 
 	for key in bus['filenames']:
-		if key in ('output', 'lightmaps', 'scene'):
+		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene'):
 			# Skip some files
 			continue
 
@@ -1614,9 +1614,8 @@ def write_scene(bus):
 		scene.frame_set(selected_frame)
 	else:
 		if VRayExporter.camera_loop:
-			cameras= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-			if cameras:
-				for i,camera in enumerate(cameras):
+			if bus['cameras']:
+				for i,camera in enumerate(bus['cameras']):
 					bus['camera']= camera
 					bus['camera_index']= i
 					write_frame(bus)
@@ -1656,16 +1655,17 @@ def run(engine, bus):
 	params.append(str(scene.render.threads))
 
 	if bus['preview']:
-		preview_file= os.path.join(tempfile.gettempdir(), "preview.jpg")
+		preview_file=     os.path.join(tempfile.gettempdir(), "preview.jpg")
+		preview_loadfile= os.path.join(tempfile.gettempdir(), "preview.0000.jpg")
 
 		params.append('-imgFile=')
 		params.append(preview_file)
+		params.append('-showProgress=')
+		params.append('0')
 		params.append('-display=')
 		params.append('0')
 		params.append('-autoclose=')
 		params.append('1')
-		params.append('-showProgress=')
-		params.append('0')
 
 	else:
 		if scene.render.use_border:
@@ -1678,15 +1678,14 @@ def run(engine, bus):
 				params.append('-crop=')
 			else:
 				params.append('-region=')
-			params.append("%i;%i;%i;%i"%(x0,y0,x1,y1))
+			params.append("%i;%i;%i;%i" % (x0,y0,x1,y1))
 
 		params.append('-frames=')
 		if VRayExporter.animation:
 			params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end,int(scene.frame_step)))
 		elif VRayExporter.camera_loop:
-			cameras= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-			if cameras:
-				params.append("1-%d,1" % len(cameras))
+			if bus['cameras']:
+				params.append("1-%d,1" % len(bus['cameras']))
 		else:
 			params.append("%d" % scene.frame_current)
 
@@ -1700,62 +1699,69 @@ def run(engine, bus):
 				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-			image_file= os.path.join(bus['filenames']['output'],
-									 "render_%s.%s" % (clean_string(scene.camera.name),
-													   get_render_file_format(VRayExporter,scene.render.file_format)))
+			image_file= os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
+			
 			params.append('-imgFile=')
 			params.append(image_file)
 
-		if VRayExporter.display:
-			params.append('-display=')
-			params.append('1')
+		params.append('-display=')
+		params.append(str(int(VRayExporter.display)))
 
 		if VRayExporter.image_to_blender:
 			params.append('-autoclose=')
 			params.append('1')
 
+	if PLATFORM == "linux2":
+		if VRayExporter.log_window:
+			log_window= []
+			log_window.append("xterm")
+			log_window.append("-T")
+			log_window.append("VRAYSTANDALONE")
+			log_window.append("-geometry")
+			log_window.append("90x10")
+			log_window.append("-e")
+			log_window.extend(params)
+			params= log_window
+
+	# if PLATFORM == "win32":
+	# 	win_belownormal= []
+	# 	win_belownormal.append("start")
+	# 	win_belownormal.append("\"VRAYSTANDALONE\"")
+	# 	win_belownormal.append("/B")
+	# 	win_belownormal.append("/BELOWNORMAL")
+	# 	win_belownormal.append("\"%s\"" % params[0])
+	# 	win_belownormal.extend(params[1:])
+
+	debug(scene, "Command: %s" % ' '.join(params))
+
 	if VRayExporter.autorun:
-		if VRayExporter.detach:
-			command= "(%s)&" % (' '.join(params))
-			if PLATFORM == "linux2":
-				if VRayExporter.log_window:
-					command= "(xterm -T VRAYSTANDALONE -geometry 90x10 -e \"%s\")&" % (' '.join(params))
-			if PLATFORM == "win32":
-				command= "start \"VRAYSTANDALONE\" /B /BELOWNORMAL \"%s\" %s" % (params[0], ' '.join(params[1:]))
-			os.system(command)
+		process= subprocess.Popen(params)
 
-		else:
-			process= subprocess.Popen(params)
+		if bus['preview'] or VRayExporter.image_to_blender:
+			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
+			while True:
+				if engine.test_break():
+					try:
+						process.kill()
+					except:
+						pass
+					break
 
-			if bus['preview'] or (VRayExporter.image_to_blender and VRayExporter.use_render_operator):
-				load_file= preview_file if bus['preview'] else os.path.join(bus['filenames']['output'],
-																			"render_%s.%.4i.%s" % (clean_string(scene.camera.name),
-																								   scene.frame_current,
-																								   get_render_file_format(VRayExporter,scene.render.file_format)))
-				while True:
-					if engine.test_break():
-						try:
-							process.kill()
-						except:
-							pass
-						break
+				if process.poll() is not None:
+					try:
+						if not VRayExporter.animation:
+							result= engine.begin_result(0, 0, resolution_x, resolution_y)
+							layer= result.layers[0]
+							layer.load_from_file(load_file)
+							engine.end_result(result)
+					except:
+						pass
+					break
 
-					if process.poll() is not None:
-						try:
-							if not VRayExporter.animation:
-								result= engine.begin_result(0, 0, resolution_x, resolution_y)
-								layer= result.layers[0]
-								layer.load_from_file(load_file)
-								engine.end_result(result)
-						except:
-							pass
-						break
-
-					time.sleep(0.1)
+				time.sleep(0.1)
 
 	else:
 		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
-		debug(scene, "Command: %s" % ' '.join(params))
 	
 
 def render(engine, scene, preview= None):
@@ -1783,6 +1789,9 @@ def render(engine, scene, preview= None):
 	bus['filenames']= {}
 
 	init_files(bus)
+
+	# Camera loop
+	bus['cameras']= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
 
 	if preview:
 		write_geometry_python(bus)

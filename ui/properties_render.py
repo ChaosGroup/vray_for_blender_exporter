@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [04:05]"
+  Time-stamp: "Monday, 14 March 2011 [08:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -126,6 +126,10 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
+	def draw_header(self, context):
+		VRayExporter= context.scene.vray.exporter
+		self.layout.prop(VRayExporter, 'auto_save_render', text="")
+
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
@@ -139,16 +143,28 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		VRayExporter=   VRayScene.exporter
 		SettingsOutput= VRayScene.SettingsOutput
 
-		layout.prop(rd, "filepath", text="")
+		layout.active= VRayExporter.auto_save_render
+
+		if wide_ui:
+			split= layout.split(percentage=0.2)
+			col= split.column()
+			col.label(text="Path:")
+			col.label(text="Filename:")
+			col= split.column()
+			col.prop(SettingsOutput, 'img_dir',  text="")
+			col.prop(SettingsOutput, 'img_file', text="")
+		else:
+			layout.prop(SettingsOutput, 'img_dir',  text="")
+			layout.prop(SettingsOutput, 'img_file', text="")
 
 		layout.separator()
 
-		split= layout.split(percentage=0.35)
+		split= layout.split()
 		col= split.column()
-		col.prop(rd, "file_format", text="")
+		col.prop(rd, 'file_format', text= "Format")
 
-		if wide_ui:
-			col = split.column()
+		split= layout.split()
+		col= split.column()
 
 		if file_format == 'JPEG':
 			col.prop(rd, 'file_quality', slider= True)
@@ -161,7 +177,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 
 		elif file_format in {'OPEN_EXR', 'MULTILAYER'}:
 			row= col.row()
-			row.prop(rd, 'exr_codec', text='')
+			row.prop(rd, 'exr_codec')
 
 			if file_format == 'OPEN_EXR':
 				row.prop(rd, 'use_exr_half', text= "16 bit")
@@ -170,16 +186,16 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(VRayExporter, 'auto_save_render')
-		if VRayExporter.auto_save_render:
-			col.prop(SettingsOutput, 'img_separateAlpha')
-			col.prop(SettingsOutput, 'relements_separateFolders')
+		col.prop(SettingsOutput, 'img_noAlpha')
+		col.prop(SettingsOutput, 'img_separateAlpha')
+		col.prop(SettingsOutput, 'relements_separateFolders')
 		if wide_ui:
 			col = split.column()
-		if not VRayExporter.detach:
-			col.prop(VRayExporter, 'image_to_blender')
-			col.prop(SettingsOutput, 'img_noAlpha')
-			col.prop(rd, "use_overwrite")
+		col.prop(SettingsOutput, 'img_file_needFrameNumber')
+		col.prop(VRayExporter, 'image_to_blender')
+		sub= col.column()
+		sub.active= False
+		sub.prop(rd, "use_overwrite")
 
 
 class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
@@ -357,10 +373,9 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 			col.prop(ve, 'vray_binary')
 		split= layout.split()
 		col= split.column()
-		col.prop(ve, 'detach', text="Detach process")
-		if wide_ui:
-			col= split.column()
-		col.prop(ve, 'log_window')
+		# col.prop(ve, 'detach', text="Detach process")
+		if PLATFORM == "linux2":
+			col.prop(ve, 'log_window')
 
 		layout.separator()
 

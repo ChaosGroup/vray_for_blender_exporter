@@ -4,7 +4,7 @@
 
 	http://vray.cgdo.ru
 
-	Time-stamp: " "
+	Time-stamp: "Monday, 14 March 2011 [08:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
 	E-Mail: izrantsev@cgdo.ru
@@ -36,7 +36,7 @@ import bpy
 from vb25.utils import *
 
 
-class VBPresetBase():
+class VRAY_PRESETS():
 	bl_options = {'REGISTER'}
 
 	name= bpy.props.StringProperty(
@@ -129,12 +129,12 @@ class VBPresetBase():
 			return self.execute(context)
 
 
-class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
+class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 	'''Add a V-Ray global preset'''
 	bl_idname = "vray.preset_add"
 	bl_label  = "Add V-Ray Global Preset"
 
-	preset_menu   = "VRAY_MT_global_preset"
+	preset_menu   = "VRAY_MT_preset_global"
 	preset_subdir = "render"
 
 	preset_values= [
@@ -143,7 +143,6 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.exporter.auto_meshes",
 		"bpy.context.scene.vray.exporter.debug",
 		"bpy.context.scene.vray.exporter.use_material_nodes",
-		"bpy.context.scene.vray.exporter.compat_mode",
 		"bpy.context.scene.vray.exporter.image_to_blender",
 		"bpy.context.scene.vray.exporter.active_layers",
 		"bpy.context.scene.vray.exporter.mesh_active_layers",
@@ -321,6 +320,7 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.render.threads",
 	]
 
+bpy.utils.register_class(VRAY_PRESET_global_render)
 
 # '''
 #   BRDFSSS2Complex preset generator

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [03:35]"
+  Time-stamp: "Monday, 14 March 2011 [08:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,31 +49,48 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class SettingsOutput(bpy.types.PropertyGroup):
-		pass
+		img_noAlpha= BoolProperty(
+			name= "No alpha",
+			description= "Don't write the alpha channel to the final image.",
+			default= False
+		)
+
+		img_separateAlpha= BoolProperty(
+			name= "Separate alpha",
+			description= "Write the alpha channel to a separate file.",
+			default= False
+		)
+
+		img_file= StringProperty(
+			name= "File name",
+			description= "Render file name (Variables: %C - camera name; %S - scene name).",
+			default= "render_%C"
+		)
+
+		img_dir= StringProperty(
+			name= "Path",
+			description= "Render file directory.",
+			subtype= 'DIR_PATH',
+			default= "//render/"
+		)
+
+		img_file_needFrameNumber= BoolProperty(
+			name= "Add frame number",
+			description= "Add frame number to the image file name.",
+			default= True
+		)
+
+		relements_separateFolders= BoolProperty(
+			name= "Separate folders",
+			description= "Save render channels in separate folders.",
+			default= False
+		)
 	bpy.utils.register_class(SettingsOutput)
 
 	rna_pointer.SettingsOutput= PointerProperty(
 		name= NAME,
 		type= SettingsOutput,
 		description= DESC
-	)
-
-	SettingsOutput.img_noAlpha= BoolProperty(
-		name= "No alpha",
-		description= "Don't write the alpha channel to the final image.",
-		default= False
-	)
-
-	SettingsOutput.img_separateAlpha= BoolProperty(
-		name= "Separate alpha",
-		description= "Write the alpha channel to a separate file.",
-		default= False
-	)
-
-	SettingsOutput.relements_separateFolders= BoolProperty(
-		name= "Separate folders",
-		description= "Save render elements in separate folders.",
-		default= False
 	)
 
 
@@ -97,21 +114,22 @@ def write(bus):
 
 	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
 	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
-	
+
+	file_format= get_render_file_format(VRayExporter, scene.render.file_format)
+
 	ofile.write("\nSettingsOutput SettingsOutput {")
 	ofile.write("\n\timg_noAlpha= %d;" % SettingsOutput.img_noAlpha)
 	ofile.write("\n\timg_separateAlpha= %d;" % SettingsOutput.img_separateAlpha)
 	ofile.write("\n\timg_width= %s;" % wx)
 	ofile.write("\n\timg_height= %s;" % (wx if VRayScene.VRayBake.use else wy))
-	if VRayExporter.animation:
-		ofile.write("\n\timg_file= \"render_%s.%s\";" % (clean_string(scene.camera.name), get_render_file_format(VRayExporter,scene.render.file_format)))
-		ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
-		ofile.write("\n\timg_file_needFrameNumber= 1;")
-		ofile.write("\n\tanim_start= %d;" % scene.frame_start)
-		ofile.write("\n\tanim_end= %d;" % scene.frame_end)
-		ofile.write("\n\tframe_start= %d;" % scene.frame_start)
-		ofile.write("\n\tframes_per_second= %.3f;" % 1.0)
-		ofile.write("\n\tframes= %d-%d;" % (scene.frame_start, scene.frame_end))
+	ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
+	ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
+	ofile.write("\n\timg_file_needFrameNumber= %d;" % SettingsOutput.img_file_needFrameNumber)
+	ofile.write("\n\tanim_start= %d;" % scene.frame_start)
+	ofile.write("\n\tanim_end= %d;" % scene.frame_end)
+	ofile.write("\n\tframe_start= %d;" % scene.frame_start)
+	ofile.write("\n\tframes_per_second= %.3f;" % 1.0)
+	ofile.write("\n\tframes= %d-%d;" % (scene.frame_start, scene.frame_end))
 	ofile.write("\n\tframe_stamp_enabled= %d;" % 0)
 	ofile.write("\n\tframe_stamp_text= \"%s\";" % ("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
 	ofile.write("\n\trelements_separateFolders= %d;" % SettingsOutput.relements_separateFolders)
