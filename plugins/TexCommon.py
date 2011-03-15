@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [19:40]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -295,25 +295,46 @@ def add_properties(rna_pointer):
 	)
 
 	# tile_u
+	# rna_pointer.tile_u= BoolProperty(
+	# 	name= "Tile U",
+	# 	description= "If true there is horizontal tiling.",
+	# 	default= True
+	# )
 	rna_pointer.tile_u= IntProperty(
 		name= "Tile U",
-		description= "If true there is horizontal tiling.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
+		description= "Tile in U.",
+		min= 1,
+		max= 1000,
+		soft_min= 1,
+		soft_max= 5,
+		default= 1
+	)
+	rna_pointer.mirror_u= BoolProperty(
+		name= "Mirror U",
+		description= "Mirror in U.",
+		default= False
 	)
 	
 	# tile_v
+	# rna_pointer.tile_v= BoolProperty(
+	# 	name= "Tile V",
+	# 	description= "If true there is vertical tiling.",
+	# 	default= True
+	# )
 	rna_pointer.tile_v= IntProperty(
 		name= "Tile V",
-		description= "If true there is vertical tiling.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
+		description= "Tile in V.",
+		min= 1,
+		max= 1000,
+		soft_min= 1,
+		soft_max= 5,
+		default= 1
+	)
+
+	rna_pointer.mirror_v= BoolProperty(
+		name= "Mirror V",
+		description= "Mirror in V.",
+		default= False
 	)
 
 	# uv_noise_on
@@ -444,16 +465,196 @@ def write(bus):
 			ofile.write("\n\tuse_3d_mapping= %s;" % a(scene, VRayTexture.use_3d_mapping))
 
 
-class VRAY_OT_bake_procedural(bpy.types.Operator):
-	bl_idname=      'vray.bake_procedural'
-	bl_label=       "Bake procedural"
-	bl_description= "Render procedural texture to file."
 
-	def execute(self, context):
-		debug(context.scene, "Bake procedural: In progress...")
-		return {'FINISHED'}
+'''
+  GUI
+'''
+class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
+	bl_label       = "Mapping"
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
-bpy.utils.register_class(VRAY_OT_bake_procedural)
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		idblock = context_tex_datablock(context)
+
+		ob=   context.object
+		sce=  context.scene
+		slot= context.texture_slot
+		tex=  context.texture
+
+		VRayTexture= tex.vray
+		VRaySlot=    tex.vray_slot
+
+		TexPlugin= getattr(VRayTexture, VRayTexture.type) if tex.type == 'VRAY' else None
+
+		if type(idblock) is bpy.types.Material:
+			if wide_ui:
+				layout.prop(VRayTexture, 'texture_coords', expand=True)
+			else:
+				layout.prop(VRayTexture, 'texture_coords')
+
+			if VRayTexture.texture_coords == 'UV':
+				if slot:
+					split= layout.split(percentage=0.3)
+					split.label(text="Layer:")
+					if ob and ob.type == 'MESH':
+						split.prop_search(slot,    'uv_layer',
+										  ob.data, 'uv_textures',
+										  text="")
+					else:
+						split.prop(slot, 'uv_layer', text="")
+			else:
+				split= layout.split(percentage=0.3)
+				split.label(text="Projection:")
+				split.prop(VRayTexture, 'mapping', text="")
+				split= layout.split(percentage=0.3)
+				split.label(text="Object:")
+				split.prop_search(VRayTexture, 'object',
+								  sce,         'objects',
+								  text="")
+
+			split= layout.split()
+			col= split.column()
+			col.label(text="Offset:")
+			if wide_ui:
+				sub= col.row()
+			else:
+				sub= col.column()
+			sub.prop(slot, 'offset', text="")
+
+			split= layout.split()
+			col.label(text="Scale:")
+			if wide_ui:
+				sub= col.row()
+			else:
+				sub= col.column()
+			sub.active= 0
+			sub.prop(slot, 'scale', text="")
+
+			layout.separator()
+
+			layout.prop(VRayTexture, 'jitter')
+
+			split= layout.split()
+			col= split.column()
+			if TexPlugin:
+				if hasattr(TexPlugin, 'use_3d_mapping') or hasattr(TexPlugin, 'wrap'):
+					layout.separator()
+				if hasattr(TexPlugin, 'use_3d_mapping'):
+					col.prop(VRayTexture, 'use_3d_mapping')
+				if wide_ui:
+					col= split.column()
+				if hasattr(TexPlugin, 'wrap'):
+					col.prop(VRayTexture, 'wrap')
+
+			box= layout.box()
+			box.prop(VRayTexture, 'uv_noise_on', text= "UV noise")
+			split= box.split()
+			split.active= VRayTexture.uv_noise_on
+			col= split.column()
+			col.prop(VRayTexture, 'uv_noise_animate')
+			col.prop(VRayTexture, 'un_noise_phase')
+			if wide_ui:
+				col= split.column()
+			col.prop(VRayTexture, 'uv_noise_amount')
+			col.prop(VRayTexture, 'uv_noise_levels')
+			col.prop(VRayTexture, 'uv_noise_size')
+
+		elif type(idblock) is bpy.types.World:
+			split= layout.split(percentage=0.3)
+			split.label(text="Projection:")
+			split.prop(VRayTexture, 'environment_mapping', text="")
+
+			split= layout.split()
+			col= split.column()
+			col.prop(VRaySlot, 'texture_rotation_h')
+			if wide_ui:
+				col= split.column()
+			col.prop(VRaySlot, 'texture_rotation_v')
+
+
+
+class VRAY_TP_Tiling(VRayTexturePanel, bpy.types.Panel):
+	bl_label       = "Tiling"
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		tex= context.texture
+		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		idblock = context_tex_datablock(context)
+
+		ob=   context.object
+		sce=  context.scene
+		slot= context.texture_slot
+		tex=  context.texture
+
+		VRayTexture= tex.vray
+		VRaySlot=    tex.vray_slot
+
+		TexPlugin= getattr(VRayTexture, VRayTexture.type) if tex.type == 'VRAY' else None
+
+		if wide_ui:
+			layout.prop(VRayTexture, 'tile', expand=True)
+		else:
+			layout.prop(VRayTexture, 'tile')
+
+		if VRayTexture.tile != 'NOTILE':
+			split = layout.split()
+			col= split.column()
+			col.label(text="Tile:")
+			sub= col.row(align=True)
+			sub_u= sub.row()
+			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
+			sub_u.prop(VRayTexture, 'tile_u', text='U')
+			sub_v= sub.row()
+			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
+			sub_v.prop(VRayTexture, 'tile_v', text='V')
+
+			if wide_ui:
+				col= split.column()
+
+			col.label(text="Mirror:")
+			sub= col.row(align=True)
+			sub_u= sub.row()
+			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
+			sub_u.prop(VRayTexture, 'mirror_u', text='U')
+			sub_v= sub.row()
+			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
+			sub_v.prop(VRayTexture, 'mirror_v', text='V')
+
+		layout.separator()
+
+		if wide_ui:
+			layout.prop(VRayTexture, 'placement_type', expand=True)
+		else:
+			layout.prop(VRayTexture, 'placement_type')
+
+		if VRayTexture.placement_type not in ('FULL'):
+			split = layout.split()
+			col= split.column()
+			col.label(text="Crop Minimum:")
+			sub= col.row(align=True)
+			sub.prop(VRayTexture, 'u')
+			sub.prop(VRayTexture, 'v')
+			if wide_ui:
+				col= split.column()
+			col.label(text="Crop Maximum:")
+			sub= col.row(align=True)
+			sub.prop(VRayTexture, 'w')
+			sub.prop(VRayTexture, 'h')
 
 
 class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
@@ -475,56 +676,7 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 
 		TexPlugin= getattr(VRayTexture, VRayTexture.type) if tex.type == 'VRAY' else None
 
-		layout.prop(VRayTexture, 'placement_type', expand= True)
-
-		if VRayTexture.placement_type not in ('FULL'):
-			split= layout.split()
-			col= split.column(align= True)
-			col.prop(VRayTexture, 'u')
-			col.prop(VRayTexture, 'v')
-			if wide_ui:
-				col= split.column(align= True)
-			col.prop(VRayTexture, 'w')
-			col.prop(VRayTexture, 'h')
-
-		layout.separator()
-
 		split= layout.split()
-		row= split.row(align= True)
-		row.prop(VRayTexture, 'tile_u')
-		row.prop(VRayTexture, 'tile_v')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(VRayTexture, 'jitter')
-
-		split= layout.split()
-		col= split.column()
-		if TexPlugin:
-			if hasattr(TexPlugin, 'use_3d_mapping') or hasattr(TexPlugin, 'wrap'):
-				layout.separator()
-			if hasattr(TexPlugin, 'use_3d_mapping'):
-				col.prop(VRayTexture, 'use_3d_mapping')
-			if wide_ui:
-				col= split.column()
-			if hasattr(TexPlugin, 'wrap'):
-				col.prop(VRayTexture, 'wrap')
-
-		box= layout.box()
-		box.prop(VRayTexture, 'uv_noise_on', text= "UV noise")
-		split= box.split()
-		split.active= VRayTexture.uv_noise_on
-		col= split.column()
-		col.prop(VRayTexture, 'uv_noise_animate')
-		col.prop(VRayTexture, 'un_noise_phase')
-		if wide_ui:
-			col= split.column()
-		col.prop(VRayTexture, 'uv_noise_amount')
-		col.prop(VRayTexture, 'uv_noise_levels')
-		col.prop(VRayTexture, 'uv_noise_size')
-
-		box= layout.box()
-		split= box.split()
 		col= split.column()
 		col.label(text="Color:")
 		sub= col.column(align= True)
@@ -544,10 +696,11 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		# col.prop(VRayTexture, 'remove_alpha')
 		col.prop(VRayTexture, 'alpha_from_intensity')
 
-		layout.separator()
-		layout.operator("vray.bake_procedural", icon= 'TEXTURE')
+		# layout.separator()
+		# layout.operator("vray.bake_procedural", icon= 'TEXTURE')
 
 
+
+bpy.utils.register_class(VRAY_TP_Mapping)
+bpy.utils.register_class(VRAY_TP_Tiling)
 bpy.utils.register_class(VRAY_TP_Common)
-
-

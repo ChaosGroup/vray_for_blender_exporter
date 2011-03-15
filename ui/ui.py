@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [17:03]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -28,6 +28,23 @@
 
 
 narrowui= 200
+
+
+def context_tex_datablock(context):
+    idblock= context.material
+    if idblock:
+        return idblock
+
+    idblock= context.lamp
+    if idblock:
+        return idblock
+
+    idblock= context.world
+    if idblock:
+        return idblock
+
+    idblock= context.brush
+    return idblock
 
 
 def factor_but(layout, rna_pointer, use, factor, label= None, color= None):

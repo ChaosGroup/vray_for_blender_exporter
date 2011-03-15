@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [09:32]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:46]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -756,10 +756,11 @@ def	write_material(bus):
 		for slot in base.material_slots:
 			if slot and slot.material:
 				base_material_names.append(slot.material.name)
-		if ma.name in base_material_names:
-			slot= base.material_slots.get(ma.name)
-			ma= slot.material
-			bus['material']= ma
+		for base_ma in base_material_names:
+			if base_ma.find(ma.name) != -1:
+				slot= base.material_slots.get(base_ma)
+				ma=   slot.material
+				bus['material']= ma
 
 	VRayMaterial= ma.vray
 

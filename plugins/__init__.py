@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [19:33]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:17]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -30,6 +30,7 @@
 ''' Python modules '''
 import os
 import sys
+import math
 
 ''' Blender modules '''
 import bpy
@@ -103,7 +104,7 @@ if base_dir is not None:
 	if not plugins_dir in sys.path:
 		sys.path.append(plugins_dir)
 
-	plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname.endswith(".py") and not fname == "__init__.py"]
+	plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname and fname.endswith(".py") and not fname == "__init__.py"]
 	plugins= [__import__(fname) for fname in plugins_files]
 
 	for plugin in plugins:
@@ -766,20 +767,22 @@ def add_properties():
 		texture_rotation_h= FloatProperty(
 			name= "Horiz. rotation",
 			description= "Horizontal rotation.",
-			min= -360.0,
-			max= 360.0,
-			soft_min= -180.0,
-			soft_max= 180.0,
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
 			default= 0.0
 		)
 
 		texture_rotation_v= FloatProperty(
 			name= "Vert. rotation",
 			description= "Vertical rotation.",
-			min= -360.0,
-			max= 360.0,
-			soft_min= -180.0,
-			soft_max= 180.0,
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
 			default= 0.0
 		)
 
@@ -1381,6 +1384,12 @@ def add_properties():
 			default= True
 		)
 
+		use_map_env_bg_invert= BoolProperty(
+			name= "Invert background texture",
+			description= "Invert background texture.",
+			default= False
+		)
+
 		env_bg_factor= FloatProperty(
 			name= "Background texture multiplier",
 			description= "Background texture multiplier.",
@@ -1395,6 +1404,12 @@ def add_properties():
 		use_map_env_gi= BoolProperty(
 			name= "GI",
 			description= "Override for GI.",
+			default= False
+		)
+
+		use_map_env_gi_invert= BoolProperty(
+			name= "Invert GI texture",
+			description= "Invert GI texture.",
 			default= False
 		)
 
@@ -1415,6 +1430,12 @@ def add_properties():
 			default= False
 		)
 
+		use_map_env_reflection_invert= BoolProperty(
+			name= "Invert reflection texture",
+			description= "Invert reflection texture.",
+			default= False
+		)
+
 		env_reflection_factor= FloatProperty(
 			name= "Reflection texture multiplier",
 			description= "Reflection texture multiplier.",
@@ -1429,6 +1450,12 @@ def add_properties():
 		use_map_env_refraction= BoolProperty(
 			name= "Refraction",
 			description= "Override for Refraction.",
+			default= False
+		)
+
+		use_map_env_refraction_invert= BoolProperty(
+			name= "Invert refraction texture",
+			description= "Invert refraction texture.",
 			default= False
 		)
 

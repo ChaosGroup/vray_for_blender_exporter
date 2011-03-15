@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [19:34]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -34,23 +34,6 @@ import bpy
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.plugins import *
-
-
-def context_tex_datablock(context):
-    idblock= context.material
-    if idblock:
-        return idblock
-
-    idblock= context.lamp
-    if idblock:
-        return idblock
-
-    idblock= context.world
-    if idblock:
-        return idblock
-
-    idblock= context.brush
-    return idblock
 
 
 class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
@@ -195,10 +178,6 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(slot,'use_stencil')
 
-		# Moved to Common panel
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(slot,'invert',text="Invert")
 
 
 class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
@@ -266,138 +245,6 @@ class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 						col= split.column()
 					col.prop(GeomDisplacedMesh, 'view_dep')
 					col.prop(GeomDisplacedMesh, 'tight_bounds')
-
-
-class VRAY_TP_mapping(VRayTexturePanel, bpy.types.Panel):
-	bl_label = "Mapping"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > narrowui
-
-		idblock= context_tex_datablock(context)
-
-		sce= context.scene
-		ob= context.object
-
-		slot= getattr(context,'texture_slot',None)
-		tex= slot.texture if slot else context.texture
-
-		VRayTexture= tex.vray
-		VRaySlot= tex.vray_slot
-
-		if type(idblock) == bpy.types.Material:
-			if wide_ui:
-				layout.prop(VRayTexture, 'texture_coords', expand=True)
-			else:
-				layout.prop(VRayTexture, 'texture_coords')
-
-			if VRayTexture.texture_coords == 'UV':
-				if slot:
-					split= layout.split(percentage=0.3)
-					split.label(text="Layer:")
-					if ob and ob.type == 'MESH':
-						split.prop_search(slot, 'uv_layer', ob.data, 'uv_textures', text="")
-					else:
-						split.prop(slot, 'uv_layer', text="")
-			else:
-				split= layout.split(percentage=0.3)
-				split.label(text="Projection:")
-				split.prop(VRayTexture, 'mapping', text="")
-				split= layout.split(percentage=0.3)
-				split.label(text="Object:")
-				split.prop_search(VRayTexture, 'object', sce, 'objects', text="")
-
-		elif type(idblock) == bpy.types.World:
-			split= layout.split(percentage=0.3)
-			split.label(text="Projection:")
-			split.prop(VRayTexture, 'environment_mapping', text="")
-
-			split= layout.split()
-			col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_h')
-			if wide_ui:
-				col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_v')
-
-		if slot:
-			split= layout.split()
-			col= split.column()
-			col.prop(slot, 'offset')
-			if wide_ui:
-				col= split.column()
-			sub= col.column()
-			sub.active= 0
-			sub.prop(slot, 'scale')
-
-
-class VRAY_TP_image(VRayTexturePanel, bpy.types.Panel):
-	bl_label = "Texture"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		tex= context.texture
-		return super().poll(context) and (tex.type == 'IMAGE' and tex.image)
-
-	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > narrowui
-
-		slot= getattr(context,'texture_slot',None)
-		tex= slot.texture if slot else context.texture
-
-		VRayTexture= tex.vray
-
-		if wide_ui:
-			layout.prop(VRayTexture, 'tile', expand=True)
-		else:
-			layout.prop(VRayTexture, 'tile')
-
-		if VRayTexture.tile != 'NOTILE':
-			split = layout.split()
-			col= split.column()
-			col.label(text="Tile:")
-			sub= col.row(align=True)
-			sub_u= sub.row()
-			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
-			sub_u.prop(tex, 'repeat_x', text='U')
-			sub_v= sub.row()
-			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
-			sub_v.prop(tex, 'repeat_y', text='V')
-			if wide_ui:
-				col= split.column()
-			col.label(text="Mirror:")
-			sub= col.row(align=True)
-			sub_u= sub.row()
-			sub_u.active= VRayTexture.tile in ('TILEUV','TILEU')
-			sub_u.prop(tex, 'use_mirror_x', text='U')
-			sub_v= sub.row()
-			sub_v.active= VRayTexture.tile in ('TILEUV','TILEV')
-			sub_v.prop(tex, 'use_mirror_y', text='V')
-
-		layout.separator()
-
-		if wide_ui:
-			layout.prop(VRayTexture, 'placement_type', expand=True)
-		else:
-			layout.prop(VRayTexture, 'placement_type')
-
-		split = layout.split()
-		col= split.column()
-		col.label(text="Crop Minimum:")
-		sub= col.row(align=True)
-		sub.prop(tex, 'crop_min_x', text='U')
-		sub.prop(tex, 'crop_min_y', text='V')
-		if wide_ui:
-			col= split.column()
-		col.label(text="Crop Maximum:")
-		sub= col.row(align=True)
-		sub.prop(tex, 'crop_max_x', text='U')
-		sub.prop(tex, 'crop_max_y', text='V')
 
 
 class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 15 March 2011 [10:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -144,9 +144,9 @@ def write_UVWGenEnvironment(bus):
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
 
-	uvw_matrix= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_h), 4, 'Z')
+	uvw_matrix= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_h, 4, 'Z')
 	if VRayTexture.environment_mapping not in ('SCREEN'):
-		uvw_matrix*= mathutils.Matrix.Rotation(math.radians(VRaySlot.texture_rotation_v), 4, 'Y')
+		uvw_matrix*= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_v, 4, 'Y')
 
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[VRayTexture.environment_mapping])

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [09:37]"
+  Time-stamp: "Tuesday, 15 March 2011 [10:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -435,6 +435,20 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 bpy.utils.register_class(VRAY_OT_convert_scene)
 
 
+
+class VRAY_OT_bake_procedural(bpy.types.Operator):
+	bl_idname=      'vray.bake_procedural'
+	bl_label=       "Bake procedural"
+	bl_description= "Render procedural texture to file."
+
+	def execute(self, context):
+		debug(context.scene, "Bake procedural: In progress...")
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_bake_procedural)
+
+
+
 class VRAY_OT_settings_to_text(bpy.types.Operator):
 	bl_idname=      'vray.settings_to_text'
 	bl_label=       "Settings to Text"
@@ -455,7 +469,6 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 		bus['preview']= False
 		bus['files']= {}
 		bus['files']['scene']= text
-		bus['files']['environment']= text
 		bus['filenames']= {}
 		bus['plugins']= PLUGINS
 		bus['effects']= {}
@@ -468,7 +481,7 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 															 time.strftime("%d %b %Y %H:%m:%S")))
 
 		for key in PLUGINS['SETTINGS']:
-			if key in ('BakeView', 'RenderView'):
+			if key in ('BakeView', 'RenderView', 'SettingsEnvironment'):
 				# Skip some plugins
 				continue
 
