@@ -4,7 +4,7 @@
 
 	http://vray.cgdo.ru
 
-	Time-stamp: "Monday, 14 March 2011 [08:33]"
+	Time-stamp: "Tuesday, 15 March 2011 [08:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
 	E-Mail: izrantsev@cgdo.ru
@@ -255,8 +255,8 @@ class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.use_for_glossy_rays",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.adaptive_sampling",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.multiple_views",
-        # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
-        # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
 
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.override_on",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.edgeLength",

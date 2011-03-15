@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [11:21]"
+  Time-stamp: "Monday, 14 March 2011 [19:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -195,9 +195,10 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(slot,'use_stencil')
 
-		split= layout.split()
-		col= split.column()
-		col.prop(slot,'invert',text="Invert")
+		# Moved to Common panel
+		# split= layout.split()
+		# col= split.column()
+		# col.prop(slot,'invert',text="Invert")
 
 
 class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):

@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 15 March 2011 [07:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -217,7 +217,7 @@ def add_properties(rna_pointer):
 		min=0.0,
 		max=100.0,
 		soft_min=0.0,
-		soft_max=10.0,
+		soft_max=2.0,
 		default=1.0
 	)
 

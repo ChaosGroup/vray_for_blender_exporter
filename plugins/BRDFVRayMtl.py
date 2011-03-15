@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [18:07]"
+  Time-stamp: "Tuesday, 15 March 2011 [07:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -736,6 +736,7 @@ def influence(context, layout, slot):
 	factor_but(col, VRaySlot, 'map_refract_ior',        'refract_ior_mult',        "IOR")
 	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
 
+
 def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
 
@@ -744,15 +745,15 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	colL.label(text="Diffuse")
 
 	split= layout.split()
-	col= split.column()
+	col= split.column(align= True)
 	if material:
-		col.prop(material, "diffuse_color", text="")
+		col.prop(material, 'diffuse_color', text="")
 	else:
 		col.prop(BRDFVRayMtl, 'diffuse', text="")
-	col.prop(BRDFVRayMtl, 'roughness', slider=True)
+	col.prop(BRDFVRayMtl, 'opacity', slider=True)
 	if wide_ui:
 		col= split.column()
-	col.prop(BRDFVRayMtl, 'opacity', slider=True)
+	col.prop(BRDFVRayMtl, 'roughness', slider=True)
 
 	split= layout.split()
 	col= split.column()

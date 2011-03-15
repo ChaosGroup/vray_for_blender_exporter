@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [17:24]"
+  Time-stamp: "Tuesday, 15 March 2011 [07:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -798,8 +798,9 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 		try:
 			for i,slot in enumerate(scene.world.texture_slots):
 				if not slot:
-					tex= bpy.data.textures.new('VRaySky', type= 'VRAY')
-					tex.vray.type= 'TEXSKY'
+					tex= bpy.data.textures.new(name= 'VRaySky',
+											   type= 'VRAY')
+					tex.vray.type= 'TexSky'
 					new_slot= scene.world.texture_slots.create(i)
 					new_slot.texture= tex
 					break

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [10:49]"
+  Time-stamp: "Monday, 14 March 2011 [19:40]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -498,18 +498,17 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		col= split.column()
 		col.prop(VRayTexture, 'jitter')
 
-		layout.separator()
-
 		split= layout.split()
 		col= split.column()
 		if TexPlugin:
+			if hasattr(TexPlugin, 'use_3d_mapping') or hasattr(TexPlugin, 'wrap'):
+				layout.separator()
 			if hasattr(TexPlugin, 'use_3d_mapping'):
 				col.prop(VRayTexture, 'use_3d_mapping')
 			if wide_ui:
 				col= split.column()
 			if hasattr(TexPlugin, 'wrap'):
 				col.prop(VRayTexture, 'wrap')
-			layout.separator()
 
 		box= layout.box()
 		box.prop(VRayTexture, 'uv_noise_on', text= "UV noise")

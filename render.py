@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [18:18]"
+  Time-stamp: "Tuesday, 15 March 2011 [09:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -811,7 +811,7 @@ def	write_material(bus):
 		back= base_material
 		if VRayMaterial.Mtl2Sided.back:
 			if VRayMaterial.Mtl2Sided.back in bpy.data.materials:
-				back= get_name(bpy.data.materials[VRayMaterial.Mtl2Sided.back],"Material")
+				back= get_name(bpy.data.materials[VRayMaterial.Mtl2Sided.back], prefix='MA')
 		ofile.write("\n\tback= %s;"%(back))
 
 		if VRayMaterial.Mtl2Sided.control == 'SLIDER':
@@ -821,7 +821,7 @@ def	write_material(bus):
 		else:
 			if VRayMaterial.Mtl2Sided.translucency_tex:
 				if VRayMaterial.Mtl2Sided.translucency_tex in bpy.data.materials:
-					ofile.write("\n\ttranslucency_tex= %s;"%(get_name(bpy.data.textures[VRayMaterial.Mtl2Sided.translucency_tex],"Texture")))
+					ofile.write("\n\ttranslucency_tex= %s;"%(get_name(bpy.data.textures[VRayMaterial.Mtl2Sided.translucency_tex], prefix='TE')))
 					ofile.write("\n\ttranslucency_tex_mult= %s;" % a(scene,VRayMaterial.Mtl2Sided.translucency_tex_mult))
 			else:
 				ofile.write("\n\ttranslucency= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayMaterial.Mtl2Sided.translucency_slider))
@@ -846,12 +846,12 @@ def	write_material(bus):
 			override_material= getattr(VRayMaterial.MtlOverride, param)
 			if override_material:
 				if override_material in bpy.data.materials:
-					ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material],"Material")))
+					ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material], prefix='MA')))
 
 		environment_override= VRayMaterial.MtlOverride.environment_override
 		if environment_override:
 			if environment_override in bpy.data.textures:
-				ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override],"Texture"))
+				ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override], prefix='TE'))
 
 		ofile.write("\n\tenvironment_priority= %i;"%(VRayMaterial.MtlOverride.environment_priority))
 		ofile.write("\n}\n")
@@ -881,7 +881,7 @@ def write_materials(bus):
 	ob=    bus['node']['object']
 
 	# Multi-material name
-	mtl_name= get_name(ob, prefix='MA')
+	mtl_name= get_name(ob, prefix='OBMA')
 
 	# Collecting and exporting object materials
 	mtls_list= []
@@ -897,6 +897,7 @@ def write_materials(bus):
 				if scene.vray.exporter.use_material_nodes and ma.use_nodes:
 					debug(scene,"Node materials temporarily disabled...")
 					#mtls_list.append(write_node_material(params))
+
 				else:
 					mtls_list.append(write_material(bus))
 					ma_id+= 1

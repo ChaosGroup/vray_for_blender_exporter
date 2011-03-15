@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [15:08]"
+  Time-stamp: "Monday, 14 March 2011 [19:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1107,7 +1107,7 @@ def add_properties():
 			default= False
 		)
 
-		map_translucency_invert= BoolProperty(
+		map_translucency_color_invert= BoolProperty(
 			name= "Invert translucency texture",
 			description= "Invert translucency texture.",
 			default= False

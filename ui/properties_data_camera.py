@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 15 March 2011 [07:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -213,7 +213,7 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 
-		col.prop(CameraPhysical, 'vignetting')
+		col.prop(CameraPhysical, 'vignetting', slider= True)
 
 		split= layout.split()
 		colL= split.column()
