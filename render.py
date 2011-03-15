@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [16:34]"
+  Time-stamp: "Tuesday, 15 March 2011 [21:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -493,6 +493,8 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 	ofile= bus['files']['nodes']
 	ob=    bus['node']['object']
 
+	VRayFur= ps.settings.vray.VRayFur
+
 	num_hair_vertices= []
 	hair_vertices=     []
 	widths=            []
@@ -503,7 +505,7 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 		num_hair_vertices.append(str(len(particle.hair)))
 		for segment in particle.hair:
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			widths.append(str(0.01)) # TODO
+			widths.append(str(VRayFur.width))
 
 	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(scene.frame_current, ','.join(num_hair_vertices)))

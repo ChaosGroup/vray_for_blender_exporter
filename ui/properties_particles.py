@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 15 March 2011 [21:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -34,6 +34,37 @@ import bpy
 from vb25.ui.ui import *
 
 
+class VRayFur(bpy.types.PropertyGroup):
+	width= bpy.props.FloatProperty(
+		name= "Width",
+		description= "Hair thin.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 0.01,
+		precision= 5,
+		default= 0.02
+	)
+
+class VRayParticleSettings(bpy.types.PropertyGroup):
+	pass
+
+bpy.utils.register_class(VRayFur)
+bpy.utils.register_class(VRayParticleSettings)
+
+bpy.types.ParticleSettings.vray= bpy.props.PointerProperty(
+	name= "V-Ray Particle Settings",
+	type=  VRayParticleSettings,
+	description= "V-Ray Particle settings."
+)
+
+VRayParticleSettings.VRayFur= bpy.props.PointerProperty(
+	name= "V-Ray Fur Settings",
+	type=  VRayFur,
+	description= "V-Ray Fur settings."
+)
+
+
 import properties_particle
 for member in dir(properties_particle):
 	subclass= getattr(properties_particle, member)
@@ -59,4 +90,8 @@ class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
-		layout.label(text= "Hair particle controls...")
+		particle_settings= context.particle_system.settings
+		
+		VRayFur= particle_settings.vray.VRayFur
+
+		layout.prop(VRayFur, 'width')
