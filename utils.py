@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [09:34]"
+  Time-stamp: "Tuesday, 15 March 2011 [16:55]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -472,7 +472,8 @@ def debug(scene, message, newline= True, cr= True, error= False):
 	# 	message,
 	# 	'\n' if newline else '\r' if cr else '')
 	# )
-	sys.stdout.write("V-Ray/Blender: %s%s%s" % (
+	sys.stdout.write("%s: %s%s%s" % (
+		color("V-Ray/Blender", 'green'),
 		color("Error! ", 'red') if error else '',
 		message,
 		'\n' if newline else '\r' if cr else '')
@@ -490,11 +491,11 @@ def print_dict(scene, title, params, spacing= 2):
 			print_dict(scene, key, params[key], spacing)
 			spacing/= 2
 		elif type(params[key]) in (list,tuple):
-			debug(scene, "%s%s" % (''.join([' ']*spacing), key))
+			debug(scene, "%s%s" % (''.join([' ']*spacing), color(key, 'yellow')))
 			for item in params[key]:
 				debug(scene, ''.join([' ']*spacing*2) + str(item))
 		else:
-			debug(scene, "%s%s: %s" % (''.join([' ']*spacing), key, params[key]))
+			debug(scene, "%s%s: %s" % (''.join([' ']*spacing), color(key, 'yellow'), params[key]))
 
 
 # Property

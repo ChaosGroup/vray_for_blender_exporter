@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [13:34]"
+  Time-stamp: "Tuesday, 15 March 2011 [17:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -44,10 +44,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		# If texture used in nodes
-		if not hasattr(context, 'texture_slot'):
-			return False
-		return (context.material or context.world or context.lamp or context.brush or context.texture) and engine_poll(cls, context)
+		return (context.material or context.world or context.lamp or context.brush or context.texture or context.texture_node) and engine_poll(cls, context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -111,12 +108,30 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 					col.prop(tex.vray, 'type', text="Type")
 
 
-import properties_texture
-properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-del properties_texture
+class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
+	bl_label = "Preview"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		rd=  context.scene.render
+		tex= context.texture
+		if tex.type == 'VRAY' and rd.engine == 'VRAY_RENDER':
+			return False
+		return super().poll(context)
+	
+	def draw(self, context):
+		layout= self.layout
+
+		tex= context.texture
+		slot= getattr(context, "texture_slot", None)
+		idblock= context_tex_datablock(context)
+
+		if idblock:
+			layout.template_preview(tex, parent= idblock, slot= slot)
+		else:
+			layout.template_preview(tex, slot= slot)
 
 
 class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
@@ -292,3 +307,8 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 		col.prop(BitmapBuffer, 'allow_negative_colors')
 		col.prop(BitmapBuffer, 'use_data_window')
 
+
+import properties_texture
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+del properties_texture

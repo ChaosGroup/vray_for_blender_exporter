@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [14:14]"
+  Time-stamp: "Tuesday, 15 March 2011 [16:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1365,6 +1365,7 @@ def write_scene(bus):
 	bus['defaults']['material']= "MANOMATERIALISSET"
 	bus['defaults']['texture']=  "TENOTEXTUREIESSET"
 	bus['defaults']['uvwgen']=   "DEFAULTUVWC"
+	bus['defaults']['blend']=    "TEDefaultBlend"
 
 	for key in bus['files']:
 		bus['files'][key].write("// V-Ray/Blender %s" % VERSION)
@@ -1378,21 +1379,21 @@ def write_scene(bus):
 	bus['files']['textures'].write("\n// Textures\n")
 
 	bus['files']['textures'].write("\n// Useful defaults")
-	bus['files']['textures'].write("\nUVWGenChannel DEFAULTUVWC {")
+	bus['files']['textures'].write("\nUVWGenChannel %s {" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n\tuvw_channel= 1;")
 	bus['files']['textures'].write("\n\tuvw_transform= Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));")
 	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\nTexChecker %s {" % bus['defaults']['texture'])
-	bus['files']['textures'].write("\n\tuvwgen= DEFAULTUVWC;")
+	bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
 	bus['files']['textures'].write("\n\tcolor=Color(0.5,0.5,0.5);")
 	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
-	bus['files']['textures'].write("\n\tbrdf= BRDFNOBRDFISSET;")
+	bus['files']['textures'].write("\n\tbrdf= %s;" % bus['defaults']['brdf'])
 	bus['files']['textures'].write("\n}\n")
-	bus['files']['textures'].write("\nTexAColor TEDefaultBlend {")
-	bus['files']['textures'].write("\n\tuvwgen= DEFAULTUVWC;")
+	bus['files']['textures'].write("\nTexAColor %s {" % bus['defaults']['blend'])
+	bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\n// Scene textures")
