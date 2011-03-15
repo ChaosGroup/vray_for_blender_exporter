@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [17:41]"
+  Time-stamp: "Tuesday, 15 March 2011 [17:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -87,19 +87,14 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 			col.template_ID(space, "pin_id")
 
 		if tex:
-			split= layout.split()
 			if tex.use_nodes:
 				if slot:
-					split.label(text="Output:")
-					split.prop(slot, "output_node", text="")
+					layout.prop(slot, "output_node", text="Output")
 
 			else:
-				split.label(text="Texture:")
-				split.prop(tex, 'type', text="")
+				layout.prop(tex, 'type', text="Texture")
 				if tex.type == 'VRAY':
-					split= layout.split()
-					col= split.column()
-					col.prop(tex.vray, 'type', text="Type")
+					layout.prop(tex.vray, 'type', text="Type")
 
 
 class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):

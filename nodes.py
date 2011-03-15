@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [17:31]"
+  Time-stamp: "Tuesday, 15 March 2011 [19:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -46,7 +46,13 @@ def write_BRDFDiffuse(bus, name, node, color):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	return "BRDFDiffuse%s" % str(color)
+	comp_name= "BRDFDiffuse%s" % (name)
+	
+	ofile.write("\nBRDFDiffuse %s {" % comp_name)
+	ofile.write("\n\tcolor= %s;" % a(scene, color))
+	ofile.write("\n}\n")
+
+	return comp_name
 
 
 def write_TexAColor(bus, name, node, color):
@@ -108,8 +114,9 @@ def write_ShaderNodeOutput(bus, node, input_params):
 
 		else:
 			if key == 'Color':
+				c= node.inputs[key].default_value
 				params[key]= write_BRDFDiffuse(bus, key, node,
-											   mathutils.Color(node.inputs[key].default_value))
+											   mathutils.Color((c[0],c[1],c[2])))
 			elif key == 'Alpha':
 				params[key]= write_TexAColor(bus, key, node,
 											 mathutils.Color([node.inputs[key].default_value[0]]*3))
@@ -142,9 +149,13 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 
 		else:
 			if key == 'Color1':
-				params[key]= write_BRDFDiffuse(bus, key, node, node.inputs[key])
+				c= node.inputs[key].default_value
+				params[key]= write_BRDFDiffuse(bus, key, node,
+											   mathutils.Color((c[0],c[1],c[2])))
 			elif key == 'Color2':
-				params[key]= write_BRDFDiffuse(bus, key, node, node.inputs[key])
+				c= node.inputs[key].default_value
+				params[key]= write_BRDFDiffuse(bus, key, node,
+											   mathutils.Color((c[0],c[1],c[2])))
 			elif key == 'Fac':
 				params[key]= write_TexAColor(bus, key, node,
 											 mathutils.Color([node.inputs[key].default_value[0]]*3))
@@ -152,7 +163,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 	node_name= get_node_name(node_tree, node)
 
 	ofile.write("\nBRDFLayered %s {" % node_name)
-	ofile.write("\n\tbrdfs= List(%s, %s);" % (params['Color1'], params['Color2']))
+	ofile.write("\n\tbrdfs= List(%s, %s);" % (params['Color2'], params['Color1']))
 	ofile.write("\n\tweights= List(%s, TEDefaultBlend);" % params['Fac'])
 	ofile.write("\n}\n")
 
