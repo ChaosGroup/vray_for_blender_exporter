@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [17:24]"
+  Time-stamp: "Tuesday, 15 March 2011 [17:41]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -75,26 +75,20 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 			col.operator("texture.slot_move", text="", icon='TRIA_DOWN').type = 'DOWN'
 			col.menu("TEXTURE_MT_specials", icon='DOWNARROW_HLT', text="")
 
-		split = layout.split(percentage=0.65)
-		col = split.column()
-
+		split= layout.split()
+		col= split.column()
 		if tex_collection:
 			col.template_ID(idblock, "active_texture", new="texture.new")
 		elif node:
 			col.template_ID(node, "texture", new="texture.new")
 		elif idblock:
 			col.template_ID(idblock, "texture", new="texture.new")
-
 		if pin_id:
 			col.template_ID(space, "pin_id")
 
-		col = split.column()
-
 		if tex:
-			split = layout.split(percentage=0.2)
-
+			split= layout.split()
 			if tex.use_nodes:
-
 				if slot:
 					split.label(text="Output:")
 					split.prop(slot, "output_node", text="")
@@ -117,6 +111,8 @@ class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 	def poll(cls, context):
 		rd=  context.scene.render
 		tex= context.texture
+		if not tex:
+			return False
 		if tex.type == 'VRAY' and rd.engine == 'VRAY_RENDER':
 			return False
 		return super().poll(context)
