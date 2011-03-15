@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [07:29]"
+  Time-stamp: "Tuesday, 15 March 2011 [09:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -827,6 +827,14 @@ class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 		scene=  context.scene
 		object= context.active_object
 
+		if not object:
+			debug(scene, "No object selected!", error= True)
+			return {'CANCELLED'}
+
+		if object.type == 'EMPTY':
+			debug(scene, "Empty object type is not supported! Use simple mesh instead.", error= True)
+			return {'CANCELLED'}
+
 		if object.dupli_type == 'GROUP':
 			object.dupli_list_create(scene)
 
@@ -844,6 +852,7 @@ class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 
 			return {'FINISHED'}
 
+		debug(scene, "Object \"%s\" has no dupli-group assigned!" % (object.name), error= True)
 		return {'CANCELLED'}
 
 bpy.utils.register_class(VRAY_OT_copy_linked_materials)
