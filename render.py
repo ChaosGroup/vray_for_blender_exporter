@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [10:46]"
+  Time-stamp: "Tuesday, 15 March 2011 [14:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -747,9 +747,11 @@ def write_material_textures(bus):
 def	write_material(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
-	ob=    bus['node']['object']
-	base=  bus['node']['base']
-	ma=    bus['material']
+
+	ob=   bus['node']['object']
+	base= bus['node']['base']
+
+	ma= bus['material']
 
 	if base.dupli_type == 'GROUP':
 		base_material_names= []
@@ -894,10 +896,8 @@ def write_materials(bus):
 			if ma:
 				bus['material']= ma
 
-				# Node material
 				if scene.vray.exporter.use_material_nodes and ma.use_nodes:
-					debug(scene,"Node materials temporarily disabled...")
-					#mtls_list.append(write_node_material(params))
+					mtls_list.append(write_node_material(bus))
 
 				else:
 					mtls_list.append(write_material(bus))

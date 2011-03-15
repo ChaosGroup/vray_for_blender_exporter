@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [07:53]"
+  Time-stamp: "Tuesday, 15 March 2011 [13:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -649,7 +649,9 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 	brdf_name= "%s_%s" % (ID, get_name(ma, prefix='MA'))
 	if base_name:
-		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+		brdf_name= "%s%s" % (base_name, ID)
+		if VRayBRDF:
+			brdf_name+= clean_string(VRayBRDF.name)
 
 	BRDFVRayMtl= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFVRayMtl
 

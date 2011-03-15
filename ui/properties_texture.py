@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [10:02]"
+  Time-stamp: "Tuesday, 15 March 2011 [13:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -44,18 +44,21 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		# if not hasattr(context, 'texture_slot'):
-		# 	return False
+		# If texture used in nodes
+		if not hasattr(context, 'texture_slot'):
+			return False
 		return (context.material or context.world or context.lamp or context.brush or context.texture) and engine_poll(cls, context)
 
 	def draw(self, context):
-		layout = self.layout
-		slot = context.texture_slot
-		node = context.texture_node
-		space = context.space_data
-		tex = context.texture
-		idblock = context_tex_datablock(context)
-		pin_id = space.pin_id
+		layout= self.layout
+		
+		node=    context.texture_node
+		space=   context.space_data
+		idblock= context_tex_datablock(context)
+		pin_id=  space.pin_id
+
+		slot= getattr(context, 'texture_slot', None)
+		tex=  slot.texture if slot else context.texture
 
 		if not isinstance(pin_id, bpy.types.Material):
 			pin_id = None
@@ -123,6 +126,9 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		# If texture used in nodes
+		if not hasattr(context, 'texture_slot'):
+			return False
 		return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
 
 	def draw(self, context):
@@ -131,8 +137,8 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 		idblock= context_tex_datablock(context)
 
-		slot= context.texture_slot
-		texture= slot.texture
+		slot=    context.texture_slot
+		texture= slot.texture if slot else context.texture
 
 		VRaySlot= texture.vray_slot
 

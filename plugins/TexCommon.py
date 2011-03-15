@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [11:30]"
+  Time-stamp: "Tuesday, 15 March 2011 [13:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -486,8 +486,9 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 
 		ob=   context.object
 		sce=  context.scene
-		slot= context.texture_slot
-		tex=  context.texture
+
+		slot= getattr(context, 'texture_slot', None)
+		tex=  slot.texture if slot else context.texture
 
 		VRayTexture= tex.vray
 		VRaySlot=    tex.vray_slot
@@ -520,23 +521,24 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 								  sce,         'objects',
 								  text="")
 
-			split= layout.split()
-			col= split.column()
-			col.label(text="Offset:")
-			if wide_ui:
-				sub= col.row()
-			else:
-				sub= col.column()
-			sub.prop(slot, 'offset', text="")
+			if slot:
+				split= layout.split()
+				col= split.column()
+				col.label(text="Offset:")
+				if wide_ui:
+					sub= col.row()
+				else:
+					sub= col.column()
+				sub.prop(slot, 'offset', text="")
 
-			split= layout.split()
-			col.label(text="Scale:")
-			if wide_ui:
-				sub= col.row()
-			else:
-				sub= col.column()
-			sub.active= 0
-			sub.prop(slot, 'scale', text="")
+				split= layout.split()
+				col.label(text="Scale:")
+				if wide_ui:
+					sub= col.row()
+				else:
+					sub= col.column()
+				sub.active= 0
+				sub.prop(slot, 'scale', text="")
 
 			layout.separator()
 
@@ -598,8 +600,9 @@ class VRAY_TP_Tiling(VRayTexturePanel, bpy.types.Panel):
 
 		ob=   context.object
 		sce=  context.scene
-		slot= context.texture_slot
-		tex=  context.texture
+
+		slot= getattr(context, 'texture_slot', None)
+		tex=  slot.texture if slot else context.texture
 
 		VRayTexture= tex.vray
 		VRaySlot=    tex.vray_slot
@@ -670,7 +673,8 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
-		tex= context.texture
+		slot= getattr(context, 'texture_slot', None)
+		tex=  slot.texture if slot else context.texture
 
 		VRayTexture= tex.vray
 
