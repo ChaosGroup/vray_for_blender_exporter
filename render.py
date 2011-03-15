@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [21:22]"
+  Time-stamp: "Tuesday, 15 March 2011 [21:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -500,12 +500,12 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 	widths=            []
 
 	for p,particle in enumerate(ps.particles):
-		sys.stdout.write("V-Ray/Blender: Object: %s => Hair: %i\r" % (ob.name, p))
+		sys.stdout.write("%s: Object: %s => Hair: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 		sys.stdout.flush()
 		num_hair_vertices.append(str(len(particle.hair)))
 		for segment in particle.hair:
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			widths.append(str(VRayFur.width))
+			widths.append("%.6f" % VRayFur.width)
 
 	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(scene.frame_current, ','.join(num_hair_vertices)))
@@ -1257,7 +1257,7 @@ def _write_object_particles(bus):
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					sys.stdout.write("V-Ray/Blender: Object: %s => Particle: %i\r" % (color(ob.name,'yellow'), color(p, 'green')))
+					sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 					sys.stdout.flush()
 
 					location= particle.location
