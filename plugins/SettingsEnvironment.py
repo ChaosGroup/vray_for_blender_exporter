@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [15:02]"
+  Time-stamp: "Tuesday, 15 March 2011 [09:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -900,7 +900,7 @@ def write(bus):
 		if len(bus['env_textures'][key]):
 			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])), key)
 
-	ofile.write("\nSettingsEnvironment {")
+	ofile.write("\nSettingsEnvironment SettingsEnvironment {")
 	ofile.write("\n\tbg_color= %s;"%(a(scene,VRayWorld.bg_color)))
 	if 'env_bg' in bus['env_textures']:
 		ofile.write("\n\tbg_tex= %s;" % bus['env_textures']['env_bg'])

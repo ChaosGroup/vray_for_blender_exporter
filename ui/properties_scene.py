@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [17:02]"
+  Time-stamp: "Tuesday, 15 March 2011 [09:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -53,7 +53,7 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 		col.operator("vray.convert_materials", icon='MATERIAL')
 		if wide_ui:
 			col= split.column()
-		col.operator("vray.settings_to_text", icon='RENDER_STILL')
+		col.operator("vray.settings_to_text", icon='TEXT')
 
 		layout.separator()
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [09:14]"
+  Time-stamp: "Tuesday, 15 March 2011 [09:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -447,7 +447,35 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 	)
 
 	def execute(self, context):
-		# TODO:
+		
+		text= bpy.data.texts.new(name="Settings")
+
+		bus= {}
+		bus['scene']= context.scene
+		bus['preview']= False
+		bus['files']= {}
+		bus['files']['scene']= text
+		bus['files']['environment']= text
+		bus['filenames']= {}
+		bus['plugins']= PLUGINS
+		bus['effects']= {}
+		bus['effects']['fog']= {}
+		bus['effects']['toon']= {}
+		bus['effects']['toon']['effects']= []
+		bus['effects']['toon']['objects']= []
+
+		text.write("V-Ray/Blender 2.0 | Scene: %s | %s\n" % (context.scene.name,
+															 time.strftime("%d %b %Y %H:%m:%S")))
+
+		for key in PLUGINS['SETTINGS']:
+			if key in ('BakeView', 'RenderView'):
+				# Skip some plugins
+				continue
+
+			plugin= PLUGINS['SETTINGS'][key]
+			if hasattr(plugin, 'write'):
+				plugin.write(bus)
+		
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_settings_to_text)
