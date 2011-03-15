@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 15 March 2011 [07:20]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,13 +49,13 @@ def write_mesh_hq(ofile, sce, ob):
 
 	GeomMeshFile= ob.data.vray.GeomMeshFile
 
-	me=  ob.create_mesh(sce, True, 'RENDER')
+	me=  ob.to_mesh(sce, True, 'RENDER')
 	dme= None
 
 	if GeomMeshFile.animation and GeomMeshFile.add_velocity:
 		if sce.frame_current != sce.frame_end:
 			sce.frame_set(sce.frame_current+1)
-			dme= ob.create_mesh(sce, True, 'RENDER')
+			dme= ob.to_mesh(sce, True, 'RENDER')
 
 	if GeomMeshFile.apply_transforms:
 		me.transform(ob.matrix_world)
