@@ -619,7 +619,7 @@ def write_material_textures(ofile, params):
 														 VRaySlot.blend_mode] )
 
 	for key in mapped_params['mapto']:
-		if len(mapped_params['mapto'][key]) == 2:
+		if len(mapped_params['mapto'][key]) == 2 and type(mapped_params['mapto'][key][0]) is tuple:
 			if mapped_params['mapto'][key][1][2] == 'NONE':
 				mapped_params['mapto'][key][1][2]= 'OVER'
 
