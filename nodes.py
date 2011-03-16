@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [20:23]"
+  Time-stamp: "Wednesday, 16 March 2011 [20:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -122,8 +122,7 @@ def write_ShaderNodeOutput(bus, node, input_params):
 
 	params= {
 		'Color': "",
-		# Currently unsupported
-		# 'Alpha': "",
+		'Alpha': "",
 	}
 
 	for key in params:
@@ -136,14 +135,25 @@ def write_ShaderNodeOutput(bus, node, input_params):
 				c= node.inputs[key].default_value
 				params[key]= write_BRDFDiffuse(bus, key, node,
 											   mathutils.Color((c[0],c[1],c[2])))
-			# elif key == 'Alpha':
-			# 	params[key]= write_TexAColor(bus, key, node,
-			# 								 mathutils.Color([node.inputs[key].default_value[0]]*3))
 
 	node_name= get_name(ma, prefix='MA')
 
+	brdf= params['Color']
+
+	if 'Alpha' in input_params or node.inputs['Alpha'].default_value[0] < 1.0:
+		brdfs= brdf
+		brdf= "%sWithAlpha" % brdfs
+		ofile.write("\nBRDFLayered %s {" % brdf)
+		ofile.write("\n\tbrdfs= List(%s);" % brdfs)
+		if 'Alpha' in input_params:
+			ofile.write("\n\ttransparency_tex= %s;" % params['Alpha'])
+		else:
+			ofile.write("\n\ttransparency= %s;" % a(scene, mathutils.Color([node.inputs[key].default_value[0]]*3)))
+		ofile.write("\n\tweights= List(TEDefaultBlend);")
+		ofile.write("\n}\n")
+
 	ofile.write("\nMtlSingleBRDF %s {"  % node_name)
-	ofile.write("\n\tbrdf= %s;" % params['Color'])
+	ofile.write("\n\tbrdf= %s;" % brdf)
 	ofile.write("\n}\n")
 
 	return node_name
