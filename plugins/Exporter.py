@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [13:23]"
+  Time-stamp: "Wednesday, 16 March 2011 [19:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -57,9 +57,9 @@ def add_properties(rna_pointer):
 		description= "Exporter settings."
 	)
 
-	VRayExporter.use_material_nodes= BoolProperty(
-		name= "Use material nodes",
-		description= "Use material nodes.",
+	VRayExporter.draft= BoolProperty(
+		name= "Draft render",
+		description= "Render with low settings.",
 		default= False
 	)
 

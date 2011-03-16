@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [17:32]"
+  Time-stamp: "Wednesday, 16 March 2011 [19:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -445,7 +445,7 @@ def write_geometry_python(bus):
 	timer= time.clock()
 	debug(scene, "Writing meshes...")
 
-	if VRayExporter.animation:
+	if VRayExporter.animation and not VRayExporter.camera_loop:
 		cur_frame= scene.frame_current
 		scene.frame_set(scene.frame_start)
 		f= scene.frame_start
@@ -741,7 +741,7 @@ def write_material_textures(bus):
 												  VRaySlot.blend_mode] )
 
 	for key in bus['textures']:
-		if len(bus['textures'][key]) == 2:
+		if len(bus['textures'][key]) == 2 and type(bus['textures'][key][0]) is tuple:
 			if bus['textures'][key][1][2] == 'NONE':
 				bus['textures'][key][1][2]= 'OVER'
 
@@ -911,7 +911,7 @@ def write_materials(bus):
 			if ma:
 				bus['material']= ma
 
-				if scene.vray.exporter.use_material_nodes and ma.use_nodes:
+				if ma.use_nodes:
 					mtls_list.append(write_node_material(bus))
 
 				else:

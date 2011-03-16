@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [14:36]"
+  Time-stamp: "Wednesday, 16 March 2011 [19:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -37,7 +37,6 @@ from vb25.plugins import *
 
 
 import properties_material
-#properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_material
 
@@ -52,9 +51,9 @@ def active_node_mat(mat):
     return None
 
 
-class MATERIAL_MT_VRAY_presets(bpy.types.Menu):
-	bl_label= "SSS Presets"
-	preset_subdir= os.path.join("..", "io", "vb25", "presets", "sss")
+class VRAY_MT_preset_material(bpy.types.Menu):
+	bl_label= "Material Presets"
+	preset_subdir= os.path.join("..", "io", "vb25", "presets", "material")
 	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 
@@ -118,6 +117,14 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 
 		if mat:
 			VRayMaterial= mat.vray
+
+			split= layout.split()
+			col= split.column()
+			col.label(text="Simple materials:")
+			if wide_ui:
+				col= split.column()
+			col.menu('VRAY_MT_preset_material', text="Preset")
+
 			if wide_ui:
 				layout.prop(VRayMaterial, 'type', expand=True)
 			else:

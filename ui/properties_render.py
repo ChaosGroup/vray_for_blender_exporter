@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [13:23]"
+  Time-stamp: "Wednesday, 16 March 2011 [19:28]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -208,28 +208,29 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 
 		rd= context.scene.render
-		vs= context.scene.vray
-		ve= vs.exporter
-		SettingsOptions= vs.SettingsOptions
+
+		VRayScene=       context.scene.vray
+		VRayExporter=    VRayScene.exporter
+		SettingsOptions= VRayScene.SettingsOptions
 
 		split= layout.split()
 		col= split.column()
-		if ve.animation:
+		if VRayExporter.animation:
 			render_label= "Animation"
 			render_icon= 'RENDER_ANIMATION'
-		elif ve.camera_loop:
+		elif VRayExporter.camera_loop:
 			render_label= "Cameras"
 			render_icon= 'RENDER_ANIMATION'
 		else:
 			render_label= "Image"
 			render_icon= 'RENDER_STILL'
 
-		if ve.use_render_operator:
+		if VRayExporter.use_render_operator:
 			col.operator('render.render', text= render_label, icon= render_icon)
 		else:
 			col.operator('vray.render', text= render_label, icon= render_icon)
 
-		if not ve.auto_meshes:
+		if not VRayExporter.auto_meshes:
 			if wide_ui:
 				col= split.column()
 			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
@@ -237,23 +238,23 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Modules:")
-		col.prop(vs.SettingsGI, 'on', text="Global Illumination")
-		col.prop(vs.SettingsCaustics, 'on', text="Caustics")
-		col.prop(ve, 'use_displace', text= "Displace")
-		col.prop(vs.VRayDR, 'on')
-		col.prop(vs.VRayBake, 'use')
-		col.prop(vs.RTEngine, 'enabled')
+		col.prop(VRayScene.SettingsGI, 'on', text="Global Illumination")
+		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
+		col.prop(VRayExporter, 'use_displace', text= "Displace")
+		col.prop(VRayScene.VRayDR, 'on')
+		col.prop(VRayScene.VRayBake, 'use')
+		col.prop(VRayScene.RTEngine, 'enabled')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
-		col.prop(ve, 'animation')
-		if not ve.animation:
-			col.prop(ve, 'camera_loop')
-		col.prop(ve, 'active_layers')
-		if vs.SettingsGI.on:
+		col.prop(VRayExporter, 'animation')
+		if not VRayExporter.animation:
+			col.prop(VRayExporter, 'camera_loop')
+		col.prop(VRayExporter, 'active_layers')
+		if VRayScene.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.label(text="Options:")
-		col.prop(ve, 'use_material_nodes')
+		col.prop(VRayExporter, 'draft')
 
 
 class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):

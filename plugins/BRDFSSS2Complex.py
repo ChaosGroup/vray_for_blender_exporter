@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [18:08]"
+  Time-stamp: "Wednesday, 16 March 2011 [19:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -76,6 +76,13 @@ PARAMS= (
 
 
 def add_properties(rna_pointer):
+	class VRAY_MT_preset_sss(bpy.types.Menu):
+		bl_label= "SSS Presets"
+		preset_subdir= os.path.join("..", "io", "vb25", "presets", "sss")
+		preset_operator = "script.execute_preset"
+		draw = bpy.types.Menu.draw_preset
+	bpy.utils.register_class(VRAY_MT_preset_sss)
+
 	class BRDFSSS2Complex(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(BRDFSSS2Complex)
@@ -434,7 +441,7 @@ def gui(context, layout, BRDFSSS2Complex, material= None):
 
 	split= layout.split()
 	col= split.column()
-	col.menu('MATERIAL_MT_VRAY_presets', text="Presets")
+	col.menu('VRAY_MT_preset_sss', text="Presets")
 
 	split= layout.split()
 	col= split.column()
