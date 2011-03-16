@@ -531,9 +531,15 @@ def write_lamp_textures(ofile, params):
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					mapped_params['mapto'][key].append((write_texture_factor(ofile, sce, params),
-														slot.use_stencil,
-														VRaySlot.blend_mode))
+					mapped_params['mapto'][key].append( [write_texture_factor(ofile, sce, params),
+														 slot.use_stencil,
+														 VRaySlot.blend_mode] )
+
+	for key in mapped_params['mapto']:
+		if len(mapped_params['mapto'][key]) == 2:
+			if mapped_params['mapto'][key][1][2] == 'NONE':
+				mapped_params['mapto'][key][1][2]= 'OVER'
+
 	if len(mapped_params['mapto']):
 		debug(sce, "V-Ray/Blender: Lamp \"%s\" texture stack: %s" % (la.name,mapped_params['mapto']))
 	
@@ -608,9 +614,14 @@ def write_material_textures(ofile, params):
 					params['slot']=     slot
 					params['texture']=  slot.texture
 					params['factor']=   factor
-					mapped_params['mapto'][key].append(
-						(write_texture_factor(ofile, sce, params), slot.use_stencil, VRaySlot.blend_mode)
-					)
+					mapped_params['mapto'][key].append( [write_texture_factor(ofile, sce, params),
+														 slot.use_stencil,
+														 VRaySlot.blend_mode] )
+
+	for key in mapped_params['mapto']:
+		if len(mapped_params['mapto'][key]) == 2:
+			if mapped_params['mapto'][key][1][2] == 'NONE':
+				mapped_params['mapto'][key][1][2]= 'OVER'
 
 	if len(mapped_params['mapto']):
 		debug(sce, "V-Ray/Blender: Material \"%s\" texture stack: %s" % (ma.name,mapped_params['mapto']))
