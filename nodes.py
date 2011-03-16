@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [13:37]"
+  Time-stamp: "Wednesday, 16 March 2011 [20:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -42,6 +42,24 @@ from vb25.utils   import *
 '''
   NODES
 '''
+def write_ShaderNodeInvert(bus, node, node_params):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	node_tree= bus['nodes']['node_tree']
+
+	if 'Color' not in node_params:
+		return None
+
+	tex_name= "TI%s" % node_params['Color']
+
+	ofile.write("\nTexInvert %s {" % tex_name)
+	ofile.write("\n\ttexture= %s;" % node_params['Color'])
+	ofile.write("\n}\n")
+
+	return tex_name
+	
+	
 def write_BRDFDiffuse(bus, name, node, color):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
@@ -209,7 +227,10 @@ def write_node(bus, node_tree, node):
 		if not input_node:
 			continue
 
-		node_params[input_socket.name]= write_node(bus, node_tree, input_node)
+		value= write_node(bus, node_tree, input_node)
+
+		if value is not None:
+			node_params[input_socket.name]= value
 
 	if VRayExporter.debug:
 		print_dict(scene, "Node \"%s\"" % (node.name), node_params)
@@ -226,6 +247,12 @@ def write_node(bus, node_tree, node):
 	elif node.type == 'TEXTURE':
 		return write_ShaderNodeTexture(bus, node, node_params)
 
+	elif node.type == 'INVERT':
+		return write_ShaderNodeInvert(bus, node, node_params)
+
+	else:
+		return None
+
 
 def write_node_material(bus):
 	ofile= bus['files']['materials']
@@ -236,11 +263,18 @@ def write_node_material(bus):
 
 	ma=    bus['material']
 
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
+
+
 	node_tree= ma.node_tree
 	
 	output_node= get_output_node(node_tree)
 
 	if output_node:
+		if VRayExporter.debug:
+			debug(scene, "Processing node material \"%s\":" % (ma.name))
+
 		bus['nodes']= {}
 		bus['nodes']['node_tree']= node_tree
 		

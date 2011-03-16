@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [20:02]"
+  Time-stamp: "Wednesday, 16 March 2011 [20:15]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -691,9 +691,9 @@ def write_material_textures(bus):
 	ma=    bus['material']
 
 	VRayScene=    scene.vray
-	VRayMaterial= ma.vray
-
 	VRayExporter= VRayScene.exporter
+
+	VRayMaterial= ma.vray
 
 	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].mapto(bus)
 
