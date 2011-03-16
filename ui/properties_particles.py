@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [21:22]"
+  Time-stamp: "Tuesday, 15 March 2011 [22:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -44,6 +44,23 @@ class VRayFur(bpy.types.PropertyGroup):
 		soft_max= 0.01,
 		precision= 5,
 		default= 0.02
+	)
+
+	make_thinner= bpy.props.BoolProperty(
+		name= "Make thinner",
+		description= "Make hair thiner to the end.",
+		default= False
+	)
+
+	thin_start= bpy.props.IntProperty(
+		name= "Thin start segment",
+		description= "Make hair thiner to the end.",
+		subtype= 'PERCENTAGE',
+		min= 0,
+		max= 100,
+		soft_min= 0,
+		soft_max= 100,
+		default= 70
 	)
 
 class VRayParticleSettings(bpy.types.PropertyGroup):
@@ -94,4 +111,13 @@ class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 		
 		VRayFur= particle_settings.vray.VRayFur
 
-		layout.prop(VRayFur, 'width')
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayFur, 'width')
+		if wide_ui:
+			col= split.column()
+		col.prop(VRayFur, 'make_thinner')
+		if VRayFur.make_thinner:
+			col.prop(VRayFur, 'thin_start', text= "Segment", slider= True)
+		
+		

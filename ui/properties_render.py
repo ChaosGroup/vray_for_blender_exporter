@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [14:35]"
+  Time-stamp: "Wednesday, 16 March 2011 [13:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -361,7 +361,6 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 			col.prop(ve, 'vray_binary')
 		split= layout.split()
 		col= split.column()
-		# col.prop(ve, 'detach', text="Detach process")
 		if PLATFORM == "linux2":
 			col.prop(ve, 'log_window')
 

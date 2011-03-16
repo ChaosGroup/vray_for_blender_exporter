@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [08:14]"
+  Time-stamp: "Wednesday, 16 March 2011 [13:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -67,12 +67,6 @@ def add_properties(rna_pointer):
 		name= "Use render operator",
 		description= "Use bpy.ops.render.render() operator.",
 		default= True
-	)
-
-	VRayExporter.detach= BoolProperty(
-		name= "Detach renderer process",
-		description= "Detach renderer process.",
-		default= False
 	)
 
 	VRayExporter.mesh_active_layers= BoolProperty(

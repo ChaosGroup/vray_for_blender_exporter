@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [21:27]"
+  Time-stamp: "Tuesday, 15 March 2011 [22:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -502,10 +502,18 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 	for p,particle in enumerate(ps.particles):
 		sys.stdout.write("%s: Object: %s => Hair: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 		sys.stdout.flush()
-		num_hair_vertices.append(str(len(particle.hair)))
-		for segment in particle.hair:
+		segments= len(particle.hair)
+		num_hair_vertices.append(str(segments))
+		width= VRayFur.width / 2.0
+		thin_start= int(VRayFur.thin_start / 100 * segments)
+		thin_segments= segments - thin_start
+		thin_step= width / (thin_segments + 1)
+		for s,segment in enumerate(particle.hair):
 			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			widths.append("%.6f" % VRayFur.width)
+			if VRayFur.make_thinner:
+				if s > thin_start:
+					width-= thin_step
+			widths.append("%.6f" % width)
 
 	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
 	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(scene.frame_current, ','.join(num_hair_vertices)))

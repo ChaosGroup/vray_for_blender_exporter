@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [16:55]"
+  Time-stamp: "Wednesday, 16 March 2011 [13:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -485,7 +485,7 @@ def debug(scene, message, newline= True, cr= True, error= False):
 # Prints dictionary
 def print_dict(scene, title, params, spacing= 2):
 	debug(scene, "%s:" % title)
-	for key in params:
+	for key in sorted(params.keys()):
 		if type(params[key]) == dict:
 			spacing*= 2
 			print_dict(scene, key, params[key], spacing)

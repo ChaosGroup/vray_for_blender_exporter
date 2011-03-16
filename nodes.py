@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [19:34]"
+  Time-stamp: "Wednesday, 16 March 2011 [13:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -104,7 +104,8 @@ def write_ShaderNodeOutput(bus, node, input_params):
 
 	params= {
 		'Color': "",
-		'Alpha': "",
+		# Currently unsupported
+		# 'Alpha': "",
 	}
 
 	for key in params:
@@ -117,9 +118,9 @@ def write_ShaderNodeOutput(bus, node, input_params):
 				c= node.inputs[key].default_value
 				params[key]= write_BRDFDiffuse(bus, key, node,
 											   mathutils.Color((c[0],c[1],c[2])))
-			elif key == 'Alpha':
-				params[key]= write_TexAColor(bus, key, node,
-											 mathutils.Color([node.inputs[key].default_value[0]]*3))
+			# elif key == 'Alpha':
+			# 	params[key]= write_TexAColor(bus, key, node,
+			# 								 mathutils.Color([node.inputs[key].default_value[0]]*3))
 
 	node_name= get_name(ma, prefix='MA')
 
@@ -197,6 +198,9 @@ def write_node(bus, node_tree, node):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
+	VRayScene=      scene.vray
+	VRayExporter=   VRayScene.exporter
+
 	node_params= {}
 
 	for input_socket in node.inputs:
@@ -207,7 +211,8 @@ def write_node(bus, node_tree, node):
 
 		node_params[input_socket.name]= write_node(bus, node_tree, input_node)
 
-	print_dict(scene, "Node \"%s\"" % (node.name), node_params)
+	if VRayExporter.debug:
+		print_dict(scene, "Node \"%s\"" % (node.name), node_params)
 
 	if node.type == 'MIX_RGB':
 		return write_ShaderNodeMixRGB(bus, node, node_params)
