@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [19:58]"
+  Time-stamp: "Wednesday, 16 March 2011 [20:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -666,9 +666,14 @@ def write_lamp_textures(bus):
 					# Write texture
 					write_texture(bus)
 
-					bus['lamp_textures'][key].append( (stack_write_texture(bus),
+					bus['lamp_textures'][key].append( [stack_write_texture(bus),
 													   slot.use_stencil,
-													   VRaySlot.blend_mode) )
+													   VRaySlot.blend_mode] )
+	for key in bus['lamp_textures']:
+		if len(bus['lamp_textures'][key]) == 2 and type(bus['lamp_textures'][key][0]) is tuple:
+			if bus['lamp_textures'][key][1][2] == 'NONE':
+				bus['lamp_textures'][key][1][2]= 'OVER'
+
 	if VRayExporter.debug:
 		if len(bus['lamp_textures']):
 			print_dict(scene, "Lamp \"%s\" texture stack" % la.name, bus['lamp_textures'])

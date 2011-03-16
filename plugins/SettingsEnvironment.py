@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [09:36]"
+  Time-stamp: "Wednesday, 16 March 2011 [20:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -889,9 +889,15 @@ def write(bus):
 					# Write texture
 					write_texture(bus)
 
-					bus['env_textures'][key].append((write_factor(bus),
-													 slot.use_stencil,
-													 VRaySlot.blend_mode))
+					bus['env_textures'][key].append( [stack_write_texture(bus),
+													  slot.use_stencil,
+													  VRaySlot.blend_mode] )
+
+	for key in bus['env_textures']:
+		if len(bus['env_textures'][key]) == 2 and type(bus['env_textures'][key][0]) is tuple:
+			if bus['env_textures'][key][1][2] == 'NONE':
+				bus['env_textures'][key][1][2]= 'OVER'
+
 	if VRayExporter.debug:
 		if len(bus['env_textures']):
 			print_dict(scene, "World texture stack", bus['env_textures'])
