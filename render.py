@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [22:10]"
+  Time-stamp: "Wednesday, 16 March 2011 [17:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -736,14 +736,19 @@ def write_material_textures(bus):
 					write_texture(bus)
 
 					# Append texture to stack and write texture with factor
-					bus['textures'][key].append( (stack_write_texture(bus),
+					bus['textures'][key].append( [stack_write_texture(bus),
 												  slot.use_stencil,
-												  VRaySlot.blend_mode) )
+												  VRaySlot.blend_mode] )
+
+	for key in bus['textures']:
+		if len(bus['textures'][key]) == 2:
+			if bus['textures'][key][1][2] == 'NONE':
+				bus['textures'][key][1][2]= 'OVER'
 
 	if VRayExporter.debug:
 		if len(bus['textures']):
 			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures'])
-	
+
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
 			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
