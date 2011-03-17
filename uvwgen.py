@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:29]"
+  Time-stamp: "Thursday, 17 March 2011 [10:54]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -64,7 +64,7 @@ def write_UVWGenProjection(bus):
 	if ob:
 		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
 		uvw_transform*= ob.matrix_world.copy().inverted()
-		ofile.write("\n\tuvw_transform= %s; // %s" % (a(scene,transform(uvw_transform)), ob.name))
+		ofile.write("\n\tuvw_transform= %s; // Object: %s" % (a(scene,transform(uvw_transform)), ob.name))
 	ofile.write("\n}\n")
 
 	return uvwgen
@@ -77,30 +77,36 @@ def write_UVWGenChannel(bus):
 	slot=     bus['mtex']['slot']
 	texture=  bus['mtex']['texture']
 
-	uvw_name= bus['mtex']['name'] + 'UVC'
+	uvw_name= "UVC%s" % (bus['mtex']['name'])
 
 	VRaySlot=    texture.vray_slot
 	VRayTexture= texture.vray
 	
 	uvw_channel= 1
-	if slot:
-		uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
-		
-	uvwgen= write_UVWGenProjection(bus) if VRayTexture.texture_coords == 'ORCO' else None
+	uvwgen=      None
+
+	if VRayTexture.texture_coords == 'ORCO':
+		uvwgen= write_UVWGenProjection(bus)
+
+	else:
+		if slot:
+			uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
+	if uvwgen:
+		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
-	if hasattr(texture,'use_mirror_x'):
+	if hasattr(texture, 'use_mirror_x'):
 		ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
 		ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
-	if hasattr(texture,'repeat_x'):
+	if hasattr(texture, 'repeat_x'):
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
 		ofile.write("\n\t\tMatrix(")
-		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0))
-		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0))
-		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (slot.scale[0] / (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0)))
+		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (slot.scale[1] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
+		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f" %  (slot.scale[2] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
 		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
+		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0] - 0.5, slot.offset[1] - 0.5, slot.offset[2] - 0.5) if slot else (0.0,0.0,0.0)))
 		ofile.write("\n\t)));")
 	else:
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
@@ -109,10 +115,8 @@ def write_UVWGenChannel(bus):
 		ofile.write("\n\t\t\tVector(0.0,1.0,0.0),")
 		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
 		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,0.0)" % ((slot.offset[0], slot.offset[1]) if slot else (1.0,1.0)))
+		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
 		ofile.write("\n\t)));")
-	if uvwgen:
-		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
 	return uvw_name
@@ -162,11 +166,12 @@ def write_uvwgen(bus):
 	else:
 		VRayTexture= texture.vray
 
-		if VRayTexture.texture_coords == 'ORCO':
-			uvwgen= write_UVWGenProjection(bus)
+		# if VRayTexture.texture_coords == 'ORCO':
+		# 	uvwgen= write_UVWGenProjection(bus)
+		# else:
+		# 	uvwgen= write_UVWGenChannel(bus)
 
-		else:
-			uvwgen= write_UVWGenChannel(bus)
+		uvwgen= write_UVWGenChannel(bus)
 
 		# We need to pass normal uvwgen to BRDFBump
 		if 'material' in bus and bus['mtex']['mapto'] == 'normal':

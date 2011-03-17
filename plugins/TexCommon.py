@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [13:36]"
+  Time-stamp: "Thursday, 17 March 2011 [10:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -537,7 +537,6 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 					sub= col.row()
 				else:
 					sub= col.column()
-				sub.active= 0
 				sub.prop(slot, 'scale', text="")
 
 			layout.separator()
