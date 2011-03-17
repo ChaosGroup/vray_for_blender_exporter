@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [10:14]"
+  Time-stamp: "Thursday, 17 March 2011 [08:50]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -166,9 +166,15 @@ def write_uvwgen(bus):
 		VRayTexture= texture.vray
 
 		if VRayTexture.texture_coords == 'ORCO':
-			return write_UVWGenProjection(bus)
+			uvwgen= write_UVWGenProjection(bus)
 		else:
-			return write_UVWGenChannel(bus)
+			uvwgen= write_UVWGenChannel(bus)
+
+		# We need to pass normal uvwgen to BRDFBump
+		if 'material' in bus and bus['mtex']['mapto'] == 'normal':
+			bus['material']['material']['normal_uvwgen']= uvwgen
+		
+		return uvwgen
 
 	
 

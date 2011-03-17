@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [20:15]"
+  Time-stamp: "Thursday, 17 March 2011 [09:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -359,6 +359,9 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 # If some texture need object mapping then material become object dependent
 # bus['material']['orco']= bool
 
+# Normal mapping settings pointer
+# bus['material']['normal_slot']= *slot
+
 # BRDFBump nomal mapping uvwgen
 # bus['material']['normal_uvwgen']= string
 
@@ -669,6 +672,7 @@ def write_lamp_textures(bus):
 					bus['lamp_textures'][key].append( [stack_write_texture(bus),
 													   slot.use_stencil,
 													   VRaySlot.blend_mode] )
+
 	for key in bus['lamp_textures']:
 		if len(bus['lamp_textures'][key]) == 2 and type(bus['lamp_textures'][key][0]) is tuple:
 			if bus['lamp_textures'][key][1][2] == 'NONE':
@@ -688,7 +692,7 @@ def write_lamp_textures(bus):
 def write_material_textures(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
-	ma=    bus['material']
+	ma=    bus['material']['material']
 
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
@@ -700,12 +704,12 @@ def write_material_textures(bus):
 	# Mapped parameters
 	bus['textures']= {}
 
-	# Displace settings pointer
-	bus['node']['displace']= None
+	# Displace settings pointers
+	bus['node']['displacement_slot']=    None
+	bus['node']['displacement_texture']= None
 
-	# Normal mapping settings pointer and uvwgen
-	bus['normal']=        None
-	bus['normal_uvwgen']= None
+	# Normal mapping settings pointer
+	bus['material']['normal_slot']=      None
 
 	for i,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
@@ -723,11 +727,14 @@ def write_material_textures(bus):
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
 							bus['textures'][key].append(mapped_params[key])
 
+					print(key)
+					# Store slot for GeomDisplaceMesh
 					if key == 'displacement':
-						bus['node']['displacement']['slot']= slot
+						bus['node']['displacement_slot']= slot
 
+					# Store slot for BRDFBump
 					elif key == 'normal':
-						bus['normal']['slot']= slot
+						bus['material']['normal_slot']= slot
 
 					bus['mtex']= {}
 					bus['mtex']['slot']=    slot
@@ -737,6 +744,9 @@ def write_material_textures(bus):
 					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
 																			 slot.name,
 																			 slot.texture.name))
+
+					print_dict(scene, "bus['mtex']", bus['mtex'])
+
 					# Write texture
 					write_texture(bus)
 
@@ -745,6 +755,8 @@ def write_material_textures(bus):
 												  slot.use_stencil,
 												  VRaySlot.blend_mode] )
 
+	# In case we have only 1 texture blended over color
+	# set its blend type to 'OVER' if its 'NONE'
 	for key in bus['textures']:
 		if len(bus['textures'][key]) == 2 and type(bus['textures'][key][0]) is tuple:
 			if bus['textures'][key][1][2] == 'NONE':
@@ -754,12 +766,17 @@ def write_material_textures(bus):
 		if len(bus['textures']):
 			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures'])
 
+	# Collapsing texture stack
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
 			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
 
 	if 'displacement' in bus['textures']:
-		bus['node']['displacement']['texture']= bus['textures']['displacement']
+		bus['node']['displacement_texture']= bus['textures']['displacement']
+
+	if VRayExporter.debug:
+		if len(bus['textures']):
+			print_dict(scene, "Material \"%s\" textures" % ma.name, bus['textures'])
 
 	return bus['textures']
 
@@ -768,10 +785,10 @@ def	write_material(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	ob=   bus['node']['object']
-	base= bus['node']['base']
+	ob=    bus['node']['object']
+	base=  bus['node']['base']
 
-	ma= bus['material']
+	ma=    bus['material']['material']
 
 	if base.dupli_type == 'GROUP':
 		base_material_names= []
@@ -782,7 +799,7 @@ def	write_material(bus):
 			if base_ma.find(ma.name) != -1:
 				slot= base.material_slots.get(base_ma)
 				ma=   slot.material
-				bus['material']= ma
+				bus['material']['material']= ma
 
 	VRayMaterial= ma.vray
 
@@ -795,6 +812,9 @@ def	write_material(bus):
 		)
 		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
 
+	# Write material textures
+	write_material_textures(bus)
+
 	# TODO:
 	#  - Don't put material in cache when Object mapping
 	#    is used in any texture
@@ -802,9 +822,6 @@ def	write_material(bus):
 	if not append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
 	
-	# Write material textures
-	write_material_textures(bus)
-
 	# Write material BRDF
 	brdf= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
 
@@ -901,6 +918,7 @@ def	write_material(bus):
 def write_materials(bus):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
+
 	ob=    bus['node']['object']
 
 	# Multi-material name
@@ -914,7 +932,8 @@ def write_materials(bus):
 		for slot in ob.material_slots:
 			ma= slot.material
 			if ma:
-				bus['material']= ma
+				bus['material']= {}
+				bus['material']['material']= ma
 
 				if ma.use_nodes:
 					mtls_list.append(write_node_material(bus))
@@ -1545,8 +1564,9 @@ def write_scene(bus):
 
 		# Cache stores already exported data
 		bus['cache']= {}
-		bus['cache']['textures']= []
+		bus['cache']['textures']=  []
 		bus['cache']['materials']= []
+		bus['cache']['displace']=  []
 
 		bus['filter']= {} # TODO: Rename!
 		bus['filter']['proxy']=    []

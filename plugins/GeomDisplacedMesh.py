@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Thursday, 17 March 2011 [09:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -262,31 +262,37 @@ def add_properties(rna_pointer):
 def write(bus):
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
+
 	ob=    bus['node']['object']
 	me=    bus['node']['geometry']
 	
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 	
-	if not (bus['node']['displace'] and VRayExporter.use_displace):
+	if not (bus['node'].get('displacement_slot') and VRayExporter.use_displace):
 		return
 
-	slot=    bus['node']['displace']['slot']
-	texture= bus['node']['displace']['texture_name']
+	slot= bus['node']['displacement_slot']
 
-	VRaySlot= slot.texture.vray_slot
+	VRaySlot=            slot.texture.vray_slot
 	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
 	displacement_amount= GeomDisplacedMesh.displacement_amount
 
-	name= 'D'+me
-	if ob.vray.GeomDisplacedMesh.use:
-		name= get_name(ob, prefix="DME")
-		GeomDisplacedMesh= ob.vray.GeomDisplacedMesh
+	VRayObject=                 ob.vray
+	ObjectDisplacementOverride= VRayObject.GeomDisplacedMesh
+
+	displace_name= 'D'+me
+	if ObjectDisplacementOverride.use:
+		displace_name= get_name(ob, prefix='DOB')
+		GeomDisplacedMesh= ObjectDisplacementOverride
+
+	if not append_unique(bus['cache']['displace'], displace_name):
+		return displace_name
 	
-	ofile.write("\nGeomDisplacedMesh %s {" % name)
+	ofile.write("\nGeomDisplacedMesh %s {" % displace_name)
 	ofile.write("\n\tmesh= %s;" % me)
-	ofile.write("\n\tdisplacement_tex_float= %s;" % texture)
-	ofile.write("\n\tdisplacement_tex_color= %s;" % texture)
+	ofile.write("\n\tdisplacement_tex_float= %s;" % bus['node']['displacement_texture'])
+	ofile.write("\n\tdisplacement_tex_color= %s;" % bus['node']['displacement_texture'])
 	if GeomDisplacedMesh.type == '2D':
 		ofile.write("\n\tdisplace_2d= 1;")
 	elif GeomDisplacedMesh.type == '3D':
@@ -308,7 +314,7 @@ def write(bus):
 		ofile.write("\n\t%s= %s;" % (param, a(scene,value)))
 	ofile.write("\n}\n")
 
-	bus['node']['geomtery']= name
+	bus['node']['geometry']= displace_name
 
 
 def influence(context, layout, slot):

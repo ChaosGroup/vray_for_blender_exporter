@@ -102,14 +102,14 @@ def write_ShaderNodeTexture(bus, node, input_params):
 
 
 def write_ShaderNodeMaterial(bus, node, input_params):
-	ma=    bus['material']
+	ma=    bus['material']['material']
 
 	bus['textures']= {}
-	bus['material']= node.material
+	bus['material']['material']= node.material
 
 	node_name= PLUGINS['BRDF'][node.material.vray.type].write(bus)
 
-	bus['material']= ma
+	bus['material']['material']= ma
 
 	return node_name
 
@@ -118,7 +118,7 @@ def write_ShaderNodeOutput(bus, node, input_params):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	ma=    bus['material']
+	ma=    bus['material']['material']
 
 	params= {
 		'Color': "",
@@ -271,7 +271,7 @@ def write_node_material(bus):
 	ob=    bus['node']['object']
 	base=  bus['node']['base']
 
-	ma=    bus['material']
+	ma=    bus['material']['material']
 
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter

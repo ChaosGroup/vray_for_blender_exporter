@@ -687,7 +687,7 @@ def write_VolumeVRayToon_from_material(bus):
 	scene= bus['scene']
 
 	ob= bus['node']['object']
-	ma= bus['material']
+	ma= bus['material']['material']
 
 	VRayMaterial= ma.vray
 	

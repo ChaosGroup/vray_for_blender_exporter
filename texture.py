@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [11:10]"
+  Time-stamp: "Thursday, 17 March 2011 [09:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -221,22 +221,33 @@ def stack_write_TexLayered(bus, layers):
 	}
 
 	tex_name= 'TL%s' % (''.join([l[0] for l in layers[1:]]))
+
+	if not append_unique(bus['cache']['textures'], tex_name):
+		return tex_name
+
 	ofile.write("\nTexLayered %s {" % tex_name)
 	ofile.write("\n\ttextures= List(%s);" % (','.join([l[0] for l in layers])))
 	ofile.write("\n\tblend_modes= List(%s);" % (','.join([BLEND_MODES[l[1]] for l in layers])))
 	ofile.write("\n}\n")
+
 	return tex_name
 
 
 def stack_write_TexMix(bus, color1, color2, blend_amount):
 	ofile= bus['files']['textures']
+
 	tex_name= 'TM%s%s%s' % (color1, color2, blend_amount)
+
+	if not append_unique(bus['cache']['textures'], tex_name):
+		return tex_name
+
 	ofile.write("\nTexMix %s {" % tex_name)
 	ofile.write("\n\tcolor1= %s;" % color1)
 	ofile.write("\n\tcolor2= %s;" % color2)
 	ofile.write("\n\tmix_amount= 1.0;")
 	ofile.write("\n\tmix_map= %s;" % blend_amount)
 	ofile.write("\n}\n")
+
 	return tex_name
 
 
@@ -269,6 +280,10 @@ def stack_collapse_layers(slots):
 def write_TexOutput(bus, texmap, mapto):
 	ofile= bus['files']['textures']
 	tex_name= "MAPTO%sTE%s" % (mapto, texmap)
+
+	if not append_unique(bus['cache']['textures'], tex_name):
+		return tex_name
+
 	ofile.write("\nTexOutput %s {" % tex_name)
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")

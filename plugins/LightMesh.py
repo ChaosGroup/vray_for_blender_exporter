@@ -173,7 +173,7 @@ def write(bus):
 	if not VRayObject.LightMesh.use:
 		return False
 	
-	ma=  bus['material']
+	ma=  bus['material']['material']
 	tex= bus['mtex']
 
 	light= getattr(ma.vray,plugin)

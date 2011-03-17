@@ -181,7 +181,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	material=     bus['material']
+	material=     bus['material']['material']
 	VRayMaterial= material.vray
 
 	brdf_name= "%s_%s" % (ID, get_name(material, prefix='MA'))

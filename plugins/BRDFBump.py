@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [14:37]"
+  Time-stamp: "Thursday, 17 March 2011 [09:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -109,7 +109,8 @@ def write(bus, base_brdf= None):
 	scene=     bus['scene']
 
 	textures=  bus['textures']
-	slot=      bus['normal']
+	slot=      bus['material'].get('normal_slot')
+
 	if not base_brdf:
 		base_brdf= bus['brdf']
 
@@ -127,7 +128,7 @@ def write(bus, base_brdf= None):
 		ofile.write("\n\tbump_tex_color= %s;" % textures['normal'])
 		ofile.write("\n\tbump_tex_float= %s;" % textures['normal'])
 		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-		ofile.write("\n\tnormal_uvwgen= %s;" % VRaySlot.uvwgen)
+		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material']['material']['normal_uvwgen'])
 		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 		ofile.write("\n}\n")

@@ -113,7 +113,7 @@ def add_properties(rna_pointer):
 
 def mapto(bus, BRDFLayered= None):
 	scene= bus['scene']
-	ma=    bus['material']
+	ma=    bus['material']['material']
 
 	defaults= {}
 
@@ -134,7 +134,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	scene=    bus['scene']
 	ofile=    bus['files']['materials']
 
-	material= bus['material']
+	material= bus['material']['material']
 	textures= bus['textures']
 
 	BRDFLight= material.vray.BRDFLight
