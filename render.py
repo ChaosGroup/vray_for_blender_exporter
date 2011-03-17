@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:24]"
+  Time-stamp: "Thursday, 17 March 2011 [10:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -726,7 +726,6 @@ def write_material_textures(bus):
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
 							bus['textures'][key].append(mapped_params[key])
 
-					print(key)
 					# Store slot for GeomDisplaceMesh
 					if key == 'displacement':
 						bus['node']['displacement_slot']= slot
@@ -745,7 +744,7 @@ def write_material_textures(bus):
 																			 slot.texture.name))
 
 					if VRayTexture.texture_coords == 'ORCO':
-						bus['material']['orco_suffix']= get_name(get_orco_object(bus['node']['object'], VRayTexture),
+						bus['material']['orco_suffix']= get_name(get_orco_object(scene, bus['node']['object'], VRayTexture),
 																 prefix='ORCO')
 
 						bus['mtex']['name']+= bus['material']['orco_suffix']

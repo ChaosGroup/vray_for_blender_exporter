@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:03]"
+  Time-stamp: "Thursday, 17 March 2011 [10:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -631,9 +631,9 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 
 
 # Get object used as ORCO projection
-def get_orco_object(ob, VRayTexture):
+def get_orco_object(scene, ob, VRayTexture):
 	if VRayTexture.object:
-		texture_object= get_data_by_name(sce, 'objects', VRayTexture.object)
+		texture_object= get_data_by_name(scene, 'objects', VRayTexture.object)
 		if texture_object:
 			return texture_object
 	return ob

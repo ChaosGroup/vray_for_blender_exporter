@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:05]"
+  Time-stamp: "Thursday, 17 March 2011 [10:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -57,7 +57,7 @@ def write_UVWGenProjection(bus):
 
 	uvwgen= "UVP%s" % (bus['mtex']['name'])
 
-	ob= get_orco_object(bus['node']['object'], VRayTexture)
+	ob= get_orco_object(scene, bus['node']['object'], VRayTexture)
 
 	ofile.write("\nUVWGenProjection %s {" % uvwgen)
 	ofile.write("\n\ttype= %d;" % TYPE[VRayTexture.mapping])

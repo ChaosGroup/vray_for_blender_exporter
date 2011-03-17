@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [08:35]"
+  Time-stamp: "Thursday, 17 March 2011 [10:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -224,19 +224,6 @@ def write(bus):
 	if not texture.image:
 		debug(scene, "Texture: %s Image file is not set!" % texture.name, error= True)
 		return bus['defaults']['texture']
-
-	# If "Object" mapping - texture is object dependent
-	if VRayTexture.texture_coords == 'ORCO':
-		ob= bus.get('object')
-		if VRayTexture.object:
-			ob= get_data_by_name(scene, 'objects', VRayTexture.object)
-		if ob:
-			tex_name= "OB%s%s" % (clean_string(ob.name), tex_name)
-
-	# Check if already exported
-	if tex_name in bus['filter']['texture']:
-		return tex_name
-	bus['filter']['texture'].append(tex_name)
 
 	bitmap= write_BitmapBuffer(bus)
 
