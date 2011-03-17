@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:25]"
+  Time-stamp: "Thursday, 17 March 2011 [10:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -41,7 +41,7 @@ ID=   'BRDFBlinn'
 PID=   7
 
 NAME= 'BRDFBlinn'
-UI=   "Blinn"
+UI=   "Glossy"
 DESC= "BRDFBlinn."
 
 PARAMS= (
@@ -92,10 +92,21 @@ def add_properties(rna_pointer):
 		description= "V-Ray BRDFBlinn settings"
 	)
 
+	BRDFBlinn.brdf_type= EnumProperty(
+		name= "BRDF type",
+		description= "This determines the type of BRDF (the shape of the hilight).",
+		items= (
+			('PHONG',"Phong","Phong hilight/reflections."),
+			('BLINN',"Blinn","Blinn hilight/reflections."),
+			('WARD',"Ward","Ward hilight/reflections.")
+		),
+		default= 'BLINN'
+	)
+
 	# color
 	BRDFBlinn.color= FloatVectorProperty(
 		name= "Color",
-		description= "TODO: Tooltip.",
+		description= "Reflection color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -206,9 +217,9 @@ def add_properties(rna_pointer):
 	BRDFBlinn.trace_depth= IntProperty(
 		name= "Depth",
 		description= "The maximum reflection depth (-1 is controlled by the global options).",
-		min= 0,
+		min= -1,
 		max= 100,
-		soft_min= 0,
+		soft_min= -1,
 		soft_max= 10,
 		default= -1
 	)
@@ -379,7 +390,7 @@ def add_properties(rna_pointer):
 
 	# imap_min_rate
 	BRDFBlinn.imap_min_rate= IntProperty(
-		name= "imap min rate",
+		name= "Min rate",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,
@@ -390,7 +401,7 @@ def add_properties(rna_pointer):
 
 	# imap_max_rate
 	BRDFBlinn.imap_max_rate= IntProperty(
-		name= "imap max rate",
+		name= "Max rate",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,
@@ -401,7 +412,7 @@ def add_properties(rna_pointer):
 
 	# imap_color_thresh
 	BRDFBlinn.imap_color_thresh= FloatProperty(
-		name= "imap color thresh",
+		name= "Color thresh",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -413,7 +424,7 @@ def add_properties(rna_pointer):
 
 	# imap_norm_thresh
 	BRDFBlinn.imap_norm_thresh= FloatProperty(
-		name= "imap norm thresh",
+		name= "Normal thresh",
 		description= "TODO: Tooltip.",
 		min= 0.0,
 		max= 100.0,
@@ -425,7 +436,7 @@ def add_properties(rna_pointer):
 
 	# imap_samples
 	BRDFBlinn.imap_samples= IntProperty(
-		name= "imap samples",
+		name= "Samples",
 		description= "TODO: Tooltip.",
 		min= 0,
 		max= 100,
@@ -507,6 +518,11 @@ def add_properties(rna_pointer):
   OUTPUT
 '''
 def write(bus, VRayBRDF= None, base_name= None):
+	BRDF_TYPE= {
+		'PHONG': 'BRDFPhong',
+		'BLINN': 'BRDFBlinn',
+		'WARD':  'BRDFWard',
+	}
 	GLOSSY_RAYS= {
 		'NEVER':  0,
 		'GI':     1,
@@ -516,13 +532,17 @@ def write(bus, VRayBRDF= None, base_name= None):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
-
 	BRDFBlinn= getattr(VRayBRDF, ID)
-	
-	ofile.write("\n%s %s {"%(ID, brdf_name))
+
+	brdf_type= BRDF_TYPE[BRDFBlinn.brdf_type]
+
+	brdf_name= "%s%s%s" % (brdf_type, ID, clean_string(VRayBRDF.name))
+
+	ofile.write("\n%s %s {" % (brdf_type, brdf_name))
 	for param in PARAMS:
-		if param.endswith('_tex'):
+		if brdf_type == 'BRDFPhong' and param in ('anisotropy', 'anisotropy_rotation'):
+			continue
+		elif param.endswith('_tex'):
 			continue
 		elif param == 'transparency':
 			value= mathutils.Color([1.0 - BRDFBlinn.transparency]*3)
@@ -565,20 +585,22 @@ def gui(context, layout, BRDFBlinn):
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
-	sub.prop(BRDFBlinn, 'hilightGlossiness')
+	sub.prop(BRDFBlinn, 'hilightGlossiness', slider= True)
 	# sub.prop(BRDFBlinn, 'hilightGlossiness_tex')
 	# sub.prop(BRDFBlinn, 'hilightGlossiness_tex_mult')
-	sub.prop(BRDFBlinn, 'reflectionGlossiness')
+	sub.prop(BRDFBlinn, 'reflectionGlossiness', slider= True)
 	# sub.prop(BRDFBlinn, 'reflectionGlossiness_tex')
 	# sub.prop(BRDFBlinn, 'reflectionGlossiness_tex_mult')
 	sub.prop(BRDFBlinn, 'subdivs')
 	sub.prop(BRDFBlinn, 'trace_depth')
 	if wide_ui:
 		col= split.column()
-	sub= col.column(align=True)
-	sub.prop(BRDFBlinn, 'anisotropy')
-	# sub.prop(BRDFBlinn, 'anisotropy_uvwgen')
-	sub.prop(BRDFBlinn, 'anisotropy_rotation')
+	col.prop(BRDFBlinn, 'brdf_type', text="")
+	if not BRDFBlinn.brdf_type == 'PHONG':
+		sub= col.column(align=True)
+		sub.prop(BRDFBlinn, 'anisotropy', slider= True)
+		# sub.prop(BRDFBlinn, 'anisotropy_uvwgen')
+		sub.prop(BRDFBlinn, 'anisotropy_rotation', slider= True)
 
 	split= layout.split()
 	col= split.column()
@@ -611,10 +633,10 @@ def gui(context, layout, BRDFBlinn):
 		col= split.column()
 		col.prop(BRDFBlinn, 'imap_min_rate')
 		col.prop(BRDFBlinn, 'imap_max_rate')
+		col.prop(BRDFBlinn, 'imap_samples')
 		if wide_ui:
 			col= split.column()
 		col.prop(BRDFBlinn, 'imap_color_thresh')
 		col.prop(BRDFBlinn, 'imap_norm_thresh')
-		col.prop(BRDFBlinn, 'imap_samples')
 
 

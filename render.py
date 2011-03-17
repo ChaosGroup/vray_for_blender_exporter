@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:37]"
+  Time-stamp: "Thursday, 17 March 2011 [10:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -353,20 +353,22 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 ### Currently processed material
 # bus['material']= {}
 
-# Material
+## Material
 # bus['material']['material']= *material
 
-# If some texture need object mapping then material become object dependent
-# bus['material']['orco']= bool
+## If some texture need object mapping then material become object dependent
+# bus['material']['orco_suffix']= ""
 
-# Normal mapping settings pointer
+## Normal mapping settings pointer
 # bus['material']['normal_slot']= *slot
 
-# BRDFBump nomal mapping uvwgen
+## BRDFBump nomal mapping uvwgen
 # bus['material']['normal_uvwgen']= string
 
-# Texture stack
-# bus['material']['textures']= {}
+### Texture stack
+# bus['textures']=      {}
+# bus['lamp_textures']= {}
+# bus['env_textures']=  {}
 
 ### Currently processed texture
 # bus['mtex']= {}
@@ -377,10 +379,13 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 
 ### Exported data cache
 # bus['cache']= {}
+
 ## Animated proxy data is proxy dependent so caching only type 'STILL'
 # bus['cache']['proxy']=  []
+
 ## Animated bitmap data is bitmap dependent so caching only type 'FILE'
 # bus['cache']['bitmap']= []
+
 ## 'ORCO' textures are object position dependent so caching only type 'UV'
 # bus['cache']['texture_uv']= []
 
@@ -640,8 +645,8 @@ def write_lamp_textures(bus):
 	
 	for i,slot in enumerate(la.texture_slots):
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
-			VRaySlot= slot.texture.vray_slot
-			VRayLight= VRaySlot.VRayLight
+			VRaySlot=    slot.texture.vray_slot
+			VRayLight=   VRaySlot.VRayLight
 			
 			for key in defaults:
 				use_slot= False
@@ -704,16 +709,10 @@ def write_material_textures(bus):
 	# Mapped parameters
 	bus['textures']= {}
 
-	# Displace settings pointers
-	bus['node']['displacement_slot']=    None
-	bus['node']['displacement_texture']= None
-
-	# Normal mapping settings pointer
-	bus['material']['normal_slot']=      None
-
 	for i,slot in enumerate(ma.texture_slots):
 		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
-			VRaySlot= slot.texture.vray_slot
+			VRaySlot=    slot.texture.vray_slot
+			VRayTexture= slot.texture.vray
 
 			for key in mapped_params:
 				if getattr(VRaySlot, 'map_'+key):
@@ -744,6 +743,12 @@ def write_material_textures(bus):
 					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
 																			 slot.name,
 																			 slot.texture.name))
+
+					if VRayTexture.texture_coords == 'ORCO':
+						bus['material']['orco_suffix']= get_name(get_orco_object(bus['node']['object'], VRayTexture),
+																 prefix='ORCO')
+
+						bus['mtex']['name']+= bus['material']['orco_suffix']
 
 					print_dict(scene, "bus['mtex']", bus['mtex'])
 
@@ -815,10 +820,12 @@ def	write_material(bus):
 	# Write material textures
 	write_material_textures(bus)
 
-	# TODO:
-	#  - Don't put material in cache when Object mapping
-	#    is used in any texture
-	#  - Set appropriate material name in this case
+	# Check if material uses object mapping
+	# In this case material is object dependend
+	# because mapping is object dependent
+	if bus['material']['orco_suffix']:
+		ma_name+= bus['material']['orco_suffix']
+
 	if not append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
 	
@@ -934,6 +941,16 @@ def write_materials(bus):
 			if ma:
 				bus['material']= {}
 				bus['material']['material']= ma
+
+				# Displace settings pointers
+				bus['node']['displacement_slot']=    None
+				bus['node']['displacement_texture']= None
+
+				# Normal mapping settings pointer
+				bus['material']['normal_slot']=      None
+
+				# Set if any texture uses object mapping
+				bus['material']['orco_suffix']=      ""
 
 				if ma.use_nodes:
 					mtls_list.append(write_node_material(bus))

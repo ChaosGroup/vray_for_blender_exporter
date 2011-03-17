@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [08:50]"
+  Time-stamp: "Thursday, 17 March 2011 [10:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,17 +49,15 @@ def write_UVWGenProjection(bus):
 
 	scene= bus['scene']
 	ofile= bus['files']['textures']
-	ob=    bus['node']['object']
 
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
-	uvwgen=  bus['mtex']['name'] + 'UVP'
 
 	VRayTexture= texture.vray
-	if VRayTexture.object:
-		texture_object= get_data_by_name(sce, 'objects', VRayTexture.object)
-		if texture_object:
-			ob= texture_object
+
+	uvwgen= "UVP%s" % (bus['mtex']['name'])
+
+	ob= get_orco_object(bus['node']['object'], VRayTexture)
 
 	ofile.write("\nUVWGenProjection %s {" % uvwgen)
 	ofile.write("\n\ttype= %d;" % TYPE[VRayTexture.mapping])
@@ -117,8 +115,6 @@ def write_UVWGenChannel(bus):
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
 
-	bus['normal_uvwgen']= uvw_name
-
 	return uvw_name
 
 
@@ -139,7 +135,7 @@ def write_UVWGenEnvironment(bus):
 	texture=  bus['mtex']['texture']
 	tex_name= bus['mtex']['name']
 
-	uvw_name= tex_name + 'UVE'
+	uvw_name= "UVE%s" % (tex_name)
 
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
@@ -160,13 +156,15 @@ def write_uvwgen(bus):
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
 
-	if type(slot) == bpy.types.WorldTextureSlot:
+	if type(slot) is bpy.types.WorldTextureSlot:
 		return write_UVWGenEnvironment(bus)
+
 	else:
 		VRayTexture= texture.vray
 
 		if VRayTexture.texture_coords == 'ORCO':
 			uvwgen= write_UVWGenProjection(bus)
+
 		else:
 			uvwgen= write_UVWGenChannel(bus)
 

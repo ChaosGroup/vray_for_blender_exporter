@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [10:04]"
+  Time-stamp: "Thursday, 17 March 2011 [10:12]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -578,9 +578,11 @@ def write(bus, VRayBRDF= None, base_name= None):
 	scene= bus['scene']
 	ma=    bus['material']['material']
 
-	brdf_name= "%s_%s" % (ID, get_name(ma, prefix='MA'))
+	brdf_name= "%s%s%s" % (ID, get_name(ma, prefix='MA'), bus['material']['orco_suffix'])
 	if base_name:
-		brdf_name= "%s%s%s" % (base_name, ID, clean_string(VRayBRDF.name))
+		brdf_name= "%s%s%s" % (base_name, ID, bus['material']['orco_suffix'])
+	if VRayBRDF:
+		brdf_name+= clean_string(VRayBRDF.name)
 
 	BRDFCarPaint= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFCarPaint
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:05]"
+  Time-stamp: "Thursday, 17 March 2011 [09:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -253,11 +253,11 @@ def stack_write_TexMix(bus, color1, color2, blend_amount):
 
 def stack_write_textures(bus, layer):
 	ofile= bus['files']['textures']
-	if type(layer) == dict:
+	if type(layer) is dict:
 		color_a= stack_write_textures(bus, layer['color_a'])
 		color_b= stack_write_textures(bus, layer['color_b'])
 		layer_name= stack_write_TexMix(bus, color_a, color_b, layer['blend_amount'])
-	elif type(layer) == list:
+	elif type(layer) is list:
 		layer_name= stack_write_TexLayered(bus, layer)
 	return layer_name
 
@@ -287,6 +287,7 @@ def write_TexOutput(bus, texmap, mapto):
 	ofile.write("\nTexOutput %s {" % tex_name)
 	ofile.write("\n\ttexmap= %s;" % texmap)
 	ofile.write("\n}\n")
+
 	return tex_name
 
 
