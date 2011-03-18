@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:29]"
+  Time-stamp: "Friday, 18 March 2011 [15:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -798,7 +798,7 @@ def get_distance(ob1, ob2):
 
 # VRayProxy Creator call
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
-	proxycreator_binary= "proxycreator"
+	proxycreator_bin= "proxycreator"
 	
 	if PLATFORM == 'linux2':
 		proxycreator_bin+= "_linux"
@@ -815,18 +815,20 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 
 	vray_exporter_path= get_vray_exporter_path()
 	if vray_exporter_path:
-		p= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
-		if os.path.exists(p):
-			proxycreator_bin= p
+		proxycreator_bin= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
+		if os.path.exists(proxycreator_bin):
+			debug(None, "Proxy Creator: %s" % (proxycreator_bin))
 
-	params= []
-	params.append(proxycreator_bin)
-	if append:
-		params.append('--append')
-	params.append(hq_filepath)
-	params.append(vrmesh_filepath)
+			params= []
+			params.append(proxycreator_bin)
+			if append:
+				params.append('--append')
+			params.append(hq_filepath)
+			params.append(vrmesh_filepath)
 
-	os.system(' '.join(params))
+			os.system(' '.join(params))
+		else:
+			debug(None, "Proxy Creator not found!", error= True)
 
 
 # Returns path to vb25 folder
