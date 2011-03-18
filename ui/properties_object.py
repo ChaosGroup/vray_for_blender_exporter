@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [14:36]"
+  Time-stamp: "Friday, 18 March 2011 [16:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -298,6 +298,18 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(LightMesh, 'enabled', text="On")
+
+		col.row().prop(LightMesh, 'color_type', expand=True)
+		if wide_ui:
+			col= split.column()
+		if LightMesh.color_type == 'RGB':
+			sub= col.row(align= True)
+			sub.prop(LightMesh, 'color', text="")
+			sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.vray.LightMesh.color"
+		else:
+			col.prop(LightMesh, 'temperature', text="K")
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()

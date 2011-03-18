@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:45]"
+  Time-stamp: "Friday, 18 March 2011 [16:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -295,48 +295,6 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		#'endDistance2',
 		#'startDistance3',
 		#'endDistance3'
-	),
-
-	'LightMesh': (
-		'enabled',
-		# 'transform',
-		'color',
-		# 'color_tex',
-		# 'shadows',
-		# 'shadowColor',
-		# 'shadowColor_tex',
-		# 'shadowBias',
-		# 'photonSubdivs',
-		'causticSubdivs',
-		# 'diffuseMult',
-		# 'causticMult',
-		# 'cutoffThreshold',
-		'affectDiffuse',
-		'affectSpecular',
-		# 'bumped_below_surface_check',
-		# 'nsamples',
-		# 'diffuse_contribution',
-		# 'specular_contribution',
-		# 'channels',
-		# 'channels_raw',
-		# 'channels_diffuse',
-		# 'channels_specular',
-		'units',
-		'intensity',
-		# 'intensity_tex',
-		'subdivs',
-		'storeWithIrradianceMap',
-		'invisible',
-		'affectReflections',
-		'noDecay',
-		'doubleSided',
-		'lightPortal',
-		'geometry',
-		# 'ignoreLightNormals',
-		# 'tex',
-		# 'use_tex',
-		# 'tex_resolution',
-		# 'cache_tex'
 	),
 }
 

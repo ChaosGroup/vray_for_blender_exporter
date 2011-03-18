@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [21:26]"
+  Time-stamp: "Friday, 18 March 2011 [16:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru

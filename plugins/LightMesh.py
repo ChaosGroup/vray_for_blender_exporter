@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Friday, 18 March 2011 [16:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -31,6 +31,9 @@
 import bpy
 from bpy.props import *
 
+''' vb modules '''
+from vb25.utils import *
+
 
 TYPE= 'GEOMETRY'
 ID=   'LightMesh'
@@ -40,12 +43,79 @@ UI=   "Mesh light"
 DESC= "LightMesh settings."
 
 PARAMS= (
+	'enabled',
+	# 'transform',
+	'color',
+	# 'color_tex',
+	# 'shadows',
+	# 'shadowColor',
+	# 'shadowColor_tex',
+	# 'shadowBias',
+	# 'photonSubdivs',
+	'causticSubdivs',
+	# 'diffuseMult',
+	# 'causticMult',
+	# 'cutoffThreshold',
+	'affectDiffuse',
+	'affectSpecular',
+	# 'bumped_below_surface_check',
+	# 'nsamples',
+	# 'diffuse_contribution',
+	# 'specular_contribution',
+	# 'channels',
+	# 'channels_raw',
+	# 'channels_diffuse',
+	# 'channels_specular',
+	'units',
+	'intensity',
+	# 'intensity_tex',
+	'subdivs',
+	'storeWithIrradianceMap',
+	'invisible',
+	'affectReflections',
+	'noDecay',
+	'doubleSided',
+	'lightPortal',
+	'geometry',
+	# 'ignoreLightNormals',
+	# 'tex',
+	# 'use_tex',
+	# 'tex_resolution',
+	# 'cache_tex'
 )
 
 
 def add_properties(rna_pointer):
 	class LightMesh(bpy.types.PropertyGroup):
-		pass
+		color= FloatVectorProperty(
+			name= "Color",
+			description= "Light color.",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (1.0,1.0,1.0)
+		)
+
+		color_type= EnumProperty(
+			name= "Color type",
+			description= "Color type.",
+			items= (
+				('RGB',    "RGB", ""),
+				('KELVIN', "K",   ""),
+			),
+			default= 'RGB'
+		)
+
+		temperature= IntProperty(
+			name= "Temperature",
+			description= "Kelvin temperature.",
+			min= 1000,
+			max= 40000,
+			step= 100,
+			default= 5000
+		)
 	bpy.utils.register_class(LightMesh)
 
 	rna_pointer.LightMesh= PointerProperty(
@@ -161,11 +231,24 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
+	LIGHT_PORTAL= {
+		'NORMAL':  0,
+		'PORTAL':  1,
+		'SPORTAL': 2,
+	}
+
+	UNITS= {
+		'DEFAULT' : 0,
+		'LUMENS'  : 1,
+		'LUMM'    : 2,
+		'WATTSM'  : 3,
+		'WATM'    : 4,
+	}
+
 	scene= bus['scene']
 	ofile= bus['files']['lights']
-	ob=    bus['node']['object']
 
-	plugin= 'LightMesh'
+	ob=    bus['node']['object']
 
 	VRayObject= ob.vray
 	LightMesh=  VRayObject.LightMesh
@@ -173,29 +256,25 @@ def write(bus):
 	if not VRayObject.LightMesh.use:
 		return False
 	
-	ma=  bus['material']['material']
-	tex= bus['mtex']
+	material= bus['material']['material']
+	textures= bus['textures']
 
-	light= getattr(ma.vray,plugin)
-
-	ofile.write("\n%s %s {" % (plugin,name))
-	ofile.write("\n\ttransform= %s;"%(a(scene,transform(matrix))))
-	for param in OBJECT_PARAMS[plugin]:
+	ofile.write("\nLightMesh %s {" % bus['node']['name'])
+	ofile.write("\n\ttransform= %s;" % a(scene,transform(bus['node']['matrix'])))
+	for param in PARAMS:
 		if param == 'color':
-			if tex:
-				ofile.write("\n\tcolor= %s;" % a(scene,ma.diffuse_color))
-				ofile.write("\n\ttex= %s;" % tex)
+			ofile.write("\n\tcolor= %s;" % a(scene, LightMesh.color))
+			if 'diffuse' in textures:
+				ofile.write("\n\ttex= %s;" % textures['diffuse'])
 				ofile.write("\n\tuse_tex= 1;")
-			else:
-				ofile.write("\n\tcolor= %s;"%(a(scene,ma.diffuse_color)))
 		elif param == 'geometry':
-			ofile.write("\n\t%s= %s;"%(param, geometry))
+			ofile.write("\n\t%s= %s;"%(param, bus['node']['geometry']))
 		elif param == 'units':
-			ofile.write("\n\t%s= %i;"%(param, UNITS[light.units]))
+			ofile.write("\n\t%s= %i;"%(param, UNITS[LightMesh.units]))
 		elif param == 'lightPortal':
-			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[light.lightPortal]))
+			ofile.write("\n\t%s= %i;"%(param, LIGHT_PORTAL[LightMesh.lightPortal]))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(light,param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(LightMesh,param))))
 	ofile.write("\n}\n")
 
 	return True
