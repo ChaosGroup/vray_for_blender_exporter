@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:54]"
+  Time-stamp: "Thursday, 17 March 2011 [13:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -106,7 +106,7 @@ def write_UVWGenChannel(bus):
 		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (slot.scale[1] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
 		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f" %  (slot.scale[2] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
 		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0] - 0.5, slot.offset[1] - 0.5, slot.offset[2] - 0.5) if slot else (0.0,0.0,0.0)))
+		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
 		ofile.write("\n\t)));")
 	else:
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
