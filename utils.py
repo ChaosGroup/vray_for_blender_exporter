@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:29]"
+  Time-stamp: "Friday, 18 March 2011 [14:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -860,14 +860,14 @@ def get_vray_standalone_path(sce):
 		if vray_standalone:
 			return vray_standalone
 
-	search_paths= []
-	for maya in ('2011','2010','2009','2008'):
-		for arch in ('x64','x86'):
-			env_var= "VRAY_FOR_MAYA%s_MAIN_%s"%(maya,arch)
-			debug(sce, "Searching in: %s" % (env_var))
-			vray_maya= find_vray_binary([os.path.join(p,'bin') for p in get_env_paths(env_var)])
-			if vray_maya:
-				return vray_maya
+	for var in os.environ:
+		if var.startswith('VRAY_FOR_MAYA'):
+			if var.find('MAIN') != -1:
+				print(var, os.environ[var])
+				debug(sce, "Searching in: %s" % (var))
+				vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
+				if vray_maya:
+					return vray_maya
 
 	debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)
 
