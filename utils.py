@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:34]"
+  Time-stamp: "Friday, 18 March 2011 [15:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -836,7 +836,7 @@ def get_vray_exporter_path():
 	for vb_path in bpy.utils.script_paths(os.path.join('io','vb25')):
 		if vb_path:
 			return vb_path
-	return ''
+	return ""
 
 
 # Detects V-Ray Standalone installation

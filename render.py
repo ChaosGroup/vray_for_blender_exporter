@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:30]"
+  Time-stamp: "Friday, 18 March 2011 [15:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -739,9 +739,8 @@ def write_material_textures(bus):
 					bus['mtex']['texture']= slot.texture
 					bus['mtex']['mapto']=   key
 					bus['mtex']['factor']=  factor
-					bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i,
-																			 slot.name,
-																			 slot.texture.name))
+					# bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i, slot.name, slot.texture.name))
+					bus['mtex']['name']=    clean_string("MT%.2iTE%s" % (i, slot.texture.name))
 
 					if VRayTexture.texture_coords == 'ORCO':
 						bus['material']['orco_suffix']= get_name(get_orco_object(scene, bus['node']['object'], VRayTexture),
@@ -749,7 +748,8 @@ def write_material_textures(bus):
 
 						bus['mtex']['name']+= bus['material']['orco_suffix']
 
-					print_dict(scene, "bus['mtex']", bus['mtex'])
+					if VRayExporter.debug:
+						print_dict(scene, "bus['mtex']", bus['mtex'])
 
 					# Write texture
 					write_texture(bus)

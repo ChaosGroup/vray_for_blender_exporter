@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [19:28]"
+  Time-stamp: "Friday, 18 March 2011 [15:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -225,10 +225,7 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 			render_label= "Image"
 			render_icon= 'RENDER_STILL'
 
-		if VRayExporter.use_render_operator:
-			col.operator('render.render', text= render_label, icon= render_icon)
-		else:
-			col.operator('vray.render', text= render_label, icon= render_icon)
+		col.operator('render.render', text= render_label, icon= render_icon)
 
 		if not VRayExporter.auto_meshes:
 			if wide_ui:
@@ -338,7 +335,6 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Options:")
 		col.prop(ve, 'autorun')
 		col.prop(ve, 'auto_meshes')
-		col.prop(ve, 'use_render_operator')
 		col.prop(ve, 'display')
 		col.prop(ve, 'debug')
 		if wide_ui:
