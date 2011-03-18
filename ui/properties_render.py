@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:47]"
+  Time-stamp: "Friday, 18 March 2011 [16:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -193,9 +193,9 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
 		col.prop(VRayExporter, 'image_to_blender')
-		sub= col.column()
-		sub.active= False
-		sub.prop(rd, "use_overwrite")
+		# sub= col.column()
+		# sub.active= False
+		# sub.prop(rd, "use_overwrite")
 
 
 class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):

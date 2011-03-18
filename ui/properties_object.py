@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:25]"
+  Time-stamp: "Friday, 18 March 2011 [16:40]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -297,8 +297,6 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(LightMesh, 'enabled', text="On")
-
 		col.row().prop(LightMesh, 'color_type', expand=True)
 		if wide_ui:
 			col= split.column()
@@ -321,6 +319,7 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 		col.prop(LightMesh, 'causticSubdivs', text="Caustics")
 		if wide_ui:
 			col= split.column()
+		col.prop(LightMesh, 'enabled', text="On")
 		col.prop(LightMesh, 'invisible')
 		col.prop(LightMesh, 'affectDiffuse')
 		col.prop(LightMesh, 'affectSpecular')
