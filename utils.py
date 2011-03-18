@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [14:32]"
+  Time-stamp: "Friday, 18 March 2011 [15:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -31,6 +31,7 @@
 import filecmp
 import math
 import os
+import platform
 import random
 import shutil
 import string
@@ -444,6 +445,7 @@ COLOR_TABLE= {
 	'28200': (0.3524,0.5232,1.0000),
 }
 
+ARCH= platform.architecture()[0]
 TEX_TYPES=  ('IMAGE', 'VRAY')
 GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
 
@@ -796,18 +798,29 @@ def get_distance(ob1, ob2):
 
 # VRayProxy Creator call
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
-	pc_binary= "vb_proxy"
+	proxycreator_binary= "proxycreator"
+	
+	if PLATFORM == 'linux2':
+		proxycreator_bin+= "_linux"
+	elif PLATFORM == 'win32':
+		proxycreator_bin+= "_win"
+	else:
+		proxycreator_bin+= "_mac"
+
 	if PLATFORM == 'win32':
-		pc_binary+= ".exe"
+		proxycreator_bin+= ".exe"
+
+	elif PLATFORM == 'linux2':
+		proxycreator_bin+= ARCH[:-3]
 
 	vray_exporter_path= get_vray_exporter_path()
 	if vray_exporter_path:
-		p= os.path.join(vray_exporter_path, pc_binary)
+		p= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
 		if os.path.exists(p):
-			pc_binary= p
+			proxycreator_bin= p
 
 	params= []
-	params.append(pc_binary)
+	params.append(proxycreator_bin)
 	if append:
 		params.append('--append')
 	params.append(hq_filepath)
