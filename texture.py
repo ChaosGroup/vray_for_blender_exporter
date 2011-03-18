@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:56]"
+  Time-stamp: "Friday, 18 March 2011 [19:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -35,12 +35,30 @@ from vb25.utils   import *
 from vb25.plugins import *
 
 
-def write_TexAColorOp(ofile, sce, color_a, mult):
-	tex_name= get_random_string()
+def write_TexAColor(bus, name, node, color_a, mult):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	tex_name= "TACOP%sNO%s" % (name, clean_string(node.name))
+
 	ofile.write("\nTexAColorOp %s {" % tex_name)
 	ofile.write("\n\tcolor_a= %s;" % color_a)
 	ofile.write("\n\tmult_a= %s;" % a(sce,mult))
 	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_TexAColor(bus, name, node, color):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	tex_name= "TAC%sNO%s" % (name, clean_string(node.name))
+
+	ofile.write("\nTexAColor %s {" % tex_name)
+	ofile.write("\n\ttexture= %s;" % a(scene, color))
+	ofile.write("\n}\n")
+
 	return tex_name
 
 
@@ -98,6 +116,11 @@ def write_texture(bus):
 
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
 		return bus['mtex']['name']
+
+	slot= bus['mtex'].get('slot')
+
+	if slot and texture.use_nodes:
+		return write_node_texture(bus)
 
 	if texture.type == 'IMAGE':
 		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
@@ -291,4 +314,177 @@ def write_TexOutput(bus, texmap, mapto):
 	return tex_name
 
 
+
+'''
+  NODE TEXTURE
+'''
+def write_TextureNodeInvert(bus, node, node_params):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	node_tree= bus['tex_nodes']['node_tree']
+
+	if 'Color' not in node_params:
+		return None
+
+	tex_name= "TI%s" % node_params['Color']
+
+	ofile.write("\nTexInvert %s {" % tex_name)
+	ofile.write("\n\ttexture= %s;" % node_params['Color'])
+	ofile.write("\n}\n")
+
+	return tex_name
+
+
+def write_TextureNodeTexture(bus, node, input_params):
+	node_tree= bus['tex_nodes']['node_tree']
+
+	# Store mtex context
+	context_mtex= bus['mtex']
+
+	bus['mtex']= {}
+	bus['mtex']['mapto']=   'node'
+	bus['mtex']['slot']=     None
+	bus['mtex']['texture']=  node.texture
+	bus['mtex']['factor']=   1.0
+	bus['mtex']['name']=     clean_string("NT%sNO%sTE%s" % (node_tree.name,
+															node.name,
+															node.texture.name))
+
+	tex_name= write_texture(bus)
+
+	# Restore mtex context
+	bus['mtex']= context_mtex
+
+	return tex_name
+
+
+def write_TextureNodeMixRGB(bus, node, input_params):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	node_tree= bus['tex_nodes']['node_tree']
+
+	params= {
+		'Color1': "",
+		'Color2': "",
+		'Factor': "",
+	}
+	
+	for key in params:
+		# Key is mapped in input_params
+		if key in input_params:
+			params[key]= input_params[key]
+
+		else:
+			if key == 'Color1':
+				c= node.inputs[key].default_value
+				params[key]= write_TexAColor(bus, key, node,
+											 mathutils.Color((c[0],c[1],c[2])))
+			elif key == 'Color2':
+				c= node.inputs[key].default_value
+				params[key]= write_TexAColor(bus, key, node,
+											 mathutils.Color((c[0],c[1],c[2])))
+			elif key == 'Factor':
+				params[key]= write_TexAColor(bus, key, node,
+											 mathutils.Color([node.inputs[key].default_value[0]]*3))
+
+	return stack_write_TexMix(bus, params['Color1'], params['Color2'], params['Factor'])
+
+
+def write_TextureNodeOutput(bus, node, input_params):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	params= {
+		'Color': "",
+	}
+	
+	if 'Color' not in input_params:
+		c= node.inputs['Color'].default_value
+		params['Color']= write_TexAColor(bus, 'Color', node,
+										 mathutils.Color((c[0],c[1],c[2])))
+	else:
+		params['Color']= input_params['Color']
+
+	ofile.write("\nTexOutput %s {" % bus['mtex']['name'])
+	ofile.write("\n\ttexmap= %s;" % params['Color'])
+	ofile.write("\n}\n")
+
+	return bus['mtex']['name']
+
+
+def write_texture_node(bus, node_tree, node):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	VRayScene=      scene.vray
+	VRayExporter=   VRayScene.exporter
+
+	node_params= {}
+
+	for input_socket in node.inputs:
+		input_node= connected_node(node_tree, input_socket)
+
+		if not input_node:
+			continue
+
+		value= write_texture_node(bus, node_tree, input_node)
+
+		if value is not None:
+			node_params[input_socket.name]= value
+
+	if VRayExporter.debug:
+		print_dict(scene, "Node \"%s\"" % (node.name), node_params)
+
+	if node.type == 'MIX_RGB':
+		return write_TextureNodeMixRGB(bus, node, node_params)
+
+	elif node.type == 'OUTPUT':
+		return write_TextureNodeOutput(bus, node, node_params)
+
+	elif node.type == 'TEXTURE':
+		return write_TextureNodeTexture(bus, node, node_params)
+
+	elif node.type == 'INVERT':
+		return write_TextureNodeInvert(bus, node, node_params)
+
+	else:
+		return None
+
+	return None
+
+
+def write_node_texture(bus):
+	ofile= bus['files']['textures']
+	scene= bus['scene']
+
+	ob=    bus['node']['object']
+	base=  bus['node']['base']
+
+	tex=  bus['mtex'].get('texture')
+	slot= bus['mtex'].get('slot')
+
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
+
+	node_tree= tex.node_tree
+
+	output_node_name= None
+	if slot:
+		if slot.output_node != 'NOT_SPECIFIED':
+			output_node_name= slot.output_node
+	
+	output_node= get_output_node(node_tree, output_node_name)
+
+	if output_node:
+		if VRayExporter.debug:
+			debug(scene, "Processing node texture \"%s\":" % (tex.name))
+
+		bus['tex_nodes']= {}
+		bus['tex_nodes']['node_tree']= node_tree
+
+		return write_texture_node(bus, node_tree, output_node)
+
+	return None
 

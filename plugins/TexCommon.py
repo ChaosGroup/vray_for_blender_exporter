@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:53]"
+  Time-stamp: "Friday, 18 March 2011 [18:44]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -476,7 +476,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
+		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image) or tex.use_nodes) and engine_poll(cls, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -666,7 +666,7 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
+		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image) or tex.use_nodes) and engine_poll(cls, context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

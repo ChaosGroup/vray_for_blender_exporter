@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [20:37]"
+  Time-stamp: "Friday, 18 March 2011 [19:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -71,19 +71,6 @@ def write_BRDFDiffuse(bus, name, node, color):
 	ofile.write("\n}\n")
 
 	return comp_name
-
-
-def write_TexAColor(bus, name, node, color):
-	ofile= bus['files']['materials']
-	scene= bus['scene']
-
-	tex_name= "TAC%sNO%s" % (name, clean_string(node.name))
-
-	ofile.write("\nTexAColor %s {" % tex_name)
-	ofile.write("\n\ttexture= %s;" % a(scene, color))
-	ofile.write("\n}\n")
-
-	return tex_name
 
 
 def write_ShaderNodeTexture(bus, node, input_params):
@@ -203,11 +190,6 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 '''
   MATERIAL
 '''
-def get_node_name(node_tree, node):
-	return "%s%s" % (get_name(node_tree, prefix='NT'),
-					 clean_string(node.name))
-
-
 def get_output_node(node_tree):
 	for node in node_tree.nodes:
 		if node.type == 'OUTPUT':
@@ -275,7 +257,6 @@ def write_node_material(bus):
 
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
-
 
 	node_tree= ma.node_tree
 	

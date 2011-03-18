@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:30]"
+  Time-stamp: "Friday, 18 March 2011 [18:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -668,7 +668,7 @@ def write_material_textures(bus):
 	bus['textures']= {}
 
 	for i,slot in enumerate(ma.texture_slots):
-		if ma.use_textures[i] and slot and slot.texture and slot.texture.type in TEX_TYPES:
+		if ma.use_textures[i] and slot and slot.texture and (slot.texture.type in TEX_TYPES or slot.texture.use_nodes):
 			VRaySlot=    slot.texture.vray_slot
 			VRayTexture= slot.texture.vray
 
@@ -691,7 +691,7 @@ def write_material_textures(bus):
 					# Store slot for BRDFBump
 					elif key == 'normal':
 						bus['material']['normal_slot']= slot
-
+						
 					bus['mtex']= {}
 					bus['mtex']['slot']=    slot
 					bus['mtex']['texture']= slot.texture

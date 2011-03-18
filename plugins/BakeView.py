@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Friday, 18 March 2011 [17:55]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -108,7 +108,7 @@ def write(bus):
 			ofile.write("\n\tuvw_channel=1;")
 			ofile.write("\n}\n")
 			ofile.write("\nBakeView BakeView {")
-			ofile.write("\n\tbake_node= %s;" % get_name(bake_node, pefix="OB"))
+			ofile.write("\n\tbake_node= %s;" % get_name(bake_node, prefix='OB'))
 			ofile.write("\n\tbake_uvwgen= BakeViewUVW;")
 			ofile.write("\n\tdilation= %i;" % VRayBake.dilation)
 			ofile.write("\n\tflip_derivs= %i;" % VRayBake.flip_derivs)

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:37]"
+  Time-stamp: "Friday, 18 March 2011 [18:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -668,6 +668,32 @@ def get_name(ob, prefix= None):
 	if ob.library:
 		name+= "%s%s" % ('LI', get_filename(ob.library.filepath))
 	return clean_string(name)
+
+
+# Get node name
+def get_node_name(node_tree, node):
+	return "%s%s" % (get_name(node_tree, prefix='NT'),
+					 clean_string(node.name))
+
+
+# Find node connected to socket
+def connected_node(node_tree, node_socket):
+	for node in node_tree.links:
+		if node.to_socket == node_socket:
+			return node.from_node
+	return None
+
+
+# Get node_tree Output
+def get_output_node(node_tree, output_node_name= None):
+	for node in node_tree.nodes:
+		if node.type == 'OUTPUT':
+			if output_node_name is not None:
+				if output_node_name == node.name:
+					return node
+			else:
+				return node
+	return None
 
 
 # Get data by name

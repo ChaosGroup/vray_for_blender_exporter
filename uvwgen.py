@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [13:47]"
+  Time-stamp: "Friday, 18 March 2011 [18:31]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -50,8 +50,8 @@ def write_UVWGenProjection(bus):
 	scene= bus['scene']
 	ofile= bus['files']['textures']
 
-	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
+	slot=    bus['mtex'].get('slot')
 
 	VRayTexture= texture.vray
 
@@ -74,8 +74,8 @@ def write_UVWGenChannel(bus):
 	ofile= bus['files']['textures']
 	sce=   bus['scene']
 
-	slot=     bus['mtex']['slot']
-	texture=  bus['mtex']['texture']
+	texture= bus['mtex']['texture']
+	slot=    bus['mtex'].get('slot')
 
 	uvw_name= "UVC%s" % (bus['mtex']['name'])
 
@@ -99,24 +99,25 @@ def write_UVWGenChannel(bus):
 	if hasattr(texture, 'use_mirror_x'):
 		ofile.write("\n\twrap_u= %d;" % (2 if texture.use_mirror_x else 0))
 		ofile.write("\n\twrap_v= %d;" % (2 if texture.use_mirror_y else 0))
-	if hasattr(texture, 'repeat_x'):
-		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
-		ofile.write("\n\t\tMatrix(")
-		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (slot.scale[0] / (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0)))
-		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (slot.scale[1] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
-		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f" %  (slot.scale[2] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
-		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
-		ofile.write("\n\t)));")
-	else:
-		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
-		ofile.write("\n\t\tMatrix(")
-		ofile.write("\n\t\t\tVector(1.0,0.0,0.0),")
-		ofile.write("\n\t\t\tVector(0.0,1.0,0.0),")
-		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
-		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
-		ofile.write("\n\t)));")
+	if slot:
+		if hasattr(texture, 'repeat_x'):
+			ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
+			ofile.write("\n\t\tMatrix(")
+			ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % (slot.scale[0] / (texture.repeat_x if VRayTexture.tile in ('TILEUV','TILEU') else 1.0)))
+			ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % (slot.scale[1] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
+			ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f" %  (slot.scale[2] / (texture.repeat_y if VRayTexture.tile in ('TILEUV','TILEV') else 1.0)))
+			ofile.write("\n\t\t),")
+			ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
+			ofile.write("\n\t)));")
+		else:
+			ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
+			ofile.write("\n\t\tMatrix(")
+			ofile.write("\n\t\t\tVector(1.0,0.0,0.0),")
+			ofile.write("\n\t\t\tVector(0.0,1.0,0.0),")
+			ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+			ofile.write("\n\t\t),")
+			ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % ((slot.offset[0], slot.offset[1], slot.offset[2]) if slot else (0.0,0.0,0.0)))
+			ofile.write("\n\t)));")
 	ofile.write("\n}\n")
 
 	return uvw_name
