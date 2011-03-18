@@ -267,7 +267,7 @@ def write(bus):
 				color= LightMesh.color
 			else:
 				color= kelvin_to_rgb(LightMesh.temperature)
-				ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
+			ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f,%.6f,%.6f)"%(tuple(color))))
 			if 'diffuse' in textures:
 				ofile.write("\n\ttex= %s;" % textures['diffuse'])
 				ofile.write("\n\tuse_tex= 1;")
