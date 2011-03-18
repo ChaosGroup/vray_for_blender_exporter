@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:30]"
+  Time-stamp: "Friday, 18 March 2011 [16:42]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -263,7 +263,11 @@ def write(bus):
 	ofile.write("\n\ttransform= %s;" % a(scene,transform(bus['node']['matrix'])))
 	for param in PARAMS:
 		if param == 'color':
-			ofile.write("\n\tcolor= %s;" % a(scene, LightMesh.color))
+			if LightMesh.color_type == 'RGB':
+				color= LightMesh.color
+			else:
+				color= kelvin_to_rgb(LightMesh.temperature)
+				ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
 			if 'diffuse' in textures:
 				ofile.write("\n\ttex= %s;" % textures['diffuse'])
 				ofile.write("\n\tuse_tex= 1;")
