@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [14:29]"
+  Time-stamp: "Friday, 18 March 2011 [14:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -863,7 +863,6 @@ def get_vray_standalone_path(sce):
 	for var in os.environ:
 		if var.startswith('VRAY_FOR_MAYA'):
 			if var.find('MAIN') != -1:
-				print(var, os.environ[var])
 				debug(sce, "Searching in: %s" % (var))
 				vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
 				if vray_maya:
