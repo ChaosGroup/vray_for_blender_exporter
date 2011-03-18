@@ -949,7 +949,8 @@ def write_node_material(sce, ma, filters, object_params, ofile, ob, params):
 			color1= "BRDFDiffuse_no_material"
 			color2= "BRDFDiffuse_no_material"
 			fac= "Color(0.5,0.5,0.5)"
-
+			weights= "TEDefaultBlend"
+			
 			brdf_name= "%s_%s_%s"%(ma.name, nt.name, no.name)
 
 			for ns in no.inputs:
