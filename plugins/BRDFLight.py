@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:13]"
+  Time-stamp: "Saturday, 19 March 2011 [15:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -134,27 +134,28 @@ def write(bus, VRayBRDF= None, base_name= None):
 	scene=    bus['scene']
 	ofile=    bus['files']['materials']
 
-	material= bus['material']['material']
+	ma=       bus['material']['material']
 	textures= bus['textures']
 
-	BRDFLight= material.vray.BRDFLight
-	
 	brdf_name= "%s%s%s" % (ID, get_name(ma, prefix='MA'), bus['material']['orco_suffix'])
 	if base_name:
 		brdf_name= "%s%s%s" % (base_name, ID, bus['material']['orco_suffix'])
 	if VRayBRDF:
 		brdf_name+= clean_string(VRayBRDF.name)
 
+	BRDFLight= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFLight
+
 	defaults= mapto(bus, VRayBRDF)
 
 	if 'diffuse' in textures:
 		color= textures['diffuse']
-		if 'opacity' in textures:
-			alpha= write_TexInvert(ofile, scene, textures['opacity'])
-			color= write_TexCompMax(ofile, scene, {'name': "%s_alpha" % brdf_name,
-												   'sourceA': alpha,
-												   'sourceB': color,
-												   'opertor': 'Multiply'})
+		# TODO:
+		# if 'opacity' in textures:
+		# 	alpha= write_TexInvert(ofile, scene, textures['opacity'])
+		# 	color= write_TexCompMax(ofile, scene, {'name': "%s_alpha" % brdf_name,
+		# 										   'sourceA': alpha,
+		# 										   'sourceB': color,
+		# 										   'opertor': 'Multiply'})
 	else:
 		color= defaults['diffuse'][0]
 

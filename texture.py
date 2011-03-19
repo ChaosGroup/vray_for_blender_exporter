@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [19:03]"
+  Time-stamp: "Friday, 18 March 2011 [19:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -117,9 +117,7 @@ def write_texture(bus):
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
 		return bus['mtex']['name']
 
-	slot= bus['mtex'].get('slot')
-
-	if slot and texture.use_nodes:
+	if texture.use_nodes:
 		return write_node_texture(bus)
 
 	if texture.type == 'IMAGE':
@@ -134,7 +132,7 @@ def write_texture(bus):
 		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
 		
 	else:
-		debug(sce, "Texture %s: type \'%s\' is not supported." % (texture.name, texture.type), error= True)
+		debug(scene, "Texture \"%s\": \'%s\' type is not supported." % (texture.name, texture.type), error= True)
 		return None
 
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [13:46]"
+  Time-stamp: "Saturday, 19 March 2011 [14:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -185,7 +185,7 @@ def add_properties(rna_pointer):
 	VRayExporter.output_unique= BoolProperty(
 		name= "Use unique file name",
 		description= "Use unique file name.",
-		default= False
+		default= True
 	)
 
 	VRayExporter.auto_save_render= BoolProperty(

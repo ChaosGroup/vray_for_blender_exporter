@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:35]"
+  Time-stamp: "Saturday, 19 March 2011 [12:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -173,7 +173,7 @@ def write_BitmapBuffer(bus):
 	VRayTexture=  texture.vray
 	BitmapBuffer= texture.image.vray.BitmapBuffer
 
-	filename= get_full_filepath(scene, texture.image, texture.image.filepath)
+	filename= get_full_filepath(bus, texture.image, texture.image.filepath)
 
 	bitmap_name= 'IM' + clean_string(texture.image.name)
 

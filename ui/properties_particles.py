@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [22:14]"
+  Time-stamp: "Saturday, 19 March 2011 [13:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -34,6 +34,7 @@ import bpy
 from vb25.ui.ui import *
 
 
+# TODO: Move to plugin
 class VRayFur(bpy.types.PropertyGroup):
 	width= bpy.props.FloatProperty(
 		name= "Width",
@@ -43,7 +44,7 @@ class VRayFur(bpy.types.PropertyGroup):
 		soft_min= 0.0,
 		soft_max= 0.01,
 		precision= 5,
-		default= 0.02
+		default= 0.001
 	)
 
 	make_thinner= bpy.props.BoolProperty(

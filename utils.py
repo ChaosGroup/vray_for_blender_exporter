@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [18:14]"
+  Time-stamp: "Saturday, 19 March 2011 [14:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -35,6 +35,7 @@ import platform
 import random
 import shutil
 import string
+import struct
 import socket
 import subprocess
 import sys
@@ -462,6 +463,8 @@ def color(text, color=None):
 		return "\033[0;31m%s\033[0m" % text
 	elif color == 'yellow':
 		return "\033[0;33m%s\033[0m" % text
+	elif color == 'magenta':
+		return "\033[0;35m%s\033[0m" % text
 	else:
 		return text
 
@@ -712,55 +715,90 @@ def get_filename(filepath):
 	return os.path.basename(bpy.path.abspath(filepath))
 
 
+# Create directory
+def create_dir(directory):
+	if not os.path.exists(directory):
+		debug(None, "Creating directory \"%s\"... " % directory, newline= False, cr= False)
+		try:
+			os.mkdir(directory)
+			sys.stdout.write("%s\n" % (color("done", 'yellow')))
+		except OSError:
+			directory= tempfile.gettempdir()
+			sys.stdout.write("%s\n" % (color("Fail!", 'red')))
+			debug(None, "Using default exporting path: %s" % directory)
+	return directory
+
+
 # Get full filepath
 # Also copies file to DR shared folder
-def get_full_filepath(sce,ob,filepath):
+def get_full_filepath(bus, ob, filepath):
 	def rel_path(filepath):
 		if filepath[:2] == "//":
 			return True
 		else:
 			return False
 
-	VRayDR= sce.vray.VRayDR
+	scene= bus['scene']
 
+	VRayDR= scene.vray.VRayDR
+
+	# If object is linked and path is relative
+	# we need to find correct absolute path
 	if ob.library and rel_path(filepath):
 		lib_path= os.path.dirname(bpy.path.abspath(ob.library.filepath))
 		filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
 
+	# Full absolute file path
 	src_file= os.path.normpath(bpy.path.abspath(filepath))
 
+	if not VRayDR.on:
+		return src_file
+
+	# File name
 	src_filename= os.path.basename(src_file)
 
-	if VRayDR.on:
-		dest_path= os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
+	# DR shared directory
+	dest_path= bus['filenames']['DR']['dest_dir']
 
-		if dest_path == "":
-			return src_file
-		
-		blendfile_name= os.path.split(bpy.data.filepath)[1][:-6]
+	# If shared directory is not set
+	# just return absolute file path
+	if not dest_path:
+		return src_file
 
-		dest_path= os.path.join(dest_path, blendfile_name + os.sep)
-		if not os.path.exists(dest_path):
-			os.mkdir(dest_path)
+	file_type= os.path.splitext(src_file)[1]
 
-		dest_file= os.path.join(dest_path,src_filename)
-		if os.path.isfile(src_file):
-			if os.path.exists(dest_file):
-				if not filecmp.cmp(dest_file,src_file):
-					debug(sce,"Copying \"%s\" to \"%s\"..."%(src_filename,dest_path))
-					shutil.copy(src_file,dest_path)
+	if file_type.lower() == 'ies':
+		dest_path= create_dir(os.path.join(dest_path, "misc"))
+	else:
+		dest_path= create_dir(os.path.join(dest_path, "textures"))
+
+	# Copy file to the shared directory
+	dest_file= os.path.join(dest_path, src_filename)
+	
+	if os.path.isfile(src_file):
+		if os.path.exists(dest_file):
+			# Copy only if the file was changed
+			if not filecmp.cmp(dest_file, src_file):
+				debug(scene, "Copying \"%s\" to \"%s\""% (color(src_filename, 'magenta'), dest_path))
+				shutil.copy(src_file, dest_path)
 			else:
-				debug(sce,"Copying \"%s\" to \"%s\"..."%(src_filename,dest_path))
-				shutil.copy(src_file,dest_path)
-
-		if VRayDR.type == 'UU':
-			return dest_file
-		elif VRayDR.type == 'WU':
-			return "..%s%s%s%s"%(os.sep, blendfile_name, os.sep, src_filename)
+				debug(scene, "File \"%s\" exists and not modified."% (color(src_filename, 'magenta')))
 		else:
-			return "//%s/%s"%(HOSTNAME, rel_path)
+			debug(scene, "Copying \"%s\" to \"%s\"" % (color(src_filename, 'magenta'), dest_path))
+			shutil.copy(src_file, dest_path)
+	else:
+		debug(scene, "\"%s\" is not a file!" % (src_file), error= True)
+		return src_file
 
-	return src_file
+	if file_type.lower() in ('ies','lens'):
+		component_subdir= "misc"
+	else:
+		component_subdir= "textures"
+
+	if VRayDR.type == 'WW':
+		return "//%s/%s/%s/%s"%(HOSTNAME, bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
+		
+	return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
 
 
 # Render file format
@@ -888,7 +926,8 @@ def get_vray_standalone_path(sce):
 				if p:
 					vray_path= os.path.join(p,vray_bin)
 					if os.path.exists(vray_path):
-						debug(sce, "V-Ray found in: %s" % (vray_path))
+						if VRayExporter.debug:
+							debug(sce, "V-Ray found in: %s" % (vray_path))
 						return vray_path
 		return None
 
@@ -916,18 +955,6 @@ def get_vray_standalone_path(sce):
 
 # Inits directories / files
 def init_files(bus):
-	def create_dir(directory):
-		if not os.path.exists(directory):
-			debug(scene, "Path \"%s\" doesn't exist, trying to create... " % directory)
-			try:
-				os.mkdir(directory)
-				debug(scene, "Path \"%s\" doesn't exist, trying to create... done." % directory)
-			except:
-				directory= tempfile.gettempdir()
-				debug(scene, "Directory creation failed!")
-				debug(scene, "Using default exporting path: %s" % directory)
-		return directory
-
 	scene= bus['scene']
 
 	VRayScene=      scene.vray
@@ -938,7 +965,7 @@ def init_files(bus):
 	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
 
 	# Blend-file name without extension
-	blendfile_name= blendfile_name[:-6]
+	blendfile_name= os.path.basename(bpy.data.filepath)[:-6] if bpy.data.filepath else "default"
 
 	# Default export directory is system's %TMP%
 	default_dir= tempfile.gettempdir()
@@ -961,16 +988,22 @@ def init_files(bus):
 		if VRayExporter.output_unique:
 			export_filename= blendfile_name
 
-		# Distributed rendering
-		if VRayDR.on:
-			export_filepath= os.path.join(
-				bpy.path.abspath(VRayDR.shared_dir),
-				blendfile_name + os.sep # Unsure that path is finished with separator
-			)
+	# Distributed rendering
+	# filepath is relative= blend-file-name/filename
+	if VRayDR.on:
+		abs_shared_dir= create_dir(os.path.normpath(os.path.join(bpy.path.abspath(VRayDR.shared_dir),"scenes")))
+		export_filepath= os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
+		bus['filenames']['DR']= {}
+		bus['filenames']['DR']['shared_dir']= abs_shared_dir
+		bus['filenames']['DR']['sub_dir']=    blendfile_name
+		bus['filenames']['DR']['dest_dir']=   export_filepath
+		bus['filenames']['DR']['prefix']=     ".." + os.sep + "scenes" + os.sep + bus['filenames']['DR']['sub_dir']
+		bus['filenames']['DR']['tex_dir']=    os.path.join(export_filepath, "textures")
+		bus['filenames']['DR']['ies_dir']=    os.path.join(export_filepath, "IES")
 
 	if bus['preview']:
-		export_filename= 'preview'
-		export_filepath= create_dir(os.path.join(tempfile.gettempdir(), 'vb25-preview'))
+		export_filename= "preview"
+		export_filepath= create_dir(os.path.join(tempfile.gettempdir(), "vb25-preview"))
 
 	export_directory= create_dir(export_filepath)
 
@@ -978,7 +1011,11 @@ def init_files(bus):
 		if key == 'geometry':
 			filepath= os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
 		else:
-			filepath= os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key))
+			if key == 'scene' and VRayDR.on:
+				# Scene file MUST be op top of scene directory
+				filepath= os.path.join(export_directory, "..", "%s_%s.vrscene" % (export_filename, key))
+			else:
+				filepath= os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key))
 			bus['files'][key]= open(filepath, 'w')
 		bus['filenames'][key]= filepath
 
@@ -1015,3 +1052,14 @@ def init_files(bus):
 # Converts kelvin temperature to color
 def kelvin_to_rgb(temperature):
 	return mathutils.Color(COLOR_TABLE[str(int(temperature / 100) * 100)])
+
+
+# Hex value format
+def HexFormat(value):
+	if type(value) is float:
+		bytes= struct.pack('<f', value)
+	else:
+		bytes= struct.pack('<i', value)
+	return ''.join(["%02X" % b for b in bytes])
+
+

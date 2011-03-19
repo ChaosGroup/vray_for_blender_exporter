@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [19:02]"
+  Time-stamp: "Friday, 18 March 2011 [19:13]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -46,7 +46,7 @@ def write_ShaderNodeInvert(bus, node, node_params):
 	ofile= bus['files']['textures']
 	scene= bus['scene']
 
-	node_tree= bus['nodes']['node_tree']
+	node_tree= bus['ma_nodes']['node_tree']
 
 	if 'Color' not in node_params:
 		return None
@@ -74,7 +74,7 @@ def write_BRDFDiffuse(bus, name, node, color):
 
 
 def write_ShaderNodeTexture(bus, node, input_params):
-	node_tree= bus['nodes']['node_tree']
+	node_tree= bus['ma_nodes']['node_tree']
 
 	bus['mtex']= {}
 	bus['mtex']['mapto']=   'node'
@@ -150,7 +150,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
-	node_tree= bus['nodes']['node_tree']
+	node_tree= bus['ma_nodes']['node_tree']
 
 	params= {
 		'Color1': "",
@@ -190,21 +190,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 '''
   MATERIAL
 '''
-def get_output_node(node_tree):
-	for node in node_tree.nodes:
-		if node.type == 'OUTPUT':
-			return node
-	return None
-
-
-def connected_node(node_tree, node_socket):
-	for node in node_tree.links:
-		if node.to_socket == node_socket:
-			return node.from_node
-	return None
-
-
-def write_node(bus, node_tree, node):
+def write_shader_node(bus, node_tree, node):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
@@ -219,7 +205,7 @@ def write_node(bus, node_tree, node):
 		if not input_node:
 			continue
 
-		value= write_node(bus, node_tree, input_node)
+		value= write_shader_node(bus, node_tree, input_node)
 
 		if value is not None:
 			node_params[input_socket.name]= value
@@ -266,10 +252,10 @@ def write_node_material(bus):
 		if VRayExporter.debug:
 			debug(scene, "Processing node material \"%s\":" % (ma.name))
 
-		bus['nodes']= {}
-		bus['nodes']['node_tree']= node_tree
+		bus['ma_nodes']= {}
+		bus['ma_nodes']['node_tree']= node_tree
 		
-		return write_node(bus, node_tree, output_node)
+		return write_shader_node(bus, node_tree, output_node)
 
 	return bus['defaults']['material']
 

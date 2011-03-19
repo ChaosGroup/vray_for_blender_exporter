@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [18:27]"
+  Time-stamp: "Saturday, 19 March 2011 [15:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -468,23 +468,29 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 	for p,particle in enumerate(ps.particles):
 		sys.stdout.write("%s: Object: %s => Hair: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 		sys.stdout.flush()
+
 		segments= len(particle.hair)
-		num_hair_vertices.append(str(segments))
+		num_hair_vertices.append( HexFormat(segments) )
+		
 		width= VRayFur.width / 2.0
 		thin_start= int(VRayFur.thin_start / 100 * segments)
 		thin_segments= segments - thin_start
 		thin_step= width / (thin_segments + 1)
 		for s,segment in enumerate(particle.hair):
-			hair_vertices.append("Vector(%.6f,%.6f,%.6f)" % tuple(segment.co))
-			if VRayFur.make_thinner:
-				if s > thin_start:
-					width-= thin_step
-			widths.append("%.6f" % width)
+			for c in segment.co:
+				hair_vertices.append( HexFormat(c) )
+			if bus['preview']:
+				widths.append( HexFormat(0.01) )
+			else:
+				if VRayFur.make_thinner:
+					if s > thin_start:
+						width-= thin_step
+				widths.append( HexFormat(width) )
 
 	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
-	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListInt(%s)));"%(scene.frame_current, ','.join(num_hair_vertices)))
-	ofile.write("\n\thair_vertices= interpolate((%d,ListVector(%s)));"%(scene.frame_current,  ','.join(hair_vertices)))
-	ofile.write("\n\twidths= interpolate((%d,ListFloat(%s)));"%(scene.frame_current,          ','.join(widths)))
+	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListIntHex(\"%s\")));"%(scene.frame_current,     ''.join(num_hair_vertices)))
+	ofile.write("\n\thair_vertices= interpolate((%d,ListVectorHex(\"%s\")));"%(scene.frame_current,  ''.join(hair_vertices)))
+	ofile.write("\n\twidths= interpolate((%d,ListFloatHex(\"%s\")));"%(scene.frame_current,          ''.join(widths)))
 	ofile.write("\n}\n")
 
 
@@ -502,34 +508,30 @@ def write_settings(bus):
 	SettingsOutput= VRayScene.SettingsOutput
 
 	for key in bus['filenames']:
-		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene'):
+		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
 			# Skip some files
 			continue
 
-		if key == 'geometry':
-			if bus['preview']:
-				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames']['geometry']))
+		if VRayDR.on:
+			if VRayDR.type == 'WW':
+				ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, "RENDER", bus['filenames']['DR']['sub_dir'], bus['filenames'][key])
 			else:
-				for t in range(scene.render.threads):
-					ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
-			continue
+				if key == 'geometry':
+					for t in range(scene.render.threads):
+						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
 
-		if VRayDR.on: # TODO: fix & improve
-			if VRayDR.type == 'UU':
-				ofile.write("\n#include \"%s\"" % bus['filenames'][key])
-
-			elif VRayDR.type == 'WU':
-				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),
-																os.path.split(bpy.data.filepath)[1][:-6],
-																os.path.basename(bus['filenames'][key]))))
-
-			else:
-				ofile.write("\n#include \"%s\"" % (os.path.join(os.path.normpath(bpy.path.abspath(VRayDR.shared_dir)),
-																os.path.split(bpy.data.filepath)[1][:-6],
-																os.path.basename(bus['filenames'][key]))))
+				else:
+					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
 
 		else:
-			ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
+			if key == 'geometry':
+				if bus['preview']:
+					ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames']['geometry']))
+				else:
+					for t in range(scene.render.threads):
+						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+			else:
+				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
 	ofile.write("\n")
 
 	for key in PLUGINS['SETTINGS']:
@@ -1004,6 +1006,7 @@ def write_lamp(bus):
 
 		if lamp.type == 'AREA':
 			ofile.write("\n\trect_tex= %s;" % textures['color'])
+
 		elif lamp.type == 'HEMI':
 			ofile.write("\n\tdome_tex= %s;" % textures['color'])
 
@@ -1058,7 +1061,7 @@ def write_lamp(bus):
 		elif param == 'shadow_color':
 			ofile.write("\n\tshadow_color= %s;"%(a(scene,VRayLamp.shadowColor)))
 		elif param == 'ies_file':
-			ofile.write("\n\t%s= \"%s\";"%(param,get_full_filepath(scene,lamp,VRayLamp.ies_file)))
+			ofile.write("\n\t%s= \"%s\";"%(param, get_full_filepath(bus,lamp,VRayLamp.ies_file)))
 		else:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayLamp,param))))
 
@@ -1652,8 +1655,9 @@ def run(engine, bus):
 	params.append('-sceneFile=')
 	params.append(bus['filenames']['scene'])
 
-	params.append('-numThreads=')
-	params.append(str(scene.render.threads))
+	if not scene.render.threads_mode == 'AUTO':
+		params.append('-numThreads=')
+		params.append(str(scene.render.threads))
 
 	if bus['preview']:
 		preview_file=     os.path.join(tempfile.gettempdir(), "preview.jpg")
@@ -1667,8 +1671,13 @@ def run(engine, bus):
 		params.append('0')
 		params.append('-autoclose=')
 		params.append('1')
+		params.append('-verboseLevel=')
+		params.append('0')
 
 	else:
+		params.append('-verboseLevel=')
+		params.append(VRayExporter.verboseLevel)
+
 		if scene.render.use_border:
 			x0= resolution_x * scene.render.border_min_x
 			y0= resolution_y * (1.0 - scene.render.border_max_y)
@@ -1698,6 +1707,8 @@ def run(engine, bus):
 				params.append(str(VRayDR.port))
 				params.append('-renderhost=')
 				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
+				params.append('-include=')
+				params.append("\"%s\"" % (bus['filenames']['DR']['shared_dir'] + os.sep))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
 			image_file= os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
@@ -1733,7 +1744,8 @@ def run(engine, bus):
 	# 	win_belownormal.append("\"%s\"" % params[0])
 	# 	win_belownormal.extend(params[1:])
 
-	debug(scene, "Command: %s" % ' '.join(params))
+	if not VRayExporter.autorun:
+		debug(scene, "Command: %s" % ' '.join(params))
 
 	if VRayExporter.autorun:
 		process= subprocess.Popen(params)

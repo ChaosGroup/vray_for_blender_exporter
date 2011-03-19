@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:36]"
+  Time-stamp: "Saturday, 19 March 2011 [13:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -346,6 +346,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')
 		col.prop(ve, 'mesh_debug')
+		col.prop(ve, 'mesh_ascii')
 		
 		layout.separator()
 
@@ -999,7 +1000,8 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		SettingsUnitsInfo=        VRayScene.SettingsUnitsInfo
 		SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 		SettingsOptions=          VRayScene.SettingsOptions
-
+		VRayExporter=             VRayScene.exporter
+		
 		layout.label(text="Threads:")
 		split= layout.split()
 		col= split.column()
@@ -1051,6 +1053,9 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		sub.active= not SettingsRegionsGenerator.lock_size
 		sub.prop(SettingsRegionsGenerator, 'yc')
 		col.prop(SettingsRegionsGenerator, 'lock_size')
+
+		layout.separator()
+		layout.prop(VRayExporter, 'verboseLevel')
 
 
 class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
