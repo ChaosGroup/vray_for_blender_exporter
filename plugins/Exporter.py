@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [15:47]"
+  Time-stamp: "Saturday, 19 March 2011 [13:46]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -70,8 +70,8 @@ def add_properties(rna_pointer):
 	)
 
 	VRayExporter.mesh_ascii= BoolProperty(
-		name= "ASCII mesh",
-		description= "Export meshes in ASCII format.",
+		name= "ASCII",
+		description= "Export meshes in ASCII format. Only affects Python mesh export.",
 		default= False
 	)
 
@@ -198,4 +198,17 @@ def add_properties(rna_pointer):
 		name= "Display VFB",
 		description= "Display VFB.",
 		default= True
+	)
+
+	VRayExporter.verboseLevel= EnumProperty(
+		name= "Log level",
+		description= "Specifies the verbose level of information printed to the standard output.",
+		items= (
+			('0', "No information", "No information printed."),
+			('1', "Only errors",    "Only errors."),
+			('2', "Warnings",       "Errors and warnings."),
+			('3', "Progress",       "Errors, warnings and informational messages."),
+			('4', "All",            "All output."),
+		),
+		default= '2'
 	)
