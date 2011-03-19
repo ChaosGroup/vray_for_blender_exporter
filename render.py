@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [15:29]"
+  Time-stamp: "Saturday, 19 March 2011 [16:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -514,7 +514,7 @@ def write_settings(bus):
 
 		if VRayDR.on:
 			if VRayDR.type == 'WW':
-				ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, "RENDER", bus['filenames']['DR']['sub_dir'], bus['filenames'][key])
+				ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, "RENDER", bus['filenames']['DR']['sub_dir'], bus['filenames'][key]))
 			else:
 				if key == 'geometry':
 					for t in range(scene.render.threads):
