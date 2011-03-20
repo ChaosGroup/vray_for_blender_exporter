@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [13:43]"
+  Time-stamp: "Sunday, 20 March 2011 [12:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,7 +49,7 @@ class VRayFur(bpy.types.PropertyGroup):
 
 	make_thinner= bpy.props.BoolProperty(
 		name= "Make thinner",
-		description= "Make hair thiner to the end.",
+		description= "Make hair thiner to the end [experimental].",
 		default= False
 	)
 
