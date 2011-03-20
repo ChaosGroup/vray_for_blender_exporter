@@ -7,8 +7,8 @@
 #include "preview_lights.vrscene"
 
 SettingsRegionsGenerator {
-	xc= 32;
-	yc= 32;
+	xc= 8;
+	yc= 8;
 	xymeans= 0;
 	seqtype= 4;
 	reverse= 0;
@@ -41,7 +41,7 @@ SettingsImageSampler {
 
 SettingsDMCSampler {
 	time_dependent= 0;
-	adaptive_amount= 0.85;
+	adaptive_amount= 0.65;
 	adaptive_threshold= 0.1;
 	adaptive_min_samples= 8;
 	subdivs_mult= 0.1;

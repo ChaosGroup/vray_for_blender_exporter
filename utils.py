@@ -452,14 +452,6 @@ GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
 
 none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 
-<<<<<<< HEAD
-
-try:
-	none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
-except:
-	none_matrix= mathutils.Matrix((0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0),(0.0,0.0,0.0))
-=======
->>>>>>> devel
 
 # Colorize sting on Linux
 def color(text, color=None):
@@ -825,18 +817,6 @@ def get_render_file_format(VRayExporter, file_format):
 		file_format= 'png'
 	return file_format
 	
-<<<<<<< HEAD
-def get_name(data, prefix= None, dupli_name= None):
-	name= data.name
-	if dupli_name:
-		name= "%s%s" % (dupli_name,name)
-	if prefix:
-		name= "%s%s" % (prefix,name)
-	if data.library:
-		name+= 'LI%s' % get_filename(data.library.filepath)
-	return clean_string(name)
-=======
->>>>>>> devel
 
 # True if object on active layer
 def object_on_visible_layers(sce,ob):
@@ -1031,95 +1011,6 @@ def init_files(bus):
 		if key == 'geometry':
 			filepath= os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
 		else:
-<<<<<<< HEAD
-			filepath= create_dir(bpy.path.abspath(sce.render.filepath))
-
-	debug(sce,"Filepath (%s): %s" % (filetype,filepath))
-
-	return filepath
-
-
-CONVERT_BLEND_TYPE= {
-	'MIX':          'OVER',
-	'SCREEN':       'OVER',
-	'DIVIDE':       'OVER',
-	'HUE':          'OVER',
-	'VALUE':        'OVER',
-	'COLOR':        'OVER',
-	'SOFT LIGHT':   'OVER',
-	'LINEAR LIGHT': 'OVER',
-	'OVERLAY':      'OVER',
-	'ADD':          'ADD',
-	'SUBTRACT':     'SUBTRACT',
-	'MULTIPLY':     'MULTIPLY',
-	'DIFFERENCE':   'DIFFERENCE',
-	'DARKEN':       'DARKEN',
-	'LIGHTEN':      'LIGHTEN',
-	'SATURATION':   'SATURATE',
-}
-
-
-#debug(sce,"Texture: {0} [type: {1}; id: {2}]".format(tex.name,tex.type,tex.vray.name))
-
-
-class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname = "vray.convert_scene"
-	bl_label  = "Convert materials"
-	bl_description = "Convert scene materials from Blender Internal to V-Ray."
-
-	def invoke(self, context, event):
-		for ma in bpy.data.materials:
-			print("V-Ray/Blender: Processing material: %s" % ma.name)
-			
-			rm= ma.raytrace_mirror
-			rt= ma.raytrace_transparency
-			
-			VRayMaterial= ma.vray
-			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
-
-			if ma.emit > 0.0:
-				VRayMaterial.type= 'EMIT'
-
-			if rm.use:
-				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
-				BRDFVRayMtl.reflect_glossiness= rm.gloss_factor
-				BRDFVRayMtl.reflect_subdivs= rm.gloss_samples
-				BRDFVRayMtl.reflect_depth= rm.depth
-				BRDFVRayMtl.option_cutoff= rm.gloss_threshold
-				BRDFVRayMtl.anisotropy= 1.0 - rm.gloss_anisotropic
-
-				if rm.fresnel > 0.0:
-					BRDFVRayMtl.fresnel= True
-					BRDFVRayMtl.fresnel_ior= rm.fresnel
-			
-			for slot in ma.texture_slots:
-				if slot and slot.texture and slot.texture.type in TEX_TYPES:
-					VRaySlot=    slot.texture.vray_slot
-					VRayTexture= slot.texture.vray
-
-					VRaySlot.blend_mode= CONVERT_BLEND_TYPE[slot.blend_type]
-					
-					if slot.use_map_emit:
-						VRayMaterial.type= 'EMIT'
-
-			if ma.type == 'VOLUME':
-				VRayMaterial.type= 'VOL'
-				
-		return{'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_convert_scene)
-
-class VRAY_OT_flip_resolution(bpy.types.Operator):
-	bl_idname = "vray.flip_resolution"
-	bl_label  = "Flip resolution"
-	bl_description = "Flip render resolution."
-
-	def invoke(self, context, event):
-		scene= context.scene
-		rd=    scene.render
-
-		VRayScene= scene.vray
-=======
 			if key == 'scene' and VRayDR.on:
 				# Scene file MUST be op top of scene directory
 				filepath= os.path.join(export_directory, "..", "%s_%s.vrscene" % (export_filename, key))
@@ -1170,16 +1061,5 @@ def HexFormat(value):
 	else:
 		bytes= struct.pack('<i', value)
 	return ''.join(["%02X" % b for b in bytes])
->>>>>>> devel
 
 
-<<<<<<< HEAD
-		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
-		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
-		
-		return{'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_flip_resolution)
-
-=======
->>>>>>> devel

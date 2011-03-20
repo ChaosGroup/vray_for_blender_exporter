@@ -54,28 +54,11 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-def add_properties(VRayTexture):
-	class TexEdges(bpy.types.PropertyGroup):
-		pass
-
-	bpy.utils.register_class(TexEdges)
-
-=======
 def add_properties(VRayTexture):
 	class TexEdges(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(TexEdges)
 	
->>>>>>> devel
 	VRayTexture.TexEdges= PointerProperty(
 		name= "TexEdges",
 		type=  TexEdges,
@@ -208,8 +191,4 @@ class VRAY_TP_TexEdges(VRayTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'width')
 
 
-<<<<<<< HEAD
-bpy.utils.register_class(TEXTURE_PT_TexEdges)
-=======
 bpy.utils.register_class(VRAY_TP_TexEdges)
->>>>>>> devel

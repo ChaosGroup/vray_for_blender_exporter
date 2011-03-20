@@ -61,10 +61,6 @@ PARAMS= (
 def add_properties(rna_pointer):
 	class TexNoiseMax(bpy.types.PropertyGroup):
 		pass
-<<<<<<< HEAD
-
-=======
->>>>>>> devel
 	bpy.utils.register_class(TexNoiseMax)
 
 	rna_pointer.TexNoiseMax= PointerProperty(
@@ -219,13 +215,8 @@ def write(bus):
 			value= uvwgen
 		else:
 			value= getattr(TexNoiseMax, param)
-<<<<<<< HEAD
-		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
-	ofile.write("\n\tuvwgen= UVWGenChannel_default;") # TEMP
-=======
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 
->>>>>>> devel
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -277,40 +268,5 @@ class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 		col.prop(TexNoiseMax, 'high')
 		col.prop(TexNoiseMax, 'phase')
 
-<<<<<<< HEAD
-		# layout.separator()
-
-		# # Common params - move to "Common" panel
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(TexNoiseMax, 'alpha_from_intensity')
-		# col.prop(TexNoiseMax, 'invert')
-		# col.prop(TexNoiseMax, 'invert_alpha')
-		# col.prop(TexNoiseMax, 'color_mult')
-		# col.prop(TexNoiseMax, 'color_offset')
-		# col.prop(TexNoiseMax, 'alpha_mult')
-		# col.prop(TexNoiseMax, 'alpha_offset')
-		# col.prop(TexNoiseMax, 'nouvw_color')
-		# col.prop(TexNoiseMax, 'use_3d_mapping')
-		# col.prop(TexNoiseMax, 'placement_type')
-		# if wide_ui:
-		# 	col= split.column()
-		# col.prop(TexNoiseMax, 'u')
-		# col.prop(TexNoiseMax, 'v')
-		# col.prop(TexNoiseMax, 'w')
-		# col.prop(TexNoiseMax, 'h')
-		# col.prop(TexNoiseMax, 'jitter')
-		# col.prop(TexNoiseMax, 'tile_u')
-		# col.prop(TexNoiseMax, 'tile_v')
-		# col.prop(TexNoiseMax, 'uv_noise_on')
-		# col.prop(TexNoiseMax, 'uv_noise_animate')
-		# col.prop(TexNoiseMax, 'uv_noise_amount')
-		# col.prop(TexNoiseMax, 'uv_noise_levels')
-		# col.prop(TexNoiseMax, 'uv_noise_size')
-		# col.prop(TexNoiseMax, 'un_noise_phase')
-
-bpy.utils.register_class(VRAY_TP_TexNoiseMax)
-=======
->>>>>>> devel
 
 bpy.utils.register_class(VRAY_TP_TexNoiseMax)

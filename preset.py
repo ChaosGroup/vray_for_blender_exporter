@@ -320,9 +320,6 @@ class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 		"bpy.context.scene.render.threads",
 	]
 
-<<<<<<< HEAD
-bpy.utils.register_class(vb_preset_global_render)
-=======
 bpy.utils.register_class(VRAY_PRESET_global_render)
 
 # '''
@@ -457,5 +454,4 @@ bpy.utils.register_class(VRAY_PRESET_global_render)
 # 		ofile.write("\n")
 # 		ofile.close()
 # generate_presets()
->>>>>>> devel
 

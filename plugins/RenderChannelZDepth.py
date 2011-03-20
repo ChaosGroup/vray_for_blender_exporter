@@ -54,13 +54,6 @@ from bpy.props import *
 from vb25.utils import *
 
 
-<<<<<<< HEAD
-class RenderChannelZDepth(bpy.types.PropertyGroup):
-    pass
-bpy.utils.register_class(RenderChannelZDepth)
-
-=======
->>>>>>> devel
 def add_properties(parent_struct):
 	class RenderChannelZDepth(bpy.types.PropertyGroup):
 		pass

@@ -61,22 +61,6 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-def add_properties(VRayTexture):
-	class TexFalloff(bpy.types.PropertyGroup):
-		pass
-
-	bpy.utils.register_class(TexFalloff)
-
-=======
 def add_properties(VRayTexture):
 	class TexFalloff(bpy.types.PropertyGroup):
 		color1= FloatVectorProperty(
@@ -201,7 +185,6 @@ def add_properties(VRayTexture):
 		)
 	bpy.utils.register_class(TexFalloff)
 	
->>>>>>> devel
 	VRayTexture.TexFalloff= PointerProperty(
 		name= "TexFalloff",
 		type=  TexFalloff,
@@ -315,9 +298,5 @@ class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 			col.prop(TexFalloff, 'dist_extrapolate')
 
 
-<<<<<<< HEAD
-bpy.utils.register_class(TEXTURE_PT_TexFalloff)
-=======
 bpy.utils.register_class(VRAY_TP_TexFalloff)
 
->>>>>>> devel

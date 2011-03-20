@@ -69,30 +69,11 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-from vb25.shaders import *
-
-
-
-def add_properties(VRayTexture):
-	class TexDirt(bpy.types.PropertyGroup):
-	    pass
-
-	bpy.utils.register_class(TexDirt)
-
-=======
 def add_properties(VRayTexture):
 	class TexDirt(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(TexDirt)
 	
->>>>>>> devel
 	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",
 		type=  TexDirt,

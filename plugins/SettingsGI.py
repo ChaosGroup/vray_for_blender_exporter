@@ -44,13 +44,6 @@ DESC= "Global illumination settings."
 PARAMS= (
 )
 
-<<<<<<< HEAD
-class SettingsGI(bpy.types.PropertyGroup):
-	pass
-=======
->>>>>>> devel
-
-bpy.utils.register_class(SettingsGI)
 
 def add_properties(parent_struct):
 	class SettingsGI(bpy.types.PropertyGroup):
@@ -159,8 +152,6 @@ def add_properties(parent_struct):
 		pass
 	bpy.utils.register_class(SettingsDMCGI)
 
-	bpy.utils.register_class(SettingsDMCGI)
-
 	SettingsGI.SettingsDMCGI= PointerProperty(
 		name= "DMC GI",
 		type=  SettingsDMCGI,
@@ -186,8 +177,6 @@ def add_properties(parent_struct):
 
 	class SettingsIrradianceMap(bpy.types.PropertyGroup):
 		pass
-	bpy.utils.register_class(SettingsIrradianceMap)
-
 	bpy.utils.register_class(SettingsIrradianceMap)
 
 	SettingsGI.SettingsIrradianceMap= PointerProperty(
@@ -430,8 +419,6 @@ def add_properties(parent_struct):
 		pass
 	bpy.utils.register_class(SettingsLightCache)
 
-	bpy.utils.register_class(SettingsLightCache)
-
 	SettingsGI.SettingsLightCache= PointerProperty(
 		name= "Light Cache",
 		type=  SettingsLightCache,
@@ -620,8 +607,6 @@ def add_properties(parent_struct):
 
 	class SettingsPhotonMap(bpy.types.PropertyGroup):
 		pass
-	bpy.utils.register_class(SettingsPhotonMap)
-
 	bpy.utils.register_class(SettingsPhotonMap)
 
 	SettingsGI.SettingsPhotonMap= PointerProperty(

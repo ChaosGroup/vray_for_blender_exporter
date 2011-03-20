@@ -57,123 +57,17 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
-def add_properties(parent_struct):
-	class SettingsCaustics(bpy.types.PropertyGroup):
-		on= BoolProperty(
-			name= "On",
-			description= "Enable caustics computation.",
-			default= False
-		)
-
-		max_photons= IntProperty(
-			name= "Max photons",
-			description= "TODO.",
-			min= 0,
-			max= 10000,
-			soft_min= 0,
-			soft_max= 1000,
-			default= 30
-		)
-
-		search_distance= FloatProperty(
-			name= "Search distance",
-			description= "TODO.",
-			min= 0.0,
-			max= 100.0,
-			soft_min= 0.0,
-			soft_max= 1.0,
-			precision= 3,
-			default= 0.1
-		)
-	
-		max_density= FloatProperty(
-			name= "Max density",
-			description= "TODO.",
-			min= 0.0,
-			max= 100.0,
-			soft_min= 0.0,
-			soft_max= 10.0,
-			precision= 3,
-			default= 0
-		)
-
-		multiplier= FloatProperty(
-			name= "Multiplier",
-			description= "TODO.",
-			min= 0.0,
-			max= 100.0,
-			soft_min= 0.0,
-			soft_max= 10.0,
-			precision= 3,
-			default= 1
-		)
-
-		mode= EnumProperty(
-			name= "Mode",
-			description= "Caustics computaion mode.",
-			items= (
-				('FILE',"From file",""),
-				('NEW',"New","")
-			),
-			default= 'NEW'
-		)
-
-		file= StringProperty(
-			name= "File",
-			subtype= 'FILE_PATH',
-			description= "TODO."
-		)
-	
-		auto_save= BoolProperty(
-			name= "Auto save",
-			description= "TODO.",
-			default= False
-		)
-
-		auto_save_file= StringProperty(
-			name= "Auto save file",
-			subtype= 'FILE_PATH',
-			description= "TODO."
-		)
-
-		show_calc_phase= BoolProperty(
-			name= "Show calc phase",
-			description= "TODO.",
-			default= False
-		)
-
-		# dont_delete= BoolProperty(
-		# 	name= "Don\'t delete",
-		# 	description= "TODO.",
-		# 	default= False
-		# )
-
-	bpy.utils.register_class(SettingsCaustics)
-
-=======
 def add_properties(parent_struct):
 	class SettingsCaustics(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(SettingsCaustics)
 	
->>>>>>> devel
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
 		type=  SettingsCaustics,
 		description= "Caustics settings."
 	)
 
-<<<<<<< HEAD
-=======
 	SettingsCaustics.on= BoolProperty(
 		name= "On",
 		description= "Enable caustics computation.",
@@ -264,7 +158,6 @@ def add_properties(parent_struct):
 	# )
 
 
->>>>>>> devel
 
 '''
   OUTPUT
@@ -345,11 +238,8 @@ class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 			colR.active= vmodule.auto_save
 			colR.prop(vmodule,"auto_save_file", text="")
 
-<<<<<<< HEAD
-=======
 		
 		
 		
->>>>>>> devel
 bpy.utils.register_class(RENDER_PT_SettingsCaustics)
 

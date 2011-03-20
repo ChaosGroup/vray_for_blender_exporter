@@ -74,24 +74,11 @@ def add_properties(rna_pointer):
 		pass
 	bpy.utils.register_class(SettingsOptions)
 
-<<<<<<< HEAD
-
-class SettingsOptions(bpy.types.PropertyGroup):
-	pass
-
-bpy.utils.register_class(SettingsOptions)
-
-def add_properties(parent_struct):
-	setattr(parent_struct, PLUG, PointerProperty(type= SettingsOptions,
-												 name= NAME,
-												 description= DESC))
-=======
 	rna_pointer.SettingsOptions= PointerProperty(
 		name= NAME,
 		type= SettingsOptions,
 		description= DESC
 	)
->>>>>>> devel
 	
 	SettingsOptions.geom_displacement= BoolProperty(
 		name= "Displacement",

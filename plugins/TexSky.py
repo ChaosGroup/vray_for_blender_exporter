@@ -60,24 +60,9 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
 def add_properties(VRayTexture):
 	class TexSky(bpy.types.PropertyGroup):
 		pass
-
-=======
-def add_properties(VRayTexture):
-	class TexSky(bpy.types.PropertyGroup):
-		pass
->>>>>>> devel
 	bpy.utils.register_class(TexSky)
 
 	VRayTexture.TexSky= PointerProperty(
@@ -276,8 +261,4 @@ class VRAY_TP_TexSky(VRayTexturePanel, bpy.types.Panel):
 		col.prop(TexSky, 'water_vapour')
 		
 
-<<<<<<< HEAD
-bpy.utils.register_class(TEXTURE_PT_TexSky)
-=======
 bpy.utils.register_class(VRAY_TP_TexSky)
->>>>>>> devel

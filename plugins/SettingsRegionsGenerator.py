@@ -35,19 +35,12 @@ from bpy.props import *
 import vb25.utils
 
 
-<<<<<<< HEAD
-class SettingsRegionsGenerator(bpy.types.PropertyGroup):
-	pass
-=======
 TYPE= 'SETTINGS'
 ID=   'SettingsRegionsGenerator'
 
 NAME= 'Regions Generator'
 DESC= "Regions generator settings."
 
->>>>>>> devel
-
-bpy.utils.register_class(SettingsRegionsGenerator)
 
 def add_properties(parent_struct):
 	class SettingsRegionsGenerator(bpy.types.PropertyGroup):

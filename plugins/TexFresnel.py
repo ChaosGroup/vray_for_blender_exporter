@@ -52,24 +52,9 @@ PARAMS= (
 )
 
 
-<<<<<<< HEAD
-''' Blender modules '''
-import bpy
-from bpy.props import *
-
-''' vb modules '''
-from vb25.utils import *
-
-
 def add_properties(VRayTexture):
 	class TexFresnel(bpy.types.PropertyGroup):
 		pass
-
-=======
-def add_properties(VRayTexture):
-	class TexFresnel(bpy.types.PropertyGroup):
-		pass
->>>>>>> devel
 	bpy.utils.register_class(TexFresnel)
 
 	VRayTexture.TexFresnel= PointerProperty(
@@ -202,8 +187,4 @@ class VRAY_TP_TexFresnel(VRayTexturePanel, bpy.types.Panel):
 		col.prop(TexFresnel, 'refract_ior')
 	
 
-<<<<<<< HEAD
-bpy.utils.register_class(TEXTURE_PT_TexFresnel)
-=======
 bpy.utils.register_class(VRAY_TP_TexFresnel)
->>>>>>> devel
