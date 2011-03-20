@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:28]"
+  Time-stamp: "Sunday, 20 March 2011 [14:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -220,7 +220,7 @@ def write(bus):
 			bus['filter']['proxy'].append(proxy_name)
 
 			ofile.write("\nGeomMeshFile %s {" % proxy_name)
-			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(scene,ob,GeomMeshFile.file))
+			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
 			ofile.write("\n\tanim_speed= %i;" % GeomMeshFile.anim_speed)
 			ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[GeomMeshFile.anim_type])
 			ofile.write("\n\tanim_offset= %i;" % (GeomMeshFile.anim_offset - 1))
