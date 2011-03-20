@@ -1,0 +1,298 @@
+'''
+
+  V-Ray/Blender 2.5
+
+  http://vray.cgdo.ru
+
+  Time-stamp: "Friday, 18 March 2011 [16:23]"
+
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+
+'''
+
+
+''' Blender modules '''
+import bpy
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
+class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
+	bl_label       = ""
+	bl_options     = {'HIDE_HEADER'}
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		layout= self.layout
+
+		ob= context.object
+		lamp= context.lamp
+		space= context.space_data
+		wide_ui= context.region.width > narrowui
+
+		if wide_ui:
+			split= layout.split(percentage=0.65)
+			if ob:
+				split.template_ID(ob, 'data')
+				split.separator()
+			elif lamp:
+				split.template_ID(space, 'pin_id')
+				split.separator()
+		else:
+			if ob:
+				layout.template_ID(ob, 'data')
+			elif lamp:
+				layout.template_ID(space, 'pin_id')
+
+		if wide_ui:
+			layout.prop(lamp, 'type', expand=True)
+		else:
+			layout.prop(lamp, 'type')
+
+
+class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
+	bl_label       = "Lamp"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		ob= context.object
+		lamp= context.lamp
+		VRayLamp= lamp.vray
+
+		split= layout.split()
+		col= split.column()
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.row().prop(VRayLamp, 'color_type', expand=True)
+			if wide_ui:
+				col= split.column()
+			if VRayLamp.color_type == 'RGB':
+				sub= col.row(align= True)
+				sub.prop(lamp, 'color', text="")
+				sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.data.color"
+			else:
+				col.prop(VRayLamp, 'temperature', text="K")
+
+			layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		if lamp.type == 'AREA':
+			col.prop(VRayLamp,'lightPortal', text="Mode")
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.prop(VRayLamp,'units', text="Units")
+		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
+			col.prop(VRayLamp,'intensity', text="Intensity")
+		col.prop(VRayLamp,'subdivs')
+		col.prop(VRayLamp,'causticSubdivs', text="Caustics")
+		
+		if wide_ui:
+			col= split.column()
+
+		col.prop(VRayLamp,'enabled', text="On")
+		col.prop(VRayLamp,'invisible')
+		col.prop(VRayLamp,'affectDiffuse')
+		col.prop(VRayLamp,'affectSpecular')
+		col.prop(VRayLamp,'affectReflections')
+		col.prop(VRayLamp,'noDecay')
+
+		if(lamp.type == 'AREA'):
+			col.prop(VRayLamp,'doubleSided')
+
+		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and VRayLamp.radius > 0)):
+			col.prop(VRayLamp,'storeWithIrradianceMap')
+
+
+class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
+	bl_label       = "Shape"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		ob= context.object
+		lamp= context.lamp
+		vl= lamp.vray
+
+		if lamp.type == 'AREA':
+			layout.prop(lamp,'shape', expand=True)
+			#  use_rect_tex: bool = false
+			#  tex_resolution: integer = 512
+			#  tex_adaptive: float = 1
+
+		elif lamp.type == 'SUN':
+			layout.prop(vl,'direct_type', expand=True)
+
+		elif lamp.type == 'SPOT':
+			layout.prop(vl,'spot_type', expand=True)
+
+		split= layout.split()
+		col= split.column()
+		if lamp.type == 'AREA':
+			if lamp.shape == 'SQUARE':
+				col.prop(lamp,'size')
+			else:
+				col.prop(lamp,'size', text="Size X")
+				if wide_ui:
+					col= split.column()
+				col.prop(lamp,'size_y')
+
+		elif lamp.type == 'POINT':
+			col.prop(vl,'radius')
+			if vl.radius > 0:
+				col.prop(vl,'sphere_segments')
+
+		elif lamp.type == 'SUN':
+			if vl.direct_type == 'DIRECT':
+				col.prop(vl,'fallsize')
+			else:
+				split= layout.split()
+				col= split.column()
+				col.prop(vl,'sky_model')
+				
+				split= layout.split()
+				col= split.column()
+				col.prop(vl,'turbidity')
+				col.prop(vl,'ozone')
+				col.prop(vl,'intensity_multiplier', text= "Intensity")
+				col.prop(vl,'size_multiplier', text= "Size")
+				if wide_ui:
+					col= split.column()
+				col.prop(vl,'horiz_illum')
+				col.prop(vl,'water_vapour')
+
+				split= layout.split()
+				col= split.column()
+				col.operator('vray.add_sky', icon='TEXTURE')
+
+		elif lamp.type == 'SPOT':
+			if vl.spot_type == 'SPOT':
+				col.prop(lamp,'distance')
+				if wide_ui:
+					col= split.column()
+				col.prop(lamp,'spot_size', text="Size")
+				col.prop(lamp,'spot_blend', text="Blend")
+			else:
+				col.prop(vl,'ies_file', text="File")
+				col.prop(vl,'soft_shadows')
+
+		elif lamp.type == 'HEMI':
+			#  objectID: integer = 0
+			#  use_dome_tex: bool = false
+			#  tex_resolution: integer = 512
+			#  dome_targetRadius: float = 100
+			#  dome_emitRadius: float = 150
+			#  dome_spherical: bool = false
+			#  tex_adaptive: float = 1
+			#  dome_rayDistance: float = 100000
+			#  dome_rayDistanceMode: integer = 0
+			pass
+
+
+class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Shadows"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw_header(self, context):
+		vl= context.lamp.vray
+		self.layout.prop(vl,'shadows', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		ob= context.object
+		lamp= context.lamp
+		vl= lamp.vray
+
+		layout.active = vl.shadows
+
+		split= layout.split()
+		col= split.column()
+		col.prop(vl,'shadowColor', text="")
+		if wide_ui:
+			col= split.column()
+		col.prop(vl,'shadowBias', text="Bias")
+		if lamp.type in ('SPOT','POINT','SUN'):
+			col.prop(vl,'shadowRadius', text="Radius")
+
+
+class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Advanced"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		ob= context.object
+		lamp= context.lamp
+		vl= lamp.vray
+
+		split= layout.split()
+		col= split.column()
+		col.prop(vl,'diffuse_contribution', text="Diffuse cont.")
+		col.prop(vl,'specular_contribution', text="Specular cont.")
+		col.prop(vl,'cutoffThreshold', text="Cutoff")
+		
+		if wide_ui:
+			col= split.column()
+		col.prop(vl,'nsamples')
+		col.prop(vl,'bumped_below_surface_check', text="Bumped surface check")
+		col.prop(vl,'ignoreLightNormals')
+		col.prop(vl,'areaSpeculars')
+
+
+class VRAY_DP_include_exclude(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Include / Exclude"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw_header(self, context):
+		VRayLamp= context.lamp.vray
+		self.layout.prop(VRayLamp, 'use_include_exclude', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+		layout= self.layout
+
+		VRayLamp= context.lamp.vray
+
+		layout.active= VRayLamp.use_include_exclude
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayLamp, 'include_exclude', text="")
+		col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="Objects")
+		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
+
+
