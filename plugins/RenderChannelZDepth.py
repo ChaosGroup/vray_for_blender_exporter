@@ -4,7 +4,9 @@
 
  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
+ Time-stamp: " "
+
+  Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
 
  This plugin is protected by the GNU General Public License v.2
@@ -52,11 +54,18 @@ from bpy.props import *
 from vb25.utils import *
 
 
+<<<<<<< HEAD
 class RenderChannelZDepth(bpy.types.PropertyGroup):
     pass
 bpy.utils.register_class(RenderChannelZDepth)
 
+=======
+>>>>>>> devel
 def add_properties(parent_struct):
+	class RenderChannelZDepth(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(RenderChannelZDepth)
+	
 	parent_struct.RenderChannelZDepth= PointerProperty(
 		name= "Z-Depth",
 		type=  RenderChannelZDepth,
@@ -72,13 +81,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_from_camera= BoolProperty(
 		name= "From camera",
-		description= "TODO.",
+		description= "Tooltip: not yet done...",
 		default= False
 	)
 
 	RenderChannelZDepth.depth_black= FloatProperty(
 		name= "Black distance",
-		description= "TODO.",
+		description= "Tooltip: not yet done...",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -89,7 +98,7 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_white= FloatProperty(
 		name= "White distance",
-		description= "TODO.",
+		description= "Tooltip: not yet done...",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -100,13 +109,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_clamp= BoolProperty(
 		name= "Clamp",
-		description= "TODO.",
+		description= "Tooltip: not yet done...",
 		default= True
 	)
 
 	RenderChannelZDepth.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO.",
+		description= "Tooltip: not yet done...",
 		default= True
 	)
 

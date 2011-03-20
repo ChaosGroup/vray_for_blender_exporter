@@ -1,36 +1,46 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: "Saturday, 12 March 2011 [02:15]"
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
 TYPE= 'SETTINGS'
 
-ID=   'SETTINGSOPTIONS'
+ID=   'SettingsOptions'
+
 NAME= 'Render Options'
-PLUG= 'SettingsOptions'
 DESC= "Render options."
 
 PARAMS= (
@@ -59,13 +69,12 @@ PARAMS= (
 )
 
 
-''' Blender modules '''
-import bpy
-from bpy.props import *
+def add_properties(rna_pointer):
+	class SettingsOptions(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(SettingsOptions)
 
-''' vb modules '''
-from vb25.utils import *
-
+<<<<<<< HEAD
 
 class SettingsOptions(bpy.types.PropertyGroup):
 	pass
@@ -76,70 +85,77 @@ def add_properties(parent_struct):
 	setattr(parent_struct, PLUG, PointerProperty(type= SettingsOptions,
 												 name= NAME,
 												 description= DESC))
+=======
+	rna_pointer.SettingsOptions= PointerProperty(
+		name= NAME,
+		type= SettingsOptions,
+		description= DESC
+	)
+>>>>>>> devel
 	
 	SettingsOptions.geom_displacement= BoolProperty(
 		name= "Displacement",
-		description= "TODO.",
+		description= "Render displacement.",
 		default= True
 	)
 	
 	SettingsOptions.geom_doHidden= BoolProperty(
 		name= "Render hidden",
-		description= "TODO.",
+		description= "Render hidden geometry.",
 		default= False
 	)
 	
 	SettingsOptions.light_doLights= BoolProperty(
 		name= "Lights",
-		description= "TODO.",
+		description= "Render lights.",
 		default= True
 	)
 	
 	SettingsOptions.light_doDefaultLights= BoolProperty(
 		name= "Default lights",
-		description= "TODO.",
+		description= "Use default lights (when no lights in a scene).",
 		default= False
 	)
 	
 	SettingsOptions.light_doHiddenLights= BoolProperty(
 		name= "Hidden lights",
-		description= "TODO.",
+		description= "Render hidden lights.",
 		default= False
 	)
 	
 	SettingsOptions.light_doShadows= BoolProperty(
 		name= "Shadows",
-		description= "TODO.",
+		description= "Render shadows.",
 		default= True
 	)
 	
 	SettingsOptions.light_onlyGI= BoolProperty(
 		name= "Show GI only",
-		description= "TODO.",
+		description= "Show GI only",
 		default= False
 	)
 	
 	SettingsOptions.gi_dontRenderImage= BoolProperty(
 		name= "Calculate GI only",
-		description= "Don't render final image",
+		description= "Don't render final image - calculate GI only.",
 		default= False
 	)
 	
 	SettingsOptions.mtl_reflectionRefraction= BoolProperty(
 		name= "Reflection/refraction",
-		description= "TODO.",
+		description= "Render reflection / refraction",
 		default= True
 	)
 	
 	SettingsOptions.mtl_limitDepth= BoolProperty(
 		name= "Limit depth",
-		description= "Limit max depth",
+		description= "Limit max depth.",
 		default= False
 	)
 	
 	SettingsOptions.mtl_maxDepth= IntProperty(
 		name= "Max depth",
-		description= "Max. ray depth for reflections and refractions",
+		description= "Max. ray depth for reflections and refractions.",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -149,25 +165,25 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.mtl_doMaps= BoolProperty(
 		name= "Textures",
-		description= "TODO.",
+		description= "Render textures.",
 		default= True
 	)
 	
 	SettingsOptions.mtl_filterMaps= BoolProperty(
 		name= "Filter textures",
-		description= "TODO.",
+		description= "Filter textures.",
 		default= True
 	)
 	
 	SettingsOptions.mtl_filterMapsForSecondaryRays= BoolProperty(
 		name= "Filter textures for GI",
-		description= "False to turn off filtering for glossy and GI rays",
+		description= "False to turn off filtering for glossy and GI rays.",
 		default= False
 	)
 	
 	SettingsOptions.mtl_transpMaxLevels= IntProperty(
 		name= "Max transp. levels",
-		description= "Max. transparency levels",
+		description= "Max. transparency levels.",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -177,7 +193,7 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.mtl_transpCutoff= FloatProperty(
 		name= "Transp. cutoff",
-		description= "Transparency cutoff",
+		description= "Transparency cutoff.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -188,31 +204,31 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.mtl_override_on= BoolProperty(
 		name= "Override",
-		description= "Override material",
+		description= "Override material.",
 		default= False
 	)
 
 	SettingsOptions.mtl_override= StringProperty(
 		name= "Override material",
-		description= "Override material",
+		description= "Override material.",
 		default= ""
 	)
 	
 	SettingsOptions.mtl_glossy= BoolProperty(
 		name= "Glossy effects",
-		description= "Glossy effects",
+		description= "Glossy effects.",
 		default= True
 	)
 	
 	SettingsOptions.geom_backfaceCull= BoolProperty(
 		name= "Force back face culling",
-		description= "If true, back faces will be invisible to camera and shadow rays",
+		description= "If true, back faces will be invisible to camera and shadow rays.",
 		default= False
 	)
 	
 	SettingsOptions.ray_bias= FloatProperty(
 		name= "Secondary rays bias",
-		description= "Secondary ray bias",
+		description= "Secondary ray bias.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -223,22 +239,26 @@ def add_properties(parent_struct):
 	
 	SettingsOptions.misc_lowThreadPriority= BoolProperty(
 		name= "Low thread priority",
-		description= "TODO.",
+		description= "Low thread priority.",
 		default= True
 	)
 
 
-def write(ofile, sce, rna_pointer):
-	VRayScene= sce.vray
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene= scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
-	ofile.write("\n%s {" % PLUG)
+	ofile.write("\nSettingsOptions SettingsOptions {")
 	for param in PARAMS:
 		if param == 'mtl_override':
+			# Not implemented in V-Ray plugin:
+			# override is done in "Node" export function
 			continue
 		else:
 			value= getattr(SettingsOptions, param)
 		ofile.write("\n\t%s= %s;" % (param, p(value)))
 	ofile.write("\n}\n")
 
-	

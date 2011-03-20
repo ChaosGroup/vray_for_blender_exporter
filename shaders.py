@@ -1,28 +1,28 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: " "
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -32,6 +32,7 @@ import bpy
 
 ''' vb modules '''
 from vb25.utils import *
+<<<<<<< HEAD
 from vb25.plugin_manager import *
 
 
@@ -1029,6 +1030,10 @@ def write_TexFresnel(ofile, sce, ma, ma_name, textures):
 	ofile.write("\n}\n")
 
 	return tex_name
+=======
+from vb25.plugins import *
+from vb25.texture import *
+>>>>>>> devel
 
 
 def write_BRDFGlossy(ofile, sce, ma, ma_name, textures):
@@ -1237,90 +1242,3 @@ def write_BRDFLight(ofile, sce, ma, ma_name, mapped_params):
 	ofile.write("\n}\n")
 
 	return brdf_name
-
-
-def write_multiply_texture(ofile, sce, input_texture_name, mult_value):
-	if mult_value == 1.0:
-		return input_texture_name
-
-	tex_name= get_random_string()
-		
-	ofile.write("\nTexAColorOp %s {" % tex_name)
-	ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-	if mult_value > 1.0:
-		ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
-		ofile.write("\n\tresult_alpha= %s;" % a(sce, 1.0))
-	else:
-		ofile.write("\n\tmult_a= %s;" % a(sce, 1.0))
-		ofile.write("\n\tresult_alpha= %s;" % a(sce, mult_value))
-	ofile.write("\n}\n")
-				
-	return tex_name
-
-
-def write_texture_factor(ofile, sce, params):
-	tex_name= write_texture(ofile, sce, params)
-	tex_name= write_multiply_texture(ofile, sce, tex_name, params['factor'])
-	return tex_name
-
-
-'''
-  Stack naming:
-    BAbase_name+TEtexture_name+IDtexture_id_in_stack+PLplugin
-  like:
-    MAmaterial+TEtexture+IDtexture_id_in_stack
-  or:
-    LAlamp+TEtexture+IDtexture_id_in_stack
-'''
-def stack_collapse_layers(slots):
-	layers= []
-	for i,slot in enumerate(slots):
-		(texture,stencil,blend_mode)= slot
-		if stencil:
-			color_a= layers
-			color_b= stack_collapse_layers(slots[i+1:])
-			if len(color_a) and len(color_b):
-				return {'color_a': color_a,
-						'color_b': color_b,
-						'blend_amount': texture}
-		layers.append((texture,blend_mode))
-	return layers
-
-
-def stack_write_TexLayered(ofile, layers):
-	tex_name= 'TL' + get_random_string()
-	if len(layers) == 1: return layers[0][0]
-	ofile.write("\nTexLayered %s {"%(tex_name))
-	ofile.write("\n\ttextures= List(%s);"%(','.join([l[0] for l in layers])))
-	ofile.write("\n\tblend_modes= List(%s);"%(','.join([BLEND_MODES[l[1]] for l in layers])))
-	ofile.write("\n}\n")
-	return tex_name
-
-
-def stack_write_TexMix(ofile, color1, color2, blend_amount):
-	tex_name= 'TM' + get_random_string()
-	ofile.write("\nTexMix %s {" % tex_name)
-	ofile.write("\n\tcolor1= %s;" % color1)
-	ofile.write("\n\tcolor2= %s;" % color2)
-	ofile.write("\n\tmix_amount= 1.0;")
-	ofile.write("\n\tmix_map= %s;" % blend_amount)
-	ofile.write("\n}\n")
-	return tex_name
-
-
-def stack_write_shaders(ofile, layer):
-	if type(layer) == dict:
-		color_a= stack_write_shaders(ofile, layer['color_a'])
-		color_b= stack_write_shaders(ofile, layer['color_b'])
-		layer_name= stack_write_TexMix(ofile, color_a, color_b, layer['blend_amount'])
-	elif type(layer) == list:
-		layer_name= stack_write_TexLayered(ofile, layer)
-	return layer_name
-
-
-def write_TexOutput(ofile, texmap, params):
-	tex_name= 'TO' + get_random_string()
-	ofile.write("\nTexOutput %s {" % tex_name)
-	ofile.write("\n\ttexmap= %s;" % texmap)
-	ofile.write("\n}\n")
-	return tex_name

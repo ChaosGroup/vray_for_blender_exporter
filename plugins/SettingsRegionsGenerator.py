@@ -1,45 +1,30 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: "Saturday, 12 March 2011 [02:12]"
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
-
-TYPE= 'SETTINGS'
-
-ID=   'SETTINGSRG'
-NAME= 'Regions Generator'
-PLUG= 'SettingsRegionsGenerator'
-DESC= "Regions generator settings."
-
-PARAMS= (
-	'xc',
-	'yc',
-	'xymeans',
-	'seqtype',
-	'reverse'
-)
 
 
 ''' Blender modules '''
@@ -47,15 +32,28 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
+import vb25.utils
 
 
+<<<<<<< HEAD
 class SettingsRegionsGenerator(bpy.types.PropertyGroup):
 	pass
+=======
+TYPE= 'SETTINGS'
+ID=   'SettingsRegionsGenerator'
+
+NAME= 'Regions Generator'
+DESC= "Regions generator settings."
+
+>>>>>>> devel
 
 bpy.utils.register_class(SettingsRegionsGenerator)
 
 def add_properties(parent_struct):
+	class SettingsRegionsGenerator(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(SettingsRegionsGenerator)
+	
 	parent_struct.SettingsRegionsGenerator= PointerProperty(
 		type= SettingsRegionsGenerator,
 		name= NAME,
@@ -66,12 +64,12 @@ def add_properties(parent_struct):
 		name= "Type",
 		description= "Determines the order in which the regions are rendered.",
 		items=(
-			('HILBERT',   "Hilbert",          ""),
-			('TRIANGLE',  "Triangulation",    ""),
-			('IOSPIRAL',  "(TODO) IOSPIRAL",  ""),
-			('TBCHECKER', "(TODO) TBCHECKER", ""),
-			('LRWIPE',    "(TODO) LRWIPE",    ""),
-			('TBWIPE',    "(TODO) TBWIPE",    "") # 0
+			('HILBERT',   "Hilbert",       ""),
+			('TRIANGLE',  "Triangulation", ""),
+			('IOSPIRAL',  "Spiral",        ""),
+			('TBCHECKER', "Checker",       ""),
+			('LRWIPE',    "Left-right",    ""),
+			('TBWIPE',    "Top-bottom",    "") # 0
 		),
 		default= 'TRIANGLE'
 	)
@@ -94,7 +92,7 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.lock_size= BoolProperty(
 		name= "Lock size",
-		description= "Lock bucker size (x = y).",
+		description= "Lock bucket size (x = y).",
 		default= True
 	)
 
@@ -113,3 +111,36 @@ def add_properties(parent_struct):
 		max= 100,
 		default= 32
 	)
+
+
+def write(bus):
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene= scene.vray
+	SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
+
+	SEQTYPE= {
+		'HILBERT':   5,
+		'TRIANGLE':  4,
+		'IOSPIRAL':  3,
+		'TBCHECKER': 2,
+		'LRWIPE':    1,
+		'TBWIPE':    0,
+	}
+
+	XYMEANS= {
+		'BUCKETS': 1,
+		'SIZE':    0,
+	}
+
+	ofile.write("\nSettingsRegionsGenerator SettingsRegionsGenerator {")
+	ofile.write("\n\txc= %i;" % SettingsRegionsGenerator.xc)
+	if SettingsRegionsGenerator.lock_size:
+		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.xc)
+	else:
+		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.yc)
+	ofile.write("\n\treverse= %i;" % SettingsRegionsGenerator.reverse)
+	ofile.write("\n\tseqtype= %i;" % SEQTYPE[SettingsRegionsGenerator.seqtype])
+	ofile.write("\n\txymeans= %i;" % XYMEANS[SettingsRegionsGenerator.xymeans])
+	ofile.write("\n}\n")

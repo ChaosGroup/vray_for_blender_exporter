@@ -1,34 +1,45 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: " "
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.shaders import *
+from vb25.ui.ui import *
+
+
 TYPE= 'TEXTURE'
 
-ID=   'TEXDIRT'
+ID=   'TexDirt'
 NAME= 'Dirt'
 PLUG= 'TexDirt'
 DESC= "TODO."
@@ -58,6 +69,7 @@ PARAMS= (
 )
 
 
+<<<<<<< HEAD
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -74,6 +86,13 @@ def add_properties(VRayTexture):
 
 	bpy.utils.register_class(TexDirt)
 
+=======
+def add_properties(VRayTexture):
+	class TexDirt(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexDirt)
+	
+>>>>>>> devel
 	VRayTexture.TexDirt= PointerProperty(
 		name= "TexDirt",
 		type=  TexDirt,
@@ -81,8 +100,8 @@ def add_properties(VRayTexture):
 	)
 
 	TexDirt.white_color= FloatVectorProperty(
-		name= "White color",
-		description= "TODO",
+		name= "Unoccluded color",
+		description= "Unoccluded color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -92,14 +111,14 @@ def add_properties(VRayTexture):
 	)
 
 	TexDirt.white_color_tex= StringProperty(
-		name= "White color texture",
-		description= "White color texture.",
+		name= "Unoccluded color texture",
+		description= "Unoccluded color texture.",
 		default= ""
 	)
 
 	TexDirt.black_color= FloatVectorProperty(
-		name= "Black color",
-		description= "TODO",
+		name= "Occluded color",
+		description= "Occluded color.",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -109,14 +128,14 @@ def add_properties(VRayTexture):
 	)
 
 	TexDirt.black_color_tex= StringProperty(
-		name= "Black color texture",
-		description= "Black color texture.",
+		name= "Occluded color texture",
+		description= "Occluded color texture.",
 		default= ""
 	)
 
 	TexDirt.radius= FloatProperty(
 		name= "Radius",
-		description= "TODO",
+		description= "Radius.",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -127,7 +146,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.distribution= FloatProperty(
 		name= "Distribution",
-		description= "TODO",
+		description= "Distribution.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -138,7 +157,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.falloff= FloatProperty(
 		name= "Falloff",
-		description= "TODO",
+		description= "Falloff.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -149,7 +168,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "TODO",
+		description= "Subdivs.",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -159,7 +178,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_x= FloatProperty(
 		name= "Bias X",
-		description= "TODO",
+		description= "Bias Z.",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -170,7 +189,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_y= FloatProperty(
 		name= "Bias Y",
-		description= "TODO",
+		description= "Bias Y.",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -181,7 +200,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_z= FloatProperty(
 		name= "Bias Z",
-		description= "TODO",
+		description= "Bias Z.",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -192,31 +211,31 @@ def add_properties(VRayTexture):
 
 	TexDirt.ignore_for_gi= BoolProperty(
 		name= "Ignore for GI",
-		description= "TODO",
+		description= "Ignore for GI.",
 		default= True
 	)
 
 	TexDirt.consider_same_object_only= BoolProperty(
 		name= "Consider same object only",
-		description= "TODO",
+		description= "Consider same object only.",
 		default= False
 	)
 
 	TexDirt.invert_normal= BoolProperty(
 		name= "Invert normal",
-		description= "TODO",
+		description= "Invert normal.",
 		default= False
 	)
 
 	TexDirt.work_with_transparency= BoolProperty(
 		name= "Work with transparency",
-		description= "TODO",
+		description= "Work with transparency.",
 		default= False
 	)
 
 	TexDirt.ignore_self_occlusion= BoolProperty(
 		name= "Ignore self occlusion",
-		description= "TODO",
+		description= "Ignore self occlusion.",
 		default= False
 	)
 
@@ -234,13 +253,13 @@ def add_properties(VRayTexture):
 
 	TexDirt.environment_occlusion= BoolProperty(
 		name= "Environment occlusion",
-		description= "true to compute the environment for unoccluded samples",
+		description= "Compute the environment for unoccluded samples",
 		default= False
 	)
 
 	TexDirt.affect_reflection_elements= BoolProperty(
 		name= "Affect reflection elements",
-		description= "true to add the occlusion to relection render elements when mode>0",
+		description= "Add the occlusion to relection render elements when mode>0",
 		default= False
 	)
 
@@ -256,7 +275,7 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	MODE= {
 		'AO':    0,
 		'PHONG': 1,
@@ -264,10 +283,12 @@ def write(ofile, sce, params):
 		'WARD':  3
 	}
 
-	slot= params.get('slot')
-	texture= params.get('texture')
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	tex_name= params['name'] if 'name' in params else get_random_string()
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
 	TexDirt= getattr(texture.vray, PLUG)
 
@@ -277,7 +298,7 @@ def write(ofile, sce, params):
 		if key_tex:
 			if key_tex in bpy.data.textures:
 				params['texture']= bpy.data.textures[key_tex]
-				mapped_params[key]= write_texture(ofile, sce, params)
+				mapped_params[key]= write_texture(bus)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
@@ -289,7 +310,7 @@ def write(ofile, sce, params):
 			if key in mapped_params:
 				value= mapped_params[key]
 			else: pass
-		ofile.write("\n\t%s= %s;"%(param, a(sce,value)))
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -299,16 +320,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexDirtTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
+class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -320,7 +332,7 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine_poll(__class__, context)))
 	
 	def draw(self, context):
 		tex= context.texture
@@ -333,13 +345,17 @@ class TEXTURE_PT_TexDirt(TexDirtTexturePanel, bpy.types.Panel):
 		layout.prop(vtex,'mode')
 
 		split= layout.split()
-		col= split.column()
-		col.prop(vtex,'white_color',text="Unoccluded color")
-		col.prop_search(vtex, 'white_color_tex', bpy.data, 'textures', text= "")
+		col= split.column(align= True)
+		col.prop(vtex,'white_color')
+		col.prop_search(vtex, 'white_color_tex',
+						bpy.data, 'textures',
+						text= "")
 		if wide_ui:
-			col= split.column()
-		col.prop(vtex,'black_color',text="Occluded color")
-		col.prop_search(vtex, 'black_color_tex', bpy.data, 'textures', text= "")
+			col= split.column(align= True)
+		col.prop(vtex,'black_color')
+		col.prop_search(vtex, 'black_color_tex',
+						bpy.data, 'textures',
+						text= "")
 
 		layout.separator()
 

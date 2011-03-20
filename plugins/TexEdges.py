@@ -1,49 +1,60 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: " "
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
+
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
 TYPE= 'TEXTURE'
 
-ID=   'TEXEDGES'
+ID=	  'TexEdges'
 NAME= 'Edge'
 PLUG= 'TexEdges'
-DESC= "It is a very simple texture map that allows you to render out the wire frame of a mesh."
+DESC= "Wire frame texture."
 PID=   4
 
 PARAMS= (
-	'edges_tex',         # acolor texture = AColor(1, 1, 1, 1)
-	'bg_tex',            # acolor texture = AColor(0, 0, 0, 1)
+	'edges_tex',		 # acolor texture = AColor(1, 1, 1, 1)
+	'bg_tex',			 # acolor texture = AColor(0, 0, 0, 1)
 	'show_hidden_edges', # bool = false
-	'width_type',        # integer = 0, 0: World units, 1: Pixels
-	# 'world_width',     # float = 1
-	# 'pixel_width',     # float = 1
+	'width_type',		 # integer = 0, 0: World units, 1: Pixels
+	# 'world_width',	 # float = 1
+	# 'pixel_width',	 # float = 1
 )
 
 
+<<<<<<< HEAD
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -58,6 +69,13 @@ def add_properties(VRayTexture):
 
 	bpy.utils.register_class(TexEdges)
 
+=======
+def add_properties(VRayTexture):
+	class TexEdges(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(TexEdges)
+	
+>>>>>>> devel
 	VRayTexture.TexEdges= PointerProperty(
 		name= "TexEdges",
 		type=  TexEdges,
@@ -114,31 +132,33 @@ def add_properties(VRayTexture):
 	)
 
 
-def write(ofile, sce, params):
+def write(bus):
 	WIDTH_TYPE= {
 		'PIXEL' : 1,
 		'WORLD' : 0
 	}
 
-	slot= params.get('slot')
-	tex= params.get('texture')
+	scene= bus['scene']
+	ofile= bus['files']['textures']
 
-	tex_name= params['name'] if 'name' in params else get_name(tex, "Texture")
+	slot=     bus['mtex']['slot']
+	texture=  bus['mtex']['texture']
+	tex_name= bus['mtex']['name']
 
-	vtex= getattr(tex.vray, PLUG)
+	TexEdges= getattr(texture.vray, PLUG)
 
 	# Write output
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+	ofile.write("\n%s %s {" % (PLUG, tex_name))
 	for param in PARAMS:
 		if param == 'width_type':
-			ofile.write("\n\t%s= %s;"%(param, WIDTH_TYPE[vtex.width_type]))
-			if vtex.width_type == 'PIXEL':
+			ofile.write("\n\t%s= %s;"%(param, WIDTH_TYPE[TexEdges.width_type]))
+			if TexEdges.width_type == 'PIXEL':
 				_param= 'pixel_width'
 			else:
 				_param= 'world_width'
-			ofile.write("\n\t%s= %s;"%(_param, a(sce,getattr(vtex, 'width'))))
+			ofile.write("\n\t%s= %s;"%(_param, a(scene, getattr(TexEdges, 'width'))))
 		else:
-			ofile.write("\n\t%s= %s;"%(param, a(sce,getattr(vtex, param))))
+			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexEdges, param))))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -148,16 +168,7 @@ def write(ofile, sce, params):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class TexEdgesTexturePanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
-
-
-class TEXTURE_PT_TexEdges(TexEdgesTexturePanel, bpy.types.Panel):
+class VRAY_TP_TexEdges(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -197,4 +208,8 @@ class TEXTURE_PT_TexEdges(TexEdgesTexturePanel, bpy.types.Panel):
 		col.prop(vtex, 'width')
 
 
+<<<<<<< HEAD
 bpy.utils.register_class(TEXTURE_PT_TexEdges)
+=======
+bpy.utils.register_class(VRAY_TP_TexEdges)
+>>>>>>> devel

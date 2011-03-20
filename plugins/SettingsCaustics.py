@@ -1,36 +1,45 @@
 '''
 
- V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
- http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
- Author: Andrey M. Izrantsev (aka bdancer)
- E-Mail: izrantsev@gmail.com
+  Time-stamp: " "
 
- This plugin is protected by the GNU General Public License v.2
+  Author: Andrey M. Izrantsev (aka bdancer)
+  E-Mail: izrantsev@cgdo.ru
 
- This program is free software: you can redioutibute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
- This program is dioutibuted in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
-TYPE= 'SETTINGS'
 
-ID=   'SETTINGSCAUSTICS'
+''' Blender modules '''
+import bpy
+from bpy.props import *
+
+''' vb modules '''
+from vb25.utils import *
+from vb25.ui.ui import *
+
+
+TYPE= 'SETTINGS'
+ID=   'SettingsCaustics'
+
 NAME= 'Caustics'
-PLUG= 'SettingsCaustics'
 DESC= "Caustics settings."
 
 PARAMS= (
@@ -48,6 +57,7 @@ PARAMS= (
 )
 
 
+<<<<<<< HEAD
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -149,31 +159,136 @@ def add_properties(parent_struct):
 
 	bpy.utils.register_class(SettingsCaustics)
 
+=======
+def add_properties(parent_struct):
+	class SettingsCaustics(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(SettingsCaustics)
+	
+>>>>>>> devel
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
 		type=  SettingsCaustics,
 		description= "Caustics settings."
 	)
 
+<<<<<<< HEAD
+=======
+	SettingsCaustics.on= BoolProperty(
+		name= "On",
+		description= "Enable caustics computation.",
+		default= False
+	)
 
+	SettingsCaustics.max_photons= IntProperty(
+		name= "Max photons",
+		description= "TODO.",
+		min= 0,
+		max= 10000,
+		soft_min= 0,
+		soft_max= 1000,
+		default= 30
+	)
+
+	SettingsCaustics.search_distance= FloatProperty(
+		name= "Search distance",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		precision= 3,
+		default= 0.1
+	)
+	
+	SettingsCaustics.max_density= FloatProperty(
+		name= "Max density",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0
+	)
+
+	SettingsCaustics.multiplier= FloatProperty(
+		name= "Multiplier",
+		description= "TODO.",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 1
+	)
+
+	SettingsCaustics.mode= EnumProperty(
+		name= "Mode",
+		description= "Caustics computaion mode.",
+		items= (
+			('FILE', "From file", ""),
+			('NEW',  "New",       ""),
+		),
+		default= 'NEW'
+	)
+
+	SettingsCaustics.file= StringProperty(
+		name= "File",
+		subtype= 'FILE_PATH',
+		description= "TODO."
+	)
+	
+	SettingsCaustics.auto_save= BoolProperty(
+		name= "Auto save",
+		description= "TODO.",
+		default= False
+	)
+
+	SettingsCaustics.auto_save_file= StringProperty(
+		name= "Auto save file",
+		subtype= 'FILE_PATH',
+		description= "TODO."
+	)
+
+	SettingsCaustics.show_calc_phase= BoolProperty(
+		name= "Show calc phase",
+		description= "TODO.",
+		default= False
+	)
+
+	# SettingsCaustics.dont_delete= BoolProperty(
+	# 	name= "Don\'t delete",
+	# 	description= "TODO.",
+	# 	default= False
+	# )
+
+
+>>>>>>> devel
 
 '''
   OUTPUT
 '''
-def write(ofile, sce, rna_pointer):
+def write(bus):
 	MODE= {
 		'FILE': 1,
 		'NEW':  0
 	}
-	
-	ofile.write("\n%s {" % PLUG)
+
+	ofile=  bus['files']['scene']
+	scene=  bus['scene']
+
+	VRayScene=        scene.vray
+	SettingsCaustics= VRayScene.SettingsCaustics
+
+	ofile.write("\n%s %s {" % (ID,ID))
 	for param in PARAMS:
 		if param in ('file','auto_save_file'):
-			value= "\"%s\"" % getattr(rna_pointer,param)
+			value= "\"%s\"" % getattr(SettingsCaustics, param)
 		elif param == 'mode':
-			value= MODE[rna_pointer.mode]
+			value= MODE[SettingsCaustics.mode]
 		else:
-			value= getattr(rna_pointer,param)
+			value= getattr(SettingsCaustics, param)
 		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
@@ -182,33 +297,26 @@ def write(ofile, sce, rna_pointer):
 '''
   GUI
 '''
-narrowui= 200
-
-
-class SettingsCausticsPanel():
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
-
-
-class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
+class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
 	bl_label = NAME
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		sce= context.scene
-		rd= sce.render
-		show= sce.vray.SettingsCaustics.on
-		return (rd.use_game_engine == False) and (rd.engine in cls.COMPAT_ENGINES) and (show)
+		scene= context.scene
+		rd=    scene.render
+		if not hasattr(scene.vray, ID):
+			return False
+		show= scene.vray.SettingsCaustics.on
+		return (show and engine_poll(__class__, context))
 	
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
 		vsce= context.scene.vray
-		vmodule= getattr(vsce, PLUG)
+		vmodule= getattr(vsce, ID)
 
 		layout.prop(vmodule,'mode')
 
@@ -237,5 +345,11 @@ class RENDER_PT_SettingsCaustics(SettingsCausticsPanel, bpy.types.Panel):
 			colR.active= vmodule.auto_save
 			colR.prop(vmodule,"auto_save_file", text="")
 
+<<<<<<< HEAD
+=======
+		
+		
+		
+>>>>>>> devel
 bpy.utils.register_class(RENDER_PT_SettingsCaustics)
 

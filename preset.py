@@ -4,7 +4,9 @@
 
 	http://vray.cgdo.ru
 
-	Author: Andrey M. Izrantsev (aka bdancer)
+	Time-stamp: "Tuesday, 15 March 2011 [08:22]"
+
+  Author: Andrey M. Izrantsev (aka bdancer)
 	E-Mail: izrantsev@cgdo.ru
 
 	This plugin is protected by the GNU General Public License v.2
@@ -34,7 +36,7 @@ import bpy
 from vb25.utils import *
 
 
-class VBPresetBase():
+class VRAY_PRESETS():
 	bl_options = {'REGISTER'}
 
 	name= bpy.props.StringProperty(
@@ -67,7 +69,7 @@ class VBPresetBase():
 
 			filename= self.as_filename(self.name)
 			
-			target_path= os.path.normpath(os.path.join(vb_script_path(), "presets", self.preset_subdir))
+			target_path= os.path.normpath(os.path.join(get_vray_exporter_path(), "presets", self.preset_subdir))
 
 			filepath= os.path.join(target_path, filename) + ".py"
 			
@@ -94,7 +96,7 @@ class VBPresetBase():
 		else:
 			preset_active = preset_menu_class.bl_label
 
-			filepath= os.path.join(vb_script_path(), "presets", self.preset_subdir, preset_active+".py")
+			filepath= os.path.join(get_vray_exporter_path(), "presets", self.preset_subdir, preset_active+".py")
 
 			if not os.path.exists(filepath):
 				return {'CANCELLED'}
@@ -127,12 +129,12 @@ class VBPresetBase():
 			return self.execute(context)
 
 
-class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
+class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 	'''Add a V-Ray global preset'''
 	bl_idname = "vray.preset_add"
 	bl_label  = "Add V-Ray Global Preset"
 
-	preset_menu   = "VRAY_MT_global_preset"
+	preset_menu   = "VRAY_MT_preset_global"
 	preset_subdir = "render"
 
 	preset_values= [
@@ -141,7 +143,6 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.vray.exporter.auto_meshes",
 		"bpy.context.scene.vray.exporter.debug",
 		"bpy.context.scene.vray.exporter.use_material_nodes",
-		"bpy.context.scene.vray.exporter.compat_mode",
 		"bpy.context.scene.vray.exporter.image_to_blender",
 		"bpy.context.scene.vray.exporter.active_layers",
 		"bpy.context.scene.vray.exporter.mesh_active_layers",
@@ -254,8 +255,8 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.use_for_glossy_rays",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.adaptive_sampling",
         "bpy.context.scene.vray.SettingsGI.SettingsLightCache.multiple_views",
-        # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
-        # "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
 
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.override_on",
 		"bpy.context.scene.vray.SettingsDefaultDisplacement.edgeLength",
@@ -319,5 +320,142 @@ class vb_preset_global_render(VBPresetBase, bpy.types.Operator):
 		"bpy.context.scene.render.threads",
 	]
 
+<<<<<<< HEAD
 bpy.utils.register_class(vb_preset_global_render)
+=======
+bpy.utils.register_class(VRAY_PRESET_global_render)
+
+# '''
+#   BRDFSSS2Complex preset generator
+# '''
+# import os
+# SSS2= {
+# 	'Skin_brown': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (169, 123, 92),
+# 		'sub_surface_color':    (169, 123, 92),
+# 		'scatter_radius':       (155, 94, 66),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Skin_pink': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (203, 169, 149),
+# 		'sub_surface_color':    (203, 169, 149),
+# 		'scatter_radius':       (177, 105, 84),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Skin_yellow': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (204, 165, 133),
+# 		'sub_surface_color':    (204, 165, 133),
+# 		'scatter_radius':       (177, 105, 84),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.5
+# 	},
+# 	'Milk_skimmed': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (230, 230, 210),
+# 		'sub_surface_color':    (230, 230, 210),
+# 		'scatter_radius':       (245, 184, 107),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Milk_whole': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (242, 239, 222),
+# 		'sub_surface_color':    (242, 239, 222),
+# 		'scatter_radius':       (188, 146,  90),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.9,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Marble_white': {
+# 		'ior':                  1.5,
+# 		'diffuse_color':        (238, 233, 228),
+# 		'sub_surface_color':    (238, 233, 228),
+# 		'scatter_radius':       (235, 190, 160),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       -0.25,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.7
+# 	},
+# 	'Ketchup': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (102, 28,  0),
+# 		'sub_surface_color':    (102, 28,  0),
+# 		'scatter_radius':       (176, 62, 50),
+# 		'scatter_radius_mult':  1.0,
+# 		'phase_function':       0.9,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.7
+# 	},
+# 	'Cream': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (224, 201, 117),
+# 		'sub_surface_color':    (224, 201, 117),
+# 		'scatter_radius':       (215, 153,  81),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.6
+# 	},
+# 	'Potato': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (224, 201, 117),
+# 		'sub_surface_color':    (224, 201, 117),
+# 		'scatter_radius':       (215, 153,  81),
+# 		'scatter_radius_mult':  2.0,
+# 		'phase_function':       0.8,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  0.8
+# 	},
+# 	'Spectration': {
+# 		'ior':                  1.5,
+# 		'diffuse_color':        (255, 255, 255),
+# 		'sub_surface_color':    (255, 255, 255),
+# 		'scatter_radius':       (  0,   0,   0),
+# 		'scatter_radius_mult':  0.0,
+# 		'phase_function':       0.0,
+# 		'specular_amount':      0.0,
+# 		'specular_glossiness':  0.0
+# 	},
+# 	'Water_clear': {
+# 		'ior':                  1.3,
+# 		'diffuse_color':        (  0,   0,   0),
+# 		'sub_surface_color':    (  0,   0,   0),
+# 		'scatter_radius':       (255, 255, 255),
+# 		'scatter_radius_mult':  300.0,
+# 		'phase_function':       0.95,
+# 		'specular_amount':      1.0,
+# 		'specular_glossiness':  1.0
+# 	}
+# }
+# def generate_presets():
+# 	for preset in SSS2:
+# 		ofile= open("/home/bdancer/devel/vrayblender/exporter/vb25/presets/sss/%s.py"%(preset), 'w')
+# 		ofile.write("import bpy\n")
+# 		for param in SSS2[preset]:
+# 			ps= SSS2[preset][param]
+# 			if type(ps) == tuple:
+# 				pss= ""
+# 				for c in ps:
+# 					pss+= "%.3f,"%(float(c / 255.0))
+# 				ps= pss[:-1]
+# 			s= "bpy.context.active_object.active_material.vray.BRDFSSS2Complex.%s = %s\n"%("%s"%(param), ps)
+# 			ofile.write(s.replace(')','').replace('(',''))
+# 		ofile.write("\n")
+# 		ofile.close()
+# generate_presets()
+>>>>>>> devel
 
