@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [10:26]"
+  Time-stamp: "Sunday, 20 March 2011 [13:07]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -372,15 +372,6 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 	}
 
 	def execute(self, context):
-		# TODO:
-		# if VRayTexture.tile == 'TILEUV':
-		# 	if tex.extension != 'REPEAT':
-		# 		tex.extension= 'REPEAT'
-		# else:
-		# 	if tex.extension != 'CLIP':
-		# 		tex.extension= 'CLIP'
-
-
 		for ma in bpy.data.materials:
 			debug(context.scene, "Converting material: %s" % ma.name)
 			
@@ -391,7 +382,7 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
 			if ma.emit > 0.0:
-				VRayMaterial.type= 'EMIT'
+				VRayMaterial.type= 'BRDFLight'
 
 			if rm.use:
 				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
@@ -416,19 +407,22 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 						VRayMaterial.type= 'BRDFLight'
 
 						VRaySlot.map_diffuse=  True
-						VRaySlot.diffuse_mult= slot.emit_factor
 
-					VRaySlot.map_normal=  slot.use_map_normal
-					VRaySlot.BRDFBump.bump_tex_mult= slot.normal_factor
-					
-					VRaySlot.map_diffuse=  slot.use_map_color_diffuse
-					VRaySlot.diffuse_mult= slot.diffuse_color_factor
+					if slot.use_map_normal:
+						VRaySlot.map_normal=             True
+						VRaySlot.BRDFBump.bump_tex_mult= slot.normal_factor
 
-					VRaySlot.map_reflect=  slot.use_map_raymir
-					VRaySlot.reflect_mult= slot.raymir_factor
+					if slot.use_map_color_diffuse:
+						VRaySlot.map_diffuse=  True
+						VRaySlot.diffuse_mult= slot.diffuse_color_factor
 
-					VRaySlot.map_opacity=  slot.use_map_alpha
-					VRaySlot.reflect_mult= slot.alpha_factor
+					if slot.use_map_raymir:
+						VRaySlot.map_reflect=  True
+						VRaySlot.reflect_mult= slot.raymir_factor
+
+					if slot.use_map_alpha:
+						VRaySlot.map_opacity=  True
+						VRaySlot.opacity_mult= slot.alpha_factor
 
 		return {'FINISHED'}
 
