@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [13:37]"
+  Time-stamp: "Sunday, 20 March 2011 [13:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -754,6 +754,7 @@ def	write_material(bus):
 
 	ma=    bus['material']['material']
 
+	# Linked groups material override feature
 	if base.dupli_type == 'GROUP':
 		base_material_names= []
 		for slot in base.material_slots:

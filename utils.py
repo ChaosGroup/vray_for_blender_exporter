@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [14:59]"
+  Time-stamp: "Sunday, 20 March 2011 [14:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -767,10 +767,16 @@ def get_full_filepath(bus, ob, filepath):
 
 	file_type= os.path.splitext(src_file)[1]
 
-	if file_type.lower() == 'ies':
-		dest_path= create_dir(os.path.join(dest_path, "misc"))
+	component_subdir= ""
+	if file_type.lower() in ('ies','lens'):
+		component_subdir= "misc"
+	elif file_type.lower() == "vrmesh":
+		component_subdir= "proxy"
 	else:
-		dest_path= create_dir(os.path.join(dest_path, "textures"))
+		component_subdir= "textures"
+
+	if component_subdir:
+		dest_path= create_dir(os.path.join(dest_path, component_subdir))
 
 	# Copy file to the shared directory
 	dest_file= os.path.join(dest_path, src_filename)
@@ -789,11 +795,6 @@ def get_full_filepath(bus, ob, filepath):
 	else:
 		debug(scene, "\"%s\" is not a file!" % (src_file), error= True)
 		return src_file
-
-	if file_type.lower() in ('ies','lens'):
-		component_subdir= "misc"
-	else:
-		component_subdir= "textures"
 
 	if VRayDR.type == 'WW':
 		return "//%s/%s/%s/%s"%(HOSTNAME, bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
