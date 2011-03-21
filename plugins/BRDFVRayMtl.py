@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [15:02]"
+  Time-stamp: "Monday, 21 March 2011 [13:39]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -594,28 +594,28 @@ def mapto(bus, BRDFLayered= None):
 	defaults= {}
 
 	if BRDFLayered:
-		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.diffuse)),     0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.opacity]*3)), 0, 'NONE')
+		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.diffuse)),     0, 'NONE', 1.0)
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.opacity]*3)), 0, 'NONE', 1.0)
 	else:
-		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),     0, 'NONE')
+		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),        0, 'NONE', 1.0)
+		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),            0, 'NONE', 1.0)
 
-	defaults['roughness']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE')
+	defaults['roughness']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE', 1.0)
 		
-	defaults['reflect_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)), 0, 'NONE')
-	defaults['hilight_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)), 0, 'NONE')
+	defaults['reflect_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)),  0, 'NONE', 1.0)
+	defaults['hilight_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)),  0, 'NONE', 1.0)
 		
-	defaults['reflect']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE')
-	defaults['anisotropy']=          (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE')
-	defaults['anisotropy_rotation']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE')
-	defaults['refract']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE')
-	defaults['refract_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE')
-	defaults['translucency_color']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE')
+	defaults['reflect']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE', 1.0)
+	defaults['anisotropy']=          (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE', 1.0)
+	defaults['anisotropy_rotation']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE', 1.0)
+	defaults['refract']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE', 1.0)
+	defaults['refract_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE', 1.0)
+	defaults['translucency_color']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE', 1.0)
 
-	defaults['fresnel_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['refract_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+	defaults['fresnel_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE', 1.0)
+	defaults['refract_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE', 1.0)
+	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE', 1.0)
+	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE', 1.0)
 
 	return defaults
 

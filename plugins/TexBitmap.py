@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [12:00]"
+  Time-stamp: "Monday, 21 March 2011 [14:19]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -223,7 +223,7 @@ def write(bus):
 
 	if not texture.image:
 		debug(scene, "Texture: %s Image file is not set!" % texture.name, error= True)
-		return bus['defaults']['texture']
+		return None
 
 	bitmap= write_BitmapBuffer(bus)
 

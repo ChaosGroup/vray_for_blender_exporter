@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [14:03]"
+  Time-stamp: "Monday, 21 March 2011 [13:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -808,12 +808,14 @@ def get_render_file_format(VRayExporter, file_format):
 		return 'exr'
 	if file_format in ('JPEG','JPEG2000'):
 		file_format= 'jpg'
-	elif file_format in ('OPEN_EXR','IRIS','CINEON'):
-		file_format= 'exr'
-	elif file_format == 'MULTILAYER':
-		file_format= 'vrimg'
 	elif file_format in ('TARGA','TARGA_RAW'):
 		file_format= 'tga'
+	elif file_format == 'OPEN_EXR':
+		file_format= 'exr'
+	elif file_format == 'TIFF':
+		file_format= 'tiff'
+	elif file_format == 'MULTILAYER':
+		file_format= 'vrimg'
 	else:
 		file_format= 'png'
 	return file_format
@@ -977,7 +979,8 @@ def init_files(bus):
 	output_filepath= default_dir
 
 	if bpy.data.filepath:
-		output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
+		if SettingsOutput.img_dir:
+			output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
 
 		if VRayExporter.output == 'USER':
 			if VRayExporter.output_dir:
@@ -1014,9 +1017,9 @@ def init_files(bus):
 		else:
 			if key == 'scene' and VRayDR.on:
 				# Scene file MUST be op top of scene directory
-				filepath= os.path.join(export_directory, "..", "%s_%s.vrscene" % (export_filename, key))
+				filepath= os.path.normpath(os.path.join(export_directory, "..", "%s_%s.vrscene" % (export_filename, key)))
 			else:
-				filepath= os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key))
+				filepath= os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
 			bus['files'][key]= open(filepath, 'w')
 		bus['filenames'][key]= filepath
 

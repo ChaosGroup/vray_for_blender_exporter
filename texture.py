@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [19:18]"
+  Time-stamp: "Monday, 21 March 2011 [14:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -286,7 +286,7 @@ def stack_write_textures(bus, layer):
 def stack_collapse_layers(slots):
 	layers= []
 	for i,slot in enumerate(slots):
-		(texture, stencil, blend_mode)= slot
+		(texture, stencil, blend_mode, factor)= slot
 		if stencil:
 			color_a= layers
 			color_b= stack_collapse_layers(slots[i+1:])

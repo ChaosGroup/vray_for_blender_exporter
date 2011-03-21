@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [13:27]"
+  Time-stamp: "Monday, 21 March 2011 [13:28]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -192,7 +192,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		col.prop(VRayExporter, 'image_to_blender')
+		col.prop(VRayExporter,   'image_to_blender')
 		# sub= col.column()
 		# sub.active= False
 		# sub.prop(rd, "use_overwrite")

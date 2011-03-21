@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [14:23]"
+  Time-stamp: "Monday, 21 March 2011 [14:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -636,11 +636,6 @@ def write_lamp_textures(bus):
 													   slot.use_stencil,
 													   VRaySlot.blend_mode] )
 
-	for key in bus['lamp_textures']:
-		if len(bus['lamp_textures'][key]) == 2 and type(bus['lamp_textures'][key][0]) is tuple:
-			if bus['lamp_textures'][key][1][2] == 'NONE':
-				bus['lamp_textures'][key][1][2]= 'OVER'
-
 	if VRayExporter.debug:
 		if len(bus['lamp_textures']):
 			print_dict(scene, "Lamp \"%s\" texture stack" % la.name, bus['lamp_textures'])
@@ -706,23 +701,16 @@ def write_material_textures(bus):
 
 						bus['mtex']['name']+= bus['material']['orco_suffix']
 
-					if VRayExporter.debug:
-						print_dict(scene, "bus['mtex']", bus['mtex'])
+					# if VRayExporter.debug:
+					# 	print_dict(scene, "bus['mtex']", bus['mtex'])
 
 					# Write texture
-					write_texture(bus)
-
-					# Append texture to stack and write texture with factor
-					bus['textures'][key].append( [stack_write_texture(bus),
-												  slot.use_stencil,
-												  VRaySlot.blend_mode] )
-
-	# In case we have only 1 texture blended over color
-	# set its blend type to 'OVER' if its 'NONE'
-	for key in bus['textures']:
-		if len(bus['textures'][key]) == 2 and type(bus['textures'][key][0]) is tuple:
-			if bus['textures'][key][1][2] == 'NONE':
-				bus['textures'][key][1][2]= 'OVER'
+					if write_texture(bus):
+						# Append texture to stack and write texture with factor
+						bus['textures'][key].append( [stack_write_texture(bus),
+													  slot.use_stencil,
+													  VRaySlot.blend_mode,
+													  factor] )
 
 	if VRayExporter.debug:
 		if len(bus['textures']):

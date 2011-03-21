@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [20:14]"
+  Time-stamp: "Monday, 21 March 2011 [14:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -857,10 +857,10 @@ def write(bus):
 	VRayExporter= VRayScene.exporter
 
 	defaults= {
-		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),      0, 'NONE'),
-		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),      0, 'NONE'),
-		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE'),
-		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE'),
+		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),         0, 'NONE', 1.0),
+		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),         0, 'NONE', 1.0),
+		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE', 1.0),
+		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE', 1.0),
 	}
 
 	bus['env_textures']= {}
@@ -887,16 +887,11 @@ def write(bus):
 																			 slot.texture.name))
 					
 					# Write texture
-					write_texture(bus)
-
-					bus['env_textures'][key].append( [stack_write_texture(bus),
-													  slot.use_stencil,
-													  VRaySlot.blend_mode] )
-
-	for key in bus['env_textures']:
-		if len(bus['env_textures'][key]) == 2 and type(bus['env_textures'][key][0]) is tuple:
-			if bus['env_textures'][key][1][2] == 'NONE':
-				bus['env_textures'][key][1][2]= 'OVER'
+					if write_texture(bus):
+						bus['env_textures'][key].append( [stack_write_texture(bus),
+														  slot.use_stencil,
+														  VRaySlot.blend_mode,
+														  factor] )
 
 	if VRayExporter.debug:
 		if len(bus['env_textures']):
@@ -905,6 +900,10 @@ def write(bus):
 	for key in bus['env_textures']:
 		if len(bus['env_textures'][key]):
 			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])), key)
+
+	if VRayExporter.debug:
+		if len(bus['env_textures']):
+			print_dict(scene, "World textures", bus['env_textures'])
 
 	ofile.write("\nSettingsEnvironment SettingsEnvironment {")
 	ofile.write("\n\tbg_color= %s;"%(a(scene,VRayWorld.bg_color)))
