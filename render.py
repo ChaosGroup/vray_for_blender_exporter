@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [15:47]"
+  Time-stamp: "Tuesday, 22 March 2011 [01:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1234,8 +1234,8 @@ def _write_object_particles(bus):
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= "HAIR%s" % ps.name
-					hair_node_name= "OB%sHAIR%s" % (ob.name, hair_geom_name)
+					hair_geom_name= clean_string("HAIR%s" % ps.name)
+					hair_node_name= clean_string("OB%sHAIR%s" % (ob.name, hair_geom_name))
 
 					write_GeomMayaHair(bus, ps, hair_geom_name)
 

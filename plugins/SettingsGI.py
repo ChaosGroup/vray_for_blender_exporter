@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [16:59]"
+  Time-stamp: "Monday, 21 March 2011 [17:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -929,14 +929,15 @@ def write(bus):
 		'IM':  0,
 		'PM':  1,
 		'BF':  2,
-		'LC':  3
+		'LC':  3,
+		'SH':  4,
 	}
 
 	SECONDARY_ENGINE= {
 		'NONE':  0,
 		'PM':    1,
 		'BF':    2,
-		'LC':    3
+		'LC':    3,
 	}
 
 	WORLD_SCALE= {
