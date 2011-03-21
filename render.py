@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [14:49]"
+  Time-stamp: "Monday, 21 March 2011 [15:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -709,8 +709,7 @@ def write_material_textures(bus):
 						# Append texture to stack and write texture with factor
 						bus['textures'][key].append( [stack_write_texture(bus),
 													  slot.use_stencil,
-													  VRaySlot.blend_mode,
-													  factor] )
+													  VRaySlot.blend_mode] )
 
 	if VRayExporter.debug:
 		if len(bus['textures']):

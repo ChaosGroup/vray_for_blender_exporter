@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [14:49]"
+  Time-stamp: "Monday, 21 March 2011 [15:48]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -857,10 +857,10 @@ def write(bus):
 	VRayExporter= VRayScene.exporter
 
 	defaults= {
-		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),         0, 'NONE', 1.0),
-		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),         0, 'NONE', 1.0),
-		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE', 1.0),
-		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE', 1.0),
+		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),         0, 'NONE'),
+		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),         0, 'NONE'),
+		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE'),
+		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE'),
 	}
 
 	bus['env_textures']= {}
