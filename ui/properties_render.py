@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [13:28]"
+  Time-stamp: "Monday, 21 March 2011 [16:55]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -550,6 +550,83 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(module, "secondary_engine", text="")
+
+
+class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
+	bl_label = "Spherical Harmonics"
+
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		module= context.scene.vray.SettingsGI
+		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'SH'))
+
+	def draw(self, context):
+		layout= self.layout
+		wide_ui= context.region.width > narrowui
+
+		VRayScene=                  context.scene.vray
+		SettingsGI=                 VRayScene.SettingsGI
+
+		layout.prop(SettingsGI, 'spherical_harmonics', expand= True)
+
+		layout.separator()
+
+		if SettingsGI.spherical_harmonics == 'RENDER':
+			SphericalHarmonicsRenderer= SettingsGI.SphericalHarmonicsRenderer
+
+			split= layout.split()
+			col= split.column()
+			col.prop(SphericalHarmonicsRenderer, 'file_name')
+			col.prop(SphericalHarmonicsRenderer, 'precalc_light_per_frame')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.prop(SphericalHarmonicsRenderer, 'sample_environment')
+			if SphericalHarmonicsRenderer.sample_environment:
+				col.prop(SphericalHarmonicsRenderer, 'is_hemispherical')
+				col.prop(SphericalHarmonicsRenderer, 'subdivs', slider= True)
+
+			if wide_ui:
+				col= split.column()
+
+			col.prop(SphericalHarmonicsRenderer, 'apply_filtering')
+			if SphericalHarmonicsRenderer.apply_filtering:
+				col.prop(SphericalHarmonicsRenderer, 'filter_strength', slider= True)
+
+		else:
+			SphericalHarmonicsExporter= SettingsGI.SphericalHarmonicsExporter
+
+			layout.prop(SphericalHarmonicsExporter, 'file_name')
+			layout.prop(SphericalHarmonicsExporter, 'file_format')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.prop(SphericalHarmonicsExporter, 'mode')
+
+			if str(SphericalHarmonicsExporter.mode).endswith('_SEL'):
+				col.prop_search(SphericalHarmonicsExporter, 'node',
+								   context.scene,              'objects')
+
+			col.prop(SphericalHarmonicsExporter, 'object_space')
+			col.prop(SphericalHarmonicsExporter, 'per_normal')
+
+			split= layout.split()
+			col= split.column()
+			col.prop(SphericalHarmonicsExporter, 'bands', slider= True)
+			col.prop(SphericalHarmonicsExporter, 'subdivs', slider= True)
+			if wide_ui:
+				col= split.column()
+			col.prop(SphericalHarmonicsExporter, 'ray_bias')
+
+			if SphericalHarmonicsExporter.mode in ('INT_SEL', 'INT_ALL'):
+				col.prop(SphericalHarmonicsExporter, 'bounces')
+				col.prop(SphericalHarmonicsExporter, 'hit_recording')
 
 
 class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):

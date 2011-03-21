@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 21 March 2011 [16:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -47,7 +47,106 @@ PARAMS= (
 
 def add_properties(parent_struct):
 	class SettingsGI(bpy.types.PropertyGroup):
-		pass
+		on= BoolProperty(
+			name= "Enable GI",
+			description= "Enable Global Illumination.",
+			default= False
+		)
+
+		spherical_harmonics= EnumProperty(
+			name= "Spherical harmonics",
+			description= "Bake or render spherical harmonics.",
+			items= (
+				('BAKE',   "Bake",   ""),
+				('RENDER', "Render", ""),
+			),
+			default= 'BAKE'
+		)
+
+		primary_engine= EnumProperty(
+			name= "Primary engine",
+			description= "Primary diffuse bounces engines.",
+			items= (
+				('IM', "Irradiance map",      ""), # 0
+				('BF', "Brute force",         ""), # 2
+				('LC', "Light cache",         ""), # 3
+				('SH', "Spherical harmonics", ""), # 4
+			),
+			default= 'IM'
+		)
+
+		secondary_engine= EnumProperty(
+			name= "Secondary engine",
+			description= "Secondary diffuse bounces engines.",
+			items= (
+				('NONE', "None",        ""), # 0
+				('BF',   "Brute force", ""), # 2
+				('LC',   "Light cache", "")  # 3
+			),
+			default= 'LC'
+		)
+
+		primary_multiplier= FloatProperty(
+			name= "Primary multiplier",
+			description= "This value determines how much primary diffuse bounces contribute to the final image illumination.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		secondary_multiplier= FloatProperty(
+			name= "Secondary multiplier",
+			description= "This determines the effect of secondary diffuse bounces on the scene illumination.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		refract_caustics= BoolProperty(
+			name= "Refract caustics",
+			description= "This allows indirect lighting to pass through transparent objects (glass etc).",
+			default= 1
+		)
+
+		reflect_caustics= BoolProperty(
+			name= "Reflect caustics",
+			description= "This allows indirect light to be reflected from specular objects (mirrors etc).",
+			default= 0
+		)
+
+		saturation= FloatProperty(
+			name= "Saturation",
+			description= "Controls the saturation of the GI.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		contrast= FloatProperty(
+			name= "Contrast",
+			description= "This parameter works together with Contrast base to boost the contrast of the GI solution.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 1.0
+		)
+
+		contrast_base= FloatProperty(
+			name= "Contrast base",
+			description= "This parameter determines the base for the contrast boost.",
+			min= 0.0,
+			max= 10.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= 0.5
+		)
 	bpy.utils.register_class(SettingsGI)
 
 	parent_struct.SettingsGI= PointerProperty(
@@ -56,96 +155,195 @@ def add_properties(parent_struct):
 		description= DESC
 	)
 
-	SettingsGI.on= BoolProperty(
-		name= "Enable GI",
-		description= "Enable Global Illumination.",
-		default= False
+
+	class SphericalHarmonicsRenderer(bpy.types.PropertyGroup):
+		file_name= StringProperty(
+			name= "File",
+			description= "This is the name of the *.vrsh file which contains the precomputed SH for this scene.",
+			subtype= 'FILE_PATH',
+			default= "//lightmaps/harmonics.vrsh"
+		)
+
+		# precalc_light_per_frame
+		precalc_light_per_frame= BoolProperty(
+			name= "Precalc light per frame",
+			description= "Reasonable when rendering animations. Depending on this option V-Ray calculates the lighting either once at the beginning of the rendering or precalculates it before every frame.",
+			default= True
+		)
+
+		# sample_environment
+		sample_environment= BoolProperty(
+			name= "Sample environment",
+			description= "Turns on the environment sampling to add environment light contribution.",
+			default= True
+		)
+
+		# is_hemispherical
+		is_hemispherical= BoolProperty(
+			name= "Upper hemisphere only",
+			description= "Depending on this option V-Ray samples either the whole sphere or only the upper hemisphere of the environment.",
+			default= True
+		)
+
+		# subdivs
+		subdivs= IntProperty(
+			name= "Subdivs",
+			description= "The square of this parameter is proportional to the number of rays, sampled in the environment.",
+			min= 1,
+			max= 1024,
+			soft_min= 1,
+			soft_max= 100,
+			default= 30
+		)
+
+		# apply_filtering
+		apply_filtering= BoolProperty(
+			name= "Apply filtering",
+			description= "Turns on the filtering of the spherical harmonics. This is useful to reduce the ringing artifacts (known as Gibbs phenomena in signal processing) by suppressing the high frequencies. This produces blurred SH which result in a smoother image.",
+			default= True
+		)
+
+		# filter_strength
+		filter_strength= FloatProperty(
+			name= "Filter strength",
+			description= "The strength of high frequencies' suppression. Values near 0.0 slightly change the image while values near 1.0 smooth it a lot.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.5
+		)
+	bpy.utils.register_class(SphericalHarmonicsRenderer)
+
+	SettingsGI.SphericalHarmonicsRenderer= PointerProperty(
+		name= "Spherical Harmonics Renderer",
+		type=  SphericalHarmonicsRenderer,
+		description= "Spherical Harmonics Renderer settings."
 	)
 
-	SettingsGI.primary_engine= EnumProperty(
-		name= "Primary engine",
-		description= "Primary diffuse bounces engines.",
-		items= (
-			('IM', "Irradiance map",      ""), # 0
-			('BF', "Brute force",         ""), # 2
-			('LC', "Light cache",         ""), # 3
-			('SH', "Spherical harmonics", ""), # 4
-		),
-		default= 'IM'
+
+
+	class SphericalHarmonicsExporter(bpy.types.PropertyGroup):
+		mode= EnumProperty(
+			name= "Mode",
+			description= "Allows you to select between four different modes of operation.",
+			items= (
+				('OCC_SEL', "Occlusion (selected)",       ""),
+				('OCC_ALL', "Occlusion",                  ""),
+				('INT_SEL', "Interreflection (selected)", ""),
+				('INT_ALL', "Interreflection",            ""),
+			),
+			default= 'OCC_SEL'
+		)
+
+		# bands
+		bands= IntProperty(
+			name= "Bands",
+			description= "TODO: Tooltip.",
+			min= 0,
+			max= 100,
+			soft_min= 0,
+			soft_max= 10,
+			default= 4
+		)
+
+		# subdivs
+		subdivs= IntProperty(
+			name= "Subdivs",
+			description= "Controls the number of samples taken in order to create the spherical harmonics. Higher values produce better results but take longer to render.",
+			min= 1,
+			max= 1024,
+			soft_min= 1,
+			soft_max= 100,
+			default= 50
+		)
+
+		# bounces
+		bounces= IntProperty(
+			name= "Bounces",
+			description= "This option is only available when one of the interreflection methods is selected. It controls the number of secondary bounces that are going to be traced.",
+			min= 1,
+			max= 100,
+			soft_min= 1,
+			soft_max= 10,
+			default= 1
+		)
+
+		# ray_bias
+		ray_bias= FloatProperty(
+			name= "Ray bias",
+			description= "TODO: Tooltip.",
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 0.1,
+			precision= 4,
+			default= 0.0001
+		)
+
+		# file_name
+		file_name= StringProperty(
+			name= "File",
+			subtype= 'FILE_PATH',
+			description= "TODO: Tooltip.",
+			default= "//lightmaps/harmonics.vrsh"
+		)
+
+		# file_format
+		file_format= EnumProperty(
+			name= "Format",
+			description= "This is the output file format. It could be *.xml for general purposes, V-Ray internal format *.vrsh designed to be used in \"Spherical Harmoics\" GI engine or both of them.",
+			items= (
+				('XML',  "*.xml",  ""),
+				('VRSH', "*.vrsh", ""),
+			),
+			default= 'VRSH'
+		)
+
+		# per_normal
+		per_normal= EnumProperty(
+			name= "Distribute",
+			description= "Spherical harmonics can be created either for each vertex of the geometry or for each normal, this option allows you to choose between those two modes. For round objects it is better to use per Vertex mode while for objects with large flat surfaces the per Normal mode is better and faster.",
+			items= (
+				('NORMAL', "Per normal", ""),
+				('VERTEX', "Per vertex", ""),
+			),
+			default= 'NORMAL'
+		)
+
+		# hit_recording
+		hit_recording= BoolProperty(
+			name= "Use hit recording",
+			description= "Enabling it speeds up the calculations by storing a lot of information in the RAM.",
+			default= False
+		)
+
+		# object_space
+		object_space= EnumProperty(
+			name= "Transform",
+			description= "TODO: Tooltip.",
+			items= (
+				('WORLD',  "World Space",  ""),
+				('OBJECT', "Object Space", ""),
+			),
+			default= 'WORLD'
+		)
+
+		# node
+		node= StringProperty(
+			name= "Node",
+			description= "Node to bake.",
+			default= ""
+		)
+	bpy.utils.register_class(SphericalHarmonicsExporter)
+
+	SettingsGI.SphericalHarmonicsExporter= PointerProperty(
+		name= "Spherical Harmonics Exporter",
+		type=  SphericalHarmonicsExporter,
+		description= "Spherical Harmonics Exporter settings."
 	)
 
-	SettingsGI.secondary_engine= EnumProperty(
-		name= "Secondary engine",
-		description= "Secondary diffuse bounces engines.",
-		items= (
-			('NONE', "None",        ""), # 0
-			('BF',   "Brute force", ""), # 2
-			('LC',   "Light cache", "")  # 3
-		),
-		default= 'LC'
-	)
-
-	SettingsGI.primary_multiplier= FloatProperty(
-		name= "Primary multiplier",
-		description= "This value determines how much primary diffuse bounces contribute to the final image illumination.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	SettingsGI.secondary_multiplier= FloatProperty(
-		name= "Secondary multiplier",
-		description= "This determines the effect of secondary diffuse bounces on the scene illumination.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	SettingsGI.refract_caustics= BoolProperty(
-		name= "Refract caustics",
-		description= "This allows indirect lighting to pass through transparent objects (glass etc).",
-		default= 1
-	)
-
-	SettingsGI.reflect_caustics= BoolProperty(
-		name= "Reflect caustics",
-		description= "This allows indirect light to be reflected from specular objects (mirrors etc).",
-		default= 0
-	)
-
-	SettingsGI.saturation= FloatProperty(
-		name= "Saturation",
-		description= "Controls the saturation of the GI.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	SettingsGI.contrast= FloatProperty(
-		name= "Contrast",
-		description= "This parameter works together with Contrast base to boost the contrast of the GI solution.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
-	)
-
-	SettingsGI.contrast_base= FloatProperty(
-		name= "Contrast base",
-		description= "This parameter determines the base for the contrast boost.",
-		min= 0.0,
-		max= 10.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 0.5
-	)
 
 
 	class SettingsDMCGI(bpy.types.PropertyGroup):
@@ -399,7 +597,8 @@ def add_properties(parent_struct):
 	SettingsIrradianceMap.file= StringProperty(
 		name= "Irradiance map file name",
 		subtype= 'FILE_PATH',
-		description= "Irradiance map file name."
+		description= "Irradiance map file name.",
+		default= "//lightmaps/im.vrim"
 	)
 
 	SettingsIrradianceMap.auto_save= BoolProperty(
@@ -411,7 +610,8 @@ def add_properties(parent_struct):
 	SettingsIrradianceMap.auto_save_file= StringProperty(
 		name= "Irradiance map auto save file",
 		subtype= 'FILE_PATH',
-		description= "Irradiance map auto save file."
+		description= "Irradiance map auto save file.",
+		default= "//lightmaps/auto_im.vrim"
 	)
 
 
@@ -589,7 +789,8 @@ def add_properties(parent_struct):
 	SettingsLightCache.file= StringProperty(
 		name= "Light cache file name",
 		subtype= 'FILE_PATH',
-		description= "Light cache file name."
+		description= "Light cache file name.",
+		default= "//lightmaps/lc.vrlc"
 	)
 
 	SettingsLightCache.auto_save= BoolProperty(
@@ -601,7 +802,8 @@ def add_properties(parent_struct):
 	SettingsLightCache.auto_save_file= StringProperty(
 		name= "Light cache auto save file",
 		subtype= 'FILE_PATH',
-		description= "Light cache auto save file."
+		description= "Light cache auto save file.",
+		default= "//lightmaps/auto.vrlc"
 	)
 
 
