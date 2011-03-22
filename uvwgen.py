@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [18:31]"
+  Time-stamp: "Tuesday, 22 March 2011 [15:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -89,7 +89,7 @@ def write_UVWGenChannel(bus):
 		uvwgen= write_UVWGenProjection(bus)
 
 	else:
-		if slot:
+		if slot and hasattr(slot, 'uv_layer'):
 			uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
