@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Tuesday, 22 March 2011 [16:41]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -274,23 +274,26 @@ def write(bus):
 	TexDirt= getattr(texture.vray, PLUG)
 
 	mapped_params= {}
-	for key in ('white_color_tex','black_color_tex'):
-		key_tex= getattr(TexDirt, key)
-		if key_tex:
-			if key_tex in bpy.data.textures:
-				params['texture']= bpy.data.textures[key_tex]
-				mapped_params[key]= write_texture(bus)
+	# TODO:
+	# for key in ('white_color_tex','black_color_tex'):
+	# 	key_tex= getattr(TexDirt, key)
+	# 	if key_tex:
+	# 		if key_tex in bpy.data.textures:
+	# 			bus['mtex']['texture']= bpy.data.textures[key_tex]
+	# 			mapped_params[key]= write_texture(bus)
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
 		value= getattr(TexDirt, param)
 		if param == 'mode':
 			value= MODE[TexDirt.mode]
-		if param in ('white_color','black_color'):
+
+		elif param in ('white_color','black_color'):
 			key= param+'_tex'
 			if key in mapped_params:
 				value= mapped_params[key]
-			else: pass
+			else:
+				pass
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
