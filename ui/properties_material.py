@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
+  Time-stamp: "Thursday, 24 March 2011 [01:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -53,7 +53,7 @@ def active_node_mat(mat):
 
 class VRAY_MT_preset_material(bpy.types.Menu):
 	bl_label= "Material Presets"
-	preset_subdir= os.path.join("..", "io", "vb25", "presets", "material")
+	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "material")
 	preset_operator = "script.execute_preset"
 	draw = bpy.types.Menu.draw_preset
 

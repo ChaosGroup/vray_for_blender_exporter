@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [10:56]"
+  Time-stamp: "Thursday, 24 March 2011 [01:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -39,14 +39,14 @@ from vb25.plugins import *
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
 	bl_label= "Irradiance Map Presets"
-	preset_subdir= os.path.join("..", "io", "vb25", "presets", "im")
+	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "im")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 
 
 class VRAY_MT_preset_global(bpy.types.Menu):
 	bl_label= "V-Ray Global Presets"
-	preset_subdir= os.path.join("..", "io", "vb25", "presets", "render")
+	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "render")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 
