@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:17]"
+  Time-stamp: "Wednesday, 23 March 2011 [13:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -991,13 +991,14 @@ def write_lamp(bus):
 			ofile.write("\n\tprojector_map= %s;" % textures['color'])
 
 		if lamp.type == 'AREA':
+			ofile.write("\n\tuse_rect_tex= 1;")
 			ofile.write("\n\trect_tex= %s;" % textures['color'])
 
 		elif lamp.type == 'HEMI':
+			ofile.write("\n\tuse_dome_tex= 1;")
 			ofile.write("\n\tdome_tex= %s;" % textures['color'])
 
 		if lamp.type in ('AREA','HEMI'):
-			ofile.write("\n\tuse_rect_tex= 1;")
 			ofile.write("\n\ttex_adaptive= %.2f;" % (1.0))
 			ofile.write("\n\ttex_resolution= %i;" % (512))
 

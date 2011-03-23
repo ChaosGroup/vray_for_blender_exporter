@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:03]"
+  Time-stamp: "Wednesday, 23 March 2011 [13:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -956,6 +956,7 @@ def get_vray_standalone_path(sce):
 				debug(sce, "Searching in: %s" % (var))
 				vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
 				if vray_maya:
+					debug(sce, "V-Ray found in: %s" % (vray_maya))
 					return vray_maya
 
 	debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)

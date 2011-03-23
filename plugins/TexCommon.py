@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:02]"
+  Time-stamp: "Wednesday, 23 March 2011 [14:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -513,7 +513,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 
 		TexPlugin= getattr(VRayTexture, VRayTexture.type) if tex.type == 'VRAY' else None
 
-		if type(idblock) is bpy.types.Material:
+		if issubclass(type(idblock), bpy.types.Material):
 			if wide_ui:
 				layout.prop(VRayTexture, 'texture_coords', expand=True)
 			else:
@@ -586,7 +586,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 			col.prop(VRayTexture, 'uv_noise_levels')
 			col.prop(VRayTexture, 'uv_noise_size')
 
-		elif type(idblock) is bpy.types.World:
+		elif issubclass(type(idblock), bpy.types.World):
 			split= layout.split(percentage=0.3)
 			split.label(text="Projection:")
 			split.prop(VRayTexture, 'environment_mapping', text="")
@@ -597,6 +597,10 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(VRaySlot, 'texture_rotation_v')
+
+		elif issubclass(type(idblock), bpy.types.Lamp):
+			split= layout.split()
+			split.label(text="In progress...")
 
 
 
