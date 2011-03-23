@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:57]"
+  Time-stamp: "Wednesday, 23 March 2011 [13:39]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,6 +32,7 @@ from bpy.props import *
 from vb25.utils   import *
 from vb25.ui.ui   import *
 from vb25.plugins import *
+from vb25.texture import *
 from vb25.uvwgen  import *
 
 TYPE= 'TEXTURE'
@@ -344,6 +345,11 @@ def write(bus):
 	uvwgen= write_uvwgen(bus)
 
 	TexTiles= getattr(texture.vray, PLUG)
+	
+	mapped_keys= ('color_mortar', 'color_tiles')
+	mapped_params= write_sub_textures(bus,
+									  TexTiles,
+									  [key+'_tex' for key in mapped_keys])
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 
@@ -352,10 +358,16 @@ def write(bus):
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
+
 		elif param =='pattern_type':
 			value= PATTERN_TYPE[TexTiles.pattern_type]
+
+		elif param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		else:
 			value= getattr(TexTiles, param)
+
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 
 	ofile.write("\n}\n")

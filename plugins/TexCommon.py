@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [18:44]"
+  Time-stamp: "Wednesday, 23 March 2011 [13:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -156,27 +156,45 @@ def add_properties(rna_pointer):
 	)
 	
 	# color_mult
-	rna_pointer.color_mult= FloatVectorProperty(
+	# rna_pointer.color_mult= FloatVectorProperty(
+	# 	name= "Color mult",
+	# 	description= "A multiplier for the texture color.",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (1,1,1)
+	# )
+	rna_pointer.color_mult= FloatProperty(
 		name= "Color mult",
 		description= "A multiplier for the texture color.",
-		subtype= 'COLOR',
 		min= 0.0,
-		max= 1.0,
+		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (1,1,1)
+		soft_max= 2.0,
+		default= 1.0
 	)
 
 	# color_offset
-	rna_pointer.color_offset= FloatVectorProperty(
+	# rna_pointer.color_offset= FloatVectorProperty(
+	# 	name= "Color offset",
+	# 	description= "An additional offset for the texture color.",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (0,0,0)
+	# )
+	rna_pointer.color_offset= FloatProperty(
 		name= "Color offset",
 		description= "An additional offset for the texture color.",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
+		min= -1.0,
+		max=  1.0,
+		soft_min= -1.0,
 		soft_max= 1.0,
-		default= (0,0,0)
+		default= 0.0
 	)
 
 	# alpha_mult
@@ -186,9 +204,8 @@ def add_properties(rna_pointer):
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
+		soft_max= 2.0,
+		default= 1.0
 	)
 	
 	# alpha_offset
@@ -199,7 +216,6 @@ def add_properties(rna_pointer):
 		max=  1.0,
 		soft_min= -1.0,
 		soft_max= 1.0,
-		precision= 3,
 		default= 0
 	)
 
@@ -447,8 +463,8 @@ def write(bus):
 		ofile.write("\n\tuv_noise_size= %s;" % a(scene, VRayTexture.uv_noise_size))
 
 	ofile.write("\n\tinvert= %s;" % a(scene, VRayTexture.invert))
-	ofile.write("\n\tcolor_mult= %s;" % a(scene, VRayTexture.color_mult))
-	ofile.write("\n\tcolor_offset= %s;" % a(scene, VRayTexture.color_offset))
+	ofile.write("\n\tcolor_mult= %s;" % a(scene, mathutils.Color([VRayTexture.color_mult]*3)))
+	ofile.write("\n\tcolor_offset= %s;" % a(scene, mathutils.Color([VRayTexture.color_offset]*3)))
 	ofile.write("\n\tinvert_alpha= %s;" % a(scene, VRayTexture.invert_alpha))
 	ofile.write("\n\talpha_mult= %s;" % a(scene, VRayTexture.alpha_mult))
 	ofile.write("\n\talpha_offset= %s;" % a(scene, VRayTexture.alpha_offset))
@@ -476,7 +492,9 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image) or tex.use_nodes) and engine_poll(cls, context)
+		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
+													  (tex.type == 'IMAGE' and tex.image) or
+													  tex.use_nodes)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -589,7 +607,9 @@ class VRAY_TP_Tiling(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image)) and engine_poll(cls, context)
+		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
+													  (tex.type == 'IMAGE' and tex.image) or
+													  tex.use_nodes)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -666,7 +686,9 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE') or (tex.type == 'IMAGE' and tex.image) or tex.use_nodes) and engine_poll(cls, context)
+		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
+													  (tex.type == 'IMAGE' and tex.image) or
+													  tex.use_nodes)
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -683,16 +705,16 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 		col= split.column()
 		col.label(text="Color:")
 		sub= col.column(align= True)
-		sub.prop(VRayTexture, 'color_mult', text="")
-		sub.prop(VRayTexture, 'color_offset', text="")
+		sub.prop(VRayTexture, 'color_mult', text="Mult", slider= True)
+		sub.prop(VRayTexture, 'color_offset', text="Offset", slider= True)
 		col.prop(VRayTexture, 'invert')
 		# col.prop(VRayTexture, 'nouvw_color', text="")
 		if wide_ui:
 			col= split.column()
 		col.label(text="Alpha:")
 		sub= col.column(align= True)
-		sub.prop(VRayTexture, 'alpha_mult', text="Mult")
-		sub.prop(VRayTexture, 'alpha_offset', text="Offset")
+		sub.prop(VRayTexture, 'alpha_mult', text="Mult", slider= True)
+		sub.prop(VRayTexture, 'alpha_offset', text="Offset", slider= True)
 		sub= col.column()
 		sub.active= VRayTexture.invert
 		sub.prop(VRayTexture, 'invert_alpha')

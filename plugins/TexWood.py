@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:37]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -85,13 +85,7 @@ def add_properties(rna_pointer):
 		)
 
 		# filler_color_tex
-		filler_color_tex= StringProperty(
-			name= "Filler texture",
-			description= "Filler texture.",
-			default= ""
-		)
-
-		filler_color= FloatVectorProperty(
+		filler_color_tex= FloatVectorProperty(
 			name= "Filler color",
 			description= "Filler color.",
 			subtype= 'COLOR',
@@ -101,15 +95,14 @@ def add_properties(rna_pointer):
 			soft_max= 1.0,
 			default= (0.564694, 0.488278, 0.304942)
 		)
-
-		# vein_color_tex
-		vein_color_tex= StringProperty(
-			name= "Vein texture",
-			description= "Vein texture.",
+		filler_color_tex_tex= StringProperty(
+			name= "Filler texture",
+			description= "Filler texture.",
 			default= ""
 		)
 
-		vein_color= FloatVectorProperty(
+		# vein_color_tex
+		vein_color_tex= FloatVectorProperty(
 			name= "Vein color",
 			description= "Vein color.",
 			subtype= 'COLOR',
@@ -119,6 +112,12 @@ def add_properties(rna_pointer):
 			soft_max= 1.0,
 			default= (0.123518, 0.071829, 0.043644)
 		)
+		vein_color_tex_tex= StringProperty(
+			name= "Vein texture",
+			description= "Vein texture.",
+			default= ""
+		)
+
 
 		# vein_spread
 		vein_spread= FloatProperty(
@@ -169,13 +168,7 @@ def add_properties(rna_pointer):
 		)
 
 		# grain_color_tex
-		grain_color_tex= StringProperty(
-			name= "Grain texture",
-			description= "Grain texture.",
-			default= ""
-		)
-
-		grain_color= FloatVectorProperty(
+		grain_color_tex= FloatVectorProperty(
 			name= "Grain color",
 			description= "Grain color.",
 			subtype= 'COLOR',
@@ -185,6 +178,12 @@ def add_properties(rna_pointer):
 			soft_max= 1.0,
 			default= (0.035282, 0.020518, 0.012467)
 		)
+		grain_color_tex_tex= StringProperty(
+			name= "Grain texture",
+			description= "Grain texture.",
+			default= ""
+		)
+
 
 		# grain_contr
 		grain_contr= FloatProperty(
@@ -354,6 +353,11 @@ def write(bus):
 
 	TexWood= getattr(texture.vray, PLUG)
 
+	mapped_keys= ('filler_color_tex', 'vein_color_tex', 'grain_color_tex')
+	mapped_params= write_sub_textures(bus,
+									  TexWood,
+									  [key+'_tex' for key in mapped_keys])
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
@@ -361,17 +365,13 @@ def write(bus):
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
-		elif param == 'filler_color_tex':
-			value= TexWood.filler_color
-			# Add texture support
-		elif param == 'vein_color_tex':
-			value= TexWood.vein_color
-			# Add texture support
-		elif param == 'grain_color_tex':
-			value= TexWood.grain_color
-			# Add texture support
+
+		elif param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		else:
 			value= getattr(TexWood, param)
+
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 
 	ofile.write("\n}\n")
@@ -402,21 +402,21 @@ class VRAY_TP_TexWood(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		row= split.row(align= True)
-		row.prop(TexWood, 'filler_color', text="")
-		row.prop(TexWood, 'vein_color', text="")
-		row.prop(TexWood, 'grain_color', text="")
+		row.prop(TexWood, 'filler_color_tex', text="")
+		row.prop(TexWood, 'vein_color_tex', text="")
+		row.prop(TexWood, 'grain_color_tex', text="")
 
 		layout.label(text="Textures:")
 
 		split= layout.split()
 		row= split.row(align= True)
-		row.prop_search(TexWood,  'filler_color_tex',
+		row.prop_search(TexWood,  'filler_color_tex_tex',
 						bpy.data, 'textures',
 						text= "")
-		row.prop_search(TexWood,  'vein_color_tex',
+		row.prop_search(TexWood,  'vein_color_tex_tex',
 						bpy.data, 'textures',
 						text= "")
-		row.prop_search(TexWood,  'grain_color_tex',
+		row.prop_search(TexWood,  'grain_color_tex_tex',
 						bpy.data, 'textures',
 						text= "")
 

@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:31]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -24,6 +24,7 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -32,7 +33,9 @@ from bpy.props import *
 from vb25.utils   import *
 from vb25.ui.ui   import *
 from vb25.plugins import *
+from vb25.texture import *
 from vb25.uvwgen  import *
+
 
 TYPE= 'TEXTURE'
 ID=   'TexGradient'
@@ -58,6 +61,7 @@ PARAMS= (
 	'noise_smooth',
 	'uvwgen',
 )
+
 
 def add_properties(rna_pointer):
 	class TexGradient(bpy.types.PropertyGroup):
@@ -266,15 +270,29 @@ def write(bus):
 	uvwgen= write_uvwgen(bus)
 
 	TexGradient= getattr(texture.vray, PLUG)
+
+	mapped_keys= ('color1', 'color2', 'color3')
+	mapped_params= write_sub_textures(bus,
+									  TexGradient,
+									  [key+'_tex' for key in mapped_keys])
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
+
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
+
+		elif param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		elif param == 'type':
 			value= TYPE[TexGradient.type]
+
 		else:
 			value= getattr(TexGradient, param)
+
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 

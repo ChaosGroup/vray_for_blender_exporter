@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -24,6 +24,7 @@
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
 
+
 ''' Blender modules '''
 import bpy
 from bpy.props import *
@@ -32,7 +33,9 @@ from bpy.props import *
 from vb25.utils   import *
 from vb25.ui.ui   import *
 from vb25.plugins import *
+from vb25.texture import *
 from vb25.uvwgen  import *
+
 
 TYPE= 'TEXTURE'
 ID=   'TexMarbleMax'
@@ -48,6 +51,7 @@ PARAMS= (
 	'vein_width',
 	'uvwgen',
 )
+
 
 def add_properties(rna_pointer):
 	class TexMarbleMax(bpy.types.PropertyGroup):
@@ -131,10 +135,19 @@ def write(bus):
 	uvwgen= write_uvwgen(bus)
 
 	TexMarbleMax= getattr(texture.vray, PLUG)
+
+	mapped_params= write_sub_textures(bus,
+									  TexMarbleMax,
+									  ('color1_tex', 'color2_tex'))
+	
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
+
+		elif param in ('color1','color2') and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		else:
 			value= getattr(TexMarbleMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,8 +32,11 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.utils   import *
+from vb25.ui.ui   import *
+from vb25.plugins import *
+from vb25.texture import *
+from vb25.uvwgen  import *
 
 
 TYPE= 'TEXTURE'
@@ -76,6 +79,12 @@ def add_properties(VRayTexture):
 		default= (1,1,1)
 	)
 
+	TexEdges.edges_tex_tex= StringProperty(
+		name= "Edges texture",
+		description= "Edges texture.",
+		default= ""
+	)
+
 	TexEdges.bg_tex= FloatVectorProperty(
 		name= "Background color",
 		description= "Background color.",
@@ -85,6 +94,12 @@ def add_properties(VRayTexture):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		default= (0,0,0)
+	)
+
+	TexEdges.bg_tex_tex= StringProperty(
+		name= "Background texture",
+		description= "Background texture.",
+		default= ""
 	)
 
 	TexEdges.show_hidden_edges= BoolProperty(
@@ -130,6 +145,10 @@ def write(bus):
 
 	TexEdges= getattr(texture.vray, PLUG)
 
+	mapped_params= write_sub_textures(bus,
+									  TexEdges,
+									  ('edges_tex_tex', 'bg_tex_tex'))
+
 	# Write output
 	ofile.write("\n%s %s {" % (PLUG, tex_name))
 	for param in PARAMS:
@@ -140,6 +159,15 @@ def write(bus):
 			else:
 				_param= 'world_width'
 			ofile.write("\n\t%s= %s;"%(_param, a(scene, getattr(TexEdges, 'width'))))
+
+		elif param in ('edges_tex', 'bg_tex'):
+			tex_key= param+'_tex'
+			if tex_key in mapped_params:
+				value= mapped_params[tex_key]
+			else:
+				value= getattr(TexEdges, param)
+			ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
+
 		else:
 			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexEdges, param))))
 	ofile.write("\n}\n")
@@ -163,11 +191,11 @@ class VRAY_TP_TexEdges(VRayTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		tex= context.texture
-		vtex= getattr(tex.vray, PLUG)
+		TexEdges= getattr(tex.vray, PLUG)
 		
 		wide_ui= context.region.width > narrowui
 
@@ -175,20 +203,28 @@ class VRAY_TP_TexEdges(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vtex, 'edges_tex')
+		sub= col.column(align= True)
+		sub.prop(TexEdges, 'edges_tex')
+		sub.prop_search(TexEdges, 'edges_tex_tex',
+						bpy.data, 'textures',
+						text= "")
 		if wide_ui:
 			col= split.column()
-		col.prop(vtex, 'bg_tex')
+		sub= col.column(align= True)
+		sub.prop(TexEdges, 'bg_tex')
+		sub.prop_search(TexEdges, 'bg_tex_tex',
+						bpy.data, 'textures',
+						text= "")
 
 		layout.separator()
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vtex, 'show_hidden_edges')
+		col.prop(TexEdges, 'show_hidden_edges')
 		if wide_ui:
 			col= split.column()
-		col.prop(vtex, 'width_type', text="Type")
-		col.prop(vtex, 'width')
+		col.prop(TexEdges, 'width_type', text="Type")
+		col.prop(TexEdges, 'width')
 
 
 bpy.utils.register_class(VRAY_TP_TexEdges)

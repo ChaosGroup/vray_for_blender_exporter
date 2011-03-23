@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -202,6 +202,11 @@ def write(bus):
 
 	TexNoiseMax= getattr(texture.vray, PLUG)
 
+	mapped_keys= ('color1', 'color2')
+	mapped_params= write_sub_textures(bus,
+									  TexNoiseMax,
+									  [key+'_tex' for key in mapped_keys])
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
@@ -209,10 +214,16 @@ def write(bus):
 	for param in PARAMS:
 		if param == 'type':
 			value= TYPE[TexNoiseMax.type]
+
 		elif param == 'placement_type':
 			value= PLACEMENT_TYPE[TexNoiseMax.placement_type]
+
 		elif param == 'uvwgen':
 			value= uvwgen
+
+		elif param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		else:
 			value= getattr(TexNoiseMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))

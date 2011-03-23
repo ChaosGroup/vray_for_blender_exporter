@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:39]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,8 +32,11 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.utils   import *
+from vb25.ui.ui   import *
+from vb25.plugins import *
+from vb25.texture import *
+from vb25.uvwgen  import *
 
 
 TYPE= 'TEXTURE'
@@ -131,9 +134,22 @@ def write(bus):
 
 	TexFresnel= getattr(texture.vray, PLUG)
 
+	mapped_keys= ('black_color', 'white_color')
+	mapped_params= write_sub_textures(bus,
+									  TexFresnel,
+									  [key+'_tex' for key in mapped_keys])
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
+
 	for param in PARAMS:
-		ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexFresnel, param))))
+		if param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
+		else:
+			value= getattr(TexFresnel, param)
+
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+
 	ofile.write("\n}\n")
 
 	return tex_name

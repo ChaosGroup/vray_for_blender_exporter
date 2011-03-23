@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:12]"
+  Time-stamp: "Wednesday, 23 March 2011 [13:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -51,6 +51,12 @@ from vb25.plugins import *
 
 PLATFORM= sys.platform
 HOSTNAME= socket.gethostname()
+
+PURE_PROCEDURAL= (
+	'TexDirt',
+	'TexEdges',
+	'TexFalloff',
+)
 
 COLOR_TABLE= {
 	'22500': (0.3764,0.5432,1.0000),
@@ -705,8 +711,9 @@ def get_data_by_name(sce, data_type, name):
 		if name in sce.objects:
 			return sce.objects[name]
 	elif data_type in ('textures','materials','meshes'):
-		if name in bpy.data[data_type]:
-			return bpy.data[data_type][name]
+		data_ptr= getattr(bpy.data, data_type)
+		if name in data_ptr:
+			return data_ptr[name]
 	return None
 
 

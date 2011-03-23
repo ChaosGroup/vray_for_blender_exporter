@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [15:47]"
+  Time-stamp: "Wednesday, 23 March 2011 [12:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -160,15 +160,15 @@ def write_factor(bus):
 	tex_name= "TF%sF%s" % (bus['mtex']['name'], clean_string("%.3f" % factor))
 
 	if factor > 1.0:
-		if 1:
+		if 0:
 			ofile.write("\nTexOutput %s {" % tex_name)
 			ofile.write("\n\ttexmap= %s;" % bus['mtex']['name'])
 			ofile.write("\n\tcolor_mult= %s;" % a(scene, "AColor(%.3f,%.3f,%.3f,1.0)" % tuple([factor]*3)))
 			ofile.write("\n}\n")
 		else:
 			ofile.write("\nTexAColorOp %s {" % tex_name)
-			ofile.write("\n\tcolor_a= %s;" % input_texture_name)
-			ofile.write("\n\tmult_a= %s;" % a(sce, mult_value))
+			ofile.write("\n\tcolor_a= %s;" % bus['mtex']['name'])
+			ofile.write("\n\tmult_a= %s;" % a(scene, factor))
 			ofile.write("\n}\n")
 	else:
 		ofile.write("\nTexAColorOp %s {" % tex_name)
@@ -213,6 +213,44 @@ def remove_alpha(bus):
 	ofile.write("\n}\n")
 
 	return tex_name
+
+
+def write_sub_texture(bus, mtex):
+	# Store mtex context
+	context_mtex= bus['mtex']
+
+	bus['mtex']= mtex
+
+	tex_name= write_texture(bus)
+
+	# Restore mtex context
+	bus['mtex']= context_mtex
+
+	return tex_name
+
+
+def write_sub_textures(bus, rna_pointer, params):
+	mapped_params= {}
+	for key in params:
+		sub_tex_name= getattr(rna_pointer, key)
+		if sub_tex_name:
+			scene= bus['scene']
+
+			sub_tex= get_data_by_name(scene, 'textures', sub_tex_name)
+
+			if sub_tex:
+				texture= bus['mtex']['texture']
+
+				mtex= {}
+				mtex['mapto']=   key
+				mtex['slot']=    None
+				mtex['texture']= sub_tex
+				mtex['factor']=  1.0
+				mtex['name']=    clean_string("TE%sST%s" % (texture.name,
+															sub_tex.name))
+
+				mapped_params[key]= write_sub_texture(bus, mtex)
+	return mapped_params
 
 
 '''
@@ -337,22 +375,16 @@ def write_TextureNodeInvert(bus, node, node_params):
 def write_TextureNodeTexture(bus, node, input_params):
 	node_tree= bus['tex_nodes']['node_tree']
 
-	# Store mtex context
-	context_mtex= bus['mtex']
-
-	bus['mtex']= {}
-	bus['mtex']['mapto']=   'node'
-	bus['mtex']['slot']=     None
-	bus['mtex']['texture']=  node.texture
-	bus['mtex']['factor']=   1.0
-	bus['mtex']['name']=     clean_string("NT%sNO%sTE%s" % (node_tree.name,
-															node.name,
-															node.texture.name))
-
-	tex_name= write_texture(bus)
-
-	# Restore mtex context
-	bus['mtex']= context_mtex
+	mtex= {}
+	mtex['mapto']=   'node'
+	mtex['slot']=     None
+	mtex['texture']=  node.texture
+	mtex['factor']=   1.0
+	mtex['name']=     clean_string("NT%sNO%sTE%s" % (node_tree.name,
+													 node.name,
+													 node.texture.name))
+	
+	tex_name= write_sub_texture(bus, mtex)
 
 	return tex_name
 

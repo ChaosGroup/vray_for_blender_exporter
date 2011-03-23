@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -71,13 +71,7 @@ def add_properties(rna_pointer):
 		)
 
 		# color1_tex
-		color1_tex= StringProperty(
-			name= "color1 tex",
-			description= "TODO: Tooltip",
-			default= ""
-		)
-
-		color1= FloatVectorProperty(
+		color1_tex= FloatVectorProperty(
 			name= "First color",
 			description= "First color.",
 			subtype= 'COLOR',
@@ -88,14 +82,14 @@ def add_properties(rna_pointer):
 			default= (1,1,1)
 		)
 
-		# color2_tex
-		color2_tex= StringProperty(
-			name= "color2 tex",
+		color1_tex_tex= StringProperty(
+			name= "color1 tex",
 			description= "TODO: Tooltip",
 			default= ""
 		)
 
-		color2= FloatVectorProperty(
+		# color2_tex
+		color2_tex= FloatVectorProperty(
 			name= "Second color",
 			description= "Second color.",
 			subtype= 'COLOR',
@@ -104,6 +98,11 @@ def add_properties(rna_pointer):
 			soft_min= 0.0,
 			soft_max= 1.0,
 			default= (0,0,0)
+		)
+		color2_tex_tex= StringProperty(
+			name= "color2 tex",
+			description= "TODO: Tooltip",
+			default= ""
 		)
 
 		# grain_size
@@ -166,6 +165,11 @@ def write(bus):
 
 	TexRock= getattr(texture.vray, PLUG)
 
+	mapped_keys= ('color1_tex', 'color2_tex')
+	mapped_params= write_sub_textures(bus,
+									  TexRock,
+									  [key+'_tex' for key in mapped_keys])
+
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
@@ -173,14 +177,13 @@ def write(bus):
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
-		elif param == 'color1_tex':
-			value= TexRock.color1
-			# Add texture support
-		elif param == 'color2_tex':
-			value= TexRock.color2
-			# Add texture support
+
+		elif param in mapped_keys and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
 		else:
 			value= getattr(TexRock, param)
+
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 
 	ofile.write("\n}\n")
@@ -209,14 +212,14 @@ class VRAY_TP_TexRock(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column(align= True)
-		col.prop(TexRock, 'color1')
-		col.prop_search(TexRock,  'color1_tex',
+		col.prop(TexRock, 'color1_tex')
+		col.prop_search(TexRock,  'color1_tex_tex',
 						bpy.data, 'textures',
 						text= "")
 		if wide_ui:
 			col= split.column(align= True)
-		col.prop(TexRock, 'color2')
-		col.prop_search(TexRock,  'color2_tex',
+		col.prop(TexRock, 'color2_tex')
+		col.prop_search(TexRock,  'color2_tex_tex',
 						bpy.data, 'textures',
 						text= "")
 

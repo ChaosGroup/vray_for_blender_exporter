@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [13:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -224,18 +224,28 @@ def write(bus):
 
 	TexFalloff= getattr(texture.vray, PLUG)
 
+	mapped_params= write_sub_textures(bus,
+									  TexFalloff,
+									  ('color1_tex', 'color2_tex'))
+
 	ofile.write("\n%s %s {" % (PLUG, tex_name))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 
 	for param in PARAMS:
 		if param == 'direction_type':
-			ofile.write("\n\t%s= %s;"%(param, DIRECTION_TYPE[TexFalloff.direction_type]))
-		elif param == 'type':
-			ofile.write("\n\t%s= %s;"%(param, TYPE[TexFalloff.type]))
-		else:
-			ofile.write("\n\t%s= %s;"%(param, a(scene, getattr(TexFalloff, param))))
+			value= DIRECTION_TYPE[TexFalloff.direction_type]
 
+		elif param == 'type':
+			value= TYPE[TexFalloff.type]
+
+		elif param in ('color1','color2') and param+'_tex' in mapped_params:
+			value= mapped_params[param+'_tex']
+
+		else:
+			value= getattr(TexFalloff, param)
+		
+		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
 	return tex_name
@@ -257,7 +267,7 @@ class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 			return False
 		vtex= tex.vray
 		engine= context.scene.render.engine
-		return ((tex and tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
+		return ((tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -267,15 +277,17 @@ class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 		TexFalloff= getattr(tex.vray, PLUG)
 
 		split= layout.split()
-		col= split.column(align= True)
-		col.prop(TexFalloff, 'color1')
-		col.prop_search(TexFalloff, 'color1_tex',
+		col= split.column()
+		sub= col.column(align= True)
+		sub.prop(TexFalloff, 'color1')
+		sub.prop_search(TexFalloff, 'color1_tex',
 						bpy.data, 'textures',
 						text= "")
 		if wide_ui:
-			col= split.column(align= True)
-		col.prop(TexFalloff, 'color2')
-		col.prop_search(TexFalloff, 'color2_tex',
+			col= split.column()
+		sub= col.column(align= True)
+		sub.prop(TexFalloff, 'color2')
+		sub.prop_search(TexFalloff, 'color2_tex',
 						bpy.data, 'textures',
 						text= "")
 
