@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:42]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -115,6 +115,32 @@ def add_properties(rna_pointer):
 			max= 40000,
 			step= 100,
 			default= 5000
+		)
+
+		use_include_exclude= BoolProperty(
+			name= "Use Include / Exclude",
+			description= "Use Include / Exclude.",
+			default= False
+		)
+
+		include_exclude= EnumProperty(
+			name= "Type",
+			description= "Include or exclude object from lightning.",
+			items= (
+				('EXCLUDE',"Exclude",""),
+				('INCLUDE',"Include",""),
+			),
+			default= 'EXCLUDE'
+		)
+
+		include_objects= StringProperty(
+			name= "Include objects",
+			description= "Include objects: name{;name;etc}."
+		)
+
+		include_groups= StringProperty(
+			name= "Include groups",
+			description= "Include groups: name{;name;etc}."
 		)
 	bpy.utils.register_class(LightMesh)
 
@@ -230,6 +256,7 @@ def add_properties(rna_pointer):
 	)
 
 
+
 def write(bus):
 	LIGHT_PORTAL= {
 		'NORMAL':  0,
@@ -259,7 +286,7 @@ def write(bus):
 	material= bus['material']['material']
 	textures= bus['textures']
 
-	ofile.write("\nLightMesh %s {" % bus['node']['name'])
+	ofile.write("\nLightMesh %s {" % get_name(ob, prefix='LA'))
 	ofile.write("\n\ttransform= %s;" % a(scene,transform(bus['node']['matrix'])))
 	for param in PARAMS:
 		if param == 'color':

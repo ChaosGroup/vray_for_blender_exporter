@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [16:55]"
+  Time-stamp: "Wednesday, 23 March 2011 [10:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -64,23 +64,24 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		rd=    scene.render
 		VRayScene= scene.vray
 		
-		if VRayScene.image_aspect_lock:
-			rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
+		# if VRayScene.image_aspect_lock:
+		# 	rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
 
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
 		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active = True
 
-		layout.label(text="Resolution:")
 		
 		split= layout.split()
 		col= split.column()
+		col.label(text="Resolution:")
 		sub= col.column(align=True)
 		sub.prop(rd, "resolution_x", text="X")
-		sub_aspect= sub.column()
-		sub_aspect.active= not VRayScene.image_aspect_lock
-		sub_aspect.prop(rd, "resolution_y", text="Y")
+		sub.prop(rd, "resolution_y", text="Y")
+		# sub_aspect= sub.column()
+		# sub_aspect.active= not VRayScene.image_aspect_lock
+		# sub_aspect.prop(rd, "resolution_y", text="Y")
 		sub.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
 		sub.prop(rd, "resolution_percentage", text="")
 
@@ -93,24 +94,24 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 
-		sub = col.column(align=True)
-		sub.prop(VRayScene, "image_aspect_lock", text="Image aspect")
-		if VRayScene.image_aspect_lock:
-			sub.prop(VRayScene, "image_aspect")
-		sub.label(text="Pixel aspect:")
-		sub.prop(rd, "pixel_aspect_x", text="X")
-		sub.prop(rd, "pixel_aspect_y", text="Y")
+		# sub = col.column(align=True)
+		# sub.prop(VRayScene, "image_aspect_lock", text="Image aspect")
+		# if VRayScene.image_aspect_lock:
+		# 	sub.prop(VRayScene, "image_aspect")
+		# sub.label(text="Pixel aspect:")
+		# sub.prop(rd, "pixel_aspect_x", text="X")
+		# sub.prop(rd, "pixel_aspect_y", text="Y")
 
-		split= layout.split()
-		col = split.column()
+		# split= layout.split()
+		# col = split.column()
 		sub = col.column(align=True)
 		sub.label(text="Frame Range:")
 		sub.prop(scene, "frame_start", text="Start")
 		sub.prop(scene, "frame_end", text="End")
 		sub.prop(scene, "frame_step", text="Step")
 
-		if wide_ui:
-			col= split.column()
+		# if wide_ui:
+		# 	col= split.column()
 
 		sub = col.column(align=True)
 		sub.label(text="Frame Rate:")

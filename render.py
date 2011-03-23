@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 22 March 2011 [01:23]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1065,8 +1065,11 @@ def write_node(bus):
 	SettingsOptions= VRayScene.SettingsOptions
 
 	lights= []
-	for lamp in [ob for ob in scene.objects if ob.type == 'LAMP']:
-		VRayLamp= lamp.data.vray
+	for lamp in [ob for ob in scene.objects if ob.type == 'LAMP' or ob.vray.LightMesh.use]:
+		if ob.type == 'LAMP':
+			VRayLamp= lamp.data.vray
+		else:
+			VRayLamp= ob.vray.LightMesh
 		lamp_name= get_name(lamp, prefix='LA')
 		if not object_on_visible_layers(scene,lamp) or lamp.hide_render:
 			if not scene.vray.SettingsOptions.light_doHiddenLights:
@@ -1075,12 +1078,12 @@ def write_node(bus):
 			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
 			if VRayLamp.include_exclude == 'INCLUDE':
 				if ob in object_list:
-					lights.append(lamp_name)
+					append_unique(lights, lamp_name)
 			else:
 				if ob not in object_list:
-					lights.append(lamp_name)
+					append_unique(lights, lamp_name)
 		else:
-			lights.append(lamp_name)
+			append_unique(lights, lamp_name)
 
 	node_name= bus['node']['name']
 	matrix=    bus['node']['matrix']

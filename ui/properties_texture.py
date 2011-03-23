@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [17:52]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -299,7 +299,7 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 		col.prop(BitmapBuffer, 'use_data_window')
 
 
-import properties_texture
+from bl_ui import properties_texture
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture

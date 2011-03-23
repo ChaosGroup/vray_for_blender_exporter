@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -34,7 +34,7 @@ import bpy
 from vb25.ui.ui import *
 
 
-import properties_data_mesh
+from bl_ui import properties_data_mesh
 for member in dir(properties_data_mesh):
 	subclass= getattr(properties_data_mesh, member)
 	try:

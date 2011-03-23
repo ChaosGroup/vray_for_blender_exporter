@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [12:34]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -83,7 +83,7 @@ VRayParticleSettings.VRayFur= bpy.props.PointerProperty(
 )
 
 
-import properties_particle
+from bl_ui import properties_particle
 for member in dir(properties_particle):
 	subclass= getattr(properties_particle, member)
 	try:

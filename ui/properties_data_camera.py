@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [07:33]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -35,7 +35,7 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-import properties_data_camera
+from bl_ui import properties_data_camera
 properties_data_camera.DATA_PT_context_camera.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_data_camera.DATA_PT_context_camera.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add('VRAY_RENDER')

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 22 March 2011 [16:40]"
+  Time-stamp: "Wednesday, 23 March 2011 [10:54]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -84,7 +84,7 @@ def write_UVWGenChannel(bus):
 	uvw_channel= 1
 	uvwgen=      None
 
-	if VRayTexture.texture_coords == 'ORCO' not (slot and type(slot) is not bpy.types.LampTextureSlot):
+	if VRayTexture.texture_coords == 'ORCO':
 		uvwgen= write_UVWGenProjection(bus)
 
 	else:

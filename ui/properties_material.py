@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 16 March 2011 [19:47]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -36,7 +36,7 @@ from vb25.ui.ui import *
 from vb25.plugins import *
 
 
-import properties_material
+from bl_ui import properties_material
 properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_material
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 18 March 2011 [16:40]"
+  Time-stamp: "Wednesday, 23 March 2011 [11:04]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -327,3 +327,17 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 		col.prop(LightMesh, 'noDecay')
 		col.prop(LightMesh, 'doubleSided')
 		col.prop(LightMesh, 'storeWithIrradianceMap')
+
+		layout.separator()
+		layout.prop(LightMesh, 'use_include_exclude')
+
+		if LightMesh.use_include_exclude:
+			split= layout.split()
+			col= split.column()
+			col.prop(LightMesh, 'include_exclude')
+			col.prop_search(LightMesh,     'include_objects',
+							context.scene, 'objects',
+							text="Objects")
+			col.prop_search(LightMesh, 'include_groups',
+							bpy.data,  'groups',
+							text="Groups")
