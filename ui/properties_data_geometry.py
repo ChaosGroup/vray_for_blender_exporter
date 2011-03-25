@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
+  Time-stamp: "Friday, 25 March 2011 [14:19]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -45,8 +45,8 @@ for member in dir(properties_data_mesh):
 del properties_data_mesh
 
 
-class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
-	bl_label   = "Proxy"
+class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -56,64 +56,76 @@ class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
 		return (context.mesh and engine_poll(__class__, context))
 
 	def draw_header(self, context):
-		ob= context.mesh.vray.GeomMeshFile
-		self.layout.prop(ob, 'use', text="")
+		ob= context.mesh.vray
+		self.layout.prop(ob, 'override', text="")
 
 	def draw(self, context):
-		layout= self.layout
-
 		wide_ui= context.region.width > narrowui
 
-		GeomMeshFile= context.mesh.vray.GeomMeshFile
+		layout= self.layout
 
-		split= layout.split()
-		split.active= GeomMeshFile.use
-		col= split.column()
-		col.prop(GeomMeshFile, 'file')
-		col.prop(GeomMeshFile, 'anim_type')
+		VRayMesh= context.mesh.vray
 
-		split= layout.split()
-		split.active= GeomMeshFile.use
-		col= split.column(align=True)
-		col.prop(GeomMeshFile, 'anim_speed')
-		if wide_ui:
-			col= split.column()
-		col.prop(GeomMeshFile, 'anim_offset')
+		layout.active= VRayMesh.override
 
-		layout.separator()
-		
-		split= layout.split()
-		col= split.column()
-		col.label(text="Proxy generation:")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomMeshFile, 'dirpath')
-		col.prop(GeomMeshFile, 'filename')
-		col.separator()
-		col.prop(GeomMeshFile, 'mode', text="Attach mode")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomMeshFile, 'animation')
-		sub= col.column()
-		sub.active= GeomMeshFile.animation
-		sub_inactive= sub.column()
-		sub_inactive.active= False
-		sub_inactive.prop(GeomMeshFile, 'add_velocity')
-		sub.prop(GeomMeshFile, 'animation_range', text="Range")
-		if GeomMeshFile.animation_range == 'MANUAL':
-			sub= sub.column(align=True)
-			sub.prop(GeomMeshFile, 'frame_start')
-			sub.prop(GeomMeshFile, 'frame_end')
-		if wide_ui:
-			col= split.column()
-		col.prop(GeomMeshFile, 'add_suffix')
-		col.prop(GeomMeshFile, 'apply_transforms')
+		layout.prop(VRayMesh, 'override_type', expand= True)
 
 		layout.separator()
 
-		split= layout.split()
-		col= split.column()
-		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
+		if VRayMesh.override_type == 'PROC':
+			split= layout.split()
+			col= split.column()
+			col.prop(VRayMesh, 'procedural_mesh', text="Type")
+
+		elif VRayMesh.override_type == 'PROXY':
+			GeomMeshFile= VRayMesh.GeomMeshFile
+
+			split= layout.split()
+			col= split.column()
+			col.prop(GeomMeshFile, 'file')
+			col.prop(GeomMeshFile, 'anim_type')
+
+			split= layout.split()
+			col= split.column(align=True)
+			col.prop(GeomMeshFile, 'anim_speed')
+			if wide_ui:
+				col= split.column()
+			col.prop(GeomMeshFile, 'anim_offset')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.label(text="Proxy generation:")
+
+			split= layout.split()
+			col= split.column()
+			col.prop(GeomMeshFile, 'dirpath')
+			col.prop(GeomMeshFile, 'filename')
+			col.separator()
+			col.prop(GeomMeshFile, 'mode', text="Attach mode")
+
+			split= layout.split()
+			col= split.column()
+			col.prop(GeomMeshFile, 'animation')
+			sub= col.column()
+			sub.active= GeomMeshFile.animation
+			sub_inactive= sub.column()
+			sub_inactive.active= False
+			sub_inactive.prop(GeomMeshFile, 'add_velocity')
+			sub.prop(GeomMeshFile, 'animation_range', text="Range")
+			if GeomMeshFile.animation_range == 'MANUAL':
+				sub= sub.column(align=True)
+				sub.prop(GeomMeshFile, 'frame_start')
+				sub.prop(GeomMeshFile, 'frame_end')
+			if wide_ui:
+				col= split.column()
+			col.prop(GeomMeshFile, 'add_suffix')
+			col.prop(GeomMeshFile, 'apply_transforms')
+
+			layout.separator()
+
+			split= layout.split()
+			col= split.column()
+			col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
 

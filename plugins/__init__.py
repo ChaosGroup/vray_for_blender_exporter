@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:02]"
+  Time-stamp: "Friday, 25 March 2011 [14:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -127,7 +127,30 @@ def add_properties():
 	bpy.utils.register_class(VRayObject)
 
 	class VRayMesh(bpy.types.PropertyGroup):
-		pass
+		override= BoolProperty(
+			name= "Override",
+			description= "Override mesh.",
+			default= False
+		)
+
+		override_type= EnumProperty(
+			name= "Override",
+			description= "Override mesh type.",
+			items= (
+				('PROXY', "Proxy",      ""),
+				('PROC',  "Procedural", ""),
+			),
+			default= 'PROXY'
+		)
+
+		procedural_mesh= EnumProperty(
+			name= "Procedural mesh",
+			description= "Replace mesh with procedural mesh.",
+			items= (
+				('PLANE', "Infinite plane", ""),
+			),
+			default= 'PLANE'
+		)
 	bpy.utils.register_class(VRayMesh)
 
 	class VRayMaterial(bpy.types.PropertyGroup):

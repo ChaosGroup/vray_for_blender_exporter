@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:58]"
+  Time-stamp: "Friday, 25 March 2011 [16:31]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -499,7 +499,7 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 def write_settings(bus):
 	ofile= bus['files']['scene']
 	scene= bus['scene']
-	
+
 	VRayScene=      scene.vray
 	VRayExporter=   VRayScene.exporter
 	VRayDR=         VRayScene.VRayDR
@@ -548,8 +548,30 @@ def write_settings(bus):
 				if plugin:
 					plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
 
+	# Preview settings are in different parts of the file,
+	# because smth must be set before and smth after.
 	if bus['preview']:
 		# Material / texture preview settings
+		mode= 'MATERIAL'
+		tex_name= "Color(0.5,0.5,0.5)"
+		for ob in scene.objects:
+			if ob.name == 'texture' and ob.is_visible(scene):
+				mode= 'TEXTURE'
+				tex_name= clean_string("MT00TE%s" % ob.material_slots[0].material.texture_slots[0].texture.name)
+				break
+
+		# For texture preview we need to set testure as Diffuse
+		# no matter how it's used in material.
+		if mode == 'TEXTURE':
+			bus['files']['scene'].write("\n// Texture preview material")
+			bus['files']['scene'].write("\nBRDFDiffuse BRDFtexture {")
+			bus['files']['scene'].write("\n\tcolor_tex= %s;" % tex_name)
+			bus['files']['scene'].write("\n}\n")
+			bus['files']['scene'].write("\nMtlSingleBRDF MAtexture {")
+			bus['files']['scene'].write("\n\tbrdf= BRDFtexture;")
+			bus['files']['scene'].write("\n}\n")
+
+		bus['files']['scene'].write("\n// Preview settings")
 		bus['files']['scene'].write("\nSettingsColorMapping {")
 		bus['files']['scene'].write("\n\ttype= 1;")
 		bus['files']['scene'].write("\n\tsubpixel_mapping= 0;")
@@ -574,8 +596,6 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\ttype= 0;") # Fastest result, but no AA :(
 		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
 		bus['files']['scene'].write("\n}\n")
-
-	ofile.write("\n")
 
 
 
@@ -1140,8 +1160,16 @@ def write_object(bus):
 	# Write object materials
 	write_materials(bus)
 
-	# VRayProxy
-	PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
+	# Write override mesh
+	if VRayData.override:
+		if VRayData.override_type == 'PROXY':
+			# VRayProxy
+			PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
+
+		elif VRayData.override_type == 'PROC':
+			if VRayData.procedural_mesh == 'PLANE':
+				bus['node']['geometry']= get_name(ob, prefix='PROCEDURAL')
+				PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
 
 	# Displace
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
@@ -1381,8 +1409,8 @@ def write_scene(bus):
 	bus['files']['lights'].write("\n// Lights\n")
 	bus['files']['camera'].write("\n// Camera\n")
 	bus['files']['environment'].write("\n// Environment\n")
-	bus['files']['materials'].write("\n// Materials\n")
 	bus['files']['textures'].write("\n// Textures\n")
+	bus['files']['materials'].write("\n// Materials\n")
 
 	bus['files']['textures'].write("\n// Useful defaults")
 	bus['files']['textures'].write("\nUVWGenChannel %s {" % bus['defaults']['uvwgen'])
@@ -1392,17 +1420,19 @@ def write_scene(bus):
 	bus['files']['textures'].write("\nTexChecker %s {" % bus['defaults']['texture'])
 	bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n}\n")
-	bus['files']['textures'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
-	bus['files']['textures'].write("\n\tcolor=Color(0.5,0.5,0.5);")
-	bus['files']['textures'].write("\n}\n")
-	bus['files']['textures'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
-	bus['files']['textures'].write("\n\tbrdf= %s;" % bus['defaults']['brdf'])
-	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\nTexAColor %s {" % bus['defaults']['blend'])
 	bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	bus['files']['textures'].write("\n}\n")
 	bus['files']['textures'].write("\n// Scene textures")
+	bus['files']['materials'].write("\n// Fail-safe material")
+	bus['files']['materials'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
+	bus['files']['materials'].write("\n\tcolor=Color(0.5,0.5,0.5);")
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
+	bus['files']['materials'].write("\n\tbrdf= %s;" % bus['defaults']['brdf'])
+	bus['files']['materials'].write("\n}\n")
+	bus['files']['materials'].write("\n// Materials")
 
 	if bus['preview']:
 		bus['files']['lights'].write("\nLightDirectMax LALamp_008 { // PREVIEW")
@@ -1534,6 +1564,7 @@ def write_scene(bus):
 		bus['cache']['textures']=  []
 		bus['cache']['materials']= []
 		bus['cache']['displace']=  []
+		bus['cache']['proxy']=     []
 
 		bus['filter']= {} # TODO: Rename!
 		bus['filter']['proxy']=    []

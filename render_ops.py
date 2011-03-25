@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [13:07]"
+  Time-stamp: "Friday, 25 March 2011 [16:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -915,7 +915,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER_PREVIEW'
 	bl_label       = "%s (material preview)" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview = True
-	
+
 	def render(self, scene):
 		VRayScene= scene.vray
 		VRayExporter= VRayScene.exporter

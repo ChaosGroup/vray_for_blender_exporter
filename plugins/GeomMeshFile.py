@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [14:01]"
+  Time-stamp: "Friday, 25 March 2011 [14:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -206,25 +206,34 @@ def write(bus):
 
 	if hasattr(VRayData,'GeomMeshFile'):
 		GeomMeshFile= VRayData.GeomMeshFile
-		if VRayData.GeomMeshFile.use:
-			proxy_filename= os.path.basename(os.path.normpath(bpy.path.abspath(GeomMeshFile.file)))[:-7]
-			proxy_name= "PR%s" % clean_string(proxy_filename)
 
-			if GeomMeshFile.anim_type not in ('STILL'):
-				proxy_name= "OB%sPR%s" % (clean_string(ob.data.name),
-										  clean_string(proxy_filename))
+		if not GeomMeshFile.file:
+			debug(scene, "Object: %s => Proxy file is not set!" % (ob.name), error= True)
+			return bus['node']['geometry']
 
-			if proxy_name in bus['filter']['proxy']:
-				bus['node']['geometry']= proxy_name
-				return proxy_name
-			bus['filter']['proxy'].append(proxy_name)
+		proxy_filepath= os.path.normpath(bpy.path.abspath(GeomMeshFile.file))
 
-			ofile.write("\nGeomMeshFile %s {" % proxy_name)
-			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
-			ofile.write("\n\tanim_speed= %i;" % GeomMeshFile.anim_speed)
-			ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[GeomMeshFile.anim_type])
-			ofile.write("\n\tanim_offset= %i;" % (GeomMeshFile.anim_offset - 1))
-			ofile.write("\n}\n")
+		if not os.path.exists(proxy_filepath):
+			debug(scene, "Object: %s => Proxy file doesn\'t exist!" % (ob.name), error= True)
+			return bus['node']['geometry']
 
-			bus['node']['geometry']= proxy_name
+		proxy_filename= os.path.basename(proxy_filepath)[:-7]
+		proxy_name= "PR%s" % clean_string(proxy_filename)
+
+		if GeomMeshFile.anim_type not in ('STILL'):
+			proxy_name= "OB%sPR%s" % (clean_string(ob.data.name),
+									  clean_string(proxy_filename))
+
+		if not append_unique(bus['cache']['proxy'], proxy_name):
 			return proxy_name
+
+		ofile.write("\nGeomMeshFile %s {" % proxy_name)
+		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
+		ofile.write("\n\tanim_speed= %i;" % GeomMeshFile.anim_speed)
+		ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[GeomMeshFile.anim_type])
+		ofile.write("\n\tanim_offset= %i;" % (GeomMeshFile.anim_offset - 1))
+		ofile.write("\n}\n")
+
+		bus['node']['geometry']= proxy_name
+
+		return proxy_name
