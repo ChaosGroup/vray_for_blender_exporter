@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:38]"
+  Time-stamp: "Friday, 25 March 2011 [16:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -76,9 +76,9 @@ def add_properties(rna_pointer):
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 1.0,
-		precision= 3,
-		default= 0.2
+		soft_max= 0.2,
+		precision= 4,
+		default= 0.02
 	)
 
 	BRDFBump.bump_shadows= BoolProperty(
