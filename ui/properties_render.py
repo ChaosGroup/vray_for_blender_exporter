@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 24 March 2011 [01:08]"
+  Time-stamp: "Friday, 25 March 2011 [17:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -507,28 +507,22 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		vs= context.scene.vray
-		module= vs.SettingsGI
-
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(module,'preset')
-		
-		# layout.separator()
+		VRayScene=  context.scene.vray
+		SettingsGI= VRayScene.SettingsGI
 
 		split= layout.split()
 		col= split.column()
 		col.label(text="GI caustics:")
 		sub= col.column()
-		sub.prop(module, "reflect_caustics", text="Reflect")
-		sub.prop(module, "refract_caustics", text="Refract")
+		sub.prop(SettingsGI, "reflect_caustics", text="Reflect")
+		sub.prop(SettingsGI, "refract_caustics", text="Refract")
 		if wide_ui:
 			col= split.column()
 		col.label(text="Post-processing:")
 		sub= col.column()
-		sub.prop(module, "saturation")
-		sub.prop(module, "contrast")
-		sub.prop(module, "contrast_base")
+		sub.prop(SettingsGI, "saturation")
+		sub.prop(SettingsGI, "contrast")
+		sub.prop(SettingsGI, "contrast_base")
 
 		layout.label(text="Primary engine:")
 		if wide_ui:
@@ -536,21 +530,46 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 		else:
 			split= layout.split()
 		col= split.column()
-		col.prop(module, "primary_multiplier", text="Mult")
+		col.prop(SettingsGI, "primary_multiplier", text="Mult")
 		if wide_ui:
 			col= split.column()
-		col.prop(module, "primary_engine", text="")
+		col.prop(SettingsGI, "primary_engine", text="")
 
-		layout.label(text="Secondary engine:")
-		if wide_ui:
-			split= layout.split(percentage=0.35)
-		else:
+		if SettingsGI.primary_engine != 'SH':
+			layout.label(text="Secondary engine:")
+			if wide_ui:
+				split= layout.split(percentage=0.35)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.prop(SettingsGI, "secondary_multiplier", text="Mult")
+			if wide_ui:
+				col= split.column()
+			col.prop(SettingsGI, "secondary_engine", text="")
+
+
+		layout.separator()
+
+		layout.prop(SettingsGI, 'ao_on', text="Ambient occlusion")
+		if SettingsGI.ao_on:
 			split= layout.split()
+			col= split.column()
+			col.prop(SettingsGI, 'ao_amount', slider= True)
+			if wide_ui:
+				col= split.column()
+			col.prop(SettingsGI, 'ao_radius')
+			col.prop(SettingsGI, 'ao_subdivs')
+
+		layout.separator()
+
+		split= layout.split()
 		col= split.column()
-		col.prop(module, "secondary_multiplier", text="Mult")
+		col.prop(SettingsGI, 'ray_distance_on')
 		if wide_ui:
 			col= split.column()
-		col.prop(module, "secondary_engine", text="")
+		sub= col.column()
+		sub.active= SettingsGI.ray_distance_on
+		sub.prop(SettingsGI, 'ray_distance')
 
 
 class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
@@ -751,7 +770,7 @@ class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		module= context.scene.vray.SettingsGI
-		return engine_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF')
+		return engine_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF') and (module.primary_engine != 'SH')
 
 	def draw(self, context):
 		layout= self.layout
@@ -778,7 +797,7 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 	@classmethod
 	def poll(cls, context):
 		module= context.scene.vray.SettingsGI
-		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC'))
+		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC')) and (module.primary_engine != 'SH')
 
 	def draw(self, context):
 		layout= self.layout

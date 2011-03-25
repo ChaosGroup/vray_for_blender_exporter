@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:52]"
+  Time-stamp: "Friday, 25 March 2011 [17:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -735,6 +735,11 @@ def create_dir(directory):
 			debug(None, "Using default exporting path: %s" % directory)
 	return directory
 
+def create_dir_from_filepath(filepath):
+	file_path, file_name= os.path.split(bpy.path.abspath(filepath))
+	file_path= create_dir(file_path)
+	return os.path.join(file_path, file_name)
+
 
 # Get full filepath
 # Also copies file to DR shared folder
@@ -1053,7 +1058,7 @@ def init_files(bus):
 	bus['filenames']['output_loadfile']=  "%s.%s" % (load_file_name, ext)
 
 	# Lightmaps path
-	# bus['filenames']['lightmaps']= default_dir
+	# bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
 
 	if VRayExporter.debug:
 		debug(scene, "Files:")

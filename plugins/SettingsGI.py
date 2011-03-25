@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [17:33]"
+  Time-stamp: "Friday, 25 March 2011 [17:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,7 +32,7 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-import vb25.utils
+from vb25.utils import *
 
 
 TYPE= 'SETTINGS'
@@ -53,14 +53,65 @@ def add_properties(parent_struct):
 			default= False
 		)
 
-		spherical_harmonics= EnumProperty(
-			name= "Spherical harmonics",
-			description= "Bake or render spherical harmonics.",
-			items= (
-				('BAKE',   "Bake",   ""),
-				('RENDER', "Render", ""),
-			),
-			default= 'BAKE'
+		# ray_distance_on
+		ray_distance_on= BoolProperty(
+			name= "Limit ray distance",
+			description= "Limit ray distance.",
+			default= False
+		)
+
+		# ray_distance
+		ray_distance= FloatProperty(
+			name= "Distance",
+			description= "Ray distance limit.",
+			min= 0.0,
+			max= 1000000.0,
+			soft_min= 0.0,
+			soft_max= 1000000.0,
+			precision= 1,
+			default= 100000
+		)
+
+		# ao_on
+		ao_on= BoolProperty(
+			name= "AO",
+			description= "TODO: Tooltip.",
+			default= False
+		)
+
+		# ao_amount
+		ao_amount= FloatProperty(
+			name= "Amount",
+			description= "TODO: Tooltip.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
+		# ao_radius
+		ao_radius= FloatProperty(
+			name= "Radius",
+			description= "TODO: Tooltip.",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			precision= 3,
+			default= 0.2
+		)
+
+		# ao_subdivs
+		ao_subdivs= IntProperty(
+			name= "Subdivs",
+			description= "TODO: Tooltip.",
+			min= 0,
+			max= 100,
+			soft_min= 0,
+			soft_max= 10,
+			default= 8
 		)
 
 		primary_engine= EnumProperty(
@@ -146,6 +197,16 @@ def add_properties(parent_struct):
 			soft_min= 0.0,
 			soft_max= 1.0,
 			default= 0.5
+		)
+
+		spherical_harmonics= EnumProperty(
+			name= "Spherical harmonics",
+			description= "Bake or render spherical harmonics.",
+			items= (
+				('BAKE',   "Bake",   ""),
+				('RENDER', "Render", ""),
+			),
+			default= 'BAKE'
 		)
 	bpy.utils.register_class(SettingsGI)
 
@@ -234,7 +295,7 @@ def add_properties(parent_struct):
 				('INT_SEL', "Interreflection (selected)", ""),
 				('INT_ALL', "Interreflection",            ""),
 			),
-			default= 'OCC_SEL'
+			default= 'OCC_ALL'
 		)
 
 		# bands
@@ -984,71 +1045,110 @@ def write(bus):
 	}
 
 	if SettingsGI.on:
-		ofile.write("\nSettingsGI SettingsGI {")
-		ofile.write("\n\ton= 1;")
-		ofile.write("\n\tprimary_engine= %s;" % PRIMARY_ENGINE[SettingsGI.primary_engine])
-		ofile.write("\n\tsecondary_engine= %s;" % SECONDARY_ENGINE[SettingsGI.secondary_engine])
-		ofile.write("\n\tprimary_multiplier= %.3f;" % SettingsGI.primary_multiplier)
-		ofile.write("\n\tsecondary_multiplier= %.3f;" % SettingsGI.secondary_multiplier)
-		ofile.write("\n\treflect_caustics= %i;" % SettingsGI.reflect_caustics)
-		ofile.write("\n\trefract_caustics= %i;" % SettingsGI.refract_caustics)
-		ofile.write("\n\tsaturation= %.3f;" % SettingsGI.saturation)
-		ofile.write("\n\tcontrast= %.3f;" % SettingsGI.contrast)
-		ofile.write("\n\tcontrast_base= %.3f;" % SettingsGI.contrast_base)
-		ofile.write("\n}\n")
+		if SettingsGI.primary_engine == 'SH' and SettingsGI.spherical_harmonics == 'BAKE':
+			SH_MODE= {
+				'OCC_SEL': 0,
+				'OCC_ALL': 1,
+				'INT_SEL': 2,
+				'INT_ALL': 3,
+			}
+			FILE_FORMAT= {
+				'XML': "xml",
+				'VRSH': "vrsh",
+			}
 
-		ofile.write("\nSettingsIrradianceMap SettingsIrradianceMap {")
-		ofile.write("\n\tmin_rate= %i;" % SettingsIrradianceMap.min_rate)
-		ofile.write("\n\tmax_rate= %i;" % SettingsIrradianceMap.max_rate)
-		ofile.write("\n\tsubdivs= %i;" % SettingsIrradianceMap.subdivs)
-		ofile.write("\n\tinterp_samples= %i;" % SettingsIrradianceMap.interp_samples)
-		ofile.write("\n\tinterp_frames= %i;" % SettingsIrradianceMap.interp_frames)
-		ofile.write("\n\tcalc_interp_samples= %i;" % SettingsIrradianceMap.calc_interp_samples)
-		ofile.write("\n\tcolor_threshold= %.6f;" % SettingsIrradianceMap.color_threshold)
-		ofile.write("\n\tnormal_threshold= %.6f;" % SettingsIrradianceMap.normal_threshold)
-		ofile.write("\n\tdistance_threshold= %.6f;" % SettingsIrradianceMap.distance_threshold)
-		ofile.write("\n\tdetail_enhancement= %i;" % SettingsIrradianceMap.detail_enhancement)
-		ofile.write("\n\tdetail_radius= %.6f;" % SettingsIrradianceMap.detail_radius)
-		ofile.write("\n\tdetail_subdivs_mult= %.6f;" % SettingsIrradianceMap.detail_subdivs_mult)
-		ofile.write("\n\tdetail_scale= %i;" % WORLD_SCALE[SettingsIrradianceMap.detail_scale])
-		ofile.write("\n\tinterpolation_mode= %i;" % INTERPOLATION_MODE[SettingsIrradianceMap.interpolation_mode])
-		ofile.write("\n\tlookup_mode= %i;" % LOOKUP_MODE[SettingsIrradianceMap.lookup_mode])
-		ofile.write("\n\tshow_calc_phase= %i;" % SettingsIrradianceMap.show_calc_phase)
-		ofile.write("\n\tshow_direct_light= %i;" % SettingsIrradianceMap.show_direct_light)
-		ofile.write("\n\tshow_samples= %i;" % SettingsIrradianceMap.show_samples)
-		ofile.write("\n\tmultipass= %i;" % SettingsIrradianceMap.multipass)
-		ofile.write("\n\tcheck_sample_visibility= %i;" % SettingsIrradianceMap.check_sample_visibility)
-		ofile.write("\n\trandomize_samples= %i;" % SettingsIrradianceMap.randomize_samples)
-		ofile.write("\n\tmode= %d;" % IM_MODE[SettingsIrradianceMap.mode])
-		ofile.write("\n\tauto_save= %d;" % SettingsIrradianceMap.auto_save)
-		ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.auto_save_file))
-		ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.file))
-		ofile.write("\n\tdont_delete= false;")
-		ofile.write("\n}\n")
+			SphericalHarmonicsExporter= SettingsGI.SphericalHarmonicsExporter
 
-		ofile.write("\nSettingsDMCGI SettingsDMCGI {")
-		ofile.write("\n\tsubdivs= %i;" % SettingsDMCGI.subdivs)
-		ofile.write("\n\tdepth= %i;" % SettingsDMCGI.depth)
-		ofile.write("\n}\n")
+			ofile.write("\nSphericalHarmonicsExporter SphericalHarmonicsExporter {")
+			ofile.write("\n\tmode= %i;" % SH_MODE[SphericalHarmonicsExporter.mode])
+			ofile.write("\n\tbands= %s;" % p(SphericalHarmonicsExporter.bands))
+			ofile.write("\n\tsubdivs= %s;" % p(SphericalHarmonicsExporter.subdivs))
+			ofile.write("\n\tbounces= %s;" % p(SphericalHarmonicsExporter.bounces))
+			ofile.write("\n\tray_bias= %s;" % p(SphericalHarmonicsExporter.ray_bias))
+			ofile.write("\n\tfile_name= \"%s\";" % create_dir_from_filepath(SphericalHarmonicsExporter.file_name))
+			ofile.write("\n\tfile_format= \"%s\";" % FILE_FORMAT[SphericalHarmonicsExporter.file_format])
+			ofile.write("\n\tper_normal= %s;" % p(SphericalHarmonicsExporter.per_normal))
+			ofile.write("\n\thit_recording= %s;" % p(SphericalHarmonicsExporter.hit_recording))
+			ofile.write("\n\tobject_space= %s;" % p(SphericalHarmonicsExporter.object_space))
+			if SphericalHarmonicsExporter.node:
+				node= get_data_by_name(scene, 'objects', SphericalHarmonicsExporter.node)
+				if node:
+					ofile.write("\n\tnode= %s;" % get_name(node, prefix='OB'))
+			ofile.write("\n}\n")
 
-		ofile.write("\nSettingsLightCache SettingsLightCache {")
-		ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * SettingsDMCSampler.subdivs_mult))
-		ofile.write("\n\tsample_size= %.6f;" % SettingsLightCache.sample_size)
-		ofile.write("\n\tnum_passes= %i;"% (scene.render.threads if SettingsLightCache.num_passes_auto else SettingsLightCache.num_passes))
-		ofile.write("\n\tdepth= %i;" % SettingsLightCache.depth)
-		ofile.write("\n\tfilter_type= %i;" % FILTER_TYPE[SettingsLightCache.filter_type])
-		ofile.write("\n\tfilter_samples= %i;" % SettingsLightCache.filter_samples)
-		ofile.write("\n\tfilter_size= %.6f;" % SettingsLightCache.filter_size)
-		ofile.write("\n\tprefilter= %i;" % SettingsLightCache.prefilter)
-		ofile.write("\n\tprefilter_samples= %i;" % SettingsLightCache.prefilter_samples)
-		ofile.write("\n\tshow_calc_phase= %i;" % SettingsLightCache.show_calc_phase)
-		ofile.write("\n\tstore_direct_light= %i;" % SettingsLightCache.store_direct_light)
-		ofile.write("\n\tuse_for_glossy_rays= %i;" % SettingsLightCache.use_for_glossy_rays)
-		ofile.write("\n\tworld_scale= %i;" % WORLD_SCALE[SettingsLightCache.world_scale])
-		ofile.write("\n\tadaptive_sampling= %i;" % SettingsLightCache.adaptive_sampling)
-		ofile.write("\n\tmode= %d;" % LC_MODE[SettingsLightCache.mode])
-		ofile.write("\n\tauto_save= %d;" % SettingsLightCache.auto_save)
-		ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsLightCache.auto_save_file))
-		ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsLightCache.file))
-		ofile.write("\n\tdont_delete= false;")
-		ofile.write("\n}\n")
+		else:
+			ofile.write("\nSettingsGI SettingsGI {")
+			ofile.write("\n\ton= 1;")
+			ofile.write("\n\tprimary_engine= %s;" % PRIMARY_ENGINE[SettingsGI.primary_engine])
+			ofile.write("\n\tsecondary_engine= %s;" % SECONDARY_ENGINE[SettingsGI.secondary_engine])
+			ofile.write("\n\tprimary_multiplier= %.3f;" % SettingsGI.primary_multiplier)
+			ofile.write("\n\tsecondary_multiplier= %.3f;" % SettingsGI.secondary_multiplier)
+			ofile.write("\n\treflect_caustics= %i;" % SettingsGI.reflect_caustics)
+			ofile.write("\n\trefract_caustics= %i;" % SettingsGI.refract_caustics)
+			ofile.write("\n\tsaturation= %.3f;" % SettingsGI.saturation)
+			ofile.write("\n\tcontrast= %.3f;" % SettingsGI.contrast)
+			ofile.write("\n\tcontrast_base= %.3f;" % SettingsGI.contrast_base)
+			ofile.write("\n\tray_distance_on= %s;" % p(SettingsGI.ray_distance_on))
+			ofile.write("\n\tray_distance= %s;" % p(SettingsGI.ray_distance))
+			ofile.write("\n\tao_on= %s;" % p(SettingsGI.ao_on))
+			ofile.write("\n\tao_amount= %s;" % p(SettingsGI.ao_amount))
+			ofile.write("\n\tao_radius= %s;" % p(SettingsGI.ao_radius))
+			ofile.write("\n\tao_subdivs= %s;" % p(SettingsGI.ao_subdivs))
+			ofile.write("\n}\n")
+
+			ofile.write("\nSettingsIrradianceMap SettingsIrradianceMap {")
+			ofile.write("\n\tmin_rate= %i;" % SettingsIrradianceMap.min_rate)
+			ofile.write("\n\tmax_rate= %i;" % SettingsIrradianceMap.max_rate)
+			ofile.write("\n\tsubdivs= %i;" % SettingsIrradianceMap.subdivs)
+			ofile.write("\n\tinterp_samples= %i;" % SettingsIrradianceMap.interp_samples)
+			ofile.write("\n\tinterp_frames= %i;" % SettingsIrradianceMap.interp_frames)
+			ofile.write("\n\tcalc_interp_samples= %i;" % SettingsIrradianceMap.calc_interp_samples)
+			ofile.write("\n\tcolor_threshold= %.6f;" % SettingsIrradianceMap.color_threshold)
+			ofile.write("\n\tnormal_threshold= %.6f;" % SettingsIrradianceMap.normal_threshold)
+			ofile.write("\n\tdistance_threshold= %.6f;" % SettingsIrradianceMap.distance_threshold)
+			ofile.write("\n\tdetail_enhancement= %i;" % SettingsIrradianceMap.detail_enhancement)
+			ofile.write("\n\tdetail_radius= %.6f;" % SettingsIrradianceMap.detail_radius)
+			ofile.write("\n\tdetail_subdivs_mult= %.6f;" % SettingsIrradianceMap.detail_subdivs_mult)
+			ofile.write("\n\tdetail_scale= %i;" % WORLD_SCALE[SettingsIrradianceMap.detail_scale])
+			ofile.write("\n\tinterpolation_mode= %i;" % INTERPOLATION_MODE[SettingsIrradianceMap.interpolation_mode])
+			ofile.write("\n\tlookup_mode= %i;" % LOOKUP_MODE[SettingsIrradianceMap.lookup_mode])
+			ofile.write("\n\tshow_calc_phase= %i;" % SettingsIrradianceMap.show_calc_phase)
+			ofile.write("\n\tshow_direct_light= %i;" % SettingsIrradianceMap.show_direct_light)
+			ofile.write("\n\tshow_samples= %i;" % SettingsIrradianceMap.show_samples)
+			ofile.write("\n\tmultipass= %i;" % SettingsIrradianceMap.multipass)
+			ofile.write("\n\tcheck_sample_visibility= %i;" % SettingsIrradianceMap.check_sample_visibility)
+			ofile.write("\n\trandomize_samples= %i;" % SettingsIrradianceMap.randomize_samples)
+			ofile.write("\n\tmode= %d;" % IM_MODE[SettingsIrradianceMap.mode])
+			ofile.write("\n\tauto_save= %d;" % SettingsIrradianceMap.auto_save)
+			ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.auto_save_file))
+			ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.file))
+			ofile.write("\n\tdont_delete= false;")
+			ofile.write("\n}\n")
+
+			ofile.write("\nSettingsDMCGI SettingsDMCGI {")
+			ofile.write("\n\tsubdivs= %i;" % SettingsDMCGI.subdivs)
+			ofile.write("\n\tdepth= %i;" % SettingsDMCGI.depth)
+			ofile.write("\n}\n")
+
+			ofile.write("\nSettingsLightCache SettingsLightCache {")
+			ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * SettingsDMCSampler.subdivs_mult))
+			ofile.write("\n\tsample_size= %.6f;" % SettingsLightCache.sample_size)
+			ofile.write("\n\tnum_passes= %i;"% (scene.render.threads if SettingsLightCache.num_passes_auto else SettingsLightCache.num_passes))
+			ofile.write("\n\tdepth= %i;" % SettingsLightCache.depth)
+			ofile.write("\n\tfilter_type= %i;" % FILTER_TYPE[SettingsLightCache.filter_type])
+			ofile.write("\n\tfilter_samples= %i;" % SettingsLightCache.filter_samples)
+			ofile.write("\n\tfilter_size= %.6f;" % SettingsLightCache.filter_size)
+			ofile.write("\n\tprefilter= %i;" % SettingsLightCache.prefilter)
+			ofile.write("\n\tprefilter_samples= %i;" % SettingsLightCache.prefilter_samples)
+			ofile.write("\n\tshow_calc_phase= %i;" % SettingsLightCache.show_calc_phase)
+			ofile.write("\n\tstore_direct_light= %i;" % SettingsLightCache.store_direct_light)
+			ofile.write("\n\tuse_for_glossy_rays= %i;" % SettingsLightCache.use_for_glossy_rays)
+			ofile.write("\n\tworld_scale= %i;" % WORLD_SCALE[SettingsLightCache.world_scale])
+			ofile.write("\n\tadaptive_sampling= %i;" % SettingsLightCache.adaptive_sampling)
+			ofile.write("\n\tmode= %d;" % LC_MODE[SettingsLightCache.mode])
+			ofile.write("\n\tauto_save= %d;" % SettingsLightCache.auto_save)
+			ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsLightCache.auto_save_file))
+			ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsLightCache.file))
+			ofile.write("\n\tdont_delete= false;")
+			ofile.write("\n}\n")
+
