@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:30]"
+  Time-stamp: "Saturday, 26 March 2011 [20:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -467,14 +467,14 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 		sys.stdout.write("%s: Object: %s => Hair: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 		sys.stdout.flush()
 
-		segments= len(particle.hair)
+		segments= len(particle.hair_keys)
 		num_hair_vertices.append( HexFormat(segments) )
 		
 		width= VRayFur.width / 2.0
 		thin_start= int(VRayFur.thin_start / 100 * segments)
 		thin_segments= segments - thin_start
 		thin_step= width / (thin_segments + 1)
-		for s,segment in enumerate(particle.hair):
+		for s,segment in enumerate(particle.hair_keys):
 			for c in segment.co:
 				hair_vertices.append( HexFormat(c) )
 			if bus['preview']:
@@ -1268,8 +1268,8 @@ def _write_object_particles(bus):
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= "HAIR%s%s" % (get_name(ob, prefix='OB'), get_name(ps, prefix='PS'))
-					hair_node_name= "%s%s"     % (get_name(ob, prefix='OB'), hair_geom_name)
+					hair_geom_name= "HAIR%sPS%s" % (get_name(ob, prefix='OB'), clean_string(ps.name))
+					hair_node_name= "%s%s"       % (get_name(ob, prefix='OB'), hair_geom_name)
 
 					# TODO: detect custom build
 					write_GeomMayaHair(bus, ps, hair_geom_name)
