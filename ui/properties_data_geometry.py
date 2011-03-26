@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:24]"
+  Time-stamp: "Saturday, 26 March 2011 [21:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -96,38 +96,51 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 				col= split.column()
 			col.prop(GeomMeshFile, 'anim_offset')
 
-			layout.separator()
 
-			split= layout.split()
+class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Proxy (generate)"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return (context.mesh and engine_poll(__class__, context))
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		layout= self.layout
+
+		VRayMesh=     context.mesh.vray
+		GeomMeshFile= VRayMesh.GeomMeshFile
+
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomMeshFile, 'dirpath')
+		col.prop(GeomMeshFile, 'filename')
+		col.separator()
+		col.prop(GeomMeshFile, 'mode', text="Attach mode")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomMeshFile, 'animation')
+		sub= col.column()
+		sub.active= GeomMeshFile.animation
+		sub.prop(GeomMeshFile, 'add_velocity')
+		sub.prop(GeomMeshFile, 'animation_range', text="Range")
+		if GeomMeshFile.animation_range == 'MANUAL':
+			sub= sub.column(align=True)
+			sub.prop(GeomMeshFile, 'frame_start')
+			sub.prop(GeomMeshFile, 'frame_end')
+		if wide_ui:
 			col= split.column()
-			col.label(text="Proxy generation:")
+		col.prop(GeomMeshFile, 'add_suffix')
+		col.prop(GeomMeshFile, 'apply_transforms')
 
-			split= layout.split()
-			col= split.column()
-			col.prop(GeomMeshFile, 'dirpath')
-			col.prop(GeomMeshFile, 'filename')
-			col.separator()
-			col.prop(GeomMeshFile, 'mode', text="Attach mode")
+		layout.separator()
 
-			split= layout.split()
-			col= split.column()
-			col.prop(GeomMeshFile, 'animation')
-			sub= col.column()
-			sub.active= GeomMeshFile.animation
-			sub.prop(GeomMeshFile, 'add_velocity')
-			sub.prop(GeomMeshFile, 'animation_range', text="Range")
-			if GeomMeshFile.animation_range == 'MANUAL':
-				sub= sub.column(align=True)
-				sub.prop(GeomMeshFile, 'frame_start')
-				sub.prop(GeomMeshFile, 'frame_end')
-			if wide_ui:
-				col= split.column()
-			col.prop(GeomMeshFile, 'add_suffix')
-			col.prop(GeomMeshFile, 'apply_transforms')
-
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
+		split= layout.split()
+		col= split.column()
+		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
 
