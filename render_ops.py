@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [16:03]"
+  Time-stamp: "Saturday, 26 March 2011 [20:17]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -546,7 +546,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 				# Export first frame to create file
 				frame= frame_start
 				sce.frame_set(frame)
-				generate_proxy(sce,ob,vrmesh_filepath)
+				vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
 				frame+= 1
 				# Export all other frames
 				while(frame <= frame_end):
