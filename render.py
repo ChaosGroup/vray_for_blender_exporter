@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:36]"
+  Time-stamp: "Saturday, 26 March 2011 [20:40]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -436,8 +436,8 @@ def write_geometry(bus):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 	
-	try:
-		# Try calling V-Ray/Blender mesh export operator
+	if 'export_meshes' in dir(bpy.ops.vray):
+		# Call V-Ray/Blender custom mesh export operator
 		bpy.ops.vray.export_meshes(
 			filepath=          bus['filenames']['geometry'][:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
@@ -447,7 +447,7 @@ def write_geometry(bus):
 			check_animated=    VRayExporter.check_animated,
 		)
 
-	except:
+	else:
 		# Use python mesh export
 		write_geometry_python(bus)
 
@@ -1271,8 +1271,8 @@ def _write_object_particles(bus):
 					hair_geom_name= "HAIR%sPS%s" % (get_name(ob, prefix='OB'), clean_string(ps.name))
 					hair_node_name= "%s%s"       % (get_name(ob, prefix='OB'), hair_geom_name)
 
-					# TODO: detect custom build
-					write_GeomMayaHair(bus, ps, hair_geom_name)
+					if not 'export_meshes' in dir(bpy.ops.vray):
+						write_GeomMayaHair(bus, ps, hair_geom_name)
 
 					bus['node']['name']=     hair_node_name
 					bus['node']['geometry']= hair_geom_name
