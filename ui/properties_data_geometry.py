@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [14:19]"
+  Time-stamp: "Saturday, 26 March 2011 [20:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -66,14 +66,16 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 
 		VRayMesh= context.mesh.vray
 
-		layout.active= VRayMesh.override
-
-		layout.prop(VRayMesh, 'override_type', expand= True)
+		split= layout.split()
+		split.active= VRayMesh.override
+		row= split.row()
+		row.prop(VRayMesh, 'override_type', expand= True)
 
 		layout.separator()
 
 		if VRayMesh.override_type == 'PROC':
 			split= layout.split()
+			split.active= VRayMesh.override
 			col= split.column()
 			col.prop(VRayMesh, 'procedural_mesh', text="Type")
 
@@ -81,11 +83,13 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 			GeomMeshFile= VRayMesh.GeomMeshFile
 
 			split= layout.split()
+			split.active= VRayMesh.override
 			col= split.column()
 			col.prop(GeomMeshFile, 'file')
 			col.prop(GeomMeshFile, 'anim_type')
 
 			split= layout.split()
+			split.active= VRayMesh.override
 			col= split.column(align=True)
 			col.prop(GeomMeshFile, 'anim_speed')
 			if wide_ui:
@@ -110,9 +114,7 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 			col.prop(GeomMeshFile, 'animation')
 			sub= col.column()
 			sub.active= GeomMeshFile.animation
-			sub_inactive= sub.column()
-			sub_inactive.active= False
-			sub_inactive.prop(GeomMeshFile, 'add_velocity')
+			sub.prop(GeomMeshFile, 'add_velocity')
 			sub.prop(GeomMeshFile, 'animation_range', text="Range")
 			if GeomMeshFile.animation_range == 'MANUAL':
 				sub= sub.column(align=True)

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [16:31]"
+  Time-stamp: "Saturday, 26 March 2011 [20:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1137,8 +1137,6 @@ def write_node(bus):
 
 
 def write_object(bus):
-	# print_dict(bus['scene'], 'BUS', bus)
-
 	files= bus['files']
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
@@ -1159,6 +1157,16 @@ def write_object(bus):
 
 	# Write object materials
 	write_materials(bus)
+
+	# Write particle emitter if needed
+	# Need to be after material export
+	if len(ob.particle_systems):
+		export= True
+		for ps in ob.particle_systems:
+			if not ps.settings.use_render_emitter:
+				export= False
+		if not export:
+			return
 
 	# Write override mesh
 	if VRayData.override:
@@ -1251,12 +1259,6 @@ def _write_object_particles(bus):
 	VRayExporter= VRayScene.exporter
 
 	if len(ob.particle_systems):
-		# Write particle emitter if needed
-		for ps in ob.particle_systems:
-			if ps.settings.use_render_emitter:
-				write_node(bus)
-				break
-
 		# Write particles
 		for ps in ob.particle_systems:
 			ps_material= "MANOMATERIALISSET"
@@ -1266,12 +1268,13 @@ def _write_object_particles(bus):
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= clean_string("HAIR%s" % ps.name)
-					hair_node_name= clean_string("OB%sHAIR%s" % (ob.name, hair_geom_name))
+					hair_geom_name= "HAIR%s%s" % (get_name(ob, prefix='OB'), get_name(ps, prefix='PS'))
+					hair_node_name= "%s%s"     % (get_name(ob, prefix='OB'), hair_geom_name)
 
+					# TODO: detect custom build
 					write_GeomMayaHair(bus, ps, hair_geom_name)
 
-					bus['node']['name']= hair_node_name
+					bus['node']['name']=     hair_node_name
 					bus['node']['geometry']= hair_geom_name
 					bus['node']['material']= ps_material
 
@@ -1809,7 +1812,7 @@ def render(engine, scene, preview= None):
 	bus['plugins']= PLUGINS
 
 	# Scene
-	bus['scene']= scene
+	bus['scene']=   scene
 
 	# Preview
 	bus['preview']= preview
@@ -1829,6 +1832,7 @@ def render(engine, scene, preview= None):
 
 	if preview:
 		write_geometry_python(bus)
+
 	else:
 		if VRayExporter.auto_meshes:
 			write_geometry(bus)

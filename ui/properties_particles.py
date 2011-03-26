@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
+  Time-stamp: "Friday, 25 March 2011 [22:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -115,10 +115,10 @@ class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayFur, 'width')
-		if wide_ui:
-			col= split.column()
-		col.prop(VRayFur, 'make_thinner')
-		if VRayFur.make_thinner:
-			col.prop(VRayFur, 'thin_start', text= "Segment", slider= True)
+		# if wide_ui:
+		# 	col= split.column()
+		# col.prop(VRayFur, 'make_thinner')
+		# if VRayFur.make_thinner:
+		# 	col.prop(VRayFur, 'thin_start', text= "Segment", slider= True)
 		
 		

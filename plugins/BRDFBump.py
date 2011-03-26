@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [16:36]"
+  Time-stamp: "Saturday, 26 March 2011 [15:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -73,10 +73,10 @@ def add_properties(rna_pointer):
 	BRDFBump.bump_tex_mult= FloatProperty(
 		name= "Amount",
 		description= "Bump amount.",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 0.2,
+		min= -100.0,
+		max=  100.0,
+		soft_min= -0.2,
+		soft_max=  0.2,
 		precision= 4,
 		default= 0.02
 	)

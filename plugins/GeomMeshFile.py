@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [14:27]"
+  Time-stamp: "Saturday, 26 March 2011 [20:16]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -157,8 +157,8 @@ def add_properties(rna_pointer):
 		name= "Animation range",
 		description= "Animation range type.",
 		items= (
-			('MANUAL', "Manual", "."),
-			('SCENE',  "Scene",     ".")
+			('MANUAL', "Manual", "Set manually."),
+			('SCENE',  "Scene",  "Get from scene.")
 		),
 		default= 'SCENE'
 	)

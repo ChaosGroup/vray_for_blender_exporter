@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:31]"
+  Time-stamp: "Saturday, 26 March 2011 [15:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -131,9 +131,9 @@ def add_properties(rna_pointer):
 			name= "Middle position",
 			description= "Middle color position.",
 			min= 0.0,
-			max= 100.0,
+			max= 1.0,
 			soft_min= 0.0,
-			soft_max= 10.0,
+			soft_max= 1.0,
 			precision= 3,
 			default= 0.5
 		)
