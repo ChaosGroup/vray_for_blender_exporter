@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:17]"
+  Time-stamp: "Saturday, 26 March 2011 [21:44]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -561,6 +561,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 			ob_name= ob.name
 			ob_data_name= ob.data.name
 
+			VRayMesh= ob.data.vray
+
 			if GeomMeshFile.mode != 'NONE':
 				if GeomMeshFile.mode in ('THIS','REPLACE'):
 					if GeomMeshFile.add_suffix:
@@ -568,7 +570,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 						ob.data.name+= '_proxy'
 
 				if GeomMeshFile.mode == 'THIS':
-					GeomMeshFile.use= True
+					VRayMesh.override= True
+					VRayMesh.override_type= 'PROXY'
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
 				bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
@@ -597,8 +600,11 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 						bpy.ops.object.rotation_apply()
 						bpy.ops.object.location_apply()
 
-					GeomMeshFile= new_ob.data.vray.GeomMeshFile
-					GeomMeshFile.use= True
+					VRayMesh= new_ob.data.vray
+					VRayMesh.override= True
+					VRayMesh.override_type= 'PROXY'
+
+					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
 				elif GeomMeshFile.mode == 'REPLACE':
@@ -615,8 +621,11 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 						bpy.ops.object.rotation_apply()
 						bpy.ops.object.location_apply()
 
-					GeomMeshFile= ob.data.vray.GeomMeshFile
-					GeomMeshFile.use= True
+					VRayMesh= ob.data.vray
+					VRayMesh.override= True
+					VRayMesh.override_type= 'PROXY'
+
+					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
 					bpy.data.meshes.remove(original_mesh)
