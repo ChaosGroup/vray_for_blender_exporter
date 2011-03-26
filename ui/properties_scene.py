@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:14]"
+  Time-stamp: "Saturday, 26 March 2011 [21:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -62,4 +62,3 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 		split= box.split()
 		col= split.column()
 		col.operator("vray.copy_linked_materials", icon='MATERIAL')
-
