@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:11]"
+  Time-stamp: "Sunday, 27 March 2011 [18:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -125,8 +125,8 @@ def add_properties(VRayTexture):
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 10.0,
-		precision= 3,
-		default= 1
+		precision= 5,
+		default= 1.0
 	)
 
 
