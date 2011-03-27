@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:40]"
+  Time-stamp: "Sunday, 27 March 2011 [18:28]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -597,6 +597,26 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
 		bus['files']['scene'].write("\n}\n")
 
+	if VRayExporter.draft:
+		bus['files']['scene'].write("\n// Draft settings")
+		bus['files']['scene'].write("\nSettingsDMCSampler {")
+		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
+		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsOptions {")
+		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
+		bus['files']['scene'].write("\n\tmtl_maxDepth= 5;")
+		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
+		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
+		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
+		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nSettingsImageSampler {")
+		bus['files']['scene'].write("\n\ttype= 1;")
+		bus['files']['scene'].write("\n}\n")
+
+
 
 
 '''
@@ -1086,23 +1106,27 @@ def write_node(bus):
 	SettingsOptions= VRayScene.SettingsOptions
 
 	lights= []
-	for lamp in [ob for ob in scene.objects if ob.type == 'LAMP' or ob.vray.LightMesh.use]:
-		if ob.type == 'LAMP':
+	for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
+		if lamp.type == 'LAMP':
 			VRayLamp= lamp.data.vray
 		else:
-			VRayLamp= ob.vray.LightMesh
+			VRayLamp= lamp.vray.LightMesh
+
 		lamp_name= get_name(lamp, prefix='LA')
-		if not object_on_visible_layers(scene,lamp) or lamp.hide_render:
+
+		if not object_on_visible_layers(scene, lamp) or lamp.hide_render:
 			if not scene.vray.SettingsOptions.light_doHiddenLights:
 				continue
+
 		if VRayLamp.use_include_exclude:
-			object_list= generate_object_list(VRayLamp.include_objects,VRayLamp.include_groups)
+			object_list= generate_object_list(VRayLamp.include_objects, VRayLamp.include_groups)
 			if VRayLamp.include_exclude == 'INCLUDE':
 				if ob in object_list:
 					append_unique(lights, lamp_name)
 			else:
 				if ob not in object_list:
 					append_unique(lights, lamp_name)
+
 		else:
 			append_unique(lights, lamp_name)
 

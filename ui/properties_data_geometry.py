@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [21:45]"
+  Time-stamp: "Sunday, 27 March 2011 [18:17]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -97,8 +97,8 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 			col.prop(GeomMeshFile, 'anim_offset')
 
 
-class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
-	bl_label   = "Proxy (generate)"
+class VRAY_DP_tools(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -114,6 +114,8 @@ class VRAY_DP_proxy(VRayDataPanel, bpy.types.Panel):
 
 		VRayMesh=     context.mesh.vray
 		GeomMeshFile= VRayMesh.GeomMeshFile
+
+		layout.label(text="Generate VRayProxy:")
 
 		split= layout.split()
 		col= split.column()

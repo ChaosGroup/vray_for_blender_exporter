@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 19 March 2011 [15:04]"
+  Time-stamp: "Sunday, 27 March 2011 [17:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -75,10 +75,10 @@ def add_properties(rna_pointer):
 		name= "Multiplier",
 		description= "Color multiplier.",
 		min= 0.0,
-		max= 1.0,
+		max= 100000.0,
 		soft_min= 0.0,
-		soft_max= 1.0,
-		default= 1.0
+		soft_max= 100.0,
+		default= 5.0
 	)
 
 	BRDFLight.doubleSided= BoolProperty(
