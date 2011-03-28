@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 21 March 2011 [14:19]"
+  Time-stamp: "Monday, 28 March 2011 [20:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -214,6 +214,8 @@ def write(bus):
 	scene= bus['scene']
 	ofile= bus['files']['textures']
 
+	ob= bus['node']['object']
+
 	slot=     bus['mtex']['slot']
 	texture=  bus['mtex']['texture']
 	tex_name= bus['mtex']['name']
@@ -222,7 +224,7 @@ def write(bus):
 	VRaySlot=    texture.vray_slot
 
 	if not texture.image:
-		debug(scene, "Texture: %s Image file is not set!" % texture.name, error= True)
+		debug(scene, "Object: %s => Texture: %s => Image file is not set!" % (ob.name, texture.name), error= True)
 		return None
 
 	bitmap= write_BitmapBuffer(bus)
