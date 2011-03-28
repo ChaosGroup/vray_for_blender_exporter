@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 14 March 2011 [09:43]"
+  Time-stamp: "Monday, 28 March 2011 [22:19]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -151,6 +151,6 @@ def write(bus):
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsPNG SettingsPNG {")
-	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 90))
+	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 9))
 	ofile.write("\n\tbits_per_channel= 16;")
 	ofile.write("\n}\n")
