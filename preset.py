@@ -1,30 +1,28 @@
 '''
 
-	V-Ray/Blender 2.5
+  V-Ray/Blender 2.5
 
-	http://vray.cgdo.ru
+  http://vray.cgdo.ru
 
-	Time-stamp: "Tuesday, 15 March 2011 [08:22]"
+  Time-stamp: "Monday, 28 March 2011 [16:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
-	E-Mail: izrantsev@cgdo.ru
+  E-Mail: izrantsev@cgdo.ru
 
-	This plugin is protected by the GNU General Public License v.2
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
 
-	This program is free software; you can redistribute it and/or
-	modify it under the terms of the GNU General Public License
-	as published by the Free Software Foundation; either version 2
-	of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-	All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 
 '''
 
@@ -131,9 +129,9 @@ class VRAY_PRESETS():
 
 class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 	'''Add a V-Ray global preset'''
-	bl_idname = "vray.preset_add"
-	bl_label  = "Add V-Ray Global Preset"
+	bl_label      = "Add V-Ray Global Preset"
 
+	bl_idname     = "vray.preset_add"
 	preset_menu   = "VRAY_MT_preset_global"
 	preset_subdir = "render"
 
@@ -142,7 +140,6 @@ class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 		"bpy.context.scene.vray.exporter.animation",
 		"bpy.context.scene.vray.exporter.auto_meshes",
 		"bpy.context.scene.vray.exporter.debug",
-		"bpy.context.scene.vray.exporter.use_material_nodes",
 		"bpy.context.scene.vray.exporter.image_to_blender",
 		"bpy.context.scene.vray.exporter.active_layers",
 		"bpy.context.scene.vray.exporter.mesh_active_layers",
@@ -199,12 +196,12 @@ class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
         "bpy.context.scene.vray.SettingsGI.primary_multiplier",
         "bpy.context.scene.vray.SettingsGI.secondary_engine",
         "bpy.context.scene.vray.SettingsGI.secondary_multiplier",
-        # "bpy.context.scene.vray.SettingsGI.ray_distance_on",
-        # "bpy.context.scene.vray.SettingsGI.ray_distance",
-        # "bpy.context.scene.vray.SettingsGI.ao_on",
-        # "bpy.context.scene.vray.SettingsGI.ao_amount",
-        # "bpy.context.scene.vray.SettingsGI.ao_radius",
-        # "bpy.context.scene.vray.SettingsGI.ao_subdivs",
+        "bpy.context.scene.vray.SettingsGI.ray_distance_on",
+        "bpy.context.scene.vray.SettingsGI.ray_distance",
+        "bpy.context.scene.vray.SettingsGI.ao_on",
+        "bpy.context.scene.vray.SettingsGI.ao_amount",
+        "bpy.context.scene.vray.SettingsGI.ao_radius",
+        "bpy.context.scene.vray.SettingsGI.ao_subdivs",
 		
         "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.subdivs",
         "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.depth",
@@ -321,6 +318,89 @@ class VRAY_PRESET_global_render(VRAY_PRESETS, bpy.types.Operator):
 	]
 
 bpy.utils.register_class(VRAY_PRESET_global_render)
+
+
+class VRAY_PRESET_gi(VRAY_PRESETS, bpy.types.Operator):
+	'''Add a V-Ray global preset'''
+	bl_label      = "Add V-Ray Global Preset"
+
+	bl_idname     = "vray.preset_gi_add"
+	preset_menu   = "VRAY_MT_preset_gi"
+	preset_subdir = "gi"
+
+	preset_values= [
+		"bpy.context.scene.vray.SettingsGI.on",
+        "bpy.context.scene.vray.SettingsGI.refract_caustics",
+        "bpy.context.scene.vray.SettingsGI.reflect_caustics",
+        "bpy.context.scene.vray.SettingsGI.saturation",
+        "bpy.context.scene.vray.SettingsGI.contrast",
+        "bpy.context.scene.vray.SettingsGI.contrast_base",
+        "bpy.context.scene.vray.SettingsGI.primary_engine",
+        "bpy.context.scene.vray.SettingsGI.primary_multiplier",
+        "bpy.context.scene.vray.SettingsGI.secondary_engine",
+        "bpy.context.scene.vray.SettingsGI.secondary_multiplier",
+        "bpy.context.scene.vray.SettingsGI.ray_distance_on",
+        "bpy.context.scene.vray.SettingsGI.ray_distance",
+        "bpy.context.scene.vray.SettingsGI.ao_on",
+        "bpy.context.scene.vray.SettingsGI.ao_amount",
+        "bpy.context.scene.vray.SettingsGI.ao_radius",
+        "bpy.context.scene.vray.SettingsGI.ao_subdivs",
+		
+        "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.subdivs",
+        "bpy.context.scene.vray.SettingsGI.SettingsDMCGI.depth",
+
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.min_rate",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.max_rate",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.subdivs",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.interp_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.calc_interp_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.interp_frames",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.color_threshold",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.normal_threshold",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.distance_threshold",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.detail_enhancement",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.detail_radius",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.detail_subdivs_mult",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.detail_scale",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.randomize_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.interpolation_mode",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.lookup_mode",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.mode",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.file",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.show_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.show_calc_phase",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.show_direct_light",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.multiple_views",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.multipass",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.check_sample_visibility",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.auto_save",
+        "bpy.context.scene.vray.SettingsGI.SettingsIrradianceMap.auto_save_file",
+
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.subdivs",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.sample_size",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.filter_type",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.filter_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.filter_size",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.prefilter",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.prefilter_samples",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.depth",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.show_calc_phase",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.store_direct_light",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.world_scale",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.mode",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.file",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.auto_save",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.auto_save_file",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.num_passes",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.use_for_glossy_rays",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.adaptive_sampling",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.multiple_views",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_enabled",
+        "bpy.context.scene.vray.SettingsGI.SettingsLightCache.retrace_threshold",
+	]
+
+bpy.utils.register_class(VRAY_PRESET_gi)
+
 
 # '''
 #   BRDFSSS2Complex preset generator

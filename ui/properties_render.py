@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [17:08]"
+  Time-stamp: "Monday, 28 March 2011 [16:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -45,8 +45,15 @@ class VRAY_MT_preset_IM(bpy.types.Menu):
 
 
 class VRAY_MT_preset_global(bpy.types.Menu):
-	bl_label= "V-Ray Global Presets"
+	bl_label= "Global Presets"
 	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "render")
+	preset_operator= "script.execute_preset"
+	draw= bpy.types.Menu.draw_preset
+
+
+class VRAY_MT_preset_gi(bpy.types.Menu):
+	bl_label= "GI Presets"
+	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "gi")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 
@@ -70,7 +77,7 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
-		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active = True
+		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active= True
 
 		
 		split= layout.split()
@@ -509,6 +516,13 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 
 		VRayScene=  context.scene.vray
 		SettingsGI= VRayScene.SettingsGI
+
+		row= layout.row(align=True)
+		row.menu("VRAY_MT_preset_gi", text=bpy.types.VRAY_MT_preset_gi.bl_label)
+		row.operator("vray.preset_gi_add", text="", icon="ZOOMIN")
+		row.operator("vray.preset_gi_add", text="", icon="ZOOMOUT").remove_active = True
+
+		layout.separator()
 
 		split= layout.split()
 		col= split.column()
