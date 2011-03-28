@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 27 March 2011 [18:28]"
+  Time-stamp: "Monday, 28 March 2011 [20:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -670,11 +670,10 @@ def write_lamp_textures(bus):
 																			 slot.texture.name))
 
 					# Write texture
-					write_texture(bus)
-
-					bus['lamp_textures'][key].append( [stack_write_texture(bus),
-													   slot.use_stencil,
-													   VRaySlot.blend_mode] )
+					if write_texture(bus):
+						bus['lamp_textures'][key].append( [stack_write_texture(bus),
+														   slot.use_stencil,
+														   VRaySlot.blend_mode] )
 
 	if VRayExporter.debug:
 		if len(bus['lamp_textures']):
@@ -756,9 +755,16 @@ def write_material_textures(bus):
 			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures'])
 
 	# Collapsing texture stack
+	del_keys= []
 	for key in bus['textures']:
 		if len(bus['textures'][key]):
-			bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
+			if len(bus['textures'][key]) == 1 and type(bus['textures'][key][0]) is tuple:
+				del_keys.append(key)
+			else:
+				bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
+
+	for key in del_keys:
+		del bus['textures'][key]
 
 	if 'displacement' in bus['textures']:
 		bus['node']['displacement_texture']= bus['textures']['displacement']
