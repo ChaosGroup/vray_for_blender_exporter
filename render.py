@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 28 March 2011 [20:00]"
+  Time-stamp: "Tuesday, 29 March 2011 [18:28]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -922,20 +922,21 @@ def write_materials(bus):
 	# Multi-material name
 	mtl_name= get_name(ob, prefix='OBMA')
 
+	# Reset displacement settings pointers
+	bus['node']['displacement_slot']=    None
+	bus['node']['displacement_texture']= None
+
 	# Collecting and exporting object materials
 	mtls_list= []
 	ids_list=  []
 	ma_id= 0 # For cases with empty slots
+
 	if len(ob.material_slots):
 		for slot in ob.material_slots:
 			ma= slot.material
 			if ma:
 				bus['material']= {}
 				bus['material']['material']= ma
-
-				# Displace settings pointers
-				bus['node']['displacement_slot']=    None
-				bus['node']['displacement_texture']= None
 
 				# Normal mapping settings pointer
 				bus['material']['normal_slot']=      None
@@ -955,7 +956,7 @@ def write_materials(bus):
 	if len(mtls_list) == 0: 
 		bus['node']['material']= bus['defaults']['material']
 
-	# Only one material - no need to Multi-material
+	# Only one material - no need for Multi-material
 	elif len(mtls_list) == 1:
 		bus['node']['material']= mtls_list[0]
 
