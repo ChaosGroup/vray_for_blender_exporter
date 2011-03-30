@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 28 March 2011 [20:01]"
+  Time-stamp: "Wednesday, 30 March 2011 [13:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -178,9 +178,8 @@ def write_BitmapBuffer(bus):
 	bitmap_name= 'IM' + clean_string(texture.image.name)
 
 	# Check if already exported
-	if bitmap_name in bus['filter']['bitmap']:
+	if not append_unique(bus['cache']['bitmap'], bitmap_name):
 		return bitmap_name
-	bus['filter']['bitmap'].append(bitmap_name)
 
 	ofile.write("\nBitmapBuffer %s {" % bitmap_name)
 	ofile.write("\n\tfile= \"%s\";" % filename)

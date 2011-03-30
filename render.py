@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 29 March 2011 [18:28]"
+  Time-stamp: "Wednesday, 30 March 2011 [13:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1599,12 +1599,8 @@ def write_scene(bus):
 		bus['cache']['materials']= []
 		bus['cache']['displace']=  []
 		bus['cache']['proxy']=     []
-
-		bus['filter']= {} # TODO: Rename!
-		bus['filter']['proxy']=    []
-		bus['filter']['bitmap']=   []
-		bus['filter']['texture']=  []
-		bus['filter']['material']= []
+		bus['cache']['bitmap']=    []
+		bus['cache']['uvwgen']=    {}
 
 		# Fake frame for "Camera loop"
 		if VRayExporter.camera_loop:

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [10:54]"
+  Time-stamp: "Wednesday, 30 March 2011 [13:31]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -157,9 +157,12 @@ def write_uvwgen(bus):
 
 		uvwgen= write_UVWGenChannel(bus)
 
+		# Cache uvwgen under texture name
+		bus['cache']['uvwgen'][ bus['mtex']['name'] ]= uvwgen
+
 		# We need to pass normal uvwgen to BRDFBump
 		if 'material' in bus and bus['mtex']['mapto'] == 'normal':
-			bus['material']['material']['normal_uvwgen']= uvwgen
+			bus['material']['normal_uvwgen']= uvwgen
 		
 		return uvwgen
 

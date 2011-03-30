@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [15:34]"
+  Time-stamp: "Tuesday, 29 March 2011 [22:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -128,7 +128,7 @@ def write(bus, base_brdf= None):
 		ofile.write("\n\tbump_tex_color= %s;" % textures['normal'])
 		ofile.write("\n\tbump_tex_float= %s;" % textures['normal'])
 		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material']['material']['normal_uvwgen'])
+		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material']['normal_uvwgen'])
 		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 		ofile.write("\n}\n")
