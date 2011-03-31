@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [22:57]"
+  Time-stamp: "Thursday, 31 March 2011 [23:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -421,7 +421,7 @@ def influence(context, layout, slot):
 	factor_but(col, VRaySlot, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
 	if wide_ui:
 		col= split.column()
-	factor_but(col, VRaySlot, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter radius")
+	factor_but(col, VRaySlot, 'map_scatter_radius',    'scatter_radius_mult',    "Scatter")
 
 	layout.separator()
 
