@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [22:54]"
+  Time-stamp: "Thursday, 31 March 2011 [22:57]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -417,7 +417,7 @@ def influence(context, layout, slot):
 	col.label(text="SSS:")
 	split= layout.split()
 	col= split.column()
-	factor_but(col, slot,     'use_map_color_diffuse', 'diffuse_color_factor',   "Overall")
+	factor_but(col, VRaySlot, 'map_overall_color',     'overall_color_mult',     "Overall")
 	factor_but(col, VRaySlot, 'map_sub_surface_color', 'sub_surface_color_mult', "Sub-surface")
 	if wide_ui:
 		col= split.column()
