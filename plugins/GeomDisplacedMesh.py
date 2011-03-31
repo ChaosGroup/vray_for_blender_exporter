@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [09:24]"
+  Time-stamp: "Wednesday, 30 March 2011 [15:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -193,26 +193,46 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
-	GeomDisplacedMesh.min_bound= FloatVectorProperty(
+	# GeomDisplacedMesh.min_bound= FloatVectorProperty(
+	# 	name= "Min bound",
+	# 	description= "The lowest value for the displacement texture",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (0,0,0)
+	# )
+
+	# GeomDisplacedMesh.max_bound= FloatVectorProperty(
+	# 	name= "Max bound",
+	# 	description= "The biggest value for the displacement texture",
+	# 	subtype= 'COLOR',
+	# 	min= 0.0,
+	# 	max= 1.0,
+	# 	soft_min= 0.0,
+	# 	soft_max= 1.0,
+	# 	default= (1,1,1)
+	# )
+
+	GeomDisplacedMesh.min_bound= FloatProperty(
 		name= "Min bound",
 		description= "The lowest value for the displacement texture",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0,0,0)
+		min= -1.0,
+		max=  1.0,
+		soft_min= -1.0,
+		soft_max=  1.0,
+		default= 0.0
 	)
 
-	GeomDisplacedMesh.max_bound= FloatVectorProperty(
+	GeomDisplacedMesh.max_bound= FloatProperty(
 		name= "Max bound",
 		description= "The biggest value for the displacement texture",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (1,1,1)
+		min= -1.0,
+		max=  1.0,
+		soft_min= -1.0,
+		soft_max=  1.0,
+		default= 1.0
 	)
 
 	GeomDisplacedMesh.resolution= IntProperty(

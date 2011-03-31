@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:04]"
+  Time-stamp: "Wednesday, 30 March 2011 [15:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -248,16 +248,18 @@ class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
 			col= split.column()
 		col.prop(GeomDisplacedMesh, 'type')
 		col.prop(GeomDisplacedMesh, 'keep_continuity')
-		col.prop(GeomDisplacedMesh, 'use_bounds')
-		if GeomDisplacedMesh.use_bounds:
-			sub= col.row()
-			sub.prop(GeomDisplacedMesh, 'min_bound', text="Min")
-			sub.prop(GeomDisplacedMesh, 'max_bound', text="Max")
 		col.prop(GeomDisplacedMesh, 'filter_texture')
 		if GeomDisplacedMesh.filter_texture:
 			col.prop(GeomDisplacedMesh, 'filter_blur')
-		col.prop(GeomDisplacedMesh, 'use_globals')
+		col.prop(GeomDisplacedMesh, 'use_bounds')
+		if GeomDisplacedMesh.use_bounds:
+			sub= col.column(align= True)
+			sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
+			sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
 
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomDisplacedMesh, 'use_globals')
 		if not GeomDisplacedMesh.use_globals:
 			split= layout.split()
 			col= split.column()
