@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [19:11]"
+  Time-stamp: "Thursday, 31 March 2011 [19:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -322,7 +322,7 @@ def add_properties(rna_pointer):
 		min= 1,
 		max= 1000,
 		soft_min= 1,
-		soft_max= 5,
+		soft_max= 20,
 		default= 1
 	)
 	rna_pointer.mirror_u= BoolProperty(
@@ -343,7 +343,7 @@ def add_properties(rna_pointer):
 		min= 1,
 		max= 1000,
 		soft_min= 1,
-		soft_max= 5,
+		soft_max= 20,
 		default= 1
 	)
 
