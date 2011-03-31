@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [14:05]"
+  Time-stamp: "Thursday, 31 March 2011 [19:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -431,10 +431,10 @@ def write(bus):
 		'PLACE': 2,
 	}
 	TILE= {
-		'NOTILE': 0,
-		'TILEUV': 1,
-		'TILEU':  2,
-		'TILEV':  3,
+		'NOTILE': (0,0),
+		'TILEUV': (1,1),
+		'TILEU':  (1,0),
+		'TILEV':  (0,1),
 	}
 
 	ofile= bus['files']['textures']
@@ -448,8 +448,7 @@ def write(bus):
 
 	if VRayTexture.type not in ('TexFalloff'):
 		ofile.write("\n\tplacement_type= %i;" % PLACEMENT_TYPE[VRayTexture.placement_type])
-		ofile.write("\n\ttile_u= %d;" % VRayTexture.tile_u)
-		ofile.write("\n\ttile_v= %d;" % VRayTexture.tile_v)
+		ofile.write("\n\ttile_u= %d;\n\ttile_v= %d;" % TILE[VRayTexture.tile])
 		ofile.write("\n\tu= %s;" % a(scene, VRayTexture.u))
 		ofile.write("\n\tv= %s;" % a(scene, VRayTexture.v))
 		ofile.write("\n\tw= %s;" % a(scene, VRayTexture.w))

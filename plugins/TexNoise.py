@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:35]"
+  Time-stamp: "Thursday, 31 March 2011 [19:20]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -67,6 +67,13 @@ def add_properties(rna_pointer):
 		name= "TexNoiseMax",
 		type=  TexNoiseMax,
 		description= "V-Ray TexNoiseMax settings"
+	)
+
+	# use_3d_mapping
+	TexNoiseMax.use_3d_mapping= BoolProperty(
+		name= "use 3d mapping",
+		description= "TODO: Tooltip.",
+		default= True
 	)
 
 	# color1

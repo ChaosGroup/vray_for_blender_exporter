@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [03:22]"
+  Time-stamp: "Thursday, 31 March 2011 [16:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -92,6 +92,7 @@ def write(bus):
 	ofile.write("\nSettingsUnitsInfo SettingsUnitsInfo {")
 	# ofile.write("\n\tmeters_scale= %i;" % SettingsUnitsInfo.meters_scale)
 	ofile.write("\n\tmeters_scale= %.4f;" % scene.unit_settings.scale_length)
-	ofile.write("\n\tphotometric_scale= %.4f;" % SettingsUnitsInfo.photometric_scale)
+	# ofile.write("\n\tphotometric_scale= %.4f;" % SettingsUnitsInfo.photometric_scale)
+	ofile.write("\n\tphotometric_scale= 0.01;")
 	ofile.write("\n}\n")
 

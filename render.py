@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [13:33]"
+  Time-stamp: "Thursday, 31 March 2011 [16:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -186,7 +186,7 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		'enabled'
 	),	
 
-	'LightIES': (
+	'LightIESMax': (
 		'enabled',
 		'intensity',
 		#'color_tex',
@@ -1016,7 +1016,7 @@ def write_lamp(bus):
 		if VRayLamp.spot_type == 'SPOT':
 			lamp_type= 'LightSpot'
 		else:
-			lamp_type= 'LightIES'
+			lamp_type= 'LightIESMax'
 	elif lamp.type == 'SUN':
 		if VRayLamp.direct_type == 'DIRECT':
 			lamp_type= 'LightDirectMax'
@@ -1067,7 +1067,7 @@ def write_lamp(bus):
 			color= kelvin_to_rgb(VRayLamp.temperature)
 		ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
 			
-		if lamp_type != 'LightIES':
+		if lamp_type != 'LightIESMax':
 			ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
 
 	if lamp_type == 'LightSpot':
@@ -1090,8 +1090,8 @@ def write_lamp(bus):
 			ofile.write("\n\t%s= %s;" % (param, a(scene,VRayLamp.shadowRadius)))
 			ofile.write("\n\tshadowRadius1= %s;" % a(scene,VRayLamp.shadowRadius))
 			ofile.write("\n\tshadowRadius2= %s;" % a(scene,VRayLamp.shadowRadius))
-		elif param == 'intensity' and lamp_type == 'LightIES':
-			ofile.write("\n\tpower= %s;"%(a(scene,VRayLamp.intensity)))
+		elif param == 'intensity' and lamp_type == 'LightIESMax':
+			ofile.write("\n\tpower= %s;"%(a(scene, "%i" % (int(VRayLamp.intensity)))))
 		elif param == 'shadow_color':
 			ofile.write("\n\tshadow_color= %s;"%(a(scene,VRayLamp.shadowColor)))
 		elif param == 'ies_file':
