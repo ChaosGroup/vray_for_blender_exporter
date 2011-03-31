@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [22:53]"
+  Time-stamp: "Thursday, 31 March 2011 [22:54]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -225,8 +225,10 @@ def add_properties(rna_pointer):
 	BRDFSSS2Complex.specular_subdivs= IntProperty(
 		name= "Specular subdivs",
 		description= "Specular subdivs.",
-		min= 0,
-		max= 10,
+		min= 1,
+		max= 1024,
+		soft_min= 1,
+		soft_max= 64,
 		default= 8
 	)
 
@@ -486,7 +488,7 @@ def gui(context, layout, BRDFSSS2Complex, material= None):
 	split= layout.split()
 	col= split.column()
 	col.prop(BRDFSSS2Complex, 'specular_color', text='')
-	col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs')
+	col.prop(BRDFSSS2Complex, 'specular_subdivs', text='Subdivs', slider= True)
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
