@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:28]"
+  Time-stamp: "Thursday, 31 March 2011 [19:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -57,6 +57,13 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class TexSplat(bpy.types.PropertyGroup):
+		# use_3d_mapping
+		use_3d_mapping= BoolProperty(
+			name= "use 3d mapping",
+			description= "TODO: Tooltip.",
+			default= True
+		)
+
 		# color1
 		color1= FloatVectorProperty(
 			name= "First color",
