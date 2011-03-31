@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:13]"
+  Time-stamp: "Thursday, 31 March 2011 [22:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -387,7 +387,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	ofile.write("\nBRDFSSS2Complex %s {" % brdf_name)
 
 	for key in ('overall_color','diffuse_color','sub_surface_color','scatter_radius','specular_color'):
-		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else a(scene,getattr(BRDFSSS2Complex,key))))
+		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else defaults[key][0]))
 
 	for key in ('specular_amount','specular_glossiness','diffuse_amount'):
 		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(scene,getattr(BRDFSSS2Complex,key))))
