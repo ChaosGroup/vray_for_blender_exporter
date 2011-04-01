@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:02]"
+  Time-stamp: "Friday, 01 April 2011 [18:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -283,8 +283,7 @@ def write(bus):
 	if not VRayObject.LightMesh.use:
 		return False
 	
-	material= bus['material']['material']
-	textures= bus['textures']
+	textures= bus.get('textures', {})
 
 	ofile.write("\nLightMesh %s {" % get_name(ob, prefix='LA'))
 	ofile.write("\n\ttransform= %s;" % a(scene,transform(bus['node']['matrix'])))

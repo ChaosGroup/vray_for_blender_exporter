@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [19:23]"
+  Time-stamp: "Friday, 01 April 2011 [18:54]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -470,14 +470,15 @@ def write(bus):
 	ofile.write("\n\talpha_from_intensity= %s;" % a(scene, VRayTexture.alpha_from_intensity))
 	ofile.write("\n\tnouvw_color= %s;" % a(scene, VRayTexture.nouvw_color))
 
-	if hasattr(VRayTexture, VRayTexture.type):
-		TexPlugin= getattr(VRayTexture, VRayTexture.type)
+	if texture.type == 'VRAY':
+		if hasattr(VRayTexture, VRayTexture.type):
+			TexPlugin= getattr(VRayTexture, VRayTexture.type)
 
-		if hasattr(TexPlugin, 'wrap'):
-			ofile.write("\n\twrap= %s;" % a(scene, VRayTexture.wrap))
+			if hasattr(TexPlugin, 'wrap'):
+				ofile.write("\n\twrap= %s;" % a(scene, VRayTexture.wrap))
 
-		if hasattr(TexPlugin, 'use_3d_mapping'):
-			ofile.write("\n\tuse_3d_mapping= %s;" % a(scene, VRayTexture.use_3d_mapping))
+			if hasattr(TexPlugin, 'use_3d_mapping'):
+				ofile.write("\n\tuse_3d_mapping= %s;" % a(scene, VRayTexture.use_3d_mapping))
 
 
 
