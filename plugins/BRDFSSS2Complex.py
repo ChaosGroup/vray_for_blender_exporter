@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [23:03]"
+  Time-stamp: "Friday, 01 April 2011 [13:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -43,7 +43,7 @@ MAIN_BRDF= True
 
 NAME= 'BRDFSSS2Complex'
 UI=   "Fast SSS"
-DESC= "BRDFSSS2Complex settings."
+DESC= "Fast SSS 2 BRDF settings."
 
 PARAMS= (
 	'prepass_rate',
