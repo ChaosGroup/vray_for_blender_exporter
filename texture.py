@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [13:31]"
+  Time-stamp: "Saturday, 02 April 2011 [00:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -115,7 +115,7 @@ def write_texture(bus):
 	texture= bus['mtex']['texture']
 
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
-		bus['material']['normal_uvwgen']= bus['cache']['uvwgen'][ bus['mtex']['name'] ]
+		bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
 		return bus['mtex']['name']
 
 	if texture.use_nodes:

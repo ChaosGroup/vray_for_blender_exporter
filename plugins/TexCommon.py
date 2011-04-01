@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [18:54]"
+  Time-stamp: "Saturday, 02 April 2011 [00:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -557,7 +557,13 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 					sub= col.column()
 				sub.prop(slot, 'scale', text="")
 
-			layout.separator()
+			# TODO:
+			# split= layout.split()
+			# col= split.column()
+			# col.prop(VRaySlot, 'texture_rotation_h', slider= True)
+			# if wide_ui:
+			# 	col= split.column()
+			# col.prop(VRaySlot, 'texture_rotation_v', slider= True)
 
 			layout.prop(VRayTexture, 'jitter')
 
@@ -593,10 +599,10 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 
 			split= layout.split()
 			col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_h')
+			col.prop(VRaySlot, 'texture_rotation_h', slider= True)
 			if wide_ui:
 				col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_v')
+			col.prop(VRaySlot, 'texture_rotation_v', slider= True)
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			split= layout.split()
