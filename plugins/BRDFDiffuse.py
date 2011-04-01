@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:13]"
+  Time-stamp: "Friday, 01 April 2011 [13:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -191,6 +191,8 @@ def add_properties(rna_pointer):
 def write(bus, VRayBRDF= None, base_name= None):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
+
+	ma=    bus['material']['material']
 
 	brdf_name= "%s%s%s" % (ID, get_name(ma, prefix='MA'), bus['material']['orco_suffix'])
 	if base_name:
