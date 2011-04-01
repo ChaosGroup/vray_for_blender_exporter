@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [19:20]"
+  Time-stamp: "Friday, 01 April 2011 [13:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -93,17 +93,27 @@ def write_UVWGenChannel(bus):
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
-	ofile.write("\n\twrap_u= %d;" % (2 if VRayTexture.mirror_u else 0))
-	ofile.write("\n\twrap_v= %d;" % (2 if VRayTexture.mirror_v else 0))
 	if slot:
+		ofile.write("\n\twrap_u= %d;" % (2 if (VRayTexture.mirror_u or slot.scale[0] < 0) else 0))
+		ofile.write("\n\twrap_v= %d;" % (2 if (VRayTexture.mirror_v or slot.scale[1] < 0) else 0))
+		ofile.write("\n\twrap_w= %d;" % (2 if                          slot.scale[2] < 0  else 0))
+
+		scale_x= 0.001 if abs(slot.scale[0]) < 0.001 else abs(slot.scale[0])
+		scale_y= 0.001 if abs(slot.scale[1]) < 0.001 else abs(slot.scale[1])
+		scale_z= 0.001 if abs(slot.scale[2]) < 0.001 else abs(slot.scale[2])
+
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
 		ofile.write("\n\t\tMatrix(")
-		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % ((VRayTexture.tile_u if VRayTexture.tile in ('TILEUV','TILEU') else 1.0) / slot.scale[0]))
-		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % ((VRayTexture.tile_v if VRayTexture.tile in ('TILEUV','TILEV') else 1.0) / slot.scale[1]))
-		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f"  % (                                                                   1.0  / slot.scale[2]))
+		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % ((VRayTexture.tile_u if VRayTexture.tile in ('TILEUV','TILEU') else 1.0) / scale_x))
+		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % ((VRayTexture.tile_v if VRayTexture.tile in ('TILEUV','TILEV') else 1.0) / scale_y))
+		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f"  % (                                                                   1.0  / scale_z))
 		ofile.write("\n\t\t),")
 		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % (slot.offset[0], slot.offset[1], slot.offset[2]))
 		ofile.write("\n\t)));")
+	else:
+		ofile.write("\n\twrap_u= %d;" % (2 if VRayTexture.mirror_u else 0))
+		ofile.write("\n\twrap_v= %d;" % (2 if VRayTexture.mirror_v else 0))
+
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")

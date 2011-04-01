@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [16:18]"
+  Time-stamp: "Friday, 01 April 2011 [13:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -918,6 +918,29 @@ def write_materials(bus):
 	scene= bus['scene']
 
 	ob=    bus['node']['object']
+
+	VRayScene= scene.vray
+	SettingsOptions= VRayScene.SettingsOptions
+
+	# Material override
+	if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
+		ma= get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
+		if ma:
+			bus['material']= {}
+			bus['material']['material']= ma
+
+			# Normal mapping settings pointer
+			bus['material']['normal_slot']=      None
+
+			# Set if any texture uses object mapping
+			bus['material']['orco_suffix']=      ""
+
+			if ma.use_nodes:
+				bus['node']['material']= write_node_material(bus)
+			else:
+				bus['node']['material']= write_material(bus)
+
+			return
 
 	# Multi-material name
 	mtl_name= get_name(ob, prefix='OBMA')
