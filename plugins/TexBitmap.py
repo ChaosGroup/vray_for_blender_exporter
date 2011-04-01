@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [13:33]"
+  Time-stamp: "Friday, 01 April 2011 [19:03]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -57,7 +57,7 @@ def add_properties(rna_pointer):
 				('MIPMAP', "Mip-Map",     "Mip-map filtering."),
 				('AREA',   "Area",        "Summed area filtering.")
 			),
-			default= 'AREA'
+			default= 'NONE'
 		)
 
 		color_space= EnumProperty(
