@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [15:38]"
+  Time-stamp: "Saturday, 02 April 2011 [16:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -44,7 +44,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return (context.material or context.world or context.lamp or context.brush or context.texture or context.texture_node) and engine_poll(cls, context)
+		return engine_poll(cls, context)
 
 	def draw(self, context):
 		layout= self.layout

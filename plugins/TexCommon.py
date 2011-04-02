@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 02 April 2011 [00:23]"
+  Time-stamp: "Saturday, 02 April 2011 [16:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -550,6 +550,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 				sub.prop(slot, 'offset', text="")
 
 				split= layout.split()
+				col= split.column()
 				col.label(text="Scale:")
 				if wide_ui:
 					sub= col.row()
@@ -557,13 +558,19 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 					sub= col.column()
 				sub.prop(slot, 'scale', text="")
 
-			# TODO:
-			# split= layout.split()
-			# col= split.column()
-			# col.prop(VRaySlot, 'texture_rotation_h', slider= True)
-			# if wide_ui:
-			# 	col= split.column()
-			# col.prop(VRaySlot, 'texture_rotation_v', slider= True)
+			split= layout.split()
+			split.active= False
+			col= split.column()
+			col.label(text="Rotation:")
+			if wide_ui:
+				sub= col.row(align= True)
+			else:
+				sub= col.column(align= True)
+			sub.prop(VRaySlot, 'texture_rot_u', text= "U")
+			sub.prop(VRaySlot, 'texture_rot_v', text= "V")
+			sub.prop(VRaySlot, 'texture_rot_w', text= "W")
+
+			layout.separator()
 
 			layout.prop(VRayTexture, 'jitter')
 
@@ -581,16 +588,17 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 
 			box= layout.box()
 			box.prop(VRayTexture, 'uv_noise_on', text= "UV noise")
-			split= box.split()
-			split.active= VRayTexture.uv_noise_on
-			col= split.column()
-			col.prop(VRayTexture, 'uv_noise_animate')
-			col.prop(VRayTexture, 'un_noise_phase')
-			if wide_ui:
+			if VRayTexture.uv_noise_on:
+				split= box.split()
+				split.active= VRayTexture.uv_noise_on
 				col= split.column()
-			col.prop(VRayTexture, 'uv_noise_amount')
-			col.prop(VRayTexture, 'uv_noise_levels')
-			col.prop(VRayTexture, 'uv_noise_size')
+				col.prop(VRayTexture, 'uv_noise_animate')
+				col.prop(VRayTexture, 'un_noise_phase')
+				if wide_ui:
+					col= split.column()
+				col.prop(VRayTexture, 'uv_noise_amount')
+				col.prop(VRayTexture, 'uv_noise_levels')
+				col.prop(VRayTexture, 'uv_noise_size')
 
 		elif issubclass(type(idblock), bpy.types.World):
 			split= layout.split(percentage=0.3)

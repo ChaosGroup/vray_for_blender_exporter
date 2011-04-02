@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 31 March 2011 [22:57]"
+  Time-stamp: "Saturday, 02 April 2011 [16:29]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -785,6 +785,39 @@ def add_properties():
 				('ILLUMINATE',  "Illuminate", ""),
 			),
 			default= 'OVER'
+		)
+
+		texture_rot_u= FloatProperty(
+			name= "U rotation",
+			description= "U rotation.",
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
+			default= 0.0
+		)
+
+		texture_rot_v= FloatProperty(
+			name= "V rotation",
+			description= "V rotation.",
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
+			default= 0.0
+		)
+
+		texture_rot_w= FloatProperty(
+			name= "W rotation",
+			description= "W rotation.",
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
+			default= 0.0
 		)
 
 		texture_rotation_h= FloatProperty(
