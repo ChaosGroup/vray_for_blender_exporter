@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 28 March 2011 [16:26]"
+  Time-stamp: "Sunday, 03 April 2011 [19:31]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -717,7 +717,6 @@ class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 
 			split= layout.split()
 			split.label(text="Advanced parameters:")
-
 			if wide_ui:
 				split= layout.split(percentage=0.7)
 			else:
@@ -732,7 +731,18 @@ class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module,"randomize_samples", text="Randomize")
 			col.prop(module,"check_sample_visibility", text="Check sample")
 
-		elif module.mode == 'ANIM_REND':
+		if module.mode == 'FILE':
+			layout.label(text="Basic parameters:")
+			layout.prop(module,"interp_samples", text= "Interp. samples")
+
+			layout.label(text="Advanced parameters:")
+			split= layout.split()
+			col= split.column()
+			col.prop(module,"interpolation_mode", text="Interp. type")
+			col.prop(module,"lookup_mode")
+			col.prop(module,"calc_interp_samples")
+
+		if module.mode == 'ANIM_REND':
 			split= layout.split()
 			split.label(text="Basic parameters:")
 
@@ -846,19 +856,18 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module, "num_passes_auto")
 
 		layout.label(text="Reconstruction parameters:")
-		if not module.mode == 'FILE':
-			split= layout.split(percentage=0.2)
-			split.column().prop(module, "filter")
-			sub= split.column().row()
-			sub.active= module.filter
-			sub.prop(module, "filter_type", text="Type")
-			if module.filter_type != 'NONE':
-				if module.filter_type == 'NEAREST':
-					sub.prop(module, "filter_samples")
-				else:
-					sub.prop(module, "filter_size")
+		split= layout.split(percentage=0.2)
+		split.column().prop(module, "filter")
+		sub= split.column().row()
+		sub.active= module.filter
+		sub.prop(module, "filter_type", text="Type")
+		if module.filter_type != 'NONE':
+			if module.filter_type == 'NEAREST':
+				sub.prop(module, "filter_samples")
 			else:
-				sub.label(text="")
+				sub.prop(module, "filter_size")
+		else:
+			sub.label(text="")
 
 		split= layout.split(percentage=0.2)
 		split.column().prop(module, "prefilter")

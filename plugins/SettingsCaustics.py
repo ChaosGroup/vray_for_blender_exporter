@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Sunday, 03 April 2011 [19:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -87,6 +87,7 @@ def add_properties(parent_struct):
 	SettingsCaustics.search_distance= FloatProperty(
 		name= "Search distance",
 		description= "TODO.",
+		subtype= 'DISTANCE',
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

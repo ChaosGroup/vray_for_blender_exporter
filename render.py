@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [13:45]"
+  Time-stamp: "Sunday, 03 April 2011 [19:44]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1171,16 +1171,16 @@ def write_node(bus):
 
 	ofile.write("\nMtlRenderStats %s {" % material)
 	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
-	ofile.write("\n\tvisibility= %s;" % (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1))
-	ofile.write("\n\tcamera_visibility= %s;" % (0 if ob in visibility['camera'] else 1))
-	ofile.write("\n\tgi_visibility= %s;" % (0 if ob in visibility['gi'] else 1))
+	ofile.write("\n\tvisibility= %s;" %             (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1))
+	ofile.write("\n\tcamera_visibility= %s;" %      (0 if ob in visibility['camera']  else 1))
+	ofile.write("\n\tgi_visibility= %s;" %          (0 if ob in visibility['gi']      else 1))
 	ofile.write("\n\treflections_visibility= %s;" % (0 if ob in visibility['reflect'] else 1))
 	ofile.write("\n\trefractions_visibility= %s;" % (0 if ob in visibility['refract'] else 1))
-	ofile.write("\n\tshadows_visibility= %s;" % (0 if ob in visibility['shadows'] else 1))
+	ofile.write("\n\tshadows_visibility= %s;" %     (0 if ob in visibility['shadows'] else 1))
 	ofile.write("\n}\n")
 
 	ofile.write("\nNode %s {" % node_name)
-	ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID',ob.pass_index))
+	ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID', ob.pass_index))
 	ofile.write("\n\tgeometry= %s;" % bus['node']['geometry'])
 	ofile.write("\n\tmaterial= %s;" % material)
 	if bus['node']['particle']:
@@ -1299,6 +1299,8 @@ def write_object(bus):
 		for param in PLUGINS['MATERIAL']['MtlRenderStats'].PARAMS:
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlRenderStats,param))))
 		ofile.write("\n}\n")
+
+	bus['node']['material']= ma_name
 
 	write_node(bus)
 
