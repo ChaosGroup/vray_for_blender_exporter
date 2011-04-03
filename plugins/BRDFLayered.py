@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:24]"
+  Time-stamp: "Sunday, 03 April 2011 [21:11]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -174,7 +174,14 @@ def add_properties(rna_pointer):
   OUTPUT
 '''
 def mapto(bus, BRDFPlugin= None):
-	return {}
+	scene= bus['scene']
+	ma=    bus['material']['material']
+
+	defaults= {}
+	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+
+	return defaults
 
 
 def write(bus, VRayBRDF= None, base_name= None):

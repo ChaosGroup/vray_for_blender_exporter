@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [13:47]"
+  Time-stamp: "Sunday, 03 April 2011 [21:09]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -358,6 +358,9 @@ def mapto(bus, BRDFLayered= None):
 	defaults['specular_color']=      (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.specular_color)),     0, 'NONE')
 	defaults['specular_amount']=     (a(scene,"AColor(0.0,0.0,0.0,1.0)"), 0, 'NONE')
 	defaults['specular_glossiness']= (a(scene,"AColor(0.0,0.0,0.0,1.0)"), 0, 'NONE')
+
+	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 
 	return defaults
 

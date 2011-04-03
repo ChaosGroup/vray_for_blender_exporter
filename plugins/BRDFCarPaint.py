@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:12]"
+  Time-stamp: "Sunday, 03 April 2011 [21:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -565,7 +565,19 @@ def add_properties(rna_pointer):
   OUTPUT
 '''
 def mapto(bus, BRDFLayered= None):
-	return {}
+	scene= bus['scene']
+	ma=    bus['material']['material']
+
+	VRayMaterial= ma.vray
+
+	BRDFVRayMtl=  BRDFLayered.BRDFCarPaint if BRDFLayered else VRayMaterial.BRDFCarPaint
+
+	defaults= {}
+
+	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+
+	return defaults
 
 
 def write(bus, VRayBRDF= None, base_name= None):

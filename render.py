@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [19:53]"
+  Time-stamp: "Sunday, 03 April 2011 [21:08]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -962,10 +962,10 @@ def write_materials(bus):
 				bus['material']['material']= ma
 
 				# Normal mapping settings pointer
-				bus['material']['normal_slot']=      None
+				bus['material']['normal_slot']= None
 
 				# Set if any texture uses object mapping
-				bus['material']['orco_suffix']=      ""
+				bus['material']['orco_suffix']= ""
 
 				if ma.use_nodes:
 					mtls_list.append(write_node_material(bus))
