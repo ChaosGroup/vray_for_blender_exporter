@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [19:44]"
+  Time-stamp: "Sunday, 03 April 2011 [19:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1271,6 +1271,8 @@ def write_object(bus):
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlWrapper,param))))
 		ofile.write("\n}\n")
 
+		bus['node']['material']= ma_name
+
 	if VRayObject.MtlOverride.use:
 		base_mtl= complex_material.pop()
 		ma_name= complex_material[-1]
@@ -1291,6 +1293,8 @@ def write_object(bus):
 		ofile.write("\n\tenvironment_priority= %i;"%(VRayObject.MtlOverride.environment_priority))
 		ofile.write("\n}\n")
 
+		bus['node']['material']= ma_name
+
 	if VRayObject.MtlRenderStats.use:
 		base_mtl= complex_material.pop()
 		ma_name= complex_material[-1]
@@ -1300,7 +1304,7 @@ def write_object(bus):
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 
-	bus['node']['material']= ma_name
+		bus['node']['material']= ma_name
 
 	write_node(bus)
 
