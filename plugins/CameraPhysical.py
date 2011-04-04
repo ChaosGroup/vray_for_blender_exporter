@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [07:33]"
+  Time-stamp: "Monday, 04 April 2011 [15:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -376,7 +376,7 @@ def write(bus):
 
 	focus_distance= camera.data.dof_distance
 	if camera.data.dof_object:
-		focus_distance= get_distance(ca,camera.data.dof_object)
+		focus_distance= get_distance(camera, camera.data.dof_object)
 
 	if focus_distance < 0.001:
 		focus_distance= 200.0
