@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 02 April 2011 [16:38]"
+  Time-stamp: "Monday, 04 April 2011 [02:05]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -37,33 +37,36 @@ from vb25.plugins import *
 
 
 class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
-	bl_label       = ""
-	bl_options     = {'HIDE_HEADER'}
+	bl_label = ""
+	bl_options = {'HIDE_HEADER'}
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		return engine_poll(cls, context)
+		if not hasattr(context, "texture_slot"):
+			return False
+
+		return ((context.material or context.world or context.lamp or context.brush or context.texture or context.particle_system or isinstance(context.space_data.pin_id, bpy.types.ParticleSettings))
+				and engine_poll(cls, context))
 
 	def draw(self, context):
-		layout= self.layout
-		
-		node=    context.texture_node
-		space=   context.space_data
-		idblock= context_tex_datablock(context)
-		pin_id=  space.pin_id
+		layout = self.layout
+		slot = context.texture_slot
+		node = context.texture_node
+		space = context.space_data
+		tex = context.texture
+		idblock = context_tex_datablock(context)
+		pin_id = space.pin_id
 
-		slot= getattr(context, 'texture_slot', None)
-		tex=  slot.texture if slot else context.texture
-
-		if not isinstance(pin_id, bpy.types.Material):
+		if space.use_pin_id and not isinstance(pin_id, bpy.types.Texture):
+			idblock = pin_id
 			pin_id = None
 
 		if not space.use_pin_id:
 			layout.prop(space, "texture_context", expand=True)
 
-		tex_collection = (not space.use_pin_id) and (node is None) and (not isinstance(idblock, bpy.types.Brush))
+		tex_collection = (pin_id is None) and (node is None) and (not isinstance(idblock, bpy.types.Brush))
 
 		if tex_collection:
 			row = layout.row()
@@ -75,21 +78,23 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 			col.operator("texture.slot_move", text="", icon='TRIA_DOWN').type = 'DOWN'
 			col.menu("TEXTURE_MT_specials", icon='DOWNARROW_HLT', text="")
 
-		split= layout.split()
-		col= split.column()
 		if tex_collection:
-			col.template_ID(idblock, "active_texture", new="texture.new")
+			layout.template_ID(idblock, "active_texture", new="texture.new")
 		elif node:
-			col.template_ID(node, "texture", new="texture.new")
+			layout.template_ID(node, "texture", new="texture.new")
 		elif idblock:
-			col.template_ID(idblock, "texture", new="texture.new")
+			layout.template_ID(idblock, "texture", new="texture.new")
+
 		if pin_id:
-			col.template_ID(space, "pin_id")
+			layout.template_ID(space, "pin_id")
 
 		if tex:
+			split = layout.split(percentage=0.2)
+
 			if tex.use_nodes:
 				if slot:
-					layout.prop(slot, "output_node", text="Output")
+					split.label(text="Output:")
+					split.prop(slot, "output_node", text="")
 
 			else:
 				layout.prop(tex, 'type', text="Texture")
@@ -135,6 +140,15 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 		# If texture used in nodes
 		if not hasattr(context, 'texture_slot'):
 			return False
+
+		texture= context.texture_slot.texture if context.texture_slot else context.texture
+
+		if not texture:
+			return False
+
+		if texture.type == 'VRAY' and texture.vray.type == 'NONE':
+			return False
+
 		return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
 
 	def draw(self, context):

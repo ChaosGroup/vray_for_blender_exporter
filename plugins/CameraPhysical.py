@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 04 April 2011 [15:26]"
+  Time-stamp: "Wednesday, 06 April 2011 [17:09]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -389,11 +389,15 @@ def write(bus):
 		ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
 		ofile.write("\n\tfov= %s;" % a(scene,fov))
 		ofile.write("\n\twhite_balance= %s;" % a(scene, CameraPhysical.white_balance))
+
 		for param in PARAMS:
 			if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
 				value= get_lens_shift(camera)
 			else:
 				value= getattr(CameraPhysical,param)
 			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+
+		ofile.write("\n\thorizontal_offset= %s;" % a(scene, -camera.data.shift_x))
+		ofile.write("\n\tvertical_offset= %s;"   % a(scene, -camera.data.shift_y))
 		ofile.write("\n}\n")
 

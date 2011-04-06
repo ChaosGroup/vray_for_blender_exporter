@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [21:44]"
+  Time-stamp: "Sunday, 03 April 2011 [22:50]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,6 +32,8 @@ import os
 import subprocess
 import tempfile
 import time
+import zipfile
+import urllib.request
 
 ''' Blender modules '''
 import bpy
@@ -46,6 +48,36 @@ from vb25.plugins import *
 
 
 VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
+
+
+'''
+  SCRIPT AUTOUPDATE
+'''
+class VRAY_OT_update(bpy.types.Operator):
+	bl_idname      = "vray.update"
+	bl_label       = "Update exporter"
+	bl_description = "Update exporter from github."
+
+	def reporthook(self, blocks_count, blocks_size, file_size):
+		print(blocks_count, blocks_size, file_size)
+
+	def execute(self, context):
+		# GIT_URL= "http://github.com/bdancer/vb25/zipball/master"
+
+		# update_dir= create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
+		# zip_filepath= os.path.join(update_dir, "vb25git.zip")
+
+		# # Downloading file
+		# (filename, headers)= urllib.request.urlretrieve(GIT_URL, reporthook= self.reporthook)
+
+		# # Extracting archive
+		# # ziparchive= zipfile.ZipFile(zip_filepath)
+		# # ziparchive.extractall(update_dir)
+		
+		return {'FINISHED'}
+
+
+bpy.utils.register_class(VRAY_OT_update)
 
 
 '''

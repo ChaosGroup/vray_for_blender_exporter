@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [11:10]"
+  Time-stamp: "Wednesday, 06 April 2011 [17:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -122,15 +122,26 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		# col= split.column()
 
 		split= layout.split()
-		col = split.column(align=True)
-		col.label(text="Clipping:")
-		col.prop(ca, 'clip_start', text="Start")
-		col.prop(ca, 'clip_end', text="End")
+		col= split.column()
+		sub= col.column(align=True)
+		sub.label(text="Clipping:")
+		sub.prop(ca, 'clip_start', text="Start")
+		sub.prop(ca, 'clip_end', text="End")
 		if wide_ui:
 			col= split.column()
-		col.label(text="Depth of Field:")
-		col.prop(ca, 'dof_object', text="")
+		sub= col.column(align=True)
+		sub.label(text="Offset:")
+		sub.prop(ca, 'shift_x', text="X")
+		sub.prop(ca, 'shift_y', text="Y")
+
+		split= layout.split()
+		split.label(text="Depth of Field:")
+		split= layout.split()
+		col= split.column(align=True)
 		col.prop(ca, 'dof_distance', text="Distance")
+		if wide_ui:
+			col= split.column()
+		col.prop(ca, 'dof_object', text="")
 
 		layout.separator()
 

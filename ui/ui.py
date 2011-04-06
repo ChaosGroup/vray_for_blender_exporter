@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 15 March 2011 [17:27]"
+  Time-stamp: "Monday, 04 April 2011 [01:59]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -30,21 +30,30 @@
 narrowui= 200
 
 
+from bl_ui.properties_material import active_node_mat
+
+
 def context_tex_datablock(context):
-    idblock= context.material
-    if idblock:
-        return idblock
+	idblock = context.material
+	if idblock:
+		return active_node_mat(idblock)
 
-    idblock= context.lamp
-    if idblock:
-        return idblock
+	idblock = context.lamp
+	if idblock:
+		return idblock
 
-    idblock= context.world
-    if idblock:
-        return idblock
+	idblock = context.world
+	if idblock:
+		return idblock
 
-    idblock= context.brush
-    return idblock
+	idblock = context.brush
+	if idblock:
+		return idblock
+
+	if context.particle_system:
+		idblock = context.particle_system.settings
+
+	return idblock
 
 
 def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
@@ -139,7 +148,7 @@ class VRayTexturePanel():
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return tex and (tex.type != 'NONE' or tex.use_nodes) and engine_poll(cls, context)
+		return engine_poll(cls, context) and tex and (tex.type != 'NONE' or tex.use_nodes)
 
 
 class VRayWorldPanel():
