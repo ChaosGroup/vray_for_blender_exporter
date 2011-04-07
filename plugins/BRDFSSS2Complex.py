@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [21:09]"
+  Time-stamp: "Thursday, 07 April 2011 [23:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -255,7 +255,7 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFSSS2Complex.cutoff_threshold= FloatProperty(
-		name= "Cutoff threshold",
+		name= "Cutoff",
 		description= 'TODO.',
 		min= 0.0,
 		max= 1.0,
@@ -294,8 +294,10 @@ def add_properties(rna_pointer):
 	BRDFSSS2Complex.subdivs= IntProperty(
 		name= "Subdivs",
 		description= 'TODO.',
-		min= 0,
-		max= 10,
+		min= 1,
+		max= 1024,
+		soft_min= 1,
+		soft_max= 32,
 		default= 8
 	)
 
@@ -329,9 +331,9 @@ def add_properties(rna_pointer):
 		name= "Prepass blur",
 		description= 'TODO.',
 		min= 0.0,
-		max= 1.0,
+		max= 100.0,
 		soft_min= 0.0,
-		soft_max= 1.0,
+		soft_max= 10.0,
 		precision= 3,
 		default= 1.2
 	)
@@ -496,6 +498,7 @@ def gui(context, layout, BRDFSSS2Complex, material= None):
 		col= split.column()
 	col.prop(BRDFSSS2Complex, 'specular_amount', text='Amount')
 	col.prop(BRDFSSS2Complex, 'specular_glossiness', text='Glossiness')
+	col.prop(BRDFSSS2Complex, 'cutoff_threshold')
 
 	split= layout.split()
 	col= split.column()
@@ -513,12 +516,11 @@ def gui(context, layout, BRDFSSS2Complex, material= None):
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFSSS2Complex, 'subdivs')
+	col.prop(BRDFSSS2Complex, 'subdivs', slider= True)
 	col.prop(BRDFSSS2Complex, 'refraction_depth')
-	col.prop(BRDFSSS2Complex, 'cutoff_threshold')
+	col.prop(BRDFSSS2Complex, 'prepass_blur')
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFSSS2Complex, 'front_scatter')
 	col.prop(BRDFSSS2Complex, 'back_scatter')
 	col.prop(BRDFSSS2Complex, 'scatter_gi')
-	col.prop(BRDFSSS2Complex, 'prepass_blur')
