@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [21:08]"
+  Time-stamp: "Sunday, 10 April 2011 [15:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1358,7 +1358,7 @@ def _write_object_particles(bus):
 					location= particle.location
 					size= particle.size
 					if ps.settings.type == 'HAIR':
-						location= particle.hair[0].co
+						location= particle.hair_keys[0].co
 						size*= 3
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()

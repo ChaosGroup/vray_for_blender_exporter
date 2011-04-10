@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 06 April 2011 [17:10]"
+  Time-stamp: "Sunday, 10 April 2011 [23:07]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -58,9 +58,11 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		ca= context.camera
 
 		VRayCamera= ca.vray
-		SettingsCamera= VRayCamera.SettingsCamera
-		SettingsCameraDof= VRayCamera.SettingsCameraDof
+
+		SettingsCamera=     VRayCamera.SettingsCamera
+		SettingsCameraDof=  VRayCamera.SettingsCameraDof
 		SettingsMotionBlur= VRayCamera.SettingsMotionBlur
+		CameraPhysical=     VRayCamera.CameraPhysical
 
 		wide_ui= context.region.width > narrowui
 
@@ -121,18 +123,29 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		# col= split.column()
 		# col= split.column()
 
+		if not CameraPhysical.use:
+			layout.label(text="Clipping:")
+
 		split= layout.split()
 		col= split.column()
-		sub= col.column(align=True)
-		sub.label(text="Clipping:")
+		if CameraPhysical.use:
+			sub= col.column(align=True)
+			sub.label(text="Clipping:")
+		else:
+			if wide_ui:
+				sub= col.row(align=True)
+			else:
+				sub= col.column(align=True)
 		sub.prop(ca, 'clip_start', text="Start")
 		sub.prop(ca, 'clip_end', text="End")
-		if wide_ui:
-			col= split.column()
-		sub= col.column(align=True)
-		sub.label(text="Offset:")
-		sub.prop(ca, 'shift_x', text="X")
-		sub.prop(ca, 'shift_y', text="Y")
+
+		if CameraPhysical.use:
+			if wide_ui:
+				col= split.column()
+			sub= col.column(align=True)
+			sub.label(text="Offset:")
+			sub.prop(ca, 'shift_x', text="X")
+			sub.prop(ca, 'shift_y', text="Y")
 
 		split= layout.split()
 		split.label(text="Depth of Field:")
