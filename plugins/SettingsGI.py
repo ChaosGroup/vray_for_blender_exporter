@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [17:26]"
+  Time-stamp: "Monday, 11 April 2011 [23:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -503,10 +503,10 @@ def add_properties(parent_struct):
 		name= "Detail enhancement scale",
 		description= "Build-in presets.",
 		items= (
-			('SCREEN',"Screen",""),
-			('WORLD',"World","")
+			('SCREEN', "Screen", "Radius in pixels."),
+			('WORLD',  "World",  "Radius in Blender Units.")
 		),
-		default= "SCREEN"
+		default= 'WORLD'
 	)
 
 	SettingsIrradianceMap.min_rate= IntProperty(
@@ -628,7 +628,8 @@ def add_properties(parent_struct):
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= 0.06
+		precision= 3,
+		default= 0.2
 	)
 
 	SettingsIrradianceMap.multipass= BoolProperty(
