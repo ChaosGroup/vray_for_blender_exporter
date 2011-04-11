@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [15:29]"
+  Time-stamp: "Monday, 11 April 2011 [16:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -238,10 +238,10 @@ def add_properties(rna_pointer):
 	GeomDisplacedMesh.resolution= IntProperty(
 		name= "Resolution",
 		description= "Resolution at which to sample the displacement map for 2d displacement.",
-		min= 0,
-		max= 2048,
-		soft_min= 0,
-		soft_max= 512,
+		min= 1,
+		max= 100000,
+		soft_min= 1,
+		soft_max= 2048,
 		default= 256
 	)
 
