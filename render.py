@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 10 April 2011 [15:18]"
+  Time-stamp: "Monday, 11 April 2011 [23:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1799,7 +1799,7 @@ def run(engine, bus):
 		params.append('-display=')
 		params.append(str(int(VRayExporter.display)))
 
-		if VRayExporter.image_to_blender:
+		if VRayExporter.auto_save_render and VRayExporter.image_to_blender:
 			params.append('-autoclose=')
 			params.append('1')
 
