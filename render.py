@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 April 2011 [23:51]"
+  Time-stamp: "Sunday, 17 April 2011 [21:22]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -618,7 +618,6 @@ def write_settings(bus):
 
 
 
-
 '''
   MATERIALS & TEXTURES
 '''
@@ -1019,16 +1018,19 @@ def write_lamp(bus):
 	VRayLamp= lamp.vray
 
 	lamp_type= None
-	lamp_name= get_name(ob, prefix='LA')
+
+	lamp_name=   get_name(ob, prefix='LA')
 	lamp_matrix= ob.matrix_world
 
-	textures= write_lamp_textures(bus)
-
-	if bus['node']['dupli'].get('matrix'):
+	if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+		lamp_name+=  bus['node']['dupli']['name']
 		lamp_matrix= bus['node']['dupli']['matrix']
 
-	if bus['node']['particle'].get('matrix'):
-		lamp_matrix= bus['node']['particle']['matrix']
+	if 'particles' in bus['node'] and 'name' in bus['node']['particles']:
+		lamp_name+=  bus['node']['particles']['name']
+		lamp_matrix= bus['node']['particles']['matrix']
+
+	textures= write_lamp_textures(bus)
 
 	if lamp.type == 'POINT':
 		if VRayLamp.radius > 0:
@@ -1135,6 +1137,9 @@ def write_node(bus):
 	VRayScene= scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
+	# Lights struct proposal for support Lamps inside duplis and particles:
+	#  [{'name': vray lamp name, 'lamp': lamp_pointer}
+	#   {...}]
 	lights= []
 	for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
 		if lamp.type == 'LAMP':
@@ -1164,6 +1169,17 @@ def write_node(bus):
 	matrix=    bus['node']['matrix']
 	base_mtl=  bus['node']['material']
 
+	if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+		node_name= bus['node']['dupli']['name']
+		matrix=    bus['node']['dupli']['matrix']
+
+	if 'particles' in bus['node'] and 'name' in bus['node']['particles']:
+		node_name= bus['node']['particles']['name']
+		matrix=    bus['node']['particles']['matrix']
+
+	if 'hair' in bus['node'] and bus['node']['hair'] == True:
+		node_name+= 'HAIR'
+
 	if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
 		material= get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
 
@@ -1183,7 +1199,7 @@ def write_node(bus):
 	ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID', ob.pass_index))
 	ofile.write("\n\tgeometry= %s;" % bus['node']['geometry'])
 	ofile.write("\n\tmaterial= %s;" % material)
-	if bus['node']['particle']:
+	if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
 		ofile.write("\n\tvisible= %s;" % a(scene, bus['node']['particle']['visible']))
 	ofile.write("\n\ttransform= %s;" % a(scene, transform(matrix)))
 	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
@@ -1205,7 +1221,7 @@ def write_object(bus):
 	bus['node']['geometry']=  get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
 	bus['node']['matrix']=    ob.matrix_world
 
-	# Skip if object is just dupli holder
+	# Skip if object is just dupli-group holder
 	if ob.dupli_type == 'GROUP':
 		return
 
@@ -1235,19 +1251,6 @@ def write_object(bus):
 
 	# Displace
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
-
-	# Correct matrix if particles / dupli
-	if bus['node']['particle']:
-		bus['node']['name']=   bus['node']['particle']['name']
-		bus['node']['matrix']= bus['node']['particle']['matrix']
-
-	elif bus['node']['dupli']:
-		# if bus['node']['dupli']['type'] == 'GROUP':
-		# 	bus['node']['matrix']= bus['node']['dupli']['matrix'] * bus['node']['matrix']
-		# else:
-		# 	bus['node']['matrix']= bus['node']['dupli']['matrix']
-		bus['node']['name']=   bus['node']['dupli']['name']
-		bus['node']['matrix']= bus['node']['dupli']['matrix']
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
@@ -1319,7 +1322,6 @@ def _write_object_particles(bus):
 	VRayExporter= VRayScene.exporter
 
 	if len(ob.particle_systems):
-		# Write particles
 		for ps in ob.particle_systems:
 			ps_material= "MANOMATERIALISSET"
 			ps_material_idx= ps.settings.material
@@ -1328,8 +1330,8 @@ def _write_object_particles(bus):
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= "HAIR%sPS%s" % (get_name(ob, prefix='OB'), clean_string(ps.name))
-					hair_node_name= "%s%s"       % (get_name(ob, prefix='OB'), hair_geom_name)
+					hair_geom_name= clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
+					hair_node_name= get_name(ob, prefix='HAIR')
 
 					if not 'export_meshes' in dir(bpy.ops.vray):
 						write_GeomMayaHair(bus, ps, hair_geom_name)
@@ -1337,17 +1339,21 @@ def _write_object_particles(bus):
 					bus['node']['name']=     hair_node_name
 					bus['node']['geometry']= hair_geom_name
 					bus['node']['material']= ps_material
-
+					bus['node']['hair']=     True
+					
 					write_node(bus)
 
-					bus['node']['name']= emitter_node
-					
+					bus['node']['hair']=     False
+
 			else:
 				particle_objects= []
+
 				if ps.settings.render_type == 'OBJECT':
 					particle_objects.append(ps.settings.dupli_object)
+
 				elif ps.settings.render_type == 'GROUP':
 					particle_objects= ps.settings.dupli_group.objects
+
 				else:
 					continue
 
@@ -1363,8 +1369,10 @@ def _write_object_particles(bus):
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
 
+					# Specific to Blender particle realization
 					if ps.settings.rotation_mode == 'OB_Z':
 						part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
+
 					elif ps.settings.rotation_mode == 'NOR':
 						part_transform*= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Y')
 
@@ -1380,8 +1388,8 @@ def _write_object_particles(bus):
 
 						if bus['node']['particle'].get('name'):
 							part_name= "OB%sPS%sP%s" %(bus['node']['particle']['name'],
-														 clean_string(ps.name),
-														 p)
+													   clean_string(ps.name),
+													   p)
 												 
 						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
 							part_transform= part_transform * p_ob.matrix_world
@@ -1398,16 +1406,16 @@ def _write_object_particles(bus):
 						bus['node']['object']= p_ob
 						bus['node']['base']= ob
 						bus['node']['particle']= {}
-						bus['node']['particle']['name']= part_name
+						bus['node']['particle']['name']=     part_name
+						bus['node']['particle']['matrix']=   part_transform
+						bus['node']['particle']['visible']=  part_visibility
 						bus['node']['particle']['material']= ps_material
-						bus['node']['particle']['matrix']= part_transform
-						bus['node']['particle']['visible']= part_visibility
 
 						_write_object(bus)
 
-						bus['node']['object']= ob
-						bus['node']['base']= ob
-						bus['node']['visible']= True
+						bus['node']['object']=   ob
+						bus['node']['base']=     ob
+						bus['node']['visible']=  True
 						bus['node']['particle']= {}
 
 
@@ -1418,18 +1426,34 @@ def _write_object_dupli(bus):
 		ob.dupli_list_create(bus['scene'])
 
 		for dup_id,dup_ob in enumerate(ob.dupli_list):
+			parent_dupli= ""
+			
 			bus['node']['object']= dup_ob.object
-			bus['node']['base']= ob
-			bus['node']['dupli']['name']= "OB%sDO%s" % (clean_string(ob.name), dup_id)
-			bus['node']['dupli']['matrix']= dup_ob.matrix
-			bus['node']['dupli']['type']= ob.dupli_type
+			bus['node']['base']=   ob
+
+			# Currently processed dupli name
+			dup_node_name= clean_string("OB%sDO%sID%i" % (ob.name,
+														  dup_ob.object.name,
+														  dup_id))
+			dup_node_matrix= dup_ob.matrix
+			
+			# For case when dupli is inside other dupli
+			if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+				# Store parent dupli name
+				parent_dupli=   bus['node']['dupli']['name']
+				dup_node_name+= parent_dupli
+
+			bus['node']['dupli']=  {}
+			bus['node']['dupli']['name']=   dup_node_name
+			bus['node']['dupli']['matrix']= dup_node_matrix
 
 			_write_object(bus)
 
 			bus['node']['object']= ob
-			bus['node']['base']= ob
-			bus['node']['dupli']= {}
-
+			bus['node']['base']=   ob
+			bus['node']['dupli']=  {}
+			bus['node']['dupli']['name']=   parent_dupli
+			
 		ob.dupli_list_clear()
 
 
@@ -1438,14 +1462,21 @@ def _write_object(bus):
 
 	if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 		return
+
 	if ob.type == 'LAMP':
 		write_lamp(bus)
+
 	elif ob.type == 'EMPTY':
 		_write_object_dupli(bus)
+
 	else:
 		write_object(bus)
 		_write_object_particles(bus)
-		_write_object_dupli(bus)
+
+		# Parent dupli_list_create() call create all duplicates
+		# even for sub duplis, so no need to process dupli again
+		if 'dupli' in bus['node'] and 'matrix' not in bus['node']['dupli']:
+			_write_object_dupli(bus)
 
 
 def write_scene(bus):
@@ -1830,7 +1861,7 @@ def run(engine, bus):
 	if VRayExporter.autorun:
 		process= subprocess.Popen(params)
 
-		if bus['preview'] or VRayExporter.image_to_blender:
+		if (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_crop_to_border:
 			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 			while True:
 				if engine.test_break():
