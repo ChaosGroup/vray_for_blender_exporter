@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 17 March 2011 [10:26]"
+  Time-stamp: "Monday, 18 April 2011 [17:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -289,9 +289,9 @@ def add_properties(rna_pointer):
 		name= "Hilight",
 		description= "TODO: Tooltip.",
 		min= 0.0,
-		max= 100.0,
+		max= 1.0,
 		soft_min= 0.0,
-		soft_max= 10.0,
+		soft_max= 1.0,
 		precision= 3,
 		default= 1.0
 	)
@@ -320,9 +320,9 @@ def add_properties(rna_pointer):
 		name= "Glossiness",
 		description= "TODO: Tooltip.",
 		min= 0.0,
-		max= 100.0,
+		max= 1.0,
 		soft_min= 0.0,
-		soft_max= 10.0,
+		soft_max= 1.0,
 		precision= 3,
 		default= 1.0
 	)
