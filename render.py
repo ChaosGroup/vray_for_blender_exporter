@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 17 April 2011 [21:22]"
+  Time-stamp: "Tuesday, 26 April 2011 [01:19]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1026,9 +1026,9 @@ def write_lamp(bus):
 		lamp_name+=  bus['node']['dupli']['name']
 		lamp_matrix= bus['node']['dupli']['matrix']
 
-	if 'particles' in bus['node'] and 'name' in bus['node']['particles']:
-		lamp_name+=  bus['node']['particles']['name']
-		lamp_matrix= bus['node']['particles']['matrix']
+	if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
+		lamp_name+=  bus['node']['particle']['name']
+		lamp_matrix= bus['node']['particle']['matrix']
 
 	textures= write_lamp_textures(bus)
 
@@ -1173,9 +1173,9 @@ def write_node(bus):
 		node_name= bus['node']['dupli']['name']
 		matrix=    bus['node']['dupli']['matrix']
 
-	if 'particles' in bus['node'] and 'name' in bus['node']['particles']:
-		node_name= bus['node']['particles']['name']
-		matrix=    bus['node']['particles']['matrix']
+	if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
+		node_name= bus['node']['particle']['name']
+		matrix=    bus['node']['particle']['matrix']
 
 	if 'hair' in bus['node'] and bus['node']['hair'] == True:
 		node_name+= 'HAIR'
@@ -1202,7 +1202,8 @@ def write_node(bus):
 	if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
 		ofile.write("\n\tvisible= %s;" % a(scene, bus['node']['particle']['visible']))
 	ofile.write("\n\ttransform= %s;" % a(scene, transform(matrix)))
-	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+	if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
+		ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
 	ofile.write("\n}\n")
 
 
@@ -1358,8 +1359,9 @@ def _write_object_particles(bus):
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
-					sys.stdout.flush()
+					if(p % 1000):
+						sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
+						sys.stdout.flush()
 
 					location= particle.location
 					size= particle.size
@@ -1385,8 +1387,8 @@ def _write_object_particles(bus):
 
 					for p_ob in particle_objects:
 						part_name= "EM%sP%s" % (clean_string(ps.name), p)
-
-						if bus['node']['particle'].get('name'):
+						
+						if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
 							part_name= "OB%sPS%sP%s" %(bus['node']['particle']['name'],
 													   clean_string(ps.name),
 													   p)

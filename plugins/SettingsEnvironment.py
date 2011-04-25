@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 21 April 2011 [21:19]"
+  Time-stamp: "Thursday, 21 April 2011 [21:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -907,31 +907,31 @@ def write(bus):
 	ofile.write("\nSettingsEnvironment SettingsEnvironment {")
 	if 'env_bg' in bus['env_textures']:
 		ofile.write("\n\tbg_tex= %s;" % bus['env_textures']['env_bg'])
-		ofile.write("\n\tbg_tex_mult= %s;" % a(scene, VRayWorld.bg_color_mult))
 	else:
-		ofile.write("\n\tbg_color= %s;" % a(scene,VRayWorld.bg_color))
-		ofile.write("\n\tbg_tex= %s;"   % a(scene,VRayWorld.bg_color))
+		ofile.write("\n\tbg_color= %s;"    % a(scene, VRayWorld.bg_color))
+		ofile.write("\n\tbg_tex= %s;"      % a(scene, VRayWorld.bg_color))
+		ofile.write("\n\tbg_tex_mult= %s;" % a(scene, VRayWorld.bg_color_mult))
 
 	if 'env_gi' in bus['env_textures']:
 		ofile.write("\n\tgi_tex= %s;" % bus['env_textures']['env_gi'])
-		ofile.write("\n\tgi_tex_mult= %s;" % a(scene, VRayWorld.gi_color_mult))
 	elif VRayWorld.gi_override:
-		ofile.write("\n\tgi_color= %s;" % a(scene, VRayWorld.gi_color))
-		ofile.write("\n\tgi_tex= %s;"   % a(scene, VRayWorld.gi_color))
+		ofile.write("\n\tgi_color= %s;"    % a(scene, VRayWorld.gi_color))
+		ofile.write("\n\tgi_tex= %s;"      % a(scene, VRayWorld.gi_color))
+		ofile.write("\n\tgi_tex_mult= %s;" % a(scene, VRayWorld.gi_color_mult))
 
 	if 'env_reflection' in bus['env_textures']:
 		ofile.write("\n\treflect_tex= %s;" % bus['env_textures']['env_reflection'])
-		ofile.write("\n\treflect_tex_mult= %s;" % a(scene, VRayWorld.reflection_color_mult))
 	elif VRayWorld.reflection_override:
-		ofile.write("\n\treflect_color= %s;" % a(scene, VRayWorld.reflection_color))
-		ofile.write("\n\treflect_tex= %s;"   % a(scene, VRayWorld.reflection_color))
+		ofile.write("\n\treflect_color= %s;"    % a(scene, VRayWorld.reflection_color))
+		ofile.write("\n\treflect_tex= %s;"      % a(scene, VRayWorld.reflection_color))
+		ofile.write("\n\treflect_tex_mult= %s;" % a(scene, VRayWorld.reflection_color_mult))
 
 	if 'env_refraction' in bus['env_textures']:
 		ofile.write("\n\trefract_tex= %s;" % bus['env_textures']['env_refraction'])
-		ofile.write("\n\trefract_tex_mult= %s;" % a(scene, VRayWorld.refraction_color_mult))
 	elif VRayWorld.refraction_override:
-		ofile.write("\n\trefract_color= %s;" % a(scene, VRayWorld.refraction_color))
-		ofile.write("\n\trefract_tex= %s;"   % a(scene, VRayWorld.refraction_color))
+		ofile.write("\n\trefract_color= %s;"    % a(scene, VRayWorld.refraction_color))
+		ofile.write("\n\trefract_tex= %s;"      % a(scene, VRayWorld.refraction_color))
+		ofile.write("\n\trefract_tex_mult= %s;" % a(scene, VRayWorld.refraction_color_mult))
 
 	ofile.write("\n\tglobal_light_level= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % (VRayWorld.global_light_level)))
 
