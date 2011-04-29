@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [06:56]"
+  Time-stamp: "Friday, 29 April 2011 [07:17]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1372,8 +1372,8 @@ def _write_object_particles(bus):
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
 
 					# Specific to Blender particle realization
-					if ps.settings.rotation_mode == 'OB_Z':
-						part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
+					if ps.settings.rotation_mode in {'OB_Z', 'GLOB_Z'}:
+						part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Z')
 
 					elif ps.settings.rotation_mode == 'NOR':
 						part_transform*= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Y')
