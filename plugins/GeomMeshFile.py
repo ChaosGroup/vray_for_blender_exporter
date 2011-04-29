@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 26 March 2011 [20:16]"
+  Time-stamp: "Friday, 29 April 2011 [06:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -214,7 +214,7 @@ def write(bus):
 		proxy_filepath= os.path.normpath(bpy.path.abspath(GeomMeshFile.file))
 
 		if not os.path.exists(proxy_filepath):
-			debug(scene, "Object: %s => Proxy file doesn\'t exist!" % (ob.name), error= True)
+			debug(scene, "Object: %s => Proxy file doesn\'t exist! [%s]" % (ob.name, proxy_filepath), error= True)
 			return bus['node']['geometry']
 
 		proxy_filename= os.path.basename(proxy_filepath)[:-7]
@@ -225,6 +225,7 @@ def write(bus):
 									  clean_string(proxy_filename))
 
 		if not append_unique(bus['cache']['proxy'], proxy_name):
+			bus['node']['geometry']= proxy_name
 			return proxy_name
 
 		ofile.write("\nGeomMeshFile %s {" % proxy_name)
@@ -235,5 +236,4 @@ def write(bus):
 		ofile.write("\n}\n")
 
 		bus['node']['geometry']= proxy_name
-
 		return proxy_name

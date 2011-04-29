@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 02 April 2011 [16:35]"
+  Time-stamp: "Friday, 29 April 2011 [06:00]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -491,10 +491,22 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
+		
 		tex= context.texture
-		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
-													  (tex.type == 'IMAGE' and tex.image) or
-													  tex.use_nodes)
+		if not tex:
+			return False
+
+		if tex.type == 'VRAY':
+			if tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL:
+				return True
+
+		if tex.type == 'IMAGE':
+			if tex.image:
+				return True
+
+		return False
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -624,10 +636,22 @@ class VRAY_TP_Tiling(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
+		
 		tex= context.texture
-		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
-													  (tex.type == 'IMAGE' and tex.image) or
-													  tex.use_nodes)
+		if not tex:
+			return False
+
+		if tex.type == 'VRAY':
+			if tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL:
+				return True
+
+		if tex.type == 'IMAGE':
+			if tex.image:
+				return True
+
+		return False
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -703,10 +727,22 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
+		
 		tex= context.texture
-		return engine_poll(cls, context) and tex and ((tex.type == 'VRAY' and tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL) or
-													  (tex.type == 'IMAGE' and tex.image) or
-													  tex.use_nodes)
+		if not tex:
+			return False
+
+		if tex.type == 'VRAY':
+			if tex.vray.type != 'NONE' and tex.vray.type not in PURE_PROCEDURAL:
+				return True
+
+		if tex.type == 'IMAGE':
+			if tex.image:
+				return True
+
+		return False
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

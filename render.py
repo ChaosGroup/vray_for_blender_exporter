@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 26 April 2011 [01:19]"
+  Time-stamp: "Friday, 29 April 2011 [06:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1386,7 +1386,7 @@ def _write_object_particles(bus):
 					part_transform[3][2]= location[2]
 
 					for p_ob in particle_objects:
-						part_name= "EM%sP%s" % (clean_string(ps.name), p)
+						part_name= clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
 						
 						if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
 							part_name= "OB%sPS%sP%s" %(bus['node']['particle']['name'],

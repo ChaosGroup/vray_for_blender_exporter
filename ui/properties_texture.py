@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 04 April 2011 [02:05]"
+  Time-stamp: "Friday, 29 April 2011 [06:30]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -91,15 +91,13 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 		if tex:
 			split = layout.split(percentage=0.2)
 
-			if tex.use_nodes:
-				if slot:
-					split.label(text="Output:")
-					split.prop(slot, "output_node", text="")
+			if slot and tex.use_nodes:
+				split.label(text="Output:")
+				split.prop(slot, "output_node", text="")
 
-			else:
-				layout.prop(tex, 'type', text="Texture")
-				if tex.type == 'VRAY':
-					layout.prop(tex.vray, 'type', text="Type")
+			layout.prop(tex, 'type', text="Texture")
+			if tex.type == 'VRAY':
+				layout.prop(tex.vray, 'type', text="Type")
 
 
 class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
@@ -109,12 +107,14 @@ class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		rd=  context.scene.render
 		tex= context.texture
+
 		if not tex:
 			return False
-		if tex.type == 'VRAY' and rd.engine == 'VRAY_RENDER':
+
+		if tex.type == 'VRAY' and context.scene.render.engine == 'VRAY_RENDER':
 			return False
+
 		return super().poll(context)
 	
 	def draw(self, context):
@@ -137,7 +137,7 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		# If texture used in nodes
+		# If texture used in nodes influence is set by node itsefl
 		if not hasattr(context, 'texture_slot'):
 			return False
 
@@ -280,8 +280,14 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
+
 		tex= context.texture
-		return super().poll(context) and (tex.type == 'IMAGE' and tex.image)
+		if not tex:
+			return False
+		
+		return (tex.type == 'IMAGE' and tex.image)
 
 	def draw(self, context):
 		layout= self.layout

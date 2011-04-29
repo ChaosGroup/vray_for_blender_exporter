@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 04 April 2011 [01:59]"
+  Time-stamp: "Friday, 29 April 2011 [05:50]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -148,7 +148,7 @@ class VRayTexturePanel():
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
-		return engine_poll(cls, context) and tex and (tex.type != 'NONE' or tex.use_nodes)
+		return engine_poll(cls, context) and tex and (tex.type != 'NONE')
 
 
 class VRayWorldPanel():
