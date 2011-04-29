@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 23 March 2011 [13:37]"
+  Time-stamp: "Friday, 29 April 2011 [08:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -160,9 +160,9 @@ def add_properties(rna_pointer):
 			name= "Age",
 			description= "Age.",
 			min= 0.0,
-			max= 100.0,
+			max= 10000.0,
 			soft_min= 0.0,
-			soft_max= 10.0,
+			soft_max= 100.0,
 			precision= 3,
 			default= 20
 		)

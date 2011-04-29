@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [13:59]"
+  Time-stamp: "Friday, 29 April 2011 [08:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -37,13 +37,14 @@ from vb25.plugins import *
 
 def write_UVWGenProjection(bus):
 	TYPE= {
+		'NONE':   0,
 		'FLAT':   1,
 		'SPHERE': 2,
 		'TUBE':   3,
 		'BALL':   4,
-		#'CUBE':   5,
-		'CUBE':   6,
-		'TRI':    6,
+		#'CUBE':   5, # cubic
+		'CUBE':   6,  # triplanar (looks like Cube actually)
+		'TRI':    6,  # triplanar
 		'PERS':   8,
 	}
 
@@ -53,6 +54,7 @@ def write_UVWGenProjection(bus):
 	texture= bus['mtex']['texture']
 
 	VRayTexture= texture.vray
+	VRaySlot=    texture.vray_slot
 
 	uvwgen= "UVP%s" % (bus['mtex']['name'])
 
@@ -61,9 +63,12 @@ def write_UVWGenProjection(bus):
 	ofile.write("\nUVWGenProjection %s {" % uvwgen)
 	ofile.write("\n\ttype= %d;" % TYPE[VRayTexture.mapping])
 	if ob:
-		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X')
-		uvw_transform*= ob.matrix_world.copy().inverted()
-		ofile.write("\n\tuvw_transform= %s; // Object: %s" % (a(scene,transform(uvw_transform)), ob.name))
+		uvw_transform= mathutils.Matrix.Rotation(math.radians(90.0), 4, 'X') # To match Blender mapping
+		uvw_transform*= ob.matrix_world.copy().inverted()                    # To remove object transfrom
+		ofile.write("\n\tuvw_transform= %s; // Object: %s" % (a(scene, transform(uvw_transform)), ob.name))
+	# Add:
+	#  - camera_settings
+	#  - camera_view
 	ofile.write("\n}\n")
 
 	return uvwgen
@@ -94,26 +99,35 @@ def write_UVWGenChannel(bus):
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
 	if slot:
-		ofile.write("\n\twrap_u= %d;" % (2 if (VRayTexture.mirror_u or slot.scale[0] < 0) else 0))
-		ofile.write("\n\twrap_v= %d;" % (2 if (VRayTexture.mirror_v or slot.scale[1] < 0) else 0))
-		ofile.write("\n\twrap_w= %d;" % (2 if                          slot.scale[2] < 0  else 0))
-
 		scale_x= 0.001 if abs(slot.scale[0]) < 0.001 else abs(slot.scale[0])
 		scale_y= 0.001 if abs(slot.scale[1]) < 0.001 else abs(slot.scale[1])
 		scale_z= 0.001 if abs(slot.scale[2]) < 0.001 else abs(slot.scale[2])
 
+		uvw_transform= mathutils.Matrix.Rotation(VRaySlot.texture_rot, 3, 'Z')
+
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
 		ofile.write("\n\t\tMatrix(")
-		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % ((VRayTexture.tile_u if VRayTexture.tile in ('TILEUV','TILEU') else 1.0) / scale_x))
-		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % ((VRayTexture.tile_v if VRayTexture.tile in ('TILEUV','TILEV') else 1.0) / scale_y))
-		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)*%.3f"  % (                                                                   1.0  / scale_z))
+		ofile.write("\n\t\t\tVector(%.6f, %.6f, %.6f)*%.3f," % (uvw_transform[0][0], uvw_transform[0][1], uvw_transform[0][2],
+																(VRayTexture.tile_u if VRayTexture.tile in ('TILEUV','TILEU') else 1.0) / scale_x))
+
+		ofile.write("\n\t\t\tVector(%.6f, %.6f, %.6f)*%.3f," % (uvw_transform[1][0], uvw_transform[1][1], uvw_transform[1][2],
+																(VRayTexture.tile_v if VRayTexture.tile in ('TILEUV','TILEV') else 1.0) / scale_y))
+
+		ofile.write("\n\t\t\tVector(%.6f, %.6f, %.6f)*%.3f"  % (uvw_transform[2][0], uvw_transform[2][1], uvw_transform[2][2],
+																1.0  / scale_z))
 		ofile.write("\n\t\t),")
-		ofile.write("\n\t\tVector(%.3f,%.3f,%.3f)" % (slot.offset[0], slot.offset[1], slot.offset[2]))
+		ofile.write("\n\t\tVector(%.6f, %.6f, %.6f)" % (slot.offset[0], slot.offset[1], slot.offset[2]))
 		ofile.write("\n\t)));")
+
+		ofile.write("\n\twrap_u= %d;" % (2 if (VRayTexture.mirror_u or slot.scale[0] < 0) else 0))
+		ofile.write("\n\twrap_v= %d;" % (2 if (VRayTexture.mirror_v or slot.scale[1] < 0) else 0))
+		ofile.write("\n\twrap_w= %d;" % (2 if                          slot.scale[2] < 0  else 0))
 	else:
 		ofile.write("\n\twrap_u= %d;" % (2 if VRayTexture.mirror_u else 0))
 		ofile.write("\n\twrap_v= %d;" % (2 if VRayTexture.mirror_v else 0))
 
+	# Optional UVWGen from which the initial uvw coordinates
+	# will be taken, instead of the surface point
 	if uvwgen:
 		ofile.write("\n\tuvwgen= %s;" % uvwgen)
 	ofile.write("\n}\n")
