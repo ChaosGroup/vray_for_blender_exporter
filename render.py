@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [07:19]"
+  Time-stamp: "Saturday, 30 April 2011 [07:19]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1371,8 +1371,10 @@ def _write_object_particles(bus):
 
 					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
 
-					# Specific to Blender particle realization
-					part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Z')
+					# Specific to Blender particle realization:
+					#   Object must be rotated so that it's top is aligned to X
+					# So, we need to back rotated original matrix
+					part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
 
 					# Resize matrix
 					part_transform.resize_4x4()
