@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 30 April 2011 [07:19]"
+  Time-stamp: "Saturday, 30 April 2011 [07:42]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1359,7 +1359,14 @@ def _write_object_particles(bus):
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					if(p % 1000):
+					p_log= False
+					if ps.settings.count >= 50000:
+						if (p % 1000) == 0:
+							p_log= True
+					else:
+						if (p % 100) == 0:
+							p_log= True
+					if p_log:
 						sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
 						sys.stdout.flush()
 
@@ -1548,7 +1555,7 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n}\n")
 
 		bus['files']['lights'].write("\nLightSpot LALamp_002 { // PREVIEW")
-		bus['files']['lights'].write("\n\tintensity= 80.000000;")
+		bus['files']['lights'].write("\n\tintensity= 30.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tconeAngle= 1.3;")
 		bus['files']['lights'].write("\n\tpenumbraAngle= -0.4;")
