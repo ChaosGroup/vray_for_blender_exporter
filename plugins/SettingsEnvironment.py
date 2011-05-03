@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 21 April 2011 [21:30]"
+  Time-stamp: "Tuesday, 03 May 2011 [19:01]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -120,8 +120,14 @@ def add_properties(rna_pointer):
 		pass
 	bpy.utils.register_class(EnvironmentFog)
 
+	class EnvironmentEffectControl(bpy.types.PropertyGroup):
+		identifier= StringProperty()
+	bpy.utils.register_class(EnvironmentEffectControl)
 	class EnvironmentEffect(bpy.types.PropertyGroup):
-		pass
+		template_list_controls= CollectionProperty(
+			type= EnvironmentEffectControl,
+			options= {"HIDDEN"}
+		)
 	bpy.utils.register_class(EnvironmentEffect)
 
 	class VRayEffects(bpy.types.PropertyGroup):
@@ -696,6 +702,7 @@ def write_VolumeVRayToon_from_material(bus):
 	toon_name= clean_string("MT%s%s" % (ob.name, ma.name))
 
 	ofile.write("\nVolumeVRayToon %s {" % toon_name)
+	ofile.write("\n\tcompensateExposure= 1;")
 	for param in PARAMS['VolumeVRayToon']:
 		if param == 'excludeType':
 			value= 1
@@ -807,6 +814,7 @@ def write(bus):
 		name= "EVT%s" % clean_string(effect.name)
 
 		ofile.write("\nVolumeVRayToon %s {" % name)
+		ofile.write("\n\tcompensateExposure= 1;")
 		for param in PARAMS['VolumeVRayToon']:
 			if param == 'excludeType':
 				value= EXCLUDETYPE[VolumeVRayToon.excludeType]

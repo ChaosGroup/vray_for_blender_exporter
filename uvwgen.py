@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [08:58]"
+  Time-stamp: "Sunday, 01 May 2011 [08:21]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -157,13 +157,16 @@ def write_UVWGenEnvironment(bus):
 	VRayTexture= texture.vray
 	VRaySlot=    texture.vray_slot
 
-	uvw_matrix= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_h, 4, 'Z')
-	if VRayTexture.environment_mapping not in ('SCREEN'):
-		uvw_matrix*= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_v, 4, 'Y')
+	uvw_matrix=  mathutils.Matrix.Rotation(VRaySlot.texture_rotation_h, 4, 'Z')
+	uvw_matrix*= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_v, 4, 'Y')
+	#uvw_matrix*= mathutils.Matrix.Rotation(VRaySlot.texture_rotation_w, 4, 'X')
 
 	ofile.write("\nUVWGenEnvironment %s {" % uvw_name)
 	ofile.write("\n\tmapping_type= \"%s\";" % MAPPING_TYPE[VRayTexture.environment_mapping])
-	ofile.write("\n\tuvw_transform= %s;" % transform(uvw_matrix))
+	if VRayTexture.environment_mapping not in ('SCREEN'):
+		ofile.write("\n\tuvw_matrix= %s;" % transform(uvw_matrix))
+	else:
+		ofile.write("\n\tuvw_transform= %s;" % transform(uvw_matrix))
 	ofile.write("\n}\n")
 	
 	return uvw_name

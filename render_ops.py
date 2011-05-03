@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [22:50]"
+  Time-stamp: "Sunday, 01 May 2011 [07:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -117,6 +117,7 @@ class VRAY_OT_effect_add(bpy.types.Operator):
 		VRayEffects= VRayScene.VRayEffects
 		VRayEffects.effects.add()
 		VRayEffects.effects[-1].name= "Effect"
+		VRayEffects.effects[-1].template_list_controls.add().identifier= "use"
 
 		return {'FINISHED'}
 
@@ -312,6 +313,7 @@ class VRAY_OT_channel_add(bpy.types.Operator):
 
 		render_channels.add()
 		render_channels[-1].name= "RenderChannel"
+		render_channels[-1].template_list_controls.add().identifier= "use"
 
 		return {'FINISHED'}
 

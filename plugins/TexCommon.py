@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [08:57]"
+  Time-stamp: "Sunday, 01 May 2011 [08:21]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -612,12 +612,12 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 			split.label(text="Projection:")
 			split.prop(VRayTexture, 'environment_mapping', text="")
 
+			layout.label(text="Rotation:")
 			split= layout.split()
 			col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_h', slider= True)
-			if wide_ui:
-				col= split.column()
-			col.prop(VRaySlot, 'texture_rotation_v', slider= True)
+			col.prop(VRaySlot, 'texture_rotation_h', slider= True, text="Horizontal")
+			col.prop(VRaySlot, 'texture_rotation_v', slider= True, text="Vertical")
+			#col.prop(VRaySlot, 'texture_rotation_w', slider= True, text="X")
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
 			split= layout.split()

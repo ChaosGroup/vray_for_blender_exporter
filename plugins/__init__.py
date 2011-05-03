@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [08:56]"
+  Time-stamp: "Sunday, 01 May 2011 [08:12]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -820,6 +820,17 @@ def add_properties():
 			default= 0.0
 		)
 
+		texture_rotation_w= FloatProperty(
+			name= "W rotation",
+			description= "W rotation.",
+			subtype= 'ANGLE',
+			min= -2.0 * math.pi,
+			max=  2.0 * math.pi,
+			soft_min= -math.pi,
+			soft_max=  math.pi,
+			default= 0.0
+		)
+
 		'''
 		  MAPTO
 		'''
@@ -1520,7 +1531,16 @@ def add_properties():
 		)
 	bpy.utils.register_class(VRayTexture)
 
+	class VRayRenderChannelListControl(bpy.types.PropertyGroup):
+		identifier= StringProperty()
+	bpy.utils.register_class(VRayRenderChannelListControl)
+
 	class VRayRenderChannel(bpy.types.PropertyGroup):
+		template_list_controls= CollectionProperty(
+			type= VRayRenderChannelListControl,
+			options= {"HIDDEN"}
+		)
+
 		type= EnumProperty(
 			name= "Channel Type",
 			description= "Render channel type.",
