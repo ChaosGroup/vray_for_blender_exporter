@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 10 April 2011 [19:31]"
+  Time-stamp: "Wednesday, 04 May 2011 [09:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -84,6 +84,12 @@ def add_properties(rna_pointer):
 	VRayExporter.image_to_blender= BoolProperty(
 		name= "Image to Blender",
 		description= "Pass image to Blender on render end (EXR file format is used).",
+		default= False
+	)
+
+	VRayExporter.autoclose= BoolProperty(
+		name= "Auto close",
+		description= "Close VFB on Esc.",
 		default= False
 	)
 

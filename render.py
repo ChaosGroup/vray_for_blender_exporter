@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 30 April 2011 [07:42]"
+  Time-stamp: "Wednesday, 04 May 2011 [09:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1862,6 +1862,10 @@ def run(engine, bus):
 	# 	win_belownormal.append("/BELOWNORMAL")
 	# 	win_belownormal.append("\"%s\"" % params[0])
 	# 	win_belownormal.extend(params[1:])
+
+	if VRayExporter.autoclose:
+		params.append('-autoclose=')
+		params.append('1')
 
 	if not VRayExporter.autorun:
 		debug(scene, "Command: %s" % ' '.join(params))

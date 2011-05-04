@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [19:31]"
+  Time-stamp: "Wednesday, 04 May 2011 [09:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -344,6 +344,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'autorun')
 		col.prop(ve, 'auto_meshes')
 		col.prop(ve, 'display')
+		col.prop(ve, 'autoclose')
 		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()
