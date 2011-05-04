@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 06 April 2011 [17:12]"
+  Time-stamp: "Wednesday, 04 May 2011 [14:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1015,6 +1015,7 @@ def init_files(bus):
 		bus['filenames']['DR']['sub_dir']=    blendfile_name
 		bus['filenames']['DR']['dest_dir']=   export_filepath
 		bus['filenames']['DR']['prefix']=     ".." + os.sep + "scenes" + os.sep + bus['filenames']['DR']['sub_dir']
+		#bus['filenames']['DR']['prefix']=     bus['filenames']['DR']['dest_dir']
 		bus['filenames']['DR']['tex_dir']=    os.path.join(export_filepath, "textures")
 		bus['filenames']['DR']['ies_dir']=    os.path.join(export_filepath, "IES")
 
