@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 07 May 2011 [09:58]"
+  Time-stamp: "Wednesday, 11 May 2011 [12:27]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -213,12 +213,13 @@ def write(bus):
 
 		proxy_filepath= os.path.normpath(bpy.path.abspath(GeomMeshFile.file))
 
-		if PLATFORM == 'linux2':
-			proxy_filepath= proxy_filepath.replace('\\', '/')
+		# if PLATFORM == 'linux2':
+		# 	proxy_filepath= proxy_filepath.replace('\\', '/')
 
-		if not os.path.exists(proxy_filepath):
-			debug(scene, "Object: %s => Proxy file doesn\'t exist! [%s]" % (ob.name, proxy_filepath), error= True)
-			return bus['node']['geometry']
+		# TODO: fix '\' on *nix
+		# if not os.path.exists(proxy_filepath):
+		# 	debug(scene, "Object: %s => Proxy file doesn\'t exist! [%s]" % (ob.name, proxy_filepath), error= True)
+			# return bus['node']['geometry']
 
 		proxy_filename= os.path.basename(proxy_filepath)[:-7]
 		proxy_name= "PR%s" % clean_string(proxy_filename)
@@ -232,10 +233,11 @@ def write(bus):
 			return proxy_name
 
 		ofile.write("\nGeomMeshFile %s {" % proxy_name)
-		if PLATFORM == 'linux2': # This is a hack to allow teams using both Windows and Linux (back-slash problem)
-			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file.replace('\\','/')))
-		else:
-			ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
+		# if PLATFORM == 'linux2': # This is a hack to allow teams using both Windows and Linux (back-slash problem)
+		# 	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file.replace('\\','/')))
+		# else:
+		# 	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
+		ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
 		ofile.write("\n\tanim_speed= %i;" % GeomMeshFile.anim_speed)
 		ofile.write("\n\tanim_type= %i;" % ANIM_TYPE[GeomMeshFile.anim_type])
 		ofile.write("\n\tanim_offset= %i;" % (GeomMeshFile.anim_offset - 1))
