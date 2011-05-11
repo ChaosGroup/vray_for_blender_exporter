@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 April 2011 [23:58]"
+  Time-stamp: "Saturday, 07 May 2011 [09:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -981,6 +981,7 @@ def write(bus):
 	scene=  bus['scene']
 
 	VRayScene=             scene.vray
+	VRayExporter=          VRayScene.exporter
 	SettingsDMCSampler=    VRayScene.SettingsDMCSampler
 	SettingsGI=            VRayScene.SettingsGI
 	SettingsIrradianceMap= SettingsGI.SettingsIrradianceMap
@@ -1132,7 +1133,10 @@ def write(bus):
 			ofile.write("\n}\n")
 
 			ofile.write("\nSettingsLightCache SettingsLightCache {")
-			ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * SettingsDMCSampler.subdivs_mult))
+			if VRayExporter.draft:
+				ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * 0.2))
+			else:
+				ofile.write("\n\tsubdivs= %.0f;" % (SettingsLightCache.subdivs * SettingsDMCSampler.subdivs_mult))
 			ofile.write("\n\tsample_size= %.6f;" % SettingsLightCache.sample_size)
 			ofile.write("\n\tnum_passes= %i;"% (scene.render.threads if SettingsLightCache.num_passes_auto else SettingsLightCache.num_passes))
 			ofile.write("\n\tdepth= %i;" % SettingsLightCache.depth)
