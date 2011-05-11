@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 April 2011 [06:30]"
+  Time-stamp: "Wednesday, 11 May 2011 [13:09]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -137,6 +137,10 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		idblock = context_tex_datablock(context)
+		if isinstance(idblock, bpy.types.Brush):
+			return False
+
 		# If texture used in nodes influence is set by node itsefl
 		if not hasattr(context, 'texture_slot'):
 			return False
@@ -195,14 +199,44 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 			factor_but(col, VRaySlot, 'use_map_env_reflection', 'env_reflection_factor', "Reflections")
 			factor_but(col, VRaySlot, 'use_map_env_refraction', 'env_refraction_factor', "Refractions")
 
+		elif isinstance(idblock, bpy.types.ParticleSettings):
+			split = layout.split()
+
+			col = split.column()
+			col.label(text="General:")
+			factor_but(col, slot, "use_map_time", "time_factor", "Time")
+			factor_but(col, slot, "use_map_life", "life_factor", "Lifetime")
+			factor_but(col, slot, "use_map_density", "density_factor", "Density")
+			factor_but(col, slot, "use_map_size", "size_factor", "Size")
+
+			col = split.column()
+			col.label(text="Physics:")
+			factor_but(col, slot, "use_map_velocity", "velocity_factor", "Velocity")
+			factor_but(col, slot, "use_map_damp", "damp_factor", "Damp")
+			factor_but(col, slot, "use_map_gravity", "gravity_factor", "Gravity")
+			factor_but(col, slot, "use_map_field", "field_factor", "Force Fields")
+
+			layout.label(text="Hair:")
+
+			split = layout.split()
+
+			col = split.column()
+			factor_but(col, slot, "use_map_length", "length_factor", "Length")
+			factor_but(col, slot, "use_map_clump", "clump_factor", "Clump")
+
+			col = split.column()
+			factor_but(col, slot, "use_map_kink", "kink_factor", "Kink")
+			factor_but(col, slot, "use_map_rough", "rough_factor", "Rough")
+
 		layout.separator()
 
-		split= layout.split()
-		col= split.column()
-		col.prop(VRaySlot,'blend_mode',text="Blend")
-		if wide_ui:
+		if not isinstance(idblock, bpy.types.ParticleSettings):
+			split= layout.split()
 			col= split.column()
-		col.prop(slot,'use_stencil')
+			col.prop(VRaySlot,'blend_mode',text="Blend")
+			if wide_ui:
+				col= split.column()
+			col.prop(slot,'use_stencil')
 
 
 
