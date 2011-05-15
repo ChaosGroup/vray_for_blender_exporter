@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 07 May 2011 [09:51]"
+  Time-stamp: "Sunday, 15 May 2011 [19:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1204,8 +1204,12 @@ def write_node(bus):
 	if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
 		ofile.write("\n\tvisible= %s;" % a(scene, bus['node']['particle']['visible']))
 	ofile.write("\n\ttransform= %s;" % a(scene, transform(matrix)))
-	if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
-		ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+
+	# TODO: check why this was needed.
+	#if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
+	#	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+
+	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
 	ofile.write("\n}\n")
 
 
