@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 25 March 2011 [13:55]"
+  Time-stamp: "Tuesday, 24 May 2011 [22:54]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -41,12 +41,17 @@ NAME= 'Mesh'
 DESC= "Mesh settings."
 
 PARAMS= (
+	'dynamic_geometry',
 )
 
 
 def add_properties(rna_pointer):
 	class GeomStaticMesh(bpy.types.PropertyGroup):
-		pass
+		dynamic_geometry= BoolProperty(
+			name= "Dynamic geometry",
+			description= "Instead of copying the mesh many times in the BSP tree, only the bounding box will be present many times and ray intersections will occur in a separate object space BSP tree.",
+			default= False
+		)
 	bpy.utils.register_class(GeomStaticMesh)
 
 	rna_pointer.GeomStaticMesh= PointerProperty(
@@ -62,6 +67,8 @@ def write_mesh_hex(bus):
 	ob=      bus['node']['object']
 	me=      bus['node']['mesh']
 	me_name= bus['node']['mesh_name']
+
+	GeomStaticMesh= ob.data.vray.GeomStaticMesh
 
 	face_tri= (0,1,2,2,3,0)
 	
@@ -188,6 +195,11 @@ def write_mesh_hex(bus):
 			ofile.write("\"))")
 
 		ofile.write(");")
+
+	for param in PARAMS:
+		value= getattr(GeomStaticMesh, param)
+		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+
 	ofile.write("\n}\n")
 
 

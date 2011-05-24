@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 27 March 2011 [18:17]"
+  Time-stamp: "Tuesday, 24 May 2011 [22:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -46,7 +46,7 @@ del properties_data_mesh
 
 
 class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
-	bl_label   = "Override"
+	bl_label   = "Options"
 	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -55,16 +55,17 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 	def poll(cls, context):
 		return (context.mesh and engine_poll(__class__, context))
 
-	def draw_header(self, context):
-		ob= context.mesh.vray
-		self.layout.prop(ob, 'override', text="")
-
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 
 		layout= self.layout
 
 		VRayMesh= context.mesh.vray
+		GeomStaticMesh= VRayMesh.GeomStaticMesh
+		
+		layout.prop(GeomStaticMesh, 'dynamic_geometry')
+
+		layout.prop(VRayMesh, 'override')
 
 		split= layout.split()
 		split.active= VRayMesh.override
