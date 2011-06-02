@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 04 May 2011 [09:35]"
+  Time-stamp: "Tuesday, 31 May 2011 [22:55]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -131,9 +131,9 @@ def add_properties(rna_pointer):
 		name= "Bundle size",
 		description= "Number of samples to transfer over the network.",
 		min= 0,
-		max= 100,
+		max= 1024,
 		soft_min= 0,
-		soft_max= 10,
+		soft_max= 1024,
 		default= 128
 	)
 
@@ -202,9 +202,9 @@ def add_properties(rna_pointer):
 		name= "Texture size",
 		description= "OpenCL Single Kernel maximum texture size - bigger textures are scaled to fit this size.",
 		min= 0,
-		max= 100,
+		max= 100000,
 		soft_min= 0,
-		soft_max= 10,
+		soft_max= 2048,
 		default= 512
 	)
 
