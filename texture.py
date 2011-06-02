@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 02 April 2011 [00:51]"
+  Time-stamp: "Thursday, 02 June 2011 [19:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -339,6 +339,8 @@ def stack_collapse_layers(slots):
 
 def write_TexOutput(bus, texmap, mapto):
 	ofile= bus['files']['textures']
+	ma=    bus['material'].get('material')
+
 	tex_name= "MAPTO%sTE%s" % (mapto, texmap)
 
 	if not append_unique(bus['cache']['textures'], tex_name):

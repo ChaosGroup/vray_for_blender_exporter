@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 15 May 2011 [19:33]"
+  Time-stamp: "Thursday, 02 June 2011 [19:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -730,8 +730,10 @@ def write_material_textures(bus):
 					bus['mtex']['texture']= slot.texture
 					bus['mtex']['mapto']=   key
 					bus['mtex']['factor']=  factor
-					# bus['mtex']['name']=    clean_string("MT%.2iSL%sTE%s" % (i, slot.name, slot.texture.name))
-					bus['mtex']['name']=    clean_string("MT%.2iTE%s" % (i, slot.texture.name))
+
+					# Check if we could improve this
+					# Better handling of texture blending
+					bus['mtex']['name']=    clean_string("MA%sMT%.2iTE%s" % (ma.name, i, slot.texture.name))
 
 					if VRayTexture.texture_coords == 'ORCO':
 						bus['material']['orco_suffix']= get_name(get_orco_object(scene, bus['node']['object'], VRayTexture),
