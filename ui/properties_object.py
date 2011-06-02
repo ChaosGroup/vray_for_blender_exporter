@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 30 March 2011 [15:38]"
+  Time-stamp: "Wednesday, 25 May 2011 [05:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -181,10 +181,13 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 
 		ob= context.object
-		plugin= ob.vray.MtlRenderStats
+		VRayObject= ob.vray
+		plugin= VRayObject.MtlRenderStats
 
 		layout= self.layout
 		layout.active= plugin.use
+
+		layout.prop(VRayObject, 'fade_radius')
 
 		split= layout.split()
 		col= split.column()
