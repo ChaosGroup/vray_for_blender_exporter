@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 01 May 2011 [08:12]"
+  Time-stamp: "Tuesday, 31 May 2011 [22:52]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -123,7 +123,16 @@ def add_properties():
 	bpy.utils.register_class(VRayCamera)
 
 	class VRayObject(bpy.types.PropertyGroup):
-		pass
+		fade_radius= FloatProperty(
+			name= "Sphere fade radius",
+			description= "Sphere fade gizmo radiusBeam radius.",
+			min= 0.0,
+			max= 10000.0,
+			soft_min= 0.0,
+			soft_max= 100.0,
+			precision= 3,
+			default= 1.0
+		)
 	bpy.utils.register_class(VRayObject)
 
 	class VRayMesh(bpy.types.PropertyGroup):
@@ -1439,7 +1448,7 @@ def add_properties():
 			name= "Background texture multiplier",
 			description= "Background texture multiplier.",
 			min= 0.0,
-			max= 100.0,
+			max= 10000.0,
 			soft_min= 0.0,
 			soft_max= 2.0,
 			precision= 3,
@@ -1462,7 +1471,7 @@ def add_properties():
 			name= "GI texture multiplier",
 			description= "GI texture multiplier.",
 			min= 0.0,
-			max= 100.0,
+			max= 10000.0,
 			soft_min= 0.0,
 			soft_max= 2.0,
 			precision= 3,
@@ -1485,7 +1494,7 @@ def add_properties():
 			name= "Reflection texture multiplier",
 			description= "Reflection texture multiplier.",
 			min= 0.0,
-			max= 100.0,
+			max= 10000.0,
 			soft_min= 0.0,
 			soft_max= 2.0,
 			precision= 3,
@@ -1508,7 +1517,7 @@ def add_properties():
 			name= "Refraction texture multiplier",
 			description= "Refraction texture multiplier.",
 			min= 0.0,
-			max= 100.0,
+			max= 10000.0,
 			soft_min= 0.0,
 			soft_max= 2.0,
 			precision= 3,
