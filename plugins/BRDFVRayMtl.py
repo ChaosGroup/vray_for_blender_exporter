@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [21:11]"
+  Time-stamp: "Wednesday, 22 June 2011 [20:33]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -181,13 +181,13 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFVRayMtl.fresnel= BoolProperty(
-		name= "Frensnel reflections",
-		description= "Enable frensnel reflections.",
+		name= "Fresnel reflections",
+		description= "Enable fresnel reflections.",
 		default= False
 	)
 
 	BRDFVRayMtl.fresnel_ior_lock= BoolProperty(
-		name= "Frensnel reflections lock",
+		name= "Fresnel reflections lock",
 		description= "",
 		default= False
 	)

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Wednesday, 22 June 2011 [20:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -46,6 +46,7 @@ PARAMS= (
 	'type',
 	'fixed_subdivs',
 	'dmc_minSubdivs',
+	'dmc_maxSubdivs',
 	'dmc_threshold',
 	'dmc_show_samples',
 	'subdivision_minRate',

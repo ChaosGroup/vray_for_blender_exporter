@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 31 May 2011 [22:52]"
+  Time-stamp: "Wednesday, 08 June 2011 [12:10]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1558,7 +1558,7 @@ def add_properties():
 		)
 
 		use= BoolProperty(
-			name= "Use channel",
+			name= "",
 			description= "Use render channel.",
 			default= True
 		)

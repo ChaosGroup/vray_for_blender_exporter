@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 03 May 2011 [19:01]"
+  Time-stamp: "Wednesday, 08 June 2011 [12:09]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -183,7 +183,7 @@ def add_properties(rna_pointer):
 	)
 
 	EnvironmentEffect.use= BoolProperty(
-		name= "Use effect",
+		name= "",
 		description= "Use effect.",
 		default= True
 	)
