@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 04 May 2011 [09:36]"
+  Time-stamp: "Friday, 24 June 2011 [21:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -78,7 +78,6 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
 		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active= True
-
 		
 		split= layout.split()
 		col= split.column()
@@ -260,6 +259,10 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.label(text="Options:")
 		col.prop(VRayExporter, 'draft')
+
+		layout.separator()
+		
+		layout.prop(rd, "display_mode", text="Display")
 
 
 class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
