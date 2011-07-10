@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 24 June 2011 [21:36]"
+  Time-stamp: "Monday, 11 July 2011 [00:40]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -244,7 +244,7 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		col.label(text="Modules:")
 		col.prop(VRayScene.SettingsGI, 'on', text="Global Illumination")
 		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
-		col.prop(VRayExporter, 'use_displace', text= "Displace")
+		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.VRayDR, 'on')
 		col.prop(VRayScene.VRayBake, 'use')
 		col.prop(VRayScene.RTEngine, 'enabled')
@@ -1006,11 +1006,6 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(SettingsDefaultDisplacement, 'override_on')
-
-		split= layout.split()
-		split.active= SettingsDefaultDisplacement.override_on
-		col= split.column()
 		col.prop(SettingsDefaultDisplacement, 'amount')
 		col.prop(SettingsDefaultDisplacement, 'edgeLength')
 		col.prop(SettingsDefaultDisplacement, 'maxSubdivs')
@@ -1019,6 +1014,7 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 		col.prop(SettingsDefaultDisplacement, 'viewDependent')
 		col.prop(SettingsDefaultDisplacement, 'tightBounds')
 		col.prop(SettingsDefaultDisplacement, 'relative')
+		col.prop(SettingsDefaultDisplacement, 'override_on')
 
 
 class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):

@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Monday, 11 July 2011 [00:07]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -237,6 +237,11 @@ def write(bus):
 		'BUMP':    5,
 		'SPIKE':   6,
 	}
+	NOISE_TYPE= {
+		'REGULAR':    0,
+		'FRACTAL':    1,
+		'TRUBULENCE': 2
+	}
 	
 	scene= bus['scene']
 	ofile= bus['files']['textures']
@@ -252,14 +257,22 @@ def write(bus):
 	for param in PARAMS:
 		if param == 'uvwgen':
 			value= uvwgen
+		elif param == 'noise_type':
+			value= NOISE_TYPE[TexGradRamp.noise_type]
 		elif param == 'gradient_type':
 			value= GRADIENT_TYPE[TexGradRamp.gradient_type]
 		elif param == 'interpolation':
 			value= INTERPOLATION[TexGradRamp.interpolation]
 		elif param == 'positions':
-			continue
+			ramp_pos= []
+			for element in texture.color_ramp.elements:
+				ramp_pos.append("%.3f"%(element.position))
+			value= "ListFloat(%s)" % (",".join(ramp_pos))
 		elif param == 'colors':
-			continue
+			ramp_col= []
+			for element in texture.color_ramp.elements:
+				ramp_col.append("AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
+			value= "List(%s)" % (",".join(ramp_col))
 		elif param == 'texture_map':
 			continue
 		else:
@@ -292,8 +305,13 @@ class VRAY_TP_TexGradRamp(VRayTexturePanel, bpy.types.Panel):
 		tex= context.texture
 		TexGradRamp= getattr(tex.vray, PLUG)
 
-		layout.label(text= "ColorRamp should be here :(")
+		layout.label(text= "Custom ColorRamp should be here.")
+		layout.label(text= "Using texture.color_ramp as a workaround.")
 		# layout.template_color_ramp(TexGradRamp, 'ramp_elements')
+		
+		layout.prop(tex,'use_color_ramp')
+		if tex.use_color_ramp:
+			layout.template_color_ramp(tex, 'color_ramp')
 
 		layout.separator()
 

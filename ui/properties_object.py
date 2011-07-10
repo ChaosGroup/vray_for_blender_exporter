@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 25 May 2011 [05:25]"
+  Time-stamp: "Monday, 11 July 2011 [00:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -346,3 +346,62 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 			col.prop_search(LightMesh, 'include_groups',
 							bpy.data,  'groups',
 							text="Groups")
+
+
+class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
+	bl_label   = "Subdivision"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(__class__, context)
+
+	def draw_header(self, context):
+		ob= context.object
+		VRayObject= ob.vray
+		GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
+		self.layout.prop(GeomStaticSmoothedMesh, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		ob= context.object
+		VRayObject= ob.vray
+		GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
+
+		layout= self.layout
+		layout.active= GeomStaticSmoothedMesh.use
+
+		# split= layout.split()
+		# col= split.column()
+		# col.prop(GeomStaticSmoothedMesh, 'displacement_amount')
+		# col.prop(GeomStaticSmoothedMesh, 'displacement_shift', slider=True)
+		# col.prop(GeomStaticSmoothedMesh, 'water_level', slider=True)
+		# if wide_ui:
+		# 	col= split.column()
+		# col.prop(GeomStaticSmoothedMesh, 'use_bounds')
+		# sub= col.column(align= True)
+		# sub.active= GeomStaticSmoothedMesh.use_bounds
+		# sub.prop(GeomStaticSmoothedMesh, 'min_bound', text="Min", slider= True)
+		# sub.prop(GeomStaticSmoothedMesh, 'max_bound', text="Max", slider= True)
+
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomStaticSmoothedMesh, 'keep_continuity')
+		if wide_ui:
+			col= split.column()
+		col.prop(GeomStaticSmoothedMesh, 'static_subdiv')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(GeomStaticSmoothedMesh, 'use_globals')
+		if not GeomStaticSmoothedMesh.use_globals:
+			split= layout.split()
+			col= split.column()
+			col.prop(GeomStaticSmoothedMesh, 'edge_length')
+			col.prop(GeomStaticSmoothedMesh, 'max_subdivs')
+			if wide_ui:
+				col= split.column()
+			col.prop(GeomStaticSmoothedMesh, 'view_dep')

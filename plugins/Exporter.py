@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 04 May 2011 [09:36]"
+  Time-stamp: "Monday, 11 July 2011 [00:39]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -76,8 +76,8 @@ def add_properties(rna_pointer):
 	)
 
 	VRayExporter.use_displace= BoolProperty(
-		name= "Use displace",
-		description= "Use displace.",
+		name= "Displace / subdiv",
+		description= "Use displace / subdivisions.",
 		default= True
 	)
 

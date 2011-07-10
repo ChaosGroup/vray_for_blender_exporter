@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 08 June 2011 [12:09]"
+  Time-stamp: "Monday, 27 June 2011 [19:32]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -861,90 +861,91 @@ def write(bus):
 	world=     scene.world
 	VRayWorld= world.vray
 
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
+	if VRayWorld:
+		VRayScene=    scene.vray
+		VRayExporter= VRayScene.exporter
 
-	defaults= {
-		'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),         0, 'NONE'),
-		'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),         0, 'NONE'),
-		'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE'),
-		'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE'),
-	}
+		defaults= {
+			'env_bg':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.bg_color)),         0, 'NONE'),
+			'env_gi':         (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.gi_color)),         0, 'NONE'),
+			'env_reflection': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.reflection_color)), 0, 'NONE'),
+			'env_refraction': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(VRayWorld.refraction_color)), 0, 'NONE'),
+		}
 
-	bus['env_textures']= {}
-	for i,slot in enumerate(world.texture_slots):
-		if slot and slot.texture and slot.texture.type in TEX_TYPES:
-			VRaySlot= slot.texture.vray_slot
+		bus['env_textures']= {}
+		for i,slot in enumerate(world.texture_slots):
+			if slot and slot.texture and slot.texture.type in TEX_TYPES:
+				VRaySlot= slot.texture.vray_slot
 
-			for key in defaults:
-				if getattr(VRaySlot, 'use_map_'+key):
-					factor= getattr(VRaySlot, key+'_factor')
+				for key in defaults:
+					if getattr(VRaySlot, 'use_map_'+key):
+						factor= getattr(VRaySlot, key+'_factor')
 
-					if key not in bus['env_textures']: # First texture
-						bus['env_textures'][key]= []
-						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['env_textures'][key].append(defaults[key])
+						if key not in bus['env_textures']: # First texture
+							bus['env_textures'][key]= []
+							if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
+								bus['env_textures'][key].append(defaults[key])
 
-					bus['mtex']= {}
-					bus['mtex']['mapto']=   key
-					bus['mtex']['slot']=    slot
-					bus['mtex']['texture']= slot.texture
-					bus['mtex']['factor']=  factor
-					bus['mtex']['name']=    clean_string("WT%.2iSL%sTE%s" % (i,
-																			 slot.name,
-																			 slot.texture.name))
-					
-					# Write texture
-					if write_texture(bus):
-						bus['env_textures'][key].append( [stack_write_texture(bus),
-														  slot.use_stencil,
-														  VRaySlot.blend_mode] )
+						bus['mtex']= {}
+						bus['mtex']['mapto']=   key
+						bus['mtex']['slot']=    slot
+						bus['mtex']['texture']= slot.texture
+						bus['mtex']['factor']=  factor
+						bus['mtex']['name']=    clean_string("WT%.2iSL%sTE%s" % (i,
+																				 slot.name,
+																				 slot.texture.name))
 
-	if VRayExporter.debug:
-		if len(bus['env_textures']):
-			print_dict(scene, "World texture stack", bus['env_textures'])
-	
-	for key in bus['env_textures']:
-		if len(bus['env_textures'][key]):
-			bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])), key)
+						# Write texture
+						if write_texture(bus):
+							bus['env_textures'][key].append( [stack_write_texture(bus),
+															  slot.use_stencil,
+															  VRaySlot.blend_mode] )
 
-	if VRayExporter.debug:
-		if len(bus['env_textures']):
-			print_dict(scene, "World textures", bus['env_textures'])
+		if VRayExporter.debug:
+			if len(bus['env_textures']):
+				print_dict(scene, "World texture stack", bus['env_textures'])
 
-	ofile.write("\nSettingsEnvironment SettingsEnvironment {")
-	if 'env_bg' in bus['env_textures']:
-		ofile.write("\n\tbg_tex= %s;" % bus['env_textures']['env_bg'])
-	else:
-		ofile.write("\n\tbg_color= %s;"    % a(scene, VRayWorld.bg_color))
-		ofile.write("\n\tbg_tex= %s;"      % a(scene, VRayWorld.bg_color))
-		ofile.write("\n\tbg_tex_mult= %s;" % a(scene, VRayWorld.bg_color_mult))
+		for key in bus['env_textures']:
+			if len(bus['env_textures'][key]):
+				bus['env_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['env_textures'][key])), key)
 
-	if 'env_gi' in bus['env_textures']:
-		ofile.write("\n\tgi_tex= %s;" % bus['env_textures']['env_gi'])
-	elif VRayWorld.gi_override:
-		ofile.write("\n\tgi_color= %s;"    % a(scene, VRayWorld.gi_color))
-		ofile.write("\n\tgi_tex= %s;"      % a(scene, VRayWorld.gi_color))
-		ofile.write("\n\tgi_tex_mult= %s;" % a(scene, VRayWorld.gi_color_mult))
+		if VRayExporter.debug:
+			if len(bus['env_textures']):
+				print_dict(scene, "World textures", bus['env_textures'])
 
-	if 'env_reflection' in bus['env_textures']:
-		ofile.write("\n\treflect_tex= %s;" % bus['env_textures']['env_reflection'])
-	elif VRayWorld.reflection_override:
-		ofile.write("\n\treflect_color= %s;"    % a(scene, VRayWorld.reflection_color))
-		ofile.write("\n\treflect_tex= %s;"      % a(scene, VRayWorld.reflection_color))
-		ofile.write("\n\treflect_tex_mult= %s;" % a(scene, VRayWorld.reflection_color_mult))
+		ofile.write("\nSettingsEnvironment SettingsEnvironment {")
+		if 'env_bg' in bus['env_textures']:
+			ofile.write("\n\tbg_tex= %s;" % bus['env_textures']['env_bg'])
+		else:
+			ofile.write("\n\tbg_color= %s;"    % a(scene, VRayWorld.bg_color))
+			ofile.write("\n\tbg_tex= %s;"      % a(scene, VRayWorld.bg_color))
+			ofile.write("\n\tbg_tex_mult= %s;" % a(scene, VRayWorld.bg_color_mult))
 
-	if 'env_refraction' in bus['env_textures']:
-		ofile.write("\n\trefract_tex= %s;" % bus['env_textures']['env_refraction'])
-	elif VRayWorld.refraction_override:
-		ofile.write("\n\trefract_color= %s;"    % a(scene, VRayWorld.refraction_color))
-		ofile.write("\n\trefract_tex= %s;"      % a(scene, VRayWorld.refraction_color))
-		ofile.write("\n\trefract_tex_mult= %s;" % a(scene, VRayWorld.refraction_color_mult))
+		if 'env_gi' in bus['env_textures']:
+			ofile.write("\n\tgi_tex= %s;" % bus['env_textures']['env_gi'])
+		elif VRayWorld.gi_override:
+			ofile.write("\n\tgi_color= %s;"    % a(scene, VRayWorld.gi_color))
+			ofile.write("\n\tgi_tex= %s;"      % a(scene, VRayWorld.gi_color))
+			ofile.write("\n\tgi_tex_mult= %s;" % a(scene, VRayWorld.gi_color_mult))
 
-	ofile.write("\n\tglobal_light_level= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % (VRayWorld.global_light_level)))
+		if 'env_reflection' in bus['env_textures']:
+			ofile.write("\n\treflect_tex= %s;" % bus['env_textures']['env_reflection'])
+		elif VRayWorld.reflection_override:
+			ofile.write("\n\treflect_color= %s;"    % a(scene, VRayWorld.reflection_color))
+			ofile.write("\n\treflect_tex= %s;"      % a(scene, VRayWorld.reflection_color))
+			ofile.write("\n\treflect_tex_mult= %s;" % a(scene, VRayWorld.reflection_color_mult))
 
-	ofile.write("\n\tenvironment_volume= List(%s);" % (','.join(volumes)))
-	ofile.write("\n}\n")
+		if 'env_refraction' in bus['env_textures']:
+			ofile.write("\n\trefract_tex= %s;" % bus['env_textures']['env_refraction'])
+		elif VRayWorld.refraction_override:
+			ofile.write("\n\trefract_color= %s;"    % a(scene, VRayWorld.refraction_color))
+			ofile.write("\n\trefract_tex= %s;"      % a(scene, VRayWorld.refraction_color))
+			ofile.write("\n\trefract_tex_mult= %s;" % a(scene, VRayWorld.refraction_color_mult))
+
+		ofile.write("\n\tglobal_light_level= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % (VRayWorld.global_light_level)))
+
+		ofile.write("\n\tenvironment_volume= List(%s);" % (','.join(volumes)))
+		ofile.write("\n}\n")
 
 
 

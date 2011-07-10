@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 08 June 2011 [12:10]"
+  Time-stamp: "Monday, 11 July 2011 [00:24]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1666,6 +1666,7 @@ def add_properties():
 	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayObject)
 	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayMaterial)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRayObject)
+	PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].add_properties(VRayObject)
 
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRaySlot)

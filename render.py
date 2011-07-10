@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 02 June 2011 [19:52]"
+  Time-stamp: "Monday, 11 July 2011 [00:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1260,6 +1260,9 @@ def write_object(bus):
 
 	# Displace
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
+
+	# Subdivision
+	PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
