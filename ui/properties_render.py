@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:40]"
+  Time-stamp: "Monday, 11 July 2011 [00:51]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -988,7 +988,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 
 class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
-	bl_label = "Displacement"
+	bl_label = "Displace / subdiv"
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
