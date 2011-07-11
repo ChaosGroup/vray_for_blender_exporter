@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:39]"
+  Time-stamp: "Monday, 11 July 2011 [17:41]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -201,18 +201,19 @@ def write(bus):
 	VRayObject= ob.vray
 	GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
 
-	subdiv_name= 'SBDV'+me
-	if not append_unique(bus['cache']['displace'], subdiv_name):
-		return subdiv_name
-	
-	ofile.write("\nGeomStaticSmoothedMesh %s {" % subdiv_name)
-	ofile.write("\n\tmesh= %s;" % me)
-	for param in PARAMS:
-		value= getattr(GeomStaticSmoothedMesh, param)
-		ofile.write("\n\t%s= %s;" % (param, a(scene,value)))
-	ofile.write("\n}\n")
+	if GeomStaticSmoothedMesh.use:
+		subdiv_name= 'SBDV'+me
+		if not append_unique(bus['cache']['displace'], subdiv_name):
+			return subdiv_name
 
-	bus['node']['geometry']= subdiv_name
+		ofile.write("\nGeomStaticSmoothedMesh %s {" % subdiv_name)
+		ofile.write("\n\tmesh= %s;" % me)
+		for param in PARAMS:
+			value= getattr(GeomStaticSmoothedMesh, param)
+			ofile.write("\n\t%s= %s;" % (param, a(scene,value)))
+		ofile.write("\n}\n")
+
+		bus['node']['geometry']= subdiv_name
 
 
 def influence(context, layout, slot):
