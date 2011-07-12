@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 12 July 2011 [14:37]"
+  Time-stamp: "Tuesday, 12 July 2011 [17:50]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -798,12 +798,12 @@ def get_full_filepath(bus, ob, filepath):
 			# Copy only if the file was changed
 			if not filecmp.cmp(dest_file, src_file):
 				debug(scene, "Copying \"%s\" to \"%s\""% (color(src_filename, 'magenta'), dest_path))
-				shutil.copyfile(src_file, dest_path)
+				shutil.copy(src_file, dest_path)
 			else:
 				debug(scene, "File \"%s\" exists and not modified."% (color(src_filename, 'magenta')))
 		else:
 			debug(scene, "Copying \"%s\" to \"%s\"" % (color(src_filename, 'magenta'), dest_path))
-			shutil.copyfile(src_file, dest_path)
+			shutil.copy(src_file, dest_path)
 	else:
 		debug(scene, "\"%s\" is not a file!" % (src_file), error= True)
 		return src_file
