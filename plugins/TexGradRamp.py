@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:07]"
+  Time-stamp: "Friday, 15 July 2011 [12:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -56,6 +56,7 @@ PARAMS= (
 	'noise_treshold_low',
 	'noise_treshold_high',
 	'noise_smooth',
+	'uvwgen',
 )
 
 def add_properties(rna_pointer):
@@ -105,7 +106,7 @@ def add_properties(rna_pointer):
 				('BUMP',    "Bump",          "Bump."),
 				('SPIKE',   "Spike",         "Spike."),
 			),
-			default= 'NONE'
+			default= 'LINEAR'
 		)
 
 		# noise_amount
@@ -252,6 +253,14 @@ def write(bus):
 
 	uvwgen= write_uvwgen(bus)
 
+	ramp_col= []
+	for i,element in enumerate(texture.color_ramp.elements):
+		tex_acolor= "%sC%i"%(tex_name,i)
+		ofile.write("\nTexAColor %s {" % (tex_acolor))
+		ofile.write("\n\ttexture= %s;" % ("AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color)))
+		ofile.write("\n}\n")
+		ramp_col.append(tex_acolor)
+
 	TexGradRamp= getattr(texture.vray, PLUG)
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
@@ -269,9 +278,6 @@ def write(bus):
 				ramp_pos.append("%.3f"%(element.position))
 			value= "ListFloat(%s)" % (",".join(ramp_pos))
 		elif param == 'colors':
-			ramp_col= []
-			for element in texture.color_ramp.elements:
-				ramp_col.append("AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
 			value= "List(%s)" % (",".join(ramp_col))
 		elif param == 'texture_map':
 			continue
@@ -305,8 +311,6 @@ class VRAY_TP_TexGradRamp(VRayTexturePanel, bpy.types.Panel):
 		tex= context.texture
 		TexGradRamp= getattr(tex.vray, PLUG)
 
-		layout.label(text= "Custom ColorRamp should be here.")
-		layout.label(text= "Using texture.color_ramp as a workaround.")
 		# layout.template_color_ramp(TexGradRamp, 'ramp_elements')
 		
 		layout.prop(tex,'use_color_ramp')
