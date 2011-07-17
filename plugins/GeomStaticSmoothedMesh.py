@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [17:41]"
+  Time-stamp: "Friday, 15 July 2011 [12:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,7 +49,6 @@ PARAMS= (
 	'view_dep',
 	'edge_length',
 	'max_subdivs',
-	'map_channel',
 	'use_bounds',
 	'min_bound',
 	'max_bound',
@@ -139,16 +138,6 @@ def add_properties(rna_pointer):
 		name= "Keep continuity",
 		description= "If true, the plugin will attempt to keep the continuity of the displaced surface",
 		default= False
-	)
-
-	GeomStaticSmoothedMesh.map_channel= IntProperty(
-		name= "Map channel",
-		description= "The mapping channel to use for vector and 2d displacement.",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 1
 	)
 
 	GeomStaticSmoothedMesh.use_bounds= BoolProperty(

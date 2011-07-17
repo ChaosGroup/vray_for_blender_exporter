@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 02 June 2011 [19:52]"
+  Time-stamp: "Sunday, 17 July 2011 [10:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -115,7 +115,8 @@ def write_texture(bus):
 	texture= bus['mtex']['texture']
 
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
-		bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
+		if not bus['mtex']['env']:
+			bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
 		return bus['mtex']['name']
 
 	if texture.use_nodes:
@@ -339,7 +340,6 @@ def stack_collapse_layers(slots):
 
 def write_TexOutput(bus, texmap, mapto):
 	ofile= bus['files']['textures']
-	ma=    bus['material'].get('material')
 
 	tex_name= "MAPTO%sTE%s" % (mapto, texmap)
 

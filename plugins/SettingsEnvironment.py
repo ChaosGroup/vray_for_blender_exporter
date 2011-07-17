@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 27 June 2011 [19:32]"
+  Time-stamp: "Sunday, 17 July 2011 [10:18]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -887,6 +887,7 @@ def write(bus):
 								bus['env_textures'][key].append(defaults[key])
 
 						bus['mtex']= {}
+						bus['mtex']['env']=     True
 						bus['mtex']['mapto']=   key
 						bus['mtex']['slot']=    slot
 						bus['mtex']['texture']= slot.texture
