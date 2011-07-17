@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 13 July 2011 [05:51]"
+  Time-stamp: "Sunday, 17 July 2011 [11:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -809,7 +809,9 @@ def get_full_filepath(bus, ob, filepath):
 		return src_file
 
 	if VRayDR.type == 'WW':
-		return "//%s/%s/%s/%s"%(HOSTNAME, bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
+		return "//%s/%s/%s/%s/%s"%(HOSTNAME,
+								   VRayDR.share_name,
+								   bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
 		
 	return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
 
@@ -1005,16 +1007,19 @@ def init_files(bus):
 		if VRayExporter.output_unique:
 			export_filename= blendfile_name
 
+	if VRayDR.on:
+		export_filename= blendfile_name
+
 	# Distributed rendering
 	# filepath is relative= blend-file-name/filename
 	if VRayDR.on:
-		abs_shared_dir= create_dir(os.path.normpath(os.path.join(bpy.path.abspath(VRayDR.shared_dir),"scenes")))
+		abs_shared_dir= os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
 		export_filepath= os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
+
 		bus['filenames']['DR']= {}
 		bus['filenames']['DR']['shared_dir']= abs_shared_dir
 		bus['filenames']['DR']['sub_dir']=    blendfile_name
 		bus['filenames']['DR']['dest_dir']=   export_filepath
-		#bus['filenames']['DR']['prefix']=     ".." + os.sep + "scenes" + os.sep + bus['filenames']['DR']['sub_dir']
 		bus['filenames']['DR']['prefix']=     bus['filenames']['DR']['dest_dir']
 		bus['filenames']['DR']['tex_dir']=    os.path.join(export_filepath, "textures")
 		bus['filenames']['DR']['ies_dir']=    os.path.join(export_filepath, "IES")
@@ -1031,7 +1036,7 @@ def init_files(bus):
 		else:
 			if key == 'scene' and VRayDR.on:
 				# Scene file MUST be op top of scene directory
-				filepath= os.path.normpath(os.path.join(export_directory, "..", "%s_%s.vrscene" % (export_filename, key)))
+				filepath= os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
 			else:
 				filepath= os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
 			bus['files'][key]= open(filepath, 'w')

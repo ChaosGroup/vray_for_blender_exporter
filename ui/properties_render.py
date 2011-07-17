@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:51]"
+  Time-stamp: "Sunday, 17 July 2011 [11:53]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1038,6 +1038,8 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(module, 'shared_dir')
+		if module.type == 'WW':
+			col.prop(module, 'share_name')
 
 		split= layout.split()
 		col= split.column()

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 17 July 2011 [10:18]"
+  Time-stamp: "Sunday, 17 July 2011 [11:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -81,7 +81,7 @@ PARAMS= {
 		'tex_samples',
 		'cutoff_threshold',
 		'light_mode',
-		# '',
+		'lights',
 		'use_shade_instance',
 		'affect_background',
 		'affect_reflections',
@@ -237,11 +237,11 @@ def add_properties(rna_pointer):
 		name= "Density",
 		description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog.",
 		min= 0.0,
-		max= 1.0,
+		max= 1000.0,
 		soft_min= 0.0,
-		soft_max= 1.0,
+		soft_max= 10.0,
 		precision= 3,
-		default= 1
+		default= 1.0
 	)
 
 	EnvironmentFog.use_height= BoolProperty(
@@ -412,6 +412,12 @@ def add_properties(rna_pointer):
 			('NO',"No lights","")
 		),
 		default= 'PERGIZMO'
+	)
+
+	EnvironmentFog.lights= StringProperty(
+		name= "Lights",
+		description= "TODO: Tooltip",
+		default= ""
 	)
 
 	EnvironmentFog.use_shade_instance= BoolProperty(
@@ -790,8 +796,8 @@ def write(bus):
 			elif param == 'gizmos':
 				value= "List(%s)" % ','.join(gizmos)
 			elif param == 'lights':
-				# TODO
-				continue
+				light_object_list= [get_name(ob, prefix='LA') for ob in generate_object_list(EnvironmentFog.lights) if object_visible(bus,ob)]
+				value= "List(%s)" % ','.join(light_object_list)
 			else:
 				value= getattr(EnvironmentFog, param)
 			ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
@@ -840,8 +846,9 @@ def write(bus):
 				if effect.type == 'FOG':
 					EnvironmentFog= effect.EnvironmentFog
 					gizmos= [write_EnvFogMeshGizmo(bus, ob) for ob in generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups) if object_visible(bus,ob)]
-					if gizmos:
-						volumes.append(write_EnvironmentFog(bus, effect, gizmos))
+					# if gizmos:
+					# 	volumes.append(write_EnvironmentFog(bus, effect, gizmos))
+					volumes.append(write_EnvironmentFog(bus, effect, gizmos))
 
 				elif effect.type == 'TOON':
 					VolumeVRayToon= effect.VolumeVRayToon
@@ -1018,6 +1025,12 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 	col= split.column()
 	col.prop(EnvironmentFog, 'light_mode')
 	col.prop(EnvironmentFog, 'fade_out_mode')
+
+	split= layout.split()
+	col= split.column()
+	col.prop_search(EnvironmentFog, 'lights',
+					context.scene,  'objects',
+					text="Lights")
 
 	layout.separator()
 

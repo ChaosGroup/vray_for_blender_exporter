@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: " "
+  Time-stamp: "Sunday, 17 July 2011 [12:26]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -77,16 +77,22 @@ def add_properties(rna_pointer):
 		description= "Distributed rendering shader directory."
 	)
 
+	VRayDR.share_name= StringProperty(
+		name= "Share name",
+		default= "VRAYDR",
+		description= "Share name."
+	)
+
 	VRayDR.type= EnumProperty(
 		name= "Type",
 		description= "Distributed rendering network type.",
 		items= (
 			('WW', "Windows - Windows", "Window master & Windows nodes."),
-			('WU', "Windows - Unix",    "Window master & Unix nodes."),
+			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes."),
 			('UU', "Unix - Unix",       "Unix master & Unix nodes."),
-			('UW', "Unix - Windows",    "Unix master & Windows nodes."),
+			('UW', "Unix - Windows (TODO)", "Unix master & Windows nodes."),
 		),
-		default= 'WU'
+		default= 'WW'
 	)
 
 

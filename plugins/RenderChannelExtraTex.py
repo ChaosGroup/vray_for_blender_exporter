@@ -4,7 +4,7 @@
 
  http://vray.cgdo.ru
 
- Time-stamp: " "
+ Time-stamp: "Sunday, 17 July 2011 [13:09]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -99,25 +99,39 @@ def add_properties(parent_struct):
 '''
   OUTPUT
 '''
-def write(ofile, render_channel, sce= None, name= None):
+def write(bus, render_channel, name= None):
+	ofile= bus['files']['scene']
+	scene= bus['scene']
+
 	channel_name= name if name is not None else render_channel.name
 
-	texname= render_channel.texmap
-	if texname:
-		if texname in bpy.data.textures:
-			params= {'texture': bpy.data.textures[texname]}
-			texmap= write_texture(ofile, sce, params)
+	if render_channel.texmap not in bpy.data.textures:
+		return
 	
-		ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
-		for param in PARAMS:
-			if param == 'name':
-				value= "\"%s\"" % channel_name
-			elif param == 'texmap':
-				value= texmap
-			else:
-				value= getattr(render_channel, param)
-			ofile.write("\n\t%s= %s;"%(param, p(value)))
-		ofile.write("\n}\n")
+	# Store mtex context
+	context_mtex= bus['mtex']
+
+	bus['mtex']= {}
+	bus['mtex']['env']=     True # This is needed!
+	bus['mtex']['slot']=    None
+	bus['mtex']['texture']= bpy.data.textures[render_channel.texmap]
+	bus['mtex']['factor']=  1.0
+	bus['mtex']['name']=    clean_string("EXTRATE%s" % (render_channel.texmap))
+	texmap= write_texture(bus)
+
+	# Restore mtex context
+	bus['mtex']= context_mtex
+
+	ofile.write("\n%s %s {"%(PLUG, clean_string(channel_name)))
+	for param in PARAMS:
+		if param == 'name':
+			value= "\"%s\"" % channel_name
+		elif param == 'texmap':
+			value= texmap
+		else:
+			value= getattr(render_channel, param)
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n}\n")
 
 
 

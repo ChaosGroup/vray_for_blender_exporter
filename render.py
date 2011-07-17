@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 12 July 2011 [05:27]"
+  Time-stamp: "Sunday, 17 July 2011 [12:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -486,7 +486,7 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 				widths.append( HexFormat(width) )
 
 	ofile.write("\nGeomMayaHair %s {" % hair_geom_name)
-	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListIntHex(\"%s\")));"%(scene.frame_current,     ''.join(num_hair_vertices)))
+	ofile.write("\n\tnum_hair_vertices= interpolate((%d,ListIntHex(\"%s\")));"%(scene.frame_current, ''.join(num_hair_vertices)))
 	ofile.write("\n\thair_vertices= interpolate((%d,ListVectorHex(\"%s\")));"%(scene.frame_current,  ''.join(hair_vertices)))
 	ofile.write("\n\twidths= interpolate((%d,ListFloatHex(\"%s\")));"%(scene.frame_current,          ''.join(widths)))
 	ofile.write("\n}\n")
@@ -512,15 +512,13 @@ def write_settings(bus):
 
 		if VRayDR.on:
 			if VRayDR.type == 'WW':
-				ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, "RENDER", bus['filenames']['DR']['sub_dir'], bus['filenames'][key]))
+				ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames'][key])))
 			else:
 				if key == 'geometry':
 					for t in range(scene.render.threads):
 						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
-
 				else:
 					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
-
 		else:
 			if key == 'geometry':
 				if bus['preview']:
@@ -546,7 +544,10 @@ def write_settings(bus):
 			if render_channel.use:
 				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin:
-					plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
+					try:
+						plugin.write(bus, getattr(render_channel,plugin.PLUG), render_channel.name)
+					except:
+						plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
 
 	# Preview settings are in different parts of the file,
 	# because smth must be set before and smth after.
