@@ -186,9 +186,15 @@ def write(bus):
 
 	if not VRayExporter.use_displace:
 		return
+        
+        slot= bus['node']['displacement_slot']
 
 	VRayObject= ob.vray
 	GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
+	
+	VRaySlot=            slot.texture.vray_slot
+	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
+	displacement_amount= GeomDisplacedMesh.displacement_amount
 
 	if GeomStaticSmoothedMesh.use:
 		subdiv_name= 'SBDV'+me
@@ -198,7 +204,16 @@ def write(bus):
 		ofile.write("\nGeomStaticSmoothedMesh %s {" % subdiv_name)
 		ofile.write("\n\tmesh= %s;" % me)
 		for param in PARAMS:
-			value= getattr(GeomStaticSmoothedMesh, param)
+			if param == 'displacement_amount':
+				if ob.vray.GeomStaticSmoothedMesh.use:
+					if GeomDisplacedMesh.amount_type == 'OVER':
+						value= GeomDisplacedMesh.displacement_amount
+					else:
+						value= GeomDisplacedMesh.amount_mult * displacement_amount
+				else:
+					value= displacement_amount
+			else:		
+				value= getattr(GeomStaticSmoothedMesh, param)
 			ofile.write("\n\t%s= %s;" % (param, a(scene,value)))
 		ofile.write("\n}\n")
 
