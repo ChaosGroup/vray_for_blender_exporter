@@ -1259,11 +1259,11 @@ def write_object(bus):
 				bus['node']['geometry']= get_name(ob, prefix='PROCEDURAL')
 				PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
 
-	# Displace
-	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
-
-	# Subdivision
-	PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
+	# Displace or Subdivision
+	if ob.vray.GeomStaticSmoothedMesh.use:
+		PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)	
+	else:
+		PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
