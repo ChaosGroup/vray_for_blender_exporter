@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 15 July 2011 [12:53]"
+  Time-stamp: "Tuesday, 19 July 2011 [10:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -19,7 +19,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program.	If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 '''
@@ -35,7 +35,7 @@ from vb25.ui.ui import *
 
 
 TYPE= 'GEOMETRY'
-ID=   'GeomStaticSmoothedMesh'
+ID=	  'GeomStaticSmoothedMesh'
 
 NAME= 'Subdivision'
 DESC= "Subdivision surface settings."
@@ -178,22 +178,22 @@ def write(bus):
 	ofile= bus['files']['nodes']
 	scene= bus['scene']
 
-	ob=    bus['node']['object']
-	me=    bus['node']['geometry']
+	ob=	   bus['node']['object']
+	me=	   bus['node']['geometry']
 	
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
 
 	if not VRayExporter.use_displace:
 		return
-        
-        slot= bus['node']['displacement_slot']
+		
+		slot= bus['node']['displacement_slot']
 
 	VRayObject= ob.vray
 	GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
 	
-	VRaySlot=            slot.texture.vray_slot
-	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
+	VRaySlot=			 slot.texture.vray_slot
+	GeomDisplacedMesh=	 VRaySlot.GeomDisplacedMesh
 	displacement_amount= GeomDisplacedMesh.displacement_amount
 
 	if GeomStaticSmoothedMesh.use:
