@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 17 July 2011 [11:38]"
+  Time-stamp: "Tuesday, 19 July 2011 [16:42]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -797,6 +797,8 @@ def write(bus):
 				value= "List(%s)" % ','.join(gizmos)
 			elif param == 'lights':
 				light_object_list= [get_name(ob, prefix='LA') for ob in generate_object_list(EnvironmentFog.lights) if object_visible(bus,ob)]
+				if not len(light_object_list):
+					continue
 				value= "List(%s)" % ','.join(light_object_list)
 			else:
 				value= getattr(EnvironmentFog, param)
