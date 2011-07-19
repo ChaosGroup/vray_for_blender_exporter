@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 17 July 2011 [12:25]"
+  Time-stamp: "Tuesday, 19 July 2011 [19:21]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1837,7 +1837,10 @@ def run(engine, bus):
 				params.append('-portNumber=')
 				params.append(str(VRayDR.port))
 				params.append('-renderhost=')
-				params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
+				if PLATFORM == "win32":
+					params.append("%s" % ';'.join([n.address for n in VRayDR.nodes]))
+				else:
+					params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
 				params.append('-include=')
 				params.append("\"%s\"" % (bus['filenames']['DR']['shared_dir'] + os.sep))
 
