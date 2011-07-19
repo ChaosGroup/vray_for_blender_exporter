@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:39]"
+  Time-stamp: "Tuesday, 19 July 2011 [11:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -329,6 +329,8 @@ def write(bus):
 					value= GeomDisplacedMesh.amount_mult * displacement_amount
 			else:
 				value= displacement_amount
+		elif param in ('min_bound', 'max_bound'):
+			value= "Color(%.3f,%.3f,%.3f)" % (tuple([getattr(GeomDisplacedMesh, param)]*3))
 		else:
 			value= getattr(GeomDisplacedMesh, param)
 		ofile.write("\n\t%s= %s;" % (param, a(scene,value)))

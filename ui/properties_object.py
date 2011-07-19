@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:35]"
+  Time-stamp: "Tuesday, 19 July 2011 [10:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -374,30 +374,15 @@ class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
 		layout= self.layout
 		layout.active= GeomStaticSmoothedMesh.use
 
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(GeomStaticSmoothedMesh, 'displacement_amount')
-		# col.prop(GeomStaticSmoothedMesh, 'displacement_shift', slider=True)
-		# col.prop(GeomStaticSmoothedMesh, 'water_level', slider=True)
-		# if wide_ui:
-		# 	col= split.column()
-		# col.prop(GeomStaticSmoothedMesh, 'use_bounds')
-		# sub= col.column(align= True)
-		# sub.active= GeomStaticSmoothedMesh.use_bounds
-		# sub.prop(GeomStaticSmoothedMesh, 'min_bound', text="Min", slider= True)
-		# sub.prop(GeomStaticSmoothedMesh, 'max_bound', text="Max", slider= True)
-
 		split= layout.split()
 		col= split.column()
-		col.prop(GeomStaticSmoothedMesh, 'keep_continuity')
+		col.prop(GeomStaticSmoothedMesh, 'static_subdiv')
 		if wide_ui:
 			col= split.column()
-		col.prop(GeomStaticSmoothedMesh, 'static_subdiv')
-
-		split= layout.split()
-		col= split.column()
 		col.prop(GeomStaticSmoothedMesh, 'use_globals')
+
 		if not GeomStaticSmoothedMesh.use_globals:
+			layout.separator()
 			split= layout.split()
 			col= split.column()
 			col.prop(GeomStaticSmoothedMesh, 'edge_length')
