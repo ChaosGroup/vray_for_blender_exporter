@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [19:03]"
+  Time-stamp: "Monday, 25 July 2011 [19:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -68,7 +68,7 @@ def add_properties(rna_pointer):
 				('GAMMA',  "Gamma corrected", ""),
 				('SRGB',   "sRGB",            "")
 			),
-			default= 'LINEAR'
+			default= 'SRGB'
 		)
 
 		interpolation= EnumProperty(

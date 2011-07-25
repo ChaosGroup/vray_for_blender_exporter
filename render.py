@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 19 July 2011 [19:21]"
+  Time-stamp: "Monday, 25 July 2011 [19:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -1212,7 +1212,8 @@ def write_node(bus):
 	#if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
 	#	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
 
-	ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+	if not bus['preview']:
+		ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
 	ofile.write("\n}\n")
 
 
