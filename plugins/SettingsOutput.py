@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 28 March 2011 [22:19]"
+  Time-stamp: "Sunday, 31 July 2011 [21:43]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -49,6 +49,18 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class SettingsOutput(bpy.types.PropertyGroup):
+		img_format= EnumProperty(
+			name= "Type",
+			description= "Output image format.",
+			items= (
+				('PNG',   "PNG",     "PNG."),
+				('JPG',   "JPEG",    "Jpeg."),
+				('EXR',   "OpenEXR", "OpenEXR."),
+				('VRIMG', "VRIMG",   "V-Ray Image format."),
+			),
+			default= 'PNG'
+		)
+
 		img_noAlpha= BoolProperty(
 			name= "No alpha",
 			description= "Don't write the alpha channel to the final image.",
