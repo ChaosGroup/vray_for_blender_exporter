@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 25 July 2011 [19:14]"
+  Time-stamp: "Sunday, 31 July 2011 [21:21]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -558,18 +558,19 @@ def write_settings(bus):
 		for ob in scene.objects:
 			if ob.name == 'texture' and ob.is_visible(scene):
 				mode= 'TEXTURE'
-				tex_name= clean_string("MT00TE%s" % ob.material_slots[0].material.texture_slots[0].texture.name)
+				tex_name= clean_string("MAtextureMT00TE%s" % ob.material_slots[0].material.texture_slots[0].texture.name)
 				break
 
-		# For texture preview we need to set testure as Diffuse
+		# For texture preview we need to set texture as Diffuse
 		# no matter how it's used in material.
 		if mode == 'TEXTURE':
 			bus['files']['scene'].write("\n// Texture preview material")
-			bus['files']['scene'].write("\nBRDFDiffuse BRDFtexture {")
-			bus['files']['scene'].write("\n\tcolor_tex= %s;" % tex_name)
+			bus['files']['scene'].write("\nBRDFLight BRDFPreviewTexture {")
+			bus['files']['scene'].write("\n\tcolor= %s;" % tex_name)
+			bus['files']['scene'].write("\n\tcolorMultiplier= 4.0;")
 			bus['files']['scene'].write("\n}\n")
 			bus['files']['scene'].write("\nMtlSingleBRDF MAtexture {")
-			bus['files']['scene'].write("\n\tbrdf= BRDFtexture;")
+			bus['files']['scene'].write("\n\tbrdf= BRDFPreviewTexture;")
 			bus['files']['scene'].write("\n}\n")
 
 		bus['files']['scene'].write("\n// Preview settings")
@@ -581,9 +582,9 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsDMCSampler {")
-		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
-		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
-		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
+		bus['files']['scene'].write("\n\tadaptive_amount= 1.0;")
+		bus['files']['scene'].write("\n\tadaptive_threshold= 0.2;")
+		bus['files']['scene'].write("\n\tsubdivs_mult= 0.01;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsOptions {")
 		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")

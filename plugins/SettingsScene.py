@@ -3,7 +3,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [02:44]"
+  Time-stamp: "Friday, 29 July 2011 [01:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -41,8 +41,26 @@ PARAMS= (
 )
 
 
+def image_aspect_lock(self, context):
+	scene= context.scene
+	rd=    scene.render
+	VRayScene= scene.vray
+		
+	if VRayScene.image_aspect_lock:
+		rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
+	
+	return None
+
+
 def add_properties(rna_pointer):
+	rna_pointer.image_aspect_lock= BoolProperty(
+		name= "Lock aspect",
+		description= "Lock image aspect.",
+		default= False
+	)
+
 	rna_pointer.image_aspect= FloatProperty(
+		update= image_aspect_lock,
 		name= "Image aspect",
 		description= "Image aspect.",
 		min= 0.1,
@@ -51,11 +69,5 @@ def add_properties(rna_pointer):
 		soft_max= 10.0,
 		precision= 3,
 		default= 1.333
-	)
-
-	rna_pointer.image_aspect_lock= BoolProperty(
-		name= "Lock aspect",
-		description= "Lock image aspect.",
-		default= False
 	)
 
