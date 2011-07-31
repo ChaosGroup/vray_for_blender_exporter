@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [06:05]"
+  Time-stamp: "Sunday, 31 July 2011 [21:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -35,6 +35,14 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.plugins import *
+
+
+from bl_ui import properties_world
+try:
+	properties_world.WORLD_PT_context_world.COMPAT_ENGINES.add('VRAY_RENDER')
+except:
+	pass
+del properties_world
 
 
 class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
@@ -74,10 +82,6 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 	bl_options = {'DEFAULT_CLOSED'}
 	
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		VRayScene= context.scene.vray
