@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 31 July 2011 [21:21]"
+  Time-stamp: "Sunday, 31 July 2011 [22:38]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -582,7 +582,7 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsDMCSampler {")
-		bus['files']['scene'].write("\n\tadaptive_amount= 1.0;")
+		bus['files']['scene'].write("\n\tadaptive_amount= 0.99;")
 		bus['files']['scene'].write("\n\tadaptive_threshold= 0.2;")
 		bus['files']['scene'].write("\n\tsubdivs_mult= 0.01;")
 		bus['files']['scene'].write("\n}\n")
@@ -612,7 +612,6 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
 		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
 		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
-		bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsImageSampler {")
 		bus['files']['scene'].write("\n\ttype= 1;")
@@ -1576,10 +1575,10 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n\tshadows= 1;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
 		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-		bus['files']['lights'].write("\n\taffectSpecular= 1;")
-		bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
-		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\taffectSpecular= 0;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
+		bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
 		bus['files']['lights'].write("\n\tdecay= 1.0;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
 		bus['files']['lights'].write("\n\t\tMatrix(")
@@ -1616,9 +1615,9 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n\tshadows= 0;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
 		bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-		bus['files']['lights'].write("\n\taffectSpecular= 1;")
+		bus['files']['lights'].write("\n\taffectSpecular= 0;")
 		bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-		bus['files']['lights'].write("\n\tshadowSubdivs= 8;")
+		bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
 		bus['files']['lights'].write("\n\tdecay= 2.0;")
 		bus['files']['lights'].write("\n\ttransform= Transform(")
 		bus['files']['lights'].write("\n\t\tMatrix(")

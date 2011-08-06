@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [21:11]"
+  Time-stamp: "Saturday, 06 August 2011 [17:25]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -206,7 +206,12 @@ def write(bus, VRayBRDF= None, base_name= None):
 	weights= []
 	for i,brdf in enumerate(BRDFLayered.brdfs):
 		brdfs.append(PLUGINS['BRDF'][brdf.type].write(bus, brdf, base_name= "%s%.2i" % (brdf_name,i)))
-		weights.append(p(brdf.weight))
+
+		weight_acolor= "W%sI%i"%(brdfs[i],i)
+		ofile.write("\nTexAColor %s {" % (weight_acolor))
+		ofile.write("\n\ttexture= %s;" % ("AColor(%.3f,%.3f,%.3f,1.0)" % tuple(brdf.weight)))
+		ofile.write("\n}\n")
+		weights.append(weight_acolor)
 
 	if len(brdfs) == 1:
 		return brdfs[0]
