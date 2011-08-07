@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 27 June 2011 [19:08]"
+  Time-stamp: "Sunday, 07 August 2011 [05:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -349,7 +349,7 @@ def mapto(bus, BRDFLayered= None):
 	BRDFSSS2Complex= BRDFLayered.BRDFSSS2Complex if BRDFLayered else VRayMaterial.BRDFSSS2Complex
 
 	if BRDFLayered:
-		defaults['overall_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.diffuse_color)), 0, 'NONE')
+		defaults['overall_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFSSS2Complex.overall_color)), 0, 'NONE')
 	else:
 		defaults['overall_color']=   (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
 
