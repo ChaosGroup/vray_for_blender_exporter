@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 20 March 2011 [13:37]"
+  Time-stamp: "Monday, 08 August 2011 [02:56]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -101,6 +101,9 @@ def write_ShaderNodeMaterial(bus, node, input_params):
 			PLUGINS['SETTINGS']['SettingsEnvironment'].write_VolumeVRayToon_from_material(bus)
 		)
 		append_unique(bus['effects']['toon']['objects'], bus['node']['object'])
+
+	# Write material textures
+	write_material_textures(bus)
 
 	node_name= PLUGINS['BRDF'][node.material.vray.type].write(bus)
 

@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 11 May 2011 [13:09]"
+  Time-stamp: "Monday, 08 August 2011 [03:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -34,6 +34,8 @@ import bpy
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.plugins import *
+
+from bl_ui.properties_material import active_node_mat
 
 
 class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
@@ -167,7 +169,7 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 		VRaySlot= texture.vray_slot
 
 		if issubclass(type(idblock), bpy.types.Material):
-			material=     context.material
+			material=     active_node_mat(context.material)
 			VRayMaterial= material.vray
 
 			PLUGINS['BRDF'][VRayMaterial.type].influence(context, layout, slot)

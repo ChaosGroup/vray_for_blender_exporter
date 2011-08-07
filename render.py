@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 31 July 2011 [22:38]"
+  Time-stamp: "Monday, 08 August 2011 [02:57]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -684,98 +684,6 @@ def write_lamp_textures(bus):
 			bus['lamp_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['lamp_textures'][key])), key)
 
 	return bus['lamp_textures']
-
-
-def write_material_textures(bus):
-	ofile= bus['files']['materials']
-	scene= bus['scene']
-	ma=    bus['material']['material']
-
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
-
-	VRayMaterial= ma.vray
-
-	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].mapto(bus)
-
-	# Mapped parameters
-	bus['textures']= {}
-
-	for i,slot in enumerate(ma.texture_slots):
-		if ma.use_textures[i] and slot and slot.texture and (slot.texture.type in TEX_TYPES or slot.texture.use_nodes):
-			VRaySlot=    slot.texture.vray_slot
-			VRayTexture= slot.texture.vray
-
-			for key in mapped_params:
-				if getattr(VRaySlot, 'map_'+key):
-					factor= getattr(VRaySlot, key+'_mult')
-					
-					if key not in bus['textures']: # If texture is first in stack
-						bus['textures'][key]= []
-						# If this texture will be blended over some value
-						# we need to add this value
-						# (for example, texture blended over diffuse color)
-						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures'][key].append(mapped_params[key])
-
-					# Store slot for GeomDisplaceMesh
-					if key == 'displacement':
-						bus['node']['displacement_slot']= slot
-
-					# Store slot for BRDFBump
-					elif key == 'normal':
-						bus['material']['normal_slot']= slot
-						
-					bus['mtex']= {}
-					bus['mtex']['slot']=    slot
-					bus['mtex']['texture']= slot.texture
-					bus['mtex']['mapto']=   key
-					bus['mtex']['factor']=  factor
-
-					# Check if we could improve this
-					# Better handling of texture blending
-					bus['mtex']['name']=    clean_string("MA%sMT%.2iTE%s" % (ma.name, i, slot.texture.name))
-
-					if VRayTexture.texture_coords == 'ORCO':
-						bus['material']['orco_suffix']= get_name(get_orco_object(scene, bus['node']['object'], VRayTexture),
-																 prefix='ORCO')
-
-						bus['mtex']['name']+= bus['material']['orco_suffix']
-
-					# if VRayExporter.debug:
-					# 	print_dict(scene, "bus['mtex']", bus['mtex'])
-
-					# Write texture
-					if write_texture(bus):
-						# Append texture to stack and write texture with factor
-						bus['textures'][key].append( [stack_write_texture(bus),
-													  slot.use_stencil,
-													  VRaySlot.blend_mode] )
-
-	if VRayExporter.debug:
-		if len(bus['textures']):
-			print_dict(scene, "Material \"%s\" texture stack" % ma.name, bus['textures'])
-
-	# Collapsing texture stack
-	del_keys= []
-	for key in bus['textures']:
-		if len(bus['textures'][key]):
-			if len(bus['textures'][key]) == 1 and type(bus['textures'][key][0]) is tuple:
-				del_keys.append(key)
-			else:
-				bus['textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['textures'][key])), key)
-
-	for key in del_keys:
-		del bus['textures'][key]
-
-	if 'displacement' in bus['textures']:
-		bus['node']['displacement_texture']= bus['textures']['displacement']
-
-	if VRayExporter.debug:
-		if len(bus['textures']):
-			print_dict(scene, "Material \"%s\" textures" % ma.name, bus['textures'])
-
-	return bus['textures']
 
 
 def	write_material(bus):

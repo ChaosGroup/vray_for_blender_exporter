@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 01 May 2011 [08:21]"
+  Time-stamp: "Sunday, 07 August 2011 [18:23]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -125,6 +125,15 @@ def write_UVWGenChannel(bus):
 	else:
 		ofile.write("\n\twrap_u= %d;" % (2 if VRayTexture.mirror_u else 0))
 		ofile.write("\n\twrap_v= %d;" % (2 if VRayTexture.mirror_v else 0))
+		
+		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
+		ofile.write("\n\t\tMatrix(")
+		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % VRayTexture.tile_u)
+		ofile.write("\n\t\t\tVector(0.0,1.0,0.0)*%.3f," % VRayTexture.tile_v)
+		ofile.write("\n\t\t\tVector(0.0,0.0,1.0)")
+		ofile.write("\n\t\t),")
+		ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+		ofile.write("\n\t)));")
 
 	# Optional UVWGen from which the initial uvw coordinates
 	# will be taken, instead of the surface point
