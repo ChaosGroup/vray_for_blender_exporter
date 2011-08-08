@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Tuesday, 29 March 2011 [22:32]"
+  Time-stamp: "Monday, 08 August 2011 [18:58]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -114,7 +114,7 @@ def write(bus, base_brdf= None):
 	if not base_brdf:
 		base_brdf= bus['brdf']
 
-	if slot:
+	if slot and textures.get('normal'):
 		VRayTexture= slot.texture.vray
 		VRaySlot=    slot.texture.vray_slot
 		

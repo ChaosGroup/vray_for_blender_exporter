@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 11 July 2011 [00:24]"
+  Time-stamp: "Monday, 08 August 2011 [18:14]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -534,7 +534,7 @@ def add_properties():
 			max= 100.0,
 			soft_min= 0.0,
 			soft_max= 1.0,
-			precision= 2,
+			precision= 4,
 			default= 1.0
 		)
 
