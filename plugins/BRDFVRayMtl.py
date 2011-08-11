@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Wednesday, 22 June 2011 [20:33]"
+  Time-stamp: "Thursday, 11 August 2011 [15:45]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -359,10 +359,20 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
-	BRDFVRayMtl.refract_affect_alpha= BoolProperty(
-		name= "Affect alpha",
-		description= "",
-		default= False
+	# BRDFVRayMtl.refract_affect_alpha= BoolProperty(
+	# 	name= "Affect alpha",
+	# 	description= "",
+	# 	default= False
+	# )
+	BRDFVRayMtl.refract_affect_alpha= EnumProperty(
+		name= "Affect Channels",
+		description= "This determines the type of BRDF (the shape of the hilight).",
+		items= (
+			('COL',  "Color Only",   "The transperency will affect only the RGB channel of the final render."),
+			('RERF', "Color+Alpha",  "This will cause the material to transmit the alpha of the refracted objects, instead of displaying an opaque alpha.."),
+			('ALL',  "All Channels", "All channels and render elements will be affected by the transperency of the material.")
+		),
+		default= 'COL'
 	)
 
 	BRDFVRayMtl.fog_mult= FloatProperty(
@@ -641,7 +651,12 @@ def write(bus, VRayBRDF= None, base_name= None):
 		'COLOR': 0,
 		'MONO':  1,
 	}
-	
+	AFFECT_ALPHA= {
+		'COL':  0,
+		'RERF': 1,
+		'ALL':  2
+	}
+
 	ofile=    bus['files']['materials']
 	scene=    bus['scene']
 
@@ -675,6 +690,8 @@ def write(bus, VRayBRDF= None, base_name= None):
 	for param in PARAMS:
 		if param == 'translucency':
 			value= TRANSLUCENSY[BRDFVRayMtl.translucency]
+		elif param == 'refract_affect_alpha':
+			value= AFFECT_ALPHA[BRDFVRayMtl.refract_affect_alpha]
 		elif param == 'anisotropy_rotation':
 			value= BRDFVRayMtl.anisotropy_rotation / 360.0
 		elif param == 'translucency_thickness':
@@ -799,17 +816,16 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	sub.prop(BRDFVRayMtl, 'fog_color', text="")
 	sub.prop(BRDFVRayMtl, 'fog_mult')
 	sub.prop(BRDFVRayMtl, 'fog_bias', slider=True)
-	sub= col.column(align=True)
-	sub.prop(BRDFVRayMtl, 'refract_affect_alpha')
-	sub.prop(BRDFVRayMtl, 'refract_affect_shadows')
+	sub.prop(BRDFVRayMtl, 'dispersion_on')
+	if BRDFVRayMtl.dispersion_on:
+		sub.prop(BRDFVRayMtl, 'dispersion')
 
 	split= layout.split()
 	col= split.column()
-	col.prop(BRDFVRayMtl, 'dispersion_on')
+	col.prop(BRDFVRayMtl, 'refract_affect_alpha', text="Affect")
 	if wide_ui:
 		col= split.column()
-	if BRDFVRayMtl.dispersion_on:
-		col.prop(BRDFVRayMtl, 'dispersion')
+	col.prop(BRDFVRayMtl, 'refract_affect_shadows')
 
 	layout.separator()
 
