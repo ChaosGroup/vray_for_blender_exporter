@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 01 May 2011 [07:49]"
+  Time-stamp: "Thursday, 11 August 2011 [05:15]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -58,22 +58,44 @@ class VRAY_OT_update(bpy.types.Operator):
 	bl_label       = "Update exporter"
 	bl_description = "Update exporter from github."
 
-	def reporthook(self, blocks_count, blocks_size, file_size):
-		print(blocks_count, blocks_size, file_size)
-
 	def execute(self, context):
-		# GIT_URL= "http://github.com/bdancer/vb25/zipball/master"
+		GIT_URL= "https://github.com/bdancer/vb25/zipball/master"
 
-		# update_dir= create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
-		# zip_filepath= os.path.join(update_dir, "vb25git.zip")
+		update_dir= create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
 
-		# # Downloading file
-		# (filename, headers)= urllib.request.urlretrieve(GIT_URL, reporthook= self.reporthook)
+		# Downloading file
+		debug(context.scene, "Downloading \'master\' branch archive...")
+		(filename, headers)= urllib.request.urlretrieve(GIT_URL)
 
-		# # Extracting archive
-		# # ziparchive= zipfile.ZipFile(zip_filepath)
-		# # ziparchive.extractall(update_dir)
-		
+		# Extracting archive
+		ziparchive= zipfile.ZipFile(filename)
+		ziparchive.extractall(update_dir)
+
+		# Check update dir
+		dirnames= os.listdir(update_dir)
+
+		cur_vb25_dirpath= get_vray_exporter_path()
+		new_vb25_dirpath= ""
+		for dirname in dirnames:
+			if dirname.startswith("bdancer-vb25-"):
+				new_vb25_dirpath= os.path.join(update_dir, dirname)
+				break
+
+		if not new_vb25_dirpath:
+			debug(context.scene, "Update files not found!", error= True)
+			return {'CANCELLED'}
+
+		# Copying new files
+		debug(context.scene, "Copying new files...")
+		shutil.rmtree(cur_vb25_dirpath)
+		shutil.copytree(new_vb25_dirpath, cur_vb25_dirpath)
+
+		debug(context.scene, "Removing temp file: %s"%(filename))
+		os.remove(filename)
+
+		debug(context.scene, "Removing temp dir: %s"%(update_dir))
+		shutil.rmtree(update_dir)
+
 		return {'FINISHED'}
 
 

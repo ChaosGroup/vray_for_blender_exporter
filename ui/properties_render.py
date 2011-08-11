@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 29 July 2011 [01:38]"
+  Time-stamp: "Thursday, 11 August 2011 [03:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -382,6 +382,10 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		if ve.output == 'USER':
 			col.prop(ve, 'output_dir')
 		col.prop(ve, 'output_unique')
+
+		layout.separator()
+
+		layout.operator('vray.update')
 
 
 class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
