@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 01 April 2011 [13:53]"
+  Time-stamp: "Thursday, 11 August 2011 [20:35]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -32,6 +32,8 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
+import vb25.texture
+
 from vb25.utils import *
 from vb25.ui.ui import *
 
@@ -201,11 +203,19 @@ def write(bus, VRayBRDF= None, base_name= None):
 		brdf_name+= clean_string(VRayBRDF.name)
 
 	BRDFDiffuse= getattr(VRayBRDF, ID)
+
+	textures= {}
+	for param in PARAMS:
+		if param.endswith('_tex'):
+			textures[param]= vb25.texture.write_subtexture(bus, getattr(BRDFDiffuse, param))
 	
 	ofile.write("\n%s %s {"%(ID, brdf_name))
 	for param in PARAMS:
 		if param.endswith('_tex'):
-			continue
+			if param in textures and textures[param]:
+				value= textures[param]
+			else:
+				continue
 		else:
 			value= getattr(BRDFDiffuse, param)
 		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))

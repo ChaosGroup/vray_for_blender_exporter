@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Saturday, 12 March 2011 [09:53]"
+  Time-stamp: "Thursday, 11 August 2011 [20:36]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -31,6 +31,8 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
+import vb25.texture
+
 from vb25.utils import *
 from vb25.ui.ui import *
 
@@ -266,10 +268,18 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 	BRDFMirror= getattr(VRayBRDF, ID)
 	
+	textures= {}
+	for param in PARAMS:
+		if param.endswith('_tex'):
+			textures[param]= vb25.texture.write_subtexture(bus, getattr(BRDFMirror, param))
+	
 	ofile.write("\n%s %s {"%(ID, brdf_name))
 	for param in PARAMS:
 		if param.endswith('_tex'):
-			continue
+			if param in textures and textures[param]:
+				value= textures[param]
+			else:
+				continue
 		elif param == 'transparency':
 			value= mathutils.Color([1.0 - BRDFMirror.transparency]*3)
 		else:

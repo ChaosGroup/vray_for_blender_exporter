@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 08 August 2011 [02:57]"
+  Time-stamp: "Thursday, 11 August 2011 [20:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -612,3 +612,30 @@ def write_material_textures(bus):
 			print_dict(scene, "Material \"%s\" textures" % ma.name, bus['textures'])
 
 	return bus['textures']
+
+
+def write_subtexture(bus, tex_name):
+	if not tex_name in bpy.data.textures:
+		return None
+
+	context_mtex= None
+	if 'mtex' in bus:
+		# Store mtex context
+		context_mtex= bus['mtex']
+
+	# Prepare data
+	bus['mtex']= {}
+	bus['mtex']['env']=     True # This is needed!
+	bus['mtex']['slot']=    None
+	bus['mtex']['texture']= bpy.data.textures[tex_name]
+	bus['mtex']['factor']=  1.0
+	bus['mtex']['mapto']=   None
+	bus['mtex']['name']=    clean_string("TE%s"%(tex_name))
+
+	# Write texture
+	texture_name= write_texture(bus)
+
+	# Restore mtex context
+	bus['mtex']= context_mtex
+
+	return texture_name

@@ -4,7 +4,7 @@
 
  http://vray.cgdo.ru
 
- Time-stamp: "Sunday, 17 July 2011 [13:09]"
+ Time-stamp: "Thursday, 11 August 2011 [20:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
  E-Mail: izrantsev@gmail.com
@@ -116,7 +116,9 @@ def write(bus, render_channel, name= None):
 	bus['mtex']['slot']=    None
 	bus['mtex']['texture']= bpy.data.textures[render_channel.texmap]
 	bus['mtex']['factor']=  1.0
+	bus['mtex']['mapto']=   None
 	bus['mtex']['name']=    clean_string("EXTRATE%s" % (render_channel.texmap))
+
 	texmap= write_texture(bus)
 
 	# Restore mtex context
