@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 11 August 2011 [15:45]"
+  Time-stamp: "Friday, 19 August 2011 [23:47]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -66,6 +66,7 @@ PARAMS= (
 	##'reflect_dim_distance',
 	'reflect_dim_distance_on',
 	'reflect_dim_distance_falloff',
+	'reflect_affect_alpha',
 	#anisotropy',
 	#anisotropy_rotation',
 	'anisotropy_derivation',
@@ -359,14 +360,20 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
-	# BRDFVRayMtl.refract_affect_alpha= BoolProperty(
-	# 	name= "Affect alpha",
-	# 	description= "",
-	# 	default= False
-	# )
 	BRDFVRayMtl.refract_affect_alpha= EnumProperty(
 		name= "Affect Channels",
-		description= "This determines the type of BRDF (the shape of the hilight).",
+		description= "Which channels refractions affect.",
+		items= (
+			('COL',  "Color Only",   "The transperency will affect only the RGB channel of the final render."),
+			('RERF', "Color+Alpha",  "This will cause the material to transmit the alpha of the refracted objects, instead of displaying an opaque alpha.."),
+			('ALL',  "All Channels", "All channels and render elements will be affected by the transperency of the material.")
+		),
+		default= 'COL'
+	)
+
+	BRDFVRayMtl.reflect_affect_alpha= EnumProperty(
+		name= "Affect Channels",
+		description= "Which channels reflections affect.",
 		items= (
 			('COL',  "Color Only",   "The transperency will affect only the RGB channel of the final render."),
 			('RERF', "Color+Alpha",  "This will cause the material to transmit the alpha of the refracted objects, instead of displaying an opaque alpha.."),
@@ -692,6 +699,8 @@ def write(bus, VRayBRDF= None, base_name= None):
 			value= TRANSLUCENSY[BRDFVRayMtl.translucency]
 		elif param == 'refract_affect_alpha':
 			value= AFFECT_ALPHA[BRDFVRayMtl.refract_affect_alpha]
+		elif param == 'reflect_affect_alpha':
+			value= AFFECT_ALPHA[BRDFVRayMtl.reflect_affect_alpha]
 		elif param == 'anisotropy_rotation':
 			value= BRDFVRayMtl.anisotropy_rotation / 360.0
 		elif param == 'translucency_thickness':
@@ -780,13 +789,15 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	col.label(text="Reflections")
 
 	split= layout.split()
-	col= split.column(align=True)
-	col.prop(BRDFVRayMtl, 'reflect_color', text="")
+	col= split.column()
+	sub= col.column(align=True)
+	sub.prop(BRDFVRayMtl, 'reflect_color', text="")
 	if not BRDFVRayMtl.hilight_glossiness_lock:
-		col.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
-	col.prop(BRDFVRayMtl, 'reflect_glossiness', text="Glossiness", slider=True)
-	col.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
-	col.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+		sub.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
+	sub.prop(BRDFVRayMtl, 'reflect_glossiness', text="Glossiness", slider=True)
+	sub.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
+	sub.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+	col.prop(BRDFVRayMtl, 'reflect_affect_alpha', text="Affect")
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFVRayMtl, 'brdf_type', text="")

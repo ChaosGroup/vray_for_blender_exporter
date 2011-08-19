@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 27 March 2011 [17:53]"
+  Time-stamp: "Thursday, 11 August 2011 [21:34]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -69,6 +69,12 @@ def add_properties(rna_pointer):
 		soft_min= 0.0,
 		soft_max= 1.0,
 		default= (1.0,1.0,1.0)
+	)
+
+	BRDFLight.color_tex= StringProperty(
+		name= "Color texture",
+		description= "Color texture.",
+		default= ""
 	)
 
 	BRDFLight.colorMultiplier= FloatProperty(
@@ -197,12 +203,18 @@ def gui(context, layout, BRDFLight, material= None):
 
 	split= layout.split()
 	col= split.column()
+	sub= col.column(align= True)
 	if material:
-		col.prop(material, 'diffuse_color', text="")
+		sub.prop(material, 'diffuse_color', text="")
 	else:
-		col.prop(BRDFLight, 'color', text="")
+		sub.prop(BRDFLight, 'color', text="")
+		sub.prop_search(BRDFLight, 'color_tex',
+						bpy.data, 'textures',
+						text= "")
+
 	if wide_ui:
 		col= split.column()
+
 	if material:
 		col.prop(BRDFLight, 'transparency', text="Alpha", slider= True)
 	else:
