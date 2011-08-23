@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 24 March 2011 [01:08]"
+  Time-stamp: "Tuesday, 23 August 2011 [09:17]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -40,15 +40,7 @@ from bl_ui import properties_material
 properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_material
 
-
-def active_node_mat(mat):
-    if mat:
-        mat_node= mat.active_node_material
-        if mat_node:
-            return mat_node
-        else:
-            return mat
-    return None
+from bl_ui.properties_material import active_node_mat
 
 
 class VRAY_MT_preset_material(bpy.types.Menu):
@@ -172,43 +164,12 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
 		
-		ve= context.scene.vray.exporter
-		ob= context.object
-		material= active_node_mat(context.material)
-		
+		material=     active_node_mat(context.material)
 		VRayMaterial= material.vray
-		BRDFVRayMtl= VRayMaterial.BRDFVRayMtl
+		BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'reflect_trace')
-		col.prop(BRDFVRayMtl, 'refract_trace')
-		col.prop(BRDFVRayMtl, 'option_cutoff')
-		if wide_ui:
-			col= split.column()
-		col.prop(BRDFVRayMtl, 'option_double_sided')
-		col.prop(BRDFVRayMtl, 'option_reflect_on_back')
-		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'reflect_exit_color')
-		if wide_ui:
-			col= split.column()
-		col.prop(BRDFVRayMtl, 'refract_exit_color')
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
-		col.prop(BRDFVRayMtl, 'option_energy_mode')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'environment_priority')
+		PLUGINS['BRDF']['BRDFVRayMtl'].gui_options(context, layout, BRDFVRayMtl, material= None)
 
 
 class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):

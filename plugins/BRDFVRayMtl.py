@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Friday, 19 August 2011 [23:47]"
+  Time-stamp: "Tuesday, 23 August 2011 [09:16]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -63,7 +63,7 @@ PARAMS= (
 	'reflect_depth',
 	'reflect_exit_color',
 	'hilight_soften',
-	##'reflect_dim_distance',
+	'reflect_dim_distance',
 	'reflect_dim_distance_on',
 	'reflect_dim_distance_falloff',
 	'reflect_affect_alpha',
@@ -309,7 +309,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.hilight_soften= FloatProperty(
 		name= "Hilight soften",
-		description= "How much to soften hilights and reflections at grazing light angles",
+		description= "How much to soften hilights and reflections at grazing light angles.",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -318,14 +318,24 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFVRayMtl.reflect_dim_distance_on= BoolProperty(
-		name= "reflect dim distance on",
-		description= "True to enable dim distance",
+		name= "Dim distance",
+		description= "Dim distance.",
 		default= False
 	)
 
+	BRDFVRayMtl.reflect_dim_distance= FloatProperty(
+		name= "Dim distance",
+		description= "How much to dim reflection as length of rays increases.",
+		min= 0.0,
+		max= 100000000.0,
+		soft_min= 0.0,
+		soft_max= 10000.0,
+		default= 100.0
+	)
+
 	BRDFVRayMtl.reflect_dim_distance_falloff= FloatProperty(
-		name= "reflect dim distance falloff",
-		description= "Fall off for the dim distance",
+		name= "Dim distance falloff",
+		description= "Falloff for the dim distance.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -766,12 +776,61 @@ def influence(context, layout, slot):
 	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
 
 
+def gui_options(context, layout, BRDFVRayMtl, material= None):
+	wide_ui= context.region.width > narrowui
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'reflect_trace')
+	col.prop(BRDFVRayMtl, 'refract_trace')
+	col.prop(BRDFVRayMtl, 'option_cutoff')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'option_double_sided')
+	col.prop(BRDFVRayMtl, 'option_reflect_on_back')
+	col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
+
+	split= layout.split()
+	if wide_ui:
+		sub= split.column(align=True)
+		sub.prop(BRDFVRayMtl, 'reflect_dim_distance_on', text="Dim reflect ray distance")
+		sub_r= sub.row()
+		sub_r.active= BRDFVRayMtl.reflect_dim_distance_on
+		sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance', text="Distance")
+		sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance_falloff', text="Falloff")
+	else:
+		sub= split.column(align=True)
+		sub.prop(BRDFVRayMtl, 'reflect_dim_distance_on')
+		sub_r= sub.column()
+		sub_r.active= BRDFVRayMtl.reflect_dim_distance_on
+		sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance', text="Distance")
+		sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance_falloff', text="Falloff")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'reflect_exit_color')
+	if wide_ui:
+		col= split.column()
+	col.prop(BRDFVRayMtl, 'refract_exit_color')
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
+	col.prop(BRDFVRayMtl, 'option_energy_mode')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(BRDFVRayMtl, 'environment_priority')
+
+
 def gui(context, layout, BRDFVRayMtl, material= None):
 	wide_ui= context.region.width > narrowui
 
 	row= layout.row()
 	colL= row.column()
-	colL.label(text="Diffuse")
+	colL.label(text="Diffuse:")
 
 	split= layout.split()
 	col= split.column(align= True)
@@ -786,7 +845,7 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 
 	split= layout.split()
 	col= split.column()
-	col.label(text="Reflections")
+	col.label(text="Reflections:")
 
 	split= layout.split()
 	col= split.column()
@@ -798,11 +857,12 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	sub.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
 	sub.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
 	col.prop(BRDFVRayMtl, 'reflect_affect_alpha', text="Affect")
+
 	if wide_ui:
 		col= split.column()
+
 	col.prop(BRDFVRayMtl, 'brdf_type', text="")
 	col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
-
 	if not BRDFVRayMtl.brdf_type == 'PHONG':
 		sub= col.column(align= True)
 		sub.prop(BRDFVRayMtl, 'anisotropy', slider= True)
@@ -813,7 +873,7 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 
 	split= layout.split()
 	col= split.column()
-	col.label(text="Refractions")
+	col.label(text="Refractions:")
 	sub= col.column(align=True)
 	sub.prop(BRDFVRayMtl, 'refract_color', text="")
 	sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
@@ -822,11 +882,11 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	sub.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
 	if wide_ui:
 		col= split.column()
-	col.label(text="Fog")
+	col.label(text="Fog:")
 	sub= col.column(align=True)
 	sub.prop(BRDFVRayMtl, 'fog_color', text="")
-	sub.prop(BRDFVRayMtl, 'fog_mult')
-	sub.prop(BRDFVRayMtl, 'fog_bias', slider=True)
+	sub.prop(BRDFVRayMtl, 'fog_mult', text="Mult")
+	sub.prop(BRDFVRayMtl, 'fog_bias', slider=True, text="Bias")
 	sub.prop(BRDFVRayMtl, 'dispersion_on')
 	if BRDFVRayMtl.dispersion_on:
 		sub.prop(BRDFVRayMtl, 'dispersion')
@@ -857,31 +917,4 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 	if not material:
 		layout.separator()
 
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'reflect_trace')
-		col.prop(BRDFVRayMtl, 'refract_trace')
-		col.prop(BRDFVRayMtl, 'option_cutoff')
-		if wide_ui:
-			col= split.column()
-		col.prop(BRDFVRayMtl, 'option_double_sided')
-		col.prop(BRDFVRayMtl, 'option_reflect_on_back')
-		col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'reflect_exit_color')
-		if wide_ui:
-			col= split.column()
-		col.prop(BRDFVRayMtl, 'refract_exit_color')
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
-		col.prop(BRDFVRayMtl, 'option_energy_mode')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BRDFVRayMtl, 'environment_priority')
+		gui_options(context, layout, BRDFVRayMtl)

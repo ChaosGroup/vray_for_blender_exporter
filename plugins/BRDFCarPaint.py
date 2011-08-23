@@ -4,7 +4,7 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 03 April 2011 [21:10]"
+  Time-stamp: "Tuesday, 23 August 2011 [08:57]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -639,7 +639,7 @@ def influence(context, layout, slot):
 def gui(context, layout, BRDFCarPaint, material= None):
 	wide_ui= context.region.width > narrowui
 
-	layout.label(text="Coat")
+	layout.label(text="Coat:")
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
@@ -657,7 +657,7 @@ def gui(context, layout, BRDFCarPaint, material= None):
 	# col.prop(BRDFCarPaint, 'coat_bump_amount')
 	# col.prop(BRDFCarPaint, 'coat_bump_type')
 
-	layout.label(text="Flake")
+	layout.label(text="Flake:")
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
@@ -681,7 +681,7 @@ def gui(context, layout, BRDFCarPaint, material= None):
 	if BRDFCarPaint.mapping_type == 'EXPLICIT':
 		col.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
 
-	layout.label(text="Base")
+	layout.label(text="Base:")
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
