@@ -65,18 +65,18 @@ def add_properties(parent_struct):
 	parent_struct.SettingsCaustics= PointerProperty(
 		name= "Caustics",
 		type=  SettingsCaustics,
-		description= "Caustics settings."
+		description= "Caustics settings"
 	)
 
 	SettingsCaustics.on= BoolProperty(
 		name= "On",
-		description= "Enable caustics computation.",
+		description= "Enable caustics computation",
 		default= False
 	)
 
 	SettingsCaustics.max_photons= IntProperty(
 		name= "Max photons",
-		description= "TODO.",
+		description= "TODO",
 		min= 0,
 		max= 10000,
 		soft_min= 0,
@@ -86,7 +86,7 @@ def add_properties(parent_struct):
 
 	SettingsCaustics.search_distance= FloatProperty(
 		name= "Search distance",
-		description= "TODO.",
+		description= "TODO",
 		subtype= 'DISTANCE',
 		min= 0.0,
 		max= 100.0,
@@ -98,7 +98,7 @@ def add_properties(parent_struct):
 	
 	SettingsCaustics.max_density= FloatProperty(
 		name= "Max density",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -109,7 +109,7 @@ def add_properties(parent_struct):
 
 	SettingsCaustics.multiplier= FloatProperty(
 		name= "Multiplier",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -120,7 +120,7 @@ def add_properties(parent_struct):
 
 	SettingsCaustics.mode= EnumProperty(
 		name= "Mode",
-		description= "Caustics computaion mode.",
+		description= "Caustics computaion mode",
 		items= (
 			('FILE', "From file", ""),
 			('NEW',  "New",       ""),
@@ -131,30 +131,30 @@ def add_properties(parent_struct):
 	SettingsCaustics.file= StringProperty(
 		name= "File",
 		subtype= 'FILE_PATH',
-		description= "TODO."
+		description= "TODO"
 	)
 	
 	SettingsCaustics.auto_save= BoolProperty(
 		name= "Auto save",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
 	SettingsCaustics.auto_save_file= StringProperty(
 		name= "Auto save file",
 		subtype= 'FILE_PATH',
-		description= "TODO."
+		description= "TODO"
 	)
 
 	SettingsCaustics.show_calc_phase= BoolProperty(
 		name= "Show calc phase",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
 	# SettingsCaustics.dont_delete= BoolProperty(
 	# 	name= "Don\'t delete",
-	# 	description= "TODO.",
+	# 	description= "TODO",
 	# 	default= False
 	# )
 

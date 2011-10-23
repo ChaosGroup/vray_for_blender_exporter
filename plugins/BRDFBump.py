@@ -53,12 +53,12 @@ def add_properties(rna_pointer):
 	rna_pointer.BRDFBump= PointerProperty(
 		name= "BRDFBump",
 		type=  BRDFBump,
-		description= "BRDFBump texture slot settings."
+		description= "BRDFBump texture slot settings"
 	)
 
 	BRDFBump.map_type= EnumProperty(
 		name= "Map type",
-		description= "Normal map type.",
+		description= "Normal map type",
 		items= (
 			('EXPLICIT', "Normal (explicit)", "."),
 			('WORLD',    "Normal (world)",    "."),
@@ -72,7 +72,7 @@ def add_properties(rna_pointer):
 
 	BRDFBump.bump_tex_mult= FloatProperty(
 		name= "Amount",
-		description= "Bump amount.",
+		description= "Bump amount",
 		min= -100.0,
 		max=  100.0,
 		soft_min= -0.2,
@@ -83,13 +83,13 @@ def add_properties(rna_pointer):
 
 	BRDFBump.bump_shadows= BoolProperty(
 		name= "Bump shadows",
-		description= "Offset the surface shading point, in addition to the normal.",
+		description= "Offset the surface shading point, in addition to the normal",
 		default= False
 	)
 
 	BRDFBump.compute_bump_for_shadows= BoolProperty(
 		name= "Transparent bump shadows",
-		description= "True to compute bump mapping for shadow rays in case the material is transparent; false to skip the bump map for shadow rays (faster rendering).",
+		description= "True to compute bump mapping for shadow rays in case the material is transparent; false to skip the bump map for shadow rays (faster rendering)",
 		default= True
 	)
 

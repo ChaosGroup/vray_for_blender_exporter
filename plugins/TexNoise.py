@@ -72,14 +72,14 @@ def add_properties(rna_pointer):
 	# use_3d_mapping
 	TexNoiseMax.use_3d_mapping= BoolProperty(
 		name= "use 3d mapping",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# color1
 	TexNoiseMax.color1= FloatVectorProperty(
 		name= "Color 1",
-		description= "First color.",
+		description= "First color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -90,14 +90,14 @@ def add_properties(rna_pointer):
 
 	TexNoiseMax.color1_tex= StringProperty(
 		name= "Color 1 texture",
-		description= "Color 1 texture.",
+		description= "Color 1 texture",
 		default= ""
 	)
 
 	# color2
 	TexNoiseMax.color2= FloatVectorProperty(
 		name= "Color 2",
-		description= "Second color.",
+		description= "Second color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -108,7 +108,7 @@ def add_properties(rna_pointer):
 
 	TexNoiseMax.color2_tex= StringProperty(
 		name= "Color 2 texture",
-		description= "Color 2 texture.",
+		description= "Color 2 texture",
 		default= ""
 	)
 
@@ -116,7 +116,7 @@ def add_properties(rna_pointer):
 	# size
 	TexNoiseMax.size= FloatProperty(
 		name= "Size",
-		description= "Size.",
+		description= "Size",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -128,7 +128,7 @@ def add_properties(rna_pointer):
 	# phase
 	TexNoiseMax.phase= FloatProperty(
 		name= "Phase",
-		description= "Phase.",
+		description= "Phase",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -140,7 +140,7 @@ def add_properties(rna_pointer):
 	# iterations
 	TexNoiseMax.iterations= FloatProperty(
 		name= "Iterations",
-		description= "Number of iterations for the fractal generator.",
+		description= "Number of iterations for the fractal generator",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -152,7 +152,7 @@ def add_properties(rna_pointer):
 	# low
 	TexNoiseMax.low= FloatProperty(
 		name= "Low",
-		description= "Low threshold.",
+		description= "Low threshold",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -164,7 +164,7 @@ def add_properties(rna_pointer):
 	# high
 	TexNoiseMax.high= FloatProperty(
 		name= "High",
-		description= "High threshold.",
+		description= "High threshold",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -176,7 +176,7 @@ def add_properties(rna_pointer):
 	# type
 	TexNoiseMax.type= EnumProperty(
 		name= "Type",
-		description= "Noise type.",
+		description= "Noise type",
 		items= (
 			('REGULAR',    "Regular",    ""), # 0
 			('FRACTAL',    "Fractal",    ""),

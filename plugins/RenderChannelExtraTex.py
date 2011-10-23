@@ -66,31 +66,31 @@ def add_properties(parent_struct):
 
 	RenderChannelExtraTex.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
+		description= "TODO",
 		default= "ExtraTex"
 	)
 
 	RenderChannelExtraTex.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelExtraTex.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelExtraTex.texmap= StringProperty(
 		name= "Texture",
-		description= "TODO.",
+		description= "TODO",
 		default= ""
 	)
 
 	RenderChannelExtraTex.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 	

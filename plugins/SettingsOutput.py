@@ -51,7 +51,7 @@ def add_properties(rna_pointer):
 	class SettingsOutput(bpy.types.PropertyGroup):
 		img_format= EnumProperty(
 			name= "Type",
-			description= "Output image format.",
+			description= "Output image format",
 			items= (
 				('PNG',   "PNG",     "PNG."),
 				('JPG',   "JPEG",    "Jpeg."),
@@ -63,38 +63,38 @@ def add_properties(rna_pointer):
 
 		img_noAlpha= BoolProperty(
 			name= "No alpha",
-			description= "Don't write the alpha channel to the final image.",
+			description= "Don't write the alpha channel to the final image",
 			default= False
 		)
 
 		img_separateAlpha= BoolProperty(
 			name= "Separate alpha",
-			description= "Write the alpha channel to a separate file.",
+			description= "Write the alpha channel to a separate file",
 			default= False
 		)
 
 		img_file= StringProperty(
 			name= "File name",
-			description= "Render file name (Variables: %C - camera name; %S - scene name).",
+			description= "Render file name (Variables: %C - camera name; %S - scene name)",
 			default= "render_%C"
 		)
 
 		img_dir= StringProperty(
 			name= "Path",
-			description= "Render file directory.",
+			description= "Render file directory",
 			subtype= 'DIR_PATH',
 			default= "//render/"
 		)
 
 		img_file_needFrameNumber= BoolProperty(
 			name= "Add frame number",
-			description= "Add frame number to the image file name.",
+			description= "Add frame number to the image file name",
 			default= True
 		)
 
 		relements_separateFolders= BoolProperty(
 			name= "Separate folders",
-			description= "Save render channels in separate folders.",
+			description= "Save render channels in separate folders",
 			default= False
 		)
 	bpy.utils.register_class(SettingsOutput)

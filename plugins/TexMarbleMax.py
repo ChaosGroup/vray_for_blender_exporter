@@ -58,7 +58,7 @@ def add_properties(rna_pointer):
 		# color1
 		color1= FloatVectorProperty(
 			name= "First color",
-			description= "First color.",
+			description= "First color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -69,14 +69,14 @@ def add_properties(rna_pointer):
 
 		color1_tex= StringProperty(
 			name= "First texture ",
-			description= "First texture.",
+			description= "First texture",
 			default= ""
 		)
 
 		# color2
 		color2= FloatVectorProperty(
 			name= "Second color",
-			description= "Second color.",
+			description= "Second color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -87,14 +87,14 @@ def add_properties(rna_pointer):
 
 		color2_tex= StringProperty(
 			name= "Second texture ",
-			description= "Second texture.",
+			description= "Second texture",
 			default= ""
 		)
 
 		# size
 		size= FloatProperty(
 			name= "Size",
-			description= "Size.",
+			description= "Size",
 			min= 0.0,
 			max= 1000.0,
 			soft_min= 0.0,
@@ -106,7 +106,7 @@ def add_properties(rna_pointer):
 		# vein_width
 		vein_width= FloatProperty(
 			name= "Vein width",
-			description= "Vein width.",
+			description= "Vein width",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

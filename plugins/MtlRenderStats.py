@@ -63,43 +63,43 @@ def add_properties(rna_pointer):
 
 	MtlRenderStats.use= BoolProperty(
 		name= "Use material render options",
-		description= "Use material render options.",
+		description= "Use material render options",
 		default= False
 	)
 
 	MtlRenderStats.camera_visibility= BoolProperty(
 		name= "Camera visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	MtlRenderStats.reflections_visibility= BoolProperty(
 		name= "Reflections visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	MtlRenderStats.refractions_visibility= BoolProperty(
 		name= "Refractions visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	MtlRenderStats.gi_visibility= BoolProperty(
 		name= "GI visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	MtlRenderStats.shadows_visibility= BoolProperty(
 		name= "Shadows visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	MtlRenderStats.visibility= BoolProperty(
 		name= "Overall visibility",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 

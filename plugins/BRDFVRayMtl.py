@@ -113,12 +113,12 @@ def add_properties(rna_pointer):
 	rna_pointer.BRDFVRayMtl= PointerProperty(
 		name= "BRDFVRayMtl",
 		type=  BRDFVRayMtl,
-		description= "V-Ray BRDFVRayMtl settings."
+		description= "V-Ray BRDFVRayMtl settings"
 	)
 
 	BRDFVRayMtl.diffuse= FloatVectorProperty(
 		name= "Diffuse",
-		description= "Diffuse color.",
+		description= "Diffuse color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -129,7 +129,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.opacity= FloatProperty(
 		name= "Opacity",
-		description= "Opacity.",
+		description= "Opacity",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -139,7 +139,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.fog_color= FloatVectorProperty(
 		name= "Fog color",
-		description= "Fog color.",
+		description= "Fog color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -150,7 +150,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.refract_color= FloatVectorProperty(
 		name= "Refraction color",
-		description= "Refraction color.",
+		description= "Refraction color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -161,7 +161,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_color= FloatVectorProperty(
 		name= "Reflection color",
-		description= "Reflection color.",
+		description= "Reflection color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -172,7 +172,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_exit_color= FloatVectorProperty(
 		name= "Reflection exit color",
-		description= "Reflection exit color.",
+		description= "Reflection exit color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -183,7 +183,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.fresnel= BoolProperty(
 		name= "Fresnel reflections",
-		description= "Enable fresnel reflections.",
+		description= "Enable fresnel reflections",
 		default= False
 	)
 
@@ -195,13 +195,13 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.dispersion_on= BoolProperty(
 		name= "Dispersion",
-		description= "Enable dispersion.",
+		description= "Enable dispersion",
 		default= False
 	)
 
 	BRDFVRayMtl.dispersion= IntProperty(
 		name= "Abbe",
-		description= "Dispersion Abbe value.",
+		description= "Dispersion Abbe value",
 		min= 1,
 		max= 1024,
 		soft_min= 1,
@@ -221,7 +221,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.refract_ior= FloatProperty(
 		name= "Refractions IOR",
-		description= "The IOR for refractions.",
+		description= "The IOR for refractions",
 		min= 0.0,
 		max= 30.0,
 		soft_min= 0.0,
@@ -239,7 +239,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_depth= IntProperty(
 		name= "Reflections depth",
-		description= "The maximum depth for reflections.",
+		description= "The maximum depth for reflections",
 		min= 1,
 		max= 256,
 		default= 5
@@ -247,7 +247,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.refract_depth= IntProperty(
 		name= "Refractions depth",
-		description= "The maximum depth for refractions.",
+		description= "The maximum depth for refractions",
 		min= 1,
 		max= 256,
 		default= 5
@@ -273,7 +273,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.hilight_glossiness= FloatProperty(
 		name= "Hilight glossiness",
-		description= "The glossiness of the hilights.",
+		description= "The glossiness of the hilights",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -283,7 +283,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_glossiness= FloatProperty(
 		name= "Reflection glossiness",
-		description= "The glossiness of the reflections.",
+		description= "The glossiness of the reflections",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -293,7 +293,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.refract_glossiness= FloatProperty(
 		name= "Refraction glossiness",
-		description= "The glossiness of the refractions.",
+		description= "The glossiness of the refractions",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -309,7 +309,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.hilight_soften= FloatProperty(
 		name= "Hilight soften",
-		description= "How much to soften hilights and reflections at grazing light angles.",
+		description= "How much to soften hilights and reflections at grazing light angles",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -319,13 +319,13 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_dim_distance_on= BoolProperty(
 		name= "Dim distance",
-		description= "Dim distance.",
+		description= "Dim distance",
 		default= False
 	)
 
 	BRDFVRayMtl.reflect_dim_distance= FloatProperty(
 		name= "Dim distance",
-		description= "How much to dim reflection as length of rays increases.",
+		description= "How much to dim reflection as length of rays increases",
 		min= 0.0,
 		max= 100000000.0,
 		soft_min= 0.0,
@@ -335,7 +335,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_dim_distance_falloff= FloatProperty(
 		name= "Dim distance falloff",
-		description= "Falloff for the dim distance.",
+		description= "Falloff for the dim distance",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -372,7 +372,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.refract_affect_alpha= EnumProperty(
 		name= "Affect Channels",
-		description= "Which channels refractions affect.",
+		description= "Which channels refractions affect",
 		items= (
 			('COL',  "Color Only",   "The transperency will affect only the RGB channel of the final render."),
 			('RERF', "Color+Alpha",  "This will cause the material to transmit the alpha of the refracted objects, instead of displaying an opaque alpha.."),
@@ -383,7 +383,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_affect_alpha= EnumProperty(
 		name= "Affect Channels",
-		description= "Which channels reflections affect.",
+		description= "Which channels reflections affect",
 		items= (
 			('COL',  "Color Only",   "The transperency will affect only the RGB channel of the final render."),
 			('RERF', "Color+Alpha",  "This will cause the material to transmit the alpha of the refracted objects, instead of displaying an opaque alpha.."),
@@ -394,7 +394,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.fog_mult= FloatProperty(
 		name= "Fog multiplier",
-		description= "Multiplier for the absorption.",
+		description= "Multiplier for the absorption",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -411,7 +411,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.fog_bias= FloatProperty(
 		name= "Fog bias",
-		description= "Bias for the absorption.",
+		description= "Bias for the absorption",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -1.0,
@@ -422,7 +422,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.anisotropy= FloatProperty(
 		name= "Anisotropy",
-		description= "The anisotropy for glossy reflections.",
+		description= "The anisotropy for glossy reflections",
 		min= -1.0,
 		max= 1.0,
 		soft_min= -1.0,
@@ -432,7 +432,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.anisotropy_rotation= FloatProperty(
 		name= "Rotation",
-		description= "The rotation of the anisotropy axes.",
+		description= "The rotation of the anisotropy axes",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -442,7 +442,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.brdf_type= EnumProperty(
 		name= "BRDF type",
-		description= "This determines the type of BRDF (the shape of the hilight).",
+		description= "This determines the type of BRDF (the shape of the hilight)",
 		items= (
 			('PHONG',"Phong","Phong hilight/reflections."),
 			('BLINN',"Blinn","Blinn hilight/reflections."),
@@ -476,19 +476,19 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.reflect_trace= BoolProperty(
 		name= "Trace reflections",
-		description= "Trace reflections.",
+		description= "Trace reflections",
 		default= True
 	)
 
 	BRDFVRayMtl.option_reflect_on_back= BoolProperty(
 		name= "Reflect on back side",
-		description= "Reflect on back side.",
+		description= "Reflect on back side",
 		default= False
 	)
 
 	BRDFVRayMtl.option_double_sided= BoolProperty(
 		name= "Double-sided",
-		description= "Double-sided.",
+		description= "Double-sided",
 		default= True
 	)
 
@@ -522,7 +522,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.option_energy_mode= EnumProperty(
 		name= "Energy mode",
-		description= "Energy preservation mode for reflections and refractions.",
+		description= "Energy preservation mode for reflections and refractions",
 		items= (
 			('MONO',"Monochrome",""),
 			('COLOR',"Color","")
@@ -552,7 +552,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.translucency_color= FloatVectorProperty(
 		name= "Translucency_color",
-		description= "Filter color for the translucency effect.",
+		description= "Filter color for the translucency effect",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -574,7 +574,7 @@ def add_properties(rna_pointer):
 
 	BRDFVRayMtl.translucency_thickness= FloatProperty(
 		name= "Translucency thickness",
-		description= "Maximum distance to trace inside the object.",
+		description= "Maximum distance to trace inside the object",
 		min= 0.0,
 		max= 100000.0,
 		soft_min= 0.0,

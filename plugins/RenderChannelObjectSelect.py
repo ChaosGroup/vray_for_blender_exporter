@@ -95,7 +95,7 @@ def add_properties(parent_struct):
 
 	RenderChannelObjectSelect.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 

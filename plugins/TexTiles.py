@@ -71,7 +71,7 @@ def add_properties(rna_pointer):
 		# color_mortar
 		color_mortar= FloatVectorProperty(
 			name= "Mortar",
-			description= "Mortar color.",
+			description= "Mortar color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -82,14 +82,14 @@ def add_properties(rna_pointer):
 
 		color_mortar_tex= StringProperty(
 			name= "Mortar texture ",
-			description= "Mortar color texture.",
+			description= "Mortar color texture",
 			default= ""
 		)
 
 		# color_tiles
 		color_tiles= FloatVectorProperty(
 			name= "Tiles",
-			description= "Tiles color.",
+			description= "Tiles color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -100,14 +100,14 @@ def add_properties(rna_pointer):
 
 		color_tiles_tex= StringProperty(
 			name= "Tiles texture ",
-			description= "Tiles color texture.",
+			description= "Tiles color texture",
 			default= ""
 		)
 
 		# horizontal_count
 		horizontal_count= FloatProperty(
 			name= "Horizontal count",
-			description= "Tiles horizontal count.",
+			description= "Tiles horizontal count",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -119,7 +119,7 @@ def add_properties(rna_pointer):
 		# vertical_count
 		vertical_count= FloatProperty(
 			name= "Vertical count",
-			description= "Tiles vertical count.",
+			description= "Tiles vertical count",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -131,7 +131,7 @@ def add_properties(rna_pointer):
 		# color_variance
 		color_variance= FloatProperty(
 			name= "Color variance",
-			description= "Color variance.",
+			description= "Color variance",
 			subtype= 'PERCENTAGE',
 			min= 0.0,
 			max= 100.0,
@@ -144,7 +144,7 @@ def add_properties(rna_pointer):
 		# horizontal_gap
 		horizontal_gap= FloatProperty(
 			name= "Horizontal gap",
-			description= "Horizontal gap between tiles.",
+			description= "Horizontal gap between tiles",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -156,7 +156,7 @@ def add_properties(rna_pointer):
 		# vertical_gap
 		vertical_gap= FloatProperty(
 			name= "Vertical gap",
-			description= "Vertical gap between tiles.",
+			description= "Vertical gap between tiles",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -168,7 +168,7 @@ def add_properties(rna_pointer):
 		# pattern_type
 		pattern_type= EnumProperty(
 			name= "Pattern type",
-			description= "Tiles pattern.",
+			description= "Tiles pattern",
 			items= (
 				('CUSTOM_TILES',    "Custom Tiles",        "Custom Tiles."), # 0
 				('RUNNING_BOND',    "Running Bond",        "Running Bond."),
@@ -185,7 +185,7 @@ def add_properties(rna_pointer):
 		# line_shift
 		line_shift= FloatProperty(
 			name= "Line shift",
-			description= "Line shift.",
+			description= "Line shift",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -197,7 +197,7 @@ def add_properties(rna_pointer):
 		# random_shift
 		random_shift= FloatProperty(
 			name= "Random shift",
-			description= "Random shift.",
+			description= "Random shift",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -209,7 +209,7 @@ def add_properties(rna_pointer):
 		# edge_roughness
 		edge_roughness= FloatProperty(
 			name= "Edge roughness",
-			description= "Edge roughness.",
+			description= "Edge roughness",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -221,7 +221,7 @@ def add_properties(rna_pointer):
 		# holes
 		holes= IntProperty(
 			name= "Holes",
-			description= "Holes.",
+			description= "Holes",
 			subtype= 'PERCENTAGE',
 			min= 0,
 			max= 100,
@@ -233,7 +233,7 @@ def add_properties(rna_pointer):
 		# random_seed
 		random_seed= IntProperty(
 			name= "Random seed",
-			description= "Random seed.",
+			description= "Random seed",
 			min= 0,
 			max= 100000,
 			soft_min= 0,
@@ -244,7 +244,7 @@ def add_properties(rna_pointer):
 		# fade_variance
 		fade_variance= FloatProperty(
 			name= "Fade variance",
-			description= "Fade variance.",
+			description= "Fade variance",
 			subtype= 'PERCENTAGE',
 			min= 0.0,
 			max= 100.0,
@@ -257,21 +257,21 @@ def add_properties(rna_pointer):
 		# row_modify
 		row_modify= BoolProperty(
 			name= "Row modify",
-			description= "Custom row parameters.",
+			description= "Custom row parameters",
 			default= 0
 		)
 
 		# column_modify
 		column_modify= BoolProperty(
 			name= "Column modify",
-			description= "Custom column parameters.",
+			description= "Custom column parameters",
 			default= 0
 		)
 
 		# per_row
 		per_row= IntProperty(
 			name= "Per row",
-			description= "every per_row row is modified by corresponding change value.",
+			description= "every per_row row is modified by corresponding change value",
 			min= 0,
 			max= 100,
 			soft_min= 0,
@@ -282,7 +282,7 @@ def add_properties(rna_pointer):
 		# row_change
 		row_change= FloatProperty(
 			name= "Row change",
-			description= "row change value modifying the number of tiles in affected rows.",
+			description= "row change value modifying the number of tiles in affected rows",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -294,7 +294,7 @@ def add_properties(rna_pointer):
 		# per_column
 		per_column= IntProperty(
 			name= "Per column",
-			description= "every per_column column is modified by corresponding change value.",
+			description= "every per_column column is modified by corresponding change value",
 			min= 0,
 			max= 100,
 			soft_min= 0,
@@ -305,7 +305,7 @@ def add_properties(rna_pointer):
 		# column_change
 		column_change= FloatProperty(
 			name= "Col change",
-			description= "column change value modifying the number of tiles in affected columns.",
+			description= "column change value modifying the number of tiles in affected columns",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

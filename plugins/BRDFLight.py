@@ -62,7 +62,7 @@ def add_properties(rna_pointer):
 
 	BRDFLight.color= FloatVectorProperty(
 		name= "Color",
-		description= "Color.",
+		description= "Color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -73,13 +73,13 @@ def add_properties(rna_pointer):
 
 	BRDFLight.color_tex= StringProperty(
 		name= "Color texture",
-		description= "Color texture.",
+		description= "Color texture",
 		default= ""
 	)
 
 	BRDFLight.colorMultiplier= FloatProperty(
 		name= "Multiplier",
-		description= "Color multiplier.",
+		description= "Color multiplier",
 		min= 0.0,
 		max= 100000.0,
 		soft_min= 0.0,
@@ -89,7 +89,7 @@ def add_properties(rna_pointer):
 
 	BRDFLight.doubleSided= BoolProperty(
 		name= "Double-sided",
-		description= "If false, the light color is black for back-facing surfaces.",
+		description= "If false, the light color is black for back-facing surfaces",
 		default= False
 	)
 
@@ -107,7 +107,7 @@ def add_properties(rna_pointer):
 
 	BRDFLight.transparency= FloatProperty(
 		name= "Transparency",
-		description= "Transparency of the BRDF.",
+		description= "Transparency of the BRDF",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,

@@ -52,18 +52,18 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsMotionBlur= PointerProperty(
 		name= "SettingsMotionBlur",
 		type=  SettingsMotionBlur,
-		description= "Camera's Motion Blur settings."
+		description= "Camera's Motion Blur settings"
 	)
 
 	SettingsMotionBlur.on= BoolProperty(
 		name="Motion blur",
-		description="Turns motion blur on.",
+		description="Turns motion blur on",
 		default= False
 	)
 
 	SettingsMotionBlur.interval_center= FloatProperty(
 		name="Interval center",
-		description="Specifies the middle of the motion blur interval with respect to the frame.",
+		description="Specifies the middle of the motion blur interval with respect to the frame",
 		min=0.0, max=1.0,
 		soft_min=0.0, soft_max=1.0,
 		default=0.5
@@ -71,7 +71,7 @@ def add_properties(rna_pointer):
 
 	SettingsMotionBlur.duration= FloatProperty(
 		name="Duration",
-		description="Specifies the duration, in frames, during which the camera shutter is open.",
+		description="Specifies the duration, in frames, during which the camera shutter is open",
 		min=0.0, max=100.0,
 		soft_min=0.0, soft_max=10.0,
 		default=1.0
@@ -79,7 +79,7 @@ def add_properties(rna_pointer):
 
 	SettingsMotionBlur.bias= FloatProperty(
 		name="Bias",
-		description="This controls the bias of the motion blur effect.",
+		description="This controls the bias of the motion blur effect",
 		min=0.0, max=1.0,
 		soft_min=0.0, soft_max=1.0,
 		default=0.0
@@ -87,21 +87,21 @@ def add_properties(rna_pointer):
 
 	SettingsMotionBlur.subdivs= IntProperty(
 		name="Subdivs",
-		description="Determines the quality of the motion blur.",
+		description="Determines the quality of the motion blur",
 		min=1, max=100,
 		default=6
 	)
 
 	SettingsMotionBlur.geom_samples= IntProperty(
 		name="Geometry samples",
-		description="This determines the number of geometry segments used to approximate motion blur.",
+		description="This determines the number of geometry segments used to approximate motion blur",
 		min=1, max=100,
 		default=2
 	)
 
 	SettingsMotionBlur.low_samples= IntProperty(
 		name="Low samples",
-		description="This controls how many samples in time will be computed during irradiance map calculations.",
+		description="This controls how many samples in time will be computed during irradiance map calculations",
 		min=1, max=100,
 		default=1
 	)

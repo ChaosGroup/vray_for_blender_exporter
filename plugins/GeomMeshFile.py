@@ -52,24 +52,24 @@ def add_properties(rna_pointer):
 	rna_pointer.GeomMeshFile= PointerProperty(
 		name= "V-Ray Proxy",
 		type=  GeomMeshFile,
-		description= "V-Ray proxy settings."
+		description= "V-Ray proxy settings"
 	)
 
 	GeomMeshFile.use= BoolProperty(
 		name= "Use Proxy",
-		description= "Use proxy mesh.",
+		description= "Use proxy mesh",
 		default= False
 	)
 
 	GeomMeshFile.file= StringProperty(
 		name= "File",
 		subtype= 'FILE_PATH',
-		description= "Proxy file."
+		description= "Proxy file"
 	)
 
 	GeomMeshFile.anim_type= EnumProperty(
 		name= "Animation type",
-		description= "Proxy animation type.",
+		description= "Proxy animation type",
 		items= (
 			('LOOP',     "Loop",      "."),
 			('ONCE',     "Once",      "."),
@@ -81,7 +81,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.mode= EnumProperty(
 		name= "Mode",
-		description= "Proxy creation mode.",
+		description= "Proxy creation mode",
 		items= (
 			('NONE',    "None",        "Don\'t attach proxy."),
 			('NEW',     "New object",  "Attach proxy to new object."),
@@ -93,7 +93,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.anim_speed= FloatProperty(
 		name= "Speed",
-		description= "Animated proxy playback speed.",
+		description= "Animated proxy playback speed",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -103,7 +103,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.anim_offset= FloatProperty(
 		name= "Offset",
-		description= "Animated proxy initial frame offset.",
+		description= "Animated proxy initial frame offset",
 		min= -1000.0,
 		max= 1000.0,
 		soft_min= -10.0,
@@ -113,7 +113,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.scale= FloatProperty(
 		name= "Scale",
-		description= "Size scaling factor.",
+		description= "Size scaling factor",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -123,7 +123,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.apply_transforms= BoolProperty(
 		name= "Apply transform",
-		description= "Apply rotation, location and scale.",
+		description= "Apply rotation, location and scale",
 		default= False
 	)
 
@@ -136,26 +136,26 @@ def add_properties(rna_pointer):
 	GeomMeshFile.dirpath= StringProperty(
 		name= "Path",
 		subtype= 'DIR_PATH',
-		description= "Proxy generation directory.",
+		description= "Proxy generation directory",
 		default= "//proxy"
 	)
 
 	GeomMeshFile.filename= StringProperty(
 		name= "Name",
 		subtype= 'NONE',
-		description= "Proxy file name. If empty object's name is used.",
+		description= "Proxy file name. If empty object's name is used",
 		default= ""
 	)
 
 	GeomMeshFile.animation= BoolProperty(
 		name= "Animation",
-		description= "Animated proxy.",
+		description= "Animated proxy",
 		default= False
 	)
 
 	GeomMeshFile.animation_range= EnumProperty(
 		name= "Animation range",
-		description= "Animation range type.",
+		description= "Animation range type",
 		items= (
 			('MANUAL', "Manual", "Set manually."),
 			('SCENE',  "Scene",  "Get from scene.")
@@ -165,13 +165,13 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.add_velocity= BoolProperty(
 		name= "Add velocity",
-		description= "This makes it possible to add motion blur to the final animation. However exporting this extra information takes longer. If you are not going to need motion blur it makes sense to disable this option.",
+		description= "This makes it possible to add motion blur to the final animation. However exporting this extra information takes longer. If you are not going to need motion blur it makes sense to disable this option",
 		default= False
 	)
 
 	GeomMeshFile.frame_start= IntProperty(
 		name= "Start frame",
-		description= "Proxy generation start frame.",
+		description= "Proxy generation start frame",
 		min= 1,
 		max= 1000,
 		soft_min= 1,
@@ -181,7 +181,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.frame_end= IntProperty(
 		name= "End frame",
-		description= "Proxy generation end frame.",
+		description= "Proxy generation end frame",
 		min= 1,
 		max= 1000,
 		soft_min= 1,

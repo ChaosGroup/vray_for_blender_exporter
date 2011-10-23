@@ -94,7 +94,7 @@ def add_properties(rna_pointer):
 
 	BRDFBlinn.brdf_type= EnumProperty(
 		name= "BRDF type",
-		description= "This determines the type of BRDF (the shape of the hilight).",
+		description= "This determines the type of BRDF (the shape of the hilight)",
 		items= (
 			('PHONG',"Phong","Phong hilight/reflections."),
 			('BLINN',"Blinn","Blinn hilight/reflections."),
@@ -106,7 +106,7 @@ def add_properties(rna_pointer):
 	# color
 	BRDFBlinn.color= FloatVectorProperty(
 		name= "Color",
-		description= "Reflection color.",
+		description= "Reflection color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -118,20 +118,20 @@ def add_properties(rna_pointer):
 	# color_tex
 	BRDFBlinn.color_tex= StringProperty(
 		name= "Color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFBlinn.map_color_tex= BoolProperty(
 		name= "Color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# color_tex_mult
 	BRDFBlinn.color_tex_mult= FloatProperty(
 		name= "Color texture multiplier",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -143,7 +143,7 @@ def add_properties(rna_pointer):
 	# transparency
 	# BRDFBlinn.transparency= FloatVectorProperty(
 	# 	name= "Transparency",
-	# 	description= "TODO: Tooltip.",
+	# 	description= "",
 	# 	subtype= 'COLOR',
 	# 	min= 0.0,
 	# 	max= 1.0,
@@ -154,7 +154,7 @@ def add_properties(rna_pointer):
 
 	BRDFBlinn.transparency= FloatProperty(
 		name= "Transparency",
-		description= "BRDF transparency.",
+		description= "BRDF transparency",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -165,20 +165,20 @@ def add_properties(rna_pointer):
 	# transparency_tex
 	BRDFBlinn.transparency_tex= StringProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFBlinn.map_transparency_tex= BoolProperty(
 		name= "transparency tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# transparency_tex_mult
 	BRDFBlinn.transparency_tex_mult= FloatProperty(
 		name= "transparency tex",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -190,7 +190,7 @@ def add_properties(rna_pointer):
 	# cutoff
 	BRDFBlinn.cutoff= FloatProperty(
 		name= "Cutoff",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -202,21 +202,21 @@ def add_properties(rna_pointer):
 	# back_side
 	BRDFBlinn.back_side= BoolProperty(
 		name= "Back side",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= False
 	)
 
 	# trace_reflections
 	BRDFBlinn.trace_reflections= BoolProperty(
 		name= "Trace reflections",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# trace_depth
 	BRDFBlinn.trace_depth= IntProperty(
 		name= "Depth",
-		description= "The maximum reflection depth (-1 is controlled by the global options).",
+		description= "The maximum reflection depth (-1 is controlled by the global options)",
 		min= -1,
 		max= 100,
 		soft_min= -1,
@@ -227,7 +227,7 @@ def add_properties(rna_pointer):
 	# reflect_exit_color
 	BRDFBlinn.reflect_exit_color= FloatVectorProperty(
 		name= "Exit color",
-		description= "The color to use when the maximum depth is reached.",
+		description= "The color to use when the maximum depth is reached",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -244,7 +244,7 @@ def add_properties(rna_pointer):
 
 	BRDFBlinn.reflect_exit_color_mult= FloatProperty(
 		name= "reflect exit color",
-		description= "The color to use when the maximum depth is reached.",
+		description= "The color to use when the maximum depth is reached",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -256,7 +256,7 @@ def add_properties(rna_pointer):
 	# reflect_dim_distance
 	BRDFBlinn.reflect_dim_distance= FloatProperty(
 		name= "Distance",
-		description= "How much to dim reflection as length of rays increases.",
+		description= "How much to dim reflection as length of rays increases",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -268,14 +268,14 @@ def add_properties(rna_pointer):
 	# reflect_dim_distance_on
 	BRDFBlinn.reflect_dim_distance_on= BoolProperty(
 		name= "Dim distance",
-		description= "True to enable dim distance.",
+		description= "True to enable dim distance",
 		default= False
 	)
 
 	# reflect_dim_distance_falloff
 	BRDFBlinn.reflect_dim_distance_falloff= FloatProperty(
 		name= "Falloff",
-		description= "Fall off for the dim distance.",
+		description= "Fall off for the dim distance",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -287,7 +287,7 @@ def add_properties(rna_pointer):
 	# hilightGlossiness
 	BRDFBlinn.hilightGlossiness= FloatProperty(
 		name= "Hilight",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -299,14 +299,14 @@ def add_properties(rna_pointer):
 	# hilightGlossiness_tex
 	BRDFBlinn.map_hilightGlossiness_tex= BoolProperty(
 		name= "hilightGlossiness tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# hilightGlossiness_tex_mult
 	BRDFBlinn.hilightGlossiness_tex_mult= FloatProperty(
 		name= "hilightGlossiness tex mult",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -318,7 +318,7 @@ def add_properties(rna_pointer):
 	# reflectionGlossiness
 	BRDFBlinn.reflectionGlossiness= FloatProperty(
 		name= "Glossiness",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -330,14 +330,14 @@ def add_properties(rna_pointer):
 	# reflectionGlossiness_tex
 	BRDFBlinn.map_reflectionGlossiness_tex= BoolProperty(
 		name= "reflectionGlossiness tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# reflectionGlossiness_tex_mult
 	BRDFBlinn.reflectionGlossiness_tex_mult= FloatProperty(
 		name= "reflectionGlossiness tex mult",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -349,7 +349,7 @@ def add_properties(rna_pointer):
 	# subdivs
 	BRDFBlinn.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -372,7 +372,7 @@ def add_properties(rna_pointer):
 	# soften_edge
 	BRDFBlinn.soften_edge= FloatProperty(
 		name= "Soften edge",
-		description= "Soften edge of the BRDF at light/shadow transition.",
+		description= "Soften edge of the BRDF at light/shadow transition",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -384,14 +384,14 @@ def add_properties(rna_pointer):
 	# interpolation_on
 	BRDFBlinn.interpolation_on= BoolProperty(
 		name= "Interpolation",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= False
 	)
 
 	# imap_min_rate
 	BRDFBlinn.imap_min_rate= IntProperty(
 		name= "Min rate",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -402,7 +402,7 @@ def add_properties(rna_pointer):
 	# imap_max_rate
 	BRDFBlinn.imap_max_rate= IntProperty(
 		name= "Max rate",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -413,7 +413,7 @@ def add_properties(rna_pointer):
 	# imap_color_thresh
 	BRDFBlinn.imap_color_thresh= FloatProperty(
 		name= "Color thresh",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -425,7 +425,7 @@ def add_properties(rna_pointer):
 	# imap_norm_thresh
 	BRDFBlinn.imap_norm_thresh= FloatProperty(
 		name= "Normal thresh",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -437,7 +437,7 @@ def add_properties(rna_pointer):
 	# imap_samples
 	BRDFBlinn.imap_samples= IntProperty(
 		name= "Samples",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -448,7 +448,7 @@ def add_properties(rna_pointer):
 	# anisotropy
 	BRDFBlinn.anisotropy= FloatProperty(
 		name= "Anisotropy",
-		description= "Reflection anisotropy in the range (-1, 1).",
+		description= "Reflection anisotropy in the range (-1, 1)",
 		min= -1.0,
 		max=  1.0,
 		soft_min= -1.0,
@@ -465,7 +465,7 @@ def add_properties(rna_pointer):
 
 	BRDFBlinn.anisotropy_mult= FloatProperty(
 		name= "anisotropy",
-		description= "Reflection anisotropy in the range (-1, 1).",
+		description= "Reflection anisotropy in the range (-1, 1)",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -496,7 +496,7 @@ def add_properties(rna_pointer):
 
 	BRDFBlinn.anisotropy_rotation_mult= FloatProperty(
 		name= "anisotropy rotation",
-		description= "Anisotropy rotation in the range [0, 1].",
+		description= "Anisotropy rotation in the range [0, 1]",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -508,7 +508,7 @@ def add_properties(rna_pointer):
 	# fix_dark_edges
 	BRDFBlinn.fix_dark_edges= BoolProperty(
 		name= "Fix dark edges",
-		description= "true to fix dark edges with glossy reflections; only set this to false for compatibility with older versions.",
+		description= "true to fix dark edges with glossy reflections; only set this to false for compatibility with older versions",
 		default= True
 	)
 

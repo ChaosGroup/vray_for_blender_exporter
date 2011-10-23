@@ -47,7 +47,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	rna_pointer.mode= EnumProperty(
 		name= "Mode",
-		description= "Camera mode.",
+		description= "Camera mode",
 		items=(
 			('NORMAL',   "Normal",   ""),
 			('PHYSICAL', "Physical", "")
@@ -57,7 +57,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.override_fov= BoolProperty(
 		name= "Override FOV",
-		description= "Override FOV (if you need FOV > 180).",
+		description= "Override FOV (if you need FOV > 180)",
 		default= False
 	)
 
@@ -69,7 +69,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.fov= FloatProperty(
 		name= "FOV",
-		description= "Field of vision.",
+		description= "Field of vision",
 		min= 0.0,
 		max= math.pi * 2,
 		soft_min= 0.0,
@@ -85,13 +85,13 @@ def add_properties(rna_pointer):
 	'''
 	rna_pointer.hide_from_view= BoolProperty(
 		name= "Hide From View",
-		description= "Hide objects from current view.",
+		description= "Hide objects from current view",
 		default= False
 	)
 
 	rna_pointer.hf_all= BoolProperty(
 		name= "Hide from everything",
-		description= "Hide objects completely.",
+		description= "Hide objects completely",
 		default= False
 	)
 
@@ -116,24 +116,24 @@ def add_properties(rna_pointer):
 	for key in ('camera','gi','reflect','refract','shadows'):
 		setattr(rna_pointer, 'hf_%s' % key, bpy.props.BoolProperty(
 			name= "Hide from %s" % key,
-			description= "Hide objects from %s." % key,
+			description= "Hide objects from %s" % key,
 			default= False)
 		)
 
 		setattr(rna_pointer, 'hf_%s_auto' % key, bpy.props.BoolProperty(
 			name= "Auto",
-			description= "Hide objects automaically from %s." % key,
+			description= "Hide objects automaically from %s" % key,
 			default= False)
 		)
 
 		setattr(rna_pointer, 'hf_%s_objects' % key, bpy.props.StringProperty(
 			name= "Objects",
-			description= "Objects to hide from %s." % key,
+			description= "Objects to hide from %s" % key,
 			default= "")
 		)
 
 		setattr(rna_pointer, 'hf_%s_groups' % key, bpy.props.StringProperty(
 			name= "Groups",
-			description= "Groups to hide from %s." % key,
+			description= "Groups to hide from %s" % key,
 			default= "")
 		)

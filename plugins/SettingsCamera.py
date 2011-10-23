@@ -52,12 +52,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsCamera= PointerProperty(
 		name= "SettingsCamera",
 		type=  SettingsCamera,
-		description= "V-Ray camera settings."
+		description= "V-Ray camera settings"
 	)
 
 	SettingsCamera.type= EnumProperty(
 		name= "Type",
-		description= "Camera type.",
+		description= "Camera type",
 		items=(
 			('DEFAULT',            "Default", ""),
 			('SPHERIFICAL',        "Spherifical", ""),
@@ -74,13 +74,13 @@ def add_properties(rna_pointer):
 
 	SettingsCamera.auto_fit= BoolProperty(
 		name= "Auto-fit",
-		description= "The auto-fit option of the fish-eye camera.",
+		description= "The auto-fit option of the fish-eye camera",
 		default= True
 	)
 
 	SettingsCamera.height= FloatProperty(
 		name= "Height",
-		description= "Height of the cylindrical (ortho) camera.",
+		description= "Height of the cylindrical (ortho) camera",
 		min=0.0, max=10000.0,
 		soft_min=0.0, soft_max=10.0,
 		default=400.0
@@ -88,7 +88,7 @@ def add_properties(rna_pointer):
 
 	SettingsCamera.dist= FloatProperty(
 		name="Distance",
-		description="Distance to the sphere center.",
+		description="Distance to the sphere center",
 		min=0.0, max=1000.0,
 		soft_min=0.0, soft_max=10.0,
 		default=2.0
@@ -96,7 +96,7 @@ def add_properties(rna_pointer):
 
 	SettingsCamera.curve= FloatProperty(
 		name="Curve",
-		description="Controls the way the rendered images is warped.",
+		description="Controls the way the rendered images is warped",
 		min=0.0, max=10.0,
 		soft_min=0.0, soft_max=10.0,
 		default=1.0

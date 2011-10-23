@@ -64,7 +64,7 @@ def add_properties(rna_pointer):
 		# gap_color
 		gap_color= FloatVectorProperty(
 			name= "Gap",
-			description= "Gap color.",
+			description= "Gap color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -75,14 +75,14 @@ def add_properties(rna_pointer):
 
 		gap_color_tex= StringProperty(
 			name= "gap color",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# u_color
 		u_color= FloatVectorProperty(
 			name= "U",
-			description= "U color.",
+			description= "U color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -93,14 +93,14 @@ def add_properties(rna_pointer):
 
 		u_color_tex= StringProperty(
 			name= "u color",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# v_color
 		v_color= FloatVectorProperty(
 			name= "V",
-			description= "V color.",
+			description= "V color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -111,14 +111,14 @@ def add_properties(rna_pointer):
 
 		v_color_tex= StringProperty(
 			name= "v color",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# u_width
 		u_width= FloatProperty(
 			name= "U width",
-			description= "U width.",
+			description= "U width",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -128,14 +128,14 @@ def add_properties(rna_pointer):
 
 		u_width_tex= StringProperty(
 			name= "u width",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# v_width
 		v_width= FloatProperty(
 			name= "V width",
-			description= "V width.",
+			description= "V width",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -145,14 +145,14 @@ def add_properties(rna_pointer):
 
 		v_width_tex= StringProperty(
 			name= "v width",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# u_wave
 		u_wave= FloatProperty(
 			name= "U wave",
-			description= "U wave.",
+			description= "U wave",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -162,14 +162,14 @@ def add_properties(rna_pointer):
 
 		u_wave_tex= StringProperty(
 			name= "u wave",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# v_wave
 		v_wave= FloatProperty(
 			name= "V wave",
-			description= "V wave.",
+			description= "V wave",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -179,14 +179,14 @@ def add_properties(rna_pointer):
 
 		v_wave_tex= StringProperty(
 			name= "v wave",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# randomness
 		randomness= FloatProperty(
 			name= "Randomness",
-			description= "Randomness.",
+			description= "Randomness",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -196,14 +196,14 @@ def add_properties(rna_pointer):
 
 		randomness_tex= StringProperty(
 			name= "randomness",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# width_spread
 		width_spread= FloatProperty(
 			name= "Width spread",
-			description= "Width spread.",
+			description= "Width spread",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -213,14 +213,14 @@ def add_properties(rna_pointer):
 
 		width_spread_tex= StringProperty(
 			name= "width spread",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# bright_spread
 		bright_spread= FloatProperty(
 			name= "Bright spread",
-			description= "Bright spread.",
+			description= "Bright spread",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -230,7 +230,7 @@ def add_properties(rna_pointer):
 
 		bright_spread_tex= StringProperty(
 			name= "bright spread",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 

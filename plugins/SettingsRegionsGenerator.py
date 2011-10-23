@@ -55,7 +55,7 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.seqtype= EnumProperty(
 		name= "Type",
-		description= "Determines the order in which the regions are rendered.",
+		description= "Determines the order in which the regions are rendered",
 		items=(
 			('HILBERT',   "Hilbert",       ""),
 			('TRIANGLE',  "Triangulation", ""),
@@ -69,7 +69,7 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.xymeans= EnumProperty(
 		name= "XY means",
-		description="XY means region width/height or region count.",
+		description="XY means region width/height or region count",
 		items=(
 			('BUCKETS',  "Region count",  ""),
 			('SIZE',     "Bucket W/H",    "") # 0
@@ -79,13 +79,13 @@ def add_properties(parent_struct):
 
 	SettingsRegionsGenerator.reverse= BoolProperty(
 		name= "Reverse",
-		description= "Reverses the region sequence order.",
+		description= "Reverses the region sequence order",
 		default= False
 	)
 
 	SettingsRegionsGenerator.lock_size= BoolProperty(
 		name= "Lock size",
-		description= "Lock bucket size (x = y).",
+		description= "Lock bucket size (x = y)",
 		default= True
 	)
 

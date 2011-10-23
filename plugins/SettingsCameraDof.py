@@ -55,38 +55,38 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsCameraDof= PointerProperty(
 		name= "SettingsCameraDof",
 		type=  SettingsCameraDof,
-		description= "Camera's DoF settings."
+		description= "Camera's DoF settings"
 	)
 
 	SettingsCameraDof.on= BoolProperty(
 		name= "DOF",
-		description= "Use depth of field.",
+		description= "Use depth of field",
 		default= False
 	)
 
 	SettingsCameraDof.sides_on= BoolProperty(
 		name="This option allows you to simulate the polygonal shape of the aperture of real-world cameras.",
-		description="Enable Bokeh effects.",
+		description="Enable Bokeh effects",
 		default= False
 	)
 
 	SettingsCameraDof.sides_num= IntProperty(
 		name="Number",
-		description="Number of sides.",
+		description="Number of sides",
 		min=1, max=100,
 		default=5
 	)
 
 	SettingsCameraDof.subdivs= IntProperty(
 		name="Subdivs",
-		description="Controls the quality of the DOF effect.",
+		description="Controls the quality of the DOF effect",
 		min=1, max=100,
 		default=8
 	)
 
 	SettingsCameraDof.anisotropy= FloatProperty(
 		name="Anisotropy",
-		description="This allows the stretching of the bokeh effect horizontally or vertically.",
+		description="This allows the stretching of the bokeh effect horizontally or vertically",
 		min=0.0, max=1.0,
 		soft_min=0.0, soft_max=1.0,
 		default=0.0
@@ -94,7 +94,7 @@ def add_properties(rna_pointer):
 
 	SettingsCameraDof.focal_dist= FloatProperty(
 		name="Focal distance",
-		description="Determines the distance from the camera at which objects will be in perfect focus.",
+		description="Determines the distance from the camera at which objects will be in perfect focus",
 		min=0.0, max=1000.0,
 		soft_min=0.0, soft_max=10.0,
 		default=200.0
@@ -102,7 +102,7 @@ def add_properties(rna_pointer):
 
 	SettingsCameraDof.aperture= FloatProperty(
 		name="Aperture",
-		description="The size of the virtual camera aperture, in world units.",
+		description="The size of the virtual camera aperture, in world units",
 		min=0.0, max=100.0,
 		soft_min=0.0, soft_max=10.0,
 		default=5.0
@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 
 	SettingsCameraDof.center_bias= FloatProperty(
 		name="Center bias",
-		description="This determines the uniformity of the DOF effect.",
+		description="This determines the uniformity of the DOF effect",
 		min=0.0, max=100.0,
 		soft_min=0.0, soft_max=10.0,
 		default=0.0
@@ -118,7 +118,7 @@ def add_properties(rna_pointer):
 
 	SettingsCameraDof.rotation= FloatProperty(
 		name="Rotation",
-		description="Specifies the orientation of the aperture shape.",
+		description="Specifies the orientation of the aperture shape",
 		min=0.0, max=10.0,
 		soft_min=0.0, soft_max=10.0,
 		default=0.0

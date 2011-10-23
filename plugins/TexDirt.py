@@ -82,7 +82,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.white_color= FloatVectorProperty(
 		name= "Unoccluded color",
-		description= "Unoccluded color.",
+		description= "Unoccluded color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -93,13 +93,13 @@ def add_properties(VRayTexture):
 
 	TexDirt.white_color_tex= StringProperty(
 		name= "Unoccluded color texture",
-		description= "Unoccluded color texture.",
+		description= "Unoccluded color texture",
 		default= ""
 	)
 
 	TexDirt.black_color= FloatVectorProperty(
 		name= "Occluded color",
-		description= "Occluded color.",
+		description= "Occluded color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -110,13 +110,13 @@ def add_properties(VRayTexture):
 
 	TexDirt.black_color_tex= StringProperty(
 		name= "Occluded color texture",
-		description= "Occluded color texture.",
+		description= "Occluded color texture",
 		default= ""
 	)
 
 	TexDirt.radius= FloatProperty(
 		name= "Radius",
-		description= "Radius.",
+		description= "Radius",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -127,7 +127,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.distribution= FloatProperty(
 		name= "Distribution",
-		description= "Distribution.",
+		description= "Distribution",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -138,7 +138,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.falloff= FloatProperty(
 		name= "Falloff",
-		description= "Falloff.",
+		description= "Falloff",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -149,7 +149,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "Subdivs.",
+		description= "Subdivs",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -159,7 +159,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_x= FloatProperty(
 		name= "Bias X",
-		description= "Bias Z.",
+		description= "Bias Z",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -170,7 +170,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_y= FloatProperty(
 		name= "Bias Y",
-		description= "Bias Y.",
+		description= "Bias Y",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -181,7 +181,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.bias_z= FloatProperty(
 		name= "Bias Z",
-		description= "Bias Z.",
+		description= "Bias Z",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -10.0,
@@ -192,31 +192,31 @@ def add_properties(VRayTexture):
 
 	TexDirt.ignore_for_gi= BoolProperty(
 		name= "Ignore for GI",
-		description= "Ignore for GI.",
+		description= "Ignore for GI",
 		default= True
 	)
 
 	TexDirt.consider_same_object_only= BoolProperty(
 		name= "Consider same object only",
-		description= "Consider same object only.",
+		description= "Consider same object only",
 		default= False
 	)
 
 	TexDirt.invert_normal= BoolProperty(
 		name= "Invert normal",
-		description= "Invert normal.",
+		description= "Invert normal",
 		default= False
 	)
 
 	TexDirt.work_with_transparency= BoolProperty(
 		name= "Work with transparency",
-		description= "Work with transparency.",
+		description= "Work with transparency",
 		default= False
 	)
 
 	TexDirt.ignore_self_occlusion= BoolProperty(
 		name= "Ignore self occlusion",
-		description= "Ignore self occlusion.",
+		description= "Ignore self occlusion",
 		default= False
 	)
 
@@ -246,7 +246,7 @@ def add_properties(VRayTexture):
 
 	TexDirt.glossiness= FloatProperty(
 		name= "Glossiness",
-		description= "The spread of the rays traced for reflection occlusion.",
+		description= "The spread of the rays traced for reflection occlusion",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

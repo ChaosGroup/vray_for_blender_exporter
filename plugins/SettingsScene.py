@@ -55,14 +55,14 @@ def image_aspect_lock(self, context):
 def add_properties(rna_pointer):
 	rna_pointer.image_aspect_lock= BoolProperty(
 		name= "Lock aspect",
-		description= "Lock image aspect.",
+		description= "Lock image aspect",
 		default= False
 	)
 
 	rna_pointer.image_aspect= FloatProperty(
 		update= image_aspect_lock,
 		name= "Image aspect",
-		description= "Image aspect.",
+		description= "Image aspect",
 		min= 0.1,
 		max= 100.0,
 		soft_min= 0.1,

@@ -51,7 +51,7 @@ def add_properties(rna_pointer):
 	class BitmapBuffer(bpy.types.PropertyGroup):
 		filter_type= EnumProperty(
 			name= "Filter type",
-			description= "Filter type.",
+			description= "Filter type",
 			items= (
 				('NONE',   "None",        ""),
 				('MIPMAP', "Mip-Map",     "Mip-map filtering."),
@@ -62,7 +62,7 @@ def add_properties(rna_pointer):
 
 		color_space= EnumProperty(
 			name= "Color space",
-			description= "Color space.",
+			description= "Color space",
 			items= (
 				('LINEAR', "Linear",          ""), # 0
 				('GAMMA',  "Gamma corrected", ""),
@@ -73,7 +73,7 @@ def add_properties(rna_pointer):
 
 		interpolation= EnumProperty(
 			name= "Interpolation",
-			description= "Interpolation.",
+			description= "Interpolation",
 			items= (
 				('BILINEAR', "Bilinear", ""), # 0
 				('BICUBIC',  "Bicubic",  ""),
@@ -83,7 +83,7 @@ def add_properties(rna_pointer):
 
 		filter_blur= FloatProperty(
 			name= "Blur",
-			description= "Filter blur.",
+			description= "Filter blur",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -93,7 +93,7 @@ def add_properties(rna_pointer):
 
 		gamma= FloatProperty(
 			name= "Gamma",
-			description= "Gamma.",
+			description= "Gamma",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -116,13 +116,13 @@ def add_properties(rna_pointer):
 
 		allow_negative_colors= BoolProperty(
 			name= "Allow negative colors",
-			description= "If false negative colors will be clamped.",
+			description= "If false negative colors will be clamped",
 			default= False
 		)
 
 		use_data_window= BoolProperty(
 			name= "Use data window",
-			description= "Use the data window information in OpenEXR files.",
+			description= "Use the data window information in OpenEXR files",
 			default= True
 		)
 	bpy.utils.register_class(BitmapBuffer)
@@ -130,13 +130,13 @@ def add_properties(rna_pointer):
 	bpy.types.Image.vray= PointerProperty(
 		name= "V-Ray Image Settings",
 		type=  VRayImage,
-		description= "V-Ray image settings."
+		description= "V-Ray image settings"
 	)
 
 	VRayImage.BitmapBuffer= PointerProperty(
 		name= "BitmapBuffer",
 		type=  BitmapBuffer,
-		description= "BitmapBuffer settings."
+		description= "BitmapBuffer settings"
 	)
 
 

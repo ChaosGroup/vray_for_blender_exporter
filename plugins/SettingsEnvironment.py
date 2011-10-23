@@ -137,36 +137,36 @@ def add_properties(rna_pointer):
 	rna_pointer.EnvironmentFog= PointerProperty(
 		name= "EnvironmentFog",
 		type=  EnvironmentFog,
-		description= "EnvironmentFog settings."
+		description= "EnvironmentFog settings"
 	)
 
 	rna_pointer.VolumeVRayToon= PointerProperty(
 		name= "VolumeVRayToon",
 		type=  VolumeVRayToon,
-		description= "VolumeVRayToon settings."
+		description= "VolumeVRayToon settings"
 	)
 
 	rna_pointer.VRayEffects= PointerProperty(
 		name= "Environment Effects",
 		type=  VRayEffects,
-		description= "V-Ray environment effects settings."
+		description= "V-Ray environment effects settings"
 	)
 
 	VRayEffects.effects= CollectionProperty(
 		name= "Environment Effect",
 		type=  EnvironmentEffect,
-		description= "V-Ray environment effect."
+		description= "V-Ray environment effect"
 	)
 
 	VRayEffects.use= BoolProperty(
 		name= "Use effects",
-		description= "Use effects.",
+		description= "Use effects",
 		default= False
 	)
 
 	VRayEffects.effects_selected= IntProperty(
 		name= "Selected Environment Effect",
-		description= "Selected environment effect.",
+		description= "Selected environment effect",
 		default= -1,
 		min= -1,
 		max= 100
@@ -174,7 +174,7 @@ def add_properties(rna_pointer):
 
 	EnvironmentEffect.type= EnumProperty(
 		name= "Type",
-		description= "Distributed rendering network type.",
+		description= "Distributed rendering network type",
 		items= (
 			('TOON', "Toon", "Object outline (toon style)."),
 			('FOG',  "Fog",  "Environment / object fog.")
@@ -184,20 +184,20 @@ def add_properties(rna_pointer):
 
 	EnvironmentEffect.use= BoolProperty(
 		name= "",
-		description= "Use effect.",
+		description= "Use effect",
 		default= True
 	)
 
 	EnvironmentEffect.EnvironmentFog= PointerProperty(
 		name= "EnvironmentFog",
 		type=  EnvironmentFog,
-		description= "V-Ray EnvironmentFog settings."
+		description= "V-Ray EnvironmentFog settings"
 	)
 
 	EnvironmentEffect.VolumeVRayToon= PointerProperty(
 		name= "VolumeVRayToon",
 		type=  VolumeVRayToon,
-		description= "V-Ray VolumeVRayToon settings."
+		description= "V-Ray VolumeVRayToon settings"
 	)
 
 	EnvironmentFog.emission= FloatVectorProperty(
@@ -235,7 +235,7 @@ def add_properties(rna_pointer):
 	
 	EnvironmentFog.density= FloatProperty(
 		name= "Density",
-		description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog.",
+		description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -246,13 +246,13 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.use_height= BoolProperty(
 		name= "Use height",
-		description= "Whether or not the height should be taken into account.",
+		description= "Whether or not the height should be taken into account",
 		default= False
 	)
 
 	EnvironmentFog.height= FloatProperty(
 		name= "Height",
-		description= "Fog starting point along the Z-axis.",
+		description= "Fog starting point along the Z-axis",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -279,13 +279,13 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.yup= BoolProperty(
 		name= "Y-up",
-		description= "If true, y is the up axis, not z.",
+		description= "If true, y is the up axis, not z",
 		default= False
 	)
 
 	EnvironmentFog.fade_out_mode= EnumProperty(
 		name= "Fade out mode",
-		description= "Fade out mode.",
+		description= "Fade out mode",
 		items= (
 			('SUBSTRACT', "Substract", ""),
 			('MULT',      "Multiply",  ""),
@@ -312,7 +312,7 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.use_fade_out_tex= BoolProperty(
 		name= "Use fade out tex",
-		description= "True if the fade_out_tex should be used for fade out computation.",
+		description= "True if the fade_out_tex should be used for fade out computation",
 		default= False
 	)
 
@@ -392,7 +392,7 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.cutoff_threshold= FloatProperty(
 		name= "Cutoff",
-		description= "Controls when the raymarcher will stop traversing the volume.",
+		description= "Controls when the raymarcher will stop traversing the volume",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -403,7 +403,7 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.light_mode= EnumProperty(
 		name= "Light mode",
-		description= "Light mode.",
+		description= "Light mode",
 		items= (
 			('ADDGIZMO',"Add to per-gizmo lights",""),
 			('INTERGIZMO',"Intersect with per-gizmo lights",""),
@@ -416,85 +416,85 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.lights= StringProperty(
 		name= "Lights",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	EnvironmentFog.use_shade_instance= BoolProperty(
 		name= "Use shade instance",
-		description= "True if the shade instance should be used when sampling textures.",
+		description= "True if the shade instance should be used when sampling textures",
 		default= False
 	)
 
 	EnvironmentFog.objects= StringProperty(
 		name= "Objects",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	EnvironmentFog.groups= StringProperty(
 		name= "Groups",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 	# affect_background
 	EnvironmentFog.affect_background= BoolProperty(
 		name= "Affect background",
-		description= "Affect background.",
+		description= "Affect background",
 		default= True
 	)
 
 	# affect_reflections
 	EnvironmentFog.affect_reflections= BoolProperty(
 		name= "Affect reflections",
-		description= "true if the fog is visible to reflection rays.",
+		description= "true if the fog is visible to reflection rays",
 		default= True
 	)
 
 	# affect_refractions
 	EnvironmentFog.affect_refractions= BoolProperty(
 		name= "Affect refractions",
-		description= "true if the fog is visible to refraction rays.",
+		description= "true if the fog is visible to refraction rays",
 		default= True
 	)
 
 	# affect_shadows
 	EnvironmentFog.affect_shadows= BoolProperty(
 		name= "Affect shadows",
-		description= "true if the fog affects shadow rays.",
+		description= "true if the fog affects shadow rays",
 		default= True
 	)
 
 	# affect_gi
 	EnvironmentFog.affect_gi= BoolProperty(
 		name= "Affect GI",
-		description= "true if the fog affects GI rays.",
+		description= "true if the fog affects GI rays",
 		default= True
 	)
 
 	# affect_camera
 	EnvironmentFog.affect_camera= BoolProperty(
 		name= "Affect camera",
-		description= "true if the fog affects primary camera rays.",
+		description= "true if the fog affects primary camera rays",
 		default= True
 	)
 
 	VolumeVRayToon.use= BoolProperty(
 		name= "Use",
-		description= "Render outline.",
+		description= "Render outline",
 		default= False
 	)
 
 	VolumeVRayToon.override_material= BoolProperty(
 		name= "Override material",
-		description= "Override outline set in materials.",
+		description= "Override outline set in materials",
 		default= False
 	)
 
 	# lineColor
 	VolumeVRayToon.lineColor= FloatVectorProperty(
 		name= "Color",
-		description= "The color of cartoon line.",
+		description= "The color of cartoon line",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -506,7 +506,7 @@ def add_properties(rna_pointer):
 	# widthType
 	VolumeVRayToon.widthType= EnumProperty(
 		name= "Type",
-		description= "TODO: Tooltip.",
+		description= "",
 		items= (
 			('WORLD', "World",  "World units."),
 			('PIXEL', "Pixels", "Pixels.")
@@ -517,7 +517,7 @@ def add_properties(rna_pointer):
 	# lineWidth
 	VolumeVRayToon.lineWidth= FloatProperty(
 		name= "Width",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -529,7 +529,7 @@ def add_properties(rna_pointer):
 	# opacity
 	VolumeVRayToon.opacity= FloatProperty(
 		name= "Opacity",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -541,14 +541,14 @@ def add_properties(rna_pointer):
 	# hideInnerEdges
 	VolumeVRayToon.hideInnerEdges= BoolProperty(
 		name= "Hide inner edges",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# normalThreshold
 	VolumeVRayToon.normalThreshold= FloatProperty(
 		name= "Normal thresh",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -560,7 +560,7 @@ def add_properties(rna_pointer):
 	# overlapThreshold
 	VolumeVRayToon.overlapThreshold= FloatProperty(
 		name= "Overlap thresh",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -572,7 +572,7 @@ def add_properties(rna_pointer):
 	# traceBias
 	VolumeVRayToon.traceBias= FloatProperty(
 		name= "Bias",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -584,14 +584,14 @@ def add_properties(rna_pointer):
 	# doSecondaryRays
 	VolumeVRayToon.doSecondaryRays= BoolProperty(
 		name= "Do sec. rays",
-		description= "Do reflections / refractons.",
+		description= "Do reflections / refractons",
 		default= False
 	)
 
 	# excludeType
 	VolumeVRayToon.excludeType= EnumProperty(
 		name= "Include / exclude",
-		description= "TODO: Tooltip.",
+		description= "",
 		items= (
 			('INCLUDE', "Include", "Include objects."),
 			('EXCLUDE', "Exclude", "Exclude objects.")
@@ -602,26 +602,26 @@ def add_properties(rna_pointer):
 	# excludeList
 	VolumeVRayToon.excludeList_objects= StringProperty(
 		name= "excludeList",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	VolumeVRayToon.excludeList_groups= StringProperty(
 		name= "excludeList",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	# lineColor_tex
 	VolumeVRayToon.map_lineColor_tex= BoolProperty(
 		name= "lineColor tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	VolumeVRayToon.lineColor_tex_mult= FloatProperty(
 		name= "lineColor tex",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -633,13 +633,13 @@ def add_properties(rna_pointer):
 	# lineWidth_tex
 	VolumeVRayToon.map_lineWidth_tex= BoolProperty(
 		name= "lineWidth tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	VolumeVRayToon.lineWidth_tex_mult= FloatProperty(
 		name= "lineWidth tex",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -651,13 +651,13 @@ def add_properties(rna_pointer):
 	# opacity_tex
 	VolumeVRayToon.map_opacity_tex= BoolProperty(
 		name= "opacity tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	VolumeVRayToon.opacity_tex_mult= FloatProperty(
 		name= "opacity tex",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -669,13 +669,13 @@ def add_properties(rna_pointer):
 	# distortion_tex
 	VolumeVRayToon.map_distortion_tex= BoolProperty(
 		name= "distortion tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	VolumeVRayToon.distortion_tex_mult= FloatProperty(
 		name= "distortion tex",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

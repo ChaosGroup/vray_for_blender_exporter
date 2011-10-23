@@ -57,12 +57,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsUnitsInfo= PointerProperty(
 		name= "Units",
 		type=  SettingsUnitsInfo,
-		description="Units settings."
+		description="Units settings"
 	)
 
 	SettingsUnitsInfo.photometric_scale= FloatProperty(
 		name= "Photometric scale",
-		description= "Photometric scale.",
+		description= "Photometric scale",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -73,7 +73,7 @@ def add_properties(rna_pointer):
 
 	SettingsUnitsInfo.meters_scale= FloatProperty(
 		name= "Meters scale",
-		description= "Meters scale.",
+		description= "Meters scale",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

@@ -77,24 +77,24 @@ def add_properties(rna_pointer):
 	rna_pointer.CameraPhysical= PointerProperty(
 		name= "CameraPhysical",
 		type=  CameraPhysical,
-		description= "Physical Camera settings."
+		description= "Physical Camera settings"
 	)
 
 	CameraPhysical.use= BoolProperty(
 		name= "Enable physical camera",
-		description= "Enable physical camera.",
+		description= "Enable physical camera",
 		default= False
 	)
 
 	CameraPhysical.specify_fov= BoolProperty(
 		name= "Use FOV",
-		description= "Use field of view instead of use the focal length, film width, scale etc.",
+		description= "Use field of view instead of use the focal length, film width, scale etc",
 		default= True
 	)
 
 	CameraPhysical.f_number= FloatProperty(
 		name= "F-number",
-		description= "Determines the width of the camera aperture and, indirectly, exposure.",
+		description= "Determines the width of the camera aperture and, indirectly, exposure",
 		min=0.0, max=1000.0,
 		soft_min=0.0, soft_max=10.0,
 		default= 8.0
@@ -102,7 +102,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.white_balance= FloatVectorProperty(
 		name= "White balance",
-		description= "White balance.",
+		description= "White balance",
 		default= (1.0, 1.0, 1.0),
 		min= 0.0,
 		max= 1.0,
@@ -117,7 +117,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.latency= FloatProperty(
 		name="Latency",
-		description="CCD matrix latency, in seconds.",  # for video camera
+		description="CCD matrix latency, in seconds",  # for video camera
 		min=0.0, max=100.0,
 		soft_min=0.0, soft_max=10.0,
 		default=0.0
@@ -125,7 +125,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.lens_shift= FloatProperty(
 		name="Lens shift",
-		description="Shift lenses for 2-point perspective.",
+		description="Shift lenses for 2-point perspective",
 		min=-1.0,
 		max=1.0,
 		soft_min=-1.0,
@@ -135,7 +135,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.ISO= FloatProperty(
 		name="ISO",
-		description="The film power (i.e. sensitivity).",
+		description="The film power (i.e. sensitivity)",
 		min=0.0,
 		max=10000.0,
 		soft_min=0.0,
@@ -145,7 +145,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.shutter_speed= FloatProperty(
 		name="Shutter speed",
-		description="The shutter speed, in inverse seconds.", # for still camera
+		description="The shutter speed, in inverse seconds", # for still camera
 		min= 1.0,
 		max= 10000.0,
 		soft_min=0.0,
@@ -155,7 +155,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.focal_length= FloatProperty(
 		name="Focal length",
-		description="Specifies the equivalen focal length of the camera lens.",
+		description="Specifies the equivalen focal length of the camera lens",
 		min=0.0,
 		max=200.0,
 		soft_min=0.0,
@@ -165,7 +165,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.dof_display_threshold= FloatProperty(
 		name="DOF threshold",
-		description="Display threshold for depth-of-field.",
+		description="Display threshold for depth-of-field",
 		min=0.0,
 		max=1.0,
 		soft_min=0.0,
@@ -175,7 +175,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.distortion= FloatProperty(
 		name="Distortion",
-		description="Specifies the distortion coefficient for the camera lens.",
+		description="Specifies the distortion coefficient for the camera lens",
 		min=-1.0,
 		max=1.0,
 		soft_min=0.0,
@@ -193,7 +193,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.zoom_factor= FloatProperty(
 		name="Zoom factor",
-		description="Zoom factor.",
+		description="Zoom factor",
 		min=0.0,
 		max=10.0,
 		soft_min=0.0,
@@ -203,7 +203,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.film_width= FloatProperty(
 		name="Film width",
-		description="Specifies the horizontal size of the film gate in milimeters.",
+		description="Specifies the horizontal size of the film gate in milimeters",
 		min=0.0,
 		max=200.0,
 		soft_min=0.0,
@@ -213,7 +213,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.vignetting= FloatProperty(
 		name="Vignetting",
-		description="The optical vignetting effect of real-world cameras.",
+		description="The optical vignetting effect of real-world cameras",
 		min=0.0,
 		max=100.0,
 		soft_min=0.0,
@@ -223,7 +223,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.shutter_angle= FloatProperty(
 		name="Shutter angle",
-		description="Shutter angle (in degrees).", # for cinema camera
+		description="Shutter angle (in degrees)", # for cinema camera
 		min=0.0,
 		max=1000.0,
 		soft_min=0.0,
@@ -233,7 +233,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.shutter_offset= FloatProperty(
 		name="Shutter offset",
-		description="Shutter offset (in degress).", # for cinema camera
+		description="Shutter offset (in degress)", # for cinema camera
 		min=0.0,
 		max=1000.0,
 		soft_min=0.0,
@@ -243,19 +243,19 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.exposure= BoolProperty(
 		name="Exposure",
-		description="When this option is on, the f-number, Shutter speed and ISO settings will affect the image brightness.",
+		description="When this option is on, the f-number, Shutter speed and ISO settings will affect the image brightness",
 		default= True
 	)
 
 	CameraPhysical.guess_lens_shift= BoolProperty(
 		name= "Auto lens shift",
-		description= "Calculate lens shift automatically.",
+		description= "Calculate lens shift automatically",
 		default= False
 	)
 
 	CameraPhysical.type= EnumProperty(
 		name="Type",
-		description="The type of the physical camera.",
+		description="The type of the physical camera",
 		items=(
 			('STILL',     "Still",     ""),
 			('CINEMATIC', "Cinematic", ""),
@@ -266,13 +266,13 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.blades_enable= BoolProperty(
 		name="Bokeh effects",
-		description="Defines the shape of the camera aperture.",
+		description="Defines the shape of the camera aperture",
 		default= False
 	)
 
 	CameraPhysical.blades_num= IntProperty(
 		name="Blades number",
-		description="Number of blades.",
+		description="Number of blades",
 		min=1,
 		max=100,
 		default=5
@@ -280,7 +280,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.blades_rotation= FloatProperty(
 		name="Blades rotation",
-		description="Defines the rotation of the blades.",
+		description="Defines the rotation of the blades",
 		min=0.0,
 		max=360.0,
 		soft_min=0.0,
@@ -290,7 +290,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.center_bias= FloatProperty(
 		name="Center bias",
-		description="Defines a bias shape for the bokeh effects.",
+		description="Defines a bias shape for the bokeh effects",
 		min=0.0,
 		max=100.0,
 		soft_min=0.0,
@@ -300,7 +300,7 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.anisotropy= FloatProperty(
 		name="Anisotropy",
-		description="Allows stretching of the bokeh effect horizontally or vertically to simulate anamorphic lenses.",
+		description="Allows stretching of the bokeh effect horizontally or vertically to simulate anamorphic lenses",
 		min=0.0,
 		max=1.0,
 		soft_min=0.0,
@@ -310,19 +310,19 @@ def add_properties(rna_pointer):
 
 	CameraPhysical.use_dof= BoolProperty(
 		name="Depth of field",
-		description="Turns on depth of field sampling.",
+		description="Turns on depth of field sampling",
 		default= False
 	)
 
 	CameraPhysical.use_moblur= BoolProperty(
 		name="Motion blur",
-		description="Turns on motion blur sampling.",
+		description="Turns on motion blur sampling",
 		default= False
 	)
 
 	CameraPhysical.subdivs= IntProperty(
 		name="Subdivs",
-		description="The number of samples for calculating depth of field and/or motion blur.",
+		description="The number of samples for calculating depth of field and/or motion blur",
 		min=1,
 		max=100,
 		default=6

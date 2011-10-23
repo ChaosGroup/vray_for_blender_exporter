@@ -64,12 +64,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsColorMapping= PointerProperty(
 		name= "Color Mapping",
 		type=  SettingsColorMapping,
-		description= "Color mapping settings."
+		description= "Color mapping settings"
 	)
 
 	SettingsColorMapping.type= EnumProperty(
 		name= "Type",
-		description= "Color mapping type.",
+		description= "Color mapping type",
 		items= (
 			('LNR',"Linear",""),
 			('EXP',"Exponential",""),
@@ -84,13 +84,13 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.affect_background= BoolProperty(
 		name= "Affect background",
-		description= "Affect colors belonging to the background.",
+		description= "Affect colors belonging to the background",
 		default= True
 	)
 
 	SettingsColorMapping.dark_mult= FloatProperty(
 		name= "Dark multiplier",
-		description= "Multiplier for dark colors.",
+		description= "Multiplier for dark colors",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -100,7 +100,7 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.bright_mult= FloatProperty(
 		name= "Bright multiplier",
-		description= "Multiplier for bright colors.",
+		description= "Multiplier for bright colors",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.gamma= FloatProperty(
 		name= "Gamma",
-		description= "Gamma correction for the output image regardless of the color mapping mode.",
+		description= "Gamma correction for the output image regardless of the color mapping mode",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 1.0,
@@ -120,7 +120,7 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.input_gamma= FloatProperty(
 		name= "Input gamma",
-		description= "Input gamma for textures.",
+		description= "Input gamma for textures",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 1.0,
@@ -130,13 +130,13 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.clamp_output= BoolProperty(
 		name= "Clamp output",
-		description= "Clamp colors after color mapping.",
+		description= "Clamp colors after color mapping",
 		default= True
 	)
 
 	SettingsColorMapping.clamp_level= FloatProperty(
 		name= "Clamp level",
-		description= "The level at which colors will be clamped.",
+		description= "The level at which colors will be clamped",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -146,19 +146,19 @@ def add_properties(rna_pointer):
 
 	SettingsColorMapping.subpixel_mapping= BoolProperty(
 		name= "Sub-pixel mapping",
-		description= "This option controls whether color mapping will be applied to the final image pixels, or to the individual sub-pixel samples.",
+		description= "This option controls whether color mapping will be applied to the final image pixels, or to the individual sub-pixel samples",
 		default= False
 	)
 
 	SettingsColorMapping.adaptation_only= BoolProperty(
 		name= "Adaptation only",
-		description= "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly).",
+		description= "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly)",
 		default= False
 	)
 
 	SettingsColorMapping.linearWorkflow= BoolProperty(
 		name= "Linear workflow",
-		description= "When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene.",
+		description= "When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene",
 		default= False
 	)
 

@@ -68,18 +68,18 @@ def add_properties(rna_pointer):
 	rna_pointer.GeomDisplacedMesh= PointerProperty(
 		name= "GeomDisplacedMesh",
 		type=  GeomDisplacedMesh,
-		description= "GeomDisplacedMesh texture slot settings."
+		description= "GeomDisplacedMesh texture slot settings"
 	)
 
 	GeomDisplacedMesh.use= BoolProperty(
 		name= "Override displacement settings",
-		description= "Override material displacement settings.",
+		description= "Override material displacement settings",
 		default= False
 	)
 
 	GeomDisplacedMesh.type= EnumProperty(
 		name= "Type",
-		description= "Displacement type.",
+		description= "Displacement type",
 		items= (
 			('2D',  "2D",     "2D displacement."),
 			('NOR', "Normal", "Normal displacement."),
@@ -90,7 +90,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.amount_type= EnumProperty(
 		name= "Amount type",
-		description= "Displacement amount type.",
+		description= "Displacement amount type",
 		items= (
 			('MULT', "Multiply", "Multiply material amount."),
 			('OVER', "Override", "Override material amount.")
@@ -100,7 +100,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.displacement_amount= FloatProperty(
 		name= "Amount",
-		description= "Displacement amount.",
+		description= "Displacement amount",
 		min= -100.0,
 		max= 100.0,
 		soft_min= -0.1,
@@ -111,7 +111,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.amount_mult= FloatProperty(
 		name= "Mult",
-		description= "Displacement amount multiplier.",
+		description= "Displacement amount multiplier",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -140,7 +140,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.use_globals= BoolProperty(
 		name= "Use globals",
-		description= "If true, the global displacement quality settings will be used.",
+		description= "If true, the global displacement quality settings will be used",
 		default= True
 	)
 
@@ -179,7 +179,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.map_channel= IntProperty(
 		name= "Map channel",
-		description= "The mapping channel to use for vector and 2d displacement.",
+		description= "The mapping channel to use for vector and 2d displacement",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -189,7 +189,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.use_bounds= BoolProperty(
 		name= "Use bounds",
-		description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically.",
+		description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically",
 		default= False
 	)
 
@@ -237,7 +237,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.resolution= IntProperty(
 		name= "Resolution",
-		description= "Resolution at which to sample the displacement map for 2d displacement.",
+		description= "Resolution at which to sample the displacement map for 2d displacement",
 		min= 1,
 		max= 100000,
 		soft_min= 1,
@@ -247,7 +247,7 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.precision= IntProperty(
 		name= "Precision",
-		description= "Increase for curved surfaces to avoid artifacts.",
+		description= "Increase for curved surfaces to avoid artifacts",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -257,19 +257,19 @@ def add_properties(rna_pointer):
 
 	GeomDisplacedMesh.tight_bounds= BoolProperty(
 		name= "Tight bounds",
-		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
+		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster",
 		default= False
 	)
 
 	GeomDisplacedMesh.filter_texture= BoolProperty(
 		name= "Filter texture",
-		description= "Filter the texture for 2d displacement.",
+		description= "Filter the texture for 2d displacement",
 		default= False
 	)
 
 	GeomDisplacedMesh.filter_blur= FloatProperty(
 		name= "Blur",
-		description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture.",
+		description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

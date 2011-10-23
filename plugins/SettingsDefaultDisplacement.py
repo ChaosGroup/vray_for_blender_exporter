@@ -62,12 +62,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsDefaultDisplacement= PointerProperty(
 		name= "Default Displacement",
 		type=  SettingsDefaultDisplacement,
-		description= "Default displacement settings."
+		description= "Default displacement settings"
 	)
 
 	SettingsDefaultDisplacement.override_on= BoolProperty(
 		name= "Override",
-		description= "Override settings globally.",
+		description= "Override settings globally",
 		default= False
 	)
 
@@ -84,13 +84,13 @@ def add_properties(rna_pointer):
 
 	SettingsDefaultDisplacement.viewDependent= BoolProperty(
 		name= "View dependent",
-		description= "Determines if view-dependent tesselation is used.",
+		description= "Determines if view-dependent tesselation is used",
 		default= True
 	)
 
 	SettingsDefaultDisplacement.maxSubdivs= IntProperty(
 		name= "Max subdivs",
-		description= "Determines the maximum subdivisions for a triangle of the original mesh.",
+		description= "Determines the maximum subdivisions for a triangle of the original mesh",
 		min= 0,
 		max= 2048,
 		soft_min= 0,
@@ -100,13 +100,13 @@ def add_properties(rna_pointer):
 
 	SettingsDefaultDisplacement.tightBounds= BoolProperty(
 		name= "Tight bounds",
-		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster.",
+		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster",
 		default= True
 	)
 
 	SettingsDefaultDisplacement.amount= FloatProperty(
 		name= "Amount",
-		description= "Determines the displacement amount for white areas in the displacement map.",
+		description= "Determines the displacement amount for white areas in the displacement map",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -117,7 +117,7 @@ def add_properties(rna_pointer):
 
 	SettingsDefaultDisplacement.relative= BoolProperty(
 		name= "Relative",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 

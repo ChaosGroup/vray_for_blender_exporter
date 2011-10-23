@@ -59,12 +59,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsRaycaster= PointerProperty(
 		name= "Raycaster",
 		type=  SettingsRaycaster,
-		description= "Raycaster settings."
+		description= "Raycaster settings"
 	)
 
 	SettingsRaycaster.maxLevels= IntProperty(
 		name= "Max. tree depth",
-		description= "Maximum BSP tree depth.",
+		description= "Maximum BSP tree depth",
 		min= 50,
 		max= 100,
 		default= 80
@@ -72,7 +72,7 @@ def add_properties(rna_pointer):
 
 	SettingsRaycaster.minLeafSize= FloatProperty(
 		name= "Min. leaf size",
-		description= "Minimum size of a leaf node.",
+		description= "Minimum size of a leaf node",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -82,7 +82,7 @@ def add_properties(rna_pointer):
 
 	SettingsRaycaster.faceLevelCoef= FloatProperty(
 		name= "Face/level",
-		description= "Maximum amount of triangles in a leaf node.",
+		description= "Maximum amount of triangles in a leaf node",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -92,7 +92,7 @@ def add_properties(rna_pointer):
 
 	SettingsRaycaster.dynMemLimit= IntProperty(
 		name= "Dynamic memory limit",
-		description= "RAM limit for the dynamic raycasters (0 = auto).",
+		description= "RAM limit for the dynamic raycasters (0 = auto)",
 		min= 0,
 		max= 100000,
 		default= 0

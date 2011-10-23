@@ -54,18 +54,18 @@ def add_properties(rna_pointer):
 	rna_pointer.VRayDR= PointerProperty(
 		name= "Distributed rendering",
 		type=  VRayDR,
-		description= "Distributed rendering settings."
+		description= "Distributed rendering settings"
 	)
 
 	VRayDR.on= BoolProperty(
 		name= "Distributed rendering",
-		description= "Distributed rendering.",
+		description= "Distributed rendering",
 		default= False
 	)
 
 	VRayDR.port= IntProperty(
 		name= "Distributed rendering port",
-		description= "Distributed rendering port.",
+		description= "Distributed rendering port",
 		min= 0,
 		max= 65535,
 		default= 20204
@@ -74,18 +74,18 @@ def add_properties(rna_pointer):
 	VRayDR.shared_dir= StringProperty(
 		name= "Shared directory",
 		subtype= 'DIR_PATH',
-		description= "Distributed rendering shader directory."
+		description= "Distributed rendering shader directory"
 	)
 
 	VRayDR.share_name= StringProperty(
 		name= "Share name",
 		default= "VRAYDR",
-		description= "Share name."
+		description= "Share name"
 	)
 
 	VRayDR.type= EnumProperty(
 		name= "Type",
-		description= "Distributed rendering network type.",
+		description= "Distributed rendering network type",
 		items= (
 			('WW', "Windows - Windows", "Window master & Windows nodes."),
 			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes."),
@@ -103,7 +103,7 @@ def add_properties(rna_pointer):
 	VRayDR.nodes= CollectionProperty(
 		name= "Render Nodes",
 		type=  VRayRenderNode,
-		description= "V-Ray render nodes."
+		description= "V-Ray render nodes"
 	)
 
 	VRayDR.nodes_selected= IntProperty(
@@ -115,6 +115,6 @@ def add_properties(rna_pointer):
 
 	VRayRenderNode.address= StringProperty(
 		name= "IP/Hostname",
-		description= "Render node IP or hostname."
+		description= "Render node IP or hostname"
 	)
 

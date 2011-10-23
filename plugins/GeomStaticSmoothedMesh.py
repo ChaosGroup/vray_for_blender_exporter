@@ -56,18 +56,18 @@ def add_properties(rna_pointer):
 	rna_pointer.GeomStaticSmoothedMesh= PointerProperty(
 		name= "GeomStaticSmoothedMesh",
 		type=  GeomStaticSmoothedMesh,
-		description= "GeomStaticSmoothedMesh texture slot settings."
+		description= "GeomStaticSmoothedMesh texture slot settings"
 	)
 
 	GeomStaticSmoothedMesh.use= BoolProperty(
 		name= "Override displacement settings",
-		description= "Override material displacement settings.",
+		description= "Override material displacement settings",
 		default= False
 	)
 
 	GeomStaticSmoothedMesh.use_globals= BoolProperty(
 		name= "Use globals",
-		description= "If true, the global displacement quality settings will be used.",
+		description= "If true, the global displacement quality settings will be used",
 		default= True
 	)
 
@@ -100,7 +100,7 @@ def add_properties(rna_pointer):
 
 	GeomStaticSmoothedMesh.static_subdiv= BoolProperty(
 		name= "Static subdivision",
-		description= "True if the resulting triangles of the subdivision algorithm will be inserted into the rayserver as static geometry.",
+		description= "True if the resulting triangles of the subdivision algorithm will be inserted into the rayserver as static geometry",
 		default= False
 	)
 

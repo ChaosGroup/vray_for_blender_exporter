@@ -77,12 +77,12 @@ def add_properties(rna_pointer):
 	BRDFLayered.brdfs= CollectionProperty(
 		name= "BRDFs",
 		type=  VRayBRDF,
-		description= "Material shaders collection."
+		description= "Material shaders collection"
 	)
 
 	BRDFLayered.brdf_selected= IntProperty(
 		name= "Selected BRDF",
-		description= "Selected BRDF.",
+		description= "Selected BRDF",
 		default= -1,
 		min= -1,
 		max= 100
@@ -92,21 +92,21 @@ def add_properties(rna_pointer):
 	
 	VRayBRDF.type= EnumProperty(
 		name= "BRDF Type",
-		description= "BRDF type.",
+		description= "BRDF type",
 		items= (tuple(brdfs)),
 		default= brdfs[4][0] # BRDFDiffuse
 	)
 
 	VRayBRDF.use= BoolProperty(
 		name= "Use BRDF",
-		description= "Use BRDF.",
+		description= "Use BRDF",
 		default= True
 	)
 
 	# weights List()
 	VRayBRDF.weight= FloatVectorProperty(
 		name= "Weight",
-		description= "Weight.",
+		description= "Weight",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -117,7 +117,7 @@ def add_properties(rna_pointer):
 
 	VRayBRDF.weight_tex= StringProperty(
 		name= "Weight texture",
-		description= "Weight texture.",
+		description= "Weight texture",
 		default= ""
 	)
 
@@ -125,7 +125,7 @@ def add_properties(rna_pointer):
 	# transparency
 	BRDFLayered.transparency= FloatVectorProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -137,20 +137,20 @@ def add_properties(rna_pointer):
 	# transparency_tex
 	BRDFLayered.transparency_tex= StringProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFLayered.map_transparency_tex= BoolProperty(
 		name= "transparency tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# transparency_tex_mult
 	BRDFLayered.transparency_tex_mult= FloatProperty(
 		name= "transparency tex mult",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

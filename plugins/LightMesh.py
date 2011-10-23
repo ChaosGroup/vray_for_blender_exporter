@@ -89,7 +89,7 @@ def add_properties(rna_pointer):
 	class LightMesh(bpy.types.PropertyGroup):
 		color= FloatVectorProperty(
 			name= "Color",
-			description= "Light color.",
+			description= "Light color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -100,7 +100,7 @@ def add_properties(rna_pointer):
 
 		color_type= EnumProperty(
 			name= "Color type",
-			description= "Color type.",
+			description= "Color type",
 			items= (
 				('RGB',    "RGB", ""),
 				('KELVIN', "K",   ""),
@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 
 		temperature= IntProperty(
 			name= "Temperature",
-			description= "Kelvin temperature.",
+			description= "Kelvin temperature",
 			min= 1000,
 			max= 40000,
 			step= 100,
@@ -119,13 +119,13 @@ def add_properties(rna_pointer):
 
 		use_include_exclude= BoolProperty(
 			name= "Use Include / Exclude",
-			description= "Use Include / Exclude.",
+			description= "Use Include / Exclude",
 			default= False
 		)
 
 		include_exclude= EnumProperty(
 			name= "Type",
-			description= "Include or exclude object from lightning.",
+			description= "Include or exclude object from lightning",
 			items= (
 				('EXCLUDE',"Exclude",""),
 				('INCLUDE',"Include",""),
@@ -135,12 +135,12 @@ def add_properties(rna_pointer):
 
 		include_objects= StringProperty(
 			name= "Include objects",
-			description= "Include objects: name{;name;etc}."
+			description= "Include objects: name{;name;etc}"
 		)
 
 		include_groups= StringProperty(
 			name= "Include groups",
-			description= "Include groups: name{;name;etc}."
+			description= "Include groups: name{;name;etc}"
 		)
 	bpy.utils.register_class(LightMesh)
 
@@ -152,19 +152,19 @@ def add_properties(rna_pointer):
 
 	LightMesh.use= BoolProperty(
 		name= "Use mesh light",
-		description= "Use mesh light.",
+		description= "Use mesh light",
 		default= False
 	)
 
 	LightMesh.enabled= BoolProperty(
 		name= "Enabled",
-		description= "Light\'s on/off state.",
+		description= "Light\'s on/off state",
 		default= True
 	)
 
 	LightMesh.lightPortal= EnumProperty(
 		name= "Light portal mode",
-		description= "Specifies if the light is a portal light.",
+		description= "Specifies if the light is a portal light",
 		items= (
 			('NORMAL',"Normal light",""),
 			('PORTAL',"Portal",""),
@@ -175,7 +175,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.units= EnumProperty(
 		name= "Intensity units",
-		description= "Units for the intensity.",
+		description= "Units for the intensity",
 		items= (
 			('DEFAULT',"Default",""),
 			('LUMENS',"Lumens",""),
@@ -188,7 +188,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.intensity= FloatProperty(
 		name= "Intensity",
-		description= "Light intensity.",
+		description= "Light intensity",
 		min= 0.0,
 		max= 10000000.0,
 		soft_min= 0.0,
@@ -199,7 +199,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.causticSubdivs= IntProperty(
 		name= "Caustic subdivs",
-		description= "Caustic subdivs.",
+		description= "Caustic subdivs",
 		min= 1,
 		max= 10000,
 		default= 1000
@@ -207,7 +207,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "The number of samples V-Ray takes to compute lighting.",
+		description= "The number of samples V-Ray takes to compute lighting",
 		min= 0,
 		max= 256,
 		default= 8
@@ -215,7 +215,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.noDecay= BoolProperty(
 		name= "No decay",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
@@ -227,13 +227,13 @@ def add_properties(rna_pointer):
 
 	LightMesh.invisible= BoolProperty(
 		name= "Invisible",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
 	LightMesh.storeWithIrradianceMap= BoolProperty(
 		name= "Store with Irradiance Map",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
@@ -251,7 +251,7 @@ def add_properties(rna_pointer):
 
 	LightMesh.doubleSided= BoolProperty(
 		name= "Double-sided",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 

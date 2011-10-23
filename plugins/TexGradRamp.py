@@ -75,7 +75,7 @@ def add_properties(rna_pointer):
 		# gradient_type
 		gradient_type= EnumProperty(
 			name= "Gradient type",
-			description= "Gradient type.",
+			description= "Gradient type",
 			items= (
 				('FOUR_CORNER', "Four corner", "Four corner."), # 0
 				('BOX',         "Box",         "Box."),
@@ -96,7 +96,7 @@ def add_properties(rna_pointer):
 		# interpolation
 		interpolation= EnumProperty(
 			name= "Interpolation",
-			description= "Interpolation.",
+			description= "Interpolation",
 			items= (
 				('NONE',    "None",          "None."), # 0
 				('LINEAR',  "Linear",        "Linear."),
@@ -112,7 +112,7 @@ def add_properties(rna_pointer):
 		# noise_amount
 		noise_amount= FloatProperty(
 			name= "Amount",
-			description= "Distortion noise amount.",
+			description= "Distortion noise amount",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -124,7 +124,7 @@ def add_properties(rna_pointer):
 		# noise_type
 		noise_type= EnumProperty(
 			name= "Type",
-			description= "Noise type.",
+			description= "Noise type",
 			items= (
 				('REGULAR',    "Regular",    ""), # 0
 				('FRACTAL',    "Fractal",    ""),
@@ -136,7 +136,7 @@ def add_properties(rna_pointer):
 		# noise_size
 		noise_size= FloatProperty(
 			name= "Size",
-			description= "default = 1.0.",
+			description= "default = 1.0",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -148,7 +148,7 @@ def add_properties(rna_pointer):
 		# noise_phase
 		noise_phase= FloatProperty(
 			name= "Phase",
-			description= "default = 0.0.",
+			description= "default = 0.0",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -160,7 +160,7 @@ def add_properties(rna_pointer):
 		# noise_levels
 		noise_levels= FloatProperty(
 			name= "Iterations",
-			description= "default = 4.0.",
+			description= "default = 4.0",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -172,7 +172,7 @@ def add_properties(rna_pointer):
 		# noise_treshold_low
 		noise_treshold_low= FloatProperty(
 			name= "Low",
-			description= "default = 0.0f.",
+			description= "default = 0.0f",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -184,7 +184,7 @@ def add_properties(rna_pointer):
 		# noise_treshold_high
 		noise_treshold_high= FloatProperty(
 			name= "High",
-			description= "default = 1.0f.",
+			description= "default = 1.0f",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -196,7 +196,7 @@ def add_properties(rna_pointer):
 		# noise_smooth
 		noise_smooth= FloatProperty(
 			name= "Smooth",
-			description= "default = 0.0f.",
+			description= "default = 0.0f",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

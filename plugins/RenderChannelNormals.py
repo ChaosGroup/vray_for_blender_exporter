@@ -62,13 +62,13 @@ def add_properties(parent_struct):
 
 	RenderChannelNormals.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
+		description= "TODO",
 		default= "Normals"
 	)
 
 	RenderChannelNormals.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 	

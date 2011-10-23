@@ -56,7 +56,7 @@ VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
 class VRAY_OT_update(bpy.types.Operator):
 	bl_idname      = "vray.update"
 	bl_label       = "Update exporter"
-	bl_description = "Update exporter from github."
+	bl_description = "Update exporter from github"
 
 	def execute(self, context):
 		GIT_URL= "https://github.com/bdancer/vb25/zipball/master"
@@ -108,7 +108,7 @@ bpy.utils.register_class(VRAY_OT_update)
 class VRAY_OT_lens_shift(bpy.types.Operator):
 	bl_idname=      'vray.lens_shift'
 	bl_label=       "Get lens shift"
-	bl_description= "Calculate lens shift."
+	bl_description= "Calculate lens shift"
 
 	@classmethod
 	def poll(cls, context):
@@ -131,7 +131,7 @@ bpy.utils.register_class(VRAY_OT_lens_shift)
 class VRAY_OT_effect_add(bpy.types.Operator):
 	bl_idname=      'vray.effect_add'
 	bl_label=       "Add Effect"
-	bl_description= "Add effect."
+	bl_description= "Add effect"
 
 	def execute(self, context):
 		VRayScene= context.scene.vray
@@ -149,7 +149,7 @@ bpy.utils.register_class(VRAY_OT_effect_add)
 class VRAY_OT_effect_remove(bpy.types.Operator):
 	bl_idname=      'vray.effect_remove'
 	bl_label=       "Remove Effect"
-	bl_description= "Remove effect."
+	bl_description= "Remove effect"
 
 	def execute(self, context):
 		VRayScene= context.scene.vray
@@ -168,7 +168,7 @@ bpy.utils.register_class(VRAY_OT_effect_remove)
 class VRAY_OT_effect_up(bpy.types.Operator):
 	bl_idname=      'vray.effect_up'
 	bl_label=       "Move effect up"
-	bl_description= "Move effect up."
+	bl_description= "Move effect up"
 
 	def execute(self, context):
 		VRayScene= context.scene.vray
@@ -190,7 +190,7 @@ bpy.utils.register_class(VRAY_OT_effect_up)
 class VRAY_OT_effect_down(bpy.types.Operator):
 	bl_idname=      'vray.effect_down'
 	bl_label=       "Move effect down"
-	bl_description= "Move effect down."
+	bl_description= "Move effect down"
 
 	def execute(self, context):
 		VRayScene= context.scene.vray
@@ -231,7 +231,7 @@ def find_brdf_pointer(rna_pointer):
 class VRAY_OT_brdf_add(bpy.types.Operator):
 	bl_idname=      'vray.brdf_add'
 	bl_label=       "Add BRDF"
-	bl_description= "Add BRDF."
+	bl_description= "Add BRDF"
 
 	def execute(self, context):
 		ma= active_node_mat(context.material)
@@ -252,7 +252,7 @@ bpy.utils.register_class(VRAY_OT_brdf_add)
 class VRAY_OT_brdf_remove(bpy.types.Operator):
 	bl_idname=      'vray.brdf_remove'
 	bl_label=       "Remove BRDF"
-	bl_description= "Remove BRDF."
+	bl_description= "Remove BRDF"
 
 	def execute(self, context):
 		ma= active_node_mat(context.material)
@@ -274,7 +274,7 @@ bpy.utils.register_class(VRAY_OT_brdf_remove)
 class VRAY_OT_brdf_up(bpy.types.Operator):
 	bl_idname=      'vray.brdf_up'
 	bl_label=       "Move BRDF up"
-	bl_description= "Move BRDF up."
+	bl_description= "Move BRDF up"
 
 	def execute(self, context):
 		ma= active_node_mat(context.material)
@@ -299,7 +299,7 @@ bpy.utils.register_class(VRAY_OT_brdf_up)
 class VRAY_OT_brdf_down(bpy.types.Operator):
 	bl_idname=      'vray.brdf_down'
 	bl_label=       "Move BRDF down"
-	bl_description= "Move BRDF down."
+	bl_description= "Move BRDF down"
 
 	def execute(self, context):
 		ma= active_node_mat(context.material)
@@ -325,7 +325,7 @@ bpy.utils.register_class(VRAY_OT_brdf_down)
 class VRAY_OT_channel_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
-	bl_description= "Add render channel."
+	bl_description= "Add render channel"
 
 	def execute(self, context):
 		sce= context.scene
@@ -345,7 +345,7 @@ bpy.utils.register_class(VRAY_OT_channel_add)
 class VRAY_OT_channel_del(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_remove'
 	bl_label=       "Remove Render Channel"
-	bl_description= "Remove render channel."
+	bl_description= "Remove render channel"
 
 	def execute(self, context):
 		sce= context.scene
@@ -368,7 +368,7 @@ bpy.utils.register_class(VRAY_OT_channel_del)
 class VRAY_OT_node_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
 	bl_label=       "Add Render Node"
-	bl_description= "Add render node."
+	bl_description= "Add render node"
 
 	def execute(self, context):
 		vs= context.scene.vray
@@ -406,7 +406,7 @@ bpy.utils.register_class(VRAY_OT_node_del)
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname      = "vray.convert_materials"
 	bl_label       = "Convert materials"
-	bl_description = "Convert scene materials from Blender Internal to V-Ray."
+	bl_description = "Convert scene materials from Blender Internal to V-Ray"
 
 	CONVERT_BLEND_TYPE= {
 		'MIX':          'OVER',
@@ -489,7 +489,7 @@ bpy.utils.register_class(VRAY_OT_convert_scene)
 class VRAY_OT_bake_procedural(bpy.types.Operator):
 	bl_idname=      'vray.bake_procedural'
 	bl_label=       "Bake procedural"
-	bl_description= "Render procedural texture to file."
+	bl_description= "Render procedural texture to file"
 
 	def execute(self, context):
 		debug(context.scene, "Bake procedural: In progress...")
@@ -502,11 +502,11 @@ bpy.utils.register_class(VRAY_OT_bake_procedural)
 class VRAY_OT_settings_to_text(bpy.types.Operator):
 	bl_idname=      'vray.settings_to_text'
 	bl_label=       "Settings to Text"
-	bl_description= "Export settings to Text."
+	bl_description= "Export settings to Text"
 
 	bb_code= BoolProperty(
 		name= "Use BB-code",
-		description= "Use BB-code formatting.",
+		description= "Use BB-code formatting",
 		default= True
 	)
 
@@ -547,7 +547,7 @@ bpy.utils.register_class(VRAY_OT_settings_to_text)
 class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_idname      = "vray.flip_resolution"
 	bl_label       = "Flip resolution"
-	bl_description = "Flip render resolution."
+	bl_description = "Flip render resolution"
 
 	def execute(self, context):
 		scene= context.scene
@@ -569,7 +569,7 @@ bpy.utils.register_class(VRAY_OT_flip_resolution)
 class VRAY_OT_create_proxy(bpy.types.Operator):
 	bl_idname      = "vray.create_proxy"
 	bl_label       = "Create proxy"
-	bl_description = "Creates proxy from selection."
+	bl_description = "Creates proxy from selection"
 
 	def execute(self, context):
 		sce= context.scene
@@ -745,7 +745,7 @@ bpy.utils.register_class(VRAY_OT_write_scene)
 class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_idname      = "vray.write_geometry"
 	bl_label       = "Export meshes"
-	bl_description = "Export meshes into vrscene file."
+	bl_description = "Export meshes into vrscene file"
 
 	def execute(self, context):
 
@@ -759,7 +759,7 @@ bpy.utils.register_class(VRAY_OT_write_geometry)
 class VRAY_OT_run(bpy.types.Operator):
 	bl_idname      = "vray.run"
 	bl_label       = "Run V-Ray"
-	bl_description = "Run V-Ray renderer."
+	bl_description = "Run V-Ray renderer"
 
 	def execute(self, context):
 
@@ -773,7 +773,7 @@ bpy.utils.register_class(VRAY_OT_run)
 class VRAY_OT_render(bpy.types.Operator):
 	bl_idname      = "vray.render"
 	bl_label       = "V-Ray Renderer"
-	bl_description = "Render operator."
+	bl_description = "Render operator"
 
 	def execute(self, context):
 		scene= context.scene
@@ -794,18 +794,18 @@ bpy.utils.register_class(VRAY_OT_render)
 class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 	bl_idname      = "vray.set_kelvin_color"
 	bl_label       = "Kelvin color"
-	bl_description = "Set color temperature."
+	bl_description = "Set color temperature"
 
 	data_path= StringProperty(
 		name= "Data",
-		description= "Data path.",
+		description= "Data path",
 		maxlen= 1024,
 		default= ""
 	)
 
 	d_color= EnumProperty(
 		name= "Illuminant series D",
-		description= "Illuminant series D.",
+		description= "Illuminant series D",
 		items= (
 			('D75',  "D75",  "North sky Daylight."),
 			('D65',  "D65",  "Noon Daylight."),
@@ -817,13 +817,13 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 
 	use_temperature= BoolProperty(
 		name= "Use temperature",
-		description= "Use temperature.",
+		description= "Use temperature",
 		default= False
 	)
 
 	temperature= IntProperty(
 		name= "Temperature",
-		description= "Kelvin temperature.",
+		description= "Kelvin temperature",
 		min= 1000,
 		max= 40000,
 		step= 100,
@@ -890,7 +890,7 @@ bpy.utils.register_class(VRAY_OT_set_kelvin_color)
 class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_idname      = "vray.add_sky"
 	bl_label       = "Add Sky texture"
-	bl_description = "Add Sky texture to the background."
+	bl_description = "Add Sky texture to the background"
 
 	def execute(self, context):
 		scene= context.scene
@@ -921,7 +921,7 @@ bpy.utils.register_class(VRAY_OT_add_sky)
 class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 	bl_idname      = "vray.copy_linked_materials"
 	bl_label       = "Copy linked materials"
-	bl_description = "Copy linked materials."
+	bl_description = "Copy linked materials"
 
 	def execute(self, context):
 		scene=  context.scene

@@ -62,19 +62,19 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.back= StringProperty(
 		name= "Back material",
-		description= "Back material. Same material if nothing is set.",
+		description= "Back material. Same material if nothing is set",
 		default= ""
 	)
 
 	Mtl2Sided.translucency_tex= StringProperty(
 		name= "Back material",
-		description= "Back material.",
+		description= "Back material",
 		default= ""
 	)
 
 	Mtl2Sided.control= EnumProperty(
 		name= "Control",
-		description= "Translucency type.",
+		description= "Translucency type",
 		items= (
 			('SLIDER',  "Slider",  "."),
 			('COLOR',   "Color",   "."),
@@ -85,7 +85,7 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.translucency_tex_mult= FloatProperty(
 		name= "Translucency texture multiplier",
-		description= "Translucency texture multiplier.",
+		description= "Translucency texture multiplier",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -96,7 +96,7 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.translucency_color= FloatVectorProperty(
 		name= "Translucency color",
-		description= "Translucency between front and back.",
+		description= "Translucency between front and back",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -107,7 +107,7 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.translucency_slider= FloatProperty(
 		name= "Translucency",
-		description= "Translucency between front and back.",
+		description= "Translucency between front and back",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -118,7 +118,7 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.force_1sided= BoolProperty(
 		name= "Force one-sided",
-		description= "Make the sub-materials one-sided.",
+		description= "Make the sub-materials one-sided",
 		default= True
 	)
 

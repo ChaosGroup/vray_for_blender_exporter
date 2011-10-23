@@ -65,12 +65,12 @@ def add_properties(VRayTexture):
 	VRayTexture.TexEdges= PointerProperty(
 		name= "TexEdges",
 		type=  TexEdges,
-		description= "V-Ray TexEdges settings."
+		description= "V-Ray TexEdges settings"
 	)
 
 	TexEdges.edges_tex= FloatVectorProperty(
 		name= "Edges color",
-		description= "Edges color.",
+		description= "Edges color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -81,13 +81,13 @@ def add_properties(VRayTexture):
 
 	TexEdges.edges_tex_tex= StringProperty(
 		name= "Edges texture",
-		description= "Edges texture.",
+		description= "Edges texture",
 		default= ""
 	)
 
 	TexEdges.bg_tex= FloatVectorProperty(
 		name= "Background color",
-		description= "Background color.",
+		description= "Background color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -98,19 +98,19 @@ def add_properties(VRayTexture):
 
 	TexEdges.bg_tex_tex= StringProperty(
 		name= "Background texture",
-		description= "Background texture.",
+		description= "Background texture",
 		default= ""
 	)
 
 	TexEdges.show_hidden_edges= BoolProperty(
 		name= "Show hidden edges",
-		description= "Show hidden edges.",
+		description= "Show hidden edges",
 		default= False
 	)
 	
 	TexEdges.width_type= EnumProperty(
 		name= "Width type",
-		description= "Width type: world units or pixels.",
+		description= "Width type: world units or pixels",
 		items= (
 			('WORLD', "World", ""),
 			('PIXEL', "Pixel", "")
@@ -120,7 +120,7 @@ def add_properties(VRayTexture):
 
 	TexEdges.width= FloatProperty(
 		name= "Width",
-		description= "Edge width.",
+		description= "Edge width",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

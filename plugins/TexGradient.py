@@ -68,7 +68,7 @@ def add_properties(rna_pointer):
 		# color1
 		color1= FloatVectorProperty(
 			name= "color1",
-			description= "First color.",
+			description= "First color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -79,14 +79,14 @@ def add_properties(rna_pointer):
 
 		color1_tex= StringProperty(
 			name= "First color texture",
-			description= "First color texture.",
+			description= "First color texture",
 			default= ""
 		)
 
 		# color2
 		color2= FloatVectorProperty(
 			name= "color2",
-			description= "Middle color.",
+			description= "Middle color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -97,14 +97,14 @@ def add_properties(rna_pointer):
 
 		color2_tex= StringProperty(
 			name= "Second color texture",
-			description= "Second color texture.",
+			description= "Second color texture",
 			default= ""
 		)
 
 		# color3
 		color3= FloatVectorProperty(
 			name= "color3",
-			description= "End color.",
+			description= "End color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -115,21 +115,21 @@ def add_properties(rna_pointer):
 
 		color3_tex= StringProperty(
 			name= "Third color texture",
-			description= "Third color texture.",
+			description= "Third color texture",
 			default= ""
 		)
 
 		# has_textures
 		has_textures= BoolProperty(
 			name= "has textures",
-			description= "This affects bump mapping, following a peculiarity in the 3ds Max implementation.",
+			description= "This affects bump mapping, following a peculiarity in the 3ds Max implementation",
 			default= False
 		)
 
 		# middle
 		middle= FloatProperty(
 			name= "Middle position",
-			description= "Middle color position.",
+			description= "Middle color position",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -141,7 +141,7 @@ def add_properties(rna_pointer):
 		# type
 		type= EnumProperty(
 			name= "Type",
-			description= "Gradient type.",
+			description= "Gradient type",
 			items= (
 				('LINEAR', "Linear", "Linear."),
 				('RADIAL', "Radial", "Radial."),
@@ -152,7 +152,7 @@ def add_properties(rna_pointer):
 		# noise_amount
 		noise_amount= FloatProperty(
 			name= "Amount",
-			description= "Noise amount.",
+			description= "Noise amount",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -164,7 +164,7 @@ def add_properties(rna_pointer):
 		# noise_size
 		noise_size= FloatProperty(
 			name= "Size",
-			description= "Noise size.",
+			description= "Noise size",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -176,7 +176,7 @@ def add_properties(rna_pointer):
 		# noise_type
 		noise_type= EnumProperty(
 			name= "Type",
-			description= "Noise type.",
+			description= "Noise type",
 			items= (
 				('REGULAR',    "Regular",    ""), # 0
 				('FRACTAL',    "Fractal",    ""),
@@ -188,7 +188,7 @@ def add_properties(rna_pointer):
 		# noise_iterations
 		noise_iterations= FloatProperty(
 			name= "Iterations",
-			description= "Noise iterations.",
+			description= "Noise iterations",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -200,7 +200,7 @@ def add_properties(rna_pointer):
 		# noise_phase
 		noise_phase= FloatProperty(
 			name= "Phase",
-			description= "Noise phase.",
+			description= "Noise phase",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -212,7 +212,7 @@ def add_properties(rna_pointer):
 		# noise_low
 		noise_low= FloatProperty(
 			name= "Low",
-			description= "Noise low threshold.",
+			description= "Noise low threshold",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -224,7 +224,7 @@ def add_properties(rna_pointer):
 		# noise_high
 		noise_high= FloatProperty(
 			name= "High",
-			description= "Noise high threshold.",
+			description= "Noise high threshold",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -236,7 +236,7 @@ def add_properties(rna_pointer):
 		# noise_smooth
 		noise_smooth= FloatProperty(
 			name= "Smooth",
-			description= "Threshold smoothing.",
+			description= "Threshold smoothing",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

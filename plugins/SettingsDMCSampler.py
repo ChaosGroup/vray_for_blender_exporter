@@ -60,7 +60,7 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsDMCSampler= PointerProperty(
 		name= "DMC Sampler",
 		type=  SettingsDMCSampler,
-		description= "DMC Sampler settings."
+		description= "DMC Sampler settings"
 	)
 
 	SettingsDMCSampler.adaptive_threshold= FloatProperty(
@@ -76,7 +76,7 @@ def add_properties(rna_pointer):
 
 	SettingsDMCSampler.adaptive_min_samples= IntProperty(
 		name= "Min samples",
-		description= "The minimum number of samples that must be made before the early termination algorithm is used.",
+		description= "The minimum number of samples that must be made before the early termination algorithm is used",
 		min= 1,
 		max= 100,
 		default= 8
@@ -84,7 +84,7 @@ def add_properties(rna_pointer):
 
 	SettingsDMCSampler.adaptive_amount= FloatProperty(
 		name= "Adaptive amount",
-		description= "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation.",
+		description= "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -95,13 +95,13 @@ def add_properties(rna_pointer):
 
 	SettingsDMCSampler.time_dependent= BoolProperty(
 		name= "Time dependent",
-		description= "This make the samping pattern change with time.",
+		description= "This make the samping pattern change with time",
 		default= 0
 	)
 
 	SettingsDMCSampler.subdivs_mult= FloatProperty(
 		name= "Subdivs mult",
-		description= "This will multiply all subdivs values everywhere during rendering.",
+		description= "This will multiply all subdivs values everywhere during rendering",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

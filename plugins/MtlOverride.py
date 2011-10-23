@@ -57,37 +57,37 @@ def add_properties(rna_pointer):
 
 	MtlOverride.use= BoolProperty(
 		name= "Use override material",
-		description= "Use override material.",
+		description= "Use override material",
 		default= False
 	)
 
 	MtlOverride.gi_mtl= StringProperty(
 		name= "GI material",
-		description= "The gi material.",
+		description= "The gi material",
 		default= ""
 	)
 
 	MtlOverride.reflect_mtl= StringProperty(
 		name= "Reflection material",
-		description= "The reflection material.",
+		description= "The reflection material",
 		default= ""
 	)
 
 	MtlOverride.refract_mtl= StringProperty(
 		name= "Refraction material",
-		description= "The refraction material.",
+		description= "The refraction material",
 		default= ""
 	)
 
 	MtlOverride.shadow_mtl= StringProperty(
 		name= "Shadow material",
-		description= "The shadow material.",
+		description= "The shadow material",
 		default= ""
 	)
 
 	MtlOverride.environment_override= StringProperty(
 		name= "Environment override",
-		description= "Environment override texture.",
+		description= "Environment override texture",
 		default= ""
 	)
 

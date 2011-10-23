@@ -71,31 +71,31 @@ def add_properties(parent_struct):
 
 	RenderChannelAO.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
+		description= "TODO",
 		default= NAME
 	)
 
 	RenderChannelAO.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelAO.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelAO.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelAO.radius= FloatProperty(
 		name= "Radius",
-		description= "AO radius.",
+		description= "AO radius",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -106,7 +106,7 @@ def add_properties(parent_struct):
 
 	RenderChannelAO.falloff= FloatProperty(
 		name= "Falloff",
-		description= "The speed of the transition between occluded and unoccluded areas.",
+		description= "The speed of the transition between occluded and unoccluded areas",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -117,7 +117,7 @@ def add_properties(parent_struct):
 
 	RenderChannelAO.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "TODO.",
+		description= "TODO",
 		min= 1,
 		max= 256,
 		soft_min= 1,

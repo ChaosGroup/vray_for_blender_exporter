@@ -95,7 +95,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.prepass_rate= IntProperty(
 		name= "Prepass rate",
-		description= "Sampling density for the illumination map.",
+		description= "Sampling density for the illumination map",
 		min= -10,
 		max= 10,
 		default= -1
@@ -103,7 +103,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.interpolation_accuracy= FloatProperty(
 		name= "Interpolation accuracy",
-		description= "Interpolation accuracy for the illumination map; normally 1.0 is fine.",
+		description= "Interpolation accuracy for the illumination map; normally 1.0 is fine",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -114,7 +114,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.scale= FloatProperty(
 		name= "Scale",
-		description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle.",
+		description= "Values below 1.0 will make the object look as if it is bigger. Values above 1.0 will make it look as if it is smalle",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -213,7 +213,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.specular_color= FloatVectorProperty(
 		name= "Specular color",
-		description= "Specular color.",
+		description= "Specular color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -224,7 +224,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.specular_subdivs= IntProperty(
 		name= "Specular subdivs",
-		description= "Specular subdivs.",
+		description= "Specular subdivs",
 		min= 1,
 		max= 1024,
 		soft_min= 1,
@@ -234,7 +234,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.specular_amount= FloatProperty(
 		name= "Specular amount",
-		description= "Specular amount.",
+		description= "Specular amount",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -267,7 +267,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.trace_reflections= BoolProperty(
 		name= "Trace reflections",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 

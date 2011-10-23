@@ -38,7 +38,7 @@ from vb25.ui.ui import *
 class VRayFur(bpy.types.PropertyGroup):
 	width= bpy.props.FloatProperty(
 		name= "Width",
-		description= "Hair thin.",
+		description= "Hair thin",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -49,13 +49,13 @@ class VRayFur(bpy.types.PropertyGroup):
 
 	make_thinner= bpy.props.BoolProperty(
 		name= "Make thinner",
-		description= "Make hair thiner to the end [experimental].",
+		description= "Make hair thiner to the end [experimental]",
 		default= False
 	)
 
 	thin_start= bpy.props.IntProperty(
 		name= "Thin start segment",
-		description= "Make hair thiner to the end.",
+		description= "Make hair thiner to the end",
 		subtype= 'PERCENTAGE',
 		min= 0,
 		max= 100,
@@ -73,13 +73,13 @@ bpy.utils.register_class(VRayParticleSettings)
 bpy.types.ParticleSettings.vray= bpy.props.PointerProperty(
 	name= "V-Ray Particle Settings",
 	type=  VRayParticleSettings,
-	description= "V-Ray Particle settings."
+	description= "V-Ray Particle settings"
 )
 
 VRayParticleSettings.VRayFur= bpy.props.PointerProperty(
 	name= "V-Ray Fur Settings",
 	type=  VRayFur,
-	description= "V-Ray Fur settings."
+	description= "V-Ray Fur settings"
 )
 
 

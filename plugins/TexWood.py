@@ -73,21 +73,21 @@ def add_properties(rna_pointer):
 		# use_3d_mapping
 		use_3d_mapping= BoolProperty(
 			name= "use 3d mapping",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= True
 		)
 
 		# wrap
 		wrap= BoolProperty(
 			name= "Wrap",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= True
 		)
 
 		# filler_color_tex
 		filler_color_tex= FloatVectorProperty(
 			name= "Filler color",
-			description= "Filler color.",
+			description= "Filler color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -97,14 +97,14 @@ def add_properties(rna_pointer):
 		)
 		filler_color_tex_tex= StringProperty(
 			name= "Filler texture",
-			description= "Filler texture.",
+			description= "Filler texture",
 			default= ""
 		)
 
 		# vein_color_tex
 		vein_color_tex= FloatVectorProperty(
 			name= "Vein color",
-			description= "Vein color.",
+			description= "Vein color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -114,7 +114,7 @@ def add_properties(rna_pointer):
 		)
 		vein_color_tex_tex= StringProperty(
 			name= "Vein texture",
-			description= "Vein texture.",
+			description= "Vein texture",
 			default= ""
 		)
 
@@ -122,7 +122,7 @@ def add_properties(rna_pointer):
 		# vein_spread
 		vein_spread= FloatProperty(
 			name= "Vein spread",
-			description= "Vein spread.",
+			description= "Vein spread",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -134,7 +134,7 @@ def add_properties(rna_pointer):
 		# layer_size
 		layer_size= FloatProperty(
 			name= "Layer size",
-			description= "Layer size.",
+			description= "Layer size",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -146,7 +146,7 @@ def add_properties(rna_pointer):
 		# randomness
 		randomness= FloatProperty(
 			name= "Randomness",
-			description= "Randomness.",
+			description= "Randomness",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -158,7 +158,7 @@ def add_properties(rna_pointer):
 		# age
 		age= FloatProperty(
 			name= "Age",
-			description= "Age.",
+			description= "Age",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -170,7 +170,7 @@ def add_properties(rna_pointer):
 		# grain_color_tex
 		grain_color_tex= FloatVectorProperty(
 			name= "Grain color",
-			description= "Grain color.",
+			description= "Grain color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -180,7 +180,7 @@ def add_properties(rna_pointer):
 		)
 		grain_color_tex_tex= StringProperty(
 			name= "Grain texture",
-			description= "Grain texture.",
+			description= "Grain texture",
 			default= ""
 		)
 
@@ -188,7 +188,7 @@ def add_properties(rna_pointer):
 		# grain_contr
 		grain_contr= FloatProperty(
 			name= "Grain contribution",
-			description= "Grain contribution.",
+			description= "Grain contribution",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -200,7 +200,7 @@ def add_properties(rna_pointer):
 		# grain_spacing
 		grain_spacing= FloatProperty(
 			name= "Grain spacing",
-			description= "Grain spacing.",
+			description= "Grain spacing",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -212,7 +212,7 @@ def add_properties(rna_pointer):
 		# center_u
 		center_u= FloatProperty(
 			name= "Center U",
-			description= "Center U.",
+			description= "Center U",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -224,7 +224,7 @@ def add_properties(rna_pointer):
 		# center_v
 		center_v= FloatProperty(
 			name= "Center V",
-			description= "Center V.",
+			description= "Center V",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -236,7 +236,7 @@ def add_properties(rna_pointer):
 		# amplitude_x
 		amplitude_x= FloatProperty(
 			name= "Amplitude X",
-			description= "Amplitude X.",
+			description= "Amplitude X",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -248,7 +248,7 @@ def add_properties(rna_pointer):
 		# amplitude_y
 		amplitude_y= FloatProperty(
 			name= "Amplitude Y",
-			description= "Amplitude Y.",
+			description= "Amplitude Y",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -260,7 +260,7 @@ def add_properties(rna_pointer):
 		# ratio
 		ratio= FloatProperty(
 			name= "Ratio",
-			description= "Ratio.",
+			description= "Ratio",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -272,7 +272,7 @@ def add_properties(rna_pointer):
 		# ripples_x
 		ripples_x= FloatProperty(
 			name= "Ripples X",
-			description= "Ripples X.",
+			description= "Ripples X",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -284,7 +284,7 @@ def add_properties(rna_pointer):
 		# ripples_y
 		ripples_y= FloatProperty(
 			name= "Ripples Y",
-			description= "Ripples Y.",
+			description= "Ripples Y",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -296,7 +296,7 @@ def add_properties(rna_pointer):
 		# ripples_z
 		ripples_z= FloatProperty(
 			name= "Ripples Z",
-			description= "Ripples Z.",
+			description= "Ripples Z",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -308,7 +308,7 @@ def add_properties(rna_pointer):
 		# depth_min
 		depth_min= FloatProperty(
 			name= "Depth min",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -320,7 +320,7 @@ def add_properties(rna_pointer):
 		# depth_max
 		depth_max= FloatProperty(
 			name= "Depth max",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

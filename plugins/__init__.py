@@ -125,7 +125,7 @@ def add_properties():
 	class VRayObject(bpy.types.PropertyGroup):
 		fade_radius= FloatProperty(
 			name= "Sphere fade radius",
-			description= "Sphere fade gizmo radiusBeam radius.",
+			description= "Sphere fade gizmo radiusBeam radius",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -138,13 +138,13 @@ def add_properties():
 	class VRayMesh(bpy.types.PropertyGroup):
 		override= BoolProperty(
 			name= "Override",
-			description= "Override mesh.",
+			description= "Override mesh",
 			default= False
 		)
 
 		override_type= EnumProperty(
 			name= "Override",
-			description= "Override mesh type.",
+			description= "Override mesh type",
 			items= (
 				('PROXY', "Proxy",      ""),
 				('PROC',  "Procedural", ""),
@@ -154,7 +154,7 @@ def add_properties():
 
 		procedural_mesh= EnumProperty(
 			name= "Procedural mesh",
-			description= "Replace mesh with procedural mesh.",
+			description= "Replace mesh with procedural mesh",
 			items= (
 				('PLANE', "Infinite plane", ""),
 			),
@@ -176,7 +176,7 @@ def add_properties():
 
 		units= EnumProperty(
 			name= "Intensity units",
-			description= "Units for the intensity.",
+			description= "Units for the intensity",
 			items= (
 				('DEFAULT',"Default",""),
 				('LUMENS',"Lumens",""),
@@ -189,7 +189,7 @@ def add_properties():
 
 		color_type= EnumProperty(
 			name= "Color type",
-			description= "Color type.",
+			description= "Color type",
 			items= (
 				('RGB',    "RGB", ""),
 				('KELVIN', "K",   ""),
@@ -199,7 +199,7 @@ def add_properties():
 
 		temperature= IntProperty(
 			name= "Temperature",
-			description= "Kelvin temperature.",
+			description= "Kelvin temperature",
 			min= 1000,
 			max= 40000,
 			step= 100,
@@ -208,13 +208,13 @@ def add_properties():
 
 		use_include_exclude= BoolProperty(
 			name= "Use Include / Exclude",
-			description= "Use Include / Exclude.",
+			description= "Use Include / Exclude",
 			default= False
 		)
 
 		include_exclude= EnumProperty(
 			name= "Type",
-			description= "Include or exclude object from lightning.",
+			description= "Include or exclude object from lightning",
 			items= (
 				('EXCLUDE',"Exclude",""),
 				('INCLUDE',"Include",""),
@@ -224,17 +224,17 @@ def add_properties():
 
 		include_objects= StringProperty(
 			name= "Include objects",
-			description= "Include objects: name{;name;etc}."
+			description= "Include objects: name{;name;etc}"
 		)
 
 		include_groups= StringProperty(
 			name= "Include groups",
-			description= "Include groups: name{;name;etc}."
+			description= "Include groups: name{;name;etc}"
 		)
 
 		fallsize= FloatProperty(
 			name= "Beam radius",
-			description= "Beam radius, 0.0 if the light has no beam radius.",
+			description= "Beam radius, 0.0 if the light has no beam radius",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -245,7 +245,7 @@ def add_properties():
 
 		direct_type= EnumProperty(
 			name= "Direct type",
-			description= "Direct light type.",
+			description= "Direct light type",
 			items= (
 				('DIRECT', "Direct", ""),
 				('SUN',    "Sun",    ""),
@@ -255,7 +255,7 @@ def add_properties():
 
 		spot_type= EnumProperty(
 			name= "Spot type",
-			description= "Spot light subtype.",
+			description= "Spot light subtype",
 			items= (
 				('SPOT', "Spot", ""),
 				('IES',  "IES",  ""),
@@ -265,31 +265,31 @@ def add_properties():
 
 		shadows= BoolProperty(
 			name= "Shadows",
-			description= "Produce shadows.",
+			description= "Produce shadows",
 			default= True
 		)
 
 		affectDiffuse= BoolProperty(
 			name= "Affect diffuse",
-			description= "Produces diffuse lighting.",
+			description= "Produces diffuse lighting",
 			default= True
 		)
 
 		affectSpecular= BoolProperty(
 			name= "Affect specular",
-			description= "Produces specular hilights.",
+			description= "Produces specular hilights",
 			default= True
 		)
 
 		affectReflections= BoolProperty(
 			name= "Affect reflections",
-			description= "Appear in reflections.",
+			description= "Appear in reflections",
 			default= False
 		)
 
 		shadowColor= FloatVectorProperty(
 			name= "Shadow color",
-			description= "The shadow color. Anything but black is not physically accurate.",
+			description= "The shadow color. Anything but black is not physically accurate",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -300,7 +300,7 @@ def add_properties():
 
 		shadowBias= FloatProperty(
 			name= "Shadow bias",
-			description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces.",
+			description= "Shadow offset from the surface. Helps to prevent polygonal shadow artifacts on low-poly surfaces",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -311,7 +311,7 @@ def add_properties():
 
 		shadowSubdivs= IntProperty(
 			name= "Shadow subdivs",
-			description= "This value controls the number of samples V-Ray takes to compute area shadows. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
+			description= "This value controls the number of samples V-Ray takes to compute area shadows. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time",
 			min= 0,
 			max= 256,
 			default= 8
@@ -319,7 +319,7 @@ def add_properties():
 
 		shadowRadius= FloatProperty(
 			name= "Shadow radius",
-			description= "Shadow radius.",
+			description= "Shadow radius",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -330,7 +330,7 @@ def add_properties():
 
 		decay= FloatProperty(
 			name= "Decay",
-			description= "Light decay.",
+			description= "Light decay",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -341,7 +341,7 @@ def add_properties():
 
 		cutoffThreshold= FloatProperty(
 			name= "Cutoff threshold",
-			description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed..",
+			description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed.",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -352,7 +352,7 @@ def add_properties():
 
 		intensity= FloatProperty(
 			name= "Intensity",
-			description= "Light intensity.",
+			description= "Light intensity",
 			min= 0.0,
 			max= 10000000.0,
 			soft_min= 0.0,
@@ -363,7 +363,7 @@ def add_properties():
 
 		subdivs= IntProperty(
 			name= "Subdivs",
-			description= "This controls the number of samples for the area shadow. More subdivs produce area shadows with better quality but render slower.",
+			description= "This controls the number of samples for the area shadow. More subdivs produce area shadows with better quality but render slower",
 			min= 0,
 			max= 256,
 			default= 8
@@ -371,31 +371,31 @@ def add_properties():
 
 		storeWithIrradianceMap= BoolProperty(
 			name= "Store with irradiance map",
-			description= "When this option is on and GI calculation is set to Irradiance map V-Ray will calculate the effects of the VRayLightRect and store them in the irradiance map.",
+			description= "When this option is on and GI calculation is set to Irradiance map V-Ray will calculate the effects of the VRayLightRect and store them in the irradiance map",
 			default= False
 		)
 
 		invisible= BoolProperty(
 			name= "Invisible",
-			description= "This setting controls whether the shape of the light source is visible in the render result.",
+			description= "This setting controls whether the shape of the light source is visible in the render result",
 			default= False
 		)
 
 		noDecay= BoolProperty(
 			name= "No decay",
-			description= "When this option is on the intensity will not decay with distance.",
+			description= "When this option is on the intensity will not decay with distance",
 			default= False
 		)
 
 		doubleSided= BoolProperty(
 			name= "Double-sided",
-			description= "This option controls whether light is beamed from both sides of the plane.",
+			description= "This option controls whether light is beamed from both sides of the plane",
 			default= False
 		)
 
 		lightPortal= EnumProperty(
 			name= "Light portal mode",
-			description= "Specifies if the light is a portal light.",
+			description= "Specifies if the light is a portal light",
 			items= (
 				('NORMAL',"Normal light",""),
 				('PORTAL',"Portal",""),
@@ -406,7 +406,7 @@ def add_properties():
 
 		radius= FloatProperty(
 			name= "Radius",
-			description= "Sphere light radius.",
+			description= "Sphere light radius",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -417,7 +417,7 @@ def add_properties():
 
 		sphere_segments= IntProperty(
 			name= "Sphere segments",
-			description= "Controls the quality of the light object when it is visible either directly or in reflections.",
+			description= "Controls the quality of the light object when it is visible either directly or in reflections",
 			min= 0,
 			max= 100,
 			default= 20
@@ -425,13 +425,13 @@ def add_properties():
 
 		bumped_below_surface_check= BoolProperty(
 			name= "Bumped below surface check",
-			description= "If the bumped normal should be used to check if the light dir is below the surface.",
+			description= "If the bumped normal should be used to check if the light dir is below the surface",
 			default= False
 		)
 
 		nsamples= IntProperty(
 			name= "Motion blur samples",
-			description= "Motion blur samples.",
+			description= "Motion blur samples",
 			min= 0,
 			max= 10,
 			default= 0
@@ -439,7 +439,7 @@ def add_properties():
 
 		diffuse_contribution= FloatProperty(
 			name= "Diffuse contribution",
-			description= "A multiplier for the effect of the light on the diffuse.",
+			description= "A multiplier for the effect of the light on the diffuse",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -450,7 +450,7 @@ def add_properties():
 
 		specular_contribution= FloatProperty(
 			name= "Specular contribution",
-			description= "A multiplier for the effect of the light on the specular.",
+			description= "A multiplier for the effect of the light on the specular",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -461,13 +461,13 @@ def add_properties():
 
 		areaSpeculars= BoolProperty(
 			name= "Area speculars",
-			description= "When this parameter is enabled, the specular highlights will be computed with the real light shape as defined in the .ies files.",
+			description= "When this parameter is enabled, the specular highlights will be computed with the real light shape as defined in the .ies files",
 			default= False
 		)
 
 		ignoreLightNormals= BoolProperty(
 			name= "Ignore light normals",
-			description= "When this option is off, more light is emitted in the direction of the source surface normal.",
+			description= "When this option is off, more light is emitted in the direction of the source surface normal",
 			default= True
 		)
 
@@ -481,13 +481,13 @@ def add_properties():
 
 		tex_adaptive= BoolProperty(
 			name= "Tex adaptive",
-			description= "When this option is checked V-Ray will use impotance sampling on the texture in order to produce better shadows.",
+			description= "When this option is checked V-Ray will use impotance sampling on the texture in order to produce better shadows",
 			default= True
 		)
 
 		causticSubdivs= IntProperty(
 			name= "Caustic subdivs",
-			description= "Caustic subdivisions. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time.",
+			description= "Caustic subdivisions. Lower values mean more noisy results, but will render faster. Higher values produce smoother results but take more time",
 			min= 1,
 			max= 100000,
 			default= 1000
@@ -495,7 +495,7 @@ def add_properties():
 
 		causticMult= FloatProperty(
 			name= "Caustics multiplier",
-			description= "Caustics multiplier.",
+			description= "Caustics multiplier",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -507,18 +507,18 @@ def add_properties():
 		ies_file= StringProperty(
 			name= "IES file",
 			subtype= 'FILE_PATH',
-			description= "IES file."
+			description= "IES file"
 		)
 
 		soft_shadows= BoolProperty(
 			name= "Soft shadows",
-			description= "Use the shape of the light as described in the IES profile.",
+			description= "Use the shape of the light as described in the IES profile",
 			default= True
 		)
 
 		turbidity= FloatProperty(
 			name= "Turbidity",
-			description= "This parameter determines the amount of dust in the air and affects the color of the sun and sky.",
+			description= "This parameter determines the amount of dust in the air and affects the color of the sun and sky",
 			min= 2.0,
 			max= 100.0,
 			soft_min= 2.0,
@@ -529,7 +529,7 @@ def add_properties():
 
 		intensity_multiplier= FloatProperty(
 			name= "Intensity multiplier",
-			description= "This is an intensity multiplier for the Sun.",
+			description= "This is an intensity multiplier for the Sun",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -540,7 +540,7 @@ def add_properties():
 
 		ozone= FloatProperty(
 			name= "Ozone",
-			description= "This parameter affects the color of the sun light.",
+			description= "This parameter affects the color of the sun light",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -551,7 +551,7 @@ def add_properties():
 
 		water_vapour= FloatProperty(
 			name= "Water vapour",
-			description= "Water vapour.",
+			description= "Water vapour",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -562,7 +562,7 @@ def add_properties():
 
 		size_multiplier= FloatProperty(
 			name= "Size",
-			description= "This parameter controls the visible size of the sun.",
+			description= "This parameter controls the visible size of the sun",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -573,7 +573,7 @@ def add_properties():
 
 		horiz_illum= FloatProperty(
 			name= "Horiz illumination",
-			description= "Specifies the intensity (in lx) of the illumination on horizontal surfaces coming from the Sky.",
+			description= "Specifies the intensity (in lx) of the illumination on horizontal surfaces coming from the Sky",
 			min= 0.0,
 			max= 100000.0,
 			soft_min= 0.0,
@@ -584,7 +584,7 @@ def add_properties():
 
 		sky_model= EnumProperty(
 			name= "Sky model",
-			description= "Allows you to specify the procedural model that will be used to generate the VRaySky texture.",
+			description= "Allows you to specify the procedural model that will be used to generate the VRaySky texture",
 			items= (
 				('CIEOVER',"CIE Overcast",""),
 				('CIECLEAR',"CIE Clear",""),
@@ -598,7 +598,7 @@ def add_properties():
 		# Move to World plugin
 		bg_color= FloatVectorProperty(
 			name= "Background color",
-			description= "Background color.",
+			description= "Background color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -609,7 +609,7 @@ def add_properties():
 
 		bg_color_mult= FloatProperty(
 			name= "Background color multiplier",
-			description= "Background color multiplier.",
+			description= "Background color multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -620,13 +620,13 @@ def add_properties():
 
 		gi_override= BoolProperty(
 			name= "Override color for GI",
-			description= "Override color for GI.",
+			description= "Override color for GI",
 			default= False
 		)
 
 		gi_color= FloatVectorProperty(
 			name= "GI color",
-			description= "GI (skylight) color.",
+			description= "GI (skylight) color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -637,7 +637,7 @@ def add_properties():
 
 		gi_color_mult= FloatProperty(
 			name= "GI color multiplier",
-			description= "GI color multiplier.",
+			description= "GI color multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -648,13 +648,13 @@ def add_properties():
 
 		reflection_override= BoolProperty(
 			name= "Override color for reflection",
-			description= "Override color for reflection.",
+			description= "Override color for reflection",
 			default= False
 		)
 
 		reflection_color= FloatVectorProperty(
 			name= "Reflection color",
-			description= "Reflection (skylight) color.",
+			description= "Reflection (skylight) color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -665,7 +665,7 @@ def add_properties():
 
 		reflection_color_mult= FloatProperty(
 			name= "Reflection color multiplier",
-			description= "Reflection color multiplier.",
+			description= "Reflection color multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -676,13 +676,13 @@ def add_properties():
 
 		refraction_override= BoolProperty(
 			name= "Override color for refraction",
-			description= "Override color for refraction.",
+			description= "Override color for refraction",
 			default= False
 		)
 
 		refraction_color= FloatVectorProperty(
 			name= "Refraction color",
-			description= "Refraction (skylight) color.",
+			description= "Refraction (skylight) color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -693,7 +693,7 @@ def add_properties():
 
 		refraction_color_mult= FloatProperty(
 			name= "Refraction color multiplier",
-			description= "Refraction color multiplier.",
+			description= "Refraction color multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -704,7 +704,7 @@ def add_properties():
 
 		global_light_level= FloatProperty(
 			name= "Global light level",
-			description= "A global light level multiplier for all lights.",
+			description= "A global light level multiplier for all lights",
 			min= 0.001,
 			max= 1000.0,
 			soft_min= 0.001,
@@ -718,13 +718,13 @@ def add_properties():
 		# Move to Slot plugin
 		map_color= BoolProperty(
 			name= "Color",
-			description= "Color texture.",
+			description= "Color texture",
 			default= True
 		)
 
 		color_mult= FloatProperty(
 			name= "Color texture multiplier",
-			description= "Color texture multiplier.",
+			description= "Color texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -734,13 +734,13 @@ def add_properties():
 
 		map_shadowColor= BoolProperty(
 			name= "Shadow",
-			description= "Shadow color texture.",
+			description= "Shadow color texture",
 			default= False
 		)
 
 		shadowColor_mult= FloatProperty(
 			name= "Shadow color texture multiplier",
-			description= "Shadow color texture multiplier.",
+			description= "Shadow color texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -750,13 +750,13 @@ def add_properties():
 
 		map_intensity= BoolProperty(
 			name= "Intensity",
-			description= "Intensity texture.",
+			description= "Intensity texture",
 			default= False
 		)
 
 		intensity_mult= FloatProperty(
 			name= "Intensity texture multiplier",
-			description= "Intensity texture multiplier.",
+			description= "Intensity texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -771,13 +771,13 @@ def add_properties():
 			name= "UVW Generator",
 			subtype= 'NONE',
 			options= {'HIDDEN'},
-			description= "UVW generator name.",
+			description= "UVW generator name",
 			default= "UVWGenChannel_default"
 		)
 
 		blend_mode= EnumProperty(
 			name= "Blend mode",
-			description= "Blend mode.",
+			description= "Blend mode",
 			items= (
 				('NONE',        "None",       ""),
 				('OVER',        "Over",       ""),
@@ -798,7 +798,7 @@ def add_properties():
 
 		texture_rot= FloatProperty(
 			name= "Rotation",
-			description= "Texture rotation.",
+			description= "Texture rotation",
 			subtype= 'ANGLE',
 			min= -2.0 * math.pi,
 			max=  2.0 * math.pi,
@@ -809,7 +809,7 @@ def add_properties():
 
 		texture_rotation_h= FloatProperty(
 			name= "Horiz. rotation",
-			description= "Horizontal rotation.",
+			description= "Horizontal rotation",
 			subtype= 'ANGLE',
 			min= -2.0 * math.pi,
 			max=  2.0 * math.pi,
@@ -820,7 +820,7 @@ def add_properties():
 
 		texture_rotation_v= FloatProperty(
 			name= "Vert. rotation",
-			description= "Vertical rotation.",
+			description= "Vertical rotation",
 			subtype= 'ANGLE',
 			min= -2.0 * math.pi,
 			max=  2.0 * math.pi,
@@ -831,7 +831,7 @@ def add_properties():
 
 		texture_rotation_w= FloatProperty(
 			name= "W rotation",
-			description= "W rotation.",
+			description= "W rotation",
 			subtype= 'ANGLE',
 			min= -2.0 * math.pi,
 			max=  2.0 * math.pi,
@@ -845,19 +845,19 @@ def add_properties():
 		'''
 		map_diffuse= BoolProperty(
 			name= "Diffuse",
-			description= "Diffuse texture.",
+			description= "Diffuse texture",
 			default= True
 		)
 
 		map_diffuse_invert= BoolProperty(
 			name= "Invert diffuse",
-			description= "Invert diffuse texture.",
+			description= "Invert diffuse texture",
 			default= False
 		)
 
 		diffuse_mult= FloatProperty(
 			name= "Diffuse texture multiplier",
-			description= "Diffuse texture multiplier.",
+			description= "Diffuse texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -867,19 +867,19 @@ def add_properties():
 
 		map_displacement= BoolProperty(
 			name= "Displacement",
-			description= "Displacement texture.",
+			description= "Displacement texture",
 			default= False
 		)
 
 		map_displacement_invert= BoolProperty(
 			name= "Invert displacement texture",
-			description= "Invert displacement texture.",
+			description= "Invert displacement texture",
 			default= False
 		)
 
 		displacement_mult= FloatProperty(
 			name= "Displacement texture multiplier",
-			description= "Displacement texture multiplier.",
+			description= "Displacement texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -889,19 +889,19 @@ def add_properties():
 
 		map_normal= BoolProperty(
 			name= "Normal",
-			description= "Normal texture.",
+			description= "Normal texture",
 			default= False
 		)
 
 		map_normal_invert= BoolProperty(
 			name= "Invert normal texture",
-			description= "Invert normal texture.",
+			description= "Invert normal texture",
 			default= False
 		)
 
 		normal_mult= FloatProperty(
 			name= "Normal texture multiplier",
-			description= "Normal texture multiplier.",
+			description= "Normal texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -911,19 +911,19 @@ def add_properties():
 
 		map_opacity= BoolProperty(
 			name= "Opacity",
-			description= "Opacity texture.",
+			description= "Opacity texture",
 			default= False
 		)
 
 		map_opacity_invert= BoolProperty(
 			name= "Invert opacity texture",
-			description= "Invert opacity texture.",
+			description= "Invert opacity texture",
 			default= False
 		)
 
 		opacity_mult= FloatProperty(
 			name= "Opacity texture multiplier",
-			description= "Opacity texture multiplier.",
+			description= "Opacity texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -933,19 +933,19 @@ def add_properties():
 
 		map_roughness= BoolProperty(
 			name= "Roughness",
-			description= "Roughness texture.",
+			description= "Roughness texture",
 			default= False
 		)
 
 		map_roughness_invert= BoolProperty(
 			name= "Invert roughness texture",
-			description= "Invert roughness texture.",
+			description= "Invert roughness texture",
 			default= False
 		)
 
 		roughness_mult= FloatProperty(
 			name= "Roughness texture multiplier",
-			description= "Roughness texture multiplier.",
+			description= "Roughness texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -955,25 +955,25 @@ def add_properties():
 
 		map_reflect= BoolProperty(
 			name= "Reflection",
-			description= "Reflection texture.",
+			description= "Reflection texture",
 			default= False
 		)
 
 		map_reflect_invert= BoolProperty(
 			name= "Invert reflection texture",
-			description= "Invert reflection texture.",
+			description= "Invert reflection texture",
 			default= False
 		)
 
 		map_reflect_invert= BoolProperty(
 			name= "Invert reflection",
-			description= "Invert reflection texture.",
+			description= "Invert reflection texture",
 			default= False
 		)
 		
 		reflect_mult= FloatProperty(
 			name= "Reflection texture multiplier",
-			description= "Reflection texture multiplier.",
+			description= "Reflection texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -983,19 +983,19 @@ def add_properties():
 
 		map_reflect_glossiness= BoolProperty(
 			name= "Reflection glossiness",
-			description= "Reflection glossiness texture.",
+			description= "Reflection glossiness texture",
 			default= False
 		)
 
 		map_reflect_glossiness_invert= BoolProperty(
 			name= "Invert reflection glossiness texture",
-			description= "Invert reflection glossiness texture.",
+			description= "Invert reflection glossiness texture",
 			default= False
 		)
 
 		reflect_glossiness_mult= FloatProperty(
 			name= "Reflection glossiness texture multiplier",
-			description= "Reflection glossiness texture multiplier.",
+			description= "Reflection glossiness texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1005,19 +1005,19 @@ def add_properties():
 
 		map_hilight_glossiness= BoolProperty(
 			name= "Hilight glossiness",
-			description= "Hilight glossiness texture.",
+			description= "Hilight glossiness texture",
 			default= False
 		)
 
 		map_hilight_glossiness_invert= BoolProperty(
 			name= "Invert hilight_glossiness texture",
-			description= "Invert hilight_glossiness texture.",
+			description= "Invert hilight_glossiness texture",
 			default= False
 		)
 
 		hilight_glossiness_mult= FloatProperty(
 			name= "Hilight glossiness texture multiplier",
-			description= "Hilight glossiness texture multiplier.",
+			description= "Hilight glossiness texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1027,19 +1027,19 @@ def add_properties():
 
 		map_anisotropy= BoolProperty(
 			name= "Anisotropy",
-			description= "Anisotropy texture.",
+			description= "Anisotropy texture",
 			default= False
 		)
 
 		map_anisotropy_invert= BoolProperty(
 			name= "Invert anisotropy texture",
-			description= "Invert anisotropy texture.",
+			description= "Invert anisotropy texture",
 			default= False
 		)
 
 		anisotropy_mult= FloatProperty(
 			name= "Anisotropy texture multiplier",
-			description= "Anisotropy texture multiplier.",
+			description= "Anisotropy texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1049,19 +1049,19 @@ def add_properties():
 
 		map_anisotropy_rotation= BoolProperty(
 			name= "Anisotropy rotation",
-			description= "Anisotropy rotation texture.",
+			description= "Anisotropy rotation texture",
 			default= False
 		)
 
 		map_anisotropy_rotation_invert= BoolProperty(
 			name= "Invert anisotropy rotation texture",
-			description= "Invert anisotropy rotation texture.",
+			description= "Invert anisotropy rotation texture",
 			default= False
 		)
 
 		anisotropy_rotation_mult= FloatProperty(
 			name= "Anisotropy rotation texture multiplier",
-			description= "Anisotropy rotation texture multiplier.",
+			description= "Anisotropy rotation texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1071,19 +1071,19 @@ def add_properties():
 
 		map_fresnel_ior= BoolProperty(
 			name= "Fresnel IOR",
-			description= "Fresnel IOR texture.",
+			description= "Fresnel IOR texture",
 			default= False
 		)
 
 		map_fresnel_ior_invert= BoolProperty(
 			name= "Invert fresnel IOR texture",
-			description= "Invert fresnel IOR texture.",
+			description= "Invert fresnel IOR texture",
 			default= False
 		)
 
 		fresnel_ior_mult= FloatProperty(
 			name= "Fresnel IOR texture multiplier",
-			description= "Fresnel IOR texture multiplier.",
+			description= "Fresnel IOR texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1093,19 +1093,19 @@ def add_properties():
 
 		map_refract= BoolProperty(
 			name= "Refraction",
-			description= "Refraction texture.",
+			description= "Refraction texture",
 			default= False
 		)
 
 		map_refract_invert= BoolProperty(
 			name= "Invert refraction texture",
-			description= "Invert refraction texture.",
+			description= "Invert refraction texture",
 			default= False
 		)
 
 		refract_mult= FloatProperty(
 			name= "Refraction texture multiplier",
-			description= "Refraction texture multiplier.",
+			description= "Refraction texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1115,19 +1115,19 @@ def add_properties():
 
 		map_refract_ior= BoolProperty(
 			name= "Refraction IOR",
-			description= "Refraction IOR texture.",
+			description= "Refraction IOR texture",
 			default= False
 		)
 
 		map_refract_ior_invert= BoolProperty(
 			name= "Invert refraction IOR texture",
-			description= "Invert refraction IOR texture.",
+			description= "Invert refraction IOR texture",
 			default= False
 		)
 
 		refract_ior_mult= FloatProperty(
 			name= "Refraction IOR texture multiplier",
-			description= "Refraction IOR texture multiplier.",
+			description= "Refraction IOR texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1137,20 +1137,20 @@ def add_properties():
 
 		map_refract_glossiness= BoolProperty(
 			name= "Refraction glossiness",
-			description= "Refraction glossiness texture.",
+			description= "Refraction glossiness texture",
 			default= False
 		)
 
 
 		map_refract_glossiness_invert= BoolProperty(
 			name= "Invert refraction glossiness texture",
-			description= "Invert refraction glossiness texture.",
+			description= "Invert refraction glossiness texture",
 			default= False
 		)
 
 		refract_glossiness_mult= FloatProperty(
 			name= "Refraction glossiness texture multiplier",
-			description= "Refraction glossiness texture multiplier.",
+			description= "Refraction glossiness texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1160,19 +1160,19 @@ def add_properties():
 
 		map_translucency_color= BoolProperty(
 			name= "Translucency",
-			description= "Translucency texture.",
+			description= "Translucency texture",
 			default= False
 		)
 
 		map_translucency_color_invert= BoolProperty(
 			name= "Invert translucency texture",
-			description= "Invert translucency texture.",
+			description= "Invert translucency texture",
 			default= False
 		)
 
 		translucency_color_mult= FloatProperty(
 			name= "Translucency texture multiplier",
-			description= "Translucency texture multiplier.",
+			description= "Translucency texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1186,13 +1186,13 @@ def add_properties():
 		'''
 		map_coat= BoolProperty(
 			name= "Overall color",
-			description= "Overall color.",
+			description= "Overall color",
 			default= False
 		)
 
 		coat_mult= FloatProperty(
 			name= "Coat texture multiplier",
-			description= "Coat texture multiplier.",
+			description= "Coat texture multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1202,13 +1202,13 @@ def add_properties():
 
 		map_flake= BoolProperty(
 			name= "Overall color",
-			description= "Overall color.",
+			description= "Overall color",
 			default= False
 		)
 
 		flake_mult= FloatProperty(
 			name= "Flake texture multiplier",
-			description= "Flake texture multiplier.",
+			description= "Flake texture multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1218,13 +1218,13 @@ def add_properties():
 
 		map_base= BoolProperty(
 			name= "Overall color",
-			description= "Overall color.",
+			description= "Overall color",
 			default= False
 		)
 
 		base_mult= FloatProperty(
 			name= "Base texture multiplier",
-			description= "Base texture multiplier.",
+			description= "Base texture multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1238,13 +1238,13 @@ def add_properties():
 		'''
 		map_overall_color= BoolProperty(
 			name= "Overall color",
-			description= "Overall color.",
+			description= "Overall color",
 			default= False
 		)
 
 		overall_color_mult= FloatProperty(
 			name= "Overall color multiplier",
-			description= "Overall color multiplier.",
+			description= "Overall color multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1254,13 +1254,13 @@ def add_properties():
 
 		map_diffuse_color= BoolProperty(
 			name= "Diffuse color",
-			description= "Diffuse color.",
+			description= "Diffuse color",
 			default= False
 		)
 
 		diffuse_color_mult= FloatProperty(
 			name= "Diffuse color multiplier",
-			description= "Diffuse color multiplier.",
+			description= "Diffuse color multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1270,13 +1270,13 @@ def add_properties():
 
 		map_diffuse_amount= BoolProperty(
 			name= "Diffuse amount",
-			description= "Diffuse amount.",
+			description= "Diffuse amount",
 			default= False
 		)
 
 		diffuse_amount_mult= FloatProperty(
 			name= "Diffuse amount multiplier",
-			description= "Diffuse amount multiplie.",
+			description= "Diffuse amount multiplie",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1286,13 +1286,13 @@ def add_properties():
 
 		map_sub_surface_color= BoolProperty(
 			name= "Sub-surface color",
-			description= "Sub-surface color.",
+			description= "Sub-surface color",
 			default= False
 		)
 
 		sub_surface_color_mult= FloatProperty(
 			name= "Sub-surface color multiplier",
-			description= "Sub-surface color multiplier.",
+			description= "Sub-surface color multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1302,13 +1302,13 @@ def add_properties():
 
 		map_scatter_radius= BoolProperty(
 			name= "Scatter radius",
-			description= "Scatter radius.",
+			description= "Scatter radius",
 			default= False
 		)
 
 		scatter_radius_mult= FloatProperty(
 			name= "Scatter radius multiplier",
-			description= "Scatter radius multiplier.",
+			description= "Scatter radius multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1318,13 +1318,13 @@ def add_properties():
 
 		map_specular_color= BoolProperty(
 			name= "Specular color",
-			description= "Specular color.",
+			description= "Specular color",
 			default= False
 		)
 
 		specular_color_mult= FloatProperty(
 			name= "Specular color multiplier",
-			description= "Specular color multiplier.",
+			description= "Specular color multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1334,13 +1334,13 @@ def add_properties():
 
 		map_specular_amount= BoolProperty(
 			name= "Specular amount",
-			description= "Specular amoun.",
+			description= "Specular amoun",
 			default= False
 		)
 
 		specular_amount_mult= FloatProperty(
 			name= "Specular amount multiplier.",
-			description= "Specular amount multiplier.",
+			description= "Specular amount multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1350,13 +1350,13 @@ def add_properties():
 
 		map_specular_glossiness= BoolProperty(
 			name= "Specular glossiness",
-			description= "Specular glossiness.",
+			description= "Specular glossiness",
 			default= False
 		)
 
 		specular_glossiness_mult= FloatProperty(
 			name= "Specular glossiness multiplier.",
-			description= "Specular glossiness multiplier.",
+			description= "Specular glossiness multiplier",
 			min=0.0,
 			max=100.0,
 			soft_min=0.0,
@@ -1370,13 +1370,13 @@ def add_properties():
 		'''
 		map_emission_tex= BoolProperty(
 			name= "Emission",
-			description= "Emission texture.",
+			description= "Emission texture",
 			default= False
 		)
 
 		emission_tex_mult= FloatProperty(
 			name= "Emission texture multiplier",
-			description= "Emission texture multiplier.",
+			description= "Emission texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1386,13 +1386,13 @@ def add_properties():
 
 		map_color_tex= BoolProperty(
 			name= "Color",
-			description= "Color texture.",
+			description= "Color texture",
 			default= False
 		)
 
 		color_tex_mult= FloatProperty(
 			name= "Color texture multiplier",
-			description= "Color texture multiplier.",
+			description= "Color texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1402,13 +1402,13 @@ def add_properties():
 
 		map_density_tex= BoolProperty(
 			name= "Density",
-			description= "Density texture.",
+			description= "Density texture",
 			default= False
 		)
 
 		density_tex_mult= FloatProperty(
 			name= "Density texture multiplier",
-			description= "Density texture multiplier.",
+			description= "Density texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1418,13 +1418,13 @@ def add_properties():
 
 		map_fade_out_tex= BoolProperty(
 			name= "Fade out",
-			description= "Fade out texture.",
+			description= "Fade out texture",
 			default= False
 		)
 
 		fade_out_tex_mult= FloatProperty(
 			name= "Fade out texture multiplier",
-			description= "Fade out texture multiplier.",
+			description= "Fade out texture multiplier",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -1434,19 +1434,19 @@ def add_properties():
 
 		use_map_env_bg= BoolProperty(
 			name= "Background",
-			description= "Background.",
+			description= "Background",
 			default= True
 		)
 
 		use_map_env_bg_invert= BoolProperty(
 			name= "Invert background texture",
-			description= "Invert background texture.",
+			description= "Invert background texture",
 			default= False
 		)
 
 		env_bg_factor= FloatProperty(
 			name= "Background texture multiplier",
-			description= "Background texture multiplier.",
+			description= "Background texture multiplier",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -1457,19 +1457,19 @@ def add_properties():
 
 		use_map_env_gi= BoolProperty(
 			name= "GI",
-			description= "Override for GI.",
+			description= "Override for GI",
 			default= False
 		)
 
 		use_map_env_gi_invert= BoolProperty(
 			name= "Invert GI texture",
-			description= "Invert GI texture.",
+			description= "Invert GI texture",
 			default= False
 		)
 
 		env_gi_factor= FloatProperty(
 			name= "GI texture multiplier",
-			description= "GI texture multiplier.",
+			description= "GI texture multiplier",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -1480,19 +1480,19 @@ def add_properties():
 
 		use_map_env_reflection= BoolProperty(
 			name= "Reflection",
-			description= "Override for Reflection.",
+			description= "Override for Reflection",
 			default= False
 		)
 
 		use_map_env_reflection_invert= BoolProperty(
 			name= "Invert reflection texture",
-			description= "Invert reflection texture.",
+			description= "Invert reflection texture",
 			default= False
 		)
 
 		env_reflection_factor= FloatProperty(
 			name= "Reflection texture multiplier",
-			description= "Reflection texture multiplier.",
+			description= "Reflection texture multiplier",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -1503,19 +1503,19 @@ def add_properties():
 
 		use_map_env_refraction= BoolProperty(
 			name= "Refraction",
-			description= "Override for Refraction.",
+			description= "Override for Refraction",
 			default= False
 		)
 
 		use_map_env_refraction_invert= BoolProperty(
 			name= "Invert refraction texture",
-			description= "Invert refraction texture.",
+			description= "Invert refraction texture",
 			default= False
 		)
 
 		env_refraction_factor= FloatProperty(
 			name= "Refraction texture multiplier",
-			description= "Refraction texture multiplier.",
+			description= "Refraction texture multiplier",
 			min= 0.0,
 			max= 10000.0,
 			soft_min= 0.0,
@@ -1528,13 +1528,13 @@ def add_properties():
 	VRaySlot.VRayLight= PointerProperty(
 		name= "VRayLightSlot",
 		type=  VRayLightSlot,
-		description= "VRay lights texture slot settings."
+		description= "VRay lights texture slot settings"
 	)
 
 	class VRayTexture(bpy.types.PropertyGroup):
 		type= EnumProperty(
 			name= "Texture Type",
-			description= "V-Ray texture type.",
+			description= "V-Ray texture type",
 			items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
 			default= 'NONE'
 		)
@@ -1552,14 +1552,14 @@ def add_properties():
 
 		type= EnumProperty(
 			name= "Channel Type",
-			description= "Render channel type.",
+			description= "Render channel type",
 			items= (tuple(gen_menu_items(PLUGINS['RENDERCHANNEL']))),
 			default= 'NONE'
 		)
 
 		use= BoolProperty(
 			name= "",
-			description= "Use render channel.",
+			description= "Use render channel",
 			default= True
 		)
 	bpy.utils.register_class(VRayRenderChannel)
@@ -1568,12 +1568,12 @@ def add_properties():
 		render_channels= CollectionProperty(
 			name= "Render Channels",
 			type=  VRayRenderChannel,
-			description= "V-Ray render channels."
+			description= "V-Ray render channels"
 		)
 
 		render_channels_use= BoolProperty(
 			name= "Use render channels",
-			description= "Use render channels.",
+			description= "Use render channels",
 			default= False
 		)
 
@@ -1588,19 +1588,19 @@ def add_properties():
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
-		description= "V-Ray texture settings."
+		description= "V-Ray texture settings"
 	)
 
 	bpy.types.Texture.vray_slot= PointerProperty(
 		name= "V-Ray Material Texture Slot",
 		type=  VRaySlot,
-		description= "V-Ray material texture slot settings."
+		description= "V-Ray material texture slot settings"
 	)
 
 	bpy.types.Scene.vray= PointerProperty(
 		name= "V-Ray Settings",
 		type=  VRayScene,
-		description= "V-Ray Renderer settings."
+		description= "V-Ray Renderer settings"
 	)
 
 	bpy.types.Material.vray= PointerProperty(
@@ -1612,7 +1612,7 @@ def add_properties():
 	bpy.types.Mesh.vray= PointerProperty(
 		name= "V-Ray Mesh Settings",
 		type=  VRayMesh,
-		description= "V-Ray geometry settings."
+		description= "V-Ray geometry settings"
 	)
 
 	bpy.types.Lamp.vray= PointerProperty(
@@ -1624,25 +1624,25 @@ def add_properties():
 	bpy.types.Curve.vray= PointerProperty(
 		name= "V-Ray Curve Settings",
 		type=  VRayMesh,
-		description= "V-Ray geometry settings."
+		description= "V-Ray geometry settings"
 	)
 
 	bpy.types.Camera.vray= PointerProperty(
 		name= "V-Ray Camera Settings",
 		type=  VRayCamera,
-		description= "V-Ray Camera / DoF / Motion Blur settings."
+		description= "V-Ray Camera / DoF / Motion Blur settings"
 	)
 
 	bpy.types.Object.vray= PointerProperty(
 		name= "V-Ray Object Settings",
 		type=  VRayObject,
-		description= "V-Ray Object Settings."
+		description= "V-Ray Object Settings"
 	)
 
 	bpy.types.World.vray= PointerProperty(
 		name= "V-Ray World Settings",
 		type=  VRayWorld,
-		description= "V-Ray world settings."
+		description= "V-Ray world settings"
 	)
 
 

@@ -49,7 +49,7 @@ PARAMS= (
 def add_properties(rna_pointer):
 	rna_pointer.name= StringProperty(
 		name= "V-Ray Texture name",
-		description= "V-Ray texture name for internal usage.",
+		description= "V-Ray texture name for internal usage",
 		subtype= 'NONE',
 		options= {'HIDDEN'},
 		default= ""
@@ -57,7 +57,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.texture_coords= EnumProperty(
 		name= "Coords",
-		description= "Image texure placement type.",
+		description= "Image texure placement type",
 		items= (
 			('ORCO', "Object", "Generated coordinates."),
 			('UV',   "UV",     "Mesh UV coordinates."),
@@ -67,7 +67,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.mapping= EnumProperty(
 		name= "Projection",
-		description= "Generated projection type.",
+		description= "Generated projection type",
 		items= (
 			('FLAT',   "Flat",        "Planar projection."),
 			('CUBE',   "Cube",        "Cubic projection."),
@@ -82,7 +82,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.environment_mapping= EnumProperty(
 		name= "Projection",
-		description= "Generated projection type.",
+		description= "Generated projection type",
 		items= (
 			('SCREEN',  "Screen",      "Planar projection."),
 			('CUBIC',   "Cube",        "Cubic projection."),
@@ -96,7 +96,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.object= StringProperty(
 		name= "Mapping Object",
-		description= "Object to use for mapping generation.",
+		description= "Object to use for mapping generation",
 		subtype= 'NONE',
 		options= {'HIDDEN'},
 		default= ""
@@ -104,7 +104,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.tile= EnumProperty(
 		name= "Tile",
-		description= "Tile type.",
+		description= "Tile type",
 		items= (
 			('NOTILE', "No tile", "No tiling."),
 			('TILEUV', "Tile UV", "Tile in UV."),
@@ -116,49 +116,49 @@ def add_properties(rna_pointer):
 
 	rna_pointer.remove_alpha= BoolProperty(
 		name= "Remove alpha",
-		description= "Reset alpha channel.",
+		description= "Reset alpha channel",
 		default= False
 	)
 
 	# use_3d_mapping
 	rna_pointer.use_3d_mapping= BoolProperty(
 		name= "Use 3D mapping",
-		description= "Use 3D mapping.",
+		description= "Use 3D mapping",
 		default= True
 	)
 
 	# wrap
 	rna_pointer.wrap= BoolProperty(
 		name= "Wrap",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# alpha_from_intensity
 	rna_pointer.alpha_from_intensity= BoolProperty(
 		name= "Alpha from intensity",
-		description= "If true, the resulting alpha is the color intensity; otherwise the alpha is taken from the bitmap alpha.",
+		description= "If true, the resulting alpha is the color intensity; otherwise the alpha is taken from the bitmap alpha",
 		default= False
 	)
 
 	# invert
 	rna_pointer.invert= BoolProperty(
 		name= "Invert",
-		description= "If true, the resulting texture color will be inverted.",
+		description= "If true, the resulting texture color will be inverted",
 		default= False
 	)
 
 	# invert_alpha
 	rna_pointer.invert_alpha= BoolProperty(
 		name= "Invert alpha",
-		description= "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted.",
+		description= "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
 		default= True
 	)
 	
 	# color_mult
 	# rna_pointer.color_mult= FloatVectorProperty(
 	# 	name= "Color mult",
-	# 	description= "A multiplier for the texture color.",
+	# 	description= "A multiplier for the texture color",
 	# 	subtype= 'COLOR',
 	# 	min= 0.0,
 	# 	max= 1.0,
@@ -168,7 +168,7 @@ def add_properties(rna_pointer):
 	# )
 	rna_pointer.color_mult= FloatProperty(
 		name= "Color mult",
-		description= "A multiplier for the texture color.",
+		description= "A multiplier for the texture color",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -179,7 +179,7 @@ def add_properties(rna_pointer):
 	# color_offset
 	# rna_pointer.color_offset= FloatVectorProperty(
 	# 	name= "Color offset",
-	# 	description= "An additional offset for the texture color.",
+	# 	description= "An additional offset for the texture color",
 	# 	subtype= 'COLOR',
 	# 	min= 0.0,
 	# 	max= 1.0,
@@ -189,7 +189,7 @@ def add_properties(rna_pointer):
 	# )
 	rna_pointer.color_offset= FloatProperty(
 		name= "Color offset",
-		description= "An additional offset for the texture color.",
+		description= "An additional offset for the texture color",
 		min= -1.0,
 		max=  1.0,
 		soft_min= -1.0,
@@ -200,7 +200,7 @@ def add_properties(rna_pointer):
 	# alpha_mult
 	rna_pointer.alpha_mult= FloatProperty(
 		name= "Alpha mult",
-		description= "A multiplier for the texture alpha.",
+		description= "A multiplier for the texture alpha",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -211,7 +211,7 @@ def add_properties(rna_pointer):
 	# alpha_offset
 	rna_pointer.alpha_offset= FloatProperty(
 		name= "Alpha offset",
-		description= "An additional offset for the texture alpha.",
+		description= "An additional offset for the texture alpha",
 		min= -1.0,
 		max=  1.0,
 		soft_min= -1.0,
@@ -222,7 +222,7 @@ def add_properties(rna_pointer):
 	# nouvw_color
 	rna_pointer.nouvw_color= FloatVectorProperty(
 		name= "No UV color",
-		description= "The color when there are no valid uvw coordinates.",
+		description= "The color when there are no valid uvw coordinates",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -234,14 +234,14 @@ def add_properties(rna_pointer):
 	# uvwgen
 	rna_pointer.uvwgen= StringProperty(
 		name= "UVW generator",
-		description= "UVW generator.",
+		description= "UVW generator",
 		default= ""
 	)
 
 	# placement_type
 	rna_pointer.placement_type= EnumProperty(
 		name= "Placement type",
-		description= "Image texure placement type.",
+		description= "Image texure placement type",
 		items= (
 			('FULL', "Full",  "The whole texture is valid."),
 			('CROP', "Crop",  "Crop texture."),
@@ -253,7 +253,7 @@ def add_properties(rna_pointer):
 	# u
 	rna_pointer.u= FloatProperty(
 		name= "U",
-		description= "U coordinate of the valid texture sector.",
+		description= "U coordinate of the valid texture sector",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -265,7 +265,7 @@ def add_properties(rna_pointer):
 	# v
 	rna_pointer.v= FloatProperty(
 		name= "V",
-		description= "V coordinate of the valid texture sector.",
+		description= "V coordinate of the valid texture sector",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -277,7 +277,7 @@ def add_properties(rna_pointer):
 	# w
 	rna_pointer.w= FloatProperty(
 		name= "W",
-		description= "Width of the valid texture sector.",
+		description= "Width of the valid texture sector",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -289,7 +289,7 @@ def add_properties(rna_pointer):
 	# h
 	rna_pointer.h= FloatProperty(
 		name= "H",
-		description= "Height of the valid texture sector.",
+		description= "Height of the valid texture sector",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -301,7 +301,7 @@ def add_properties(rna_pointer):
 	# jitter
 	rna_pointer.jitter= FloatProperty(
 		name= "Jitter",
-		description= "Amount of random placement variation.",
+		description= "Amount of random placement variation",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -313,12 +313,12 @@ def add_properties(rna_pointer):
 	# tile_u
 	# rna_pointer.tile_u= BoolProperty(
 	# 	name= "Tile U",
-	# 	description= "If true there is horizontal tiling.",
+	# 	description= "If true there is horizontal tiling",
 	# 	default= True
 	# )
 	rna_pointer.tile_u= IntProperty(
 		name= "Tile U",
-		description= "Tile in U.",
+		description= "Tile in U",
 		min= 1,
 		max= 1000,
 		soft_min= 1,
@@ -327,19 +327,19 @@ def add_properties(rna_pointer):
 	)
 	rna_pointer.mirror_u= BoolProperty(
 		name= "Mirror U",
-		description= "Mirror in U.",
+		description= "Mirror in U",
 		default= False
 	)
 	
 	# tile_v
 	# rna_pointer.tile_v= BoolProperty(
 	# 	name= "Tile V",
-	# 	description= "If true there is vertical tiling.",
+	# 	description= "If true there is vertical tiling",
 	# 	default= True
 	# )
 	rna_pointer.tile_v= IntProperty(
 		name= "Tile V",
-		description= "Tile in V.",
+		description= "Tile in V",
 		min= 1,
 		max= 1000,
 		soft_min= 1,
@@ -349,21 +349,21 @@ def add_properties(rna_pointer):
 
 	rna_pointer.mirror_v= BoolProperty(
 		name= "Mirror V",
-		description= "Mirror in V.",
+		description= "Mirror in V",
 		default= False
 	)
 
 	# uv_noise_on
 	rna_pointer.uv_noise_on= BoolProperty(
 		name= "Use",
-		description= "If true the noise is enabled.",
+		description= "If true the noise is enabled",
 		default= 0
 	)
 	
 	# uv_noise_animate
 	rna_pointer.uv_noise_animate= IntProperty(
 		name= "Animate",
-		description= "If true the noise is animated.",
+		description= "If true the noise is animated",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -374,7 +374,7 @@ def add_properties(rna_pointer):
 	# uv_noise_amount
 	rna_pointer.uv_noise_amount= FloatProperty(
 		name= "Amount",
-		description= "UV noise amount.",
+		description= "UV noise amount",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -386,7 +386,7 @@ def add_properties(rna_pointer):
 	# uv_noise_levels
 	rna_pointer.uv_noise_levels= FloatProperty(
 		name= "Levels",
-		description= "UV noise iterations.",
+		description= "UV noise iterations",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -398,7 +398,7 @@ def add_properties(rna_pointer):
 	# uv_noise_size
 	rna_pointer.uv_noise_size= FloatProperty(
 		name= "Size",
-		description= "UV noise size.",
+		description= "UV noise size",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -410,7 +410,7 @@ def add_properties(rna_pointer):
 	# un_noise_phase
 	rna_pointer.un_noise_phase= FloatProperty(
 		name= "Phase",
-		description= "UV noise phase.",
+		description= "UV noise phase",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

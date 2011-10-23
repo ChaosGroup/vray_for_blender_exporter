@@ -59,21 +59,21 @@ def add_properties(rna_pointer):
 		# use_3d_mapping
 		use_3d_mapping= BoolProperty(
 			name= "use 3d mapping",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= True
 		)
 
 		# wrap
 		wrap= BoolProperty(
 			name= "Wrap",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= True
 		)
 
 		# color1_tex
 		color1_tex= FloatVectorProperty(
 			name= "First color",
-			description= "First color.",
+			description= "First color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -84,14 +84,14 @@ def add_properties(rna_pointer):
 
 		color1_tex_tex= StringProperty(
 			name= "color1 tex",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# color2_tex
 		color2_tex= FloatVectorProperty(
 			name= "Second color",
-			description= "Second color.",
+			description= "Second color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -101,14 +101,14 @@ def add_properties(rna_pointer):
 		)
 		color2_tex_tex= StringProperty(
 			name= "color2 tex",
-			description= "TODO: Tooltip",
+			description= "",
 			default= ""
 		)
 
 		# grain_size
 		grain_size= FloatProperty(
 			name= "Grain size",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -120,7 +120,7 @@ def add_properties(rna_pointer):
 		# diffusion
 		diffusion= FloatProperty(
 			name= "Diffusion",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -132,7 +132,7 @@ def add_properties(rna_pointer):
 		# mix_ratio
 		mix_ratio= FloatProperty(
 			name= "Mix ratio",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

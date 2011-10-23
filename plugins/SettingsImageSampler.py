@@ -68,12 +68,12 @@ def add_properties(rna_pointer):
 	rna_pointer.SettingsImageSampler= PointerProperty(
 		name= "Image Sampler",
 		type=  SettingsImageSampler,
-		description= "Image Sampler settings."
+		description= "Image Sampler settings"
 	)
 
 	SettingsImageSampler.filter_type= EnumProperty(
 		name= "Filter type",
-		description= "Antialiasing filter.",
+		description= "Antialiasing filter",
 		items= (
 			('NONE',"None",""),
 			('GAUSS',"Gaussian",""),
@@ -89,7 +89,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.filter_size= FloatProperty(
 		name= "Filter size",
-		description= "Filter size.",
+		description= "Filter size",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -99,7 +99,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.type= EnumProperty(
 		name= "Type",
-		description= "Image sampler type.",
+		description= "Image sampler type",
 		items= (
 			('FXD',"Fixed",""),
 			('DMC',"Adaptive DMC",""),
@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.dmc_minSubdivs= IntProperty(
 		name= "Min subdivs",
-		description= "The initial (minimum) number of samples taken for each pixel.",
+		description= "The initial (minimum) number of samples taken for each pixel",
 		min= 1,
 		max= 100,
 		default= 1
@@ -118,7 +118,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.dmc_maxSubdivs= IntProperty(
 		name= "Max subdivs",
-		description= "The maximum number of samples for a pixel.",
+		description= "The maximum number of samples for a pixel",
 		min= 1,
 		max= 100,
 		default= 4
@@ -132,7 +132,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.dmc_threshold= FloatProperty(
 		name= "Color threshold",
-		description= "The threshold that will be used to determine if a pixel needs more samples.",
+		description= "The threshold that will be used to determine if a pixel needs more samples",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -142,13 +142,13 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.dmc_show_samples= BoolProperty(
 		name= "Show samples",
-		description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
+		description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel",
 		default= 0
 	)
 
 	SettingsImageSampler.fixed_subdivs= IntProperty(
 		name= "Subdivs",
-		description= "The number of samples per pixel.",
+		description= "The number of samples per pixel",
 		min= 1,
 		max= 100,
 		default= 1
@@ -156,19 +156,19 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.subdivision_show_samples= BoolProperty(
 		name= "Show samples",
-		description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel.",
+		description= "Show an image where the pixel brightness is directly proportional to the number of samples taken at this pixel",
 		default= 0
 	)
 
 	SettingsImageSampler.subdivision_normals= BoolProperty(
 		name= "Normals",
-		description= "This will supersample areas with sharply varying normals.",
+		description= "This will supersample areas with sharply varying normals",
 		default= 0
 	)
 
 	SettingsImageSampler.subdivision_normals_threshold= FloatProperty(
 		name= "Normals threshold",
-		description= "Normals threshold.",
+		description= "Normals threshold",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -178,13 +178,13 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.subdivision_jitter= BoolProperty(
 		name= "Randomize samples",
-		description= "Displaces the samples slightly to produce better antialiasing of nearly horizontal or vertical lines.",
+		description= "Displaces the samples slightly to produce better antialiasing of nearly horizontal or vertical lines",
 		default= 1
 	)
 
 	SettingsImageSampler.subdivision_threshold= FloatProperty(
 		name= "Color threshold",
-		description= "Determines the sensitivity of the sampler to changes in pixel intensity.",
+		description= "Determines the sensitivity of the sampler to changes in pixel intensity",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -194,13 +194,13 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.subdivision_edges= BoolProperty(
 		name= "Object outline",
-		description= "This will cause the image sampler to always supersample object edges.",
+		description= "This will cause the image sampler to always supersample object edges",
 		default= 0
 	)
 
 	SettingsImageSampler.subdivision_minRate= IntProperty(
 		name= "Min rate",
-		description= "Minimum number of samples per pixel.",
+		description= "Minimum number of samples per pixel",
 		min= -10,
 		max= 50,
 		default= -1
@@ -208,7 +208,7 @@ def add_properties(rna_pointer):
 
 	SettingsImageSampler.subdivision_maxRate= IntProperty(
 		name= "Max rate",
-		description= "Maximum number of samples per pixel.",
+		description= "Maximum number of samples per pixel",
 		min= -10,
 		max= 50,
 		default= 2

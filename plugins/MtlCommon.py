@@ -53,14 +53,14 @@ def add_properties(rna_pointer):
 	
 	rna_pointer.type= EnumProperty(
 		name= "Type",
-		description= "Material type.",
+		description= "Material type",
 		items= (tuple(material_types)),
 		default= material_types[0][0]
 	)
 
 	rna_pointer.material_id_number= IntProperty(
 		name= "Material ID",
-		description= "Material ID.",
+		description= "Material ID",
 		min= 0,
 		max= 1024,
 		soft_min= 0,

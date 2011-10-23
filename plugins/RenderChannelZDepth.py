@@ -74,13 +74,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_from_camera= BoolProperty(
 		name= "From camera",
-		description= "Tooltip: not yet done...",
+		description= "Tooltip: not yet done..",
 		default= False
 	)
 
 	RenderChannelZDepth.depth_black= FloatProperty(
 		name= "Black distance",
-		description= "Tooltip: not yet done...",
+		description= "Tooltip: not yet done..",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -91,7 +91,7 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_white= FloatProperty(
 		name= "White distance",
-		description= "Tooltip: not yet done...",
+		description= "Tooltip: not yet done..",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -102,13 +102,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_clamp= BoolProperty(
 		name= "Clamp",
-		description= "Tooltip: not yet done...",
+		description= "Tooltip: not yet done..",
 		default= True
 	)
 
 	RenderChannelZDepth.filtering= BoolProperty(
 		name= "Filtering",
-		description= "Tooltip: not yet done...",
+		description= "Tooltip: not yet done..",
 		default= True
 	)
 

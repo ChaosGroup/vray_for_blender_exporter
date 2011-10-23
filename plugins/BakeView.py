@@ -53,24 +53,24 @@ def add_properties(rna_pointer):
 	rna_pointer.VRayBake= PointerProperty(
 		name= "Bake",
 		type=  VRayBake,
-		description= "Texture baking settings."
+		description= "Texture baking settings"
 	)
 
 	VRayBake.use= BoolProperty(
 		name= "Bake",
-		description= "Bake to texture.",
+		description= "Bake to texture",
 		default= False
 	)
 
 	VRayBake.bake_node= StringProperty(
 		name= "Object",
 		subtype= 'NONE',
-		description= "Object to bake."
+		description= "Object to bake"
 	)
 
 	VRayBake.dilation= IntProperty(
 		name= "Dilation",
-		description= "Number of pixels to expand around geometry.",
+		description= "Number of pixels to expand around geometry",
 		min= 0,
 		max= 1000,
 		soft_min= 0,
@@ -80,7 +80,7 @@ def add_properties(rna_pointer):
 
 	VRayBake.flip_derivs= BoolProperty(
 		name= "Flip derivatives",
-		description= "Flip the texture direction derivatives (reverses bump mapping).",
+		description= "Flip the texture direction derivatives (reverses bump mapping)",
 		default= False
 	)
 

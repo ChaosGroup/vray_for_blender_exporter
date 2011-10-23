@@ -60,14 +60,14 @@ def add_properties(rna_pointer):
 		# use_3d_mapping
 		use_3d_mapping= BoolProperty(
 			name= "use 3d mapping",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= True
 		)
 
 		# color1
 		color1= FloatVectorProperty(
 			name= "First color",
-			description= "First color.",
+			description= "First color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -78,14 +78,14 @@ def add_properties(rna_pointer):
 
 		color1_tex= StringProperty(
 			name= "Color texture ",
-			description= "Color texture.",
+			description= "Color texture",
 			default= ""
 		)
 
 		# color2
 		color2= FloatVectorProperty(
 			name= "Second color",
-			description= "Second color.",
+			description= "Second color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -96,14 +96,14 @@ def add_properties(rna_pointer):
 
 		color2_tex= StringProperty(
 			name= "Color texture ",
-			description= "Color texture.",
+			description= "Color texture",
 			default= ""
 		)
 
 		# size
 		size= FloatProperty(
 			name= "Size",
-			description= "Size.",
+			description= "Size",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -115,7 +115,7 @@ def add_properties(rna_pointer):
 		# iterations
 		iterations= IntProperty(
 			name= "Iterations",
-			description= "Number of iterations for the fractal generator.",
+			description= "Number of iterations for the fractal generator",
 			min= 0,
 			max= 100,
 			soft_min= 0,
@@ -126,7 +126,7 @@ def add_properties(rna_pointer):
 		# threshold
 		threshold= FloatProperty(
 			name= "Threshold",
-			description= "Threshold.",
+			description= "Threshold",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -138,7 +138,7 @@ def add_properties(rna_pointer):
 		# smoothing
 		smoothing= FloatProperty(
 			name= "Smoothing",
-			description= "Transition smoothing.",
+			description= "Transition smoothing",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

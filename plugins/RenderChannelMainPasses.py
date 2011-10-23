@@ -88,12 +88,12 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelMainPasses= PointerProperty(
 		type= RenderChannelMainPasses,
 		name= NAME,
-		description= "V-Ray main render channels."
+		description= "V-Ray main render channels"
 	)
 
 	RenderChannelMainPasses.name= StringProperty(
 		name= "Name",
-		description= "Channel name.",
+		description= "Channel name",
 		default= NAME
 	)
 
@@ -105,7 +105,7 @@ def add_properties(parent_struct):
 		setattr(RenderChannelMainPasses, 'channel_%s' % chan_name, bpy.props.BoolProperty(
 			attr= 'channel_%s' % chan_name,
 			name= "%s" % key,
-			description= "%s channel." % key,
+			description= "%s channel" % key,
 			default= False)
 		)
 

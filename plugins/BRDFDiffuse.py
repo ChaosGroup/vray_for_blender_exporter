@@ -71,7 +71,7 @@ def add_properties(rna_pointer):
 	# color
 	BRDFDiffuse.color= FloatVectorProperty(
 		name= "Color",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -83,20 +83,20 @@ def add_properties(rna_pointer):
 	# color_tex
 	BRDFDiffuse.color_tex= StringProperty(
 		name= "Color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFDiffuse.map_color_tex= BoolProperty(
 		name= "color tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# color_tex_mult
 	BRDFDiffuse.color_tex_mult= FloatProperty(
 		name= "color tex mult",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -108,7 +108,7 @@ def add_properties(rna_pointer):
 	# transparency
 	BRDFDiffuse.transparency= FloatVectorProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -120,20 +120,20 @@ def add_properties(rna_pointer):
 	# transparency_tex
 	BRDFDiffuse.transparency_tex= StringProperty(
 		name= "Transparency",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFDiffuse.map_transparency_tex= BoolProperty(
 		name= "transparency tex",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# transparency_tex_mult
 	BRDFDiffuse.transparency_tex_mult= FloatProperty(
 		name= "transparency tex mult",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -145,7 +145,7 @@ def add_properties(rna_pointer):
 	# roughness
 	BRDFDiffuse.roughness= FloatProperty(
 		name= "Roughness",
-		description= "Roughness.",
+		description= "Roughness",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -156,19 +156,19 @@ def add_properties(rna_pointer):
 
 	BRDFDiffuse.roughness_tex= StringProperty(
 		name= "Roughness texture",
-		description= "Roughness texture.",
+		description= "Roughness texture",
 		default= ""
 	)
 
 	BRDFDiffuse.map_roughness= BoolProperty(
 		name= "Roughness texture",
-		description= "Roughness texture.",
+		description= "Roughness texture",
 		default= False
 	)
 
 	BRDFDiffuse.roughness_mult= FloatProperty(
 		name= "Roughness texture multiplier",
-		description= "Roughness texture multiplier.",
+		description= "Roughness texture multiplier",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -180,7 +180,7 @@ def add_properties(rna_pointer):
 	# use_irradiance_map
 	BRDFDiffuse.use_irradiance_map= BoolProperty(
 		name= "Use Irradiance map",
-		description= "Use irradiance map.",
+		description= "Use irradiance map",
 		default= True
 	)
 

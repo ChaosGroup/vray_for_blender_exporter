@@ -61,7 +61,7 @@ def add_properties(parent_struct):
 
 	RenderChannelRenderID.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
+		description= "TODO",
 		default= "RenderID"
 	)
 

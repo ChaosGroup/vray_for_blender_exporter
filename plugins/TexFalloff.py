@@ -76,7 +76,7 @@ def add_properties(VRayTexture):
 
 		color1_tex= StringProperty(
 			name= "Front texture ",
-			description= "Front texture.",
+			description= "Front texture",
 			default= ""
 		)
 
@@ -93,7 +93,7 @@ def add_properties(VRayTexture):
 
 		color2_tex= StringProperty(
 			name= "Side texture ",
-			description= "Side texture.",
+			description= "Side texture",
 			default= ""
 		)
 

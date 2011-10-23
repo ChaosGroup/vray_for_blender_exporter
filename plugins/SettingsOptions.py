@@ -82,37 +82,37 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.geom_displacement= BoolProperty(
 		name= "Displacement",
-		description= "Render displacement.",
+		description= "Render displacement",
 		default= True
 	)
 	
 	SettingsOptions.geom_doHidden= BoolProperty(
 		name= "Render hidden",
-		description= "Render hidden geometry.",
+		description= "Render hidden geometry",
 		default= False
 	)
 	
 	SettingsOptions.light_doLights= BoolProperty(
 		name= "Lights",
-		description= "Render lights.",
+		description= "Render lights",
 		default= True
 	)
 	
 	SettingsOptions.light_doDefaultLights= BoolProperty(
 		name= "Default lights",
-		description= "Use default lights (when no lights in a scene).",
+		description= "Use default lights (when no lights in a scene)",
 		default= False
 	)
 	
 	SettingsOptions.light_doHiddenLights= BoolProperty(
 		name= "Hidden lights",
-		description= "Render hidden lights.",
+		description= "Render hidden lights",
 		default= False
 	)
 	
 	SettingsOptions.light_doShadows= BoolProperty(
 		name= "Shadows",
-		description= "Render shadows.",
+		description= "Render shadows",
 		default= True
 	)
 	
@@ -124,7 +124,7 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.gi_dontRenderImage= BoolProperty(
 		name= "Calculate GI only",
-		description= "Don't render final image - calculate GI only.",
+		description= "Don't render final image - calculate GI only",
 		default= False
 	)
 	
@@ -136,13 +136,13 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.mtl_limitDepth= BoolProperty(
 		name= "Limit depth",
-		description= "Limit max depth.",
+		description= "Limit max depth",
 		default= False
 	)
 	
 	SettingsOptions.mtl_maxDepth= IntProperty(
 		name= "Max depth",
-		description= "Max. ray depth for reflections and refractions.",
+		description= "Max. ray depth for reflections and refractions",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -152,25 +152,25 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.mtl_doMaps= BoolProperty(
 		name= "Textures",
-		description= "Render textures.",
+		description= "Render textures",
 		default= True
 	)
 	
 	SettingsOptions.mtl_filterMaps= BoolProperty(
 		name= "Filter textures",
-		description= "Filter textures.",
+		description= "Filter textures",
 		default= True
 	)
 	
 	SettingsOptions.mtl_filterMapsForSecondaryRays= BoolProperty(
 		name= "Filter textures for GI",
-		description= "False to turn off filtering for glossy and GI rays.",
+		description= "False to turn off filtering for glossy and GI rays",
 		default= False
 	)
 	
 	SettingsOptions.mtl_transpMaxLevels= IntProperty(
 		name= "Max transp. levels",
-		description= "Max. transparency levels.",
+		description= "Max. transparency levels",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -180,7 +180,7 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.mtl_transpCutoff= FloatProperty(
 		name= "Transp. cutoff",
-		description= "Transparency cutoff.",
+		description= "Transparency cutoff",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -191,31 +191,31 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.mtl_override_on= BoolProperty(
 		name= "Override",
-		description= "Override material.",
+		description= "Override material",
 		default= False
 	)
 
 	SettingsOptions.mtl_override= StringProperty(
 		name= "Override material",
-		description= "Override material.",
+		description= "Override material",
 		default= ""
 	)
 	
 	SettingsOptions.mtl_glossy= BoolProperty(
 		name= "Glossy effects",
-		description= "Glossy effects.",
+		description= "Glossy effects",
 		default= True
 	)
 	
 	SettingsOptions.geom_backfaceCull= BoolProperty(
 		name= "Force back face culling",
-		description= "If true, back faces will be invisible to camera and shadow rays.",
+		description= "If true, back faces will be invisible to camera and shadow rays",
 		default= False
 	)
 	
 	SettingsOptions.ray_bias= FloatProperty(
 		name= "Secondary rays bias",
-		description= "Secondary ray bias.",
+		description= "Secondary ray bias",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -226,7 +226,7 @@ def add_properties(rna_pointer):
 	
 	SettingsOptions.misc_lowThreadPriority= BoolProperty(
 		name= "Low thread priority",
-		description= "Low thread priority.",
+		description= "Low thread priority",
 		default= True
 	)
 

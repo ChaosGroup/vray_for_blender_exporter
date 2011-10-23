@@ -49,21 +49,21 @@ def add_properties(parent_struct):
 	class SettingsGI(bpy.types.PropertyGroup):
 		on= BoolProperty(
 			name= "Enable GI",
-			description= "Enable Global Illumination.",
+			description= "Enable Global Illumination",
 			default= False
 		)
 
 		# ray_distance_on
 		ray_distance_on= BoolProperty(
 			name= "Limit ray distance",
-			description= "Limit ray distance.",
+			description= "Limit ray distance",
 			default= False
 		)
 
 		# ray_distance
 		ray_distance= FloatProperty(
 			name= "Distance",
-			description= "Ray distance limit.",
+			description= "Ray distance limit",
 			min= 0.0,
 			max= 1000000.0,
 			soft_min= 0.0,
@@ -75,14 +75,14 @@ def add_properties(parent_struct):
 		# ao_on
 		ao_on= BoolProperty(
 			name= "AO",
-			description= "TODO: Tooltip.",
+			description= "",
 			default= False
 		)
 
 		# ao_amount
 		ao_amount= FloatProperty(
 			name= "Amount",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -94,7 +94,7 @@ def add_properties(parent_struct):
 		# ao_radius
 		ao_radius= FloatProperty(
 			name= "Radius",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,
@@ -106,7 +106,7 @@ def add_properties(parent_struct):
 		# ao_subdivs
 		ao_subdivs= IntProperty(
 			name= "Subdivs",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0,
 			max= 100,
 			soft_min= 0,
@@ -116,7 +116,7 @@ def add_properties(parent_struct):
 
 		primary_engine= EnumProperty(
 			name= "Primary engine",
-			description= "Primary diffuse bounces engines.",
+			description= "Primary diffuse bounces engines",
 			items= (
 				('IM', "Irradiance map",      ""), # 0
 				('BF', "Brute force",         ""), # 2
@@ -128,7 +128,7 @@ def add_properties(parent_struct):
 
 		secondary_engine= EnumProperty(
 			name= "Secondary engine",
-			description= "Secondary diffuse bounces engines.",
+			description= "Secondary diffuse bounces engines",
 			items= (
 				('NONE', "None",        ""), # 0
 				('BF',   "Brute force", ""), # 2
@@ -139,7 +139,7 @@ def add_properties(parent_struct):
 
 		primary_multiplier= FloatProperty(
 			name= "Primary multiplier",
-			description= "This value determines how much primary diffuse bounces contribute to the final image illumination.",
+			description= "This value determines how much primary diffuse bounces contribute to the final image illumination",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -149,7 +149,7 @@ def add_properties(parent_struct):
 
 		secondary_multiplier= FloatProperty(
 			name= "Secondary multiplier",
-			description= "This determines the effect of secondary diffuse bounces on the scene illumination.",
+			description= "This determines the effect of secondary diffuse bounces on the scene illumination",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -159,19 +159,19 @@ def add_properties(parent_struct):
 
 		refract_caustics= BoolProperty(
 			name= "Refract caustics",
-			description= "This allows indirect lighting to pass through transparent objects (glass etc).",
+			description= "This allows indirect lighting to pass through transparent objects (glass etc)",
 			default= 1
 		)
 
 		reflect_caustics= BoolProperty(
 			name= "Reflect caustics",
-			description= "This allows indirect light to be reflected from specular objects (mirrors etc).",
+			description= "This allows indirect light to be reflected from specular objects (mirrors etc)",
 			default= 0
 		)
 
 		saturation= FloatProperty(
 			name= "Saturation",
-			description= "Controls the saturation of the GI.",
+			description= "Controls the saturation of the GI",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -181,7 +181,7 @@ def add_properties(parent_struct):
 
 		contrast= FloatProperty(
 			name= "Contrast",
-			description= "This parameter works together with Contrast base to boost the contrast of the GI solution.",
+			description= "This parameter works together with Contrast base to boost the contrast of the GI solution",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -191,7 +191,7 @@ def add_properties(parent_struct):
 
 		contrast_base= FloatProperty(
 			name= "Contrast base",
-			description= "This parameter determines the base for the contrast boost.",
+			description= "This parameter determines the base for the contrast boost",
 			min= 0.0,
 			max= 10.0,
 			soft_min= 0.0,
@@ -201,7 +201,7 @@ def add_properties(parent_struct):
 
 		spherical_harmonics= EnumProperty(
 			name= "Spherical harmonics",
-			description= "Bake or render spherical harmonics.",
+			description= "Bake or render spherical harmonics",
 			items= (
 				('BAKE',   "Bake",   ""),
 				('RENDER', "Render", ""),
@@ -220,7 +220,7 @@ def add_properties(parent_struct):
 	class SphericalHarmonicsRenderer(bpy.types.PropertyGroup):
 		file_name= StringProperty(
 			name= "File",
-			description= "This is the name of the *.vrsh file which contains the precomputed SH for this scene.",
+			description= "This is the name of the *.vrsh file which contains the precomputed SH for this scene",
 			subtype= 'FILE_PATH',
 			default= "//lightmaps/harmonics.vrsh"
 		)
@@ -228,28 +228,28 @@ def add_properties(parent_struct):
 		# precalc_light_per_frame
 		precalc_light_per_frame= BoolProperty(
 			name= "Precalc light per frame",
-			description= "Reasonable when rendering animations. Depending on this option V-Ray calculates the lighting either once at the beginning of the rendering or precalculates it before every frame.",
+			description= "Reasonable when rendering animations. Depending on this option V-Ray calculates the lighting either once at the beginning of the rendering or precalculates it before every frame",
 			default= True
 		)
 
 		# sample_environment
 		sample_environment= BoolProperty(
 			name= "Sample environment",
-			description= "Turns on the environment sampling to add environment light contribution.",
+			description= "Turns on the environment sampling to add environment light contribution",
 			default= True
 		)
 
 		# is_hemispherical
 		is_hemispherical= BoolProperty(
 			name= "Upper hemisphere only",
-			description= "Depending on this option V-Ray samples either the whole sphere or only the upper hemisphere of the environment.",
+			description= "Depending on this option V-Ray samples either the whole sphere or only the upper hemisphere of the environment",
 			default= True
 		)
 
 		# subdivs
 		subdivs= IntProperty(
 			name= "Subdivs",
-			description= "The square of this parameter is proportional to the number of rays, sampled in the environment.",
+			description= "The square of this parameter is proportional to the number of rays, sampled in the environment",
 			min= 1,
 			max= 1024,
 			soft_min= 1,
@@ -260,14 +260,14 @@ def add_properties(parent_struct):
 		# apply_filtering
 		apply_filtering= BoolProperty(
 			name= "Apply filtering",
-			description= "Turns on the filtering of the spherical harmonics. This is useful to reduce the ringing artifacts (known as Gibbs phenomena in signal processing) by suppressing the high frequencies. This produces blurred SH which result in a smoother image.",
+			description= "Turns on the filtering of the spherical harmonics. This is useful to reduce the ringing artifacts (known as Gibbs phenomena in signal processing) by suppressing the high frequencies. This produces blurred SH which result in a smoother image",
 			default= True
 		)
 
 		# filter_strength
 		filter_strength= FloatProperty(
 			name= "Filter strength",
-			description= "The strength of high frequencies' suppression. Values near 0.0 slightly change the image while values near 1.0 smooth it a lot.",
+			description= "The strength of high frequencies' suppression. Values near 0.0 slightly change the image while values near 1.0 smooth it a lot",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -280,7 +280,7 @@ def add_properties(parent_struct):
 	SettingsGI.SphericalHarmonicsRenderer= PointerProperty(
 		name= "Spherical Harmonics Renderer",
 		type=  SphericalHarmonicsRenderer,
-		description= "Spherical Harmonics Renderer settings."
+		description= "Spherical Harmonics Renderer settings"
 	)
 
 
@@ -288,7 +288,7 @@ def add_properties(parent_struct):
 	class SphericalHarmonicsExporter(bpy.types.PropertyGroup):
 		mode= EnumProperty(
 			name= "Mode",
-			description= "Allows you to select between four different modes of operation.",
+			description= "Allows you to select between four different modes of operation",
 			items= (
 				('OCC_SEL', "Occlusion (selected)",       ""),
 				('OCC_ALL', "Occlusion",                  ""),
@@ -301,7 +301,7 @@ def add_properties(parent_struct):
 		# bands
 		bands= IntProperty(
 			name= "Bands",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0,
 			max= 100,
 			soft_min= 0,
@@ -312,7 +312,7 @@ def add_properties(parent_struct):
 		# subdivs
 		subdivs= IntProperty(
 			name= "Subdivs",
-			description= "Controls the number of samples taken in order to create the spherical harmonics. Higher values produce better results but take longer to render.",
+			description= "Controls the number of samples taken in order to create the spherical harmonics. Higher values produce better results but take longer to render",
 			min= 1,
 			max= 1024,
 			soft_min= 1,
@@ -323,7 +323,7 @@ def add_properties(parent_struct):
 		# bounces
 		bounces= IntProperty(
 			name= "Bounces",
-			description= "This option is only available when one of the interreflection methods is selected. It controls the number of secondary bounces that are going to be traced.",
+			description= "This option is only available when one of the interreflection methods is selected. It controls the number of secondary bounces that are going to be traced",
 			min= 1,
 			max= 100,
 			soft_min= 1,
@@ -334,7 +334,7 @@ def add_properties(parent_struct):
 		# ray_bias
 		ray_bias= FloatProperty(
 			name= "Ray bias",
-			description= "TODO: Tooltip.",
+			description= "",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -347,7 +347,7 @@ def add_properties(parent_struct):
 		file_name= StringProperty(
 			name= "File",
 			subtype= 'FILE_PATH',
-			description= "TODO: Tooltip.",
+			description= "",
 			default= "//lightmaps/harmonics.vrsh"
 		)
 
@@ -365,7 +365,7 @@ def add_properties(parent_struct):
 		# per_normal
 		per_normal= EnumProperty(
 			name= "Distribute",
-			description= "Spherical harmonics can be created either for each vertex of the geometry or for each normal, this option allows you to choose between those two modes. For round objects it is better to use per Vertex mode while for objects with large flat surfaces the per Normal mode is better and faster.",
+			description= "Spherical harmonics can be created either for each vertex of the geometry or for each normal, this option allows you to choose between those two modes. For round objects it is better to use per Vertex mode while for objects with large flat surfaces the per Normal mode is better and faster",
 			items= (
 				('NORMAL', "Per normal", ""),
 				('VERTEX', "Per vertex", ""),
@@ -376,14 +376,14 @@ def add_properties(parent_struct):
 		# hit_recording
 		hit_recording= BoolProperty(
 			name= "Use hit recording",
-			description= "Enabling it speeds up the calculations by storing a lot of information in the RAM.",
+			description= "Enabling it speeds up the calculations by storing a lot of information in the RAM",
 			default= False
 		)
 
 		# object_space
 		object_space= EnumProperty(
 			name= "Transform",
-			description= "TODO: Tooltip.",
+			description= "",
 			items= (
 				('WORLD',  "World Space",  ""),
 				('OBJECT', "Object Space", ""),
@@ -394,7 +394,7 @@ def add_properties(parent_struct):
 		# node
 		node= StringProperty(
 			name= "Node",
-			description= "Node to bake.",
+			description= "Node to bake",
 			default= ""
 		)
 	bpy.utils.register_class(SphericalHarmonicsExporter)
@@ -402,7 +402,7 @@ def add_properties(parent_struct):
 	SettingsGI.SphericalHarmonicsExporter= PointerProperty(
 		name= "Spherical Harmonics Exporter",
 		type=  SphericalHarmonicsExporter,
-		description= "Spherical Harmonics Exporter settings."
+		description= "Spherical Harmonics Exporter settings"
 	)
 
 
@@ -414,12 +414,12 @@ def add_properties(parent_struct):
 	SettingsGI.SettingsDMCGI= PointerProperty(
 		name= "DMC GI",
 		type=  SettingsDMCGI,
-		description= "DMC GI settings."
+		description= "DMC GI settings"
 	)
 
 	SettingsDMCGI.depth= IntProperty(
 		name= "Secondary bounces",
-		description= "The number of light bounces that will be computed.",
+		description= "The number of light bounces that will be computed",
 		min= 1,
 		max= 100,
 		default= 3
@@ -427,7 +427,7 @@ def add_properties(parent_struct):
 
 	SettingsDMCGI.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "The number of samples used to approximate GI.",
+		description= "The number of samples used to approximate GI",
 		min= 1,
 		max= 500,
 		default= 8
@@ -441,12 +441,12 @@ def add_properties(parent_struct):
 	SettingsGI.SettingsIrradianceMap= PointerProperty(
 		name= "Irradiance Map",
 		type=  SettingsIrradianceMap,
-		description= "Irradiance Map settings."
+		description= "Irradiance Map settings"
 	)
 
 	SettingsIrradianceMap.preset= EnumProperty(
 		name= "Preset",
-		description= "Build-in presets.",
+		description= "Build-in presets",
 		items= (
 			('VLOW',"Very low",""),
 			('LOW',"Low",""),
@@ -461,7 +461,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.mode= EnumProperty(
 		name= "Irradiance map mode",
-		description= "Irradiance map mode.",
+		description= "Irradiance map mode",
 		items= (
 			('SINGLE',"Single frame","A new irradiance map is created for each frame."),
 			('INC',"Multiframe incremental","At the start of the rendering, the irradiance map is deleted, and then each frame incrementally adds to the irradiance map in memory."),
@@ -477,7 +477,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.lookup_mode= EnumProperty(
 		name= "Sample lookup",
-		description= "Method of choosing suitable points from the irradiance map to be used as basis for the interpolation.",
+		description= "Method of choosing suitable points from the irradiance map to be used as basis for the interpolation",
 		items= (
 			('QUAD',"Quad-balanced",""),
 			('NEAREST',"Nearest",""),
@@ -489,7 +489,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.interpolation_mode= EnumProperty(
 		name= "Interpolation type",
-		description= "Method for interpolating the GI value from the samples in the irradiance map.",
+		description= "Method for interpolating the GI value from the samples in the irradiance map",
 		items= (
 			('VORONOI',"Least squares with Voronoi weights",""),
 			('DELONE',"Delone triangulation",""),
@@ -501,7 +501,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.detail_scale= EnumProperty(
 		name= "Detail enhancement scale",
-		description= "Build-in presets.",
+		description= "Build-in presets",
 		items= (
 			('SCREEN', "Screen", "Radius in pixels."),
 			('WORLD',  "World",  "Radius in Blender Units.")
@@ -511,7 +511,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.min_rate= IntProperty(
 		name= "Min rate",
-		description= "This value determines the resolution for the first GI pass.",
+		description= "This value determines the resolution for the first GI pass",
 		min= -10,
 		max= 1,
 		default= -3
@@ -519,7 +519,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.max_rate= IntProperty(
 		name= "Max rate",
-		description= "This value determines the resolution of the last GI pass.",
+		description= "This value determines the resolution of the last GI pass",
 		min= -10,
 		max= 1,
 		default= 0
@@ -527,7 +527,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.color_threshold= FloatProperty(
 		name= "Color threshold",
-		description= "This parameter controls how sensitive the irradiance map algorithm is to changes in indirect lighting.",
+		description= "This parameter controls how sensitive the irradiance map algorithm is to changes in indirect lighting",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -537,7 +537,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.normal_threshold= FloatProperty(
 		name= "Normal threshold",
-		description= "This parameter controls how sensitive the irradiance map is to changes in surface normals and small surface details.",
+		description= "This parameter controls how sensitive the irradiance map is to changes in surface normals and small surface details",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -547,7 +547,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.distance_threshold= FloatProperty(
 		name= "Distance threshold",
-		description= "This parameter controls how sensitive the irradiance map is to distance between surfaces.",
+		description= "This parameter controls how sensitive the irradiance map is to distance between surfaces",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -557,25 +557,25 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.show_calc_phase= BoolProperty(
 		name= "Show calc. phase",
-		description= "Show irradiance map calculations.",
+		description= "Show irradiance map calculations",
 		default= 1
 	)
 
 	SettingsIrradianceMap.show_direct_light= BoolProperty(
 		name= "Show direct light",
-		description= "Show direct light.",
+		description= "Show direct light",
 		default= 1
 	)
 
 	SettingsIrradianceMap.show_samples= BoolProperty(
 		name= "Show samples",
-		description= "Show irradiance map samples.",
+		description= "Show irradiance map samples",
 		default= 0
 	)
 
 	SettingsIrradianceMap.subdivs= IntProperty(
 		name= "Hemispheric subdivs",
-		description= "This controls the quality of individual GI samples.",
+		description= "This controls the quality of individual GI samples",
 		min= 1,
 		max= 500,
 		default= 50
@@ -583,7 +583,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.interp_samples= IntProperty(
 		name= "Interpolation samples",
-		description= "The number of GI samples that will be used to interpolate the indirect illumination at a given point.",
+		description= "The number of GI samples that will be used to interpolate the indirect illumination at a given point",
 		min= 1,
 		max= 100,
 		default= 20
@@ -599,7 +599,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.calc_interp_samples= IntProperty(
 		name= "Calc. pass interpolation samples",
-		description= "The number of already computed samples that will be used to guide the sampling algorithm.",
+		description= "The number of already computed samples that will be used to guide the sampling algorithm",
 		min= 1,
 		max= 30,
 		default= 10
@@ -607,13 +607,13 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.detail_enhancement= BoolProperty(
 		name= "Detail enhancement",
-		description= "Detail enhancement is a method for bringing additional detail to the irradiance map in the case where there are small details in the image.",
+		description= "Detail enhancement is a method for bringing additional detail to the irradiance map in the case where there are small details in the image",
 		default= 0
 	)
 
 	SettingsIrradianceMap.detail_subdivs_mult= FloatProperty(
 		name= "Detail enhancement subdivs mult",
-		description= "The number of samples taken for the high-precision sampling as a percentage of the irradiance map Hemispheric subdivs.",
+		description= "The number of samples taken for the high-precision sampling as a percentage of the irradiance map Hemispheric subdivs",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -623,7 +623,7 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.detail_radius= FloatProperty(
 		name= "Detail enhancement radius",
-		description= "This determines the radius for the detail enhancement effect.",
+		description= "This determines the radius for the detail enhancement effect",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -634,45 +634,45 @@ def add_properties(parent_struct):
 
 	SettingsIrradianceMap.multipass= BoolProperty(
 		name= "Multipass",
-		description= "When checked, this will cause V-Ray to use all irradiance map samples computed so far.",
+		description= "When checked, this will cause V-Ray to use all irradiance map samples computed so far",
 		default= 0
 	)
 
 	SettingsIrradianceMap.multiple_views= BoolProperty(
 		name= "Use camera path",
-		description= "When this option is on, V-Ray will calculate the irradiance map samples for the entire camera path, instead of just the current view.",
+		description= "When this option is on, V-Ray will calculate the irradiance map samples for the entire camera path, instead of just the current view",
 		default= 0
 	)
 
 	SettingsIrradianceMap.randomize_samples= BoolProperty(
 		name= "Randomize samples",
-		description= "When it is checked, the image samples will be randomly jittered.",
+		description= "When it is checked, the image samples will be randomly jittered",
 		default= 1
 	)
 
 	SettingsIrradianceMap.check_sample_visibility= BoolProperty(
 		name= "Check sample visibility",
-		description= "This will cause V-Ray to use only those samples from the irradiance map, which are directly visible from the interpolated point.",
+		description= "This will cause V-Ray to use only those samples from the irradiance map, which are directly visible from the interpolated point",
 		default= 0
 	)
 
 	SettingsIrradianceMap.file= StringProperty(
 		name= "Irradiance map file name",
 		subtype= 'FILE_PATH',
-		description= "Irradiance map file name.",
+		description= "Irradiance map file name",
 		default= "//lightmaps/im.vrim"
 	)
 
 	SettingsIrradianceMap.auto_save= BoolProperty(
 		name= "Auto save irradiance map",
-		description= "Automatically save the irradiance map to the specified file at the end of the rendering.",
+		description= "Automatically save the irradiance map to the specified file at the end of the rendering",
 		default= 0
 	)
 
 	SettingsIrradianceMap.auto_save_file= StringProperty(
 		name= "Irradiance map auto save file",
 		subtype= 'FILE_PATH',
-		description= "Irradiance map auto save file.",
+		description= "Irradiance map auto save file",
 		default= "//lightmaps/auto_im.vrim"
 	)
 
@@ -684,12 +684,12 @@ def add_properties(parent_struct):
 	SettingsGI.SettingsLightCache= PointerProperty(
 		name= "Light Cache",
 		type=  SettingsLightCache,
-		description= "Light Cache settings."
+		description= "Light Cache settings"
 	)
 
 	SettingsLightCache.mode= EnumProperty(
 		name= "Light cache mode",
-		description= "Light cache mode.",
+		description= "Light cache mode",
 		items= (
 			('SINGLE',"Single frame",""),
 			('FILE',"From file",""),
@@ -701,7 +701,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "This determines how many paths are traced from the camera. The actual number of paths is the square of the subdivs.",
+		description= "This determines how many paths are traced from the camera. The actual number of paths is the square of the subdivs",
 		min= 1,
 		max= 65535,
 		default= 1000
@@ -719,7 +719,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.sample_size= FloatProperty(
 		name= "Sample size",
-		description= "This determines the spacing of the samples in the light cache.",
+		description= "This determines the spacing of the samples in the light cache",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -730,7 +730,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.num_passes= IntProperty(
 		name= "Number of passes",
-		description= "The light cache is computed in several passes, which are then combined into the final light cache.",
+		description= "The light cache is computed in several passes, which are then combined into the final light cache",
 		min= 1,
 		max= 1000,
 		default= 4
@@ -738,19 +738,19 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.num_passes_auto= BoolProperty(
 		name= "Auto num. passes",
-		description= "Set number of passes to threads number.",
+		description= "Set number of passes to threads number",
 		default= 1
 	)
 
 	SettingsLightCache.retrace_enabled= BoolProperty(
 		name= "Retrace",
-		description= "Enable retrace of light cache.",
+		description= "Enable retrace of light cache",
 		default= False
 	)
 
 	SettingsLightCache.retrace_threshold= FloatProperty(
 		name= "Retrace treshold",
-		description= "Retrace treshold, relative to the light cache sample size.",
+		description= "Retrace treshold, relative to the light cache sample size",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -761,7 +761,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.depth= IntProperty(
 		name= "Depth",
-		description= "Light cache depth.",
+		description= "Light cache depth",
 		min= 1,
 		max= 1000,
 		soft_min= 1,
@@ -771,31 +771,31 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.show_calc_phase= BoolProperty(
 		name= "Show calc phase",
-		description= "Turning this option on will show the paths that are traced.",
+		description= "Turning this option on will show the paths that are traced",
 		default= 1
 	)
 
 	SettingsLightCache.store_direct_light= BoolProperty(
 		name= "Store direct light",
-		description= "With this option, the light cache will also store and interpolate direct light.",
+		description= "With this option, the light cache will also store and interpolate direct light",
 		default= 1
 	)
 
 	SettingsLightCache.adaptive_sampling= BoolProperty(
 		name= "Adaptive sampling",
-		description= "When this option is on, V-Ray will store additional information about the incoming light for each light cache sample, and try to put more samples into the directions from which more light coming.",
+		description= "When this option is on, V-Ray will store additional information about the incoming light for each light cache sample, and try to put more samples into the directions from which more light coming",
 		default= 0
 	)
 
 	SettingsLightCache.filter= BoolProperty(
 		name= "Filter",
-		description= "Enable render-time filter for the light cache.",
+		description= "Enable render-time filter for the light cache",
 		default= 1
 	)
 
 	SettingsLightCache.filter_type= EnumProperty(
 		name= "Filter type",
-		description= "The filter determines how irradiance is interpolated from the samples in the light cache.",
+		description= "The filter determines how irradiance is interpolated from the samples in the light cache",
 		items= (
 			('NONE',    "None",    ""),
 			('NEAREST', "Nearest", ""),
@@ -806,7 +806,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.filter_samples= IntProperty(
 		name= "Samples",
-		description= "How many of the nearest samples to look up from the light cache.",
+		description= "How many of the nearest samples to look up from the light cache",
 		min= 1,
 		max= 1000,
 		default= 10
@@ -814,7 +814,7 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.filter_size= FloatProperty(
 		name= "Size",
-		description= "The size of the filter.",
+		description= "The size of the filter",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -824,13 +824,13 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.prefilter= BoolProperty(
 		name= "Pre-filter",
-		description= "Filter light cache sampler before rendering.",
+		description= "Filter light cache sampler before rendering",
 		default= 0
 	)
 
 	SettingsLightCache.prefilter_samples= IntProperty(
 		name= "Samples",
-		description= "Number of samples.",
+		description= "Number of samples",
 		min= 1,
 		max= 1000,
 		default= 40
@@ -838,33 +838,33 @@ def add_properties(parent_struct):
 
 	SettingsLightCache.multiple_views= BoolProperty(
 		name= "Use camera path",
-		description= "When this option is on, V-Ray will calculate the light cache samples for the entire camera path, instead of just the current view, in the same way as this is done for the Fly-through mode.",
+		description= "When this option is on, V-Ray will calculate the light cache samples for the entire camera path, instead of just the current view, in the same way as this is done for the Fly-through mode",
 		default= 0
 	)
 
 	SettingsLightCache.use_for_glossy_rays= BoolProperty(
 		name= "Use for glossy rays",
-		description= "If this option is on, the light cache will be used to compute lighting for glossy rays as well, in addition to normal GI rays.",
+		description= "If this option is on, the light cache will be used to compute lighting for glossy rays as well, in addition to normal GI rays",
 		default= 0
 	)
 
 	SettingsLightCache.file= StringProperty(
 		name= "Light cache file name",
 		subtype= 'FILE_PATH',
-		description= "Light cache file name.",
+		description= "Light cache file name",
 		default= "//lightmaps/lc.vrlc"
 	)
 
 	SettingsLightCache.auto_save= BoolProperty(
 		name= "Auto save light cache",
-		description= "Light cache file name.",
+		description= "Light cache file name",
 		default= 0
 	)
 
 	SettingsLightCache.auto_save_file= StringProperty(
 		name= "Light cache auto save file",
 		subtype= 'FILE_PATH',
-		description= "Light cache auto save file.",
+		description= "Light cache auto save file",
 		default= "//lightmaps/auto.vrlc"
 	)
 
@@ -876,24 +876,24 @@ def add_properties(parent_struct):
 	SettingsGI.SettingsPhotonMap= PointerProperty(
 		name= "Photon Map",
 		type=  SettingsPhotonMap,
-		description= "Photon Map settings."
+		description= "Photon Map settings"
 	)
 
 	SettingsPhotonMap.convex_hull_estimate= BoolProperty(
 		name= "Convex hull estimate",
-		description= "TODO.",
+		description= "TODO",
 		default= 0
 	)
 
 	SettingsPhotonMap.prefilter= BoolProperty(
 		name= "Convert to irradiance map",
-		description= "This will cause V-Ray to precompute the irradiance at the photon hit points stored in the photon map.",
+		description= "This will cause V-Ray to precompute the irradiance at the photon hit points stored in the photon map",
 		default= 0
 	)
 
 	SettingsPhotonMap.prefilter_samples= IntProperty(
 		name= "Interpolate samples",
-		description= "This controls how many irradiance samples will be taken from the photon map once it is converted to an irradiance map.",
+		description= "This controls how many irradiance samples will be taken from the photon map once it is converted to an irradiance map",
 		min= 1,
 		max= 100,
 		default= 10
@@ -901,19 +901,19 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.store_direct_light= BoolProperty(
 		name= "Store direct light",
-		description= "Store direct illumination in the photon map as well.",
+		description= "Store direct illumination in the photon map as well",
 		default= 1
 	)
 
 	SettingsPhotonMap.auto_search_distance= BoolProperty(
 		name= "Auto search distance",
-		description= "Try to compute a suitable distance within which to search for photons.",
+		description= "Try to compute a suitable distance within which to search for photons",
 		default= 1
 	)
 
 	SettingsPhotonMap.search_distance= FloatProperty(
 		name= "Search distance",
-		description= "Photon search distance.",
+		description= "Photon search distance",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,
@@ -933,7 +933,7 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.retrace_bounces= IntProperty(
 		name= "Retrace bounces",
-		description= "Controls how many bounces will be made when retracing corners.",
+		description= "Controls how many bounces will be made when retracing corners",
 		min= 1,
 		max= 100,
 		default= 10
@@ -941,7 +941,7 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.bounces= IntProperty(
 		name= "Bounces",
-		description= "The number of light bounces approximated by the photon map.",
+		description= "The number of light bounces approximated by the photon map",
 		min= 1,
 		max= 1000,
 		default= 10
@@ -949,7 +949,7 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.multiplier= FloatProperty(
 		name= "Multiplier",
-		description= "This allows you to control the brightness of the photon map.",
+		description= "This allows you to control the brightness of the photon map",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -959,7 +959,7 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.max_photons= IntProperty(
 		name= "Max photons",
-		description= "This option specifies how many photons will be taken into consideration when approximating the irradiance at the shaded point.",
+		description= "This option specifies how many photons will be taken into consideration when approximating the irradiance at the shaded point",
 		min= 1,
 		max= 10000,
 		default= 30
@@ -967,7 +967,7 @@ def add_properties(parent_struct):
 
 	SettingsPhotonMap.max_density= FloatProperty(
 		name= "Max density",
-		description= "This parameter allows you to limit the resolution (and thus the memory) of the photon map.",
+		description= "This parameter allows you to limit the resolution (and thus the memory) of the photon map",
 		min= 0.0,
 		max= 1000.0,
 		soft_min= 0.0,

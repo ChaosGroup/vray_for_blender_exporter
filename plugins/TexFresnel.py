@@ -68,7 +68,7 @@ def add_properties(VRayTexture):
 
 	TexFresnel.fresnel_ior= FloatProperty(
 		name= "Fresnel IOR",
-		description= "Fresnel ior.",
+		description= "Fresnel ior",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -79,7 +79,7 @@ def add_properties(VRayTexture):
 
 	TexFresnel.refract_ior= FloatProperty(
 		name= "Refract IOR",
-		description= "Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used).",
+		description= "Refraction ior of the underlying surface; this is ignored if the surface has a volume shader (the volume IOR is used)",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -90,7 +90,7 @@ def add_properties(VRayTexture):
 
 	TexFresnel.white_color= FloatVectorProperty(
 		name= "Front color",
-		description= "Refraction (front) color.",
+		description= "Refraction (front) color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -101,13 +101,13 @@ def add_properties(VRayTexture):
 
 	TexFresnel.white_color_tex= StringProperty(
 		name= "Front texture",
-		description= "Front texture.",
+		description= "Front texture",
 		default= ""
 	)
 
 	TexFresnel.black_color= FloatVectorProperty(
 		name= "Side color",
-		description= "Reflection (side) color.",
+		description= "Reflection (side) color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -118,7 +118,7 @@ def add_properties(VRayTexture):
 
 	TexFresnel.black_color_tex= StringProperty(
 		name= "Side texture",
-		description= "Side texture.",
+		description= "Side texture",
 		default= ""
 	)
 

@@ -66,13 +66,13 @@ def add_properties(parent_struct):
 
 	RenderChannelVelocity.name= StringProperty(
 		name= "Name",
-		description= "TODO.",
+		description= "TODO",
 		default= "Velocity"
 	)
 
 	RenderChannelVelocity.clamp_velocity= BoolProperty(
 		name= "Clamp",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
@@ -100,13 +100,13 @@ def add_properties(parent_struct):
 
 	RenderChannelVelocity.ignore_z= BoolProperty(
 		name= "Ignore Z",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 
 	RenderChannelVelocity.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO.",
+		description= "TODO",
 		default= True
 	)
 	

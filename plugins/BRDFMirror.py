@@ -77,7 +77,7 @@ def add_properties(rna_pointer):
 	# color
 	BRDFMirror.color= FloatVectorProperty(
 		name= "Color",
-		description= "Mirror color.",
+		description= "Mirror color",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -89,20 +89,20 @@ def add_properties(rna_pointer):
 	# color_tex
 	BRDFMirror.color_tex= StringProperty(
 		name= "Color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFMirror.map_color_tex= BoolProperty(
 		name= "Color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# color_tex_mult
 	BRDFMirror.color_tex_mult= FloatProperty(
 		name= "Color texture multiplier",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -114,7 +114,7 @@ def add_properties(rna_pointer):
 	# transparency
 	# BRDFMirror.transparency= FloatVectorProperty(
 	# 	name= "Transparency",
-	# 	description= "TODO: Tooltip.",
+	# 	description= "",
 	# 	subtype= 'COLOR',
 	# 	min= 0.0,
 	# 	max= 1.0,
@@ -125,7 +125,7 @@ def add_properties(rna_pointer):
 
 	BRDFMirror.transparency= FloatProperty(
 		name= "Transparency",
-		description= "BRDF transparency.",
+		description= "BRDF transparency",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -136,20 +136,20 @@ def add_properties(rna_pointer):
 	# transparency_tex
 	BRDFMirror.transparency_tex= StringProperty(
 		name= "Transparency texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= ""
 	)
 
 	BRDFMirror.map_transparency_tex= BoolProperty(
 		name= "Transparency texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	# transparency_tex_mult
 	BRDFMirror.transparency_tex_mult= FloatProperty(
 		name= "Transparency texture multiplier",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -161,7 +161,7 @@ def add_properties(rna_pointer):
 	# cutoff
 	BRDFMirror.cutoff= FloatProperty(
 		name= "Cutoff",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -173,21 +173,21 @@ def add_properties(rna_pointer):
 	# back_side
 	BRDFMirror.back_side= BoolProperty(
 		name= "Back side",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= False
 	)
 
 	# trace_reflections
 	BRDFMirror.trace_reflections= BoolProperty(
 		name= "Trace reflections",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# trace_depth
 	BRDFMirror.trace_depth= IntProperty(
 		name= "Depth",
-		description= "The maximum reflection depth (-1 is controlled by the global options).",
+		description= "The maximum reflection depth (-1 is controlled by the global options)",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -198,7 +198,7 @@ def add_properties(rna_pointer):
 	# reflect_exit_color
 	BRDFMirror.reflect_exit_color= FloatVectorProperty(
 		name= "Exit color",
-		description= "The color to use when the maximum depth is reached.",
+		description= "The color to use when the maximum depth is reached",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -215,7 +215,7 @@ def add_properties(rna_pointer):
 
 	BRDFMirror.reflect_exit_color_mult= FloatProperty(
 		name= "Exit color texture multiplier",
-		description= "The color to use when the maximum depth is reached.",
+		description= "The color to use when the maximum depth is reached",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -227,7 +227,7 @@ def add_properties(rna_pointer):
 	# reflect_dim_distance
 	BRDFMirror.reflect_dim_distance= FloatProperty(
 		name= "Distance",
-		description= "How much to dim reflection as length of rays increases.",
+		description= "How much to dim reflection as length of rays increases",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -239,14 +239,14 @@ def add_properties(rna_pointer):
 	# reflect_dim_distance_on
 	BRDFMirror.reflect_dim_distance_on= BoolProperty(
 		name= "Dim distance",
-		description= "True to enable dim distance.",
+		description= "True to enable dim distance",
 		default= False
 	)
 
 	# reflect_dim_distance_falloff
 	BRDFMirror.reflect_dim_distance_falloff= FloatProperty(
 		name= "Falloff",
-		description= "Fall off for the dim distance.",
+		description= "Fall off for the dim distance",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

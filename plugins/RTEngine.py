@@ -72,21 +72,21 @@ def add_properties(rna_pointer):
 	# enabled
 	RTEngine.enabled= BoolProperty(
 		name= "Realtime engine",
-		description= "Enable the RT engine.",
+		description= "Enable the RT engine",
 		default= False
 	)
 
 	# separate_window
 	RTEngine.separate_window= BoolProperty(
 		name= "Separate window",
-		description= "True to open a separate window for the RTEngine, and false to use the V-Ray VFB.",
+		description= "True to open a separate window for the RTEngine, and false to use the V-Ray VFB",
 		default= False
 	)
 
 	# trace_depth
 	RTEngine.trace_depth= IntProperty(
 		name= "Trace depth",
-		description= "Maximum trace depth for reflections/refractions etc.",
+		description= "Maximum trace depth for reflections/refractions etc",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -97,14 +97,14 @@ def add_properties(rna_pointer):
 	# use_gi
 	RTEngine.use_gi= BoolProperty(
 		name= "Use GI",
-		description= "Use global illumination.",
+		description= "Use global illumination",
 		default= True
 	)
 
 	# gi_depth
 	RTEngine.gi_depth= IntProperty(
 		name= "GI depth",
-		description= "Maximum trace depth for GI.",
+		description= "Maximum trace depth for GI",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -115,21 +115,21 @@ def add_properties(rna_pointer):
 	# gi_reflective_caustics
 	RTEngine.gi_reflective_caustics= BoolProperty(
 		name= "GI reflective caustics",
-		description= "Reflective GI caustics.",
+		description= "Reflective GI caustics",
 		default= False
 	)
 
 	# gi_refractive_caustics
 	RTEngine.gi_refractive_caustics= BoolProperty(
 		name= "GI refractive caustics",
-		description= "Refractive GI caustics.",
+		description= "Refractive GI caustics",
 		default= True
 	)
 
 	# bundle_size
 	RTEngine.bundle_size= IntProperty(
 		name= "Bundle size",
-		description= "Number of samples to transfer over the network.",
+		description= "Number of samples to transfer over the network",
 		min= 0,
 		max= 1024,
 		soft_min= 0,
@@ -140,7 +140,7 @@ def add_properties(rna_pointer):
 	# samples_per_pixel
 	RTEngine.samples_per_pixel= IntProperty(
 		name= "Samples per pixel",
-		description= "Number of samples per pixel.",
+		description= "Number of samples per pixel",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -151,21 +151,21 @@ def add_properties(rna_pointer):
 	# coherent_tracing
 	RTEngine.coherent_tracing= BoolProperty(
 		name= "Coherent tracing",
-		description= "Coherent tracing of gi/reflections/refractions etc.",
+		description= "Coherent tracing of gi/reflections/refractions etc",
 		default= False
 	)
 
 	# use_opencl
 	RTEngine.use_opencl= BoolProperty(
 		name= "Use OpenCL",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= False
 	)
 
 	# stereo_mode
 	RTEngine.stereo_mode= EnumProperty(
 		name= "Stereo mode",
-		description= "Enable side-by-side stereo rendering.",
+		description= "Enable side-by-side stereo rendering",
 		items= (
 			('STEREO', "Side-by-side", "Side-by-side stereo rendering."),
 			('NONE',   "None",   ""),
@@ -176,7 +176,7 @@ def add_properties(rna_pointer):
 	# stereo_eye_distance
 	RTEngine.stereo_eye_distance= FloatProperty(
 		name= "Stereo eye distance",
-		description= "Distance between the two cameras for stereo mode..",
+		description= "Distance between the two cameras for stereo mode.",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -188,7 +188,7 @@ def add_properties(rna_pointer):
 	# stereo_focus
 	RTEngine.stereo_focus= EnumProperty(
 		name= "Stereo focus",
-		description= "Focus mode.",
+		description= "Focus mode",
 		items= (
 			('SHEAR', "Shear",    ""),
 			('ROT',   "Rotation", ""),
@@ -200,7 +200,7 @@ def add_properties(rna_pointer):
 	# opencl_texsize
 	RTEngine.opencl_texsize= IntProperty(
 		name= "Texture size",
-		description= "OpenCL Single Kernel maximum texture size - bigger textures are scaled to fit this size.",
+		description= "OpenCL Single Kernel maximum texture size - bigger textures are scaled to fit this size",
 		min= 0,
 		max= 100000,
 		soft_min= 0,

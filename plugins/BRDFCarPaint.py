@@ -88,7 +88,7 @@ def add_properties(rna_pointer):
 	# base_color
 	BRDFCarPaint.base_color= FloatVectorProperty(
 		name= "Base color",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -105,13 +105,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_base_color= BoolProperty(
 		name= "Base color texture",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.base_color_mult= FloatProperty(
 		name= "Base color texture multiplier",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -123,7 +123,7 @@ def add_properties(rna_pointer):
 	# base_reflection
 	BRDFCarPaint.base_reflection= FloatProperty(
 		name= "Base reflection",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -134,13 +134,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_base_reflection= BoolProperty(
 		name= "base reflection",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.base_reflection_mult= FloatProperty(
 		name= "base reflection",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -152,7 +152,7 @@ def add_properties(rna_pointer):
 	# base_glossiness
 	BRDFCarPaint.base_glossiness= FloatProperty(
 		name= "base glossiness",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -163,13 +163,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_base_glossiness= BoolProperty(
 		name= "base glossiness",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.base_glossiness_mult= FloatProperty(
 		name= "base glossiness",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -181,7 +181,7 @@ def add_properties(rna_pointer):
 	# flake_color
 	BRDFCarPaint.flake_color= FloatVectorProperty(
 		name= "flake color",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -198,13 +198,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_flake_color= BoolProperty(
 		name= "flake color",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.flake_color_mult= FloatProperty(
 		name= "flake color",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -216,7 +216,7 @@ def add_properties(rna_pointer):
 	# flake_glossiness
 	BRDFCarPaint.flake_glossiness= FloatProperty(
 		name= "flake glossiness",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -227,13 +227,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_flake_glossiness= BoolProperty(
 		name= "flake glossiness",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.flake_glossiness_mult= FloatProperty(
 		name= "flake glossiness",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -245,7 +245,7 @@ def add_properties(rna_pointer):
 	# flake_orientation
 	BRDFCarPaint.flake_orientation= FloatProperty(
 		name= "flake orientation",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -256,13 +256,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_flake_orientation= BoolProperty(
 		name= "flake orientation",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.flake_orientation_mult= FloatProperty(
 		name= "flake orientation",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -274,7 +274,7 @@ def add_properties(rna_pointer):
 	# flake_density
 	BRDFCarPaint.flake_density= FloatProperty(
 		name= "flake density",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -286,7 +286,7 @@ def add_properties(rna_pointer):
 	# flake_scale
 	BRDFCarPaint.flake_scale= FloatProperty(
 		name= "flake scale",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -298,7 +298,7 @@ def add_properties(rna_pointer):
 	# flake_size
 	BRDFCarPaint.flake_size= FloatProperty(
 		name= "flake size",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -310,7 +310,7 @@ def add_properties(rna_pointer):
 	# flake_map_size
 	BRDFCarPaint.flake_map_size= IntProperty(
 		name= "flake map size",
-		description= "The size of the internal flakes map.",
+		description= "The size of the internal flakes map",
 		min= 0,
 		max= 10000,
 		soft_min= 0,
@@ -321,7 +321,7 @@ def add_properties(rna_pointer):
 	# flake_filtering_mode
 	BRDFCarPaint.flake_filtering_mode= IntProperty(
 		name= "flake filtering mode",
-		description= "Flake filtering mode (0 - simple; 1 - directional).",
+		description= "Flake filtering mode (0 - simple; 1 - directional)",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -332,7 +332,7 @@ def add_properties(rna_pointer):
 	# flake_seed
 	BRDFCarPaint.flake_seed= IntProperty(
 		name= "flake seed",
-		description= "The random seed for the flakes.",
+		description= "The random seed for the flakes",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -345,7 +345,7 @@ def add_properties(rna_pointer):
 	# coat_color
 	BRDFCarPaint.coat_color= FloatVectorProperty(
 		name= "coat color",
-		description= "TODO: Tooltip.",
+		description= "",
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -362,13 +362,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_coat_color= BoolProperty(
 		name= "coat color",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.coat_color_mult= FloatProperty(
 		name= "coat color",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -380,7 +380,7 @@ def add_properties(rna_pointer):
 	# coat_strength
 	BRDFCarPaint.coat_strength= FloatProperty(
 		name= "coat strength",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -391,13 +391,13 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.map_coat_strength= BoolProperty(
 		name= "coat strength",
-		description= "TODO: Tooltip",
+		description= "",
 		default= False
 	)
 
 	BRDFCarPaint.coat_strength_mult= FloatProperty(
 		name= "coat strength",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -409,7 +409,7 @@ def add_properties(rna_pointer):
 	# coat_glossiness
 	BRDFCarPaint.coat_glossiness= FloatProperty(
 		name= "coat glossiness",
-		description= "The glossiness of the coat layer.",
+		description= "The glossiness of the coat layer",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -426,7 +426,7 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.coat_glossiness_mult= FloatProperty(
 		name= "coat glossiness",
-		description= "The glossiness of the coat layer.",
+		description= "The glossiness of the coat layer",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -444,7 +444,7 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.coat_bump_float_mult= FloatProperty(
 		name= "coat bump float",
-		description= "Bump texture for the coat layer.",
+		description= "Bump texture for the coat layer",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -462,7 +462,7 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.coat_bump_color_mult= FloatProperty(
 		name= "coat bump color",
-		description= "Bump texture for the coat layer (color version).",
+		description= "Bump texture for the coat layer (color version)",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -480,7 +480,7 @@ def add_properties(rna_pointer):
 
 	BRDFCarPaint.coat_bump_amount_mult= FloatProperty(
 		name= "coat bump amount",
-		description= "Bump amount for the coat layer.",
+		description= "Bump amount for the coat layer",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -492,7 +492,7 @@ def add_properties(rna_pointer):
 	# coat_bump_type
 	BRDFCarPaint.coat_bump_type= IntProperty(
 		name= "coat bump type",
-		description= "The type of bump mapping (see BRDFBump for more details).",
+		description= "The type of bump mapping (see BRDFBump for more details)",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -503,21 +503,21 @@ def add_properties(rna_pointer):
 	# traceReflections
 	BRDFCarPaint.traceReflections= BoolProperty(
 		name= "Trace reflections",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# doubleSided
 	BRDFCarPaint.doubleSided= BoolProperty(
 		name= "Double-sided",
-		description= "TODO: Tooltip.",
+		description= "",
 		default= True
 	)
 
 	# subdivs
 	BRDFCarPaint.subdivs= IntProperty(
 		name= "Subdivs",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0,
 		max= 100,
 		soft_min= 0,
@@ -528,7 +528,7 @@ def add_properties(rna_pointer):
 	# cutoff_threshold
 	BRDFCarPaint.cutoff_threshold= FloatProperty(
 		name= "Cutoff",
-		description= "TODO: Tooltip.",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -540,7 +540,7 @@ def add_properties(rna_pointer):
 	# mapping_type
 	BRDFCarPaint.mapping_type= EnumProperty(
 		name= "Mapping type",
-		description= "The mapping method for the flakes.",
+		description= "The mapping method for the flakes",
 		items= (
 			('EXPLICIT',  "Explicit", "Explicit mapping channel"),
 			('TRIPLANAR', "Object",   "Triplanar projection in object space"),
@@ -551,7 +551,7 @@ def add_properties(rna_pointer):
 	# mapping_channel
 	BRDFCarPaint.mapping_channel= IntProperty(
 		name= "Mapping channel",
-		description= "The mapping channel when the mapping_type is 0.",
+		description= "The mapping channel when the mapping_type is 0",
 		min= 0,
 		max= 100,
 		soft_min= 0,

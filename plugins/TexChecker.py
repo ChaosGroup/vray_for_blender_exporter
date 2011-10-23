@@ -57,7 +57,7 @@ def add_properties(rna_pointer):
 		# white_color
 		white_color= FloatVectorProperty(
 			name= "White color",
-			description= "The white checker color.",
+			description= "The white checker color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -75,7 +75,7 @@ def add_properties(rna_pointer):
 		# black_color
 		black_color= FloatVectorProperty(
 			name= "Black color",
-			description= "The black checker color.",
+			description= "The black checker color",
 			subtype= 'COLOR',
 			min= 0.0,
 			max= 1.0,
@@ -93,7 +93,7 @@ def add_properties(rna_pointer):
 		# contrast
 		contrast= FloatProperty(
 			name= "Contrast",
-			description= "Contrast value.",
+			description= "Contrast value",
 			min= 0.0,
 			max= 100.0,
 			soft_min= 0.0,

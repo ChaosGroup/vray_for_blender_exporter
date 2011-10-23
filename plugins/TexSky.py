@@ -73,13 +73,13 @@ def add_properties(VRayTexture):
 
 	TexSky.auto_sun= BoolProperty(
 		name= "Take settings from Sun",
-		description= "Take settings from Sun automatically.",
+		description= "Take settings from Sun automatically",
 		default= True
 	)
 
 	TexSky.turbidity= FloatProperty(
 		name= "Turbidity",
-		description= "TODO.",
+		description= "TODO",
 		min= 2.0,
 		max= 100.0,
 		soft_min= 2.0,
@@ -90,7 +90,7 @@ def add_properties(VRayTexture):
 
 	TexSky.ozone= FloatProperty(
 		name= "Ozone",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -101,7 +101,7 @@ def add_properties(VRayTexture):
 
 	TexSky.water_vapour= FloatProperty(
 		name= "Water vapour",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 10.0,
 		soft_min= 0.0,
@@ -112,7 +112,7 @@ def add_properties(VRayTexture):
 
 	TexSky.intensity_multiplier= FloatProperty(
 		name= "Intensity mult.",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -123,7 +123,7 @@ def add_properties(VRayTexture):
 
 	TexSky.size_multiplier= FloatProperty(
 		name= "Size mult.",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -134,19 +134,19 @@ def add_properties(VRayTexture):
 
 	TexSky.invisible= BoolProperty(
 		name= "Invisible",
-		description= "TODO.",
+		description= "TODO",
 		default= False
 	)
 
 	TexSky.sun= StringProperty(
 		name= "Sun",
-		description= "Sun lamp.",
+		description= "Sun lamp",
 		default= ""
 	)
 
 	TexSky.horiz_illum= FloatProperty(
 		name= "Horiz illumination",
-		description= "TODO.",
+		description= "TODO",
 		min= 0.0,
 		max= 100000.0,
 		soft_min= 0.0,
@@ -157,7 +157,7 @@ def add_properties(VRayTexture):
 
 	TexSky.sky_model= EnumProperty(
 		name= "Sky model",
-		description= "Sky model.",
+		description= "Sky model",
 		items= (
 			('CIEOVER',"CIE Overcast",""),
 			('CIECLEAR',"CIE Clear",""),
