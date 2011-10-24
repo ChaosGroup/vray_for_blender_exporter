@@ -45,7 +45,7 @@ MAIN_BRDF= True
 
 NAME= "BRDFLayered"
 UI=   "Layered"
-DESC= "BRDFLayered."
+DESC= "BRDFLayered"
 
 PARAMS= (
 	'brdfs',
@@ -162,7 +162,7 @@ def add_properties(rna_pointer):
 	# additive_mode
 	BRDFLayered.additive_mode= BoolProperty(
 		name= "Additive \"shellac\" mode",
-		description= "Additive \"shellac\" blending mode.",
+		description= "Additive \"shellac\" blending mode",
 		default= False
 	)
 

@@ -41,7 +41,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsRaycaster'
 
 NAME= 'Raycaster'
-DESC= "Raycaster options."
+DESC= "Raycaster options"
 
 PARAMS= (
 	'maxLevels',

@@ -41,7 +41,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsUnitsInfo'
 
 NAME= 'Units'
-DESC= "Units options."
+DESC= "Units options"
 
 PARAMS= (
 	'meters_scale',

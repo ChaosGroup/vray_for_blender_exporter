@@ -35,7 +35,7 @@ TYPE= 'SETTINGS'
 
 ID=   'SETTINGSCENE'
 NAME= 'Scene settings'
-DESC= "Misc. scene settings."
+DESC= "Misc. scene settings"
 
 PARAMS= (
 )

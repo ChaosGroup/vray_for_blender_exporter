@@ -39,7 +39,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsRegionsGenerator'
 
 NAME= 'Regions Generator'
-DESC= "Regions generator settings."
+DESC= "Regions generator settings"
 
 
 def add_properties(parent_struct):

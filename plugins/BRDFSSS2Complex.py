@@ -43,7 +43,7 @@ MAIN_BRDF= True
 
 NAME= 'BRDFSSS2Complex'
 UI=   "Fast SSS"
-DESC= "Fast SSS 2 BRDF settings."
+DESC= "Fast SSS 2 BRDF settings"
 
 PARAMS= (
 	'prepass_rate',
@@ -125,7 +125,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.ior= FloatProperty(
 		name= "IOR",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 30.0,
 		soft_min= 0.0,
@@ -136,7 +136,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.diffuse_amount= FloatProperty(
 		name= "Diffuse amount",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -147,7 +147,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.scatter_radius= FloatVectorProperty(
 		name= "Scatter radius",
-		description= 'TODO.',
+		description= '',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -158,7 +158,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.scatter_radius_mult= FloatProperty(
 		name= "Scatter radius",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -169,7 +169,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.overall_color= FloatVectorProperty(
 		name= "Overall color",
-		description= 'TODO.',
+		description= '',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -180,7 +180,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.diffuse_color= FloatVectorProperty(
 		name= "Diffuse color",
-		description= 'TODO.',
+		description= '',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -191,7 +191,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.sub_surface_color= FloatVectorProperty(
 		name= "Sub surface color",
-		description= 'TODO.',
+		description= '',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -202,7 +202,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.phase_function= FloatProperty(
 		name= "Phase function",
-		description= 'TODO.',
+		description= '',
 		min= -1.0,
 		max= 1.0,
 		soft_min= -1.0,
@@ -245,7 +245,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.specular_glossiness= FloatProperty(
 		name= "Specular glossiness",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -256,7 +256,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.cutoff_threshold= FloatProperty(
 		name= "Cutoff",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.0,
@@ -273,7 +273,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.reflection_depth= IntProperty(
 		name= "Reflection depth",
-		description= 'TODO.',
+		description= '',
 		min= 0,
 		max= 10,
 		default= 5
@@ -281,7 +281,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.single_scatter= EnumProperty(
 		name= "Single scatter",
-		description= 'TODO.',
+		description= '',
 		items= (
 			('NONE',"None",""),
 			('SIMPLE',"Simple",""),
@@ -293,7 +293,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.subdivs= IntProperty(
 		name= "Subdivs",
-		description= 'TODO.',
+		description= '',
 		min= 1,
 		max= 1024,
 		soft_min= 1,
@@ -303,7 +303,7 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.refraction_depth= IntProperty(
 		name= "Refraction depth",
-		description= 'TODO.',
+		description= '',
 		min= 0,
 		max= 10,
 		default= 5
@@ -311,25 +311,25 @@ def add_properties(rna_pointer):
 
 	BRDFSSS2Complex.front_scatter= BoolProperty(
 		name= "Front scatter",
-		description= 'TODO.',
+		description= '',
 		default= True
 	)
 
 	BRDFSSS2Complex.back_scatter= BoolProperty(
 		name= "Back scatter",
-		description= 'TODO.',
+		description= '',
 		default= True
 	)
 
 	BRDFSSS2Complex.scatter_gi= BoolProperty(
 		name= "Scatter GI",
-		description= 'TODO.',
+		description= '',
 		default= False
 	)
 
 	BRDFSSS2Complex.prepass_blur= FloatProperty(
 		name= "Prepass blur",
-		description= 'TODO.',
+		description= '',
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

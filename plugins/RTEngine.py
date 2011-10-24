@@ -38,7 +38,7 @@ TYPE= 'SETTINGS'
 ID=   'RTEngine'
 
 NAME= 'Realtime Engine'
-DESC= "V-Ray Realtime Engine."
+DESC= "V-Ray Realtime Engine"
 
 PARAMS= (
 	'enabled',
@@ -167,7 +167,7 @@ def add_properties(rna_pointer):
 		name= "Stereo mode",
 		description= "Enable side-by-side stereo rendering",
 		items= (
-			('STEREO', "Side-by-side", "Side-by-side stereo rendering."),
+			('STEREO', "Side-by-side", "Side-by-side stereo rendering"),
 			('NONE',   "None",   ""),
 		),
 		default= 'NONE'
@@ -176,7 +176,7 @@ def add_properties(rna_pointer):
 	# stereo_eye_distance
 	RTEngine.stereo_eye_distance= FloatProperty(
 		name= "Stereo eye distance",
-		description= "Distance between the two cameras for stereo mode.",
+		description= "Distance between the two cameras for stereo mode",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,

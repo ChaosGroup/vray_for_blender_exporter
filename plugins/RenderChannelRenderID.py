@@ -32,7 +32,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'RENDERID'
 NAME= 'RenderID'
 PLUG= 'RenderChannelRenderID'
-DESC= "TODO."
+DESC= ""
 PID=  6
 
 PARAMS= (
@@ -56,12 +56,12 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelRenderID= PointerProperty(
 		name= "RenderID",
 		type=  RenderChannelRenderID,
-		description= "V-Ray render channel \"RenderID\" settings."
+		description= "V-Ray render channel \"RenderID\" settings"
 	)
 
 	RenderChannelRenderID.name= StringProperty(
 		name= "Name",
-		description= "TODO",
+		description= "",
 		default= "RenderID"
 	)
 
@@ -86,4 +86,3 @@ def write(ofile, render_channel, sce= None, name= None):
 '''
 def draw(rna_pointer, layout, wide_ui):
 	layout.label(text="The object's \"Pass index\" contributes the pixel value.")
-

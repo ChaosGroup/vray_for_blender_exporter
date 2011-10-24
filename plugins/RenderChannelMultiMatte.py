@@ -33,7 +33,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'MULTIMATTE'
 NAME= 'MultiMatte'
 PLUG= 'RenderChannelMultiMatte'
-DESC= "TODO."
+DESC= ""
 PID=  3
 
 PARAMS= (
@@ -62,7 +62,7 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelMultiMatte= PointerProperty(
 		name= "MultiMatte",
 		type=  RenderChannelMultiMatte,
-		description= "V-Ray render channel \"MultiMatte\" settings."
+		description= "V-Ray render channel \"MultiMatte\" settings"
 	)
 
 	RenderChannelMultiMatte.name= StringProperty(

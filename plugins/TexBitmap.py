@@ -40,7 +40,7 @@ TYPE= 'TEXTURE'
 ID=   'TexBitmap'
 
 NAME= 'Bitmap'
-DESC= "Image texture."
+DESC= "Image texture"
 
 
 def add_properties(rna_pointer):
@@ -53,9 +53,9 @@ def add_properties(rna_pointer):
 			name= "Filter type",
 			description= "Filter type",
 			items= (
-				('NONE',   "None",        ""),
-				('MIPMAP', "Mip-Map",     "Mip-map filtering."),
-				('AREA',   "Area",        "Summed area filtering.")
+				('NONE',   "None",        "None"),
+				('MIPMAP', "Mip-Map",     "Mip-map filtering"),
+				('AREA',   "Area",        "Summed area filtering")
 			),
 			default= 'NONE'
 		)
@@ -104,13 +104,13 @@ def add_properties(rna_pointer):
 
 		use_input_gamma= BoolProperty(
 			name= "Use \"Input gamma\"",
-			description= "Use \"Input gamma\" from \"Color mapping\" settings.",
+			description= "Use \"Input gamma\" from \"Color mapping\" settings",
 			default= True
 		)
 
 		gamma_correct= BoolProperty(
 			name= "Invert gamma",
-			description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma).",
+			description= "Correct \"Color mapping\" gamma (set image gamma = 1 / cm_gamma)",
 			default= False
 		)
 

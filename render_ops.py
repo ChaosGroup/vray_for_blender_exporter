@@ -731,7 +731,7 @@ def init(context):
 class VRAY_OT_write_scene(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
 	bl_label       = "Export scene"
-	bl_description = "Export scene to \"vrscene\" file."
+	bl_description = "Export scene to \"vrscene\" file"
 
 	def execute(self, context):
 
@@ -807,10 +807,10 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 		name= "Illuminant series D",
 		description= "Illuminant series D",
 		items= (
-			('D75',  "D75",  "North sky Daylight."),
-			('D65',  "D65",  "Noon Daylight."),
-			('D55',  "D55",  "Mid-morning / Mid-afternoon Daylight."),
-			('D50',  "D50",  "Horizon Light."),
+			('D75',  "D75",  "North sky Daylight"),
+			('D65',  "D65",  "Noon Daylight"),
+			('D55',  "D55",  "Mid-morning / Mid-afternoon Daylight"),
+			('D50',  "D50",  "Horizon Light"),
 		),
 		default= 'D50'
 	)

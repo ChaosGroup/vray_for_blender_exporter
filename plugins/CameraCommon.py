@@ -38,7 +38,7 @@ TYPE= 'CAMERA'
 ID=   'Camera'
 
 NAME= 'Camera'
-DESC= "V-Ray camera settings."
+DESC= "V-Ray camera settings"
 
 PARAMS= (
 )
@@ -63,7 +63,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.use_camera_loop= BoolProperty(
 		name= "Use in \"Camera loop\"",
-		description= "Use camera in \"Camera loop\".",
+		description= "Use camera in \"Camera loop\"",
 		default= False
 	)
 
@@ -97,7 +97,7 @@ def add_properties(rna_pointer):
 
 	rna_pointer.hf_all_auto= BoolProperty(
 		name= "Hide from everything (automatic)",
-		description= "Create group with name \"hf_<camera-name>\".",
+		description= "Create group with name \"hf_<camera-name>\"",
 		default= False
 	)
 

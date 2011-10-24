@@ -32,7 +32,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'EXTRATEX'
 NAME= 'ExtraTex'
 PLUG= 'RenderChannelExtraTex'
-DESC= "TODO."
+DESC= ""
 PID=  1
 
 PARAMS= (
@@ -61,36 +61,36 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelExtraTex= PointerProperty(
 		name= "ExtraTex",
 		type=  RenderChannelExtraTex,
-		description= "V-Ray render channel \"ExtraTex\" settings."
+		description= "V-Ray render channel \"ExtraTex\" settings"
 	)
 
 	RenderChannelExtraTex.name= StringProperty(
 		name= "Name",
-		description= "TODO",
+		description= "",
 		default= "ExtraTex"
 	)
 
 	RenderChannelExtraTex.consider_for_aa= BoolProperty(
 		name= "Consider for AA",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 
 	RenderChannelExtraTex.affect_matte_objects= BoolProperty(
 		name= "Affect matte objects",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 
 	RenderChannelExtraTex.texmap= StringProperty(
 		name= "Texture",
-		description= "TODO",
+		description= "",
 		default= ""
 	)
 
 	RenderChannelExtraTex.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 	

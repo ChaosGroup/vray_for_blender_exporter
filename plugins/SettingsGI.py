@@ -39,7 +39,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsGI'
 
 NAME= 'Global Illumination'
-DESC= "Global illumination settings."
+DESC= "Global illumination settings"
 
 PARAMS= (
 )
@@ -354,7 +354,7 @@ def add_properties(parent_struct):
 		# file_format
 		file_format= EnumProperty(
 			name= "Format",
-			description= "This is the output file format. It could be *.xml for general purposes, V-Ray internal format *.vrsh designed to be used in \"Spherical Harmoics\" GI engine or both of them.",
+			description= "This is the output file format. It could be *.xml for general purposes, V-Ray internal format *.vrsh designed to be used in \"Spherical Harmoics\" GI engine or both of them",
 			items= (
 				('XML',  "*.xml",  ""),
 				('VRSH', "*.vrsh", ""),

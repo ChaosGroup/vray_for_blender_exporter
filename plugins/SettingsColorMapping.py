@@ -40,7 +40,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsColorMapping'
 
 NAME= 'Color mapping'
-DESC= "Color mapping options."
+DESC= "Color mapping options"
 
 PARAMS= (
 	'type',

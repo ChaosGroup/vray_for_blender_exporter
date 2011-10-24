@@ -33,7 +33,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'OBJECTSELECT'
 NAME= 'Object select'
 PLUG= 'RenderChannelObjectSelect'
-DESC= "TODO."
+DESC= ""
 PID=  5
 
 PARAMS= (
@@ -61,7 +61,7 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelObjectSelect= PointerProperty(
 		name= "Object select",
 		type=  RenderChannelObjectSelect,
-		description= "V-Ray render channel \"Object select\" settings."
+		description= "V-Ray render channel \"Object select\" settings"
 	)
 
 	RenderChannelObjectSelect.name= StringProperty(

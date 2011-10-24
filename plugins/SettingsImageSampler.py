@@ -40,7 +40,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsImageSampler'
 
 NAME= 'Image sampler'
-DESC= "Image sampler options."
+DESC= "Image sampler options"
 
 PARAMS= (
 	'type',

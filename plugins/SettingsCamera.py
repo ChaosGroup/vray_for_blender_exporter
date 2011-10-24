@@ -38,7 +38,7 @@ TYPE= 'CAMERA'
 ID=   'SettingsCamera'
 
 NAME= 'Camera'
-DESC= "V-Ray SettingsCamera settings."
+DESC= "V-Ray SettingsCamera settings"
 
 PARAMS= (
 )

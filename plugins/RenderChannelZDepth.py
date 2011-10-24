@@ -33,7 +33,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'ZDEPTH'
 NAME= 'ZDepth'
 PLUG= 'RenderChannelZDepth'
-DESC= "TODO."
+DESC= ""
 PID=  8
 
 PARAMS= (
@@ -62,7 +62,7 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelZDepth= PointerProperty(
 		name= "Z-Depth",
 		type=  RenderChannelZDepth,
-		description= "V-Ray render channel \"Z-Depth\" settings."
+		description= "V-Ray render channel \"Z-Depth\" settings"
 	)
 
 	RenderChannelZDepth.name= StringProperty(
@@ -74,13 +74,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_from_camera= BoolProperty(
 		name= "From camera",
-		description= "Tooltip: not yet done..",
+		description= "",
 		default= False
 	)
 
 	RenderChannelZDepth.depth_black= FloatProperty(
 		name= "Black distance",
-		description= "Tooltip: not yet done..",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -91,7 +91,7 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_white= FloatProperty(
 		name= "White distance",
-		description= "Tooltip: not yet done..",
+		description= "",
 		min= 0.0,
 		max= 100.0,
 		soft_min= 0.0,
@@ -102,13 +102,13 @@ def add_properties(parent_struct):
 
 	RenderChannelZDepth.depth_clamp= BoolProperty(
 		name= "Clamp",
-		description= "Tooltip: not yet done..",
+		description= "",
 		default= True
 	)
 
 	RenderChannelZDepth.filtering= BoolProperty(
 		name= "Filtering",
-		description= "Tooltip: not yet done..",
+		description= "",
 		default= True
 	)
 

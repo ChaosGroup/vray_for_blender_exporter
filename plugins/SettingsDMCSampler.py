@@ -41,7 +41,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsDMCSampler'
 
 NAME= 'DMC sampler'
-DESC= "DMC sampler options."
+DESC= "DMC sampler options"
 
 PARAMS= (
 	'time_dependent',
@@ -65,7 +65,7 @@ def add_properties(rna_pointer):
 
 	SettingsDMCSampler.adaptive_threshold= FloatProperty(
 		name= "Noise threshold",
-		description= "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used.",
+		description= "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used",
 		min= 0.0,
 		max= 1.0,
 		soft_min= 0.001,

@@ -32,7 +32,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'MAINPASSES'
 NAME= 'Main Passes'
 PLUG= 'RenderChannelMainPasses'
-DESC= "TODO."
+DESC= "TODO"
 PID=  2
 
 PARAMS= None
@@ -111,19 +111,19 @@ def add_properties(parent_struct):
 
 		setattr(RenderChannelMainPasses, '%s_cm' % chan_name, bpy.props.BoolProperty(
 			name= "Color mapping",
-			description= "Apply color mapping to \"%s\" channel." % key,
+			description= "Apply color mapping to \"%s\" channel" % key,
 			default= False)
 		)
 
 		setattr(RenderChannelMainPasses, '%s_aa' % chan_name, bpy.props.BoolProperty(
 			name= "Consider for AA",
-			description= "Apply AA to \"%s\" channel." % key,
+			description= "Apply AA to \"%s\" channel" % key,
 			default= False)
 		)
 
 		setattr(RenderChannelMainPasses, '%s_filt' % chan_name, bpy.props.BoolProperty(
 			name= "Filtering",
-			description= "Apply filtering to \"%s\" channel." % key,
+			description= "Apply filtering to \"%s\" channel" % key,
 			default= True)
 		)
 	

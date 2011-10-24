@@ -32,7 +32,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'NORMALS'
 NAME= 'Normals'
 PLUG= 'RenderChannelNormals'
-DESC= "TODO."
+DESC= ""
 PID=  4
 
 PARAMS= (
@@ -57,18 +57,18 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelNormals= PointerProperty(
 		name= "Normals",
 		type=  RenderChannelNormals,
-		description= "V-Ray render channel \"Normals\" settings."
+		description= "V-Ray render channel \"Normals\" settings"
 	)
 
 	RenderChannelNormals.name= StringProperty(
 		name= "Name",
-		description= "TODO",
+		description= "",
 		default= "Normals"
 	)
 
 	RenderChannelNormals.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 	

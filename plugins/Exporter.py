@@ -40,7 +40,7 @@ TYPE= 'SETTINGS'
 
 ID=   'EXPORTER'
 NAME= 'Exporter'
-DESC= "Exporter options."
+DESC= "Exporter options"
 
 PARAMS= (
 )
@@ -210,11 +210,11 @@ def add_properties(rna_pointer):
 		name= "Log level",
 		description= "Specifies the verbose level of information printed to the standard output",
 		items= (
-			('0', "No information", "No information printed."),
-			('1', "Only errors",    "Only errors."),
-			('2', "Warnings",       "Errors and warnings."),
-			('3', "Progress",       "Errors, warnings and informational messages."),
-			('4', "All",            "All output."),
+			('0', "No information", "No information printed"),
+			('1', "Only errors",    "Only errors"),
+			('2', "Warnings",       "Errors and warnings"),
+			('3', "Progress",       "Errors, warnings and informational messages"),
+			('4', "All",            "All output"),
 		),
 		default= '3'
 	)

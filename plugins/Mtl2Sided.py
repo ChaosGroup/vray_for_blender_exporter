@@ -56,7 +56,7 @@ def add_properties(rna_pointer):
 
 	Mtl2Sided.use= BoolProperty(
 		name= "Two sided material",
-		description= "Simple \"Two sided\" material. Use nodes for advanced control.",
+		description= "Simple \"Two sided\" material. Use nodes for advanced control",
 		default= False
 	)
 

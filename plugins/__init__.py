@@ -341,7 +341,7 @@ def add_properties():
 
 		cutoffThreshold= FloatProperty(
 			name= "Cutoff threshold",
-			description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed.",
+			description= "Light cut-off threshold (speed optimization). If the light intensity for a point is below this threshold, the light will not be computed",
 			min= 0.0,
 			max= 1.0,
 			soft_min= 0.0,
@@ -473,7 +473,7 @@ def add_properties():
 
 		tex_resolution= IntProperty(
 			name= "Tex resolution",
-			description= "Specifies the resolution at which the texture is sampled when the \"Tex Adaptive\" option is checked.",
+			description= "Specifies the resolution at which the texture is sampled when the \"Tex Adaptive\" option is checked",
 			min= 0,
 			max= 10,
 			default= 512
@@ -1339,7 +1339,7 @@ def add_properties():
 		)
 
 		specular_amount_mult= FloatProperty(
-			name= "Specular amount multiplier.",
+			name= "Specular amount multiplier",
 			description= "Specular amount multiplier",
 			min=0.0,
 			max=100.0,
@@ -1355,7 +1355,7 @@ def add_properties():
 		)
 
 		specular_glossiness_mult= FloatProperty(
-			name= "Specular glossiness multiplier.",
+			name= "Specular glossiness multiplier",
 			description= "Specular glossiness multiplier",
 			min=0.0,
 			max=100.0,

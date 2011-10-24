@@ -41,7 +41,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsOutput'
 
 NAME= 'Output'
-DESC= "Output options."
+DESC= "Output options"
 
 PARAMS= (
 )

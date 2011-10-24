@@ -44,7 +44,7 @@ MAIN_BRDF= True
 
 NAME= 'BRDFLight'
 UI=   "Light"
-DESC= "V-Ray light shader."
+DESC= "V-Ray light shader"
 
 PARAMS= (
 )
@@ -95,13 +95,13 @@ def add_properties(rna_pointer):
 
 	BRDFLight.emitOnBackSide= BoolProperty(
 		name= "Emit on back side",
-		description= 'TODO.',
+		description= '',
 		default= False
 	)
 
 	BRDFLight.compensateExposure= BoolProperty(
 		name= "Compensate camera exposure",
-		description= 'TODO.',
+		description= '',
 		default= False
 	)
 

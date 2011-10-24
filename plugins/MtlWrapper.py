@@ -32,7 +32,7 @@ ID=   'MtlWrapper'
 
 NAME= 'Wrapper'
 UI=   "Wrapper"
-DESC= "MtlWrapper settings."
+DESC= "MtlWrapper settings"
 
 PARAMS= (
 	#'base_material',
@@ -158,7 +158,7 @@ def add_properties(rna_pointer):
 
 	MtlWrapper.shadow_tint_color= FloatVectorProperty(
 		name= "Shadow tint color",
-		description= 'Tint for the shadows on the matte surface.',
+		description= 'Tint for the shadows on the matte surface',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,
@@ -244,7 +244,7 @@ def add_properties(rna_pointer):
 
 	MtlWrapper.reflection_filter_tex= FloatVectorProperty(
 		name= "Reflection filter",
-		description= 'Reflection filter.',
+		description= 'Reflection filter',
 		subtype= 'COLOR',
 		min= 0.0,
 		max= 1.0,

@@ -39,7 +39,7 @@ TYPE= 'TEXTURE'
 ID=   'TexGradRamp'
 NAME= 'Gradient Ramp'
 PLUG= 'TexGradRamp'
-DESC= "TexGradRamp."
+DESC= "TexGradRamp"
 PID=   6
 
 PARAMS= (
@@ -68,7 +68,7 @@ def add_properties(rna_pointer):
 		# texture_map
 		texture_map= StringProperty(
 			name= "Source texture",
-			description= "Texture for \"Mapped\" gradient type.",
+			description= "Texture for \"Mapped\" gradient type",
 			default= ""
 		)
 
@@ -77,18 +77,18 @@ def add_properties(rna_pointer):
 			name= "Gradient type",
 			description= "Gradient type",
 			items= (
-				('FOUR_CORNER', "Four corner", "Four corner."), # 0
-				('BOX',         "Box",         "Box."),
-				('DIAGONAL',    "Diagonal",    "Diagonal."),
-				('LIGHTING',    "Lighting",    "Lighting."),
-				('LINEAR',      "Linear",      "Linear."),
-				('MAPPED',      "Mapped",      "Mapped."),
-				('NORMAL',      "Normal",      "normal."),
-				('PONG',        "Pong",        "Pong."),
-				('RADIAL',      "Radial",      "Radial."),
-				('SPIRAL',      "Spiral",      "Spiral."),
-				('SWEEP',       "Sweep",       "Sweep."),
-				('TARTAN',      "Tartan",      "Tartan."),
+				('FOUR_CORNER', "Four corner", "Four corner"), # 0
+				('BOX',         "Box",         "Box"),
+				('DIAGONAL',    "Diagonal",    "Diagonal"),
+				('LIGHTING',    "Lighting",    "Lighting"),
+				('LINEAR',      "Linear",      "Linear"),
+				('MAPPED',      "Mapped",      "Mapped"),
+				('NORMAL',      "Normal",      "normal"),
+				('PONG',        "Pong",        "Pong"),
+				('RADIAL',      "Radial",      "Radial"),
+				('SPIRAL',      "Spiral",      "Spiral"),
+				('SWEEP',       "Sweep",       "Sweep"),
+				('TARTAN',      "Tartan",      "Tartan"),
 			),
 			default= 'FOUR_CORNER'
 		)
@@ -98,13 +98,13 @@ def add_properties(rna_pointer):
 			name= "Interpolation",
 			description= "Interpolation",
 			items= (
-				('NONE',    "None",          "None."), # 0
-				('LINEAR',  "Linear",        "Linear."),
-				('EXPUP',   "Exponent Up",   "Exponent Up."),
-				('EXPDOWN', "Exponent Down", "Exponent Down."),
-				('SMOOTH',  "Smooth",        "Smooth."),
-				('BUMP',    "Bump",          "Bump."),
-				('SPIKE',   "Spike",         "Spike."),
+				('NONE',    "None",          "None"), # 0
+				('LINEAR',  "Linear",        "Linear"),
+				('EXPUP',   "Exponent Up",   "Exponent Up"),
+				('EXPDOWN', "Exponent Down", "Exponent Down"),
+				('SMOOTH',  "Smooth",        "Smooth"),
+				('BUMP',    "Bump",          "Bump"),
+				('SPIKE',   "Spike",         "Spike"),
 			),
 			default= 'LINEAR'
 		)

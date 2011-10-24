@@ -40,7 +40,7 @@ ID=   'LightMesh'
 
 NAME= 'LightMesh'
 UI=   "Mesh light"
-DESC= "LightMesh settings."
+DESC= "LightMesh settings"
 
 PARAMS= (
 	'enabled',

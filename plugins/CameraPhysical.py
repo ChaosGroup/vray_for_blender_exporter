@@ -38,7 +38,7 @@ TYPE= 'CAMERA'
 ID=   'CameraPhysical'
 
 NAME= 'Physical camera'
-DESC= "V-Ray CameraPhysical settings."
+DESC= "V-Ray CameraPhysical settings"
 
 PARAMS= (
 	'film_width',

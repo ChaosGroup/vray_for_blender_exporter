@@ -38,7 +38,7 @@ TYPE= 'GEOMETRY'
 ID=   'GeomMeshFile'
 
 NAME= 'Proxy'
-DESC= "VRayProxy settings."
+DESC= "VRayProxy settings"
 
 PARAMS= (
 	'filter_blur'
@@ -71,10 +71,10 @@ def add_properties(rna_pointer):
 		name= "Animation type",
 		description= "Proxy animation type",
 		items= (
-			('LOOP',     "Loop",      "."),
-			('ONCE',     "Once",      "."),
-			('PINGPONG', "Ping-pong", "."),
-			('STILL',    "Still",     ".")
+			('LOOP',     "Loop",      ""),
+			('ONCE',     "Once",      ""),
+			('PINGPONG', "Ping-pong", ""),
+			('STILL',    "Still",     "")
 		),
 		default= 'LOOP'
 	)
@@ -83,10 +83,10 @@ def add_properties(rna_pointer):
 		name= "Mode",
 		description= "Proxy creation mode",
 		items= (
-			('NONE',    "None",        "Don\'t attach proxy."),
-			('NEW',     "New object",  "Attach proxy to new object."),
-			('THIS',    "This object", "Attach proxy to this object."),
-			('REPLACE', "Replace",     "Replace this object with proxy."),
+			('NONE',    "None",        "Don\'t attach proxy"),
+			('NEW',     "New object",  "Attach proxy to new object"),
+			('THIS',    "This object", "Attach proxy to this object"),
+			('REPLACE', "Replace",     "Replace this object with proxy"),
 		),
 		default= 'NONE'
 	)
@@ -129,7 +129,7 @@ def add_properties(rna_pointer):
 
 	GeomMeshFile.add_suffix= BoolProperty(
 		name= "Add suffix",
-		description= "Add \"_proxy\" suffix to object and mesh names.",
+		description= "Add \"_proxy\" suffix to object and mesh names",
 		default= True
 	)
 
@@ -157,8 +157,8 @@ def add_properties(rna_pointer):
 		name= "Animation range",
 		description= "Animation range type",
 		items= (
-			('MANUAL', "Manual", "Set manually."),
-			('SCENE',  "Scene",  "Get from scene.")
+			('MANUAL', "Manual", "Set manually"),
+			('SCENE',  "Scene",  "Get from scene")
 		),
 		default= 'SCENE'
 	)

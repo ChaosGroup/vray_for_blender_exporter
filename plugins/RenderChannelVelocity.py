@@ -32,7 +32,7 @@ TYPE= 'RENDERCHANNEL'
 ID=   'VELOCITY'
 NAME= 'Velocity'
 PLUG= 'RenderChannelVelocity'
-DESC= "TODO."
+DESC= ""
 PID=  7
 
 PARAMS= (
@@ -61,18 +61,18 @@ def add_properties(parent_struct):
 	parent_struct.RenderChannelVelocity= PointerProperty(
 		name= "Velocity",
 		type=  RenderChannelVelocity,
-		description= "V-Ray render channel \"Velocity\" settings."
+		description= "V-Ray render channel \"Velocity\" settings"
 	)
 
 	RenderChannelVelocity.name= StringProperty(
 		name= "Name",
-		description= "TODO",
+		description= "",
 		default= "Velocity"
 	)
 
 	RenderChannelVelocity.clamp_velocity= BoolProperty(
 		name= "Clamp",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 
@@ -100,13 +100,13 @@ def add_properties(parent_struct):
 
 	RenderChannelVelocity.ignore_z= BoolProperty(
 		name= "Ignore Z",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 
 	RenderChannelVelocity.filtering= BoolProperty(
 		name= "Filtering",
-		description= "TODO",
+		description= "",
 		default= True
 	)
 	

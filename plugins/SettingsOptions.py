@@ -41,7 +41,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsOptions'
 
 NAME= 'Render Options'
-DESC= "Render options."
+DESC= "Render options"
 
 PARAMS= (
 	'geom_displacement',
