@@ -130,7 +130,7 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		'intensity',
 		#'intensity_tex',
 		'subdivs',
-		#'storeWithIrradianceMap',
+		'storeWithIrradianceMap',
 		'invisible',
 		'affectReflections',
 		'noDecay'
