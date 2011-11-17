@@ -138,13 +138,13 @@ def add_properties(rna_pointer):
 	VRayExporter.auto_meshes= BoolProperty(
 		name= "Auto export meshes",
 		description= "Export meshes automatically before render",
-		default= 0
+		default= True
 	)
 
 	VRayExporter.autorun= BoolProperty(
 		name= "Autorun",
 		description= "Start V-Ray automatically after export",
-		default= 1
+		default= True
 	)
 
 	VRayExporter.debug= BoolProperty(
