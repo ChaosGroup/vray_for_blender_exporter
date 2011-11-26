@@ -1124,6 +1124,7 @@ def write(bus):
 			ofile.write("\n\tauto_save= %d;" % SettingsIrradianceMap.auto_save)
 			ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.auto_save_file))
 			ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsIrradianceMap.file))
+			ofile.write("\n\tmultiple_views= %d;" % SettingsIrradianceMap.multiple_views)
 			ofile.write("\n\tdont_delete= false;")
 			ofile.write("\n}\n")
 
@@ -1155,5 +1156,6 @@ def write(bus):
 			ofile.write("\n\tauto_save_file= \"%s\";" % bpy.path.abspath(SettingsLightCache.auto_save_file))
 			ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsLightCache.file))
 			ofile.write("\n\tdont_delete= false;")
+			ofile.write("\n\tmultiple_views= %d;" % SettingsLightCache.multiple_views)
 			ofile.write("\n}\n")
 

@@ -760,29 +760,44 @@ class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		split.label(text="Detail enhancement:")
-
-		split= layout.split(percentage=0.12)
-		split.column().prop(module, "detail_enhancement", text="On")
-		sub= split.column().row()
-		sub.active= module.detail_enhancement
-		sub.prop(module, "detail_radius", text="R")
-		sub.prop(module, "detail_subdivs_mult", text="Subdivs", slider=True)
-		sub.prop(module, "detail_scale", text="")
-
-		if module.mode not in ('FILE', 'ANIM_REND'):
+		if wide_ui:
+			split= layout.split(percentage=0.07)
+			split.column().prop(module, "detail_enhancement", text="")
+			sub= split.column().row(align=True)
+			sub.active= module.detail_enhancement
+			sub.prop(module, "detail_radius", text="R")
+			sub.prop(module, "detail_subdivs_mult", text="Subdivs", slider=True)
+			sub.prop(module, "detail_scale", text="")
+		else:
 			split= layout.split()
-			split.label(text="Options:")
-			row= layout.split().row()
-			row.prop(module,"show_calc_phase")
-			sub= row.column().row()
-			sub.active= module.show_calc_phase
-			sub.prop(module,"show_direct_light")
-			sub.prop(module,"show_samples")
-			sub.prop(module,"multiple_views", text="Camera path")
+			col= split.column()
+			col.prop(module, "detail_enhancement", text="Use")
+			sub= col.column(align=True)
+			sub.active= module.detail_enhancement
+			sub.prop(module, "detail_radius", text="R")
+			sub.prop(module, "detail_subdivs_mult", text="Subdivs", slider=True)
+			sub.prop(module, "detail_scale", text="")
+
+		layout.label(text="Show:")
+		split = layout.split()
+		if wide_ui:
+			col = split.row()
+		else:
+			col = split.column()
+		col.prop(module,"show_calc_phase", text="Calc phase")
+		sub = col.column()
+		sub.active = module.show_calc_phase
+		sub.prop(module,"show_direct_light", text="Direct light")
+		col.prop(module,"show_samples", text="Samples")
+
+		layout.label(text="Options:")
+		split= layout.split()
+		col= split.column()
+		col.prop(module,"multiple_views", text="Use camera path")
 
 		split= layout.split()
 		split.label(text="Files:")
-		split= layout.split(percentage=0.25)
+		split= layout.split(percentage=0.3)
 		colL= split.column()
 		colR= split.column()
 		if module.mode in ('FILE', 'ANIM_REND'):
@@ -897,7 +912,7 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		split.label(text="Files:")
-		split= layout.split(percentage=0.25)
+		split= layout.split(percentage=0.3)
 		colL= split.column()
 		colR= split.column()
 		if module.mode == 'FILE':
