@@ -127,7 +127,7 @@ def write(bus):
 	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
 	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
 
-	file_format= get_render_file_format(VRayExporter, scene.render.file_format)
+	file_format= get_render_file_format(VRayExporter, scene.render.image_settings.file_format)
 
 	ofile.write("\nSettingsOutput SettingsOutput {")
 	if VRayExporter.auto_save_render:
@@ -150,19 +150,19 @@ def write(bus):
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsEXR SettingsEXR {")
-	ofile.write("\n\tcompression= %i;" % COMPRESSION[scene.render.exr_codec])
-	ofile.write("\n\tbits_per_channel= %d;" % (16 if scene.render.use_exr_half else 32))
+	ofile.write("\n\tcompression= %i;" % COMPRESSION[scene.render.image_settings.exr_codec])
+	ofile.write("\n\tbits_per_channel= %s;" % (scene.render.image_settings.color_depth))
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsTIFF SettingsTIFF {")
-	ofile.write("\n\tbits_per_channel= %d;" % (16 if scene.render.use_tiff_16bit else 32))
+	ofile.write("\n\tbits_per_channel= %s;" % (scene.render.image_settings.color_depth))
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsJPEG SettingsJPEG {")
-	ofile.write("\n\tquality= %d;" % scene.render.file_quality)
+	ofile.write("\n\tquality= %d;" % scene.render.image_settings.quality)
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsPNG SettingsPNG {")
-	ofile.write("\n\tcompression= %d;" % (int(scene.render.file_quality / 10) if scene.render.file_quality < 90 else 9))
+	ofile.write("\n\tcompression= %d;" % (int(scene.render.image_settings.quality / 10) if scene.render.image_settings.quality < 90 else 9))
 	ofile.write("\n\tbits_per_channel= 16;")
 	ofile.write("\n}\n")

@@ -142,7 +142,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 
 		scene= context.scene
-		rd=    scene.render
+		rd=    scene.render.image_settings
 
 		file_format = rd.file_format
 
@@ -174,20 +174,20 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		col= split.column()
 
 		if file_format == 'JPEG':
-			col.prop(rd, 'file_quality', slider= True)
+			col.prop(rd, 'quality', slider= True)
 
 		elif file_format == 'PNG':
-			col.prop(rd, 'file_quality', slider= True, text= "Compression")
+			col.prop(rd, 'quality', slider= True, text= "Compression")
 
 		elif file_format == 'TIFF':
-			col.prop(rd, 'use_tiff_16bit')
+			col.prop(rd, 'color_depth')
 
 		elif file_format in {'OPEN_EXR', 'MULTILAYER'}:
 			row= col.row()
 			row.prop(rd, 'exr_codec')
 
 			if file_format == 'OPEN_EXR':
-				row.prop(rd, 'use_exr_half', text= "16 bit")
+				row.prop(rd, 'color_depth')
 
 		layout.separator()
 

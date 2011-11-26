@@ -1048,7 +1048,7 @@ def init_files(bus):
 	bus['filenames']['output']= create_dir(output_filepath)
 
 	# Render output file name
-	ext= get_render_file_format(VRayExporter, scene.render.file_format)
+	ext= get_render_file_format(VRayExporter, scene.render.image_settings.file_format)
 	file_name= "render"
 	if SettingsOutput.img_file:
 		file_name= SettingsOutput.img_file
