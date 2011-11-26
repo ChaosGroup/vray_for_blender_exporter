@@ -897,17 +897,19 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	vray_exporter_path= get_vray_exporter_path()
 	if vray_exporter_path:
 		proxycreator_bin= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
+		
 		if os.path.exists(proxycreator_bin):
 			debug(None, "Proxy Creator: %s" % (proxycreator_bin))
 
-			params= []
-			params.append(proxycreator_bin)
+			cmd= []
+			cmd.append(proxycreator_bin)
 			if append:
-				params.append('--append')
-			params.append(hq_filepath)
-			params.append(vrmesh_filepath)
+				cmd.append('--append')
+			cmd.append(hq_filepath)
+			cmd.append(vrmesh_filepath)
 
-			os.system(' '.join(params))
+			proc= subprocess.call(cmd)
+		
 		else:
 			debug(None, "Proxy Creator not found!", error= True)
 
@@ -1046,7 +1048,7 @@ def init_files(bus):
 	bus['filenames']['output']= create_dir(output_filepath)
 
 	# Render output file name
-	ext= get_render_file_format(VRayExporter, scene.render.file_format)
+	ext= get_render_file_format(VRayExporter, scene.render.image_settings.file_format)
 	file_name= "render"
 	if SettingsOutput.img_file:
 		file_name= SettingsOutput.img_file
