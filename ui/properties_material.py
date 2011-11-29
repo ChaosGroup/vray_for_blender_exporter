@@ -351,75 +351,11 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 		col.prop(MtlWrapper, 'matte_for_secondary_rays')
 
 
-class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
-	bl_label   = "Render"
-	bl_options = {'DEFAULT_CLOSED'}
-	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
-			return False
-		vma= active_ma.vray
-		return engine_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
-
-	def draw_header(self, context):
-		ma= active_node_mat(context.material)
-		MtlRenderStats= ma.vray.MtlRenderStats
-		self.layout.prop(MtlRenderStats, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-
-		ob= context.object
-		ma= active_node_mat(context.material)
-
-		VRayMaterial= ma.vray
-		MtlRenderStats= VRayMaterial.MtlRenderStats
-
-		layout= self.layout
-		
-		split= layout.split()
-		col= split.column()
-		col.prop(VRayMaterial, 'material_id_number')
-		if wide_ui:
-			col= split.column()
-		else:
-			col= col.column()
-		col.active= VRayMaterial.material_id_number
-		col.prop(VRayMaterial, 'material_id_color', text="")
-
-		split= layout.split()
-		split.active= MtlRenderStats.use
-		col= split.column()
-		col.prop(MtlRenderStats, 'visibility', text="Visible")
-
-		split= layout.split()
-		split.active= MtlRenderStats.use
-		col= split.column()
-		col.label(text="Visible to:")
-
-		split= layout.split()
-		split.active= MtlRenderStats.use
-		sub= split.column()
-		sub.active= MtlRenderStats.visibility
-		sub.prop(MtlRenderStats, 'camera_visibility', text="Camera")
-		sub.prop(MtlRenderStats, 'gi_visibility', text="GI")
-		sub.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
-		if wide_ui:
-			sub= split.column()
-			sub.active= MtlRenderStats.visibility
-		sub.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
-		sub.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
-
-
 class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Outline"
 	bl_options = {'DEFAULT_CLOSED'}
 	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	@classmethod
 	def poll(cls, context):
@@ -447,3 +383,78 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 		layout.active= VolumeVRayToon.use
 
 		PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, VRayMaterial)
+
+
+class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
+	bl_label   = "Render"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		active_ma= active_node_mat(context.material)
+		if active_ma is None:
+			return False
+		vma= active_ma.vray
+		return engine_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		ob= context.object
+		ma= active_node_mat(context.material)
+
+		VRayMaterial= ma.vray
+		MtlRenderStats= VRayMaterial.MtlRenderStats
+
+		layout= self.layout
+		
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayMaterial, 'round_edges')
+		if wide_ui:
+			col= split.column()
+		else:
+			col= col.column()
+		col.active= VRayMaterial.round_edges
+		col.prop(VRayMaterial, 'radius', text="Radius")
+
+		layout.separator()
+		
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayMaterial, 'material_id_number')
+		if wide_ui:
+			col= split.column()
+		else:
+			col= col.column()
+		col.active= VRayMaterial.material_id_number
+		col.prop(VRayMaterial, 'material_id_color', text="")
+
+		layout.separator()
+
+		layout.prop(MtlRenderStats, 'use')
+
+		split= layout.split()
+		split.active= MtlRenderStats.use
+		col= split.column()
+		col.prop(MtlRenderStats, 'visibility', text="Visible")
+
+		split= layout.split()
+		split.active= MtlRenderStats.use
+		col= split.column()
+		col.label(text="Visible to:")
+
+		split= layout.split()
+		split.active= MtlRenderStats.use
+		sub= split.column()
+		sub.active= MtlRenderStats.visibility
+		sub.prop(MtlRenderStats, 'camera_visibility', text="Camera")
+		sub.prop(MtlRenderStats, 'gi_visibility', text="GI")
+		sub.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
+		if wide_ui:
+			sub= split.column()
+			sub.active= MtlRenderStats.visibility
+		sub.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
+		sub.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
