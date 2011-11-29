@@ -1058,6 +1058,9 @@ def write_node(bus):
 	#   {...}]
 	lights= []
 	for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
+		if lamp.data is None:
+			continue
+		
 		if lamp.type == 'LAMP':
 			VRayLamp= lamp.data.vray
 		else:
@@ -1855,6 +1858,9 @@ def render(engine, scene, preview= None):
 
 	# Camera loop
 	bus['cameras']= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
+
+	# Render engine
+	bus['engine']= engine.bl_idname if engine is not None else 'VRAY_RENDER_RT'
 
 	if preview:
 		write_geometry_python(bus)
