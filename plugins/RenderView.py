@@ -69,7 +69,7 @@ def write(bus):
 		if aspect < 1.0:
 			fov= fov * aspect
 
-		ofile.write("\nRenderView RenderView {")
+		ofile.write("\nRenderView CameraView {")
 		ofile.write("\n\ttransform= %s;" % a(scene, transform(camera.matrix_world)))
 		ofile.write("\n\tfov= %s;" % a(scene, fov))
 		if SettingsCamera.type not in ('SPHERIFICAL','BOX'):
@@ -79,5 +79,9 @@ def write(bus):
 		if camera.data.type == 'ORTHO':
 			ofile.write("\n\torthographic= 1;")
 			ofile.write("\n\torthographicWidth= %s;" % a(scene, camera.data.ortho_scale))
-		ofile.write("\n}\n")
 
+		if bus['engine'] == 'VRAY_RENDER_RT':
+	 		# For proper realtime view update
+			ofile.write("\n\tuse_scene_offset= 0;")
+		
+		ofile.write("\n}\n")
