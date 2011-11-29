@@ -55,7 +55,7 @@ VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
 '''
 class VRAY_OT_update(bpy.types.Operator):
 	bl_idname      = "vray.update"
-	bl_label       = "Update exporter"
+	bl_label       = "Update Exporter"
 	bl_description = "Update exporter from github"
 
 	def execute(self, context):
@@ -213,13 +213,13 @@ bpy.utils.register_class(VRAY_OT_effect_down)
   Material operators
 '''
 def active_node_mat(mat):
-    if mat:
-        mat_node= mat.active_node_material
-        if mat_node:
-            return mat_node
-        else:
-            return mat
-    return None
+	if mat:
+		mat_node= mat.active_node_material
+		if mat_node:
+			return mat_node
+		else:
+			return mat
+	return None
 
 
 def find_brdf_pointer(rna_pointer):
