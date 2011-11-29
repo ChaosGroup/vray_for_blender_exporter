@@ -49,18 +49,32 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class SettingsOutput(bpy.types.PropertyGroup):
-		img_format= EnumProperty(
+		img_format = EnumProperty(
 			name= "Type",
 			description= "Output image format",
 			items= (
-				('PNG',   "PNG",     "PNG."),
-				('JPG',   "JPEG",    "Jpeg."),
-				('EXR',   "OpenEXR", "OpenEXR."),
-				('VRIMG', "VRIMG",   "V-Ray Image format."),
+				('PNG',     "PNG",       "PNG"),
+				('JPG',     "JPEG",      "Jpeg"),
+				('TIFF',    "Tiff",      "Tiff"),
+				('TGA',     "TGA",       "Targa"),
+				('SGI',     "SGI",       "SGI"),
+				('OPENEXR', "OpenEXR",   "OpenEXR"),
+				('VRIMG',   "VRayImage", "V-Ray Image format"),
 			),
 			default= 'PNG'
 		)
 
+		color_depth = EnumProperty(
+			name= "Color depth",
+			description= "Сolor depth",
+			items= (
+				('32', "32", "32 bit"),
+				('16', "16", "16 bit"),
+				('8',  "8",  "8 bit"),
+			),
+			default= '32'
+		)
+		
 		img_noAlpha= BoolProperty(
 			name= "No alpha",
 			description= "Don't write the alpha channel to the final image",
@@ -124,10 +138,8 @@ def write(bus):
 	VRayDR=         VRayScene.VRayDR
 	SettingsOutput= VRayScene.SettingsOutput
 
-	wx= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
-	wy= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
-
-	file_format= get_render_file_format(VRayExporter, scene.render.image_settings.file_format)
+	wx= int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
+	wy= int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
 
 	ofile.write("\nSettingsOutput SettingsOutput {")
 	if VRayExporter.auto_save_render:
@@ -151,18 +163,22 @@ def write(bus):
 
 	ofile.write("\nSettingsEXR SettingsEXR {")
 	ofile.write("\n\tcompression= %i;" % COMPRESSION[scene.render.image_settings.exr_codec])
-	ofile.write("\n\tbits_per_channel= %s;" % (scene.render.image_settings.color_depth))
+	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsTIFF SettingsTIFF {")
-	ofile.write("\n\tbits_per_channel= %s;" % (scene.render.image_settings.color_depth))
+	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
+	ofile.write("\n}\n")
+
+	ofile.write("\nSettingsSGI SettingsTIFF {")
+	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsJPEG SettingsJPEG {")
-	ofile.write("\n\tquality= %d;" % scene.render.image_settings.quality)
+	ofile.write("\n\tquality=%d;" % scene.render.image_settings.quality)
 	ofile.write("\n}\n")
 
 	ofile.write("\nSettingsPNG SettingsPNG {")
-	ofile.write("\n\tcompression= %d;" % (int(scene.render.image_settings.quality / 10) if scene.render.image_settings.quality < 90 else 9))
-	ofile.write("\n\tbits_per_channel= 16;")
+	ofile.write("\n\tcompression=%d;" % (int(scene.render.image_settings.quality / 10) if scene.render.image_settings.quality < 90 else 9))
+	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
 	ofile.write("\n}\n")
