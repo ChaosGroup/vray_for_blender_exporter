@@ -41,6 +41,8 @@ import subprocess
 import sys
 import time
 import tempfile
+import getpass
+
 
 ''' Blender modules '''
 import bpy
@@ -459,6 +461,13 @@ GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
 none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
 
 
+def get_username():
+	if PLATFORM == 'win32':
+		return "standalone"
+	else:
+		return getpass.getuser()
+
+
 # Colorize sting on Linux
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
@@ -815,24 +824,6 @@ def get_full_filepath(bus, ob, filepath):
 		
 	return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
 
-
-# Render file format
-def get_render_file_format(VRayExporter, file_format):
-	if VRayExporter.image_to_blender:
-		return 'exr'
-	if file_format in ('JPEG','JPEG2000'):
-		file_format= 'jpg'
-	elif file_format in ('TARGA','TARGA_RAW'):
-		file_format= 'tga'
-	elif file_format == 'OPEN_EXR':
-		file_format= 'exr'
-	elif file_format == 'TIFF':
-		file_format= 'tiff'
-	elif file_format == 'MULTILAYER':
-		file_format= 'vrimg'
-	else:
-		file_format= 'png'
-	return file_format
 	
 
 # True if object on active layer
@@ -991,7 +982,7 @@ def init_files(bus):
 	default_dir= tempfile.gettempdir()
 
 	# Export and output directory
-	export_filepath= os.path.join(default_dir, "vb25")
+	export_filepath= os.path.join(default_dir, "vrayblender_"+get_username())
 	export_filename= "scene"
 	output_filepath= default_dir
 
@@ -1028,7 +1019,10 @@ def init_files(bus):
 
 	if bus['preview']:
 		export_filename= "preview"
-		export_filepath= create_dir(os.path.join(tempfile.gettempdir(), "vb25-preview"))
+		if os.name == 'posix':
+			export_filepath= os.path.join("/dev/shm", "vrayblender_preview_"+get_username())
+		else:
+			export_filepath= os.path.join(tempfile.gettempdir(), "vrayblender_preview_"+get_username())
 
 	export_directory= create_dir(export_filepath)
 
@@ -1048,7 +1042,10 @@ def init_files(bus):
 	bus['filenames']['output']= create_dir(output_filepath)
 
 	# Render output file name
-	ext= get_render_file_format(VRayExporter, scene.render.image_settings.file_format)
+	ext = SettingsOutput.img_format.lower()
+	if VRayExporter.image_to_blender:
+		ext = 'exr'
+
 	file_name= "render"
 	if SettingsOutput.img_file:
 		file_name= SettingsOutput.img_file
