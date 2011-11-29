@@ -98,6 +98,25 @@ def add_properties(rna_pointer):
 		description= "Show log window (Linux)",
 		default= False
 	)
+	
+	VRayExporter.log_window_type= EnumProperty(
+		name= "Log window type",
+		description= "Log window type",
+		items= (
+			('DEFAULT', "Default",        ""),
+			('XTERM',   "XTerm",          ""),
+			('GNOME',   "Gnome Terminal", ""),
+			('KDE',     "Konsole",        ""),
+			('CUSTOM',  "Custom",         "")
+		),
+		default= 'DEFAULT'
+	)
+
+	VRayExporter.log_window_term= StringProperty(
+		name= "Log window terminal",
+		description= "Log window terminal command. You must leave the execution parameter at the end",
+		default= "x-terminal-emulator -e"
+	)
 
 	VRayExporter.animation= BoolProperty(
 		name= "Animation",
@@ -217,4 +236,10 @@ def add_properties(rna_pointer):
 			('4', "All",            "All output"),
 		),
 		default= '3'
+	)
+
+	VRayExporter.socket_address= StringProperty(
+		name        = "Socket address",
+		description = "[TODO] V-Ray Standalone socket interface address",
+		default     = "localhost"
 	)
