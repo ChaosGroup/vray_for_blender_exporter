@@ -78,3 +78,20 @@ def add_properties(rna_pointer):
 		soft_max= 1.0,
 		default= (1.0,1.0,1.0)
 	)
+
+	rna_pointer.round_edges = BoolProperty(
+		name        = "Round edges",
+		description = "Round edges",
+		default     = False
+	)
+
+	rna_pointer.radius = FloatProperty(
+		name        = "Rounding radius",
+		description = "Rounding radius",
+		precision   = 3,
+		min         = 0.0,
+		max         = 100.0,
+		soft_min    = 0.0,
+		soft_max    = 1.0,
+		default     = 0.0
+	)
