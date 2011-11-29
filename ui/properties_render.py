@@ -131,7 +131,7 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 	bl_label	   = "Output"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	def draw_header(self, context):
 		VRayExporter= context.scene.vray.exporter
@@ -141,14 +141,12 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		layout= self.layout
 		wide_ui= context.region.width > narrowui
 
-		scene= context.scene
-		rd=    scene.render.image_settings
+		scene = context.scene
+		rd    = scene.render.image_settings
 
-		file_format = rd.file_format
-
-		VRayScene= scene.vray
-		VRayExporter=   VRayScene.exporter
-		SettingsOutput= VRayScene.SettingsOutput
+		VRayScene      = scene.vray
+		VRayExporter   = VRayScene.exporter
+		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.active= VRayExporter.auto_save_render
 
@@ -168,26 +166,22 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(rd, 'file_format', text= "Format")
+		col.prop(SettingsOutput, 'img_format', text= "Format")
+
+		img_format = SettingsOutput.img_format
 
 		split= layout.split()
 		col= split.column()
 
-		if file_format == 'JPEG':
+		if img_format not in ('JPG', 'VRIMG'):
+			col.prop(SettingsOutput, 'color_depth')
+		if img_format == 'JPG':
 			col.prop(rd, 'quality', slider= True)
-
-		elif file_format == 'PNG':
+		elif img_format == 'PNG':
 			col.prop(rd, 'quality', slider= True, text= "Compression")
-
-		elif file_format == 'TIFF':
-			col.prop(rd, 'color_depth')
-
-		elif file_format in {'OPEN_EXR', 'MULTILAYER'}:
+		elif img_format == 'OPENEXR':
 			row= col.row()
 			row.prop(rd, 'exr_codec')
-
-			if file_format == 'OPEN_EXR':
-				row.prop(rd, 'color_depth')
 
 		layout.separator()
 
