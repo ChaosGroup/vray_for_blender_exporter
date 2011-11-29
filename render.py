@@ -745,6 +745,7 @@ def	write_material(bus):
 					  VRayMaterial.MtlWrapper.use,
 					  VRayMaterial.MtlOverride.use,
 					  VRayMaterial.MtlRenderStats.use,
+					  VRayMaterial.round_edges,
 					  VRayMaterial.material_id_number):
 		if component:
 			complex_material.append("MC%.2d_%s" % (len(complex_material), ma_name))
@@ -815,9 +816,16 @@ def	write_material(bus):
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayMaterial.MtlRenderStats,param))))
 		ofile.write("\n}\n")
 
+	if VRayMaterial.round_edges:
+		base_mtl= complex_material.pop()
+		ofile.write("\nMtlRoundEdges %s {" % complex_material[-1])
+		ofile.write("\n\tbase_mtl= %s;" % base_mtl)
+		ofile.write("\n\tradius= %.3f;" % VRayMaterial.radius)
+		ofile.write("\n}\n")
+	
 	if VRayMaterial.material_id_number:
 		base_mtl= complex_material.pop()
-		ofile.write("\nMtlMaterialID %s {"%(complex_material[-1]))
+		ofile.write("\nMtlMaterialID %s {" % complex_material[-1])
 		ofile.write("\n\tbase_mtl= %s;" % base_mtl)
 		ofile.write("\n\tmaterial_id_number= %i;" % VRayMaterial.material_id_number)
 		ofile.write("\n\tmaterial_id_color= %s;" % p(VRayMaterial.material_id_color))
