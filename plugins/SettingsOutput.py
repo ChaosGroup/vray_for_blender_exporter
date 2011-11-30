@@ -180,5 +180,5 @@ def write(bus):
 
 	ofile.write("\nSettingsPNG SettingsPNG {")
 	ofile.write("\n\tcompression=%d;" % (int(scene.render.image_settings.quality / 10) if scene.render.image_settings.quality < 90 else 9))
-	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
+	ofile.write("\n\tbits_per_channel=%s;" % (SettingsOutput.color_depth if SettingsOutput.color_depth in ['8','16'] else '16'))
 	ofile.write("\n}\n")
