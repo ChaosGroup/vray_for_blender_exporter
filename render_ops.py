@@ -34,6 +34,7 @@ import tempfile
 import time
 import zipfile
 import urllib.request
+import sys
 
 ''' Blender modules '''
 import bpy
@@ -88,14 +89,20 @@ class VRAY_OT_update(bpy.types.Operator):
 
 		# Copying new files
 		debug(context.scene, "Copying new files...")
-		shutil.rmtree(cur_vb25_dirpath)
+		if sys.platform == "win32":
+			os.system("rmdir /Q /S %s" % cur_vb25_dirpath)
+		else:
+			shutil.rmtree(cur_vb25_dirpath)
 		shutil.copytree(new_vb25_dirpath, cur_vb25_dirpath)
 
 		debug(context.scene, "Removing temp file: %s"%(filename))
 		os.remove(filename)
 
 		debug(context.scene, "Removing temp dir: %s"%(update_dir))
-		shutil.rmtree(update_dir)
+		if sys.platform == "win32":
+			os.system("rmdir /Q /S %s" % update_dir)
+		else:
+			shutil.rmtree(update_dir)
 
 		return {'FINISHED'}
 
