@@ -1269,7 +1269,7 @@ def _write_object_particles(bus):
 					hair_geom_name= clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
 					hair_node_name= get_name(ob, prefix='HAIR')
 
-					if not 'export_meshes' in dir(bpy.ops.vray):
+					if not 'export_meshes' in dir(bpy.ops.vray) or bus['preview']:
 						write_GeomMayaHair(bus, ps, hair_geom_name)
 
 					bus['node']['name']=     hair_node_name
