@@ -141,7 +141,7 @@ def write_ShaderNodeOutput(bus, node, input_params):
 
 	brdf= params['Color']
 
-	if 'Alpha' in input_params or node.inputs['Alpha'].default_value[0] < 1.0:
+	if 'Alpha' in input_params or node.inputs['Alpha'].default_value < 1.0:
 		brdfs= brdf
 		brdf= "%sWithAlpha" % brdfs
 		ofile.write("\nBRDFLayered %s {" % brdf)
@@ -149,7 +149,7 @@ def write_ShaderNodeOutput(bus, node, input_params):
 		if 'Alpha' in input_params:
 			ofile.write("\n\ttransparency_tex= %s;" % params['Alpha'])
 		else:
-			ofile.write("\n\ttransparency= %s;" % a(scene, mathutils.Color([node.inputs[key].default_value[0]]*3)))
+			ofile.write("\n\ttransparency= %s;" % a(scene, mathutils.Color([node.inputs[key].default_value]*3)))
 		ofile.write("\n\tweights= List(TEDefaultBlend);")
 		ofile.write("\n}\n")
 
