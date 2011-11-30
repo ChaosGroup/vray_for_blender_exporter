@@ -64,18 +64,19 @@ class VRAY_OT_update(bpy.types.Operator):
 		update_dir= create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
 
 		# Downloading file
-		debug(context.scene, "Downloading \'master\' branch archive...")
+		debug(context.scene, "Downloading 'master' branch archive...")
 		(filename, headers)= urllib.request.urlretrieve(GIT_URL)
 
 		# Extracting archive
-		ziparchive= zipfile.ZipFile(filename)
+		ziparchive = zipfile.ZipFile(filename)
 		ziparchive.extractall(update_dir)
+		ziparchive.close()
 
 		# Check update dir
-		dirnames= os.listdir(update_dir)
-
 		cur_vb25_dirpath= get_vray_exporter_path()
 		new_vb25_dirpath= ""
+
+		dirnames= os.listdir(update_dir)
 		for dirname in dirnames:
 			if dirname.startswith("bdancer-vb25-"):
 				new_vb25_dirpath= os.path.join(update_dir, dirname)
