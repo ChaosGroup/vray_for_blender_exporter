@@ -188,7 +188,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 											   mathutils.Color((c[0],c[1],c[2])))
 			elif key == 'Fac':
 				params[key]= write_TexAColor(bus, key, node,
-											 mathutils.Color([node.inputs[key].default_value[0]]*3))
+											 mathutils.Color([node.inputs[key].default_value]*3))
 
 	node_name= get_node_name(node_tree, node)
 
