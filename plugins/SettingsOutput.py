@@ -170,7 +170,7 @@ def write(bus):
 	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
 	ofile.write("\n}\n")
 
-	ofile.write("\nSettingsSGI SettingsTIFF {")
+	ofile.write("\nSettingsSGI SettingsSGI {")
 	ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
 	ofile.write("\n}\n")
 
