@@ -1016,6 +1016,12 @@ def write_lamp(bus):
 			
 		if lamp_type != 'LightIESMax':
 			ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
+		else:
+			ofile.write("\n\ties_light_shape= %i;" % (VRayLamp.ies_light_shape if VRayLamp.ies_light_shape else -1))
+			ofile.write("\n\ties_light_width= %.3f;" %    (VRayLamp.ies_light_width))
+			ofile.write("\n\ties_light_length= %.3f;" %   (VRayLamp.ies_light_width if VRayLamp.ies_light_shape_lock else VRayLamp.ies_light_length))
+			ofile.write("\n\ties_light_height= %.3f;" %   (VRayLamp.ies_light_width if VRayLamp.ies_light_shape_lock else VRayLamp.ies_light_height))
+			ofile.write("\n\ties_light_diameter= %.3f;" % (VRayLamp.ies_light_diameter))
 
 	if lamp_type == 'LightSpot':
 		ofile.write("\n\tconeAngle= %s;" % a(scene,lamp.spot_size))

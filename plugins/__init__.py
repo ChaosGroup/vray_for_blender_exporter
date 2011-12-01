@@ -592,6 +592,51 @@ def add_properties():
 			),
 			default= 'PREETH'
 		)
+
+		ies_light_shape = BoolProperty (
+			name        = "Define shape",
+			description = "IES light shape; if False the default light shape from IES profile is used",
+			default     = False
+		)
+
+		ies_light_shape_lock = BoolProperty (
+			name        = "Shape controls lock",
+			description = "Change width, height and length simultaneously",
+			default     = True
+		)
+		
+		ies_light_width= FloatProperty(
+			name        = "Width",
+			description = "Light shape width",
+			min         = 0,
+			max         = 100,
+			default     = 0
+		)
+		
+		ies_light_length= FloatProperty(
+			name        = "Length",
+			description = "Light shape length",
+			min         = 0,
+			max         = 100,
+			default     = 0
+		)
+		
+		ies_light_height= FloatProperty(
+			name        = "Height",
+			description = "Light shape height",
+			min         = 0,
+			max         = 100,
+			default     = 0
+		)
+
+		ies_light_diameter= FloatProperty(
+			name        = "Diameter",
+			description = "Light shape diameter",
+			min         = 0,
+			max         = 100,
+			default     = 0
+		)
+
 	bpy.utils.register_class(VRayLight)
 
 	class VRayWorld(bpy.types.PropertyGroup):

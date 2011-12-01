@@ -140,15 +140,18 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 
 		if lamp.type == 'AREA':
 			layout.prop(lamp,'shape', expand=True)
+			layout.separator()
 			#  use_rect_tex: bool = false
 			#  tex_resolution: integer = 512
 			#  tex_adaptive: float = 1
 
 		elif lamp.type == 'SUN':
 			layout.prop(vl,'direct_type', expand=True)
+			layout.separator()
 
 		elif lamp.type == 'SPOT':
 			layout.prop(vl,'spot_type', expand=True)
+			layout.separator()
 
 		split= layout.split()
 		col= split.column()
@@ -198,7 +201,25 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(lamp,'spot_blend', text="Blend")
 			else:
 				col.prop(vl,'ies_file', text="File")
-				col.prop(vl,'soft_shadows')
+				layout.separator()
+			
+			if vl.spot_type == 'IES':
+				split= layout.split()
+				col= split.column()
+				col.prop(vl,'ies_light_shape')
+				sub = col.column()
+				sub.active = vl.ies_light_shape
+				sub.prop(vl,'ies_light_shape_lock', text="Use width")
+				if wide_ui:
+					col= split.column()
+				sub = col.column()
+				sub.active = vl.ies_light_shape
+				sub.prop(vl,'ies_light_width')
+				if not vl.ies_light_shape_lock:
+					sub.prop(vl,'ies_light_length')
+					sub.prop(vl,'ies_light_height')
+				sub.prop(vl,'ies_light_diameter')
+
 
 		elif lamp.type == 'HEMI':
 			#  objectID: integer = 0
@@ -239,8 +260,17 @@ class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(vl,'shadowBias', text="Bias")
-		if lamp.type in ('SPOT','POINT','SUN'):
-			col.prop(vl,'shadowRadius', text="Radius")
+		
+		if lamp.type == 'SPOT':
+			if vl.spot_type == 'IES':
+				col.prop(vl,'soft_shadows')
+			else:
+				col.prop(vl,'shadowRadius', text="Radius")
+		else:			
+			if lamp.type in ('POINT','SUN'):
+				col.prop(vl,'shadowRadius', text="Radius")
+			
+
 
 
 class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
