@@ -190,7 +190,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 				params[key]= write_TexAColor(bus, key, node,
 											 mathutils.Color([node.inputs[key].default_value]*3))
 
-	node_name= get_node_name(node_tree, node)
+	node_name = "%s%s" % (get_name(bus['material']['material'], prefix='MA'), get_node_name(node_tree, node))
 
 	ofile.write("\nBRDFLayered %s {" % node_name)
 	ofile.write("\n\tbrdfs= List(%s, %s);" % (params['Color2'], params['Color1']))
@@ -272,4 +272,3 @@ def write_node_material(bus):
 		return write_shader_node(bus, node_tree, output_node)
 
 	return bus['defaults']['material']
-
