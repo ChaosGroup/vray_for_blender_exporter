@@ -46,6 +46,12 @@ PARAMS= (
 )
 
 
+def update_blender_mapping_type(self, context):
+	if not context.texture_slot:
+		return
+	context.texture_slot.texture_coords = self.texture_coords
+
+
 def add_properties(rna_pointer):
 	rna_pointer.name= StringProperty(
 		name= "V-Ray Texture name",
@@ -62,7 +68,8 @@ def add_properties(rna_pointer):
 			('ORCO', "Object", "Generated coordinates."),
 			('UV',   "UV",     "Mesh UV coordinates."),
 		),
-		default= 'UV'
+		default= 'UV',
+		update= update_blender_mapping_type
 	)
 
 	rna_pointer.mapping= EnumProperty(
