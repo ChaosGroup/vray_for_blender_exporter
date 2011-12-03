@@ -660,7 +660,7 @@ def add_properties(parent_struct):
 		name= "Irradiance map file name",
 		subtype= 'FILE_PATH',
 		description= "Irradiance map file name",
-		default= "//lightmaps/im.vrim"
+		default= "//lightmaps/im.vrmap"
 	)
 
 	SettingsIrradianceMap.auto_save= BoolProperty(
@@ -673,7 +673,7 @@ def add_properties(parent_struct):
 		name= "Irradiance map auto save file",
 		subtype= 'FILE_PATH',
 		description= "Irradiance map auto save file",
-		default= "//lightmaps/auto_im.vrim"
+		default= "//lightmaps/im.vrmap"
 	)
 
 
@@ -852,7 +852,7 @@ def add_properties(parent_struct):
 		name= "Light cache file name",
 		subtype= 'FILE_PATH',
 		description= "Light cache file name",
-		default= "//lightmaps/lc.vrlc"
+		default= "//lightmaps/lc.vrmap"
 	)
 
 	SettingsLightCache.auto_save= BoolProperty(
@@ -865,7 +865,7 @@ def add_properties(parent_struct):
 		name= "Light cache auto save file",
 		subtype= 'FILE_PATH',
 		description= "Light cache auto save file",
-		default= "//lightmaps/auto.vrlc"
+		default= "//lightmaps/lc.vrmap"
 	)
 
 
@@ -1067,7 +1067,7 @@ def write(bus):
 			ofile.write("\n\tsubdivs= %s;" % p(SphericalHarmonicsExporter.subdivs))
 			ofile.write("\n\tbounces= %s;" % p(SphericalHarmonicsExporter.bounces))
 			ofile.write("\n\tray_bias= %s;" % p(SphericalHarmonicsExporter.ray_bias))
-			ofile.write("\n\tfile_name= \"%s\";" % create_dir_from_filepath(SphericalHarmonicsExporter.file_name))
+			ofile.write("\n\tfile_name= \"%s\";" % create_dir_from_filepath(bpy.path.abspath(SphericalHarmonicsExporter.file_name)))
 			ofile.write("\n\tfile_format= \"%s\";" % FILE_FORMAT[SphericalHarmonicsExporter.file_format])
 			ofile.write("\n\tper_normal= %s;" % p(SphericalHarmonicsExporter.per_normal))
 			ofile.write("\n\thit_recording= %s;" % p(SphericalHarmonicsExporter.hit_recording))
@@ -1079,6 +1079,12 @@ def write(bus):
 			ofile.write("\n}\n")
 
 		else:
+			if SettingsLightCache.auto_save:
+				create_dir_from_filepath(bpy.path.abspath(SettingsLightCache.auto_save_file))
+
+			if SettingsIrradianceMap.auto_save:
+				create_dir_from_filepath(bpy.path.abspath(SettingsIrradianceMap.auto_save_file))
+
 			ofile.write("\nSettingsGI SettingsGI {")
 			ofile.write("\n\ton= 1;")
 			ofile.write("\n\tprimary_engine= %s;" % PRIMARY_ENGINE[SettingsGI.primary_engine])
