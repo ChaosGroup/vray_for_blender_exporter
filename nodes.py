@@ -76,6 +76,9 @@ def write_BRDFDiffuse(bus, name, node, color):
 def write_ShaderNodeTexture(bus, node, input_params):
 	node_tree= bus['ma_nodes']['node_tree']
 
+	if not node.texture:
+		return None
+
 	bus['mtex']= {}
 	bus['mtex']['mapto']=   'node'
 	bus['mtex']['slot']=     None
@@ -93,6 +96,9 @@ def write_ShaderNodeMaterial(bus, node, input_params):
 
 	bus['textures']= {}
 	bus['material']['material']= node.material
+
+	if not node.material:
+		return None
 
 	# Check Toon
 	VRayMaterial= node.material.vray
