@@ -68,7 +68,7 @@ def add_properties(rna_pointer):
 			('ORCO', "Object", "Generated coordinates."),
 			('UV',   "UV",     "Mesh UV coordinates."),
 		),
-		default= 'UV',
+		default= 'ORCO',
 		update= update_blender_mapping_type
 	)
 
