@@ -125,6 +125,12 @@ def add_properties(VRayTexture):
 		default= 0.1
 	)
 
+	TexDirt.radius_tex= StringProperty(
+		name= "Radius Texture",
+		description= "Radius Texture",
+		default= ""
+	)
+
 	TexDirt.distribution= FloatProperty(
 		name= "Distribution",
 		description= "Distribution",
@@ -275,7 +281,7 @@ def write(bus):
 
 	mapped_params= write_sub_textures(bus,
 									  TexDirt,
-									  ('white_color_tex', 'black_color_tex'))
+									  ('white_color_tex', 'black_color_tex', 'radius_tex'))
 
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
 	for param in PARAMS:
@@ -283,10 +289,15 @@ def write(bus):
 		if param == 'mode':
 			value= MODE[TexDirt.mode]
 
-		elif param in ('white_color','black_color'):
+		elif param in ('white_color','black_color','radius'):
 			tex_key= param+'_tex'
 			if tex_key in mapped_params:
 				value= mapped_params[tex_key]
+				if tex_key == 'radius_tex':
+					ofile.write("\n\tradius= %s::out_intensity;" % (value))
+				else:
+					ofile.write("\n\t%s= %s;"%(param, value))
+				continue
 			else:
 				pass
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
@@ -340,7 +351,11 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(vtex,'radius')
+		sub_radius = col.column(align= True)
+		sub_radius.prop(vtex,'radius')
+		sub_radius.prop_search(vtex, 'radius_tex',
+		                       bpy.data, 'textures',
+		                       text= "")
 		col.prop(vtex,'distribution')
 		if vtex.mode != 'AO':
 			col.prop(vtex,'glossiness')
