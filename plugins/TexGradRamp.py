@@ -253,13 +253,14 @@ def write(bus):
 
 	uvwgen= write_uvwgen(bus)
 
-	ramp_col= []
-	for i,element in enumerate(texture.color_ramp.elements):
-		tex_acolor= "%sC%i"%(tex_name,i)
-		ofile.write("\nTexAColor %s {" % (tex_acolor))
-		ofile.write("\n\ttexture= %s;" % ("AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color)))
-		ofile.write("\n}\n")
-		ramp_col.append(tex_acolor)
+	if texture.color_ramp:
+		ramp_col= []
+		for i,element in enumerate(texture.color_ramp.elements):
+			tex_acolor= "%sC%i"%(tex_name,i)
+			ofile.write("\nTexAColor %s {" % (tex_acolor))
+			ofile.write("\n\ttexture= %s;" % ("AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color)))
+			ofile.write("\n}\n")
+			ramp_col.append(tex_acolor)
 
 	TexGradRamp= getattr(texture.vray, PLUG)
 	ofile.write("\n%s %s {"%(PLUG, tex_name))
@@ -273,12 +274,18 @@ def write(bus):
 		elif param == 'interpolation':
 			value= INTERPOLATION[TexGradRamp.interpolation]
 		elif param == 'positions':
-			ramp_pos= []
-			for element in texture.color_ramp.elements:
-				ramp_pos.append("%.3f"%(element.position))
-			value= "ListFloat(%s)" % (",".join(ramp_pos))
+			if not texture.color_ramp:
+				value= "ListFloat(1.0,0.0)"
+			else:
+				ramp_pos= []
+				for element in texture.color_ramp.elements:
+					ramp_pos.append("%.3f"%(element.position))
+				value= "ListFloat(%s)" % (",".join(ramp_pos))
 		elif param == 'colors':
-			value= "List(%s)" % (",".join(ramp_col))
+			if not texture.color_ramp:
+				value= "List(Color(1.0,1.0,1.0),Color(0.0,0.0,0.0))"
+			else:
+				value= "List(%s)" % (",".join(ramp_col))
 		elif param == 'texture_map':
 			continue
 		else:
