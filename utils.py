@@ -684,7 +684,7 @@ def get_name(ob, prefix= None):
 	if prefix:
 		name= prefix+name
 	if ob.library:
-		name+= "%s%s" % ('LI', get_filename(ob.library.filepath))
+		name+= "%s%s" % ('LI', get_filename(ob.library.filepath).replace('.blend',''))
 	return clean_string(name)
 
 
