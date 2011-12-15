@@ -64,7 +64,7 @@ PARAMS= (
 	'cutoff_threshold',
 	'trace_reflections',
 	'reflection_depth',
-	#'single_scatter',
+	'single_scatter',
 	'subdivs',
 	'refraction_depth',
 	'front_scatter',
