@@ -115,8 +115,9 @@ def write_texture(bus):
 	texture= bus['mtex']['texture']
 
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
-		if not bus['mtex'].get('env'):
-			bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
+		if not 'env' in bus['mtex']:
+			if 'material' in bus:
+				bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
 		return bus['mtex']['name']
 
 	if texture.use_nodes:
