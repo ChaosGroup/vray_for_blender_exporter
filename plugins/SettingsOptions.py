@@ -232,14 +232,18 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	ofile=  bus['files']['scene']
-	scene=  bus['scene']
+	ofile = bus['files']['scene']
+	scene = bus['scene']
 
-	VRayScene= scene.vray
-	SettingsOptions= VRayScene.SettingsOptions
+	VRayScene       = scene.vray
+	VRayExporter    = VRayScene.exporter
+	SettingsOptions = VRayScene.SettingsOptions
 
 	ofile.write("\nSettingsOptions SettingsOptions {")
 	for param in PARAMS:
+		if VRayExporter.draft:
+			if param in ('mtl_limitDepth','mtl_maxDepth','mtl_transpMaxLevels','mtl_transpCutoff','mtl_glossy'):
+				continue
 		if param == 'mtl_override':
 			# Not implemented in V-Ray plugin:
 			# override is done in "Node" export function
@@ -247,5 +251,10 @@ def write(bus):
 		else:
 			value= getattr(SettingsOptions, param)
 		ofile.write("\n\t%s= %s;" % (param, p(value)))
+	if VRayExporter.draft:
+		ofile.write("\n\tmtl_limitDepth= 1;")
+		ofile.write("\n\tmtl_maxDepth= 5;")
+		ofile.write("\n\tmtl_transpMaxLevels= 10;")
+		ofile.write("\n\tmtl_transpCutoff= 0.1;")
+		ofile.write("\n\tmtl_glossy= 1;")
 	ofile.write("\n}\n")
-
