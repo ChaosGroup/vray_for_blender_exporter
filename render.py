@@ -72,7 +72,7 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		#'units',
 		'intensity',
 		#'intensity_tex',
-		#'shadowRadius',
+		'shadowRadius',
 		'areaSpeculars',
 		'shadowSubdivs',
 		'decay'
@@ -608,13 +608,6 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
 		bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
 		bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
-		bus['files']['scene'].write("\n}\n")
-		bus['files']['scene'].write("\nSettingsOptions {")
-		bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
-		bus['files']['scene'].write("\n\tmtl_maxDepth= 5;")
-		bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
-		bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
-		bus['files']['scene'].write("\n\tmtl_glossy= 1;")
 		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsImageSampler {")
 		bus['files']['scene'].write("\n\ttype= 1;")
