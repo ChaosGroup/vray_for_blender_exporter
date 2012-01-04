@@ -1163,5 +1163,7 @@ def write(bus):
 			ofile.write("\n\tfile= \"%s\";" % bpy.path.abspath(SettingsLightCache.file))
 			ofile.write("\n\tdont_delete= false;")
 			ofile.write("\n\tmultiple_views= %d;" % SettingsLightCache.multiple_views)
+			ofile.write("\n\tretrace_enabled= %d;" % SettingsLightCache.retrace_enabled)
+			ofile.write("\n\tretrace_threshold= %.3f;" % SettingsLightCache.retrace_threshold)			
 			ofile.write("\n}\n")
 
