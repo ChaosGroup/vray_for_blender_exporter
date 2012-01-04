@@ -60,7 +60,8 @@ def add_properties(rna_pointer):
 		name= "Map type",
 		description= "Normal map type",
 		items= (
-			('EXPLICIT', "Normal (explicit)", "."),
+			('EXPLICIT', "Explicit Normal",   "."),
+			('FROMBUMP', "From Bump",         "."),
 			('WORLD',    "Normal (world)",    "."),
 			('CAMERA',   "Normal (camera)",   "."),
 			('OBJECT',   "Normal (object)",   "."),
@@ -98,6 +99,7 @@ def add_properties(rna_pointer):
 def write(bus, base_brdf= None):
 	MAP_TYPE= {
 		'EXPLICIT': 6,
+		'FROMBUMP': 5,
 		'WORLD':    4,
 		'CAMERA':   3,
 		'OBJECT':   2,
