@@ -134,9 +134,11 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
 
-		ob= context.object
-		lamp= context.lamp
-		vl= lamp.vray
+		ob        = context.object
+		lamp      = context.lamp
+		vl        = lamp.vray
+		VRayLight = lamp.vray
+		VRayScene = context.scene.vray
 
 		if lamp.type == 'AREA':
 			layout.prop(lamp,'shape', expand=True)
@@ -222,16 +224,34 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 
 
 		elif lamp.type == 'HEMI':
-			#  objectID: integer = 0
-			#  use_dome_tex: bool = false
-			#  tex_resolution: integer = 512
-			#  dome_targetRadius: float = 100
-			#  dome_emitRadius: float = 150
-			#  dome_spherical: bool = false
-			#  tex_adaptive: float = 1
-			#  dome_rayDistance: float = 100000
-			#  dome_rayDistanceMode: integer = 0
-			pass
+			split = layout.split()
+			col   = split.column()
+			col.prop(VRayLight, 'dome_spherical')
+
+			split = layout.split()
+			col   = split.column()
+			col.prop(VRayLight, 'dome_rayDistanceMode')
+			if wide_ui:
+				col= split.column()
+			if VRayLight.dome_rayDistanceMode:
+				col.prop(VRayLight, 'dome_rayDistance')
+			
+			layout.separator()
+			
+			split = layout.split()
+			col   = split.column()
+			col.prop(VRayLight, 'tex_resolution')
+			if wide_ui:
+				col= split.column()
+			col.prop(VRayLight, 'tex_adaptive')
+
+			if VRayScene.SettingsCaustics.on:
+				split = layout.split()
+				col   = split.column()
+				col.prop(VRayLight, 'dome_targetRadius')
+				if wide_ui:
+					col= split.column()
+				col.prop(VRayLight, 'dome_emitRadius')
 
 
 class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):

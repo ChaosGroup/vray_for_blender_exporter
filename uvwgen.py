@@ -176,6 +176,10 @@ def write_UVWGenEnvironment(bus):
 		ofile.write("\n\tuvw_matrix= %s;" % transform(uvw_matrix))
 	else:
 		ofile.write("\n\tuvw_transform= %s;" % transform(uvw_matrix))
+	ofile.write("\n\twrap_u=1;")
+	ofile.write("\n\twrap_v=1;")
+	ofile.write("\n\tcrop_u=0;")
+	ofile.write("\n\tcrop_v=0;")
 	ofile.write("\n}\n")
 	
 	return uvw_name
@@ -185,7 +189,7 @@ def write_uvwgen(bus):
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
 
-	if type(slot) is bpy.types.WorldTextureSlot:
+	if type(slot) is bpy.types.WorldTextureSlot or ('dome' in bus['mtex'] and bus['mtex']['dome']):
 		return write_UVWGenEnvironment(bus)
 
 	else:

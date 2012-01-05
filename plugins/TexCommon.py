@@ -627,8 +627,16 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 			#col.prop(VRaySlot, 'texture_rotation_w', slider= True, text="X")
 
 		elif issubclass(type(idblock), bpy.types.Lamp):
+			split= layout.split(percentage=0.3)
+			split.label(text="Projection:")
+			split.prop(VRayTexture, 'environment_mapping', text="")
+
+			layout.label(text="Rotation:")
 			split= layout.split()
-			split.label(text="In progress...")
+			col= split.column()
+			col.prop(VRaySlot, 'texture_rotation_h', slider= True, text="Horizontal")
+			col.prop(VRaySlot, 'texture_rotation_v', slider= True, text="Vertical")
+			#col.prop(VRaySlot, 'texture_rotation_w', slider= True, text="X")
 
 
 

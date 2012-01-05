@@ -226,7 +226,7 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		'cutoffThreshold',
 		'affectDiffuse',
 		'affectSpecular',
-		#'bumped_below_surface_check',
+		'bumped_below_surface_check',
 		'nsamples',
 		'diffuse_contribution',
 		'specular_contribution',
@@ -244,12 +244,12 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		#'dome_tex',
 		#'use_dome_tex',
 		#'tex_resolution',
-		#'dome_targetRadius',
-		#'dome_emitRadius',
-		#'dome_spherical',
 		#'tex_adaptive',
-		#'dome_rayDistance',
-		#'dome_rayDistanceMode',
+		'dome_targetRadius',
+		'dome_emitRadius',
+		'dome_spherical',
+		'dome_rayDistance',
+		'dome_rayDistanceMode',
 	),
 
 	'LightSpot': (
@@ -657,6 +657,7 @@ def write_lamp_textures(bus):
 							bus['lamp_textures'][key].append(defaults[key])
 
 					bus['mtex']= {}
+					bus['mtex']['dome'] = True if la.type == 'HEMI' else False
 					bus['mtex']['mapto']=   key
 					bus['mtex']['slot']=    slot
 					bus['mtex']['texture']= slot.texture

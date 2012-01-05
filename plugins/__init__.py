@@ -167,6 +167,51 @@ def add_properties():
 	bpy.utils.register_class(VRayMaterial)
 
 	class VRayLight(bpy.types.PropertyGroup):
+		dome_targetRadius= FloatProperty(
+			name= "Target Radius",
+			description= "Target Radius",
+			min= 0.0,
+			max= 10000.0,
+			soft_min= 0.0,
+			soft_max= 200.0,
+			precision= 3,
+			default= 100
+		)
+
+		dome_emitRadius= FloatProperty(
+			name= "Emit Radius",
+			description= "Emit Radius",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 150
+		)
+
+		dome_spherical= BoolProperty(
+			name= "Spherical",
+			description= "Use sphere instead of half-sphere",
+			default= False
+		)
+
+		dome_rayDistanceMode= BoolProperty(
+			name= "Use Ray Distance",
+			description= "When enabled the distance at which shadow rays are traced will be limited to the value of \"Ray Distance\" parameter",
+			default= False
+		)
+
+		dome_rayDistance= FloatProperty(
+			name= "Ray Distance",
+			description= "specifies the maximum distance to which shadow rays are going to be traced",
+			min= 0.0,
+			max= 10000000.0,
+			soft_min= 50000.0,
+			soft_max= 200000.0,
+			precision= 2,
+			default= 100000.0
+		)
+
 		# Move to Light plugin
 		enabled= BoolProperty(
 			name= "Enabled",
@@ -474,8 +519,9 @@ def add_properties():
 		tex_resolution= IntProperty(
 			name= "Tex resolution",
 			description= "Specifies the resolution at which the texture is sampled when the \"Tex Adaptive\" option is checked",
-			min= 0,
-			max= 10,
+			min= 1,
+			max= 20000,
+			soft_max = 1024,
 			default= 512
 		)
 

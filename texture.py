@@ -579,8 +579,8 @@ def write_material_textures(bus):
 
 						bus['mtex']['name']+= bus['material']['orco_suffix']
 
-					# if VRayExporter.debug:
-					# 	print_dict(scene, "bus['mtex']", bus['mtex'])
+					if VRayExporter.debug:
+						print_dict(scene, "bus['mtex']", bus['mtex'])
 
 					# Write texture
 					if write_texture(bus):
