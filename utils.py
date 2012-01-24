@@ -551,23 +551,7 @@ def a(scene, t):
 
 # Transform matrix string
 def transform(m):
-	yy, mm, dd = bpy.app.build_date.split('-')
-	yy = int(yy)
-	mm = int(mm)
-	dd = int(dd)
-
-	t_trans = False
-
-	if yy > 2011:
-		t_trans = True
-	else:
-		if mm == 12 and dd > 22:
-			t_trans = True
-
-	if t_trans:
-		return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
-	else:
-		return "Transform(\n\t\tMatrix(\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f),\n\t\t\tVector(%f, %f, %f)\n\t\t),\n\t\tVector(%f, %f, %f))" % (m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2], m[2][0], m[2][1], m[2][2], m[3][0], m[3][1], m[3][2])
+	return "Transform(Matrix(Vector(%f, %f, %f),Vector(%f, %f, %f),Vector(%f, %f, %f)),Vector(%f, %f, %f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
 
 
 # Clean string from forbidden chars
