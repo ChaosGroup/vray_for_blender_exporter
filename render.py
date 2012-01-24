@@ -1811,7 +1811,7 @@ def run(engine, bus):
 	if VRayExporter.autorun:
 		process= subprocess.Popen(params)
 
-		if (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_crop_to_border:
+		if (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
 			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 			while True:
 				if engine.test_break():
