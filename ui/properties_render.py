@@ -437,19 +437,24 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 
 		# Manual render pipeline controls
 		if ve.animation:
-			render_label= "Render Animation"
-			render_icon= 'RENDER_ANIMATION'
+			render_label = "Animation"
+			render_icon  = 'RENDER_ANIMATION'
 		elif ve.camera_loop:
-			render_label= "Render Cameras"
-			render_icon= 'RENDER_ANIMATION'
+			render_label = "Cameras"
+			render_icon  = 'RENDER_ANIMATION'
 		else:
-			render_label= "Render Image"
-			render_icon= 'RENDER_STILL'
+			render_label = "Image"
+			render_icon  = 'RENDER_STILL'
 
 		box = layout.box()
 		box.label(text="Manual pipeline:")
 		split = box.split()
-		split.operator('vray.render', text= render_label, icon= render_icon)
+		col = split.column()
+		col.operator('vray.render', text=render_label, icon=render_icon)
+		if not ve.auto_meshes:
+			if wide_ui:
+				col = split.column()
+			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
 
 
 class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
