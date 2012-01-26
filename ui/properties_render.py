@@ -435,6 +435,22 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 
 		layout.operator('vray.update')
 
+		# Manual render pipeline controls
+		if ve.animation:
+			render_label= "Render Animation"
+			render_icon= 'RENDER_ANIMATION'
+		elif ve.camera_loop:
+			render_label= "Render Cameras"
+			render_icon= 'RENDER_ANIMATION'
+		else:
+			render_label= "Render Image"
+			render_icon= 'RENDER_STILL'
+
+		box = layout.box()
+		box.label(text="Manual pipeline:")
+		split = box.split()
+		split.operator('vray.render', text= render_label, icon= render_icon)
+
 
 class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Color mapping"

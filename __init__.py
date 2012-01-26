@@ -24,20 +24,6 @@
 
 '''
 
-# TODO: move to Add-ons
-# bl_info= {
-# 	"name":        "V-Ray (git)",
-# 	"author":      "Andrey M. Izrantsev",
-# 	"version":     (2, 0, 0),
-# 	"blender":     (2, 5, 6),
-# 	"api":         34812,
-# 	"location":    "Info Header",
-# 	"description": "V-Ray Standalone 2.0 integration.",
-# 	"warning":     "",
-# 	"wiki_url":    "https://github.com/bdancer/vb25/wiki",
-# 	"tracker_url": "https://github.com/bdancer/vb25/issues",
-# 	"category":    "Render"
-# }
 
 if "bpy" in locals():
 	import imp
@@ -58,8 +44,23 @@ def register():
 
 	plugins.add_properties()
 
+	wm = bpy.context.window_manager
+	kc = wm.keyconfigs.addon
+	if kc:
+		km = kc.keymaps.new('Screen', space_type='EMPTY', region_type='WINDOW')
+		kmi = km.keymap_items.new('vray.render', 'F10', 'PRESS')
+
 
 def unregister():
 	bpy.utils.unregister_module(__name__)
 
 	plugins.remove_properties()
+
+	wm = bpy.context.window_manager
+	kc = wm.keyconfigs.addon
+	if kc:
+		km = kc.addon.keymaps['Screen']
+		for kmi in km.keymap_items:
+			if kmi.idname == 'vray.render':
+				km.keymap_items.remove(kmi)
+				break

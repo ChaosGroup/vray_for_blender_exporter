@@ -1811,6 +1811,9 @@ def run(engine, bus):
 	if VRayExporter.autorun:
 		process= subprocess.Popen(params)
 
+		if not isinstance(engine, bpy.types.RenderEngine):
+			return
+
 		if (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
 			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 			while True:
@@ -1868,7 +1871,11 @@ def render(engine, scene, preview= None):
 	bus['cameras']= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
 
 	# Render engine
-	bus['engine']= engine.bl_idname if engine is not None else 'VRAY_RENDER_RT'
+	_engine = 'VRAY_RENDER'
+	if type(engine) is not str:
+		_engine = engine.bl_idname
+	
+	bus['engine']= _engine
 
 	if preview:
 		write_geometry_python(bus)

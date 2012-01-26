@@ -764,6 +764,24 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 bpy.utils.register_class(VRAY_OT_write_geometry)
 
 
+class VRAY_OT_render(bpy.types.Operator):
+	bl_idname      = "vray.render"
+	bl_label       = "V-Ray Renderer"
+	bl_description = "Render operator"
+
+	def execute(self, context):
+		scene = context.scene
+		
+		VRayScene    = scene.vray
+		VRayExporter = VRayScene.exporter
+
+		vb25.render.render('VRAY_RENDER', scene)
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_render)
+
+
 class VRAY_OT_run(bpy.types.Operator):
 	bl_idname      = "vray.run"
 	bl_label       = "Run V-Ray"
@@ -776,27 +794,6 @@ class VRAY_OT_run(bpy.types.Operator):
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_run)
-
-
-class VRAY_OT_render(bpy.types.Operator):
-	bl_idname      = "vray.render"
-	bl_label       = "V-Ray Renderer"
-	bl_description = "Render operator"
-
-	def execute(self, context):
-		scene= context.scene
-		
-		VRayScene= scene.vray
-		VRayExporter= VRayScene.exporter
-
-		if VRayExporter.auto_meshes:
-			bpy.ops.vray.write_geometry()
-		bpy.ops.vray.write_scene()
-		bpy.ops.vray.run()
-
-		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_render)
 
 
 class VRAY_OT_set_kelvin_color(bpy.types.Operator):
@@ -964,7 +961,6 @@ class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 		return {'CANCELLED'}
 
 bpy.utils.register_class(VRAY_OT_copy_linked_materials)
-
 
 
 '''
