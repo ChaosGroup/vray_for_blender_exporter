@@ -75,26 +75,29 @@ def write_UVWGenProjection(bus):
 
 
 def write_UVWGenChannel(bus):
-	ofile= bus['files']['textures']
-	sce=   bus['scene']
+	ofile = bus['files']['textures']
+	sce   = bus['scene']
 
-	texture= bus['mtex']['texture']
-	slot=    bus['mtex'].get('slot')
+	texture = bus['mtex']['texture']
+	slot    = bus['mtex'].get('slot')
 
-	uvw_name= "UVC%s" % (bus['mtex']['name'])
+	uvw_name = "UVC%s" % (bus['mtex']['name'])
 
-	VRaySlot=    texture.vray_slot
-	VRayTexture= texture.vray
+	VRaySlot    = texture.vray_slot
+	VRayTexture = texture.vray
 	
-	uvw_channel= 1
-	uvwgen=      None
+	uvw_channel = 1
+	uvwgen      = None
 
 	if VRayTexture.texture_coords == 'ORCO':
 		uvwgen= write_UVWGenProjection(bus)
 
 	else:
 		if slot and hasattr(slot, 'uv_layer'):
-			uvw_channel= get_uv_layer_id(bus['uvs'], slot.uv_layer)
+			if slot.uv_layer.isdigit():
+				uvw_channel	= int(slot.uv_layer)
+			else:
+				uvw_channel = get_uv_layer_id(bus['uvs'], slot.uv_layer)
 
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
