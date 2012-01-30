@@ -1322,9 +1322,9 @@ def _write_object_particles(bus):
 					part_transform.resize_4x4()
 
 					# Add location
-					part_transform[3][0]= location[0]
-					part_transform[3][1]= location[1]
-					part_transform[3][2]= location[2]
+					part_transform[0][3]= location[0]
+					part_transform[1][3]= location[1]
+					part_transform[2][3]= location[2]
 
 					for p_ob in particle_objects:
 						part_name= clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
