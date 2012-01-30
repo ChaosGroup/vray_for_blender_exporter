@@ -95,7 +95,7 @@ def write_UVWGenChannel(bus):
 	else:
 		if slot and hasattr(slot, 'uv_layer'):
 			if slot.uv_layer.isdigit():
-				uvw_channel	= int(slot.uv_layer)
+				uvw_channel = int(slot.uv_layer)
 			else:
 				uvw_channel = get_uv_layer_id(bus['uvs'], slot.uv_layer)
 
