@@ -168,10 +168,14 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 
 		elif lamp.type == 'POINT':
 			col.row().prop(vl, 'omni_type', expand=True)
+			col.separator()
 			if vl.omni_type == 'OMNI':
 				col.prop(vl,'radius')
 				if vl.radius > 0:
 					col.prop(vl,'sphere_segments')
+			else:
+				col.prop(vl, 'decay')
+				col.prop(vl, 'ambientShade')
 
 		elif lamp.type == 'SUN':
 			if vl.direct_type == 'DIRECT':
