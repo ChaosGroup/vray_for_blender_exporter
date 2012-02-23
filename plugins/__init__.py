@@ -288,6 +288,27 @@ def add_properties():
 			default= 1.0
 		)
 
+		omni_type= EnumProperty(
+			name= "Omni type",
+			description= "Omni light type",
+			items= (
+				('OMNI',    "Omni",    ""),
+				('AMBIENT', "Ambient", ""),
+			),
+			default= 'OMNI'
+		)
+
+		ambientShade= FloatProperty(
+			name= "Ambient Shade",
+			description= "Ambient Shade",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 2.0,
+			precision= 3,
+			default= 1.0
+		)
+
 		direct_type= EnumProperty(
 			name= "Direct type",
 			description= "Direct light type",

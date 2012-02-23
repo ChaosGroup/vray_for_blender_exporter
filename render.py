@@ -78,6 +78,14 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		'decay'
 	),
 
+	'LightAmbient': (
+		'enabled',
+		#'color',
+		'shadowBias',
+		'decay',
+		'ambientShade',
+	),
+
 	'LightSphere': (
 		'enabled',
 		#'color_tex',
@@ -949,10 +957,13 @@ def write_lamp(bus):
 	textures= write_lamp_textures(bus)
 
 	if lamp.type == 'POINT':
-		if VRayLamp.radius > 0:
-			lamp_type= 'LightSphere'
+		if VRayLamp.omni_type == 'AMBIENT':
+			lamp_type= 'LightAmbient'
 		else:
-			lamp_type= 'LightOmni'
+			if VRayLamp.radius > 0:
+				lamp_type= 'LightSphere'
+			else:
+				lamp_type= 'LightOmni'
 	elif lamp.type == 'SPOT':
 		if VRayLamp.spot_type == 'SPOT':
 			lamp_type= 'LightSpot'
@@ -1008,9 +1019,10 @@ def write_lamp(bus):
 			color= kelvin_to_rgb(VRayLamp.temperature)
 		ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
 			
-		if lamp_type != 'LightIESMax':
+		if lamp_type not in ('LightIESMax', 'LightAmbient'):
 			ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
-		else:
+		
+		if lamp_type == 'LightIESMax':
 			ofile.write("\n\ties_light_shape= %i;" % (VRayLamp.ies_light_shape if VRayLamp.ies_light_shape else -1))
 			ofile.write("\n\ties_light_width= %.3f;" %    (VRayLamp.ies_light_width))
 			ofile.write("\n\ties_light_length= %.3f;" %   (VRayLamp.ies_light_width if VRayLamp.ies_light_shape_lock else VRayLamp.ies_light_length))
@@ -1259,107 +1271,110 @@ def _write_object_particles(bus):
 
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems:
-			ps_material= "MANOMATERIALISSET"
-			ps_material_idx= ps.settings.material
+			ps_material = "MANOMATERIALISSET"
+			ps_material_idx = ps.settings.material
 			if len(ob.material_slots) >= ps_material_idx:
-				ps_material= get_name(ob.material_slots[ps_material_idx - 1].material, prefix='MA')
+				ps_material = get_name(ob.material_slots[ps_material_idx - 1].material, prefix='MA')
 
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
-					hair_geom_name= clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
-					hair_node_name= get_name(ob, prefix='HAIR')
+					hair_geom_name = clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
+					hair_node_name = get_name(ob, prefix='HAIR')
 
 					if not 'export_meshes' in dir(bpy.ops.vray) or bus['preview']:
 						write_GeomMayaHair(bus, ps, hair_geom_name)
 
-					bus['node']['name']=     hair_node_name
-					bus['node']['geometry']= hair_geom_name
-					bus['node']['material']= ps_material
-					bus['node']['hair']=     True
+					bus['node']['hair']     = True
+					bus['node']['name']     = hair_node_name
+					bus['node']['geometry'] = hair_geom_name
+					bus['node']['material'] = ps_material
 					
 					write_node(bus)
 
-					bus['node']['hair']=     False
+					bus['node']['hair'] = False
 
 			else:
-				particle_objects= []
+				particle_objects = []
 
 				if ps.settings.render_type == 'OBJECT':
 					particle_objects.append(ps.settings.dupli_object)
-
 				elif ps.settings.render_type == 'GROUP':
-					particle_objects= ps.settings.dupli_group.objects
-
+					particle_objects = ps.settings.dupli_group.objects
 				else:
 					continue
 
 				for p,particle in enumerate(ps.particles):
-					p_log= False
+					p_log = False
 					if ps.settings.count >= 50000:
 						if (p % 1000) == 0:
-							p_log= True
+							p_log = True
 					else:
 						if (p % 100) == 0:
-							p_log= True
+							p_log = True
 					if p_log:
-						sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name,'yellow'), color(p, 'green')))
+						sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name, 'yellow'), color(p, 'green')))
 						sys.stdout.flush()
 
-					location= particle.location
-					size= particle.size
+					location = particle.location
+					size     = particle.size 
 					if ps.settings.type == 'HAIR':
-						location= particle.hair_keys[0].co
-						size*= 3
+						location = particle.hair_keys[0].co 
+						size    *= ps.settings.hair_length
 
-					part_transform= mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
+					part_transform = mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
 
 					# Specific to Blender particle realization:
-					#   Object must be rotated so that it's top is aligned to X
-					# So, we need to back rotated original matrix
-					part_transform*= mathutils.Matrix.Rotation(math.radians(90.0), 3, 'Y')
+					#  Object must be rotated so that it's top is aligned to X
+					#  So, we need to rotate original matrix
+					if not ps.settings.use_rotation_dupli:
+						part_transform *= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Z')
 
 					# Resize matrix
 					part_transform.resize_4x4()
 
 					# Add location
-					part_transform[0][3]= location[0]
-					part_transform[1][3]= location[1]
-					part_transform[2][3]= location[2]
+					part_transform.translation = mathutils.Vector(location)
 
 					for p_ob in particle_objects:
-						part_name= clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
+						part_name = clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
 						
 						if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
-							part_name= "OB%sPS%sP%s" %(bus['node']['particle']['name'],
-													   clean_string(ps.name),
-													   p)
+							part_name = "OB%sPS%sP%s" %(bus['node']['particle']['name'],
+													    clean_string(ps.name),
+													    p)
 												 
 						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
-							part_transform= part_transform * p_ob.matrix_world
+							p_ob_offs = mathutils.Matrix.Translation(p_ob.matrix_world.translation)
+							part_transform *= p_ob_offs
+						
+						if ps.settings.use_rotation_dupli:
+							p_ob_rot_sca = p_ob.matrix_world.copy()
+							p_ob_rot_sca.translation = mathutils.Vector((0.0,0.0,0.0))
+							part_transform *= p_ob_rot_sca
 
-						part_visibility= True
+						part_visibility = True
 						if ps.settings.type == 'EMITTER':
 							if not particle.alive_state == 'ALIVE':
-								part_visibility= False
+								part_visibility = False
 							if particle.alive_state == 'DEAD' and ps.settings.use_dead:
-								part_visibility= True
+								part_visibility = True
 							if particle.alive_state == 'UNBORN' and ps.settings.show_unborn:
-								part_visibility= True
-
-						bus['node']['object']= p_ob
-						bus['node']['base']= ob
-						bus['node']['particle']= {}
-						bus['node']['particle']['name']=     part_name
-						bus['node']['particle']['matrix']=   part_transform
-						bus['node']['particle']['visible']=  part_visibility
-						bus['node']['particle']['material']= ps_material
+								part_visibility = True
+						
+						bus['node']['object']               = p_ob
+						bus['node']['base']                 = ob
+						bus['node']['particle']             = {}
+						bus['node']['particle']['name']     = part_name
+						bus['node']['particle']['matrix']   = part_transform
+						bus['node']['particle']['visible']  = part_visibility
+						bus['node']['particle']['material'] = ps_material
 
 						_write_object(bus)
 
-						bus['node']['object']=   ob
-						bus['node']['base']=     ob
-						bus['node']['visible']=  True
-						bus['node']['particle']= {}
+						bus['node']['object']   = ob
+						bus['node']['base']     = ob
+						bus['node']['visible']  = True
+						bus['node']['particle'] = {}
 
 
 def _write_object_dupli(bus):
