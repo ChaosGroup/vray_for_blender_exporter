@@ -161,11 +161,12 @@ def write_mesh_hex(bus):
 			edge_visibility(k, ev)
 	ofile.write("\");")
 
+	uv_textures = me.tessface_uv_textures if 'tessface_uv_textures' in dir(me) else me.uv_textures
 
-	if len(me.uv_textures):
+	if len(uv_textures):
 		ofile.write("\n\tmap_channels= List(")
 
-		for uv_texture_idx,uv_texture in enumerate(me.uv_textures):
+		for uv_texture_idx,uv_texture in enumerate(uv_textures):
 			if uv_texture_idx:
 				ofile.write(",")
 
