@@ -108,10 +108,7 @@ if base_dir is not None:
 	plugins= [__import__(fname) for fname in plugins_files]
 
 	for plugin in plugins:
-		debug(None, "Loading plugin: {0:<32}".format(plugin.__name__), newline= False)
 		PLUGINS[plugin.TYPE][plugin.ID]= plugin
-
-	debug(None, "Loading plugins... {0:<32}".format("done."))
 
 else:
 	debug(None, "Plugins not found!", error= True)
@@ -398,9 +395,9 @@ def add_properties():
 			name= "Decay",
 			description= "Light decay",
 			min= 0.0,
-			max= 1.0,
+			max= 100.0,
 			soft_min= 0.0,
-			soft_max= 1.0,
+			soft_max= 4.0,
 			precision= 3,
 			default= 2
 		)
