@@ -697,7 +697,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else defaults[key][0]))
 
 	for key in ('roughness','reflect_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
-		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity" % textures[key] if key in textures else a(scene,getattr(BRDFVRayMtl,key))))
+		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity"%(textures[key]) if key in textures else a(scene,getattr(BRDFVRayMtl,key))))
 
 	if 'opacity' in textures:
 		ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
@@ -711,8 +711,6 @@ def write(bus, VRayBRDF= None, base_name= None):
 			value= AFFECT_ALPHA[BRDFVRayMtl.refract_affect_alpha]
 		elif param == 'reflect_affect_alpha':
 			value= AFFECT_ALPHA[BRDFVRayMtl.reflect_affect_alpha]
-		elif param == 'anisotropy_rotation':
-			value= BRDFVRayMtl.anisotropy_rotation / 360.0
 		elif param == 'translucency_thickness':
 			value= BRDFVRayMtl.translucency_thickness * 1000000000000
 		elif param == 'option_glossy_rays_as_gi':
