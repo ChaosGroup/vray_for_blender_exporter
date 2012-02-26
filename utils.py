@@ -727,8 +727,16 @@ def get_filename(filepath):
 	return os.path.basename(bpy.path.abspath(filepath))
 
 
+def path_sep_to_unix(filepath):
+	if PLATFORM != 'win32':
+		filepath = filepath.replace('\\\\', '/')
+		filepath = filepath.replace('\\', '/')
+	return filepath
+
+
 # Create directory
 def create_dir(directory):
+	directory = path_sep_to_unix(directory)
 	if not os.path.exists(directory):
 		debug(None, "Creating directory \"%s\"... " % directory, newline= False, cr= False)
 		try:
@@ -766,7 +774,9 @@ def get_full_filepath(bus, ob, filepath):
 		filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
 
 	# Full absolute file path
-	src_file= os.path.normpath(bpy.path.abspath(filepath))
+	src_file = bpy.path.abspath(filepath)
+	src_file = path_sep_to_unix(src_file)
+	src_file = os.path.normpath(src_file)
 
 	if not VRayDR.on:
 		return src_file
