@@ -178,7 +178,7 @@ def write(bus):
 	ofile.write("\n%s %s {" % (ID,ID))
 	for param in PARAMS:
 		if param in ('file','auto_save_file'):
-			value= "\"%s\"" % getattr(SettingsCaustics, param)
+			value= "\"%s\"" % path_sep_to_unix(bpy.path.abspath(getattr(SettingsCaustics, param)))
 		elif param == 'mode':
 			value= MODE[SettingsCaustics.mode]
 		else:
