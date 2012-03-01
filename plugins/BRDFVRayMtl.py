@@ -76,7 +76,7 @@ PARAMS= (
 	#'refract_ior',
 	'dispersion_on',
 	'dispersion',
-	'refract_glossiness',
+	#'refract_glossiness',
 	'refract_subdivs',
 	'refract_trace',
 	'refract_depth',
@@ -696,7 +696,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 	for key in ('diffuse','reflect','refract','translucency_color'):
 		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else defaults[key][0]))
 
-	for key in ('roughness','reflect_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
+	for key in ('roughness','reflect_glossiness','refract_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
 		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity"%(textures[key]) if key in textures else a(scene,getattr(BRDFVRayMtl,key))))
 
 	if 'opacity' in textures:

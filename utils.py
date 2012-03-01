@@ -769,7 +769,7 @@ def get_full_filepath(bus, ob, filepath):
 
 	# If object is linked and path is relative
 	# we need to find correct absolute path
-	if ob.library and rel_path(filepath):
+	if ob and ob.library and rel_path(filepath):
 		lib_path= os.path.dirname(bpy.path.abspath(ob.library.filepath))
 		filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
 
