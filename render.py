@@ -984,22 +984,22 @@ def write_lamp(bus):
 	ofile.write("\n%s %s {"%(lamp_type,lamp_name))
 
 	if 'color' in textures:
-		ofile.write("\n\tcolor_tex= %s;" % textures['color'])
-
 		if lamp.type == 'SUN' and VRayLamp.direct_type == 'DIRECT':
 			ofile.write("\n\tprojector_map= %s;" % textures['color'])
 
-		if lamp.type == 'AREA':
-			ofile.write("\n\tuse_rect_tex= 1;")
-			ofile.write("\n\trect_tex= %s;" % textures['color'])
-
-		elif lamp.type == 'HEMI':
-			ofile.write("\n\tuse_dome_tex= 1;")
-			ofile.write("\n\tdome_tex= %s;" % textures['color'])
-
-		if lamp.type in ('AREA','HEMI'):
+		if lamp.type in {'AREA','HEMI'}:
 			ofile.write("\n\ttex_adaptive= %.2f;" % (1.0))
 			ofile.write("\n\ttex_resolution= %i;" % (512))
+			
+			if lamp.type == 'AREA':
+				ofile.write("\n\tuse_rect_tex= 1;")
+				ofile.write("\n\trect_tex= %s;" % textures['color'])
+			elif lamp.type == 'HEMI':
+				ofile.write("\n\tuse_dome_tex= 1;")
+				ofile.write("\n\tdome_tex= %s;" % textures['color'])
+		
+		if lamp.type not in {'HEMI'}:
+			ofile.write("\n\tcolor_tex= %s;" % textures['color'])
 
 	if 'intensity' in textures:
 		ofile.write("\n\tintensity_tex= %s;" % a(scene, "%s::out_intensity" % textures['intensity']))
