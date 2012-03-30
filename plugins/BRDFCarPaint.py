@@ -574,6 +574,7 @@ def mapto(bus, BRDFLayered= None):
 
 	defaults= {}
 
+	defaults['bump']=         ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 

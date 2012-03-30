@@ -204,9 +204,11 @@ def write_uvwgen(bus):
 		bus['cache']['uvwgen'][ bus['mtex']['name'] ]= uvwgen
 
 		# We need to pass normal uvwgen to BRDFBump
-		if 'material' in bus and bus['mtex']['mapto'] == 'normal':
-			bus['material']['normal_uvwgen']= uvwgen
-		
+		if 'material' in bus:
+			if bus['mtex']['mapto'] == 'normal':
+				bus['material']['normal_uvwgen']= uvwgen
+			if bus['mtex']['mapto'] == 'bump':
+				bus['material']['bump_uvwgen']= uvwgen
 		return uvwgen
 
 	

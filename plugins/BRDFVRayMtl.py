@@ -642,6 +642,7 @@ def mapto(bus, BRDFLayered= None):
 	defaults['fresnel_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 	defaults['refract_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
+	defaults['bump']=         ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
 
 	return defaults

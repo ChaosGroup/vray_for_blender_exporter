@@ -544,34 +544,43 @@ def write_material_textures(bus):
 			VRayTexture= slot.texture.vray
 
 			for key in mapped_params:
-				if getattr(VRaySlot, 'map_'+key):
-					factor= getattr(VRaySlot, key+'_mult')
+				if key == 'bump' or getattr(VRaySlot, "map_%s" % (key)):
+					factor = getattr(VRaySlot, "%s_mult" % ('normal' if key == 'bump' else key))
+					mapto  = key
 					
-					if key not in bus['textures']: # If texture is first in stack
-						bus['textures'][key]= []
+					if mapto == 'normal' and getattr(VRaySlot, "map_normal") and VRaySlot.BRDFBump.map_type == 'BUMP':
+						continue
+
+					if mapto == 'bump' and not (getattr(VRaySlot, "map_normal") and VRaySlot.BRDFBump.map_type == 'BUMP'):
+						continue
+
+					if mapto not in bus['textures']: # If texture is first in stack
+						bus['textures'][mapto]= []
 						# If this texture will be blended over some value
 						# we need to add this value
 						# (for example, texture blended over diffuse color)
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures'][key].append(mapped_params[key])
+							bus['textures'][mapto].append(mapped_params[mapto])
 
 					# Store slot for GeomDisplaceMesh
-					if key == 'displacement':
-						bus['node']['displacement_slot']= slot
-
-					# Store slot for BRDFBump
-					elif key == 'normal':
-						bus['material']['normal_slot']= slot
+					if mapto == 'displacement':
+						bus['node']['displacement_slot'] = slot
+					# Store slot for bump
+					elif mapto == 'bump':
+						bus['material']['bump_slot'] = slot
+					# Store slot for normal
+					elif mapto == 'normal':
+						bus['material']['normal_slot'] = slot
 						
-					bus['mtex']= {}
-					bus['mtex']['slot']=    slot
-					bus['mtex']['texture']= slot.texture
-					bus['mtex']['mapto']=   key
-					bus['mtex']['factor']=  factor
+					bus['mtex']            = {}
+					bus['mtex']['slot']    = slot
+					bus['mtex']['texture'] = slot.texture
+					bus['mtex']['mapto']   = mapto
+					bus['mtex']['factor']  = factor
 
 					# Check if we could improve this
 					# Better handling of texture blending
-					bus['mtex']['name']=    clean_string("MA%sMT%.2iTE%s" % (ma.name, i, slot.texture.name))
+					bus['mtex']['name']= clean_string("MA%sMT%.2iTE%s" % (ma.name, i, slot.texture.name))
 
 					if VRayTexture.texture_coords == 'ORCO':
 						bus['material']['orco_suffix']= get_name(get_orco_object(scene, bus['node']['object'], VRayTexture),
@@ -585,9 +594,9 @@ def write_material_textures(bus):
 					# Write texture
 					if write_texture(bus):
 						# Append texture to stack and write texture with factor
-						bus['textures'][key].append( [stack_write_texture(bus),
-													  slot.use_stencil,
-													  VRaySlot.blend_mode] )
+						bus['textures'][mapto].append( [stack_write_texture(bus),
+														slot.use_stencil,
+														VRaySlot.blend_mode] )
 
 	if VRayExporter.debug:
 		if len(bus['textures']):

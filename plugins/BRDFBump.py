@@ -96,7 +96,7 @@ def add_properties(rna_pointer):
 
 
 
-def write(bus, base_brdf= None):
+def write(bus, base_brdf = None, use_bump = False):
 	MAP_TYPE= {
 		'EXPLICIT': 6,
 		'FROMBUMP': 5,
@@ -107,30 +107,41 @@ def write(bus, base_brdf= None):
 		'BUMP'   :  0,
 	}
 
-	ofile=     bus['files']['materials']
-	scene=     bus['scene']
-
-	textures=  bus['textures']
-	slot=      bus['material'].get('normal_slot')
+	ofile = bus['files']['materials']
+	scene = bus['scene']
+	
+	textures = bus['textures']
+	slot     = bus['material'].get('bump_slot' if use_bump else 'normal_slot')
+	uvwgen   = 'bump_uvwgen' if use_bump else 'normal_uvwgen'
 
 	if not base_brdf:
-		base_brdf= bus['brdf']
+		base_brdf = bus['brdf']
 
-	if slot and textures.get('normal'):
-		VRayTexture= slot.texture.vray
-		VRaySlot=    slot.texture.vray_slot
+	if slot and textures.get(('bump' if use_bump else 'normal')):
+		VRayTexture = slot.texture.vray
+		VRaySlot    = slot.texture.vray_slot
 		
-		BRDFBump=    VRaySlot.BRDFBump
+		BRDFBump    = VRaySlot.BRDFBump
 
-		brdf_name= "BRDFBump_%s" % base_brdf
+		# Check if normal mapping requested
+		if BRDFBump.map_type == 'BUMP' and not use_bump:
+			return base_brdf
+
+		suffix = 'NO'
+		mapto  = 'normal'
+		if BRDFBump.map_type == 'BUMP': # Bump
+			suffix = 'BUMP'
+			mapto  = 'bump'
+
+		brdf_name= "BRDFBump_%s_%s" % (base_brdf, suffix)
 
 		ofile.write("\nBRDFBump %s {" % brdf_name)
 		ofile.write("\n\tbase_brdf= %s;" % base_brdf)
 		ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
-		ofile.write("\n\tbump_tex_color= %s;" % textures['normal'])
-		ofile.write("\n\tbump_tex_float= %s;" % textures['normal'])
+		ofile.write("\n\tbump_tex_color= %s;" % textures[mapto])
+		ofile.write("\n\tbump_tex_float= %s;" % textures[mapto])
 		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material']['normal_uvwgen'])
+		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material'][uvwgen])
 		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 		ofile.write("\n}\n")

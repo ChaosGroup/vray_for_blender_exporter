@@ -738,8 +738,11 @@ def	write_material(bus):
 	# Write material BRDF
 	brdf= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
 
-	# Add BRDFBump if needed
-	brdf= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf= brdf)
+	# Add normal mapping if needed
+	brdf= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf = brdf)
+
+	# Add bump mapping if needed
+	brdf= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf = brdf, use_bump = True)
 
 	# Add wrapper / override / etc
 	complex_material= []
@@ -847,30 +850,33 @@ def write_materials(bus):
 
 	# Material override
 	if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-		ma= get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
+		ma = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
 		if ma:
-			bus['material']= {}
-			bus['material']['material']= ma
+			bus['material'] = {}
+			bus['material']['material'] = ma
 
 			# Normal mapping settings pointer
-			bus['material']['normal_slot']=      None
+			bus['material']['normal_slot'] = None
+
+			# Bump mapping settings pointer
+			bus['material']['bump_slot']   = None
 
 			# Set if any texture uses object mapping
-			bus['material']['orco_suffix']=      ""
+			bus['material']['orco_suffix'] = ""
 
 			if ma.use_nodes:
-				bus['node']['material']= write_node_material(bus)
+				bus['node']['material'] = write_node_material(bus)
 			else:
-				bus['node']['material']= write_material(bus)
+				bus['node']['material'] = write_material(bus)
 
 			return
 
 	# Multi-material name
-	mtl_name= get_name(ob, prefix='OBMA')
+	mtl_name = get_name(ob, prefix='OBMA')
 
 	# Reset displacement settings pointers
-	bus['node']['displacement_slot']=    None
-	bus['node']['displacement_texture']= None
+	bus['node']['displacement_slot']    = None
+	bus['node']['displacement_texture'] = None
 
 	# Collecting and exporting object materials
 	mtls_list= []
@@ -881,14 +887,17 @@ def write_materials(bus):
 		for slot in ob.material_slots:
 			ma= slot.material
 			if ma:
-				bus['material']= {}
-				bus['material']['material']= ma
+				bus['material'] = {}
+				bus['material']['material'] = ma
 
 				# Normal mapping settings pointer
-				bus['material']['normal_slot']= None
+				bus['material']['normal_slot'] = None
+
+				# Bump mapping settings pointer
+				bus['material']['bump_slot']   = None
 
 				# Set if any texture uses object mapping
-				bus['material']['orco_suffix']= ""
+				bus['material']['orco_suffix'] = ""
 
 				if ma.use_nodes:
 					mtls_list.append(write_node_material(bus))
