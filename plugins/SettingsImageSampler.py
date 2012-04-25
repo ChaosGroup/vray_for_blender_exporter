@@ -238,11 +238,19 @@ def write(bus):
 	VRayScene= scene.vray
 	SettingsImageSampler=       VRayScene.SettingsImageSampler
 	SettingsImageSamplerFilter= VRayScene.SettingsImageSampler
+	SettingsDMCSampler=         VRayScene.SettingsDMCSampler
 
 	ofile.write("\n%s %s {" % (ID, ID))
 	for param in PARAMS:
 		if param == 'type':
 			value= TYPE[SettingsImageSampler.type]
+		elif param == 'dmc_threshold':
+			if SettingsImageSampler.dmc_treshhold_use_dmc:
+				value = SettingsDMCSampler.adaptive_threshold
+			else:
+				value = SettingsImageSampler.dmc_threshold
+			if VRayScene.exporter.draft:
+				value *= 4
 		else:
 			value= getattr(SettingsImageSampler, param)
 		ofile.write("\n\t%s= %s;" % (param, p(value)))
