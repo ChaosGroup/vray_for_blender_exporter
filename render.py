@@ -4,8 +4,6 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 11 August 2011 [20:44]"
-
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -305,54 +303,6 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 }
 
 
-#### Data bus
-# bus= {}
-
-### Currently processed object
-# bus['node']= {}
-# bus['node']['object']= *ob
-# bus['node']['displace']['data_pointer']= *tex
-# bus['node']['displace']['texture']= vr_tex_name
-
-### Currently processed material
-# bus['material']= {}
-
-## Material
-# bus['material']['material']= *material
-
-## If some texture need object mapping then material become object dependent
-# bus['material']['orco_suffix']= ""
-
-## Normal mapping settings pointer
-# bus['material']['normal_slot']= *slot
-
-## BRDFBump nomal mapping uvwgen
-# bus['material']['normal_uvwgen']= string
-
-### Texture stack
-# bus['textures']=      {}
-# bus['lamp_textures']= {}
-# bus['env_textures']=  {}
-
-### Currently processed texture
-# bus['mtex']= {}
-# bus['mtex']['slot']
-# bus['mtex']['texture']
-# bus['mtex']['factor']
-# bus['mtex']['blend_mode']
-
-### Exported data cache
-# bus['cache']= {}
-
-## Animated proxy data is proxy dependent so caching only type 'STILL'
-# bus['cache']['proxy']=  []
-
-## Animated bitmap data is bitmap dependent so caching only type 'FILE'
-# bus['cache']['bitmap']= []
-
-## 'ORCO' textures are object position dependent so caching only type 'UV'
-# bus['cache']['texture_uv']= []
-
 
 '''
   MESHES
@@ -404,11 +354,8 @@ def write_geometry_python(bus):
 
 	# Output files
 	bus['files']['geometry']= []
-	if bus['preview']:
-		bus['files']['geometry'].append(open(bus['filenames']['geometry'], 'w'))
-	else:
-		for thread in range(scene.render.threads):
-			bus['files']['geometry'].append(open(bus['filenames']['geometry'][:-11]+"_%.2i.vrscene"%(thread), 'w'))
+	for thread in range(scene.render.threads):
+		bus['files']['geometry'].append(open(bus['filenames']['geometry'][:-11]+"_%.2i.vrscene"%(thread), 'w'))
 
 	for geometry_file in bus['files']['geometry']:
 		geometry_file.write("// V-Ray/Blender %s" % VERSION)
@@ -417,7 +364,7 @@ def write_geometry_python(bus):
 	timer= time.clock()
 	debug(scene, "Writing meshes...")
 
-	if VRayExporter.animation and not VRayExporter.camera_loop:
+	if VRayExporter.animation and VRayExporter.animation_type == 'FULL' and not VRayExporter.camera_loop:
 		cur_frame= scene.frame_current
 		scene.frame_set(scene.frame_start)
 		f= scene.frame_start
@@ -449,10 +396,11 @@ def write_geometry(bus):
 		bpy.ops.vray.export_meshes(
 			filepath=          bus['filenames']['geometry'][:-11],
 			use_active_layers= VRayExporter.mesh_active_layers,
-			use_animation=     VRayExporter.animation,
+			use_animation=     VRayExporter.animation and VRayExporter.animation_type == 'FULL',
 			use_instances=     VRayExporter.use_instances,
 			debug=             VRayExporter.mesh_debug,
 			check_animated=    VRayExporter.check_animated,
+			scene=             scene.as_pointer()
 		)
 
 	else:
@@ -532,11 +480,8 @@ def write_settings(bus):
 					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
 		else:
 			if key == 'geometry':
-				if bus['preview']:
-					ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames']['geometry']))
-				else:
-					for t in range(scene.render.threads):
-						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+				for t in range(scene.render.threads):
+					ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
 			else:
 				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
 	ofile.write("\n")
@@ -737,6 +682,8 @@ def	write_material(bus):
 	
 	# Write material BRDF
 	brdf= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
+
+	# print_dict(scene, "Bus", bus)
 
 	# Add normal mapping if needed
 	brdf= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf = brdf)
@@ -1686,7 +1633,15 @@ def write_scene(bus):
 
 	debug(scene, "Writing scene...")
 
-	if VRayExporter.animation:
+	if bus['preview']:
+		write_geometry(bus)
+		write_frame(bus)
+		return False
+
+	if VRayExporter.auto_meshes:
+		write_geometry(bus)
+
+	if VRayExporter.animation and VRayExporter.animation_type in {'FULL', 'NOTMESHES'}:
 		selected_frame= scene.frame_current
 		f= scene.frame_start
 		while(f <= scene.frame_end):
@@ -1704,17 +1659,16 @@ def write_scene(bus):
 			else:
 				debug(scene, "No cameras selected for \"Camera loop\"!", error= True)
 				return True # Error
+		
 		else:
 			write_frame(bus)
-		
-	write_settings(bus)
 
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 	return False # No errors
 
 
-def run(engine, bus):
+def run(bus):
 	scene= bus['scene']
 
 	VRayScene=    scene.vray
@@ -1770,7 +1724,10 @@ def run(engine, bus):
 
 		params.append('-frames=')
 		if VRayExporter.animation:
-			params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end,int(scene.frame_step)))
+			if VRayExporter.animation_type == 'FRAMEBYFRAME':
+				params.append("%d"%(scene.frame_current))
+			else:
+				params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end, int(scene.frame_step)))
 		elif VRayExporter.camera_loop:
 			if bus['cameras']:
 				params.append("1-%d,1" % len(bus['cameras']))
@@ -1816,29 +1773,28 @@ def run(engine, bus):
 			log_window.extend(params)
 			params= log_window
 
-	# if PLATFORM == "win32":
-	# 	win_belownormal= []
-	# 	win_belownormal.append("start")
-	# 	win_belownormal.append("\"VRAYSTANDALONE\"")
-	# 	win_belownormal.append("/B")
-	# 	win_belownormal.append("/BELOWNORMAL")
-	# 	win_belownormal.append("\"%s\"" % params[0])
-	# 	win_belownormal.extend(params[1:])
-
-	if VRayExporter.autoclose:
+	if VRayExporter.autoclose or (VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME'):
 		params.append('-autoclose=')
 		params.append('1')
 
 	if not VRayExporter.autorun:
 		debug(scene, "Command: %s" % ' '.join(params))
 
+	engine = bus['engine']
+
 	if VRayExporter.autorun:
-		process= subprocess.Popen(params)
+		process = subprocess.Popen(params)
+
+		if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+			while True:
+				if process.poll() is not None:
+					break
+				time.sleep(0.1)
 
 		if not isinstance(engine, bpy.types.RenderEngine):
 			return
 
-		if (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
+		if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
 			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 			while True:
 				if engine.test_break():
@@ -1863,9 +1819,24 @@ def run(engine, bus):
 
 	else:
 		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
-	
 
-def render(engine, scene, preview= None):
+
+def close_files(bus):
+	for key in bus['files']:
+		bus['files'][key].close()
+
+
+def export_and_run(bus):
+	err = write_scene(bus)
+
+	write_settings(bus)
+	close_files(bus)
+
+	if not err:
+		run(bus)
+
+
+def init_bus(engine, scene, preview = False):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 
@@ -1892,29 +1863,36 @@ def render(engine, scene, preview= None):
 	init_files(bus)
 
 	# Camera loop
-	bus['cameras']= [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
+	bus['cameras'] = []
+	if VRayExporter.camera_loop:
+		bus['cameras'] = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
 
 	# Render engine
-	_engine = 'VRAY_RENDER'
-	if type(engine) is not str:
-		_engine = engine.bl_idname
-	
-	bus['engine']= _engine
+	bus['engine']= engine
+
+	return bus
+
+
+def render(engine, scene, preview= None):
+	VRayScene=    scene.vray
+	VRayExporter= VRayScene.exporter
 
 	if preview:
-		write_geometry_python(bus)
+		export_and_run(init_bus(engine, scene, True))
+		return
+	
+	bus = init_bus(engine, scene, preview)
 
+	if VRayExporter.animation:
+		if VRayExporter.animation_type == 'FRAMEBYFRAME':
+			selected_frame= scene.frame_current
+			f= scene.frame_start
+			while(f <= scene.frame_end):
+				scene.frame_set(f)
+				export_and_run(init_bus(engine, scene))
+				f+= scene.frame_step
+			scene.frame_set(selected_frame)
+		else:
+			export_and_run(bus)
 	else:
-		if VRayExporter.auto_meshes:
-			write_geometry(bus)
-
-	err= write_scene(bus)
-
-	for key in bus['files']:
-		bus['files'][key].write("\n// vim: set syntax=on syntax=c:\n\n")
-		bus['files'][key].close()
-
-	if not err:
-		run(engine, bus)
-
-	del bus
+		export_and_run(bus)
