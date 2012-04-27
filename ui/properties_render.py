@@ -233,6 +233,9 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 				col= split.column()
 			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
 
+		if VRayExporter.animation:
+			layout.prop(VRayExporter, 'animation_type')
+		
 		split= layout.split()
 		col= split.column()
 		col.label(text="Modules:")
@@ -406,7 +409,6 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')
 		col.prop(ve, 'mesh_debug')
-		col.prop(ve, 'mesh_ascii')
 		
 		layout.separator()
 
