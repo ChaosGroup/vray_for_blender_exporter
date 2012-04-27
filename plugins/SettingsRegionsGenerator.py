@@ -93,7 +93,7 @@ def add_properties(parent_struct):
 		name= "X",
 		description= "Determines the maximum region width in pixels (Bucket W/H is selected) or the number of regions in the horizontal direction (when Region Count is selected)",
 		min= 1,
-		max= 100,
+		max= 1024,
 		default= 32
 	)
 
@@ -101,7 +101,7 @@ def add_properties(parent_struct):
 		name= "Y",
 		description= "Determines the maximum region height in pixels (Bucket W/H is selected) or the number of regions in the vertical direction (when Region Count is selected)",
 		min= 1,
-		max= 100,
+		max= 1024,
 		default= 32
 	)
 
