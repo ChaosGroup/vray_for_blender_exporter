@@ -66,7 +66,7 @@ PARAM_MAP= {
 	'Matte Shadow':        128,
 	'Total Lightning':     129,
 	'Raw Total Lightning': 130,
-	'Bump_Norma':          131,
+	'Bump Normal':         131,
 	'Samplerate':          132,
 	'SSS':                 133,
 }
