@@ -771,7 +771,7 @@ class VRAY_OT_render(bpy.types.Operator):
 		VRayScene    = scene.vray
 		VRayExporter = VRayScene.exporter
 
-		vb25.render.render('VRAY_RENDER', scene)
+		vb25.render.render(None, scene)
 
 		return {'FINISHED'}
 

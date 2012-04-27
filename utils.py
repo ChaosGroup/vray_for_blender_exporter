@@ -511,11 +511,11 @@ def print_dict(scene, title, params, spacing= 2):
 			print_dict(scene, key, params[key], spacing)
 			spacing/= 2
 		elif type(params[key]) in (list,tuple):
-			debug(scene, "%s%s" % (''.join([' ']*spacing), color(key, 'yellow')))
+			debug(scene, "%s%s" % (''.join([' ']*int(spacing)), color(key, 'yellow')))
 			for item in params[key]:
-				debug(scene, ''.join([' ']*spacing*2) + str(item))
+				debug(scene, ''.join([' ']*int(spacing)*2) + str(item))
 		else:
-			debug(scene, "%s%s: %s" % (''.join([' ']*spacing), color(key, 'yellow'), params[key]))
+			debug(scene, "%s%s: %s" % (''.join([' ']*int(spacing)), color(key, 'yellow'), params[key]))
 
 
 # Property

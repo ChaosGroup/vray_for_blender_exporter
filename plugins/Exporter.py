@@ -69,12 +69,6 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
-	VRayExporter.mesh_ascii= BoolProperty(
-		name= "ASCII",
-		description= "Export meshes in ASCII format. Only affects Python mesh export",
-		default= False
-	)
-
 	VRayExporter.use_displace= BoolProperty(
 		name= "Displace / subdiv",
 		description= "Use displace / subdivisions",
@@ -122,6 +116,17 @@ def add_properties(rna_pointer):
 		name= "Animation",
 		description= "Render animation",
 		default= False
+	)
+
+	VRayExporter.animation_type = EnumProperty(
+		name= "Animation Mode",
+		description= "Animation Type",
+		items= (
+			('FRAMEBYFRAME', "Frame-By-Frame", "Export and render frame by frame"),
+			('FULL',         "Full Range",     "Export full animation range then render"),
+			('NOTMESHES',    "All But Meshes", "Export full animation range then render (meshes are not animated)")
+		),
+		default= 'FRAMEBYFRAME'
 	)
 
 	VRayExporter.check_animated= BoolProperty(
