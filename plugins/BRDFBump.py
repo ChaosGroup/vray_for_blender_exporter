@@ -4,8 +4,6 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Monday, 08 August 2011 [18:58]"
-
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -114,10 +112,13 @@ def write(bus, base_brdf = None, use_bump = False):
 	slot     = bus['material'].get('bump_slot' if use_bump else 'normal_slot')
 	uvwgen   = 'bump_uvwgen' if use_bump else 'normal_uvwgen'
 
-	if not base_brdf:
+	# if uvwgen not in bus['material']:
+	# 	return base_brdf
+
+	if base_brdf is None:
 		base_brdf = bus['brdf']
 
-	if slot and textures.get(('bump' if use_bump else 'normal')):
+	if slot and textures.get('bump' if use_bump else 'normal'):
 		VRayTexture = slot.texture.vray
 		VRaySlot    = slot.texture.vray_slot
 		
@@ -134,6 +135,8 @@ def write(bus, base_brdf = None, use_bump = False):
 			mapto  = 'bump'
 
 		brdf_name= "BRDFBump_%s_%s" % (base_brdf, suffix)
+
+		print(bus['material'])
 
 		ofile.write("\nBRDFBump %s {" % brdf_name)
 		ofile.write("\n\tbase_brdf= %s;" % base_brdf)

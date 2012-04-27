@@ -4,8 +4,6 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Sunday, 07 August 2011 [18:23]"
-
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -205,11 +203,6 @@ def write_uvwgen(bus):
 
 		# We need to pass normal uvwgen to BRDFBump
 		if 'material' in bus:
-			if bus['mtex']['mapto'] == 'normal':
-				bus['material']['normal_uvwgen']= uvwgen
-			if bus['mtex']['mapto'] == 'bump':
-				bus['material']['bump_uvwgen']= uvwgen
+			bus['material']['normal_uvwgen'] = uvwgen
+			bus['material']['bump_uvwgen']   = uvwgen
 		return uvwgen
-
-	
-
