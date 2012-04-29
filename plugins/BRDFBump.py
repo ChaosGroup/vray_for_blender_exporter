@@ -136,8 +136,6 @@ def write(bus, base_brdf = None, use_bump = False):
 
 		brdf_name= "BRDFBump_%s_%s" % (base_brdf, suffix)
 
-		print(bus['material'])
-
 		ofile.write("\nBRDFBump %s {" % brdf_name)
 		ofile.write("\n\tbase_brdf= %s;" % base_brdf)
 		ofile.write("\n\tmap_type= %d;" % MAP_TYPE[BRDFBump.map_type])
