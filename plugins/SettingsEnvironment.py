@@ -244,6 +244,12 @@ def add_properties(rna_pointer):
 		default= 1.0
 	)
 
+	EnvironmentFog.density_tex = StringProperty(
+		name        = "Density Texture",
+		description = "",
+		default     = ""
+	)
+
 	EnvironmentFog.use_height= BoolProperty(
 		name= "Use height",
 		description= "Whether or not the height should be taken into account",
@@ -783,12 +789,21 @@ def write(bus):
 
 		EnvironmentFog= effect.EnvironmentFog
 
+		density_tex = None
+		if EnvironmentFog.density_tex:
+			density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
+
+
 		name= "EEF%s" % clean_string(effect.name)
 
 		ofile.write("\nEnvironmentFog %s {" % name)
 		for param in PARAMS['EnvironmentFog']:
 			if param.endswith('_tex') or param.endswith('_mult'):
-				continue
+				if param == 'density_tex':
+					if density_tex:
+						value = "%s::out_intensity"%(density_tex)
+				else:
+					continue
 			elif param == 'fade_out_mode':
 				value= FADE_OUT_MODE[EnvironmentFog.fade_out_mode]
 			elif param == 'light_mode':
@@ -802,7 +817,7 @@ def write(bus):
 				value= "List(%s)" % ','.join(light_object_list)
 			else:
 				value= getattr(EnvironmentFog, param)
-			ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+			ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 		ofile.write("\n}\n")
 
 		return name
@@ -990,6 +1005,10 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 	col.prop_search(EnvironmentFog, 'groups',
 					bpy.data,       'groups',
 					text="Groups")
+
+	layout.separator()
+
+	layout.prop_search(EnvironmentFog, 'density_tex', bpy.data, 'textures', text = "Density Texture")
 
 	layout.separator()
 
