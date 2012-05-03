@@ -71,8 +71,10 @@ def write_mesh_hq(ofile, sce, ob):
 			ofile.write("v=%.6f,%.6f,%.6f\n" % tuple(vertex.co))
 			ofile.write("l=0.0,0.0,0.0\n")
 
+	face_attr = 'faces' if 'faces' in dir(me) else 'polygons'
+
 	k= 0
-	for face in me.faces:
+	for face in getattr(me, face_attr):
 		vert_order= (0,1,2,2,3,0)
 		if len(face.vertices) == 4:
 			ofile.write("f=%d,%d,%d;%d\n" % (face.vertices[0], face.vertices[1], face.vertices[2], face.material_index + 1))
@@ -90,8 +92,10 @@ def write_mesh_hq(ofile, sce, ob):
 				ofile.write("n=%.6f,%.6f,%.6f\n" % tuple(me.vertices[face.vertices[v]].normal))
 			else:
 				ofile.write("n=%.6f,%.6f,%.6f\n" % tuple(face.normal))
-	if len(me.uv_textures):
-		uv_layer= me.uv_textures[0]
+
+	uv_textures = me.tessface_uv_textures if 'tessface_uv_textures' in dir(me) else me.uv_textures
+	if len(uv_textures):
+		uv_layer= uv_textures[0]
 		k= 0
 		for face in uv_layer.data:
 			for i in range(len(face.uv)):
