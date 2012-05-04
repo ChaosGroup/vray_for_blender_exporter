@@ -1237,7 +1237,14 @@ def _write_object_particles(bus):
 	VRayExporter= VRayScene.exporter
 
 	if len(ob.particle_systems):
-		for ps in ob.particle_systems:
+		for ps in ob.particle_systems: 
+			if ps.settings.type == 'HAIR':
+				if ps.settings.render_type not in {'OBJECT', 'GROUP', 'PATH'}:
+					continue
+			else:
+				if ps.settings.render_type not in {'OBJECT', 'GROUP'}:
+					continue
+
 			ps_material = "MANOMATERIALISSET"
 			ps_material_idx = ps.settings.material
 			if len(ob.material_slots) >= ps_material_idx:
