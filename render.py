@@ -491,8 +491,11 @@ def write_settings(bus):
 					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
 		else:
 			if key == 'geometry':
-				for t in range(scene.render.threads):
-					ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+				if bus['preview']:
+					ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
+				else:
+					for t in range(scene.render.threads):
+						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
 			else:
 				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
 	ofile.write("\n")
@@ -1652,7 +1655,7 @@ def write_scene(bus):
 	debug(scene, "Writing scene...")
 
 	if bus['preview']:
-		write_geometry(bus)
+		write_geometry_python(bus)
 		write_frame(bus)
 		return False
 
