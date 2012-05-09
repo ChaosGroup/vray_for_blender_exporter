@@ -340,7 +340,7 @@ def get_lens_shift(ob):
 	if constraint:
 		constraint_ob= constraint.target
 		if constraint_ob:
-			z_shift= ob.matrix_world[3][2] - constraint_ob.matrix_world[3][2]
+			z_shift= ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
 			l= get_distance(ob, constraint_ob)
 			shift= -1.0 * z_shift / l
 	else:

@@ -868,9 +868,9 @@ def object_visible(bus, ob):
 
 # Distance between 2 objects
 def get_distance(ob1, ob2):
-	p1= ob1.matrix_world[3]
-	p2= ob2.matrix_world[3]
-	vec= p1 - p2
+	t1 = ob1.matrix_world.to_translation()
+	t2 = ob2.matrix_world.to_translation()
+	vec = t1 - t2
 	return vec.length
 
 
