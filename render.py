@@ -1655,7 +1655,6 @@ def write_scene(bus):
 	debug(scene, "Writing scene...")
 
 	if bus['preview']:
-		write_geometry_python(bus)
 		write_frame(bus)
 		return False
 
