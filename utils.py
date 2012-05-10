@@ -972,101 +972,100 @@ def get_vray_standalone_path(sce):
 
 # Inits directories / files
 def init_files(bus):
-	scene= bus['scene']
+	scene = bus['scene']
 
-	VRayScene=      scene.vray
-	VRayExporter=   VRayScene.exporter
-	VRayDR=         VRayScene.VRayDR
-	SettingsOutput= VRayScene.SettingsOutput
+	VRayScene      = scene.vray
+	VRayExporter   = VRayScene.exporter
+	VRayDR         = VRayScene.VRayDR
+	SettingsOutput = VRayScene.SettingsOutput
 	
-	(blendfile_path, blendfile_name)= os.path.split(bpy.data.filepath)
+	(blendfile_path, blendfile_name) = os.path.split(bpy.data.filepath)
 
 	# Blend-file name without extension
-	blendfile_name= os.path.basename(bpy.data.filepath)[:-6] if bpy.data.filepath else "default"
+	blendfile_name = os.path.basename(bpy.data.filepath)[:-6] if bpy.data.filepath else "default"
 
 	# Default export directory is system's %TMP%
-	default_dir= tempfile.gettempdir()
+	default_dir = tempfile.gettempdir()
 
 	# Export and output directory
-	export_filepath= os.path.join(default_dir, "vrayblender_"+get_username())
-	export_filename= "scene"
-	output_filepath= default_dir
+	export_filepath = os.path.join(default_dir, "vrayblender_"+get_username())
+	export_filename = "scene"
+	output_filepath = default_dir
 
 	if bpy.data.filepath:
 		if SettingsOutput.img_dir:
-			output_filepath= bpy.path.abspath(SettingsOutput.img_dir)
+			output_filepath = bpy.path.abspath(SettingsOutput.img_dir)
 
-		if VRayExporter.output == 'USER':
-			if VRayExporter.output_dir:
-				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
-
-		elif VRayExporter.output == 'SCENE':
-			export_filepath= blendfile_path
+		if VRayExporter.output == 'SCENE':
+			export_filepath = os.path.join(blendfile_path, "vrscene")
 
 		if VRayExporter.output_unique:
-			export_filename= blendfile_name
+			export_filename = blendfile_name
+	
+	if VRayExporter.output == 'USER':
+		export_filepath = bpy.path.abspath(VRayExporter.output_dir)
 
 	if VRayDR.on:
-		export_filename= blendfile_name
+		export_filename = blendfile_name
 
 	# Distributed rendering
 	# filepath is relative= blend-file-name/filename
 	if VRayDR.on:
-		abs_shared_dir= os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
-		export_filepath= os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
+		abs_shared_dir  = os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
+		export_filepath = os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
 
-		bus['filenames']['DR']= {}
-		bus['filenames']['DR']['shared_dir']= abs_shared_dir
-		bus['filenames']['DR']['sub_dir']=    blendfile_name
-		bus['filenames']['DR']['dest_dir']=   export_filepath
-		bus['filenames']['DR']['prefix']=     bus['filenames']['DR']['dest_dir']
-		bus['filenames']['DR']['tex_dir']=    os.path.join(export_filepath, "textures")
-		bus['filenames']['DR']['ies_dir']=    os.path.join(export_filepath, "IES")
+		bus['filenames']['DR']               = {}
+		bus['filenames']['DR']['shared_dir'] = abs_shared_dir
+		bus['filenames']['DR']['sub_dir']    = blendfile_name
+		bus['filenames']['DR']['dest_dir']   = export_filepath
+		bus['filenames']['DR']['prefix']     = bus['filenames']['DR']['dest_dir']
+		bus['filenames']['DR']['tex_dir']    = os.path.join(export_filepath, "textures")
+		bus['filenames']['DR']['ies_dir']    = os.path.join(export_filepath, "IES")
 
 	if bus['preview']:
 		export_filename= "preview"
 		if os.name == 'posix':
-			export_filepath= os.path.join("/dev/shm", "vrayblender_preview_"+get_username())
+			export_filepath = os.path.join("/dev/shm", "vrayblender_preview_"+get_username())
 		else:
-			export_filepath= os.path.join(tempfile.gettempdir(), "vrayblender_preview_"+get_username())
+			export_filepath = os.path.join(tempfile.gettempdir(), "vrayblender_preview_"+get_username())
 
-	export_directory= create_dir(export_filepath)
+	export_directory = create_dir(export_filepath)
 
 	for key in ('geometry', 'lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment'):
 		if key == 'geometry':
-			filepath= os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
+			filepath = os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
 		else:
 			if key == 'scene' and VRayDR.on:
-				# Scene file MUST be op top of scene directory
-				filepath= os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
+				# Scene file MUST be on top of scene directory
+				filepath = os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
 			else:
-				filepath= os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
-			bus['files'][key]= open(filepath, 'w')
-		bus['filenames'][key]= filepath
+				filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
+			bus['files'][key] = open(filepath, 'w')
+		bus['filenames'][key] = filepath
 
 	# Render output dir
-	bus['filenames']['output']= create_dir(output_filepath)
+	bus['filenames']['output'] = create_dir(output_filepath)
 
 	# Render output file name
 	ext = SettingsOutput.img_format.lower()
 	if VRayExporter.image_to_blender:
 		ext = 'exr'
 
-	file_name= "render"
+	file_name = "render"
 	if SettingsOutput.img_file:
-		file_name= SettingsOutput.img_file
+		file_name = SettingsOutput.img_file
 		if file_name.find("%C") != -1:
-			file_name= file_name.replace("%C", scene.camera.name)
+			file_name = file_name.replace("%C", scene.camera.name)
 		if file_name.find("%S") != -1:
-			file_name= file_name.replace("%S", scene.name)
-		file_name= clean_string(file_name)
-		load_file_name= file_name
-	bus['filenames']['output_filename']= "%s.%s" % (file_name, ext)
+			file_name = file_name.replace("%S", scene.name)
+		file_name = clean_string(file_name)
+		load_file_name = file_name
+	bus['filenames']['output_filename'] = "%s.%s" % (file_name, ext)
 
 	# Render output - load file name
 	if SettingsOutput.img_file_needFrameNumber:
-		load_file_name= "%s.%.4i" % (load_file_name, scene.frame_current)
-	bus['filenames']['output_loadfile']=  "%s.%s" % (load_file_name, ext)
+		load_file_name = "%s.%.4i" % (load_file_name, scene.frame_current)
+	bus['filenames']['output_loadfile'] = "%s.%s" % (load_file_name, ext)
 
 	# Lightmaps path
 	# bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
