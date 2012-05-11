@@ -145,6 +145,8 @@ def write(bus):
 
 	TexEdges= getattr(texture.vray, PLUG)
 
+	uvwgen= write_uvwgen(bus)
+
 	mapped_params= write_sub_textures(bus,
 									  TexEdges,
 									  ('edges_tex_tex', 'bg_tex_tex'))
