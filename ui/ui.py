@@ -80,6 +80,12 @@ def engine_poll(cls, context):
 	return (rd.engine in cls.COMPAT_ENGINES)
 
 
+def texture_type_poll(cls, context, tex, tex_type):
+	if not engine_poll(cls, context):
+		return False
+	return tex and tex.type == 'VRAY' and tex.vray.type == tex_type
+
+
 class VRayDataPanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
@@ -144,11 +150,15 @@ class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
-
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
 		tex= context.texture
-		return engine_poll(cls, context) and tex and (tex.type != 'NONE')
+		return tex and (tex.type != 'NONE')
 
 
 class VRayWorldPanel():
