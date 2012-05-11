@@ -1001,7 +1001,7 @@ def init_files(bus):
 				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
 
 		elif VRayExporter.output == 'SCENE':
-			export_filepath= blendfile_path
+			export_filepath= os.path.join(blendfile_path, "vrscene")
 
 		if VRayExporter.output_unique:
 			export_filename= blendfile_name
