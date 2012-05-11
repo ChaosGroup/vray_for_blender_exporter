@@ -801,7 +801,7 @@ def write(bus):
 			if param.endswith('_tex') or param.endswith('_mult'):
 				if param == 'density_tex':
 					if density_tex:
-						value = "%s::out_intensity"%(density_tex)
+						value = "%s"%(density_tex)
 				else:
 					continue
 			elif param == 'fade_out_mode':
