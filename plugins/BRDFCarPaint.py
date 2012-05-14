@@ -41,7 +41,7 @@ PID=   4
 MAIN_BRDF= True
 
 NAME= 'BRDFCarPaint'
-UI=   "Car Paint"
+UI=   "Car"
 DESC= "BRDFCarPaint."
 
 
