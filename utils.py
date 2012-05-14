@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Thursday, 11 August 2011 [03:20]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru

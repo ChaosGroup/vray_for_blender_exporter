@@ -1,9 +1,8 @@
 '''
+
   V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Monday, 25 July 2011 [19:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -22,6 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+  
 '''
 
 
