@@ -191,6 +191,12 @@ def stack_write_texture(bus):
 
 	bus['mtex']['name']= write_factor(bus)
 
+	# IMPROVE: Bump invert quick fix
+	# There is no invert control for bump
+	# so use normal
+	if mapto == 'bump':
+		mapto = 'normal'
+
 	mapto_invert= 'map_%s_invert' % mapto
 	if hasattr(VRaySlot, mapto_invert):
 		if getattr(VRaySlot, mapto_invert):
