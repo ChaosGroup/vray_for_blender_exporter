@@ -1431,7 +1431,7 @@ def write_scene(bus):
 	bus['defaults']['blend']=    "TEDefaultBlend"
 
 	for key in bus['files']:
-		bus['files'][key].write("// V-Ray/Blender %s" % VERSION)
+		bus['files'][key].write("// V-Ray/Blender")
 
 	bus['files']['scene'].write("\n// Settings\n")
 	bus['files']['nodes'].write("\n// Nodes\n")
