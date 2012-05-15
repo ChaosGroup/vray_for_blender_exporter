@@ -60,13 +60,14 @@ class VRAY_OT_update(bpy.types.Operator):
 	bl_description = "Update exporter from github"
 
 	def execute(self, context):
-		GIT_URL= "https://github.com/bdancer/vb25/zipball/master"
-
-		update_dir= create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
+		update_dir = create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
 
 		# Downloading file
-		debug(context.scene, "Downloading 'master' branch archive...")
-		(filename, headers)= urllib.request.urlretrieve(GIT_URL)
+		self.report({'INFO'}, "Downloading 'master' branch archive...")
+
+		GIT_MASTER_URL = "https://github.com/bdancer/vb25/zipball/master"
+
+		(filename, headers) = urllib.request.urlretrieve(GIT_MASTER_URL)
 
 		# Extracting archive
 		ziparchive = zipfile.ZipFile(filename)
@@ -74,17 +75,17 @@ class VRAY_OT_update(bpy.types.Operator):
 		ziparchive.close()
 
 		# Check update dir
-		cur_vb25_dirpath= get_vray_exporter_path()
-		new_vb25_dirpath= ""
+		cur_vb25_dirpath = get_vray_exporter_path()
+		new_vb25_dirpath = ""
 
-		dirnames= os.listdir(update_dir)
+		dirnames = os.listdir(update_dir)
 		for dirname in dirnames:
 			if dirname.startswith("bdancer-vb25-"):
-				new_vb25_dirpath= os.path.join(update_dir, dirname)
+				new_vb25_dirpath = os.path.join(update_dir, dirname)
 				break
 
 		if not new_vb25_dirpath:
-			debug(context.scene, "Update files not found!", error= True)
+			self.report({'ERROR'}, "Update files not found!")
 			return {'CANCELLED'}
 
 		# Copying new files
@@ -93,12 +94,15 @@ class VRAY_OT_update(bpy.types.Operator):
 			shutil.rmtree(cur_vb25_dirpath)
 		shutil.copytree(new_vb25_dirpath, cur_vb25_dirpath)
 
-		debug(context.scene, "Removing temp file: %s"%(filename))
-		os.remove(filename)
+		if os.path.exists(filename):
+			self.report({'INFO'}, "Removing update archive: %s"%(filename))
+			os.remove(filename)
 
-		debug(context.scene, "Removing temp dir: %s"%(update_dir))
 		if os.path.exists(update_dir):
+			self.report({'INFO'}, "Removing update unpack directory: %s"%(update_dir))
 			shutil.rmtree(update_dir)
+
+		self.report({'INFO'}, "V-Ray/Blender exporter updated!")
 
 		return {'FINISHED'}
 
