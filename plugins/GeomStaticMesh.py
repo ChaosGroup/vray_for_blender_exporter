@@ -47,10 +47,15 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class GeomStaticMesh(bpy.types.PropertyGroup):
-		dynamic_geometry= BoolProperty(
-			name= "Dynamic geometry",
-			description= "Instead of copying the mesh many times in the BSP tree, only the bounding box will be present many times and ray intersections will occur in a separate object space BSP tree",
-			default= False
+		dynamic_geometry = BoolProperty(
+			name        = "Dynamic geometry",
+			description = "Instead of copying the mesh many times in the BSP tree, only the bounding box will be present many times and ray intersections will occur in a separate object space BSP tree",
+			default     =  False
+		)
+		use_for_ptex = BoolProperty(
+			name        = "Use For PTex",
+			description = "Turn this option on if this object will be used with PTex",
+			default     =  False
 		)
 	bpy.utils.register_class(GeomStaticMesh)
 
