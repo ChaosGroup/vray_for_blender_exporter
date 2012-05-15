@@ -549,9 +549,36 @@ def a(scene, t):
 		return p(t)
 
 
+# Helper function to convert a value to
+# hex in vrscene format
+def double_to_hex(value):
+	bytes = struct.pack('<d', value)
+	return ''.join([ "%X" % b for b in bytes ])
+
+def to_vrscene_hex(value):
+	if type(value) is float:
+		bytes = struct.pack('<f', value)
+	else:
+		bytes = struct.pack('<i', value)
+	return ''.join([ "%02X" % b for b in bytes ])
+
+
+# Helper function to convert mathutils.Vector to
+# hex vector in vrscene format
+def to_vrscene_hex_vector(vector):
+	return ''.join([ to_vrscene_hex(v) for v in vector ])
+
+def to_double_hex_vector(vector):
+	return ''.join([ double_to_hex(v) for v in vector ])
+
+
 # Transform matrix string
 def transform(m):
-	return "Transform(Matrix(Vector(%f, %f, %f),Vector(%f, %f, %f),Vector(%f, %f, %f)),Vector(%f, %f, %f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
+	return "Transform(Matrix(Vector(%f,%f,%f),Vector(%f,%f,%f),Vector(%f,%f,%f)),Vector(%f,%f,%f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
+	# return 'TransformHex("%s%s%s%s")' % (to_vrscene_hex_vector(m.col[0]),
+	# 	to_vrscene_hex_vector(m.col[1]), 
+	# 	to_vrscene_hex_vector(m.col[2]), 
+	# 	to_double_hex_vector(m.translation))
 
 
 # Clean string from forbidden chars
