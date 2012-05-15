@@ -98,7 +98,7 @@ def add_properties(rna_pointer):
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (1,1,1)
+		default= (0,0,0)
 	)
 
 	# diffuse_color
@@ -302,7 +302,10 @@ def write(bus, VRayBRDF = None, base_name = None):
 
 	ofile.write("\n%s %s {"%(ID,brdf_name))
 	for param in PARAMS:
-		value = getattr(BRDFHair3,param)
+		if param == 'overall_color' and not VRayBRDF:
+			value = ma.diffuse_color
+		else:
+			value = getattr(BRDFHair3,param)
 		ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 	ofile.write("\n}\n")
 
@@ -314,10 +317,13 @@ def gui(context, layout, BRDFHair3, material = None):
 
 	split = layout.split()
 	col = split.column()
-	col.prop(BRDFHair3, 'overall_color')
+	if material:
+		col.prop(material, 'diffuse_color', text = "Overall Color")
+	else:
+		col.prop(BRDFHair3, 'overall_color')
 	if wide_ui:
 		col = split.column()
-	col.prop(BRDFHair3, 'transparency', text = "Opacity")
+	col.prop(BRDFHair3, 'transparency')
 
 	layout.label(text = "Diffuse:")
 	split = layout.split()
