@@ -719,7 +719,8 @@ def	write_material(bus):
 	complex_material.reverse()
 
 	ofile.write("\nMtlSingleBRDF %s {"%(complex_material[-1]))
-	ofile.write("\n\tbrdf= %s;" % a(scene, brdf))
+	ofile.write("\n\tbrdf=%s;" % a(scene, brdf))
+	ofile.write("\n\tallow_negative_colors=1;")
 	ofile.write("\n}\n")
 
 	if VRayMaterial.Mtl2Sided.use:
@@ -1806,10 +1807,8 @@ def run(bus):
 		process = subprocess.Popen(params)
 
 		if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
-			while True:
-				if process.poll() is not None:
-					break
-				time.sleep(0.1)
+			process.wait()
+			return
 
 		if not isinstance(engine, bpy.types.RenderEngine):
 			return
@@ -1901,8 +1900,6 @@ def render(engine, scene, preview= None):
 		export_and_run(init_bus(engine, scene, True))
 		return
 	
-	bus = init_bus(engine, scene, preview)
-
 	if VRayExporter.animation:
 		if VRayExporter.animation_type == 'FRAMEBYFRAME':
 			selected_frame= scene.frame_current
@@ -1913,6 +1910,6 @@ def render(engine, scene, preview= None):
 				f+= scene.frame_step
 			scene.frame_set(selected_frame)
 		else:
-			export_and_run(bus)
+			export_and_run(init_bus(engine, scene))
 	else:
-		export_and_run(bus)
+		export_and_run(init_bus(engine, scene))
