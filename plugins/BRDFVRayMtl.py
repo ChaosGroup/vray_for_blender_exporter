@@ -233,7 +233,7 @@ def add_properties(rna_pointer):
 		name= "Reflection subdivs",
 		description= "Subdivs for glossy reflections",
 		min= 1,
-		max= 256,
+		max= 2048,
 		default= 8
 	)
 
