@@ -449,7 +449,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 			render_icon  = 'RENDER_STILL'
 
 		box = layout.box()
-		box.label(text="Manual pipeline:")
+		box.label(text="Custom controls:")
 		split = box.split()
 		col = split.column()
 		col.operator('vray.render', text=render_label, icon=render_icon)

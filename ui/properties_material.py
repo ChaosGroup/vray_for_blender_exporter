@@ -43,6 +43,13 @@ class VRAY_MT_preview(VRayMaterialPanel, bpy.types.Panel):
 	bl_label = "Preview"
 	COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
+	@classmethod
+	def poll(cls, context):
+		material= active_node_mat(context.material)
+		if material is None:
+			return False
+		return engine_poll(__class__, context)
+	
 	def draw(self, context):
 		self.layout.template_preview(context.material, show_buttons = False)
 

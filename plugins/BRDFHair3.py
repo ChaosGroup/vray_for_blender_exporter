@@ -110,7 +110,7 @@ def add_properties(rna_pointer):
 		max= 1.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
-		default= (0,0,0)
+		default= (0.01,0.01,0.01)
 	)
 
 	# diffuse_amount
