@@ -1647,16 +1647,7 @@ def add_properties():
 		)
 	bpy.utils.register_class(VRayTexture)
 
-	class VRayRenderChannelListControl(bpy.types.PropertyGroup):
-		identifier= StringProperty()
-	bpy.utils.register_class(VRayRenderChannelListControl)
-
 	class VRayRenderChannel(bpy.types.PropertyGroup):
-		template_list_controls= CollectionProperty(
-			type= VRayRenderChannelListControl,
-			options= {"HIDDEN"}
-		)
-
 		type= EnumProperty(
 			name= "Channel Type",
 			description= "Render channel type",
@@ -1669,6 +1660,8 @@ def add_properties():
 			description= "Use render channel",
 			default= True
 		)
+
+		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
 	bpy.utils.register_class(VRayRenderChannel)
 
 	class VRayScene(bpy.types.PropertyGroup):
