@@ -118,18 +118,12 @@ def add_properties(rna_pointer):
 		pass
 	bpy.utils.register_class(EnvironmentFog)
 
-	class EnvironmentEffectControl(bpy.types.PropertyGroup):
-		identifier= StringProperty()
-	bpy.utils.register_class(EnvironmentEffectControl)
 	class EnvironmentEffect(bpy.types.PropertyGroup):
-		template_list_controls= CollectionProperty(
-			type= EnvironmentEffectControl,
-			options= {"HIDDEN"}
-		)
+		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
 	bpy.utils.register_class(EnvironmentEffect)
 
 	class VRayEffects(bpy.types.PropertyGroup):
-		pass
+		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
 	bpy.utils.register_class(VRayEffects)
 
 	rna_pointer.EnvironmentFog= PointerProperty(
@@ -209,6 +203,28 @@ def add_properties(rna_pointer):
 		default= (0,0,0)
 	)
 
+	EnvironmentFog.emission_mult= FloatProperty(
+		name= "Emission mult",
+		description= "Emission mult",
+		min= 0.0,
+		max= 100000.0,
+		soft_min= 0.0,
+		soft_max= 100.0,
+		precision= 3,
+		default= 1.0
+	)
+
+	EnvironmentFog.emission_mult_tex= FloatProperty(
+		name= "Emission texture mult",
+		description= "Emission texture mult",
+		min= 0.0,
+		max= 100000.0,
+		soft_min= 0.0,
+		soft_max= 100.0,
+		precision= 3,
+		default= 1
+	)
+
 	EnvironmentFog.color= FloatVectorProperty(
 		name= "Color",
 		description= "Fog color",
@@ -244,6 +260,12 @@ def add_properties(rna_pointer):
 
 	EnvironmentFog.density_tex = StringProperty(
 		name        = "Density Texture",
+		description = "",
+		default     = ""
+	)
+
+	EnvironmentFog.emission_tex = StringProperty(
+		name        = "Emission Texture",
 		description = "",
 		default     = ""
 	)
@@ -787,10 +809,27 @@ def write(bus):
 
 		EnvironmentFog= effect.EnvironmentFog
 
-		density_tex = None
+		tex_test = True
+		density_tex  = None
+		emission_tex = None
 		if EnvironmentFog.density_tex:
-			density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
+			if tex_test:
+				density_tex = "TestVoxelData"
+			else:
+				density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
 
+		if EnvironmentFog.emission_tex:
+			if tex_test:
+				emission_tex = "TestVoxelData"
+			else:
+				emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
+
+		if emission_tex:
+			ofile.write("\nTexAColorOp %s {" % "TestVoxelDataEmit")
+			ofile.write("\n\tcolor_a= %s;" % "TestVoxelData")
+			ofile.write("\n\tmult_a= %.3f;" % EnvironmentFog.emission_mult)
+			ofile.write("\n}\n")
+			emission_tex = "TestVoxelDataEmit"
 
 		name= "EEF%s" % clean_string(effect.name)
 
@@ -800,8 +839,15 @@ def write(bus):
 				if param == 'density_tex':
 					if density_tex:
 						value = "%s"%(density_tex)
+				# elif param == 'emission_mult':
+				# 	value = EnvironmentFog.emission_mult
+				elif param == 'emission_tex':
+					if emission_tex:
+						value = "%s"%(emission_tex)
 				else:
 					continue
+			elif param == 'emission':
+				value = "%s * %.3f" % (p(EnvironmentFog.emission), EnvironmentFog.emission_mult)
 			elif param == 'fade_out_mode':
 				value= FADE_OUT_MODE[EnvironmentFog.fade_out_mode]
 			elif param == 'light_mode':
@@ -1006,7 +1052,8 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 
 	layout.separator()
 
-	layout.prop_search(EnvironmentFog, 'density_tex', bpy.data, 'textures', text = "Density Texture")
+	layout.prop_search(EnvironmentFog, 'density_tex',  bpy.data, 'textures', text = "Density Texture")
+	layout.prop_search(EnvironmentFog, 'emission_tex', bpy.data, 'textures', text = "Emission Texture")
 
 	layout.separator()
 
@@ -1016,6 +1063,7 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 	if wide_ui:
 		col= split.column()
 	col.prop(EnvironmentFog, 'emission')
+	col.prop(EnvironmentFog, 'emission_mult', text = "Mult")
 
 	layout.separator()
 

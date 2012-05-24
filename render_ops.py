@@ -141,7 +141,6 @@ class VRAY_OT_effect_add(bpy.types.Operator):
 		VRayEffects= VRayScene.VRayEffects
 		VRayEffects.effects.add()
 		VRayEffects.effects[-1].name= "Effect"
-		VRayEffects.effects[-1].template_list_controls.add().identifier= "use"
 
 		return {'FINISHED'}
 
@@ -337,7 +336,6 @@ class VRAY_OT_channel_add(bpy.types.Operator):
 
 		render_channels.add()
 		render_channels[-1].name= "RenderChannel"
-		render_channels[-1].template_list_controls.add().identifier= "use"
 
 		return {'FINISHED'}
 

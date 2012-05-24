@@ -356,4 +356,6 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 from bl_ui import properties_texture
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_voxeldata.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_voxeldata.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture

@@ -139,6 +139,18 @@ def add_properties(rna_pointer):
 		default= True
 	)
 
+	VRayExporter.use_smoke= BoolProperty(
+		name= "Smoke",
+		description= "Render smoke",
+		default= True
+	)
+
+	VRayExporter.use_smoke_hires= BoolProperty(
+		name= "Smoke High Resolution",
+		description= "Render high resolution smoke",
+		default= True
+	)
+
 	VRayExporter.use_instances= BoolProperty(
 		name= "Instances",
 		description= "Use instances (Alt+D meshes will be the same; saves memory and faster export)",
