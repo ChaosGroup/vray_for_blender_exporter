@@ -1242,12 +1242,12 @@ def _write_object_particles(bus):
 
 	if len(ob.particle_systems):
 		for ps in ob.particle_systems: 
-			if ps.settings.type == 'HAIR':
-				if ps.settings.render_type not in {'OBJECT', 'GROUP', 'PATH'}:
-					continue
-			else:
-				if ps.settings.render_type not in {'OBJECT', 'GROUP'}:
-					continue
+			# if ps.settings.type == 'HAIR':
+			# 	if ps.settings.render_type not in {'OBJECT', 'GROUP', 'PATH'}:
+			# 		continue
+			# else:
+			# 	if ps.settings.render_type not in {'OBJECT', 'GROUP'}:
+			# 		continue
 
 			ps_material = "MANOMATERIALISSET"
 			ps_material_idx = ps.settings.material
@@ -1271,94 +1271,100 @@ def _write_object_particles(bus):
 
 					bus['node']['hair'] = False
 
-			else:
-				particle_objects = []
+			# else:
+			# 	particle_objects = []
 
-				if ps.settings.render_type == 'OBJECT':
-					particle_objects.append(ps.settings.dupli_object)
-				elif ps.settings.render_type == 'GROUP':
-					particle_objects = ps.settings.dupli_group.objects
-				else:
-					continue
+			# 	if ps.settings.render_type == 'OBJECT':
+			# 		particle_objects.append(ps.settings.dupli_object)
+			# 	elif ps.settings.render_type == 'GROUP':
+			# 		particle_objects = ps.settings.dupli_group.objects
+			# 	else:
+			# 		continue
 
-				for p,particle in enumerate(ps.particles):
-					p_log = False
-					if ps.settings.count >= 50000:
-						if (p % 1000) == 0:
-							p_log = True
-					else:
-						if (p % 100) == 0:
-							p_log = True
-					if p_log:
-						sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name, 'yellow'), color(p, 'green')))
-						sys.stdout.flush()
+			# 	for p,particle in enumerate(ps.particles):
+			# 		p_log = False
+			# 		if ps.settings.count >= 50000:
+			# 			if (p % 1000) == 0:
+			# 				p_log = True
+			# 		else:
+			# 			if (p % 100) == 0:
+			# 				p_log = True
+			# 		if p_log:
+			# 			sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name, 'yellow'), color(p, 'green')))
+			# 			sys.stdout.flush()
 
-					location = particle.location
-					size     = particle.size 
-					if ps.settings.type == 'HAIR':
-						location = particle.hair_keys[0].co 
-						size    *= ps.settings.hair_length
+			# 		location = particle.location
+			# 		size     = particle.size 
+			# 		if ps.settings.type == 'HAIR':
+			# 			location = particle.hair_keys[0].co 
+			# 			size    *= ps.settings.hair_length
 
-					part_transform = mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
+			# 		part_transform = mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
 
-					# Specific to Blender particle realization:
-					#  Object must be rotated so that it's top is aligned to X
-					#  So, we need to rotate original matrix
-					if not ps.settings.use_rotation_dupli:
-						part_transform *= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Z')
+			# 		# Specific to Blender particle realization:
+			# 		#  Object must be rotated so that it's top is aligned to X
+			# 		#  So, we need to rotate original matrix
+			# 		if not ps.settings.use_rotation_dupli:
+			# 			part_transform *= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Z')
 
-					# Resize matrix
-					part_transform.resize_4x4()
+			# 		# Resize matrix
+			# 		part_transform.resize_4x4()
 
-					# Add location
-					part_transform.translation = mathutils.Vector(location)
+			# 		# Add location
+			# 		part_transform.translation = mathutils.Vector(location)
 
-					for p_ob in particle_objects:
-						part_name = clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
+			# 		for p_ob in particle_objects:
+			# 			part_name = clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
 						
-						if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
-							part_name = "OB%sPS%sP%s" %(bus['node']['particle']['name'],
-													    clean_string(ps.name),
-													    p)
+			# 			if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
+			# 				part_name = "OB%sPS%sP%s" %(bus['node']['particle']['name'],
+			# 										    clean_string(ps.name),
+			# 										    p)
 												 
-						if ps.settings.use_whole_group or ps.settings.use_global_dupli:
-							p_ob_offs = mathutils.Matrix.Translation(p_ob.matrix_world.translation)
-							part_transform *= p_ob_offs
+			# 			if ps.settings.use_whole_group or ps.settings.use_global_dupli:
+			# 				p_ob_offs = mathutils.Matrix.Translation(p_ob.matrix_world.translation)
+			# 				part_transform *= p_ob_offs
 						
-						if ps.settings.use_rotation_dupli:
-							p_ob_rot_sca = p_ob.matrix_world.copy()
-							p_ob_rot_sca.translation = mathutils.Vector((0.0,0.0,0.0))
-							part_transform *= p_ob_rot_sca
+			# 			if ps.settings.use_rotation_dupli:
+			# 				p_ob_rot_sca = p_ob.matrix_world.copy()
+			# 				p_ob_rot_sca.translation = mathutils.Vector((0.0,0.0,0.0))
+			# 				part_transform *= p_ob_rot_sca
 
-						part_visibility = True
-						if ps.settings.type == 'EMITTER':
-							if not particle.alive_state == 'ALIVE':
-								part_visibility = False
-							if particle.alive_state == 'DEAD' and ps.settings.use_dead:
-								part_visibility = True
-							if particle.alive_state == 'UNBORN' and ps.settings.show_unborn:
-								part_visibility = True
+			# 			part_visibility = True
+			# 			if ps.settings.type == 'EMITTER':
+			# 				if not particle.alive_state == 'ALIVE':
+			# 					part_visibility = False
+			# 				if particle.alive_state == 'DEAD' and ps.settings.use_dead:
+			# 					part_visibility = True
+			# 				if particle.alive_state == 'UNBORN' and ps.settings.show_unborn:
+			# 					part_visibility = True
 						
-						bus['node']['object']               = p_ob
-						bus['node']['base']                 = ob
-						bus['node']['particle']             = {}
-						bus['node']['particle']['name']     = part_name
-						bus['node']['particle']['matrix']   = part_transform
-						bus['node']['particle']['visible']  = part_visibility
-						bus['node']['particle']['material'] = ps_material
+			# 			bus['node']['object']               = p_ob
+			# 			bus['node']['base']                 = ob
+			# 			bus['node']['particle']             = {}
+			# 			bus['node']['particle']['name']     = part_name
+			# 			bus['node']['particle']['matrix']   = part_transform
+			# 			bus['node']['particle']['visible']  = part_visibility
+			# 			bus['node']['particle']['material'] = ps_material
 
-						_write_object(bus)
+			# 			_write_object(bus)
 
-						bus['node']['object']   = ob
-						bus['node']['base']     = ob
-						bus['node']['visible']  = True
-						bus['node']['particle'] = {}
+			# 			bus['node']['object']   = ob
+			# 			bus['node']['base']     = ob
+			# 			bus['node']['visible']  = True
+			# 			bus['node']['particle'] = {}
 
 
 def _write_object_dupli(bus):
-	ob= bus['node']['object']
+	ob = bus['node']['object']
 
-	if ob.dupli_type in ('VERTS','FACES','GROUP'):
+	dupli_from_particles = False
+	if len(ob.particle_systems):
+		for ps in ob.particle_systems: 
+			if ps.settings.render_type in {'OBJECT', 'GROUP'}:
+				dupli_from_particles = True
+
+	if (ob.dupli_type in ('VERTS','FACES','GROUP')) or dupli_from_particles:
 		ob.dupli_list_create(bus['scene'])
 
 		for dup_id,dup_ob in enumerate(ob.dupli_list):
