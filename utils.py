@@ -546,25 +546,6 @@ def a(scene, t):
 	else:
 		return p(t)
 
-# Helper function to convert a value to
-# hex in vrscene format
-def to_vrscene_hex(value):
-	if type(value) is float:
-		bytes = struct.pack('<f', value)
-	else:
-		bytes = struct.pack('<i', value)
-	return ''.join([ "%02X" % b for b in bytes ])
-
-# Helper function to convert mathutils.Vector to
-# hex vector in vrscene format
-def to_vrscene_hex_vector(vector):
-	return ''.join([ to_vrscene_hex(v) for v in vector ])
-
-def to_vrscene_hex_double_vector(vector):
-	def to_vrscene_hex(value):
-		bytes = struct.pack('<d', value)
-		return ''.join([ "%04X" % b for b in bytes ])
-	return ''.join([ to_vrscene_hex(v) for v in vector ])
 
 # Helper function to convert a value to
 # hex in vrscene format
