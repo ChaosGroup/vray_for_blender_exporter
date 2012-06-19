@@ -142,7 +142,7 @@ def write(bus, base_brdf = None, use_bump = False):
 		ofile.write("\n\tbump_tex_color= %s;" % textures[mapto])
 		ofile.write("\n\tbump_tex_float= %s;" % textures[mapto])
 		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-        if uvwgen in bus['material']:
+		if uvwgen in bus['material']:
 		  ofile.write("\n\tnormal_uvwgen= %s;" % bus['material'][uvwgen])
 		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)

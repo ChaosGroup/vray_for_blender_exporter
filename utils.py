@@ -546,6 +546,13 @@ def a(scene, t):
 	else:
 		return p(t)
 
+# Hex value format
+def HexFormat(value):
+    if type(value) is float:
+        bytes= struct.pack('<f', value)
+    else:
+        bytes= struct.pack('<i', value)
+    return ''.join(["%02X" % b for b in bytes])
 
 # Helper function to convert a value to
 # hex in vrscene format
@@ -1108,14 +1115,3 @@ def init_files(bus):
 # Converts kelvin temperature to color
 def kelvin_to_rgb(temperature):
 	return mathutils.Color(COLOR_TABLE[str(int(temperature / 100) * 100)])
-
-
-# Hex value format
-def HexFormat(value):
-	if type(value) is float:
-		bytes= struct.pack('<f', value)
-	else:
-		bytes= struct.pack('<i', value)
-	return ''.join(["%02X" % b for b in bytes])
-
-
