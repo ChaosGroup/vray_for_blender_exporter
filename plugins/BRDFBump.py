@@ -107,7 +107,7 @@ def write(bus, base_brdf = None, use_bump = False):
 
 	ofile = bus['files']['materials']
 	scene = bus['scene']
-	
+
 	textures = bus['textures']
 	slot     = bus['material'].get('bump_slot' if use_bump else 'normal_slot')
 	uvwgen   = 'bump_uvwgen' if use_bump else 'normal_uvwgen'
@@ -121,7 +121,7 @@ def write(bus, base_brdf = None, use_bump = False):
 	if slot and textures.get('bump' if use_bump else 'normal'):
 		VRayTexture = slot.texture.vray
 		VRaySlot    = slot.texture.vray_slot
-		
+
 		BRDFBump    = VRaySlot.BRDFBump
 
 		# Check if normal mapping requested
@@ -142,7 +142,8 @@ def write(bus, base_brdf = None, use_bump = False):
 		ofile.write("\n\tbump_tex_color= %s;" % textures[mapto])
 		ofile.write("\n\tbump_tex_float= %s;" % textures[mapto])
 		ofile.write("\n\tbump_tex_mult= %s;" % a(scene,BRDFBump.bump_tex_mult))
-		ofile.write("\n\tnormal_uvwgen= %s;" % bus['material'][uvwgen])
+        if uvwgen in bus['material']:
+		  ofile.write("\n\tnormal_uvwgen= %s;" % bus['material'][uvwgen])
 		ofile.write("\n\tbump_shadows= %d;" % BRDFBump.bump_shadows)
 		ofile.write("\n\tcompute_bump_for_shadows= %d;" % BRDFBump.compute_bump_for_shadows)
 		ofile.write("\n}\n")
