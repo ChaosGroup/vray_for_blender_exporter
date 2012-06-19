@@ -1,6 +1,6 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
 
@@ -83,7 +83,7 @@ def write_UVWGenChannel(bus):
 
 	VRaySlot    = texture.vray_slot
 	VRayTexture = texture.vray
-	
+
 	uvw_channel = 1
 	uvwgen      = None
 
@@ -126,7 +126,7 @@ def write_UVWGenChannel(bus):
 	else:
 		ofile.write("\n\twrap_u= %d;" % (2 if VRayTexture.mirror_u else 0))
 		ofile.write("\n\twrap_v= %d;" % (2 if VRayTexture.mirror_v else 0))
-		
+
 		ofile.write("\n\tuvw_transform= interpolate((%i, Transform(" % sce.frame_current)
 		ofile.write("\n\t\tMatrix(")
 		ofile.write("\n\t\t\tVector(1.0,0.0,0.0)*%.3f," % VRayTexture.tile_u)
@@ -182,7 +182,7 @@ def write_UVWGenEnvironment(bus):
 	ofile.write("\n\tcrop_u=0;")
 	ofile.write("\n\tcrop_v=0;")
 	ofile.write("\n}\n")
-	
+
 	return uvw_name
 
 

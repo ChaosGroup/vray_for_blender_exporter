@@ -1,6 +1,6 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
 
@@ -56,14 +56,14 @@ def write_ShaderNodeInvert(bus, node, node_params):
 	ofile.write("\n}\n")
 
 	return tex_name
-	
-	
+
+
 def write_BRDFDiffuse(bus, name, node, color):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
 
 	comp_name= "BRDFDiffuse%s" % (name)
-	
+
 	ofile.write("\nBRDFDiffuse %s {" % comp_name)
 	ofile.write("\n\tcolor= %s;" % a(scene, color))
 	ofile.write("\n}\n")
@@ -110,7 +110,7 @@ def write_ShaderNodeMaterial(bus, node, input_params):
 	write_material_textures(bus)
 
 	node_name= PLUGINS['BRDF'][node.material.vray.type].write(bus)
-	
+
 	# Add BRDFBump if needed
 	node_name= PLUGINS['BRDF']['BRDFBump'].write(bus, base_brdf= node_name)
 
@@ -163,7 +163,7 @@ def write_ShaderNodeOutput(bus, node, input_params):
 
 	return node_name
 
-	
+
 def write_ShaderNodeMixRGB(bus, node, input_params):
 	ofile= bus['files']['materials']
 	scene= bus['scene']
@@ -175,7 +175,7 @@ def write_ShaderNodeMixRGB(bus, node, input_params):
 		'Color2': "",
 		'Fac':    "",
 	}
-	
+
 	for key in params:
 		# Key is mapped in input_params
 		if key in input_params:
@@ -263,7 +263,7 @@ def write_node_material(bus):
 	VRayExporter= VRayScene.exporter
 
 	node_tree= ma.node_tree
-	
+
 	output_node= get_output_node(node_tree)
 
 	if output_node:
@@ -272,7 +272,7 @@ def write_node_material(bus):
 
 		bus['ma_nodes']= {}
 		bus['ma_nodes']['node_tree']= node_tree
-		
+
 		return write_shader_node(bus, node_tree, output_node)
 
 	return bus['defaults']['material']

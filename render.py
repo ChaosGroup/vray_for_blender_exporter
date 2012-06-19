@@ -1,6 +1,6 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
 

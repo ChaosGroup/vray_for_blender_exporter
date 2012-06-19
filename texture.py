@@ -1,6 +1,6 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
 
@@ -126,12 +126,12 @@ def write_texture(bus):
 
 	elif texture.type == 'VRAY':
 		VRayTexture= texture.vray
-		
+
 		if VRayTexture.type == 'NONE':
 			return None
 
 		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
-		
+
 	else:
 		debug(scene, "Texture \"%s\": \'%s\' type is not supported." % (texture.name, texture.type), error= True)
 		return None
@@ -140,7 +140,7 @@ def write_texture(bus):
 
 '''
   TEXTURE STACK
-  
+
   Stack naming:
     BAbase_name+TEtexture_name+IDtexture_id_in_stack+PLplugin
   like:
@@ -177,7 +177,7 @@ def write_factor(bus):
 		ofile.write("\n\tmult_a= 1.0;")
 		ofile.write("\n\tresult_alpha= %s;" % a(scene, factor))
 		ofile.write("\n}\n")
-				
+
 	return tex_name
 
 
@@ -203,7 +203,7 @@ def stack_write_texture(bus):
 			bus['mtex']['name']= write_TexInvert(bus)
 
 	return bus['mtex']['name']
-			
+
 
 def remove_alpha(bus):
 	ofile=   bus['files']['textures']
@@ -391,7 +391,7 @@ def write_TextureNodeTexture(bus, node, input_params):
 	mtex['name']=     clean_string("NT%sNO%sTE%s" % (node_tree.name,
 													 node.name,
 													 node.texture.name))
-	
+
 	tex_name= write_sub_texture(bus, mtex)
 
 	return tex_name
@@ -408,7 +408,7 @@ def write_TextureNodeMixRGB(bus, node, input_params):
 		'Color2': "",
 		'Factor': "",
 	}
-	
+
 	for key in params:
 		# Key is mapped in input_params
 		if key in input_params:
@@ -437,7 +437,7 @@ def write_TextureNodeOutput(bus, node, input_params):
 	params= {
 		'Color': "",
 	}
-	
+
 	if 'Color' not in input_params:
 		c= node.inputs['Color'].default_value
 		params['Color']= write_TexAColor(bus, 'Color', node,
@@ -512,7 +512,7 @@ def write_node_texture(bus):
 	if slot:
 		if slot.output_node != 'NOT_SPECIFIED':
 			output_node_name= slot.output_node
-	
+
 	output_node= get_output_node(node_tree, output_node_name)
 
 	if output_node:
@@ -551,7 +551,7 @@ def write_material_textures(bus):
 				if key == 'bump' or getattr(VRaySlot, "map_%s" % (key)):
 					factor = getattr(VRaySlot, "%s_mult" % ('normal' if key == 'bump' else key))
 					mapto  = key
-					
+
 					if mapto == 'normal' and getattr(VRaySlot, "map_normal") and VRaySlot.BRDFBump.map_type == 'BUMP':
 						continue
 
@@ -575,7 +575,7 @@ def write_material_textures(bus):
 					# Store slot for normal
 					elif mapto == 'normal':
 						bus['material']['normal_slot'] = slot
-						
+
 					bus['mtex']            = {}
 					bus['mtex']['slot']    = slot
 					bus['mtex']['texture'] = slot.texture
