@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -134,8 +134,8 @@ def add_properties(rna_pointer):
 	GeomDisplacedMesh.water_level= FloatProperty(
 		name="Water level",
 		description="",
-		min=-100.0, max=100.0, soft_min=-1.0, soft_max=1.0,
-		default=0.0
+		min=-1000.0, max=1000.0, soft_min=-1.0, soft_max=1.0,
+		default=-1.0
 	)
 
 	GeomDisplacedMesh.use_globals= BoolProperty(
@@ -285,10 +285,10 @@ def write(bus):
 
 	ob=    bus['node']['object']
 	me=    bus['node']['geometry']
-	
+
 	VRayScene= scene.vray
 	VRayExporter= VRayScene.exporter
-	
+
 	if not (bus['node'].get('displacement_slot') and VRayExporter.use_displace):
 		return
 
@@ -308,7 +308,7 @@ def write(bus):
 
 	if not append_unique(bus['cache']['displace'], displace_name):
 		return displace_name
-	
+
 	ofile.write("\nGeomDisplacedMesh %s {" % displace_name)
 	ofile.write("\n\tmesh= %s;" % me)
 	ofile.write("\n\tdisplacement_tex_float= %s;" % bus['node']['displacement_texture'])
