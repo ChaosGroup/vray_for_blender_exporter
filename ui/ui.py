@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Tuesday, 23 August 2011 [09:15]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -23,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
+  
 '''
 
 
@@ -78,6 +76,12 @@ def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
 def engine_poll(cls, context):
 	rd= context.scene.render
 	return (rd.engine in cls.COMPAT_ENGINES)
+
+
+def texture_type_poll(cls, context, tex, tex_type):
+	if not engine_poll(cls, context):
+		return False
+	return tex and tex.type == 'VRAY' and tex.vray.type == tex_type
 
 
 class VRayDataPanel():
@@ -144,11 +148,15 @@ class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
-
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	
 	@classmethod
 	def poll(cls, context):
+		if not engine_poll(cls, context):
+			return False
 		tex= context.texture
-		return engine_poll(cls, context) and tex and (tex.type != 'NONE')
+		return tex and (tex.type != 'NONE')
 
 
 class VRayWorldPanel():

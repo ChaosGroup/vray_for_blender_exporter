@@ -139,7 +139,8 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		'storeWithIrradianceMap',
 		'invisible',
 		'affectReflections',
-		'noDecay'
+		'doubleSided',
+		'noDecay',
 	),
 
 	'LightDirectMax': (
@@ -190,7 +191,7 @@ LIGHT_PARAMS= { # TEMP! REMOVE!
 		#'diffuseMult',
 		'causticMult',
 		'enabled'
-	),	
+	),
 
 	'LightIESMax': (
 		'enabled',
@@ -382,7 +383,7 @@ def write_geometry_python(bus):
 		geometry_file.close()
 
 	del bus['files']['geometry']
-	
+
 	debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
@@ -390,30 +391,26 @@ def write_geometry(bus):
 	scene=        bus['scene']
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
-	
-	if 'export_meshes' in dir(bpy.ops.vray):
-		try:
-			# Call V-Ray/Blender custom mesh export operator
-			bpy.ops.vray.export_meshes(
-				filepath=          bus['filenames']['geometry'][:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation=     VRayExporter.animation and VRayExporter.animation_type == 'FULL',
-				use_instances=     VRayExporter.use_instances,
-				debug=             VRayExporter.mesh_debug,
-				check_animated=    VRayExporter.check_animated,
-				scene=             scene.as_pointer()
-			)
-		except:
-			# Call V-Ray/Blender custom mesh export operator
-			bpy.ops.vray.export_meshes(
-				filepath=          bus['filenames']['geometry'][:-11],
-				use_active_layers= VRayExporter.mesh_active_layers,
-				use_animation=     VRayExporter.animation and VRayExporter.animation_type == 'FULL',
-				use_instances=     VRayExporter.use_instances,
-				debug=             VRayExporter.mesh_debug,
-				check_animated=    VRayExporter.check_animated,
-			)
 
+	if 'export_nodes' in dir(bpy.ops.vray):
+		# Call V-Ray/Blender custom node export operator
+		bpy.ops.vray.export_nodes(
+			scene    = scene.as_pointer(),
+			filepath = bus['filenames']['nodes'],
+			debug    = VRayExporter.mesh_debug
+		)
+
+	if 'export_meshes' in dir(bpy.ops.vray):
+		# Call V-Ray/Blender custom mesh export operator
+		bpy.ops.vray.export_meshes(
+			filepath          = bus['filenames']['geometry'][:-11],
+			use_active_layers = VRayExporter.mesh_active_layers,
+			use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
+			use_instances     = VRayExporter.use_instances,
+			debug             = VRayExporter.mesh_debug,
+			check_animated    = VRayExporter.check_animated,
+			scene             = scene.as_pointer()
+		)
 	else:
 		# Use python mesh export
 		write_geometry_python(bus)
@@ -436,7 +433,7 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
 
 		segments= len(particle.hair_keys)
 		num_hair_vertices.append( HexFormat(segments) )
-		
+
 		width= VRayFur.width / 2.0
 		thin_start= int(VRayFur.thin_start / 100 * segments)
 		thin_segments= segments - thin_start
@@ -603,16 +600,16 @@ def write_lamp_textures(bus):
 	}
 
 	bus['lamp_textures']= {}
-	
+
 	for i,slot in enumerate(la.texture_slots):
 		if slot and slot.texture and slot.texture.type in TEX_TYPES:
 			VRaySlot=    slot.texture.vray_slot
 			VRayLight=   VRaySlot.VRayLight
-			
+
 			for key in defaults:
 				use_slot= False
 				factor=   1.0
-				
+
 				if getattr(VRayLight, 'map_'+key):
 					use_slot= True
 					factor=   getattr(VRayLight, key+'_mult')
@@ -642,7 +639,7 @@ def write_lamp_textures(bus):
 	if VRayExporter.debug:
 		if len(bus['lamp_textures']):
 			print_dict(scene, "Lamp \"%s\" texture stack" % la.name, bus['lamp_textures'])
-	
+
 	for key in bus['lamp_textures']:
 		if len(bus['lamp_textures'][key]):
 			bus['lamp_textures'][key]= write_TexOutput(bus, stack_write_textures(bus, stack_collapse_layers(bus['lamp_textures'][key])), key)
@@ -693,7 +690,7 @@ def	write_material(bus):
 
 	if not append_unique(bus['cache']['materials'], ma_name):
 		return ma_name
-	
+
 	# Write material BRDF
 	brdf= PLUGINS['BRDF'][VRayMaterial.type].write(bus)
 
@@ -789,7 +786,7 @@ def	write_material(bus):
 		ofile.write("\n\tbase_mtl= %s;" % base_mtl)
 		ofile.write("\n\tradius= %.3f;" % VRayMaterial.radius)
 		ofile.write("\n}\n")
-	
+
 	if VRayMaterial.material_id_number:
 		base_mtl= complex_material.pop()
 		ofile.write("\nMtlMaterialID %s {" % complex_material[-1])
@@ -870,7 +867,7 @@ def write_materials(bus):
 					ids_list.append(str(ma_id))
 
 	# No materials assigned - use default material
-	if len(mtls_list) == 0: 
+	if len(mtls_list) == 0:
 		bus['node']['material']= bus['defaults']['material']
 
 	# Only one material - no need for Multi-material
@@ -961,14 +958,14 @@ def write_lamp(bus):
 		if lamp.type in {'AREA','HEMI'}:
 			ofile.write("\n\ttex_adaptive= %.2f;" % (1.0))
 			ofile.write("\n\ttex_resolution= %i;" % (512))
-			
+
 			if lamp.type == 'AREA':
 				ofile.write("\n\tuse_rect_tex= 1;")
 				ofile.write("\n\trect_tex= %s;" % textures['color'])
 			elif lamp.type == 'HEMI':
 				ofile.write("\n\tuse_dome_tex= 1;")
 				ofile.write("\n\tdome_tex= %s;" % textures['color'])
-		
+
 		if lamp.type not in {'HEMI'}:
 			ofile.write("\n\tcolor_tex= %s;" % textures['color'])
 
@@ -980,7 +977,7 @@ def write_lamp(bus):
 			ofile.write("\n\tshadowColor_tex= %s;" % textures['shadowColor'])
 		else:
 			ofile.write("\n\tshadow_color_tex= %s;" % textures['shadowColor'])
-		
+
 	if lamp_type == 'SunLight':
 		ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[VRayLamp.sky_model]))
 	else:
@@ -989,10 +986,10 @@ def write_lamp(bus):
 		else:
 			color= kelvin_to_rgb(VRayLamp.temperature)
 		ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
-			
+
 		if lamp_type not in ('LightIESMax', 'LightAmbient'):
 			ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
-		
+
 		if lamp_type == 'LightIESMax':
 			ofile.write("\n\ties_light_shape= %i;" % (VRayLamp.ies_light_shape if VRayLamp.ies_light_shape else -1))
 			ofile.write("\n\ties_light_width= %.3f;" %    (VRayLamp.ies_light_width))
@@ -1051,7 +1048,7 @@ def write_node(bus):
 	for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
 		if lamp.data is None:
 			continue
-		
+
 		if lamp.type == 'LAMP':
 			VRayLamp= lamp.data.vray
 		else:
@@ -1167,7 +1164,7 @@ def write_object(bus):
 
 	# Displace or Subdivision
 	if ob.vray.GeomStaticSmoothedMesh.use:
-		PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)	
+		PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
 	else:
 		PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
 
@@ -1241,7 +1238,7 @@ def _write_object_particles(bus):
 	VRayExporter= VRayScene.exporter
 
 	if len(ob.particle_systems):
-		for ps in ob.particle_systems: 
+		for ps in ob.particle_systems:
 			# if ps.settings.type == 'HAIR':
 			# 	if ps.settings.render_type not in {'OBJECT', 'GROUP', 'PATH'}:
 			# 		continue
@@ -1266,93 +1263,10 @@ def _write_object_particles(bus):
 					bus['node']['name']     = hair_node_name
 					bus['node']['geometry'] = hair_geom_name
 					bus['node']['material'] = ps_material
-					
+
 					write_node(bus)
 
 					bus['node']['hair'] = False
-
-			# else:
-			# 	particle_objects = []
-
-			# 	if ps.settings.render_type == 'OBJECT':
-			# 		particle_objects.append(ps.settings.dupli_object)
-			# 	elif ps.settings.render_type == 'GROUP':
-			# 		particle_objects = ps.settings.dupli_group.objects
-			# 	else:
-			# 		continue
-
-			# 	for p,particle in enumerate(ps.particles):
-			# 		p_log = False
-			# 		if ps.settings.count >= 50000:
-			# 			if (p % 1000) == 0:
-			# 				p_log = True
-			# 		else:
-			# 			if (p % 100) == 0:
-			# 				p_log = True
-			# 		if p_log:
-			# 			sys.stdout.write("%s: Object: %s => Particle: %s\r" % (color("V-Ray/Blender", 'green'), color(ob.name, 'yellow'), color(p, 'green')))
-			# 			sys.stdout.flush()
-
-			# 		location = particle.location
-			# 		size     = particle.size 
-			# 		if ps.settings.type == 'HAIR':
-			# 			location = particle.hair_keys[0].co 
-			# 			size    *= ps.settings.hair_length
-
-			# 		part_transform = mathutils.Matrix.Scale(size, 3) * particle.rotation.to_matrix()
-
-			# 		# Specific to Blender particle realization:
-			# 		#  Object must be rotated so that it's top is aligned to X
-			# 		#  So, we need to rotate original matrix
-			# 		if not ps.settings.use_rotation_dupli:
-			# 			part_transform *= mathutils.Matrix.Rotation(math.radians(-90.0), 3, 'Z')
-
-			# 		# Resize matrix
-			# 		part_transform.resize_4x4()
-
-			# 		# Add location
-			# 		part_transform.translation = mathutils.Vector(location)
-
-			# 		for p_ob in particle_objects:
-			# 			part_name = clean_string("PA%sPS%sP%s" % (ps.name, ps.settings.name, p))
-						
-			# 			if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
-			# 				part_name = "OB%sPS%sP%s" %(bus['node']['particle']['name'],
-			# 										    clean_string(ps.name),
-			# 										    p)
-												 
-			# 			if ps.settings.use_whole_group or ps.settings.use_global_dupli:
-			# 				p_ob_offs = mathutils.Matrix.Translation(p_ob.matrix_world.translation)
-			# 				part_transform *= p_ob_offs
-						
-			# 			if ps.settings.use_rotation_dupli:
-			# 				p_ob_rot_sca = p_ob.matrix_world.copy()
-			# 				p_ob_rot_sca.translation = mathutils.Vector((0.0,0.0,0.0))
-			# 				part_transform *= p_ob_rot_sca
-
-			# 			part_visibility = True
-			# 			if ps.settings.type == 'EMITTER':
-			# 				if not particle.alive_state == 'ALIVE':
-			# 					part_visibility = False
-			# 				if particle.alive_state == 'DEAD' and ps.settings.use_dead:
-			# 					part_visibility = True
-			# 				if particle.alive_state == 'UNBORN' and ps.settings.show_unborn:
-			# 					part_visibility = True
-						
-			# 			bus['node']['object']               = p_ob
-			# 			bus['node']['base']                 = ob
-			# 			bus['node']['particle']             = {}
-			# 			bus['node']['particle']['name']     = part_name
-			# 			bus['node']['particle']['matrix']   = part_transform
-			# 			bus['node']['particle']['visible']  = part_visibility
-			# 			bus['node']['particle']['material'] = ps_material
-
-			# 			_write_object(bus)
-
-			# 			bus['node']['object']   = ob
-			# 			bus['node']['base']     = ob
-			# 			bus['node']['visible']  = True
-			# 			bus['node']['particle'] = {}
 
 
 def _write_object_dupli(bus):
@@ -1360,7 +1274,7 @@ def _write_object_dupli(bus):
 
 	dupli_from_particles = False
 	if len(ob.particle_systems):
-		for ps in ob.particle_systems: 
+		for ps in ob.particle_systems:
 			if ps.settings.render_type in {'OBJECT', 'GROUP'}:
 				dupli_from_particles = True
 
@@ -1369,7 +1283,7 @@ def _write_object_dupli(bus):
 
 		for dup_id,dup_ob in enumerate(ob.dupli_list):
 			parent_dupli= ""
-			
+
 			bus['node']['object']= dup_ob.object
 			bus['node']['base']=   ob
 
@@ -1378,7 +1292,7 @@ def _write_object_dupli(bus):
 														  dup_ob.object.name,
 														  dup_id))
 			dup_node_matrix= dup_ob.matrix
-			
+
 			# For case when dupli is inside other dupli
 			if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
 				# Store parent dupli name
@@ -1395,7 +1309,7 @@ def _write_object_dupli(bus):
 			bus['node']['base']=   ob
 			bus['node']['dupli']=  {}
 			bus['node']['dupli']['name']=   parent_dupli
-			
+
 		ob.dupli_list_clear()
 
 
@@ -1686,7 +1600,7 @@ def write_scene(bus):
 			else:
 				debug(scene, "No cameras selected for \"Camera loop\"!", error= True)
 				return True # Error
-		
+
 		else:
 			write_frame(bus)
 
@@ -1777,7 +1691,7 @@ def run(bus):
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
 			image_file= os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
-			
+
 			params.append('-imgFile=')
 			params.append(image_file)
 
@@ -1876,7 +1790,7 @@ def init_bus(engine, scene, preview = False):
 
 	# Preview
 	bus['preview']= preview
-	
+
 	# V-Ray uses UV indexes, Blender uses UV names
 	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
@@ -1905,7 +1819,9 @@ def render(engine, scene, preview= None):
 	if preview:
 		export_and_run(init_bus(engine, scene, True))
 		return
-	
+
+	bus = init_bus(engine, scene, preview)
+
 	if VRayExporter.animation:
 		if VRayExporter.animation_type == 'FRAMEBYFRAME':
 			selected_frame= scene.frame_current

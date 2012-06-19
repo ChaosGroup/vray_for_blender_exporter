@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Thursday, 11 August 2011 [03:20]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -548,6 +546,25 @@ def a(scene, t):
 	else:
 		return p(t)
 
+# Helper function to convert a value to
+# hex in vrscene format
+def to_vrscene_hex(value):
+	if type(value) is float:
+		bytes = struct.pack('<f', value)
+	else:
+		bytes = struct.pack('<i', value)
+	return ''.join([ "%02X" % b for b in bytes ])
+
+# Helper function to convert mathutils.Vector to
+# hex vector in vrscene format
+def to_vrscene_hex_vector(vector):
+	return ''.join([ to_vrscene_hex(v) for v in vector ])
+
+def to_vrscene_hex_double_vector(vector):
+	def to_vrscene_hex(value):
+		bytes = struct.pack('<d', value)
+		return ''.join([ "%04X" % b for b in bytes ])
+	return ''.join([ to_vrscene_hex(v) for v in vector ])
 
 # Helper function to convert a value to
 # hex in vrscene format
@@ -576,8 +593,8 @@ def to_double_hex_vector(vector):
 def transform(m):
 	return "Transform(Matrix(Vector(%f,%f,%f),Vector(%f,%f,%f),Vector(%f,%f,%f)),Vector(%f,%f,%f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
 	# return 'TransformHex("%s%s%s%s")' % (to_vrscene_hex_vector(m.col[0]),
-	# 	to_vrscene_hex_vector(m.col[1]), 
-	# 	to_vrscene_hex_vector(m.col[2]), 
+	# 	to_vrscene_hex_vector(m.col[1]),
+	# 	to_vrscene_hex_vector(m.col[2]),
 	# 	to_double_hex_vector(m.translation))
 
 
@@ -834,7 +851,7 @@ def get_full_filepath(bus, ob, filepath):
 
 	# Copy file to the shared directory
 	dest_file= os.path.join(dest_path, src_filename)
-	
+
 	if os.path.isfile(src_file):
 		if os.path.exists(dest_file):
 			# Copy only if the file was changed
@@ -854,10 +871,10 @@ def get_full_filepath(bus, ob, filepath):
 		return "//%s/%s/%s/%s/%s"%(HOSTNAME,
 								   VRayDR.share_name,
 								   bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
-		
+
 	return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
 
-	
+
 
 # True if object on active layer
 def object_on_visible_layers(sce,ob):
@@ -904,7 +921,7 @@ def get_distance(ob1, ob2):
 # VRayProxy Creator call
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	proxycreator_bin= "proxycreator"
-	
+
 	if PLATFORM == 'linux2':
 		proxycreator_bin+= "_linux"
 	elif PLATFORM == 'win32':
@@ -921,7 +938,7 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	vray_exporter_path= get_vray_exporter_path()
 	if vray_exporter_path:
 		proxycreator_bin= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
-		
+
 		if os.path.exists(proxycreator_bin):
 			debug(None, "Proxy Creator: %s" % (proxycreator_bin))
 
@@ -933,7 +950,7 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 			cmd.append(vrmesh_filepath)
 
 			proc= subprocess.call(cmd)
-		
+
 		else:
 			debug(None, "Proxy Creator not found!", error= True)
 
@@ -1005,7 +1022,7 @@ def init_files(bus):
 	VRayExporter   = VRayScene.exporter
 	VRayDR         = VRayScene.VRayDR
 	SettingsOutput = VRayScene.SettingsOutput
-	
+
 	(blendfile_path, blendfile_name) = os.path.split(bpy.data.filepath)
 
 	# Blend-file name without extension
@@ -1023,12 +1040,16 @@ def init_files(bus):
 		if SettingsOutput.img_dir:
 			output_filepath = bpy.path.abspath(SettingsOutput.img_dir)
 
-		if VRayExporter.output == 'SCENE':
-			export_filepath = os.path.join(blendfile_path, "vrscene")
+		if VRayExporter.output == 'USER':
+			if VRayExporter.output_dir:
+				export_filepath= bpy.path.abspath(VRayExporter.output_dir)
+
+		elif VRayExporter.output == 'SCENE':
+			export_filepath= os.path.join(blendfile_path, "vrscene")
 
 		if VRayExporter.output_unique:
 			export_filename = blendfile_name
-	
+
 	if VRayExporter.output == 'USER':
 		export_filepath = bpy.path.abspath(VRayExporter.output_dir)
 

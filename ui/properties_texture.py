@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Monday, 08 August 2011 [03:02]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -23,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
+  
 '''
 
 
@@ -358,4 +356,6 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 from bl_ui import properties_texture
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER')
 properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+properties_texture.TEXTURE_PT_voxeldata.COMPAT_ENGINES.add('VRAY_RENDER')
+properties_texture.TEXTURE_PT_voxeldata.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
 del properties_texture

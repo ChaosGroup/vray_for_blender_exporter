@@ -4,8 +4,6 @@
 
   http://vray.cgdo.ru
 
-  Time-stamp: "Thursday, 11 August 2011 [20:25]"
-
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
 
@@ -60,7 +58,7 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class VRayBRDF(bpy.types.PropertyGroup):
-		pass
+		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
 	bpy.utils.register_class(VRayBRDF)
 
 	class BRDFLayered(bpy.types.PropertyGroup):
@@ -98,7 +96,7 @@ def add_properties(rna_pointer):
 	)
 
 	VRayBRDF.use= BoolProperty(
-		name= "Use BRDF",
+		name= "",
 		description= "Use BRDF",
 		default= True
 	)
@@ -251,6 +249,7 @@ def gui(context, layout, BRDFLayered, material= None):
 	row= layout.row()
 	row.template_list(BRDFLayered, 'brdfs',
 					  BRDFLayered, 'brdf_selected',
+					  prop_list = 'template_list_controls',
 					  rows= 3)
 
 	col= row.column()
@@ -296,7 +295,6 @@ def gui(context, layout, BRDFLayered, material= None):
 			col= split.column()
 		row= col.row(align=True)
 		row.prop(brdf, 'name', text="")
-		row.prop(brdf, 'use', text="")
 
 		if wide_ui:
 			split= layout.split(percentage=0.2)
@@ -324,9 +322,12 @@ def gui(context, layout, BRDFLayered, material= None):
 						text= "")
 					
 		layout.separator()
+
+		box = layout.box()
+		box.active = brdf.use
 		
 		rna_pointer= getattr(brdf, brdf.type)
 		if rna_pointer:
 			plugin= PLUGINS['BRDF'].get(brdf.type)
 			if plugin:
-				plugin.gui(context, layout.box(), rna_pointer)
+				plugin.gui(context, box, rna_pointer)

@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Monday, 11 July 2011 [00:39]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -138,6 +136,18 @@ def add_properties(rna_pointer):
 	VRayExporter.use_hair= BoolProperty(
 		name= "Hair",
 		description= "Render hair",
+		default= True
+	)
+
+	VRayExporter.use_smoke= BoolProperty(
+		name= "Smoke",
+		description= "Render smoke",
+		default= True
+	)
+
+	VRayExporter.use_smoke_hires= BoolProperty(
+		name= "Smoke High Resolution",
+		description= "Render high resolution smoke",
 		default= True
 	)
 

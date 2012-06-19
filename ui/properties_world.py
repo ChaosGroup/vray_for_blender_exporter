@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Sunday, 31 July 2011 [21:49]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -23,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
+  
 '''
 
 
@@ -101,6 +99,7 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 		row= split.row()
 		row.template_list(VRayEffects, 'effects',
 						  VRayEffects, 'effects_selected',
+						  prop_list = 'template_list_controls',
 						  rows= 4)
 		col= row.column()
 		sub= col.row()
@@ -127,7 +126,6 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 				col= split.column()
 			row= col.row(align=True)
 			row.prop(effect, 'name', text="")
-			row.prop(effect, 'use', text="")
 
 			if wide_ui:
 				split= layout.split(percentage=0.2)
@@ -142,13 +140,14 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 			layout.separator()
 
 			# Box border
-			layout= layout.box()
+			box = layout.box()
+			box.active = effect.use
 
 			if effect.type == 'FOG':
-				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, layout, effect)
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, box, effect)
 
 			elif effect.type == 'TOON':
-				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, effect)
+				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
 
 
 bpy.utils.register_class(VRAY_WP_environment)

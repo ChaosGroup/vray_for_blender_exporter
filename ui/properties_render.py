@@ -1,10 +1,8 @@
 '''
 
-  V-Ray/Blender 2.5
+  V-Ray/Blender
 
   http://vray.cgdo.ru
-
-  Time-stamp: "Thursday, 11 August 2011 [03:06]"
 
   Author: Andrey M. Izrantsev (aka bdancer)
   E-Mail: izrantsev@cgdo.ru
@@ -23,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
+  
 '''
 
 
@@ -408,6 +406,8 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_instances')
 		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'use_hair')
+		col.prop(ve, 'use_smoke')
+		col.prop(ve, 'use_smoke_hires', text = "Smoke HR")
 		col.prop(ve, 'mesh_debug')
 		
 		layout.separator()
@@ -1022,6 +1022,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 		row= layout.row()
 		row.template_list(vsce, 'render_channels',
 						  vsce, 'render_channels_index',
+						  prop_list = 'template_list_controls',
 						  rows= 4)
 		col= row.column()
 		sub= col.row()
@@ -1044,7 +1045,6 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 				col= split.column()
 			row= col.row(align=True)
 			row.prop(render_channel, 'name', text="")
-			row.prop(render_channel, 'use', text="")
 
 			if wide_ui:
 				split= layout.split(percentage=0.2)
