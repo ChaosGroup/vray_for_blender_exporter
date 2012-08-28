@@ -1060,7 +1060,7 @@ def init_files(bus):
 
 	if bus['preview']:
 		export_filename= "preview"
-		if os.name == 'posix':
+		if PLATFORM == 'linux2':
 			export_filepath = os.path.join("/dev/shm", "vrayblender_preview_"+get_username())
 		else:
 			export_filepath = os.path.join(tempfile.gettempdir(), "vrayblender_preview_"+get_username())
