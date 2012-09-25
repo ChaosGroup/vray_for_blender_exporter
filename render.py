@@ -736,8 +736,9 @@ def	write_material(bus):
 			ofile.write("\n\ttranslucency= %s;" % a(scene, VRayMaterial.Mtl2Sided.translucency_color))
 		else:
 			if VRayMaterial.Mtl2Sided.translucency_tex:
-				if VRayMaterial.Mtl2Sided.translucency_tex in bpy.data.materials:
-					ofile.write("\n\ttranslucency_tex= %s;"%(get_name(bpy.data.textures[VRayMaterial.Mtl2Sided.translucency_tex], prefix='TE')))
+				translucency_tex = write_subtexture(bus, VRayMaterial.Mtl2Sided.translucency_tex)
+				if translucency_tex:
+					ofile.write("\n\ttranslucency_tex= %s;" % (translucency_tex))
 					ofile.write("\n\ttranslucency_tex_mult= %s;" % a(scene,VRayMaterial.Mtl2Sided.translucency_tex_mult))
 			else:
 				ofile.write("\n\ttranslucency= %s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayMaterial.Mtl2Sided.translucency_slider))
@@ -1762,6 +1763,9 @@ def run(bus):
 
 def close_files(bus):
 	for key in bus['files']:
+		bus['files'][key].close()
+	for key in bus['files']:
+		bus['files'][key].close()
 		bus['files'][key].close()
 
 
