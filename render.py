@@ -1824,8 +1824,6 @@ def render(engine, scene, preview= None):
 		export_and_run(init_bus(engine, scene, True))
 		return
 
-	bus = init_bus(engine, scene, preview)
-
 	if VRayExporter.animation:
 		if VRayExporter.animation_type == 'FRAMEBYFRAME':
 			selected_frame= scene.frame_current
