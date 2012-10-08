@@ -124,6 +124,9 @@ def write_texture(bus):
 	if texture.type == 'IMAGE':
 		return PLUGINS['TEXTURE']['TexBitmap'].write(bus)
 
+	elif texture.type == 'VOXEL_DATA':
+		return bus['mtex']['name']
+
 	elif texture.type == 'VRAY':
 		VRayTexture= texture.vray
 

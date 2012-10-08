@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -246,7 +246,7 @@ def add_properties(rna_pointer):
 		precision= 3,
 		default= 0.2
 	)
-	
+
 	EnvironmentFog.density= FloatProperty(
 		name= "Density",
 		description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog",
@@ -286,7 +286,7 @@ def add_properties(rna_pointer):
 		precision= 3,
 		default= 100
 	)
-	
+
 	EnvironmentFog.subdivs= IntProperty(
 		name= "Subdivs",
 		description= "Fog subdivision",
@@ -318,7 +318,7 @@ def add_properties(rna_pointer):
 		),
 		default= 'MULT'
 	)
-	
+
 	EnvironmentFog.fade_out_radius= FloatProperty(
 		name= "Fade out radius",
 		description= "Fade out effect for the edges",
@@ -362,13 +362,13 @@ def add_properties(rna_pointer):
 		soft_max= 10,
 		default= 0
 	)
-	
+
 	EnvironmentFog.scatter_gi= BoolProperty(
 		name= "Scatter GI",
 		description= "Scatter global illumination",
 		default= True
 	)
-	
+
 	EnvironmentFog.scatter_bounces= IntProperty(
 		name= "Scatter bounces",
 		description= "Number of GI bounces calculated inside the fog",
@@ -728,7 +728,7 @@ def write_VolumeVRayToon_from_material(bus):
 	ma= bus['material']['material']
 
 	VRayMaterial= ma.vray
-	
+
 	VolumeVRayToon= VRayMaterial.VolumeVRayToon
 
 	toon_name= clean_string("MT%s%s" % (ob.name, ma.name))
@@ -809,27 +809,21 @@ def write(bus):
 
 		EnvironmentFog= effect.EnvironmentFog
 
-		tex_test = True
 		density_tex  = None
 		emission_tex = None
 		if EnvironmentFog.density_tex:
-			if tex_test:
-				density_tex = "TestVoxelData"
-			else:
-				density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
+			density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
 
 		if EnvironmentFog.emission_tex:
-			if tex_test:
-				emission_tex = "TestVoxelData"
-			else:
-				emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
+			emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
 
 		if emission_tex:
-			ofile.write("\nTexAColorOp %s {" % "TestVoxelDataEmit")
-			ofile.write("\n\tcolor_a= %s;" % "TestVoxelData")
-			ofile.write("\n\tmult_a= %.3f;" % EnvironmentFog.emission_mult)
+			emission_tex_mult_name = "%sMult" % emission_tex
+			ofile.write("\nTexAColorOp %s {" % emission_tex_mult_name)
+			ofile.write("\n\tcolor_a=%s;" % emission_tex)
+			ofile.write("\n\tmult_a=%.3f;" % EnvironmentFog.emission_mult)
 			ofile.write("\n}\n")
-			emission_tex = "TestVoxelDataEmit"
+			emission_tex = emission_tex_mult_name
 
 		name= "EEF%s" % clean_string(effect.name)
 
@@ -893,9 +887,9 @@ def write(bus):
 				value= getattr(VolumeVRayToon, param)
 			ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
 		ofile.write("\n}\n")
-		
+
 		return name
-	
+
 	VRayScene=   scene.vray
 	VRayEffects= VRayScene.VRayEffects
 
@@ -1166,7 +1160,7 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 		col.prop_search(VolumeVRayToon, 'excludeList_groups',
 						bpy.data,       'groups',
 						text="Groups")
-	
+
 
 def gui(context, layout, VRayEffects):
 	wide_ui= context.region.width > narrowui
