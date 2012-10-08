@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -33,7 +33,7 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.plugins import *
-	
+
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
 	bl_label= "Irradiance Map Presets"
@@ -68,7 +68,7 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		scene= context.scene
 		rd=    scene.render
 		VRayScene= scene.vray
-		
+
 		# if VRayScene.image_aspect_lock:
 		# 	rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
 
@@ -76,7 +76,7 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
 		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active= True
-		
+
 		split= layout.split()
 		col= split.column()
 		col.label(text="Resolution:")
@@ -233,7 +233,7 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
-		
+
 		split= layout.split()
 		col= split.column()
 		col.label(text="Modules:")
@@ -257,7 +257,7 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(VRayExporter, 'draft')
 
 		layout.separator()
-		
+
 		layout.prop(rd, "display_mode", text="Display")
 
 
@@ -269,7 +269,7 @@ class VRAY_RP_VRayStereoscopicSettings(VRayRenderPanel, bpy.types.Panel):
 	def poll(cls, context):
 		VRayStereoscopicSettings= context.scene.vray.VRayStereoscopicSettings
 		return super().poll(context) and VRayStereoscopicSettings.use
-	
+
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
 		layout= self.layout
@@ -285,7 +285,7 @@ class VRAY_RP_VRayStereoscopicSettings(VRayRenderPanel, bpy.types.Panel):
 		col.prop_search(VRayStereoscopicSettings, 'right_camera',
 				bpy.data, 'objects',
 				text= "Right Camera:")
-		
+
 		layout.separator()
 
 		split = layout.split()
@@ -409,7 +409,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_smoke')
 		col.prop(ve, 'use_smoke_hires', text = "Smoke HR")
 		col.prop(ve, 'mesh_debug')
-		
+
 		layout.separator()
 
 		split= layout.split()
@@ -435,7 +435,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 
 		layout.separator()
 
-		layout.operator('vray.update')
+		layout.operator('vray.update', icon='FILE_REFRESH')
 
 		# Manual render pipeline controls
 		if ve.animation:
@@ -449,7 +449,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 			render_icon  = 'RENDER_STILL'
 
 		box = layout.box()
-		box.label(text="Custom controls:")
+		box.label(text="Custom operators:")
 		split = box.split()
 		col = split.column()
 		col.operator('vray.render', text=render_label, icon=render_icon)
@@ -941,7 +941,7 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 			if not module.num_passes_auto:
 				col.prop(module, "num_passes")
 			col.prop(module, "depth", slider= True)
-			
+
 			if wide_ui:
 				col= split.column()
 			col.prop(module, "store_direct_light")
@@ -1012,7 +1012,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 	def draw(self, context):
 		wide_ui = context.region.width > narrowui
 		layout= self.layout
-		
+
 		sce= context.scene
 		vsce= sce.vray
 		render_channels= vsce.render_channels
@@ -1032,7 +1032,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 
 		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
 			render_channel= render_channels[vsce.render_channels_index]
-		
+
 			layout.separator()
 
 			if wide_ui:
@@ -1061,7 +1061,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 			if render_channel.type != 'NONE':
 				# Box border
 				layout= layout.box()
-				
+
 				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
 				if plugin is not None:
 					render_channel_data= getattr(render_channel,plugin.PLUG)
@@ -1073,7 +1073,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 									return render_channel_data.name + " (enter unique name)"
 							return render_channel_data.name
 						render_channel.name= get_unique_name()
-					
+
 					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
 
 
@@ -1143,7 +1143,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(module, 'port', text="")
-		
+
 		layout.separator()
 
 		split= layout.split()
@@ -1155,7 +1155,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 
 		if module.nodes_selected >= 0 and len(module.nodes) > 0:
 			render_node= module.nodes[module.nodes_selected]
-		
+
 			layout.separator()
 
 			layout.prop(render_node, 'name')
@@ -1165,7 +1165,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -1213,7 +1213,7 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 		SettingsOptions=          VRayScene.SettingsOptions
 		VRayExporter=             VRayScene.exporter
-		
+
 		layout.label(text="Threads:")
 		split= layout.split()
 		col= split.column()
