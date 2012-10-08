@@ -27,12 +27,14 @@
 
 if "bpy" in locals():
 	import imp
+	imp.reload(lib)
 	imp.reload(plugins)
 	imp.reload(ui)
 	imp.reload(preset)
 	imp.reload(render_ops)
 else:
 	import bpy
+	from vb25 import lib
 	from vb25 import plugins
 	from vb25 import ui
 	from vb25 import preset
@@ -64,3 +66,5 @@ def unregister():
 			if kmi.idname == 'vray.render':
 				km.keymap_items.remove(kmi)
 				break
+
+VRaySocket = None
