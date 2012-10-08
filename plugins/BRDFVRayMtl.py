@@ -32,6 +32,9 @@ from bpy.props import *
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.lib   import VRaySocket
+
+from bl_ui.properties_material import active_node_mat
 
 
 TYPE= 'BRDF'
@@ -103,6 +106,15 @@ PARAMS= (
 )
 
 
+def callback_match_BI_diffuse(self, context):
+	print(type(self))
+	material = active_node_mat(context.material)
+	if not self.as_viewport_color:
+		material.diffuse_color = (0.5, 0.5, 0.5)
+		return
+	material.diffuse_color = self.diffuse
+
+
 def add_properties(rna_pointer):
 	class BRDFVRayMtl(bpy.types.PropertyGroup):
 		pass
@@ -115,14 +127,22 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFVRayMtl.diffuse= FloatVectorProperty(
-		name= "Diffuse",
-		description= "Diffuse color",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0.75,0.75,0.75)
+		name        = "Diffuse",
+		description = "Diffuse color",
+		subtype     = 'COLOR',
+		min         = 0.0,
+		max         = 1.0,
+		soft_min    = 0.0,
+		soft_max    = 1.0,
+		default     = (0.75,0.75,0.75),
+		update      = callback_match_BI_diffuse
+	)
+
+	BRDFVRayMtl.as_viewport_color = BoolProperty(
+		name        = "Use As Viewport Color",
+		description = "Use BRDF diffuse color as viewport color",
+		default     = False,
+		update      = callback_match_BI_diffuse
 	)
 
 	BRDFVRayMtl.opacity= FloatProperty(
@@ -626,10 +646,10 @@ def mapto(bus, BRDFLayered= None):
 		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),            0, 'NONE')
 
 	defaults['roughness']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE')
-		
+
 	defaults['reflect_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)),  0, 'NONE')
 	defaults['hilight_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)),  0, 'NONE')
-		
+
 	defaults['reflect']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE')
 	defaults['anisotropy']=          (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE')
 	defaults['anisotropy_rotation']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE')
@@ -831,14 +851,16 @@ def gui(context, layout, BRDFVRayMtl, material= None):
 
 	split= layout.split()
 	col= split.column(align= True)
-	if material:
-		col.prop(material, 'diffuse_color', text="")
-	else:
-		col.prop(BRDFVRayMtl, 'diffuse', text="")
+	# if material:
+	# 	col.prop(material, 'diffuse_color', text="")
+	# else:
+	# 	col.prop(BRDFVRayMtl, 'diffuse', text="")
+	col.prop(BRDFVRayMtl, 'diffuse', text="")
 	col.prop(BRDFVRayMtl, 'opacity', slider=True)
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFVRayMtl, 'roughness', slider=True)
+	col.prop(BRDFVRayMtl, 'as_viewport_color')
 
 	split= layout.split()
 	col= split.column()
