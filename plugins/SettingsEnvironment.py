@@ -809,11 +809,15 @@ def write(bus):
 
 		EnvironmentFog= effect.EnvironmentFog
 
-		density_tex  = None
-		emission_tex = None
+		density_tex       = None
+		density_tex_voxel = False
 		if EnvironmentFog.density_tex:
+			if EnvironmentFog.density_tex in bpy.data.textures:
+				if bpy.data.textures[EnvironmentFog.density_tex].type == 'VOXEL_DATA':
+					density_tex_voxel = True
 			density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
 
+		emission_tex = None
 		if EnvironmentFog.emission_tex:
 			emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
 
@@ -833,6 +837,8 @@ def write(bus):
 				if param == 'density_tex':
 					if density_tex:
 						value = "%s"%(density_tex)
+					if not density_tex_voxel:
+						value += "::out_intensity"
 				# elif param == 'emission_mult':
 				# 	value = EnvironmentFog.emission_mult
 				elif param == 'emission_tex':
