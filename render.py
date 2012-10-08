@@ -392,13 +392,13 @@ def write_geometry(bus):
 	VRayScene=    scene.vray
 	VRayExporter= VRayScene.exporter
 
-	if 'export_nodes' in dir(bpy.ops.vray):
-		# Call V-Ray/Blender custom node export operator
-		bpy.ops.vray.export_nodes(
-			scene    = scene.as_pointer(),
-			filepath = bus['filenames']['nodes'],
-			debug    = VRayExporter.mesh_debug
-		)
+	# if 'export_nodes' in dir(bpy.ops.vray):
+	# 	# Call V-Ray/Blender custom node export operator
+	# 	bpy.ops.vray.export_nodes(
+	# 		scene    = scene.as_pointer(),
+	# 		filepath = bus['filenames']['nodes'],
+	# 		debug    = VRayExporter.mesh_debug
+	# 	)
 
 	if 'export_meshes' in dir(bpy.ops.vray):
 		# Call V-Ray/Blender custom mesh export operator
