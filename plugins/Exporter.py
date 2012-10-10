@@ -81,7 +81,7 @@ def add_properties(rna_pointer):
 
 	VRayExporter.autoclose= BoolProperty(
 		name= "Auto close",
-		description= "Close VFB on Esc",
+		description= "Stop render and close VFB on Esc",
 		default= False
 	)
 
@@ -90,7 +90,7 @@ def add_properties(rna_pointer):
 		description= "Show log window (Linux)",
 		default= False
 	)
-	
+
 	VRayExporter.log_window_type= EnumProperty(
 		name= "Log window type",
 		description= "Log window type",
@@ -137,6 +137,12 @@ def add_properties(rna_pointer):
 		name= "Hair",
 		description= "Render hair",
 		default= True
+	)
+
+	VRayExporter.use_still_motion_blur = BoolProperty(
+		name        = "Still Motion Blur",
+		description = "Generate data for still motion blur",
+		default     = False
 	)
 
 	VRayExporter.use_smoke= BoolProperty(

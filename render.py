@@ -1665,16 +1665,19 @@ def run(bus):
 			params.append("%i;%i;%i;%i" % (x0,y0,x1,y1))
 
 		params.append('-frames=')
-		if VRayExporter.animation:
-			if VRayExporter.animation_type == 'FRAMEBYFRAME':
-				params.append("%d"%(scene.frame_current))
-			else:
-				params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end, int(scene.frame_step)))
-		elif VRayExporter.camera_loop:
-			if bus['cameras']:
-				params.append("1-%d,1" % len(bus['cameras']))
+		if VRayExporter.use_still_motion_blur:
+			params.append("%d" % scene.frame_end)
 		else:
-			params.append("%d" % scene.frame_current)
+			if VRayExporter.animation:
+				if VRayExporter.animation_type == 'FRAMEBYFRAME':
+					params.append("%d"%(scene.frame_current))
+				else:
+					params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end, int(scene.frame_step)))
+			elif VRayExporter.camera_loop:
+				if bus['cameras']:
+					params.append("1-%d,1" % len(bus['cameras']))
+			else:
+				params.append("%d" % scene.frame_current)
 
 		if VRayDR.on:
 			if len(VRayDR.nodes):
@@ -1824,16 +1827,39 @@ def render(engine, scene, preview= None):
 		export_and_run(init_bus(engine, scene, True))
 		return
 
-	if VRayExporter.animation:
-		if VRayExporter.animation_type == 'FRAMEBYFRAME':
-			selected_frame= scene.frame_current
-			f= scene.frame_start
-			while(f <= scene.frame_end):
-				scene.frame_set(f)
+	if VRayExporter.use_still_motion_blur:
+		# Store current settings
+		e_anim_state = VRayExporter.animation
+		e_anim_type  = VRayExporter.animation_type
+		frame_start = scene.frame_start
+		frame_end   = scene.frame_end
+
+		# Run export
+		VRayExporter.animation = True
+		VRayExporter.animation_type = 'FULL'
+
+		scene.frame_start = scene.frame_current - 1
+		scene.frame_end   = scene.frame_current
+
+		export_and_run(init_bus(engine, scene))
+
+		# Restore settings
+		VRayExporter.animation = e_anim_state
+		VRayExporter.animation_type = e_anim_type
+		scene.frame_start = frame_start
+		scene.frame_end   = frame_end
+
+	else:
+		if VRayExporter.animation:
+			if VRayExporter.animation_type == 'FRAMEBYFRAME':
+				selected_frame= scene.frame_current
+				f= scene.frame_start
+				while(f <= scene.frame_end):
+					scene.frame_set(f)
+					export_and_run(init_bus(engine, scene))
+					f+= scene.frame_step
+				scene.frame_set(selected_frame)
+			else:
 				export_and_run(init_bus(engine, scene))
-				f+= scene.frame_step
-			scene.frame_set(selected_frame)
 		else:
 			export_and_run(init_bus(engine, scene))
-	else:
-		export_and_run(init_bus(engine, scene))

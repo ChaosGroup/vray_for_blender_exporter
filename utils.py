@@ -541,10 +541,8 @@ def p(t):
 
 # Animated property
 def a(scene, t):
-	if scene.vray.exporter.animation:
-		return "interpolate((%i,%s))" % (scene.frame_current, p(t))
-	else:
-		return p(t)
+	return "interpolate((%i,%s))" % (scene.frame_current, p(t))
+
 
 # Hex value format
 def HexFormat(value):

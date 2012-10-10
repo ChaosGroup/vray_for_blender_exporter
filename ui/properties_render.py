@@ -253,6 +253,7 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(VRayExporter, 'active_layers')
 		if VRayScene.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
+		col.prop(VRayExporter, 'use_still_motion_blur')
 		col.label(text="Options:")
 		col.prop(VRayExporter, 'draft')
 
@@ -405,10 +406,18 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
 		# col.prop(SettingsOptions, 'geom_displacement')
-		col.prop(ve, 'use_hair')
+		col.prop(ve, 'mesh_debug')
+
+		layout.separator()
+
+		layout.label(text="Rendering:")
+		split = layout.split()
+		col = split.column()
 		col.prop(ve, 'use_smoke')
 		col.prop(ve, 'use_smoke_hires', text = "Smoke HR")
-		col.prop(ve, 'mesh_debug')
+		if wide_ui:
+			col= split.column()
+		col.prop(ve, 'use_hair')
 
 		layout.separator()
 
