@@ -107,7 +107,6 @@ PARAMS= (
 
 
 def callback_match_BI_diffuse(self, context):
-	print(type(self))
 	material = active_node_mat(context.material)
 	if not self.as_viewport_color:
 		material.diffuse_color = (0.5, 0.5, 0.5)
