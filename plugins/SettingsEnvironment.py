@@ -840,8 +840,6 @@ def write(bus):
 					value = "%s"%(density_tex)
 					if not density_tex_voxel:
 						value += "::out_intensity"
-				# elif param == 'emission_mult':
-				# 	value = EnvironmentFog.emission_mult
 				elif param == 'emission_tex' and emission_tex:
 					value = "%s"%(emission_tex)
 				else:
