@@ -156,26 +156,21 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		box.prop(SettingsMotionBlur, 'on')
 		if SettingsMotionBlur.on:
 			box.prop(SettingsMotionBlur, 'camera_motion_blur')
-			box.prop(SettingsMotionBlur, 'duration')
 
-			split = box.split()
-			col = split.column()
-			col.prop(SettingsMotionBlur, 'bias')
-			if wide_ui:
-				col = split.column()
-			col.prop(SettingsMotionBlur, 'subdivs')
-
-			split = box.split()
-			col = split.column()
+			col = box.column(align=True)
+			col.prop(SettingsMotionBlur, 'duration')
 			col.prop(SettingsMotionBlur, 'interval_center')
-			col.prop(SettingsMotionBlur, 'shutter_efficiency')
 
-			split = box.split()
-			col = split.column()
-			col.prop(SettingsMotionBlur, 'low_samples')
-			if wide_ui:
-				col = split.column()
-			col.prop(SettingsMotionBlur, 'geom_samples')
+			row = box.row(align=True)
+			row.prop(SettingsMotionBlur, 'bias')
+			row.prop(SettingsMotionBlur, 'subdivs')
+
+			row = box.row(align=True)
+			row.prop(SettingsMotionBlur, 'shutter_efficiency')
+
+			row = box.row(align=True)
+			row.prop(SettingsMotionBlur, 'low_samples')
+			row.prop(SettingsMotionBlur, 'geom_samples', text="Geom Samples")
 
 		split= layout.split()
 		col= split.column()
