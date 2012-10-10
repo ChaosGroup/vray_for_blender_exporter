@@ -836,16 +836,14 @@ def write(bus):
 			value = None
 
 			if param.endswith('_tex') or param.endswith('_mult'):
-				if param == 'density_tex':
-					if density_tex:
-						value = "%s"%(density_tex)
-						if not density_tex_voxel:
-							value += "::out_intensity"
+				if param == 'density_tex' and density_tex:
+					value = "%s"%(density_tex)
+					if not density_tex_voxel:
+						value += "::out_intensity"
 				# elif param == 'emission_mult':
 				# 	value = EnvironmentFog.emission_mult
-				elif param == 'emission_tex':
-					if emission_tex:
-						value = "%s"%(emission_tex)
+				elif param == 'emission_tex' and emission_tex:
+					value = "%s"%(emission_tex)
 				else:
 					continue
 			elif param == 'emission':
