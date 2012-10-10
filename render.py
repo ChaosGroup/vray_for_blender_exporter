@@ -1569,6 +1569,7 @@ def write_scene(bus):
 		PLUGINS['SETTINGS']['RenderView'].write(bus)
 		PLUGINS['CAMERA']['SettingsCamera'].write(bus)
 		PLUGINS['CAMERA']['CameraPhysical'].write(bus)
+		PLUGINS['CAMERA']['SettingsMotionBlur'].write(bus)
 
 		debug(scene, "Writing frame {0}... done {1:<64}".format(scene.frame_current, "[%.2f]"%(time.clock() - timer)))
 

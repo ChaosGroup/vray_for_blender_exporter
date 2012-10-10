@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -77,7 +77,7 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			if VRayCamera.override_fov: col.prop(VRayCamera, 'fov')
-				
+
 			split= layout.split()
 			split.active= not VRayCamera.override_fov
 			col= split.column()
@@ -109,13 +109,6 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 
 		'''
 			SettingsCameraDof
-		'''
-		# split= layout.split()
-		# col= split.column()
-		# col= split.column()
-
-		'''
-			SettingsMotionBlur
 		'''
 		# split= layout.split()
 		# col= split.column()
@@ -155,6 +148,34 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		col.prop(ca, 'dof_object', text="")
 
 		layout.separator()
+
+		'''
+			SettingsMotionBlur
+		'''
+		box = layout.box()
+		box.prop(SettingsMotionBlur, 'on')
+		if SettingsMotionBlur.on:
+			box.prop(SettingsMotionBlur, 'camera_motion_blur')
+			box.prop(SettingsMotionBlur, 'duration')
+
+			split = box.split()
+			col = split.column()
+			col.prop(SettingsMotionBlur, 'bias')
+			if wide_ui:
+				col = split.column()
+			col.prop(SettingsMotionBlur, 'subdivs')
+
+			split = box.split()
+			col = split.column()
+			col.prop(SettingsMotionBlur, 'interval_center')
+			col.prop(SettingsMotionBlur, 'shutter_efficiency')
+
+			split = box.split()
+			col = split.column()
+			col.prop(SettingsMotionBlur, 'low_samples')
+			if wide_ui:
+				col = split.column()
+			col.prop(SettingsMotionBlur, 'geom_samples')
 
 		split= layout.split()
 		col= split.column()
@@ -210,7 +231,7 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 			sub.prop(CameraPhysical, 'lens_shift')
 			sub.operator('vray.lens_shift')
 		sub.prop(CameraPhysical, 'guess_lens_shift')
-		
+
 		if wide_ui:
 			col= split.column(align=True)
 

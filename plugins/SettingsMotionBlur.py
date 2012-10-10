@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 ''' Blender modules '''
@@ -33,13 +33,22 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-TYPE= 'CAMERA'
-ID=   'SettingsMotionBlur'
+TYPE = 'CAMERA'
+ID   = 'SettingsMotionBlur'
 
-NAME= 'Motion Blur'
-DESC= "V-Ray SettingsMotionBlur settings."
+NAME = 'Motion Blur'
+DESC = "V-Ray SettingsMotionBlur settings."
 
-PARAMS= (
+PARAMS = (
+	'on',
+	'geom_samples',
+	'low_samples',
+	'duration',
+	'subdivs',
+	'bias',
+	'shutter_efficiency',
+	'interval_center',
+	'camera_motion_blur',
 )
 
 
@@ -71,9 +80,9 @@ def add_properties(rna_pointer):
 	SettingsMotionBlur.duration= FloatProperty(
 		name="Duration",
 		description="Specifies the duration, in frames, during which the camera shutter is open",
-		min=0.0, max=100.0,
-		soft_min=0.0, soft_max=10.0,
-		default=1.0
+		min=1.0, max=100.0,
+		soft_min=1.0, soft_max=10.0,
+		default=2.0
 	)
 
 	SettingsMotionBlur.bias= FloatProperty(
@@ -84,6 +93,14 @@ def add_properties(rna_pointer):
 		default=0.0
 	)
 
+	SettingsMotionBlur.shutter_efficiency= FloatProperty(
+		name="Shutter Efficiency",
+		description="Shutter efficiency",
+		min=0.0, max=10.0,
+		soft_min=0.0, soft_max=1.0,
+		default=1.0
+	)
+
 	SettingsMotionBlur.subdivs= IntProperty(
 		name="Subdivs",
 		description="Determines the quality of the motion blur",
@@ -92,15 +109,36 @@ def add_properties(rna_pointer):
 	)
 
 	SettingsMotionBlur.geom_samples= IntProperty(
-		name="Geometry samples",
+		name="Geometry Samples",
 		description="This determines the number of geometry segments used to approximate motion blur",
 		min=1, max=100,
 		default=2
 	)
 
 	SettingsMotionBlur.low_samples= IntProperty(
-		name="Low samples",
+		name="Prepass Samples",
 		description="This controls how many samples in time will be computed during irradiance map calculations",
 		min=1, max=100,
 		default=1
 	)
+
+	SettingsMotionBlur.camera_motion_blur= BoolProperty(
+		name="Camera Motion Blur",
+		description="Use camera motion blur",
+		default=True
+	)
+
+
+def write(bus):
+	ofile  = bus['files']['camera']
+	scene  = bus['scene']
+	camera = bus['camera']
+
+	VRayCamera         = camera.data.vray
+	SettingsMotionBlur = VRayCamera.SettingsMotionBlur
+
+	ofile.write("\n%s %s {" % (ID,ID))
+	for param in PARAMS:
+		value = getattr(SettingsMotionBlur, param)
+		ofile.write("\n\t%s= %s;"%(param, p(value)))
+	ofile.write("\n}\n")
