@@ -833,12 +833,14 @@ def write(bus):
 
 		ofile.write("\nEnvironmentFog %s {" % name)
 		for param in PARAMS['EnvironmentFog']:
+			value = None
+
 			if param.endswith('_tex') or param.endswith('_mult'):
 				if param == 'density_tex':
 					if density_tex:
 						value = "%s"%(density_tex)
-					if not density_tex_voxel:
-						value += "::out_intensity"
+						if not density_tex_voxel:
+							value += "::out_intensity"
 				# elif param == 'emission_mult':
 				# 	value = EnvironmentFog.emission_mult
 				elif param == 'emission_tex':
@@ -861,7 +863,9 @@ def write(bus):
 				value= "List(%s)" % ','.join(light_object_list)
 			else:
 				value= getattr(EnvironmentFog, param)
-			ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
+
+			if value is not None:
+				ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 		ofile.write("\n}\n")
 
 		return name
