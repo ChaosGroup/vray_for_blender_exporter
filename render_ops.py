@@ -160,7 +160,7 @@ class VRAY_OT_effect_remove(bpy.types.Operator):
 		VRayScene= context.scene.vray
 
 		VRayEffects= VRayScene.VRayEffects
-				
+
 		if VRayEffects.effects_selected >= 0:
 			VRayEffects.effects.remove(VRayEffects.effects_selected)
 			VRayEffects.effects_selected-= 1
@@ -246,7 +246,7 @@ class VRAY_OT_brdf_add(bpy.types.Operator):
 
 			rna_pointer.brdfs.add()
 			rna_pointer.brdfs[-1].name= "BRDF"
-			
+
 			return {'FINISHED'}
 
 		return {'CANCELLED'}
@@ -264,7 +264,7 @@ class VRAY_OT_brdf_remove(bpy.types.Operator):
 		if ma:
 			rna_pointer= ma.vray.BRDFLayered
 			# rna_pointer= find_brdf_pointer(VRayMaterial)
-				
+
 			if rna_pointer.brdf_selected >= 0:
 				rna_pointer.brdfs.remove(rna_pointer.brdf_selected)
 				rna_pointer.brdf_selected-= 1
@@ -354,9 +354,9 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 	def execute(self, context):
 		sce= context.scene
 		vsce= sce.vray
-		
+
 		render_channels= vsce.render_channels
-		
+
 		if vsce.render_channels_index >= 0:
 		   render_channels.remove(vsce.render_channels_index)
 		   vsce.render_channels_index-= 1
@@ -434,10 +434,10 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 	def execute(self, context):
 		for ma in bpy.data.materials:
 			debug(context.scene, "Converting material: %s" % ma.name)
-			
+
 			rm= ma.raytrace_mirror
 			rt= ma.raytrace_transparency
-			
+
 			VRayMaterial= ma.vray
 			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
@@ -455,14 +455,14 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 				if rm.fresnel > 0.0:
 					BRDFVRayMtl.fresnel= True
 					BRDFVRayMtl.fresnel_ior= rm.fresnel
-			
+
 			for slot in ma.texture_slots:
 				if slot and slot.texture and slot.texture.type in TEX_TYPES:
 					VRaySlot=    slot.texture.vray_slot
 					VRayTexture= slot.texture.vray
 
 					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
-					
+
 					if slot.use_map_emit:
 						VRayMaterial.type= 'BRDFLight'
 
@@ -515,7 +515,7 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 	)
 
 	def execute(self, context):
-		
+
 		text= bpy.data.texts.new(name="Settings")
 
 		bus= {}
@@ -542,7 +542,7 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 			plugin= PLUGINS['SETTINGS'][key]
 			if hasattr(plugin, 'write'):
 				plugin.write(bus)
-		
+
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_settings_to_text)
@@ -564,7 +564,7 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
-		
+
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_flip_resolution)
@@ -707,7 +707,7 @@ bpy.utils.register_class(VRAY_OT_create_proxy)
 '''
 def init(context):
 	scene= context.scene
-	
+
 	# Settings bus
 	bus= {}
 
@@ -719,7 +719,7 @@ def init(context):
 
 	# Preview
 	bus['preview']= False
-	
+
 	# V-Ray uses UV indexes, Blender uses UV names
 	# Here we store UV name->index map
 	bus['uvs']= get_uv_layers_map(scene)
@@ -740,7 +740,7 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 	def execute(self, context):
 
 		vb25.render.write_scene(init(context))
-		
+
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_write_scene)
@@ -750,6 +750,28 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_idname      = "vray.write_geometry"
 	bl_label       = "Export meshes"
 	bl_description = "Export meshes into vrscene file"
+
+	dialog_width = 180
+
+	def draw(self, context):
+		layout = self.layout
+		split = layout.split()
+		col = split.column()
+		col.label(text = "Animation mode is active!")
+		col.label(text = "Are you sure to export meshes?")
+
+	def invoke(self, context, event):
+		wm    = context.window_manager
+		scene = context.scene
+
+		VRayScene    = scene.vray
+		VRayExporter = VRayScene.exporter
+
+		if not bpy.app.background:
+			if VRayExporter.animation and VRayExporter.animation_type == 'FULL':
+				return wm.invoke_props_dialog(self, self.dialog_width)
+
+		return {'RUNNING_MODAL'}
 
 	def execute(self, context):
 
@@ -767,7 +789,7 @@ class VRAY_OT_render(bpy.types.Operator):
 
 	def execute(self, context):
 		scene = context.scene
-		
+
 		VRayScene    = scene.vray
 		VRayExporter = VRayScene.exporter
 
@@ -786,7 +808,7 @@ class VRAY_OT_run(bpy.types.Operator):
 	def execute(self, context):
 
 		vb25.render.run(None, context.scene)
-				
+
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_run)
@@ -831,7 +853,7 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 		default= 5000
 	)
 
-	dialog_width= 150 
+	dialog_width= 150
 
 	def draw(self, context):
 		layout= self.layout
@@ -850,7 +872,7 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 			sub= col.row(align= True)
 			sub.prop(self, 'use_temperature', text= "")
 			sub.prop(self, 'temperature', text= "K")
-		
+
 	def invoke(self, context, event):
 		wm= context.window_manager
 		return wm.invoke_props_dialog(self, self.dialog_width)
@@ -862,7 +884,7 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 			'D55': 5500,
 			'D50': 5000,
 		}
-		
+
 		def recursive_attr(data, attrs):
 			if not attrs:
 				return data
@@ -909,7 +931,7 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 			debug(scene,
 				  "Sky texture only availble in \"%s\"!" % color("Special build",'green'),
 				  error= True)
-		
+
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_add_sky)
@@ -966,7 +988,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "%s" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview =  False
-	
+
 	def render(self, scene):
 		VRayScene= scene.vray
 		VRayExporter= VRayScene.exporter
