@@ -33,6 +33,26 @@ from vb25.utils import *
 from vb25.plugins import *
 
 
+def write_UVWGenPlanarWorld(bus):
+	scene   = bus['scene']
+	ofile   = bus['files']['textures']
+	texture = bus['mtex']['texture']
+
+	VRayTexture = texture.vray
+	VRaySlot    = texture.vray_slot
+
+	uvwgen = "UWVGPW%s" % bus['mtex']['name']
+
+	ob = get_orco_object(scene, bus['node']['object'], VRayTexture)
+
+	ofile.write("\nUVWGenPlanarWorld %s {" % uvwgen)
+	if ob:
+		uvw_transform = ob.matrix_world.copy().inverted()
+		ofile.write("\n\tuvw_transform= %s; // Object: %s" % (a(scene, transform(uvw_transform)), ob.name))
+	ofile.write("\n}\n")
+
+	return uvwgen
+
 def write_UVWGenProjection(bus):
 	TYPE= {
 		'NONE':   0,
@@ -88,8 +108,9 @@ def write_UVWGenChannel(bus):
 	uvwgen      = None
 
 	if VRayTexture.texture_coords == 'ORCO':
-		uvwgen= write_UVWGenProjection(bus)
-
+		uvwgen = write_UVWGenProjection(bus)
+	elif VRayTexture.texture_coords == 'WORLD':
+		uvwgen = write_UVWGenPlanarWorld(bus)
 	else:
 		if slot and hasattr(slot, 'uv_layer'):
 			if slot.uv_layer.isdigit():

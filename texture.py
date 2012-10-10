@@ -109,13 +109,13 @@ def write_TexInvert(bus):
 
 
 def write_texture(bus):
-	scene=   bus['scene']
-	texture= bus['mtex']['texture']
+	scene   = bus['scene']
+	texture = bus['mtex']['texture']
 
 	if not append_unique(bus['cache']['textures'], bus['mtex']['name']):
 		if not 'env' in bus['mtex']:
 			if 'material' in bus:
-				bus['material']['normal_uvwgen']= bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
+				bus['material']['normal_uvwgen'] = bus['cache']['uvwgen'].get(bus['mtex']['name'], bus['defaults']['uvwgen'])
 		return bus['mtex']['name']
 
 	if texture.use_nodes:
@@ -128,7 +128,7 @@ def write_texture(bus):
 		return bus['mtex']['name']
 
 	elif texture.type == 'VRAY':
-		VRayTexture= texture.vray
+		VRayTexture = texture.vray
 
 		if VRayTexture.type == 'NONE':
 			return None
@@ -136,7 +136,7 @@ def write_texture(bus):
 		return PLUGINS['TEXTURE'][VRayTexture.type].write(bus)
 
 	else:
-		debug(scene, "Texture \"%s\": \'%s\' type is not supported." % (texture.name, texture.type), error= True)
+		debug(scene, "Texture \"%s\": \'%s\' type is not supported." % (texture.name, texture.type), error=True)
 		return None
 
 
@@ -194,7 +194,7 @@ def stack_write_texture(bus):
 
 	bus['mtex']['name']= write_factor(bus)
 
-	# IMPROVE: Bump invert quick fix
+	# IMPROVE: Bump invert button quick fix
 	# There is no invert control for bump
 	# so use normal
 	if mapto == 'bump':
@@ -227,14 +227,14 @@ def remove_alpha(bus):
 
 def write_sub_texture(bus, mtex):
 	# Store mtex context
-	context_mtex= bus['mtex']
+	context_mtex = bus['mtex']
 
-	bus['mtex']= mtex
+	bus['mtex'] = mtex
 
-	tex_name= write_texture(bus)
+	tex_name = write_texture(bus)
 
 	# Restore mtex context
-	bus['mtex']= context_mtex
+	bus['mtex'] = context_mtex
 
 	return tex_name
 
@@ -386,16 +386,16 @@ def write_TextureNodeInvert(bus, node, node_params):
 def write_TextureNodeTexture(bus, node, input_params):
 	node_tree= bus['tex_nodes']['node_tree']
 
-	mtex= {}
-	mtex['mapto']=   'node'
-	mtex['slot']=     None
-	mtex['texture']=  node.texture
-	mtex['factor']=   1.0
-	mtex['name']=     clean_string("NT%sNO%sTE%s" % (node_tree.name,
+	mtex = {}
+	mtex['mapto']   = 'node'
+	mtex['slot']    = None
+	mtex['texture'] = node.texture
+	mtex['factor']  = 1.0
+	mtex['name']    = clean_string("NT%sNO%sTE%s" % (node_tree.name,
 													 node.name,
 													 node.texture.name))
 
-	tex_name= write_sub_texture(bus, mtex)
+	tex_name = write_sub_texture(bus, mtex)
 
 	return tex_name
 
@@ -415,20 +415,15 @@ def write_TextureNodeMixRGB(bus, node, input_params):
 	for key in params:
 		# Key is mapped in input_params
 		if key in input_params:
-			params[key]= input_params[key]
+			params[key] = input_params[key]
 
+		# Use node color values
 		else:
-			if key == 'Color1':
-				c= node.inputs[key].default_value
-				params[key]= write_TexAColor(bus, key, node,
-											 mathutils.Color((c[0],c[1],c[2])))
-			elif key == 'Color2':
-				c= node.inputs[key].default_value
-				params[key]= write_TexAColor(bus, key, node,
-											 mathutils.Color((c[0],c[1],c[2])))
+			if key in ['Color1', 'Color2']:
+				c = node.inputs[key].default_value
+				params[key] = write_TexAColor(bus, key, node, mathutils.Color((c[0],c[1],c[2])))
 			elif key == 'Factor':
-				params[key]= write_TexAColor(bus, key, node,
-											 mathutils.Color([node.inputs[key].default_value[0]]*3))
+				params[key] = write_TexAColor(bus, key, node, mathutils.Color([node.inputs[key].default_value]*3))
 
 	return stack_write_TexMix(bus, params['Color1'], params['Color2'], params['Factor'])
 
@@ -442,11 +437,10 @@ def write_TextureNodeOutput(bus, node, input_params):
 	}
 
 	if 'Color' not in input_params:
-		c= node.inputs['Color'].default_value
-		params['Color']= write_TexAColor(bus, 'Color', node,
-										 mathutils.Color((c[0],c[1],c[2])))
+		c = node.inputs['Color'].default_value
+		params['Color'] = write_TexAColor(bus, 'Color', node, mathutils.Color((c[0],c[1],c[2])))
 	else:
-		params['Color']= input_params['Color']
+		params['Color'] = input_params['Color']
 
 	ofile.write("\nTexOutput %s {" % bus['mtex']['name'])
 	ofile.write("\n\ttexmap= %s;" % params['Color'])
@@ -465,12 +459,12 @@ def write_texture_node(bus, node_tree, node):
 	node_params= {}
 
 	for input_socket in node.inputs:
-		input_node= connected_node(node_tree, input_socket)
+		input_node = connected_node(node_tree, input_socket)
 
 		if not input_node:
 			continue
 
-		value= write_texture_node(bus, node_tree, input_node)
+		value = write_texture_node(bus, node_tree, input_node)
 
 		if value is not None:
 			node_params[input_socket.name]= value

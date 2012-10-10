@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -47,6 +47,8 @@ PARAMS= (
 def update_blender_mapping_type(self, context):
 	if not context.texture_slot:
 		return
+	if self.texture_coords == 'WORLD':
+		return
 	context.texture_slot.texture_coords = self.texture_coords
 
 
@@ -63,8 +65,9 @@ def add_properties(rna_pointer):
 		name= "Coords",
 		description= "Image texure placement type",
 		items= (
-			('ORCO', "Object", "Generated coordinates."),
-			('UV',   "UV",     "Mesh UV coordinates."),
+			('ORCO',  "Object", "Generated coordinates."),
+			('UV',    "UV",     "Mesh UV coordinates."),
+			('WORLD', "World",  "World coordinates."),
 		),
 		default= 'ORCO',
 		update= update_blender_mapping_type
@@ -159,7 +162,7 @@ def add_properties(rna_pointer):
 		description= "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
 		default= True
 	)
-	
+
 	# color_mult
 	# rna_pointer.color_mult= FloatVectorProperty(
 	# 	name= "Color mult",
@@ -212,7 +215,7 @@ def add_properties(rna_pointer):
 		soft_max= 2.0,
 		default= 1.0
 	)
-	
+
 	# alpha_offset
 	rna_pointer.alpha_offset= FloatProperty(
 		name= "Alpha offset",
@@ -335,7 +338,7 @@ def add_properties(rna_pointer):
 		description= "Mirror in U",
 		default= False
 	)
-	
+
 	# tile_v
 	# rna_pointer.tile_v= BoolProperty(
 	# 	name= "Tile V",
@@ -364,7 +367,7 @@ def add_properties(rna_pointer):
 		description= "If true the noise is enabled",
 		default= 0
 	)
-	
+
 	# uv_noise_animate
 	rna_pointer.uv_noise_animate= IntProperty(
 		name= "Animate",
@@ -498,7 +501,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 	def poll(cls, context):
 		if not engine_poll(cls, context):
 			return False
-		
+
 		tex= context.texture
 		if not tex:
 			return False
@@ -646,7 +649,7 @@ class VRAY_TP_Tiling(VRayTexturePanel, bpy.types.Panel):
 	def poll(cls, context):
 		if not engine_poll(cls, context):
 			return False
-		
+
 		tex= context.texture
 		if not tex:
 			return False
@@ -737,7 +740,7 @@ class VRAY_TP_Common(VRayTexturePanel, bpy.types.Panel):
 	def poll(cls, context):
 		if not engine_poll(cls, context):
 			return False
-		
+
 		tex= context.texture
 		if not tex:
 			return False
