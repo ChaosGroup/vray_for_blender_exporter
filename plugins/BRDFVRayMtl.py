@@ -107,6 +107,8 @@ PARAMS= (
 
 
 def callback_match_BI_diffuse(self, context):
+	if not hasattr(context, 'material'):
+		return
 	material = active_node_mat(context.material)
 	if not self.as_viewport_color:
 		material.diffuse_color = (0.5, 0.5, 0.5)
@@ -140,7 +142,7 @@ def add_properties(rna_pointer):
 	BRDFVRayMtl.as_viewport_color = BoolProperty(
 		name        = "Use As Viewport Color",
 		description = "Use BRDF diffuse color as viewport color",
-		default     = False,
+		default     = True,
 		update      = callback_match_BI_diffuse
 	)
 
