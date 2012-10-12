@@ -1728,38 +1728,84 @@ def run(bus):
 
 	engine = bus['engine']
 
+	# If this is a background task, wait until render end
+	# and no VFB is required
+	if bpy.app.background or VRayExporter.wait:
+		if bpy.app.background:
+			params.append('-display=')   # Disable VFB
+			params.append('0')
+			params.append('-autoclose=') # Exit on render end
+			params.append('1')
+		subprocess.call(params)
+		return
+
 	if VRayExporter.autorun:
-		process = subprocess.Popen(params)
+		if VRayExporter.use_feedback:
+			if scene.render.use_border:
+				return
 
-		if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
-			process.wait()
-			return
+			# Wait a little for socket creation
+			time.sleep(0.5)
 
-		if not isinstance(engine, bpy.types.RenderEngine):
-			return
+			filepath = os.path.join(vrayblender.utils.get_ram_basedir(), "vrayblender_%s_stream.jpg"%(vrayblender.utils.get_username()))
 
-		if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
-			load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 			while True:
 				if engine.test_break():
-					try:
-						process.kill()
-					except:
-						pass
+					process.stop_render()
 					break
 
-				if process.poll() is not None:
-					try:
-						if not VRayExporter.animation:
-							result= engine.begin_result(0, 0, resolution_x, resolution_y)
-							layer= result.layers[0]
-							layer.load_from_file(load_file)
-							engine.end_result(result)
-					except:
-						pass
+				if not process.is_running():
 					break
 
-				time.sleep(0.1)
+				err = process.grab_image(filepath)
+
+				if err is not None:
+					debug(None, "Recieving image: %s" %(err))
+					engine.update_progress(0.99)
+					break
+
+				if bus['engine'] == 'VRAYBLENDER_RENDER':
+					prog = process.get_progress()
+					if prog is not None:
+						engine.update_progress(prog)
+
+				# Load file to Blender
+				load_result(engine, resolution_x, resolution_y, filepath)
+
+				time.sleep(0.25)
+
+		else:
+			process = subprocess.Popen(params)
+
+			if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+				process.wait()
+				return
+
+			if not isinstance(engine, bpy.types.RenderEngine):
+				return
+
+			if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
+				load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
+				while True:
+					if engine.test_break():
+						try:
+							process.kill()
+						except:
+							pass
+						break
+
+					if process.poll() is not None:
+						try:
+							if not VRayExporter.animation:
+								result= engine.begin_result(0, 0, resolution_x, resolution_y)
+								layer= result.layers[0]
+								layer.load_from_file(load_file)
+								engine.end_result(result)
+						except:
+							pass
+						break
+
+					time.sleep(0.1)
 
 	else:
 		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
