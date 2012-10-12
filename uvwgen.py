@@ -121,9 +121,9 @@ def write_UVWGenChannel(bus):
 	ofile.write("\nUVWGenChannel %s {" % uvw_name)
 	ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
 	if slot:
-		scale_x= 0.001 if abs(slot.scale[0]) < 0.001 else abs(slot.scale[0])
-		scale_y= 0.001 if abs(slot.scale[1]) < 0.001 else abs(slot.scale[1])
-		scale_z= 0.001 if abs(slot.scale[2]) < 0.001 else abs(slot.scale[2])
+		scale_x = 1.0 / (0.001 if abs(slot.scale[0]) < 0.001 else abs(slot.scale[0]))
+		scale_y = 1.0 / (0.001 if abs(slot.scale[1]) < 0.001 else abs(slot.scale[1]))
+		scale_z = 1.0 / (0.001 if abs(slot.scale[2]) < 0.001 else abs(slot.scale[2]))
 
 		uvw_transform= mathutils.Matrix.Rotation(VRaySlot.texture_rot, 3, 'Z')
 
