@@ -1724,9 +1724,6 @@ def run(bus):
 		params.append('-autoclose=')
 		params.append('1')
 
-	if not VRayExporter.autorun:
-		debug(scene, "Command: %s" % ' '.join(params))
-
 	engine = bus['engine']
 
 	# If this is a background task, wait until render end
@@ -1766,12 +1763,15 @@ def run(bus):
 			params.append('-progressUseCR=')
 			params.append('0')
 
+			if not VRayExporter.autorun:
+				debug(scene, "Command: %s" % ' '.join(params))
+
 			vb25.process.run(params, pipe=True)
 
 			# Wait a little for socket creation
 			time.sleep(0.25)
 
-			feedback_image= os.path.join(get_ram_basedir(), "vrayblender_%s_stream.jpg"%(get_username()))
+			feedback_image = os.path.join(get_ram_basedir(), "vrayblender_%s_stream.jpg"%(get_username()))
 
 			proc_interrupted = False
 
@@ -1788,7 +1788,7 @@ def run(bus):
 					debug(None, "Error! Process is not running!")
 					break
 
-				err = vb25.process.grab_image(filepath)
+				err = vb25.process.grab_image(feedback_image)
 
 				if err is not None:
 					debug(None, "Error recieving image: %s" %(err))
@@ -1801,7 +1801,7 @@ def run(bus):
 					engine.update_progress(prog)
 
 				# Load file to Blender
-				load_result(engine, resolution_x, resolution_y, filepath)
+				load_result(engine, resolution_x, resolution_y, feedback_image)
 
 				time.sleep(0.25)
 
@@ -1815,6 +1815,9 @@ def run(bus):
 				load_result(engine, resolution_x, resolution_y, load_file)
 
 		else:
+			if not VRayExporter.autorun:
+				debug(scene, "Command: %s" % ' '.join(params))
+
 			process = subprocess.Popen(params)
 
 			if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
