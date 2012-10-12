@@ -91,6 +91,19 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	VRayExporter.use_feedback = BoolProperty(
+		name        = "Show progress",
+		description = "Catch and show rendering progress",
+		default     = False
+	)
+
+	VRayExporter.wait = BoolProperty(
+		name        = "Wait",
+		description = "Wait for V-Ray to complete rendering",
+		options     = {'HIDDEN'},
+		default     = False
+	)
+
 	VRayExporter.log_window_type= EnumProperty(
 		name= "Log window type",
 		description= "Log window type",
