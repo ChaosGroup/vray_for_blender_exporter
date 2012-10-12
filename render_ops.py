@@ -771,7 +771,7 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 			if VRayExporter.animation and VRayExporter.animation_type == 'FULL':
 				return wm.invoke_props_dialog(self, self.dialog_width)
 
-		return {'RUNNING_MODAL'}
+		return self.execute(context)
 
 	def execute(self, context):
 
