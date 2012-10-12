@@ -1701,9 +1701,6 @@ def run(bus):
 			params.append('-imgFile=')
 			params.append(image_file)
 
-		params.append('-display=')
-		params.append(str(int(VRayExporter.display)))
-
 		if VRayExporter.auto_save_render and VRayExporter.image_to_blender:
 			params.append('-autoclose=')
 			params.append('1')
@@ -1737,7 +1734,11 @@ def run(bus):
 		subprocess.call(params)
 		return
 
-	if VRayExporter.autorun:
+	if not VRayExporter.autorun:
+		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
+		debug(scene, "Command: %s" % ' '.join(params))
+
+	else:
 		if VRayExporter.use_feedback:
 			if scene.render.use_border or engine is None:
 				vb25.process.run(params)
@@ -1763,9 +1764,6 @@ def run(bus):
 			params.append('-progressUseCR=')
 			params.append('0')
 
-			if not VRayExporter.autorun:
-				debug(scene, "Command: %s" % ' '.join(params))
-
 			vb25.process.run(params, pipe=True)
 
 			# Wait a little for socket creation
@@ -1776,6 +1774,10 @@ def run(bus):
 			proc_interrupted = False
 
 			while True:
+				if not vb25.process.is_running():
+					debug(None, "Error! Process is not running!")
+					break
+
 				if engine.test_break():
 					proc_interrupted = True
 					debug(None, "Process is interrupted by the user")
@@ -1784,30 +1786,21 @@ def run(bus):
 					vb25.process.kill()
 					break
 
-				if not vb25.process.is_running():
-					debug(None, "Error! Process is not running!")
-					break
-
-				err = vb25.process.grab_image(feedback_image)
-
-				if err is not None:
-					debug(None, "Error recieving image: %s" %(err))
-					engine.update_progress(0.99)
-					break
-
 				msg, prog = vb25.process.get_progress()
 				if prog is not None and msg is not None:
 					engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
 					engine.update_progress(prog)
 
-				# Load file to Blender
-				load_result(engine, resolution_x, resolution_y, feedback_image)
+				err = vb25.process.grab_image(feedback_image)
+				if err is None:
+					load_result(engine, resolution_x, resolution_y, feedback_image)
 
 				time.sleep(0.25)
 
-			vb25.process.stop_render()
-			vb25.process.exit()
-			vb25.process.kill()
+			if not proc_interrupted:
+				vb25.process.stop_render()
+				vb25.process.exit()
+				vb25.process.kill()
 
 			# Load final result image to Blender
 			if VRayExporter.image_to_blender and not proc_interrupted:
@@ -1815,6 +1808,9 @@ def run(bus):
 				load_result(engine, resolution_x, resolution_y, load_file)
 
 		else:
+			params.append('-display=')
+			params.append(str(int(VRayExporter.display)))
+
 			if not VRayExporter.autorun:
 				debug(scene, "Command: %s" % ' '.join(params))
 
@@ -1848,9 +1844,6 @@ def run(bus):
 						break
 
 					time.sleep(0.1)
-
-	else:
-		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
 
 
 def close_files(bus):

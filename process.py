@@ -65,8 +65,6 @@ def kill():
 	global PROC
 
 	if PROC is not None and PROC.poll() is None:
-		# XXX: Zombie is still there
-		# PROC.send_signal(signal.CTRL_C_EVENT)
 		PROC.terminate()
 
 	PROC = None
@@ -75,16 +73,10 @@ def kill():
 
 
 def is_running():
-	cmd_socket = VRaySocket()
-	sock = cmd_socket.socket
-	cmd_socket.disconnect()
-
-	if sock is None:
-		if os.path.exists(RUN_FILE):
-			os.remove(RUN_FILE)
-		return False
-
-	return True
+	global PROC
+	if PROC.poll() is None:
+		return True
+	return False
 
 
 def get_progress():
