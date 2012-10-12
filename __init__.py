@@ -31,6 +31,7 @@ if "bpy" in locals():
 	imp.reload(plugins)
 	imp.reload(ui)
 	imp.reload(preset)
+	imp.reload(process)
 	imp.reload(render_ops)
 else:
 	import bpy
@@ -38,6 +39,7 @@ else:
 	from vb25 import plugins
 	from vb25 import ui
 	from vb25 import preset
+	from vb25 import process
 	from vb25 import render_ops
 
 

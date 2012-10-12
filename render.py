@@ -39,13 +39,13 @@ import bpy
 import mathutils
 
 ''' vb modules '''
+import vb25
 from vb25.utils   import *
 from vb25.plugins import *
 from vb25.texture import *
 from vb25.nodes   import *
 
-
-VERSION= '2.5'
+VERSION = '2.5'
 
 
 LIGHT_PARAMS= { # TEMP! REMOVE!
@@ -1630,6 +1630,9 @@ def run(bus):
 	params.append('-sceneFile=')
 	params.append(bus['filenames']['scene'])
 
+	image_file = os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
+	load_file  = preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
+
 	if not scene.render.threads_mode == 'AUTO':
 		params.append('-numThreads=')
 		params.append(str(scene.render.threads))
@@ -1695,8 +1698,6 @@ def run(bus):
 				params.append("\"%s\"" % (bus['filenames']['DR']['shared_dir'] + os.sep))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-			image_file= os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
-
 			params.append('-imgFile=')
 			params.append(image_file)
 
@@ -1741,38 +1742,77 @@ def run(bus):
 
 	if VRayExporter.autorun:
 		if VRayExporter.use_feedback:
-			if scene.render.use_border:
+			if scene.render.use_border or engine is None:
+				vb25.process.run(params)
 				return
 
-			# Wait a little for socket creation
-			time.sleep(0.5)
+			# Enable command socket
+			params.append('-cmdMode=')
+			params.append('1')
 
-			filepath = os.path.join(vrayblender.utils.get_ram_basedir(), "vrayblender_%s_stream.jpg"%(vrayblender.utils.get_username()))
+			# Disable VFB
+			params.append('-display=')
+			params.append('0')
+
+			# Exit on render end
+			params.append('-autoclose=')
+			params.append('1')
+
+			# We need only progress info
+			params.append('-showProgress=')
+			params.append('2')
+			params.append('-verboseLevel=')
+			params.append('0')
+			params.append('-progressUseCR=')
+			params.append('0')
+
+			vb25.process.run(params, pipe=True)
+
+			# Wait a little for socket creation
+			time.sleep(0.25)
+
+			feedback_image= os.path.join(get_ram_basedir(), "vrayblender_%s_stream.jpg"%(get_username()))
+
+			proc_interrupted = False
 
 			while True:
 				if engine.test_break():
-					process.stop_render()
+					proc_interrupted = True
+					debug(None, "Process is interrupted by the user")
+					vb25.process.stop_render()
+					vb25.process.exit()
+					vb25.process.kill()
 					break
 
-				if not process.is_running():
+				if not vb25.process.is_running():
+					debug(None, "Error! Process is not running!")
 					break
 
-				err = process.grab_image(filepath)
+				err = vb25.process.grab_image(filepath)
 
 				if err is not None:
-					debug(None, "Recieving image: %s" %(err))
+					debug(None, "Error recieving image: %s" %(err))
 					engine.update_progress(0.99)
 					break
 
-				if bus['engine'] == 'VRAYBLENDER_RENDER':
-					prog = process.get_progress()
-					if prog is not None:
-						engine.update_progress(prog)
+				msg, prog = vb25.process.get_progress()
+				if prog is not None and msg is not None:
+					engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
+					engine.update_progress(prog)
 
 				# Load file to Blender
 				load_result(engine, resolution_x, resolution_y, filepath)
 
 				time.sleep(0.25)
+
+			vb25.process.stop_render()
+			vb25.process.exit()
+			vb25.process.kill()
+
+			# Load final result image to Blender
+			if VRayExporter.image_to_blender and not proc_interrupted:
+				debug(None, "Loading final image: %s" %(load_file))
+				load_result(engine, resolution_x, resolution_y, load_file)
 
 		else:
 			process = subprocess.Popen(params)
@@ -1785,7 +1825,6 @@ def run(bus):
 				return
 
 			if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
-				load_file= preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 				while True:
 					if engine.test_break():
 						try:

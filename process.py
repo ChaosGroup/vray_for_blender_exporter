@@ -28,24 +28,24 @@ import os
 import re
 import socket
 import subprocess
+import signal
 import sys
 import tempfile
 import time
 
 # V-Ray/Blender modules
-import vrayblender
-
-from vrayblender.lib.VRaySocket import VRaySocket
+import vb25
+from vb25.lib import VRaySocket
 
 
 # V-Ray process
 PROC     = None
-RUN_FILE = os.path.join(tempfile.gettempdir(), "vray_%s.run" % (vrayblender.utils.get_username()))
+RUN_FILE = os.path.join(tempfile.gettempdir(), "vray_%s.run" % (vb25.utils.get_username()))
 
 
 # Subprocess on Windows prefer <path>, on unix "<path>"
 def format_path(path):
-	return path if vrayblender.utils.PLATFORM == 'win32' else '"%s"'%(path)
+	return path if vb25.utils.PLATFORM == 'win32' else '"%s"'%(path)
 
 
 # Process management
@@ -66,7 +66,8 @@ def kill():
 
 	if PROC is not None and PROC.poll() is None:
 		# XXX: Zombie is still there
-		PROC.kill()
+		# PROC.send_signal(signal.CTRL_C_EVENT)
+		PROC.terminate()
 
 	PROC = None
 	if os.path.exists(RUN_FILE):
@@ -89,42 +90,43 @@ def is_running():
 def get_progress():
 	global PROC
 
-	if not PROC:
-		return None
-
-	if not PROC.stdout:
-		return None
-
 	msg  = None
 	prog = None
 
 	if PROC is not None and PROC.poll() is None:
-		stdout_lines = PROC.stdout.read(512).decode('UTF-8').split('\n')
-		for line in stdout_lines:
+		stdout_lines = PROC.stdout.read(256).decode('UTF-8').split('\n')
 
+		for line in stdout_lines:
 			if line.find("Building light cache") != -1:
 				msg = "Light cache"
 			elif line.find("Prepass") != -1:
-				msg = "Irradiance map"
+				prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
+				msg = "Irradiance map (prepass %s)" % (prepass_num)
 			elif line.find("Rendering image") != -1:
-				msg = "Render"
+				msg = "Rendering"
+			elif line.find("Building caustics photon map") != -1:
+				msg = "Caustics"
 
 			if msg is None:
 				continue
 
-			s = re.search('[-+]?([0-9]*\.[0-9]+|[0-9]+)', line)
-			if s:
-				f = s.group(0)
-				if f is not None:
-					prog = float(f) / 100.0
+			p_start = line.find("...: ") + 5
+			p_end   = line.find("%")
+
+			if p_start != -1 and p_end != -1 and p_end > p_start:
+				p_str = line[p_start:p_end].strip()
+				if len(p_str):
+					prog = float(p_str) / 100.0
 					break
 
-	return prog
+		PROC.stdout.flush()
+
+	return msg, prog
 
 
 def reload_scene(scene_file):
 	if scene_file is None:
-		vrayblender.utils.debug(None, "Scene file is None!", error=True)
+		vb25.utils.debug(None, "Scene file is None!", error=True)
 		return {'FAIL'}
 
 	cmd_socket = VRaySocket()
@@ -145,11 +147,16 @@ def stop_render():
 	return None
 
 
+def exit():
+	cmd_socket = VRaySocket()
+	cmd_socket.send("quit")
+	cmd_socket.disconnect()
+
+	return None
+
+
 def grab_image(filepath):
 	cmd_socket = VRaySocket()
-
-	if not cmd_socket.connect():
-		return {'SOCKET_FAIL'}
 
 	# JPEG stream
 	jpeg_image   = bytes()

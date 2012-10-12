@@ -466,6 +466,14 @@ def get_username():
 		return getpass.getuser()
 
 
+# Get RAM directory
+# Used for fast temp file access
+def get_ram_basedir():
+	if PLATFORM == 'linux2':
+		return "/dev/shm"
+	return tempfile.gettempdir()
+
+
 # Colorize sting on Linux
 def color(text, color=None):
 	if not color or not PLATFORM == 'linux2':
@@ -1082,8 +1090,6 @@ def init_files(bus):
 
 	# Render output file name
 	ext = SettingsOutput.img_format.lower()
-	if VRayExporter.image_to_blender:
-		ext = 'exr'
 
 	file_name = "render"
 	if SettingsOutput.img_file:
@@ -1113,3 +1119,17 @@ def init_files(bus):
 # Converts kelvin temperature to color
 def kelvin_to_rgb(temperature):
 	return mathutils.Color(COLOR_TABLE[str(int(temperature / 100) * 100)])
+
+
+# Load render result
+def load_result(engine, w, h, filepath):
+	if not os.path.exists(filepath):
+		return
+
+	if engine is None:
+		return
+
+	result = engine.begin_result(0, 0, w, h)
+	layer = result.layers[0]
+	layer.load_from_file(filepath)
+	engine.end_result(result)

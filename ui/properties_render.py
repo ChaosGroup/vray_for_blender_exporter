@@ -191,7 +191,9 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
+		col.prop(VRayExporter,   'use_feedback', text="Render feedback")
 		col.prop(VRayExporter,   'image_to_blender')
+
 		# sub= col.column()
 		# sub.active= False
 		# sub.prop(rd, "use_overwrite")
@@ -421,6 +423,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 
 		layout.separator()
 
+		layout.label(text="Advanced:")
 		split= layout.split()
 		col= split.column()
 		col.prop(ve, 'detect_vray')
