@@ -441,6 +441,8 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 			VRayMaterial= ma.vray
 			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
 
+			BRDFVRayMtl.diffuse = ma.diffuse_color
+
 			if ma.emit > 0.0:
 				VRayMaterial.type= 'BRDFLight'
 
