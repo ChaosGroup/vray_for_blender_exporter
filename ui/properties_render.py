@@ -191,7 +191,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		col.prop(VRayExporter,   'use_feedback', text="Render feedback")
+		col.prop(VRayExporter,   'use_feedback', text="[ Render feedback ]")
 		col.prop(VRayExporter,   'image_to_blender')
 
 		# sub= col.column()
