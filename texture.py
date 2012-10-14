@@ -505,10 +505,9 @@ def write_node_texture(bus):
 
 	node_tree= tex.node_tree
 
-	output_node_name= None
-	if slot:
-		if slot.output_node != 'NOT_SPECIFIED':
-			output_node_name= slot.output_node
+	output_node_name = None
+	if slot and slot.output_node != 'NOT_SPECIFIED':
+		output_node_name = slot.output_node
 
 	output_node= get_output_node(node_tree, output_node_name)
 
