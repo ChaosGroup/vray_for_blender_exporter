@@ -29,53 +29,74 @@ import socket
 
 
 class VRaySocket():
-	socket  = None
-	address = "localhost"
-	port    = 4368
+    socket  = None
+    address = "localhost"
+    port    = 4368
 
-	def __init__(self, address):
-		self.address = address
-		self.connect()
+    def __init__(self, address):
+        self.address = address
 
-	def __init__(self):
-		self.connect()
+    def __init__(self):
+        pass
 
-	def __del__(self):
-		self.disconnect()
+    def __del__(self):
+        self.disconnect()
 
-	def connect(self):
-		self.disconnect()
+    def connect(self):
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((self.address, self.port))
+        except socket.error:
+            self.socket = None
 
-		try:
-			self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.socket.connect((self.address, self.port))
-		except socket.error:
-			self.socket = None
+        if self.socket is None:
+            return False
 
-		if self.socket is None:
-			return False
+        return None
 
-		return True
+    def disconnect(self):
+        if self.socket is None:
+            return
+        self.socket.close()
+        self.socket = None
 
-	def disconnect(self):
-		if self.socket is not None:
-			self.socket.close()
-			self.socket = None
 
-	def send(self, cmd):
-		if self.socket is None:
-			self.connect()
+    def get_result(self):
+        res = b''
 
-		if self.socket is not None:
-			try:
-				self.socket.send(bytes(cmd+'\0','UTF-8'))
-			except socket.error:
-				self.connect()
+        while True:
+            r = self.socket.recv(1);
+            if r == b'\0':
+                break
+            if r != b'\n':
+                res += r;
 
-	def recv(self, size):
-		b = None
-		try:
-			b = self.socket.recv(size)
-		except:
-			pass
-		return b
+        return res
+
+
+    def send(self, cmd, result=True):
+        if self.socket is None:
+            return
+
+        sent_size = None
+        sent_res  = None
+
+        sent_size = self.socket.send(bytes(cmd+'\0', 'ascii'))
+        if result:
+            sent_res = self.get_result()
+
+        # print(cmd, sent_res)
+
+        return None
+
+
+    def recv(self, size):
+        if self.socket is None:
+            return None
+
+        b = None
+        try:
+            b = self.socket.recv(size)
+        except:
+            pass
+        return b

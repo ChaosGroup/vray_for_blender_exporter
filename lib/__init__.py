@@ -24,4 +24,5 @@
 
 # VRay base classes
 
-from vb25.lib.VRaySocket import VRaySocket
+from vb25.lib.VRaySocket  import VRaySocket
+from vb25.lib.VRayProcess import VRayProcess
