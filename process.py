@@ -26,6 +26,7 @@
 # Python modules
 import os
 import re
+import struct
 import socket
 import subprocess
 import signal
@@ -40,7 +41,6 @@ from vb25.lib import VRaySocket
 
 # V-Ray process
 PROC     = None
-RUN_FILE = os.path.join(tempfile.gettempdir(), "vray_%s.run" % (vb25.utils.get_username()))
 
 
 # Subprocess on Windows prefer <path>, on unix "<path>"
@@ -57,25 +57,22 @@ def run(params, pipe=False):
 	else:
 		PROC = subprocess.Popen(params)
 
-	# Create pid file
-	open(RUN_FILE, 'w')
-
 
 def kill():
 	global PROC
 
-	if PROC is not None and PROC.poll() is None:
+	if is_running():
 		PROC.terminate()
 
 	PROC = None
-	if os.path.exists(RUN_FILE):
-		os.remove(RUN_FILE)
 
 
 def is_running():
 	global PROC
-	if PROC.poll() is None:
+
+	if PROC is not None and PROC.poll() is None:
 		return True
+
 	return False
 
 
@@ -85,10 +82,12 @@ def get_progress():
 	msg  = None
 	prog = None
 
-	if PROC is not None and PROC.poll() is None:
+	if is_running():
 		stdout_lines = PROC.stdout.read(256).decode('UTF-8').split('\n')
 
 		for line in stdout_lines:
+			print(line)
+
 			if line.find("Building light cache") != -1:
 				msg = "Light cache"
 			elif line.find("Prepass") != -1:
@@ -119,7 +118,7 @@ def get_progress():
 def reload_scene(scene_file):
 	if scene_file is None:
 		vb25.utils.debug(None, "Scene file is None!", error=True)
-		return {'FAIL'}
+		return 'FAIL_SCENE_RELOAD'
 
 	cmd_socket = VRaySocket()
 	cmd_socket.send("stop")
@@ -131,91 +130,59 @@ def reload_scene(scene_file):
 	return None
 
 
-def stop_render():
+def quit():
 	cmd_socket = VRaySocket()
 	cmd_socket.send("stop")
-	cmd_socket.disconnect()
-
-	return None
-
-
-def exit():
-	cmd_socket = VRaySocket()
 	cmd_socket.send("quit")
 	cmd_socket.disconnect()
 
-	return None
-
 
 def grab_image(filepath):
+	global PROC
+
 	cmd_socket = VRaySocket()
 
 	# JPEG stream
-	jpeg_image   = bytes()
+	jpeg_image = bytes()
+	jpeg_size  = 0
+	err        = None
 
-	recv_stream  = True
-	store_jpeg   = False
-	recv_max_cnt = 20
-	recv_cnt     = 0
+	err = cmd_socket.send("getImage 90 1")
+	if err is not None:
+		return err
 
-	buff         = []
+	# Get stream length or check for 'fail'
+	r = None
+	try:
+		r = cmd_socket.recv(4)
+	except:
+		pass
 
-	cmd_socket.send("getImage 90 1")
+	if r is None:
+		return 'SOCKET_FAIL'
 
-	while(recv_stream):
-		if not len(buff):
-			# If buffer is empty - fill it
-			# and check for fail
-			b = cmd_socket.recv(1)
-			if b is None:
-				return {'SOCKET_FAIL'}
-			buff.append( b )
+	if(r[0] == b'f' and r[1] == b'a' and r[2] == b'i' and r[3] == b'l'):
+		return 'RENDER_STOPPED'
 
-			b = cmd_socket.recv(1)
-			if b is None:
-				return {'SOCKET_FAIL'}
-			buff.append( b )
+	jpeg_size = struct.unpack("<L", r)[0]
 
-			if(buff[0] == b'f' and buff[1] == b'a'):
-				return {'RENDER_STOPPED'}
-
-		else:
-			# If buffer is not empty - delete first element
-			# and append new to the end
-			buff = buff[1:]
-
-			b = cmd_socket.recv(1)
-			if b is None:
-				return {'SOCKET_FAIL'}
-
-			buff.append( b )
-
-		if store_jpeg:
-			jpeg_image += buff[-1]
-
-		if(buff[0] == b'\xff' and buff[1] == b'\xd8'): # Start sig: FF D8
-			store_jpeg = True
-
-			jpeg_image += buff[0]
-			jpeg_image += buff[1]
-
-		if(buff[0] == b'\xff' and buff[1] == b'\xd9'): # End sig: FF D9
-			# Terminate only if we recieve END SIGNATURE
-			# while getting JPEG
-			if store_jpeg:
-				recv_stream = False
-
-		if not store_jpeg:
-			if recv_cnt > recv_max_cnt:
-				return {'NO_JPEG_SIG'}
-
-		recv_cnt += 1
+	i = 0
+	while(i < jpeg_size):
+		try:
+			jpeg_image += cmd_socket.recv(1)
+		except:
+			err = 'RENDER_STOPPED'
+			quit()
+			kill()
+			break
+		i += 1
 
 	cmd_socket.disconnect()
 
 	# Write stream to file
-	jpeg_file = open(filepath, 'wb')
-	jpeg_file.write(jpeg_image)
-	jpeg_file.close()
+	if err is None:
+		jpeg_file = open(filepath, 'wb')
+		jpeg_file.write(jpeg_image)
+		jpeg_file.close()
 
-	return None
+	return err

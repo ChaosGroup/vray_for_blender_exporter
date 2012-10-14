@@ -40,6 +40,7 @@ import mathutils
 
 ''' vb modules '''
 import vb25
+from vb25.lib     import VRayProcess
 from vb25.utils   import *
 from vb25.plugins import *
 from vb25.texture import *
@@ -1630,6 +1631,8 @@ def run(bus):
 	params.append('-sceneFile=')
 	params.append(bus['filenames']['scene'])
 
+	preview_file     = os.path.join(tempfile.gettempdir(), "preview.jpg")
+	preview_loadfile = os.path.join(tempfile.gettempdir(), "preview.0000.jpg")
 	image_file = os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
 	load_file  = preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 
@@ -1638,9 +1641,6 @@ def run(bus):
 		params.append(str(scene.render.threads))
 
 	if bus['preview']:
-		preview_file=     os.path.join(tempfile.gettempdir(), "preview.jpg")
-		preview_loadfile= os.path.join(tempfile.gettempdir(), "preview.0000.jpg")
-
 		params.append('-imgFile=')
 		params.append(preview_file)
 		params.append('-showProgress=')
@@ -1653,6 +1653,9 @@ def run(bus):
 		params.append('0')
 
 	else:
+		params.append('-display=')
+		params.append(str(int(VRayExporter.display)))
+
 		params.append('-verboseLevel=')
 		params.append(VRayExporter.verboseLevel)
 
@@ -1734,116 +1737,87 @@ def run(bus):
 		subprocess.call(params)
 		return
 
-	if not VRayExporter.autorun:
-		debug(scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
-		debug(scene, "Command: %s" % ' '.join(params))
+	if VRayExporter.use_feedback:
+		if scene.render.use_border or engine is None:
+			return
 
-	else:
-		if VRayExporter.use_feedback:
-			if scene.render.use_border or engine is None:
-				vb25.process.run(params)
-				return
+		proc = VRayProcess()
+		proc.sceneFile = bus['filenames']['scene']
+		proc.scene = scene
+		proc.communicate = True
 
-			# Enable command socket
-			params.append('-cmdMode=')
-			params.append('1')
+		proc.set_params()
+		proc.run()
 
-			# Disable VFB
-			params.append('-display=')
-			params.append('0')
+		feedback_image = os.path.join(get_ram_basedir(), "vrayblender_%s_stream.jpg"%(get_username()))
 
-			# Exit on render end
-			params.append('-autoclose=')
-			params.append('1')
+		proc_interrupted = False
 
-			# We need only progress info
-			params.append('-showProgress=')
-			params.append('2')
-			params.append('-verboseLevel=')
-			params.append('0')
-			params.append('-progressUseCR=')
-			params.append('0')
+		while True:
+			if engine.test_break():
+				proc_interrupted = True
+				debug(None, "Process is interrupted by the user")
+				break
 
-			vb25.process.run(params, pipe=True)
+			# msg, prog = proc.get_progress()
+			# if prog is not None and msg is not None:
+			# 	engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
+			# 	engine.update_progress(prog)
 
-			# Wait a little for socket creation
+			# if proc.exit_ready:
+			# 	break
+
+			err = proc.recieve_image(feedback_image)
+			if err is None:
+				load_result(engine, resolution_x, resolution_y, feedback_image)
+			else:
+				if err in ['CMD_FAIL']:
+					break
+
 			time.sleep(0.25)
 
-			feedback_image = os.path.join(get_ram_basedir(), "vrayblender_%s_stream.jpg"%(get_username()))
+		proc.kill()
 
-			proc_interrupted = False
+		# Load final result image to Blender
+		if VRayExporter.image_to_blender and not proc_interrupted:
+			debug(None, "Loading final image: %s"%(load_file))
+			load_result(engine, resolution_x, resolution_y, load_file)
 
+	else:
+		if not VRayExporter.autorun:
+			debug(scene, "Command: %s" % ' '.join(params))
+			return
+
+		process = subprocess.Popen(params)
+
+		if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+			process.wait()
+			return
+
+		if not isinstance(engine, bpy.types.RenderEngine):
+			return
+
+		if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
 			while True:
-				if not vb25.process.is_running():
-					debug(None, "Error! Process is not running!")
-					break
-
 				if engine.test_break():
-					proc_interrupted = True
-					debug(None, "Process is interrupted by the user")
-					vb25.process.stop_render()
-					vb25.process.exit()
-					vb25.process.kill()
+					try:
+						process.kill()
+					except:
+						pass
 					break
 
-				msg, prog = vb25.process.get_progress()
-				if prog is not None and msg is not None:
-					engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
-					engine.update_progress(prog)
+				if process.poll() is not None:
+					try:
+						if not VRayExporter.animation:
+							result= engine.begin_result(0, 0, resolution_x, resolution_y)
+							layer= result.layers[0]
+							layer.load_from_file(load_file)
+							engine.end_result(result)
+					except:
+						pass
+					break
 
-				err = vb25.process.grab_image(feedback_image)
-				if err is None:
-					load_result(engine, resolution_x, resolution_y, feedback_image)
-
-				time.sleep(0.25)
-
-			if not proc_interrupted:
-				vb25.process.stop_render()
-				vb25.process.exit()
-				vb25.process.kill()
-
-			# Load final result image to Blender
-			if VRayExporter.image_to_blender and not proc_interrupted:
-				debug(None, "Loading final image: %s" %(load_file))
-				load_result(engine, resolution_x, resolution_y, load_file)
-
-		else:
-			params.append('-display=')
-			params.append(str(int(VRayExporter.display)))
-
-			if not VRayExporter.autorun:
-				debug(scene, "Command: %s" % ' '.join(params))
-
-			process = subprocess.Popen(params)
-
-			if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
-				process.wait()
-				return
-
-			if not isinstance(engine, bpy.types.RenderEngine):
-				return
-
-			if engine is not None and (bus['preview'] or VRayExporter.image_to_blender) and not scene.render.use_border:
-				while True:
-					if engine.test_break():
-						try:
-							process.kill()
-						except:
-							pass
-						break
-
-					if process.poll() is not None:
-						try:
-							if not VRayExporter.animation:
-								result= engine.begin_result(0, 0, resolution_x, resolution_y)
-								layer= result.layers[0]
-								layer.load_from_file(load_file)
-								engine.end_result(result)
-						except:
-							pass
-						break
-
-					time.sleep(0.1)
+				time.sleep(0.1)
 
 
 def close_files(bus):
