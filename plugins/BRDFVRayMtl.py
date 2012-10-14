@@ -110,6 +110,8 @@ def callback_match_BI_diffuse(self, context):
 	if not hasattr(context, 'material'):
 		return
 	material = active_node_mat(context.material)
+	if not context.material:
+		return
 	if not self.as_viewport_color:
 		material.diffuse_color = (0.5, 0.5, 0.5)
 		return
@@ -239,13 +241,14 @@ def add_properties(rna_pointer):
 	)
 
 	BRDFVRayMtl.refract_ior= FloatProperty(
-		name= "Refractions IOR",
-		description= "The IOR for refractions",
-		min= 0.0,
-		max= 30.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		default= 1.6
+		name        = "Refractions IOR",
+		description = "The IOR for refractions",
+		min         = 0.0,
+		max         = 30.0,
+		soft_min    = 0.0,
+		soft_max    = 10.0,
+		precision   = 4,
+		default     = 1.6
 	)
 
 	BRDFVRayMtl.reflect_subdivs= IntProperty(

@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -34,6 +34,8 @@ from vb25.ui.ui import *
 from vb25.plugins import *
 
 from bl_ui.properties_material import active_node_mat
+
+from bpy.types import Brush, Lamp, Material, Object, ParticleSettings, Texture, World
 
 
 class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
@@ -95,9 +97,10 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 				split.label(text="Output:")
 				split.prop(slot, "output_node", text="")
 
-			layout.prop(tex, 'type', text="Texture")
-			if tex.type == 'VRAY':
-				layout.prop(tex.vray, 'type', text="Type")
+			if not tex.use_nodes:
+				layout.prop(tex, 'type', text="Texture")
+				if tex.type == 'VRAY':
+					layout.prop(tex.vray, 'type', text="Type")
 
 
 class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
@@ -116,7 +119,7 @@ class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 			return False
 
 		return super().poll(context)
-	
+
 	def draw(self, context):
 		layout= self.layout
 
@@ -132,28 +135,40 @@ class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 
 class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Influence"
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	# @classmethod
+	# def poll(cls, context):
+	# 	idblock = context_tex_datablock(context)
+	# 	if isinstance(idblock, bpy.types.Brush):
+	# 		return False
+
+	# 	# If texture used in nodes influence is set by node itself
+	# 	if not hasattr(context, 'texture_slot'):
+	# 		return False
+
+	# 	texture= context.texture_slot.texture if context.texture_slot else context.texture
+
+	# 	if not texture:
+	# 		return False
+
+	# 	if texture.type == 'VRAY' and texture.vray.type == 'NONE':
+	# 		return False
+
+	# 	return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
 
 	@classmethod
 	def poll(cls, context):
 		idblock = context_tex_datablock(context)
-		if isinstance(idblock, bpy.types.Brush):
+		if isinstance(idblock, Brush):
 			return False
 
-		# If texture used in nodes influence is set by node itsefl
-		if not hasattr(context, 'texture_slot'):
+		if not getattr(context, "texture_slot", None):
 			return False
 
-		texture= context.texture_slot.texture if context.texture_slot else context.texture
-
-		if not texture:
-			return False
-
-		if texture.type == 'VRAY' and texture.vray.type == 'NONE':
-			return False
-
-		return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
+		engine = context.scene.render.engine
+		return (engine in cls.COMPAT_ENGINES)
 
 	def draw(self, context):
 		layout= self.layout
@@ -242,7 +257,7 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -258,7 +273,7 @@ class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 		texture= texture_slot.texture
 		if not texture:
 			return False
-		
+
 		VRaySlot= texture.vray_slot
 		return VRaySlot.map_displacement and engine_poll(cls, context)
 
@@ -320,7 +335,7 @@ class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 		tex= context.texture
 		if not tex:
 			return False
-		
+
 		return (tex.type == 'IMAGE' and tex.image)
 
 	def draw(self, context):

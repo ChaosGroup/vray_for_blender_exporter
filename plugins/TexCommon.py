@@ -319,19 +319,14 @@ def add_properties(rna_pointer):
 	)
 
 	# tile_u
-	# rna_pointer.tile_u= BoolProperty(
-	# 	name= "Tile U",
-	# 	description= "If true there is horizontal tiling",
-	# 	default= True
-	# )
-	rna_pointer.tile_u= IntProperty(
-		name= "Tile U",
-		description= "Tile in U",
-		min= 1,
-		max= 1000,
-		soft_min= 1,
-		soft_max= 20,
-		default= 1
+	rna_pointer.tile_u= FloatProperty(
+		name        = "Tile U",
+		description = "Tile in U",
+		min         = 0.0,
+		max         = 1000.0,
+		soft_min    = 1,
+		soft_max    = 20.0,
+		default     = 1.0
 	)
 	rna_pointer.mirror_u= BoolProperty(
 		name= "Mirror U",
@@ -340,19 +335,14 @@ def add_properties(rna_pointer):
 	)
 
 	# tile_v
-	# rna_pointer.tile_v= BoolProperty(
-	# 	name= "Tile V",
-	# 	description= "If true there is vertical tiling",
-	# 	default= True
-	# )
-	rna_pointer.tile_v= IntProperty(
-		name= "Tile V",
-		description= "Tile in V",
-		min= 1,
-		max= 1000,
-		soft_min= 1,
-		soft_max= 20,
-		default= 1
+	rna_pointer.tile_v= FloatProperty(
+		name        = "Tile V",
+		description = "Tile in V",
+		min         = 0.0,
+		max         = 1000.0,
+		soft_min    = 1.0,
+		soft_max    = 20.0,
+		default     = 1.0
 	)
 
 	rna_pointer.mirror_v= BoolProperty(
@@ -549,7 +539,7 @@ class VRAY_TP_Mapping(VRayTexturePanel, bpy.types.Panel):
 										  text="")
 					else:
 						split.prop(slot, 'uv_layer', text="")
-			else:
+			elif VRayTexture.texture_coords == 'ORCO':
 				split= layout.split(percentage=0.3)
 				split.label(text="Projection:")
 				split.prop(VRayTexture, 'mapping', text="")

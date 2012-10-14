@@ -737,11 +737,11 @@ def connected_node(node_tree, node_socket):
 
 
 # Get node_tree Output
-def get_output_node(node_tree, output_node_name= None):
+def get_output_node(node_tree, output_node_name=None):
 	for node in node_tree.nodes:
 		if node.type == 'OUTPUT':
 			if output_node_name is not None:
-				if output_node_name == node.name:
+				if output_node_name == node.filepath:
 					return node
 			else:
 				return node
@@ -1131,5 +1131,8 @@ def load_result(engine, w, h, filepath):
 
 	result = engine.begin_result(0, 0, w, h)
 	layer = result.layers[0]
-	layer.load_from_file(filepath)
+	try:
+		layer.load_from_file(filepath)
+	except:
+		pass
 	engine.end_result(result)

@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 ''' Blender modules '''
@@ -71,7 +71,7 @@ def add_properties(rna_pointer):
 			),
 			default= '32'
 		)
-		
+
 		img_noAlpha= BoolProperty(
 			name= "No alpha",
 			description= "Don't write the alpha channel to the final image",
@@ -141,7 +141,7 @@ def write(bus):
 	ofile.write("\nSettingsOutput SettingsOutput {")
 	if VRayExporter.auto_save_render:
 		ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
-		ofile.write("\n\timg_dir= \"%s\";" % bus['filenames']['output'])
+		ofile.write("\n\timg_dir= \"%s/\";" % bus['filenames']['output'])
 	ofile.write("\n\timg_noAlpha= %d;" % SettingsOutput.img_noAlpha)
 	ofile.write("\n\timg_separateAlpha= %d;" % SettingsOutput.img_separateAlpha)
 	ofile.write("\n\timg_width= %s;" % wx)
