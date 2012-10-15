@@ -1743,6 +1743,7 @@ def run(bus):
 
 		proc = VRayProcess()
 		proc.sceneFile = bus['filenames']['scene']
+		proc.imgFile   = image_file
 		proc.scene = scene
 		proc.communicate = True
 
@@ -1754,34 +1755,38 @@ def run(bus):
 		proc_interrupted = False
 
 		while True:
+			time.sleep(0.25)
+
 			if engine.test_break():
 				proc_interrupted = True
 				debug(None, "Process is interrupted by the user")
 				break
 
-			# msg, prog = proc.get_progress()
-			# if prog is not None and msg is not None:
-			# 	engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
-			# 	engine.update_progress(prog)
-
-			# if proc.exit_ready:
-			# 	break
+			if VRayExporter.use_progress:
+				msg, prog = proc.get_progress()
+				if prog is not None and msg is not None:
+					engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
+					engine.update_progress(prog)
 
 			err = proc.recieve_image(feedback_image)
+			if VRayExporter.debug:
+				debug(None, "Recieve image error: %s"%(err))
 			if err is None:
 				load_result(engine, resolution_x, resolution_y, feedback_image)
-			else:
-				if err in ['CMD_FAIL']:
-					break
 
-			time.sleep(0.25)
+			if proc.exit_ready:
+				break
 
 		proc.kill()
 
 		# Load final result image to Blender
 		if VRayExporter.image_to_blender and not proc_interrupted:
-			debug(None, "Loading final image: %s"%(load_file))
-			load_result(engine, resolution_x, resolution_y, load_file)
+			if load_file.endswith('vrimg'):
+				# VRayImage (.vrimg) loaing is not supported
+				debug(None, "VRayImage loading is not supported. Final image will not be loaded.")
+			else:
+				debug(None, "Loading final image: %s"%(load_file))
+				load_result(engine, resolution_x, resolution_y, load_file)
 
 	else:
 		if not VRayExporter.autorun:

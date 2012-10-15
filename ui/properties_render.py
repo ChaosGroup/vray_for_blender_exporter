@@ -191,7 +191,6 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		col.prop(VRayExporter,   'use_feedback', text="[ Render feedback ]")
 		col.prop(VRayExporter,   'image_to_blender')
 
 		# sub= col.column()
@@ -420,6 +419,16 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(ve, 'use_hair')
+
+		layout.separator()
+
+		layout.label(text="Experimental:")
+		split = layout.split()
+		col = split.column()
+		col.prop(ve, 'use_feedback')
+		if wide_ui:
+			col= split.column()
+		col.prop(ve, 'use_progress')
 
 		layout.separator()
 

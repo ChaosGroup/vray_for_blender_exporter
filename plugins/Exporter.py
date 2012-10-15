@@ -92,8 +92,14 @@ def add_properties(rna_pointer):
 	)
 
 	VRayExporter.use_feedback = BoolProperty(
-		name        = "Show progress",
+		name        = "Render feedback",
 		description = "Catch and show rendering progress",
+		default     = False
+	)
+
+	VRayExporter.use_progress = BoolProperty(
+		name        = "Show progress",
+		description = "Catch and show calculations progress",
 		default     = False
 	)
 

@@ -48,6 +48,7 @@ class VRayProcess():
     # V-Ray process
     process    = None
     is_running = None
+    exit_ready = None
     params     = None
 
     # V-Ray command socket
@@ -58,6 +59,7 @@ class VRayProcess():
 
     # Executable parameters
     sceneFile     = None
+    imgFile       = None
     showProgress  = None
     progressUseCR = None
     verboseLevel  = None
@@ -87,22 +89,31 @@ class VRayProcess():
         self.params = []
         self.params.append(vb25.utils.get_vray_standalone_path(self.scene))
 
+        self.params.append('-sceneFile=')
+        self.params.append(self.sceneFile)
+        self.params.append('-imgFile=')
+        self.params.append(self.imgFile)
+
         if self.communicate:
-            # Enable command socket
-            self.params.append('-cmdMode=')
-            self.params.append('1')
+            # We need only progress info
+            self.params.append('-verboseLevel=')
+            self.params.append('3')
+
+            # Always show progress
+            self.params.append('-showProgress=')
+            self.params.append('2')
+
+            # Use log line breaks
+            self.params.append('-progressUseCR=')
+            self.params.append('0')
 
             # Disable VFB
             self.params.append('-display=')
             self.params.append('0')
 
-            # We need only progress info
-            self.params.append('-showProgress=')
-            self.params.append('2')
-            self.params.append('-verboseLevel=')
-            self.params.append('3')
-            self.params.append('-progressUseCR=')
-            self.params.append('0')
+            # Enable command socket
+            self.params.append('-cmdMode=')
+            self.params.append('1')
 
         else:
             self.params.append('-verboseLevel=')
@@ -110,8 +121,6 @@ class VRayProcess():
             self.params.append('-showProgress=')
             self.params.append(self.showProgress)
 
-        self.params.append('-sceneFile=')
-        self.params.append(self.sceneFile)
 
         if not self.VRayExporter.autorun:
             vb25.utils.debug(self.scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
@@ -149,10 +158,14 @@ class VRayProcess():
         prog = None
 
         if self.process and self.is_running:
+            self.process.stdout.flush()
             stdout_lines = self.process.stdout.readlines(256)
 
             for stdout_line in stdout_lines:
-                line = stdout_line.decode('ascii')
+                line = stdout_line.decode('ascii').strip()
+
+                if self.VRayExporter.debug:
+                    print(line)
 
                 if line.find("Building light cache") != -1:
                     msg = "Light cache"
@@ -178,7 +191,6 @@ class VRayProcess():
                         prog = float(p_str) / 100.0
                         break
 
-            self.process.stdout.flush()
 
         return msg, prog
 
@@ -222,6 +234,7 @@ class VRayProcess():
         buff  = []
 
         if not self.is_running:
+            self.exit_ready = True
             return 'V-Ray is not running'
 
         # Request image
@@ -233,9 +246,10 @@ class VRayProcess():
         # Check if 'fail' recieved
         if jpeg_size_bytes == b'fail':
             self.socket.recv(3) # Read 'e', 'd', '\0'
+            self.exit_ready = True
             return 'getImage failed'
 
-        print("JPEG stream size =", jpeg_size_bytes)
+        # print("JPEG stream size =", jpeg_size_bytes)
 
         try:
             # Get stream size in bytes
