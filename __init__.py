@@ -66,5 +66,3 @@ def unregister():
 			if kmi.idname == 'vray.render':
 				km.keymap_items.remove(kmi)
 				break
-
-VRaySocket = None

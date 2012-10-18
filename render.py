@@ -34,6 +34,10 @@ import sys
 import tempfile
 import time
 
+import threading
+from threading import Timer
+
+
 ''' Blender modules '''
 import bpy
 import mathutils
@@ -45,6 +49,10 @@ from vb25.utils   import *
 from vb25.plugins import *
 from vb25.texture import *
 from vb25.nodes   import *
+
+
+proc = VRayProcess()
+
 
 VERSION = '2.5'
 
@@ -1613,11 +1621,15 @@ def write_scene(bus):
 
 
 def run(bus):
-	scene= bus['scene']
+	global proc
 
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
-	VRayDR=       VRayScene.VRayDR
+	scene = bus['scene']
+
+	VRayScene = scene.vray
+
+	VRayExporter = VRayScene.exporter
+	VRayDR       = VRayScene.VRayDR
+	RTEngine     = VRayScene.RTEngine
 
 	vray_exporter=   get_vray_exporter_path()
 	vray_standalone= get_vray_standalone_path(scene)
@@ -1653,6 +1665,15 @@ def run(bus):
 		params.append('0')
 
 	else:
+		if RTEngine.enabled:
+			params.append('-rtTimeOut=')
+			params.append("%.3f"%(RTEngine.rtTimeOut))
+			params.append('-rtNoise=')
+			params.append("%.3f"%(RTEngine.rtNoise))
+			params.append('-rtSampleLevel=')
+			params.append("%i"%(RTEngine.rtSampleLevel))
+			params.append('-cmdMode=1')
+
 		params.append('-display=')
 		params.append(str(int(VRayExporter.display)))
 
@@ -1738,10 +1759,9 @@ def run(bus):
 		return
 
 	if VRayExporter.use_feedback:
-		if scene.render.use_border or engine is None:
+		if scene.render.use_border:
 			return
 
-		proc = VRayProcess()
 		proc.sceneFile = bus['filenames']['scene']
 		proc.imgFile   = image_file
 		proc.scene = scene
@@ -1754,39 +1774,83 @@ def run(bus):
 
 		proc_interrupted = False
 
-		while True:
-			time.sleep(0.25)
+		render_result_image = None
 
-			if engine.test_break():
-				proc_interrupted = True
-				debug(None, "Process is interrupted by the user")
-				break
+		if engine is None:
+			if RTEngine.enabled:
+				render_result_name = "VRay Render"
 
-			if VRayExporter.use_progress:
-				msg, prog = proc.get_progress()
-				if prog is not None and msg is not None:
-					engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
-					engine.update_progress(prog)
+				if render_result_name not in bpy.data.images:
+					bpy.ops.image.new(name=render_result_name, width=resolution_x, height=resolution_y, color=(0.0, 0.0, 0.0, 1.0), alpha=True, generated_type='BLANK', float=False)
+					render_result_image.source   = 'FILE'
+					render_result_image.filepath = feedback_image
 
-			err = proc.recieve_image(feedback_image)
-			if VRayExporter.debug:
-				debug(None, "Recieve image error: %s"%(err))
-			if err is None:
-				load_result(engine, resolution_x, resolution_y, feedback_image)
+				render_result_image = bpy.data.images[render_result_name]
 
-			if proc.exit_ready:
-				break
+				def task():
+					global proc
 
-		proc.kill()
+					if not proc.is_running():
+						return
 
-		# Load final result image to Blender
-		if VRayExporter.image_to_blender and not proc_interrupted:
-			if load_file.endswith('vrimg'):
-				# VRayImage (.vrimg) loaing is not supported
-				debug(None, "VRayImage loading is not supported. Final image will not be loaded.")
-			else:
-				debug(None, "Loading final image: %s"%(load_file))
-				load_result(engine, resolution_x, resolution_y, load_file)
+					err = proc.recieve_image(feedback_image)
+
+					if err is None:
+						try:
+							render_result_image.reload()
+
+							for window in bpy.context.window_manager.windows:
+								for area in window.screen.areas:
+									if area.type == 'IMAGE_EDITOR':
+										for space in area.spaces:
+											if space.type == 'IMAGE_EDITOR':
+												if space.image.name == render_result_name:
+													area.tag_redraw()
+													return
+						except:
+							return
+
+				def my_timer():
+				    t = Timer(0.25, my_timer)
+				    t.start()
+				    task()
+
+				my_timer()
+
+		else:
+			while True:
+				time.sleep(0.25)
+
+				if engine.test_break():
+					proc_interrupted = True
+					debug(None, "Process is interrupted by the user")
+					break
+
+				if VRayExporter.use_progress:
+					msg, prog = proc.get_progress()
+					if prog is not None and msg is not None:
+						engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
+						engine.update_progress(prog)
+
+				err = proc.recieve_image(feedback_image)
+				if VRayExporter.debug:
+					debug(None, "Recieve image error: %s"%(err))
+				if err is None:
+					load_result(engine, resolution_x, resolution_y, feedback_image)
+
+				if proc.exit_ready:
+					break
+
+			proc.kill()
+
+			# Load final result image to Blender
+			if VRayExporter.image_to_blender and not proc_interrupted:
+				if load_file.endswith('vrimg'):
+					# VRayImage (.vrimg) loaing is not supported
+					debug(None, "VRayImage loading is not supported. Final image will not be loaded.")
+				else:
+					debug(None, "Loading final image: %s"%(load_file))
+					load_result(engine, resolution_x, resolution_y, load_file)
 
 	else:
 		if not VRayExporter.autorun:

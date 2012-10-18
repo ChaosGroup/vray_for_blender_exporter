@@ -47,7 +47,6 @@ def format_path(path):
 class VRayProcess():
     # V-Ray process
     process    = None
-    is_running = None
     exit_ready = None
     params     = None
 
@@ -136,11 +135,18 @@ class VRayProcess():
         else:
             self.process = subprocess.Popen(self.params)
 
-        self.is_running = True
         self.exit_ready = False
 
         time.sleep(0.25)
         self.socket.connect()
+
+
+    def is_running(self):
+        if self.process is None:
+            return False
+        if self.process.poll() is None:
+            return True
+        return False
 
 
     def kill(self):
@@ -149,15 +155,14 @@ class VRayProcess():
         if self.process:
             self.process.terminate()
 
-        self.is_running = False
-        self.process    = None
+        self.process = None
 
 
     def get_progress(self):
         msg  = None
         prog = None
 
-        if self.process and self.is_running:
+        if self.process and self.is_running():
             self.process.stdout.flush()
             stdout_lines = self.process.stdout.readlines(256)
 
@@ -233,7 +238,7 @@ class VRayProcess():
         jpeg_size  = 0
         buff  = []
 
-        if not self.is_running:
+        if not self.is_running():
             self.exit_ready = True
             return 'V-Ray is not running'
 
@@ -249,11 +254,11 @@ class VRayProcess():
             self.exit_ready = True
             return 'getImage failed'
 
-        # print("JPEG stream size =", jpeg_size_bytes)
-
         try:
             # Get stream size in bytes
             jpeg_size = struct.unpack("<L", jpeg_size_bytes)[0]
+
+            # print("JPEG stream size = %i"%(jpeg_size))
 
             # Read JPEG stream
             jpeg_image = self.socket.recv(jpeg_size)

@@ -42,7 +42,8 @@ from bpy.props import *
 import vb25.render
 import vb25.proxy
 
-from vb25.utils import *
+from vb25.lib     import VRaySocket
+from vb25.utils   import *
 from vb25.plugins import *
 
 
@@ -814,6 +815,23 @@ class VRAY_OT_run(bpy.types.Operator):
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_run)
+
+
+class VRAY_OT_terminate(bpy.types.Operator):
+	bl_idname      = "vray.terminate"
+	bl_label       = "Terminate VRayRT"
+	bl_description = "Terminates running VRayRT instance"
+
+	def execute(self, context):
+		s = VRaySocket()
+		s.connect()
+		s.send("stop", result=False)
+		s.send("quit", result=False)
+		s.disconnect()
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_terminate)
 
 
 class VRAY_OT_set_kelvin_color(bpy.types.Operator):

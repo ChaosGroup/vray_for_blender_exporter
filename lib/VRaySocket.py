@@ -54,6 +54,13 @@ class VRaySocket():
 
         return None
 
+
+    def isconnected(self):
+        if self.socket is not None:
+            return True
+        return False
+
+
     def disconnect(self):
         if self.socket is None:
             return
@@ -81,9 +88,12 @@ class VRaySocket():
         sent_size = None
         sent_res  = None
 
-        sent_size = self.socket.send(bytes(cmd+'\0', 'ascii'))
-        if result:
-            sent_res = self.get_result()
+        try:
+            sent_size = self.socket.send(bytes(cmd+'\0', 'ascii'))
+            if result:
+                sent_res = self.get_result()
+        except:
+            return None
 
         # print(cmd, sent_res)
 

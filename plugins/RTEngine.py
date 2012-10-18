@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -208,6 +208,38 @@ def add_properties(rna_pointer):
 		default= 512
 	)
 
+	# Command line options
+	RTEngine.rtTimeOut = FloatProperty(
+		name        = "Timeout",
+		description = "Specifies a timeout in minutes for a frame (0.0 - no limit)",
+		unit        = 'TIME',
+		min         = 0.0,
+		max         = 10000.0,
+		soft_min    = 0.0,
+		soft_max    = 10.0,
+		precision   = 3,
+		default     = 0.0
+	)
+
+	RTEngine.rtNoise = FloatProperty(
+		name        = "Noise",
+		description = "Specifies noise threshold for a frame",
+		min         = 0.0,
+		max         = 1.0,
+		soft_min    = 0.0,
+		soft_max    = 1.0,
+		precision   = 4,
+		default     = 0.001
+	)
+
+	RTEngine.rtSampleLevel = IntProperty(
+		name        = "Sample Level",
+		description = "Specifies maximum paths per pixel (0 - no limit)",
+		min         = 0,
+		default     = 0
+	)
+
+
 
 def write(bus):
 	ofile=  bus['files']['scene']
@@ -290,9 +322,9 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(RTEngine, 'stereo_eye_distance', text="Eye distance")
-		
+
 		layout.separator()
-		
+
 		split= layout.split()
 		col= split.column()
 		col.prop(RTEngine, 'use_opencl')
@@ -301,11 +333,21 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 		if RTEngine.use_opencl:
 			col.prop(RTEngine, 'opencl_texsize')
 
-		# layout.separator()
+		layout.separator()
 
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(RTEngine, 'separate_window')
+		split = layout.split()
+		col = split.column()
+		col.prop(RTEngine, 'rtSampleLevel')
+		split = layout.split()
+		col = split.column()
+		col.prop(RTEngine, 'rtNoise')
+		if wide_ui:
+			col= split.column()
+		col.prop(RTEngine, 'rtTimeOut')
+
+		layout.separator()
+		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+
 
 bpy.utils.register_class(VRAY_RP_RTEngine)
 

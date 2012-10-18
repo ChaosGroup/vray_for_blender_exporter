@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -53,8 +53,9 @@ def write(bus):
 	scene=  bus['scene']
 	camera= bus['camera']
 
-	VRayScene= scene.vray
-	VRayBake=  VRayScene.VRayBake
+	VRayScene = scene.vray
+	VRayBake  = VRayScene.VRayBake
+	RTEngine  = VRayScene.RTEngine
 
 	VRayCamera=     camera.data.vray
 	SettingsCamera= VRayCamera.SettingsCamera
@@ -78,8 +79,8 @@ def write(bus):
 			ofile.write("\n\torthographic= 1;")
 			ofile.write("\n\torthographicWidth= %s;" % a(scene, camera.data.ortho_scale))
 
-		if bus['engine'] == 'VRAY_RENDER_RT':
-	 		# For proper realtime view update
-			ofile.write("\n\tuse_scene_offset= 0;")
-		
+		if RTEngine.enabled:
+			# For proper realtime view update
+			ofile.write("\n\tuse_scene_offset=0;")
+
 		ofile.write("\n}\n")
