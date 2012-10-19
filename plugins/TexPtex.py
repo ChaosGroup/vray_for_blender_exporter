@@ -38,7 +38,7 @@ from vb25.uvwgen  import *
 TYPE = 'TEXTURE'
 ID   = 'TexPtex'
 PLUG = 'TexPtex'
-PID  =  15
+PID  =  200
 
 NAME = 'Ptex'
 DESC = "VRay TexPtex texture"
