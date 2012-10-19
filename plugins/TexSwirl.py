@@ -42,7 +42,7 @@ PLUG   = 'TexSwirl'
 NAME   = 'Swirl'
 DESC   = "TexSwirl"
 
-PID    = 16
+PID    = 15
 
 PARAMS = (
 	'uvwgen',
