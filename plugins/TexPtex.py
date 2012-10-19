@@ -367,7 +367,7 @@ def write(bus):
 # User Interface
 #
 class VRAY_PA_TexPtex(VRayTexturePanel, bpy.types.Panel):
-	bl_label       = NAME
+	bl_label       = "PTex [in progress...]"
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
