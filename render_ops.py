@@ -659,9 +659,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					if GeomMeshFile.apply_transforms:
 						ob.select= True
 						sce.objects.active= ob
-						bpy.ops.object.scale_apply()
-						bpy.ops.object.rotation_apply()
-						bpy.ops.object.location_apply()
+						bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 					VRayMesh= new_ob.data.vray
 					VRayMesh.override= True
@@ -680,9 +678,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					if GeomMeshFile.apply_transforms:
 						ob.select= True
 						sce.objects.active= ob
-						bpy.ops.object.scale_apply()
-						bpy.ops.object.rotation_apply()
-						bpy.ops.object.location_apply()
+						bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 					VRayMesh= ob.data.vray
 					VRayMesh.override= True
