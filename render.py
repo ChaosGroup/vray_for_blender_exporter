@@ -411,15 +411,26 @@ def write_geometry(bus):
 
 	if 'export_meshes' in dir(bpy.ops.vray):
 		# Call V-Ray/Blender custom mesh export operator
-		bpy.ops.vray.export_meshes(
-			filepath          = bus['filenames']['geometry'][:-11],
-			use_active_layers = VRayExporter.mesh_active_layers,
-			use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
-			use_instances     = VRayExporter.use_instances,
-			debug             = VRayExporter.mesh_debug,
-			check_animated    = VRayExporter.check_animated,
-			scene             = scene.as_pointer()
-		)
+		try:
+			bpy.ops.vray.export_meshes(
+				filepath          = bus['filenames']['geometry'][:-11],
+				use_active_layers = VRayExporter.mesh_active_layers,
+				use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
+				use_instances     = VRayExporter.use_instances,
+				debug             = VRayExporter.mesh_debug,
+				check_animated    = VRayExporter.check_animated,
+				scene             = str(scene.as_pointer())
+			)
+		except:
+			bpy.ops.vray.export_meshes(
+				filepath          = bus['filenames']['geometry'][:-11],
+				use_active_layers = VRayExporter.mesh_active_layers,
+				use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
+				use_instances     = VRayExporter.use_instances,
+				debug             = VRayExporter.mesh_debug,
+				check_animated    = VRayExporter.check_animated,
+				scene             = scene.as_pointer()
+			)
 	else:
 		# Use python mesh export
 		write_geometry_python(bus)
