@@ -586,6 +586,13 @@ def write_settings(bus):
 		bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
 		bus['files']['scene'].write("\n}\n")
 
+		bus['files']['scene'].write("\nBRDFDiffuse BRDFVRayMtlMAcheckerdark {")
+		bus['files']['scene'].write("\n\tcolor=Color(0.1,0.1,0.1);")
+		bus['files']['scene'].write("\n}\n")
+		bus['files']['scene'].write("\nBRDFDiffuse BRDFVRayMtlMAcheckerlight {")
+		bus['files']['scene'].write("\n\tcolor=Color(0.95,0.95,0.95);")
+		bus['files']['scene'].write("\n}\n")
+
 	if VRayExporter.draft:
 		bus['files']['scene'].write("\n// Draft settings")
 		bus['files']['scene'].write("\nSettingsDMCSampler {")
