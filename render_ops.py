@@ -1009,7 +1009,10 @@ class VRayRenderer(bpy.types.RenderEngine):
 		VRayScene= scene.vray
 		VRayExporter= VRayScene.exporter
 
-		vb25.render.render(self, scene)
+		err = vb25.render.render(self, scene)
+
+		if err is not None:
+			self.report({'ERROR'}, err)
 
 bpy.utils.register_class(VRayRenderer)
 
@@ -1020,14 +1023,17 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 	bl_use_preview = True
 
 	def render(self, scene):
-		VRayScene= scene.vray
-		VRayExporter= VRayScene.exporter
+		VRayScene    = scene.vray
+		VRayExporter = VRayScene.exporter
 
 		if scene.name == "preview":
 			if scene.render.resolution_x < 64:
 				return
 			vb25.render.render(self, scene, preview=True)
 		else:
-			vb25.render.render(self, scene)
+			err = vb25.render.render(self, scene)
+
+			if err is not None:
+				self.report({'ERROR'}, err)
 
 bpy.utils.register_class(VRayRendererPreview)
