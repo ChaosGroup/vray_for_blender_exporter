@@ -1759,7 +1759,9 @@ def run(bus):
 			log_window.extend(params)
 			params= log_window
 
-	if VRayExporter.autoclose or (VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME'):
+	if (VRayExporter.autoclose
+		or (VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME')
+		or (VRayExporter.animation and VRayExporter.animation_type == 'FULL' and VRayExporter.use_still_motion_blur)):
 		params.append('-autoclose=')
 		params.append('1')
 
@@ -1877,7 +1879,7 @@ def run(bus):
 
 		process = subprocess.Popen(params)
 
-		if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+		if VRayExporter.animation and (VRayExporter.animation_type == 'FRAMEBYFRAME' or (VRayExporter.animation_type == 'FULL' and VRayExporter.use_still_motion_blur)):
 			process.wait()
 			return
 
@@ -1963,12 +1965,12 @@ def init_bus(engine, scene, preview = False):
 
 
 def render(engine, scene, preview= None):
-	VRayScene=    scene.vray
-	VRayExporter= VRayScene.exporter
+	VRayScene    = scene.vray
+	VRayExporter = VRayScene.exporter
 
 	if preview:
 		export_and_run(init_bus(engine, scene, True))
-		return
+		return None
 
 	if VRayExporter.use_still_motion_blur:
 		# Store current settings
@@ -1978,13 +1980,29 @@ def render(engine, scene, preview= None):
 		frame_end   = scene.frame_end
 
 		# Run export
-		VRayExporter.animation = True
-		VRayExporter.animation_type = 'FULL'
+		if e_anim_state:
+			if e_anim_type not in ['FRAMEBYFRAME']:
+				return "\"Still Motion Blur\" feature works only in \"Frame-By-Frame\" animation mode!"
 
-		scene.frame_start = scene.frame_current - 1
-		scene.frame_end   = scene.frame_current
+			VRayExporter.animation_type = 'FULL'
 
-		export_and_run(init_bus(engine, scene))
+			f = frame_start
+			while(f <= frame_end):
+				scene.frame_start = f - 1
+				scene.frame_end   = f
+
+				export_and_run(init_bus(engine, scene))
+
+				f += scene.frame_step
+
+		else:
+			VRayExporter.animation = True
+			VRayExporter.animation_type = 'FULL'
+
+			scene.frame_start = scene.frame_current - 1
+			scene.frame_end   = scene.frame_current
+
+			export_and_run(init_bus(engine, scene))
 
 		# Restore settings
 		VRayExporter.animation = e_anim_state
@@ -1995,14 +2013,18 @@ def render(engine, scene, preview= None):
 	else:
 		if VRayExporter.animation:
 			if VRayExporter.animation_type == 'FRAMEBYFRAME':
-				selected_frame= scene.frame_current
-				f= scene.frame_start
+				selected_frame = scene.frame_current
+
+				f = scene.frame_start
 				while(f <= scene.frame_end):
 					scene.frame_set(f)
 					export_and_run(init_bus(engine, scene))
-					f+= scene.frame_step
+					f += scene.frame_step
+
 				scene.frame_set(selected_frame)
 			else:
 				export_and_run(init_bus(engine, scene))
 		else:
 			export_and_run(init_bus(engine, scene))
+
+	return None
