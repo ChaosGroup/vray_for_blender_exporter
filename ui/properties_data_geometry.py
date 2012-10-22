@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -46,7 +46,7 @@ del properties_data_mesh
 class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Options"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -54,52 +54,42 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 		return (context.mesh and engine_poll(__class__, context))
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui = context.region.width > narrowui
+		layout  = self.layout
 
-		layout= self.layout
-
-		VRayMesh= context.mesh.vray
-		GeomStaticMesh= VRayMesh.GeomStaticMesh
-		
-		layout.prop(GeomStaticMesh, 'dynamic_geometry')
+		VRayMesh = context.mesh.vray
+		GeomStaticMesh = VRayMesh.GeomStaticMesh
 
 		layout.prop(VRayMesh, 'override')
 
-		split= layout.split()
-		split.active= VRayMesh.override
-		row= split.row()
-		row.prop(VRayMesh, 'override_type', expand= True)
+		if VRayMesh.override:
+			split = layout.split()
+			row = split.row()
+			row.prop(VRayMesh, 'override_type', expand=True)
 
-		layout.separator()
+			if VRayMesh.override_type == 'VRAYPROXY':
+				GeomMeshFile = VRayMesh.GeomMeshFile
 
-		if VRayMesh.override_type == 'PROC':
-			split= layout.split()
-			split.active= VRayMesh.override
-			col= split.column()
-			col.prop(VRayMesh, 'procedural_mesh', text="Type")
+				split = layout.split()
+				col = split.column()
+				col.prop(GeomMeshFile, 'file')
+				col.prop(GeomMeshFile, 'anim_type')
 
-		elif VRayMesh.override_type == 'PROXY':
-			GeomMeshFile= VRayMesh.GeomMeshFile
+				split = layout.split()
+				col = split.column(align=True)
+				col.prop(GeomMeshFile, 'anim_speed')
+				if wide_ui:
+					col = split.column()
+				col.prop(GeomMeshFile, 'anim_offset')
 
-			split= layout.split()
-			split.active= VRayMesh.override
-			col= split.column()
-			col.prop(GeomMeshFile, 'file')
-			col.prop(GeomMeshFile, 'anim_type')
-
-			split= layout.split()
-			split.active= VRayMesh.override
-			col= split.column(align=True)
-			col.prop(GeomMeshFile, 'anim_speed')
-			if wide_ui:
-				col= split.column()
-			col.prop(GeomMeshFile, 'anim_offset')
+		else:
+			layout.prop(GeomStaticMesh, 'dynamic_geometry')
 
 
 class VRAY_DP_tools(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod

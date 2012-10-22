@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -45,7 +45,7 @@ def engine_poll(cls, context):
 class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -63,7 +63,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 		ob= context.object
 
 		MtlOverride= ob.vray.MtlOverride
-		
+
 		layout= self.layout
 		layout.active= MtlOverride.use
 
@@ -89,7 +89,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -106,7 +106,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 
 		ob= context.object
 		plugin= ob.vray.MtlWrapper
-		
+
 		layout= self.layout
 		layout.active= plugin.use
 
@@ -146,7 +146,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 			if plugin.shadows:
 				colL.prop(plugin, 'shadow_tint_color')
 				colL.prop(plugin, 'shadow_brightness')
-			
+
 		split= layout.split()
 		col= split.column()
 		col.label(text="Miscellaneous")
@@ -163,7 +163,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -388,3 +388,92 @@ class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
 			if wide_ui:
 				col= split.column()
 			col.prop(GeomStaticSmoothedMesh, 'view_dep')
+
+
+
+class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
+	bl_label   = "VRayPattern"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		if not engine_poll(__class__, context):
+			return False
+		if not context.scene.vray.exporter.use_VRayPattern:
+			return False
+		return True
+
+	def draw_header(self, context):
+		ob = context.object
+		VRayObject = ob.vray
+		GeomVRayPattern = VRayObject.GeomVRayPattern
+		self.layout.prop(GeomVRayPattern, 'use', text="")
+
+	def draw(self, context):
+		wide_ui = context.region.width > narrowui
+
+		ob = context.object
+		VRayObject = ob.vray
+		GeomVRayPattern = VRayObject.GeomVRayPattern
+
+		layout = self.layout
+		layout.active = GeomVRayPattern.use
+
+		split = layout.split()
+		split.label(text="Pattern Object:")
+		split.prop_search(GeomVRayPattern, 'pattern_object',
+						  context.scene,   'objects',
+						  text="")
+
+		layout.separator()
+
+		layout.prop(GeomVRayPattern, 'crop_size')
+		layout.prop(GeomVRayPattern, 'geometry_bias')
+
+		split = layout.split()
+		col = split.column()
+		col.prop(GeomVRayPattern, 'height')
+		if wide_ui:
+			col = split.column()
+		col.prop(GeomVRayPattern, 'shift')
+
+		layout.separator()
+
+		layout.prop(GeomVRayPattern, 'use_real_world')
+		split = layout.split()
+		col = split.column()
+		col.prop(GeomVRayPattern, 'tiling_u', text="U")
+		if wide_ui:
+			col = split.column()
+		col.prop(GeomVRayPattern, 'tiling_v', text="V")
+
+		layout.label(text="Polygon ID:")
+		split = layout.split()
+		col = split.column()
+		col.prop(GeomVRayPattern, 'polygon_id_from', text="From")
+		if wide_ui:
+			col = split.column()
+		col.prop(GeomVRayPattern, 'polygon_id_to', text="To")
+
+		layout.label(text="Random Segment Count:")
+		split = layout.split()
+		col = split.column()
+		col.prop(GeomVRayPattern, 'random_segment_u', text="U")
+		if wide_ui:
+			col = split.column()
+		col.prop(GeomVRayPattern, 'random_segment_v', text="V")
+
+		layout.prop(GeomVRayPattern, 'seed')
+
+		layout.separator()
+
+		split = layout.split()
+		col = split.column()
+		col.prop(GeomVRayPattern, 'render_base_object')
+		if wide_ui:
+			col = split.column()
+		col.prop(GeomVRayPattern, 'render_pattern_object')
+
+
