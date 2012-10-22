@@ -33,6 +33,7 @@ import signal
 import sys
 import tempfile
 import time
+import fcntl
 
 # V-Ray/Blender modules
 import vb25
@@ -53,9 +54,6 @@ class VRayProcess():
     # V-Ray command socket
     socket = None
 
-    # Whether to create pipe
-    communicate = None
-
     # Executable parameters
     sceneFile     = None
     imgFile       = None
@@ -75,6 +73,9 @@ class VRayProcess():
 
         self.params = []
 
+        self.verboseLevel = '1'
+        self.showProgress = '2'
+
 
     def __del__(self):
         pass
@@ -93,7 +94,7 @@ class VRayProcess():
         self.params.append('-imgFile=')
         self.params.append(self.imgFile)
 
-        if self.communicate:
+        if self.VRayExporter.use_progress:
             # We need only progress info
             self.params.append('-verboseLevel=')
             self.params.append('3')
@@ -106,20 +107,20 @@ class VRayProcess():
             self.params.append('-progressUseCR=')
             self.params.append('0')
 
-            # Disable VFB
-            self.params.append('-display=')
-            self.params.append('0')
-
-            # Enable command socket
-            self.params.append('-cmdMode=')
-            self.params.append('1')
-
         else:
             self.params.append('-verboseLevel=')
             self.params.append(self.verboseLevel)
             self.params.append('-showProgress=')
             self.params.append(self.showProgress)
 
+        # Setup command mode
+        # Disable VFB
+        self.params.append('-display=')
+        self.params.append('0')
+
+        # Enable command socket
+        self.params.append('-cmdMode=')
+        self.params.append('1')
 
         if not self.VRayExporter.autorun:
             vb25.utils.debug(self.scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
@@ -130,8 +131,11 @@ class VRayProcess():
         if not self.VRayExporter.autorun:
             return
 
-        if self.communicate:
-            self.process = subprocess.Popen(self.params, stdout=subprocess.PIPE)
+        if self.VRayExporter.use_progress:
+            self.process = subprocess.Popen(self.params, bufsize=256, stdout=subprocess.PIPE)
+            fd = self.process.stdout.fileno()
+            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
         else:
             self.process = subprocess.Popen(self.params)
 
@@ -152,7 +156,7 @@ class VRayProcess():
     def kill(self):
         self.quit()
 
-        if self.process:
+        if self.is_running():
             self.process.terminate()
 
         self.process = None
@@ -162,40 +166,45 @@ class VRayProcess():
         msg  = None
         prog = None
 
-        if self.process and self.is_running():
-            self.process.stdout.flush()
-            stdout_lines = self.process.stdout.readlines(256)
+        if not self.exit_ready:
+            if self.process and self.is_running():
+                stdout_lines = None
+                try:
+                    self.process.stdout.flush()
+                    stdout_lines = self.process.stdout.readlines(256)
+                except:
+                    pass
 
-            for stdout_line in stdout_lines:
-                line = stdout_line.decode('ascii').strip()
+                if stdout_lines:
+                    for stdout_line in stdout_lines:
+                        line = stdout_line.decode('ascii').strip()
 
-                if self.VRayExporter.debug:
-                    print(line)
+                        if self.VRayExporter.debug:
+                            print(line)
 
-                if line.find("Building light cache") != -1:
-                    msg = "Light cache"
-                elif line.find("Prepass") != -1:
-                    prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
-                    msg = "Irradiance map (prepass %s)" % (prepass_num)
-                elif line.find("Rendering image") != -1:
-                    msg = "Rendering"
-                elif line.find("Building caustics") != -1:
-                    msg = "Caustics"
-                elif line.find("Frame took") != -1:
-                    self.exit_ready = True
+                        if line.find("Building light cache") != -1:
+                            msg = "Light cache"
+                        elif line.find("Prepass") != -1:
+                            prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
+                            msg = "Irradiance map (prepass %s)" % (prepass_num)
+                        elif line.find("Rendering image") != -1:
+                            msg = "Rendering"
+                        elif line.find("Building caustics") != -1:
+                            msg = "Caustics"
+                        elif line.find("Frame took") != -1:
+                            self.exit_ready = True
 
-                if msg is None:
-                    continue
+                        if msg is None:
+                            continue
 
-                p_start = line.find("...: ") + 5
-                p_end   = line.find("%")
+                        p_start = line.find("...: ") + 5
+                        p_end   = line.find("%")
 
-                if p_start != -1 and p_end != -1 and p_end > p_start:
-                    p_str = line[p_start:p_end].strip()
-                    if len(p_str):
-                        prog = float(p_str) / 100.0
-                        break
-
+                        if p_start != -1 and p_end != -1 and p_end > p_start:
+                            p_str = line[p_start:p_end].strip()
+                            if len(p_str):
+                                prog = float(p_str) / 100.0
+                                break
 
         return msg, prog
 

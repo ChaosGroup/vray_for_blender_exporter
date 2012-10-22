@@ -51,9 +51,6 @@ from vb25.texture import *
 from vb25.nodes   import *
 
 
-proc = VRayProcess()
-
-
 VERSION = '2.5'
 
 
@@ -1181,14 +1178,12 @@ def write_object(bus):
 
 	# Write override mesh
 	if VRayData.override:
-		if VRayData.override_type == 'PROXY':
-			# VRayProxy
+		if VRayData.override_type == 'VRAYPROXY':
 			PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
 
-		elif VRayData.override_type == 'PROC':
-			if VRayData.procedural_mesh == 'PLANE':
-				bus['node']['geometry']= get_name(ob, prefix='PROCEDURAL')
-				PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
+		elif VRayData.override_type == 'VRAYPLANE':
+			bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
+			PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
 
 	# Displace or Subdivision
 	if ob.vray.GeomStaticSmoothedMesh.use:
@@ -1199,6 +1194,9 @@ def write_object(bus):
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
 		return
+
+	if VRayObject.GeomVRayPattern.use:
+		bus['node']['geometry'] = PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
 
 	complex_material= []
 	complex_material.append(bus['node']['material'])
@@ -1639,8 +1637,6 @@ def write_scene(bus):
 
 
 def run(bus):
-	global proc
-
 	scene = bus['scene']
 
 	VRayScene = scene.vray
@@ -1782,10 +1778,10 @@ def run(bus):
 		if scene.render.use_border:
 			return
 
+		proc = VRayProcess()
 		proc.sceneFile = bus['filenames']['scene']
 		proc.imgFile   = image_file
-		proc.scene = scene
-		proc.communicate = True
+		proc.scene     = scene
 
 		proc.set_params()
 		proc.run()
@@ -1797,6 +1793,9 @@ def run(bus):
 		render_result_image = None
 
 		if engine is None:
+			return
+
+			# TODO: try finish this
 			if RTEngine.enabled:
 				render_result_name = "VRay Render"
 
@@ -1846,17 +1845,20 @@ def run(bus):
 					debug(None, "Process is interrupted by the user")
 					break
 
-				if VRayExporter.use_progress:
-					msg, prog = proc.get_progress()
-					if prog is not None and msg is not None:
-						engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
-						engine.update_progress(prog)
-
 				err = proc.recieve_image(feedback_image)
 				if VRayExporter.debug:
 					debug(None, "Recieve image error: %s"%(err))
 				if err is None:
 					load_result(engine, resolution_x, resolution_y, feedback_image)
+
+				if proc.exit_ready:
+					break
+
+				if VRayExporter.use_progress:
+					msg, prog = proc.get_progress()
+					if prog is not None and msg is not None:
+						engine.update_stats("", "V-Ray: %s %.0f%%"%(msg, prog*100.0))
+						engine.update_progress(prog)
 
 				if proc.exit_ready:
 					break
