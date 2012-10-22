@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -64,7 +64,7 @@ def gen_material_menu_items(plugins):
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes
 	plugs= sorted(plugs, key=lambda plug: plug.PID)
-	
+
 	enum_items= []
 	for plugin in plugs:
 		if hasattr(plugin,'ID'):
@@ -79,7 +79,7 @@ def gen_menu_items(plugins, none_item= True):
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes
 	plugs= sorted(plugs, key=lambda plug: plug.PID)
-	
+
 	enum_items= []
 	if none_item:
 		enum_items.append(('NONE', "None", ""))
@@ -91,14 +91,14 @@ def gen_menu_items(plugins, none_item= True):
 	# print("<Debug information. Remove this from release!>")
 	# for item in enum_items:
 	# 	print(" ", item)
-	
+
 	return enum_items
 
 
 base_dir= get_vray_exporter_path()
 if base_dir is not None:
 	plugins_dir= os.path.join(base_dir,"plugins")
-	
+
 	if not plugins_dir in sys.path:
 		sys.path.append(plugins_dir)
 
@@ -131,30 +131,22 @@ def add_properties():
 	bpy.utils.register_class(VRayObject)
 
 	class VRayMesh(bpy.types.PropertyGroup):
-		override= BoolProperty(
-			name= "Override",
-			description= "Override mesh",
-			default= False
+		override = BoolProperty(
+			name        = "Override",
+			description = "Override mesh",
+			default     = False
 		)
 
-		override_type= EnumProperty(
-			name= "Override",
-			description= "Override mesh type",
-			items= (
-				('PROXY', "Proxy",      ""),
-				('PROC',  "Procedural", ""),
+		override_type = EnumProperty(
+			name        = "Override",
+			description = "Override geometry type",
+			items = (
+				('VRAYPROXY', "VRayProxy", ""),
+				('VRAYPLANE', "VRayPlane", ""),
 			),
-			default= 'PROXY'
+			default = 'VRAYPROXY'
 		)
 
-		procedural_mesh= EnumProperty(
-			name= "Procedural mesh",
-			description= "Replace mesh with procedural mesh",
-			items= (
-				('PLANE', "Infinite plane", ""),
-			),
-			default= 'PLANE'
-		)
 	bpy.utils.register_class(VRayMesh)
 
 	class VRayMaterial(bpy.types.PropertyGroup):
@@ -666,7 +658,7 @@ def add_properties():
 			description = "Change width, height and length simultaneously",
 			default     = True
 		)
-		
+
 		ies_light_width= FloatProperty(
 			name        = "Width",
 			description = "Light shape width",
@@ -674,7 +666,7 @@ def add_properties():
 			max         = 100,
 			default     = 0
 		)
-		
+
 		ies_light_length= FloatProperty(
 			name        = "Length",
 			description = "Light shape length",
@@ -682,7 +674,7 @@ def add_properties():
 			max         = 100,
 			default     = 0
 		)
-		
+
 		ies_light_height= FloatProperty(
 			name        = "Height",
 			description = "Light shape height",
@@ -1077,7 +1069,7 @@ def add_properties():
 			description= "Invert reflection texture",
 			default= False
 		)
-		
+
 		reflect_mult= FloatProperty(
 			name= "Reflection texture multiplier",
 			description= "Reflection texture multiplier",
@@ -1755,6 +1747,7 @@ def add_properties():
 	load_plugins(PLUGINS['CAMERA'],        VRayCamera)
 	load_plugins(PLUGINS['MATERIAL'],      VRayMaterial)
 	load_plugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
+	load_plugins(PLUGINS['OBJECT'],        VRayObject)
 
 	PLUGINS['SETTINGS']['SettingsEnvironment'].add_properties(VRayMaterial)
 	PLUGINS['SETTINGS']['SettingsEnvironment'].add_properties(VRayObject)
