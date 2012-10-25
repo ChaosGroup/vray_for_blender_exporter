@@ -33,16 +33,13 @@ import signal
 import sys
 import tempfile
 import time
-import fcntl
 
 # V-Ray/Blender modules
 import vb25
 from vb25.lib import VRaySocket
 
-
-# Subprocess on Windows prefer <path>, on unix "<path>"
-def format_path(path):
-    return path if vb25.utils.PLATFORM == 'win32' else '"%s"'%(path)
+if sys.platform != 'win32':
+    import fcntl
 
 
 class VRayProcess():
@@ -133,9 +130,11 @@ class VRayProcess():
 
         if self.VRayExporter.use_progress:
             self.process = subprocess.Popen(self.params, bufsize=256, stdout=subprocess.PIPE)
-            fd = self.process.stdout.fileno()
-            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+            if vb25.utils.PLATFORM != 'win32':
+                fd = self.process.stdout.fileno()
+                fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+                fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
         else:
             self.process = subprocess.Popen(self.params)
 
