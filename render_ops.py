@@ -634,7 +634,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 				if GeomMeshFile.mode == 'THIS':
 					VRayMesh.override= True
-					VRayMesh.override_type= 'PROXY'
+					VRayMesh.override_type= 'VRAYPROXY'
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
 				bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
@@ -663,7 +663,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 					VRayMesh= new_ob.data.vray
 					VRayMesh.override= True
-					VRayMesh.override_type= 'PROXY'
+					VRayMesh.override_type= 'VRAYPROXY'
 
 					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
@@ -682,7 +682,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 					VRayMesh= ob.data.vray
 					VRayMesh.override= True
-					VRayMesh.override_type= 'PROXY'
+					VRayMesh.override_type= 'VRAYPROXY'
 
 					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)

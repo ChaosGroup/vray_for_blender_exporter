@@ -115,9 +115,9 @@ def add_properties(rna_pointer):
 		description = "Size of the crop box of propagated geometry. All objects outside of the box – are ignored. Crop box also defines the repeating period of the geometry",
 		subtype     = 'TRANSLATION',
 		min         = 0.0,
-		max         = 1.0,
+		max         = 1024.0,
 		soft_min    = 0.0,
-		soft_max    = 0.1,
+		soft_max    = 10.0,
 		precision   = 4,
 		default     = (1.0, 1.0, 1.0)
 	)
