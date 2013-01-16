@@ -917,17 +917,19 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	proxycreator_bin= "proxycreator"
 
 	if PLATFORM == 'linux2':
-		proxycreator_bin+= "_linux"
+		proxycreator_bin += "_linux"
 	elif PLATFORM == 'win32':
-		proxycreator_bin+= "_win"
+		proxycreator_bin += "_windows"
 	else:
-		proxycreator_bin+= "_mac"
+		proxycreator_bin += "_mac"
+
+	print ARCH
+
+	if PLATFORM in ['linux2', 'win32']:
+		proxycreator_bin += ARCH[:-3]
 
 	if PLATFORM == 'win32':
-		proxycreator_bin+= ".exe"
-
-	elif PLATFORM == 'linux2':
-		proxycreator_bin+= ARCH[:-3]
+		proxycreator_bin += ".exe"
 
 	vray_exporter_path= get_vray_exporter_path()
 	if vray_exporter_path:
