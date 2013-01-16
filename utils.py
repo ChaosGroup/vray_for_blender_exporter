@@ -469,14 +469,14 @@ def get_username():
 # Get RAM directory
 # Used for fast temp file access
 def get_ram_basedir():
-	if PLATFORM == 'linux2':
+	if PLATFORM == 'linux':
 		return "/dev/shm"
 	return tempfile.gettempdir()
 
 
 # Colorize sting on Linux
 def color(text, color=None):
-	if not color or not PLATFORM == 'linux2':
+	if not color or not PLATFORM == 'linux':
 		return text
 	if color == 'green':
 		return "\033[0;32m%s\033[0m" % text
@@ -916,14 +916,14 @@ def get_distance(ob1, ob2):
 def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	proxycreator_bin= "proxycreator"
 
-	if PLATFORM == 'linux2':
+	if PLATFORM == 'linux':
 		proxycreator_bin += "_linux"
 	elif PLATFORM == 'win32':
 		proxycreator_bin += "_windows"
 	else:
 		proxycreator_bin += "_mac"
 
-	if PLATFORM in ['linux2', 'win32']:
+	if PLATFORM in ['linux', 'win32']:
 		proxycreator_bin += "_"+ARCH[:-3]
 
 	if PLATFORM == 'win32':
@@ -1066,7 +1066,7 @@ def init_files(bus):
 
 	if bus['preview']:
 		export_filename= "preview"
-		if PLATFORM == 'linux2':
+		if PLATFORM == 'linux':
 			export_filepath = os.path.join("/dev/shm", "vrayblender_preview_"+get_username())
 		else:
 			export_filepath = os.path.join(tempfile.gettempdir(), "vrayblender_preview_"+get_username())

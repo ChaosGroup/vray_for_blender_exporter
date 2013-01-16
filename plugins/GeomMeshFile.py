@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -213,7 +213,7 @@ def write(bus):
 
 		proxy_filepath= os.path.normpath(bpy.path.abspath(GeomMeshFile.file))
 
-		# if PLATFORM == 'linux2':
+		# if PLATFORM == 'linux':
 		# 	proxy_filepath= proxy_filepath.replace('\\', '/')
 
 		# TODO: fix '\' on *nix
@@ -233,7 +233,7 @@ def write(bus):
 			return proxy_name
 
 		ofile.write("\nGeomMeshFile %s {" % proxy_name)
-		# if PLATFORM == 'linux2': # This is a hack to allow teams using both Windows and Linux (back-slash problem)
+		# if PLATFORM == 'linux': # This is a hack to allow teams using both Windows and Linux (back-slash problem)
 		# 	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file.replace('\\','/')))
 		# else:
 		# 	ofile.write("\n\tfile= \"%s\";" % get_full_filepath(bus, ob, GeomMeshFile.file))
