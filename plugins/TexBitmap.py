@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -168,7 +168,7 @@ def write_BitmapBuffer(bus):
 
 	VRayScene=    scene.vray
 	SettingsColorMapping= VRayScene.SettingsColorMapping
-	
+
 	VRaySlot=     texture.vray_slot
 	VRayTexture=  texture.vray
 	BitmapBuffer= texture.image.vray.BitmapBuffer
@@ -189,14 +189,39 @@ def write_BitmapBuffer(bus):
 	ofile.write("\n\tfilter_type= %d;" % FILTER_TYPE[BitmapBuffer.filter_type])
 	ofile.write("\n\tfilter_blur= %.3f;" % BitmapBuffer.filter_blur)
 	ofile.write("\n\tuse_data_window= %i;" % BitmapBuffer.use_data_window)
+
 	if BitmapBuffer.use_input_gamma:
 		ofile.write("\n\tgamma= %s;" % p(SettingsColorMapping.input_gamma))
 	else:
 		ofile.write("\n\tgamma= %s;" % a(scene, BitmapBuffer.gamma))
+
 	if texture.image.source == 'SEQUENCE':
-		ofile.write("\n\tframe_sequence= 1;")
-		ofile.write("\n\tframe_number= %s;" % a(scene,scene.frame_current))
-		ofile.write("\n\tframe_offset= %i;" % texture.image_user.frame_offset)
+		ofile.write("\n\tframe_sequence = 1;")
+		sequence_frame = 0  # Init sequence frame to use in animation frame
+
+		# Repeat type check
+		if texture.image_user.use_cyclic:
+			sequence_frame = (scene.frame_current-texture.image_user.frame_offset+texture.image_user.frame_start)%texture.image_user.frame_duration # movie start + current frame - offset
+		else:
+			sequence_length   = texture.image_user.frame_duration # Crop the sequence duration
+			sequence_duration = sequence_length-texture.image_user.frame_start
+			sequence_start    = texture.image_user.frame_start
+			sequence_offset   = texture.image_user.frame_offset
+
+			# Before sequence start in animation, it takes the first frame
+			if scene.frame_current < sequence_offset:
+				sequence_frame = sequence_start
+
+			# After the last sequence frame played, it takes the last frame for the rest of the animation
+			if scene.frame_current > sequence_duration+sequence_offset:
+				sequence_frame = sequence_length
+
+			# Inside the sequence range it uses the exact sequence frame
+			if (scene.frame_current >= sequence_offset and scene.frame_current <= sequence_offset+sequence_duration):
+				sequence_frame = sequence_start+scene.frame_current-sequence_offset
+
+		ofile.write("\n\tframe_number= %s;" % a(scene,sequence_frame))
+		ofile.write("\n}\n")
 	ofile.write("\n}\n")
 
 	return bitmap_name
