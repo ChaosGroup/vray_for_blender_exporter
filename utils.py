@@ -923,8 +923,6 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	else:
 		proxycreator_bin += "_mac"
 
-	print ARCH
-
 	if PLATFORM in ['linux2', 'win32']:
 		proxycreator_bin += "_"+ARCH[:-3]
 
