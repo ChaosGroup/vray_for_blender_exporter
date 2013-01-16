@@ -1743,7 +1743,7 @@ def run(bus):
 			params.append('-autoclose=')
 			params.append('1')
 
-	if PLATFORM == "linux2":
+	if PLATFORM == "linux":
 		if VRayExporter.log_window:
 			log_window= []
 			log_window.append("xterm")
