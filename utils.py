@@ -926,7 +926,7 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 	print ARCH
 
 	if PLATFORM in ['linux2', 'win32']:
-		proxycreator_bin += ARCH[:-3]
+		proxycreator_bin += "_"+ARCH[:-3]
 
 	if PLATFORM == 'win32':
 		proxycreator_bin += ".exe"
