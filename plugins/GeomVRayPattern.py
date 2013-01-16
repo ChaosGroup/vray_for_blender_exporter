@@ -45,7 +45,6 @@ PARAMS = (
 	'crop_size',
 	'height',
 	'shift',
-	'seed',
 	'map_channel',
 	'use_real_world',
 	'tiling_u',
@@ -54,6 +53,7 @@ PARAMS = (
 	'polygon_id_to',
 	'random_segment_u',
 	'random_segment_v',
+	'random_segment_seed',
 )
 
 
@@ -209,13 +209,38 @@ def add_properties(rna_pointer):
 		default     = 1
 	)
 
-	GeomVRayPattern.seed = bpy.props.IntProperty(
+	GeomVRayPattern.random_segment_seed = bpy.props.IntProperty(
 		name        = "Seed",
 		description = "Random seed",
 		min         = 0,
 		max         = 1024,
 		default     = 42
 	)
+
+
+class VRAY_OT_pattern_fix(bpy.types.Operator):
+	bl_idname      = 'vray.pattern_fit'
+	bl_label       = "Fit Crop Box"
+	bl_description = "Fit Crop Box"
+
+	def execute(self, context):
+		ob = context.object
+		pattern_ob = None
+
+		VRayObject = ob.vray
+		GeomVRayPattern = VRayObject.GeomVRayPattern
+
+		if GeomVRayPattern.pattern_object in context.scene.objects:
+			pattern_ob = context.scene.objects[GeomVRayPattern.pattern_object]
+
+		if pattern_ob is None:
+			return {'FINISHED'}
+
+		GeomVRayPattern.crop_size = pattern_ob.dimensions
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_pattern_fix)
 
 
 def write(bus):
