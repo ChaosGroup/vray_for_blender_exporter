@@ -430,7 +430,9 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 		layout.separator()
 
 		layout.prop(GeomVRayPattern, 'crop_size')
-		layout.prop(GeomVRayPattern, 'geometry_bias')
+		layout.operator('vray.pattern_fit', icon='MOD_MESHDEFORM')
+		# layout.prop(GeomVRayPattern, 'geometry_bias')
+		layout.separator()
 
 		split = layout.split()
 		col = split.column()
@@ -465,7 +467,7 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 			col = split.column()
 		col.prop(GeomVRayPattern, 'random_segment_v', text="V")
 
-		layout.prop(GeomVRayPattern, 'seed')
+		layout.prop(GeomVRayPattern, 'random_segment_seed')
 
 		layout.separator()
 

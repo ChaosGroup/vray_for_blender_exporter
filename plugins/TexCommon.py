@@ -45,6 +45,8 @@ PARAMS= (
 
 
 def update_blender_mapping_type(self, context):
+	if not hasattr(context, 'texture_slot'):
+		return
 	if not context.texture_slot:
 		return
 	if self.texture_coords == 'WORLD':

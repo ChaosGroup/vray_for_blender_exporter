@@ -79,8 +79,7 @@ def write(bus):
 			ofile.write("\n\torthographic= 1;")
 			ofile.write("\n\torthographicWidth= %s;" % a(scene, camera.data.ortho_scale))
 
-		if RTEngine.enabled:
-			# For proper realtime view update
-			ofile.write("\n\tuse_scene_offset=0;")
+		# For proper realtime view update
+		ofile.write("\n\tuse_scene_offset=0;")
 
 		ofile.write("\n}\n")
