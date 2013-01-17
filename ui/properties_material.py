@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -47,7 +47,7 @@ class VRAY_MT_preview(VRayMaterialPanel, bpy.types.Panel):
 		if material is None:
 			return False
 		return engine_poll(__class__, context)
-	
+
 	def draw(self, context):
 		self.layout.template_preview(context.material, show_buttons = False)
 
@@ -69,12 +69,12 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 	def poll(cls, context):
 		rd= context.scene.render
 		return (context.material or context.object) and engine_poll(__class__, context)
-	
+
 	def draw(self, context):
 		layout= self.layout
 
 		mat= active_node_mat(context.material)
-		
+
 		ob= context.object
 		slot= context.material_slot
 		space= context.space_data
@@ -83,11 +83,15 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 
 		if ob:
 			row = layout.row()
-			row.template_list(ob, "material_slots", ob, "active_material_index", rows=2)
+
+			row.template_list("MATERIAL_UL_matslots", "", ob, "material_slots", ob, "active_material_index", rows=2)
+
 			col = row.column(align=True)
 			col.operator("object.material_slot_add", icon='ZOOMIN', text="")
 			col.operator("object.material_slot_remove", icon='ZOOMOUT', text="")
+
 			col.menu("MATERIAL_MT_specials", icon='DOWNARROW_HLT', text="")
+
 			if ob.mode == 'EDIT':
 				row = layout.row(align=True)
 				row.operator("object.material_slot_assign", text="Assign")
@@ -160,7 +164,7 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Options"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -173,7 +177,7 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		
+
 		material=     active_node_mat(context.material)
 		VRayMaterial= material.vray
 		BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
@@ -184,7 +188,7 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Two-Sided"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -204,7 +208,7 @@ class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 		ma= active_node_mat(context.material)
 
 		Mtl2Sided= ma.vray.Mtl2Sided
-		
+
 		layout.active= Mtl2Sided.use
 
 		split= layout.split()
@@ -242,7 +246,7 @@ class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -261,7 +265,7 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 		ma= active_node_mat(context.material)
 
 		MtlOverride= ma.vray.MtlOverride
-		
+
 		layout= self.layout
 		layout.active= MtlOverride.use
 
@@ -287,7 +291,7 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -306,7 +310,7 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 		ma= active_node_mat(context.material)
 
 		MtlWrapper= ma.vray.MtlWrapper
-		
+
 		layout= self.layout
 		layout.active= MtlWrapper.use
 
@@ -363,7 +367,7 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Outline"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	@classmethod
@@ -397,7 +401,7 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	@classmethod
@@ -418,7 +422,7 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 		MtlRenderStats= VRayMaterial.MtlRenderStats
 
 		layout= self.layout
-		
+
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayMaterial, 'round_edges')
@@ -430,7 +434,7 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 		col.prop(VRayMaterial, 'radius', text="Radius")
 
 		layout.separator()
-		
+
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayMaterial, 'material_id_number')
