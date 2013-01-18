@@ -73,7 +73,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 		if tex_collection:
 			row = layout.row()
 
-			row.template_list(idblock, "texture_slots", idblock, "active_texture_index", rows=2)
+			row.template_list("TEXTURE_UL_texslots", "", idblock, "texture_slots", idblock, "active_texture_index", rows=2)
 
 			col = row.column(align=True)
 			col.operator("texture.slot_move", text="", icon='TRIA_UP').type = 'UP'

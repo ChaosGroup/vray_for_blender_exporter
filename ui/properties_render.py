@@ -1041,9 +1041,9 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 		layout.active= vsce.render_channels_use
 
 		row= layout.row()
-		row.template_list(vsce, 'render_channels',
+		row.template_list("VRayListUse", "",
+						  vsce, 'render_channels',
 						  vsce, 'render_channels_index',
-						  prop_list = 'template_list_controls',
 						  rows= 4)
 		col= row.column()
 		sub= col.row()

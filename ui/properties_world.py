@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -56,7 +56,7 @@ class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Background:")
-		
+
 		row= layout.row(align=True)
 		row.prop(VRayWorld, 'bg_color_mult', text="Mult", slider=True)
 		row.prop(VRayWorld, 'bg_color', text="")
@@ -78,7 +78,7 @@ class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
 class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 	bl_label   = "Effects"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
@@ -97,9 +97,9 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 
 		split= layout.split()
 		row= split.row()
-		row.template_list(VRayEffects, 'effects',
+		row.template_list("VRayListUse", "",
+						  VRayEffects, 'effects',
 						  VRayEffects, 'effects_selected',
-						  prop_list = 'template_list_controls',
 						  rows= 4)
 		col= row.column()
 		sub= col.row()

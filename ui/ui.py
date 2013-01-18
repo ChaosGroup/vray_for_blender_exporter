@@ -21,14 +21,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
-
-narrowui= 200
-
-
+import bpy
 from bl_ui.properties_material import active_node_mat
+
+
+narrowui = 200
 
 
 def context_tex_datablock(context):
@@ -148,9 +148,9 @@ class VRayTexturePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'texture'
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-	
+
 	@classmethod
 	def poll(cls, context):
 		if not engine_poll(cls, context):
@@ -167,3 +167,12 @@ class VRayWorldPanel():
 	@classmethod
 	def poll(cls, context):
 		return context.world and engine_poll(cls, context)
+
+
+# List item:
+#  <item name> <item use-flag>
+#
+class VRayListUse(bpy.types.UIList):
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		layout.label(item.name)
+		layout.prop(item, 'use')

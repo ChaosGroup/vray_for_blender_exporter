@@ -1652,8 +1652,6 @@ def add_properties():
 			description= "Use render channel",
 			default= True
 		)
-
-		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
 	bpy.utils.register_class(VRayRenderChannel)
 
 	class VRayScene(bpy.types.PropertyGroup):
