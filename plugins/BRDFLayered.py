@@ -58,7 +58,7 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class VRayBRDF(bpy.types.PropertyGroup):
-		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
+		pass
 	bpy.utils.register_class(VRayBRDF)
 
 	class BRDFLayered(bpy.types.PropertyGroup):
@@ -87,7 +87,7 @@ def add_properties(rna_pointer):
 	)
 
 	brdfs= gen_menu_items(PLUGINS['BRDF'], none_item= False)
-	
+
 	VRayBRDF.type= EnumProperty(
 		name= "BRDF Type",
 		description= "BRDF type",
@@ -119,7 +119,7 @@ def add_properties(rna_pointer):
 		default= ""
 	)
 
-	
+
 	# transparency
 	BRDFLayered.transparency= FloatVectorProperty(
 		name= "Transparency",
@@ -196,7 +196,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 		brdf_name= "%s%s%s" % (base_name, ID, bus['material']['orco_suffix'])
 	if VRayBRDF:
 		brdf_name+= clean_string(VRayBRDF.name)
-	
+
 	BRDFLayered= getattr(VRayBRDF, 'BRDFLayered') if VRayBRDF else getattr(VRayMaterial, 'BRDFLayered')
 
 	if not BRDFLayered.brdfs:
@@ -223,7 +223,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 	if len(brdfs) == 1:
 		return brdfs[0]
-		
+
 	ofile.write("\nBRDFLayered %s {" % brdf_name)
 	ofile.write("\n\tbrdfs= List(%s);" % ','.join(brdfs))
 	ofile.write("\n\tweights= List(%s);" % ','.join(weights))
@@ -247,10 +247,10 @@ def gui(context, layout, BRDFLayered, material= None):
 	wide_ui= context.region.width > narrowui
 
 	row= layout.row()
-	row.template_list(BRDFLayered, 'brdfs',
+	row.template_list("VRayListUse", "",
+					  BRDFLayered, 'brdfs',
 					  BRDFLayered, 'brdf_selected',
-					  prop_list = 'template_list_controls',
-					  rows= 3)
+					  rows = 3)
 
 	col= row.column()
 	sub= col.row()
@@ -284,7 +284,7 @@ def gui(context, layout, BRDFLayered, material= None):
 		layout.separator()
 
 		brdf= BRDFLayered.brdfs[BRDFLayered.brdf_selected]
-		
+
 		if wide_ui:
 			split= layout.split(percentage=0.2)
 		else:
@@ -320,12 +320,12 @@ def gui(context, layout, BRDFLayered, material= None):
 		col.prop_search(brdf, 'weight_tex',
 						bpy.data, 'textures',
 						text= "")
-					
+
 		layout.separator()
 
 		box = layout.box()
 		box.active = brdf.use
-		
+
 		rna_pointer= getattr(brdf, brdf.type)
 		if rna_pointer:
 			plugin= PLUGINS['BRDF'].get(brdf.type)

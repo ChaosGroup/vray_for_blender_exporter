@@ -119,11 +119,11 @@ def add_properties(rna_pointer):
 	bpy.utils.register_class(EnvironmentFog)
 
 	class EnvironmentEffect(bpy.types.PropertyGroup):
-		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
+		pass
 	bpy.utils.register_class(EnvironmentEffect)
 
 	class VRayEffects(bpy.types.PropertyGroup):
-		template_list_controls = bpy.props.StringProperty(default="use", options={"HIDDEN"})
+		pass
 	bpy.utils.register_class(VRayEffects)
 
 	rna_pointer.EnvironmentFog= PointerProperty(
@@ -1173,7 +1173,8 @@ def gui(context, layout, VRayEffects):
 
 	split= layout.split()
 	row= split.row()
-	row.template_list(VRayEffects, 'effects',
+	row.template_list("VRayListUse", "",
+					  VRayEffects, 'effects',
 					  VRayEffects, 'effects_selected',
 					  rows= 3)
 	col= row.column(align=True)
