@@ -1169,7 +1169,7 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		row= split.row()
-		row.template_list(module, 'nodes', module, 'nodes_selected', rows= 3)
+		row.template_list("VRayList", "", module, 'nodes', module, 'nodes_selected', rows= 3)
 		col= row.column(align=True)
 		col.operator('vray.render_nodes_add',    text="", icon="ZOOMIN")
 		col.operator('vray.render_nodes_remove', text="", icon="ZOOMOUT")
