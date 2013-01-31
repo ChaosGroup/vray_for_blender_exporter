@@ -36,9 +36,11 @@ NAME = 'VRayPattern'
 DESC = "VRayPattern plugin settings"
 
 PARAMS = (
+	'node_name',
+	'base_name',
+	'pattern_name',
+
 	'use',
-	'base_mesh',
-	'pattern_object',
 	'render_pattern_object',
 	'render_base_object',
 	'geometry_bias',
@@ -74,13 +76,6 @@ def add_properties(rna_pointer):
 		default     = False
 	)
 
-	GeomVRayPattern.base_mesh = bpy.props.StringProperty(
-		name        = "Base Geometry",
-		description = "Base Geometry",
-		options     = {'HIDDEN'},
-		default     = ""
-	)
-
 	GeomVRayPattern.pattern_object = bpy.props.StringProperty(
 		name        = "Pattern Object",
 		description = "Pattern object",
@@ -95,8 +90,8 @@ def add_properties(rna_pointer):
 
 	GeomVRayPattern.render_base_object = bpy.props.BoolProperty(
 		name        = "Render Base Object",
-		description = "Render original base object",
-		default     = False
+		description = "Render base object",
+		default     = True
 	)
 
 	GeomVRayPattern.geometry_bias = bpy.props.FloatProperty(
@@ -257,19 +252,21 @@ def write(bus):
 	VRayObject = ob.vray
 	GeomVRayPattern = VRayObject.GeomVRayPattern
 
-	plug_name = "VRayPattern%s" % (ob_name)
+	plug_name = "VRayPatternLoader%s" % (ob_name)
 
-	ofile.write("\nGeomVRayPattern %s {" % (plug_name))
+	ofile.write("\nVRayPattern %s {" % (plug_name))
 	for param in PARAMS:
-		if param == 'base_mesh':
-			value = me
-		elif param == 'pattern_object':
+		if param == 'node_name':
+			value = '"%s"' % ('VRayPattern'+vb25.utils.get_name(ob, prefix='OB'))
+		elif param == 'base_name':
+			value = '"%s"' % (vb25.utils.get_name(ob, prefix='OB'))
+		elif param == 'pattern_name':
 			pattern_name = GeomVRayPattern.pattern_object
 			if pattern_name in scene.objects:
 				pattern_object = scene.objects[pattern_name]
-				value = vb25.utils.get_name(pattern_object, prefix='OB')
+				value = '"%s"' % (vb25.utils.get_name(pattern_object, prefix='OB'))
 			else:
-				value = 'NULL'
+				value = '""'
 		else:
 			value = getattr(GeomVRayPattern, param)
 		ofile.write("\n\t%s=%s;" % (param, vb25.utils.p(value)))

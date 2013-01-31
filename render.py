@@ -1196,7 +1196,7 @@ def write_object(bus):
 		return
 
 	if VRayObject.GeomVRayPattern.use:
-		bus['node']['geometry'] = PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
+		PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
 
 	complex_material= []
 	complex_material.append(bus['node']['material'])
@@ -1400,7 +1400,7 @@ def write_scene(bus):
 	bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
 	bus['files']['textures'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
 	bus['files']['textures'].write("\n}\n")
-	bus['files']['textures'].write("\n// Scene textures")
+
 	bus['files']['materials'].write("\n// Fail-safe material")
 	bus['files']['materials'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
 	bus['files']['materials'].write("\n\tcolor=Color(0.5,0.5,0.5);")
@@ -1408,7 +1408,6 @@ def write_scene(bus):
 	bus['files']['materials'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
 	bus['files']['materials'].write("\n\tbrdf= %s;" % bus['defaults']['brdf'])
 	bus['files']['materials'].write("\n}\n")
-	bus['files']['materials'].write("\n// Materials")
 
 	if bus['preview']:
 		bus['files']['lights'].write("\nLightDirectMax LALamp_008 { // PREVIEW")
@@ -1913,9 +1912,7 @@ def run(bus):
 
 def close_files(bus):
 	for key in bus['files']:
-		bus['files'][key].close()
-	for key in bus['files']:
-		bus['files'][key].close()
+		bus['files'][key].write("\n")
 		bus['files'][key].close()
 
 
