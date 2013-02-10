@@ -76,7 +76,7 @@ def add_properties(rna_pointer):
 		name= "Min samples",
 		description= "The minimum number of samples that must be made before the early termination algorithm is used",
 		min= 1,
-		max= 100,
+		max= 1000,
 		default= 8
 	)
 
