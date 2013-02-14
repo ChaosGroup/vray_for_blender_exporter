@@ -255,7 +255,7 @@ def add_properties(rna_pointer):
 		name= "Reflection subdivs",
 		description= "Subdivs for glossy reflections",
 		min= 1,
-		max= 2048,
+		max= 1000,
 		default= 8
 	)
 
@@ -263,7 +263,7 @@ def add_properties(rna_pointer):
 		name= "Reflections depth",
 		description= "The maximum depth for reflections",
 		min= 1,
-		max= 256,
+		max= 1000,
 		default= 5
 	)
 
@@ -271,7 +271,7 @@ def add_properties(rna_pointer):
 		name= "Refractions depth",
 		description= "The maximum depth for refractions",
 		min= 1,
-		max= 256,
+		max= 1000,
 		default= 5
 	)
 
@@ -279,7 +279,7 @@ def add_properties(rna_pointer):
 		name= "Refraction subdivs",
 		description= "Subdivs for glossy refractions",
 		min= 1,
-		max= 256,
+		max= 1000,
 		default= 8
 	)
 
