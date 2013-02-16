@@ -1762,6 +1762,10 @@ def run(bus):
 
 	engine = bus['engine']
 
+	if VRayExporter.display_srgb:
+		params.append('-displaySRGB=')
+		params.append('1')
+		
 	# If this is a background task, wait until render end
 	# and no VFB is required
 	if bpy.app.background or VRayExporter.wait:
