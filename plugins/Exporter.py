@@ -241,6 +241,12 @@ def add_properties(rna_pointer):
 		default= True
 	)
 
+	VRayExporter.display_srgb= BoolProperty(
+		name= "Display in sRGB",
+		description= "Display colors on Vray Framebuffer in sRGB space",
+		default= False
+	)
+
 	VRayExporter.vray_binary= StringProperty(
 		name= "Path",
 		subtype= 'FILE_PATH',
