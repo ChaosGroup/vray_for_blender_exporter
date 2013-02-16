@@ -66,7 +66,13 @@ class VRAY_OT_update(bpy.types.Operator):
 
 		GIT_MASTER_URL = "https://github.com/bdancer/vb25/zipball/master"
 
-		(filename, headers) = urllib.request.urlretrieve(GIT_MASTER_URL)
+		# devnote: urllib2 not available, urllib's fancyurlopener returns errors anyways (when connection is not available)
+		# so this is a working 'ugly fix' that at leasts works. Sorry the ghetto fix.
+		try:
+			(filename, headers) = urllib.request.urlretrieve(GIT_MASTER_URL)
+		except urllib.error.URLError:
+			self.report({'ERROR'}, "Error retrieving the files. Check your connection.")
+			return {'CANCELLED'}
 
 		# Extracting archive
 		ziparchive = zipfile.ZipFile(filename)
