@@ -436,6 +436,9 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop(ve, 'detect_vray')
+		if wide_ui:
+			col= split.column()
+		col.prop(ve, 'display_srgb')
 		if not ve.detect_vray:
 			split= layout.split()
 			col= split.column()
