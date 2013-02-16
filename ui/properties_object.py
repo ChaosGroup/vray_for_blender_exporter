@@ -168,7 +168,7 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return engine_poll(__class__, context)
+		return engine_poll(__class__, context) and not context.object.vray.LightMesh.use
 
 	def draw_header(self, context):
 		ob= context.object
