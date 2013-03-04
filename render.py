@@ -408,26 +408,15 @@ def write_geometry(bus):
 
 	if 'export_meshes' in dir(bpy.ops.vray):
 		# Call V-Ray/Blender custom mesh export operator
-		try:
-			bpy.ops.vray.export_meshes(
-				filepath          = bus['filenames']['geometry'][:-11],
-				use_active_layers = VRayExporter.mesh_active_layers,
-				use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
-				use_instances     = VRayExporter.use_instances,
-				debug             = VRayExporter.mesh_debug,
-				check_animated    = VRayExporter.check_animated,
-				scene             = str(scene.as_pointer())
-			)
-		except:
-			bpy.ops.vray.export_meshes(
-				filepath          = bus['filenames']['geometry'][:-11],
-				use_active_layers = VRayExporter.mesh_active_layers,
-				use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
-				use_instances     = VRayExporter.use_instances,
-				debug             = VRayExporter.mesh_debug,
-				check_animated    = VRayExporter.check_animated,
-				scene             = scene.as_pointer()
-			)
+		bpy.ops.vray.export_meshes(
+			filepath          = bus['filenames']['geometry'][:-11],
+			use_active_layers = VRayExporter.mesh_active_layers,
+			use_animation     = VRayExporter.animation and VRayExporter.fanimation_type == 'FULL',
+			use_instances     = VRayExporter.use_instances,
+			debug             = VRayExporter.mesh_debug,
+			check_animated    = VRayExporter.check_animated,
+			scene             = str(scene.as_pointer())
+		)
 	else:
 		# Use python mesh export
 		write_geometry_python(bus)
@@ -1280,7 +1269,7 @@ def _write_object_particles(bus):
 			if ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH':
 				if VRayExporter.use_hair:
 					hair_geom_name = clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
-					hair_node_name = get_name(ob, prefix='HAIR')
+					hair_node_name = "Node"+hair_geom_name
 
 					if not 'export_meshes' in dir(bpy.ops.vray) or bus['preview']:
 						write_GeomMayaHair(bus, ps, hair_geom_name)
@@ -1765,7 +1754,7 @@ def run(bus):
 	if VRayExporter.display_srgb:
 		params.append('-displaySRGB=')
 		params.append('1')
-		
+
 	# If this is a background task, wait until render end
 	# and no VFB is required
 	if bpy.app.background or VRayExporter.wait:
@@ -1917,6 +1906,7 @@ def run(bus):
 def close_files(bus):
 	for key in bus['files']:
 		bus['files'][key].write("\n")
+		bus['files'][key].flush()
 		bus['files'][key].close()
 
 
