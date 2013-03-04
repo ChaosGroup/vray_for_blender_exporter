@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -42,7 +42,7 @@ class VRayFur(bpy.types.PropertyGroup):
 		soft_min= 0.0,
 		soft_max= 0.01,
 		precision= 5,
-		default= 0.001
+		default= 0.0001
 	)
 
 	make_thinner= bpy.props.BoolProperty(
@@ -95,7 +95,7 @@ del properties_particle
 class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 	bl_label       = "Fur"
 	bl_options     = {'DEFAULT_CLOSED'}
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
@@ -107,7 +107,7 @@ class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 		layout= self.layout
 
 		particle_settings= context.particle_system.settings
-		
+
 		VRayFur= particle_settings.vray.VRayFur
 
 		split= layout.split()
@@ -118,5 +118,5 @@ class VRAY_PP_hair(VRayParticlePanel, bpy.types.Panel):
 		# col.prop(VRayFur, 'make_thinner')
 		# if VRayFur.make_thinner:
 		# 	col.prop(VRayFur, 'thin_start', text= "Segment", slider= True)
-		
-		
+
+
