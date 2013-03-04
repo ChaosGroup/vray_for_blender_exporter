@@ -252,24 +252,49 @@ def write(bus):
 	VRayObject = ob.vray
 	GeomVRayPattern = VRayObject.GeomVRayPattern
 
-	plug_name = "VRayPatternLoader%s" % (ob_name)
+	if False:
+		pattern_name = GeomVRayPattern.pattern_object
+		if pattern_name not in scene.objects:
+			return ""
 
-	ofile.write("\nVRayPattern %s {" % (plug_name))
-	for param in PARAMS:
-		if param == 'node_name':
-			value = '"%s"' % ('VRayPattern'+vb25.utils.get_name(ob, prefix='OB'))
-		elif param == 'base_name':
-			value = '"%s"' % (vb25.utils.get_name(ob, prefix='OB'))
-		elif param == 'pattern_name':
-			pattern_name = GeomVRayPattern.pattern_object
-			if pattern_name in scene.objects:
-				pattern_object = scene.objects[pattern_name]
-				value = '"%s"' % (vb25.utils.get_name(pattern_object, prefix='OB'))
-			else:
-				value = '""'
-		else:
+		node_name      = 'VRayPattern'+vb25.utils.get_name(ob, prefix='OB')
+		base_object    = vb25.utils.get_name(ob, prefix='OB')
+		pattern_object = vb25.utils.get_name(scene.objects[pattern_name], prefix='OB')
+
+		geometry_name  = "GeomVRayPattern%s" % (ob_name)
+
+		ofile.write("\nGeomVRayPattern %s {" % (geometry_name))
+		ofile.write("\n\tbase_object=%s;" % (base_object))
+		ofile.write("\n\tpattern_object=%s;" % (pattern_object))
+		for param in PARAMS:
 			value = getattr(GeomVRayPattern, param)
-		ofile.write("\n\t%s=%s;" % (param, vb25.utils.p(value)))
-	ofile.write("\n}\n")
+			ofile.write("\n\t%s=%s;" % (param, vb25.utils.p(value)))
+		ofile.write("\n}\n")
 
-	return plug_name
+		ofile.write("\nNode %s {" % (node_name))
+		ofile.write("\n\tgeometry=%s;" % (geometry_name))
+		ofile.write("\n\tmaterial=%s;" % (bus['node']['material']))
+		ofile.write("\n\ttransform=Transform(Matrix(Vector(1.000000,0.000000,0.000000),Vector(0.000000,1.000000,0.000000),Vector(0.000000,0.000000,1.000000)),Vector(0.000000,0.000000,0.000000));")
+		ofile.write("\n}\n")
+
+	else:
+		plug_name = "VRayPatternLoader%s" % (ob_name)
+		ofile.write("\nVRayPattern %s {" % (plug_name))
+		for param in PARAMS:
+			if param == 'node_name':
+				value = '"%s"' % ('VRayPattern'+vb25.utils.get_name(ob, prefix='OB'))
+			elif param == 'base_name':
+				value = '"%s"' % (vb25.utils.get_name(ob, prefix='OB'))
+			elif param == 'pattern_name':
+				pattern_name = GeomVRayPattern.pattern_object
+				if pattern_name in scene.objects:
+					pattern_object = scene.objects[pattern_name]
+					value = '"%s"' % (vb25.utils.get_name(pattern_object, prefix='OB'))
+				else:
+					value = '""'
+			else:
+				value = getattr(GeomVRayPattern, param)
+			ofile.write("\n\t%s=%s;" % (param, vb25.utils.p(value)))
+		ofile.write("\n}\n")
+
+	return None
