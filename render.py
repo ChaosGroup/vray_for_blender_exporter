@@ -411,7 +411,7 @@ def write_geometry(bus):
 		bpy.ops.vray.export_meshes(
 			filepath          = bus['filenames']['geometry'][:-11],
 			use_active_layers = VRayExporter.mesh_active_layers,
-			use_animation     = VRayExporter.animation and VRayExporter.fanimation_type == 'FULL',
+			use_animation     = VRayExporter.animation and VRayExporter.animation_type == 'FULL',
 			use_instances     = VRayExporter.use_instances,
 			debug             = VRayExporter.mesh_debug,
 			check_animated    = VRayExporter.check_animated,
