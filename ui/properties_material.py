@@ -423,6 +423,9 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 
 		layout= self.layout
 
+		layout.prop(VRayMaterial, 'dontOverride')
+		layout.separator()
+
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayMaterial, 'round_edges')

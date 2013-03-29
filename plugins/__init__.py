@@ -150,7 +150,11 @@ def add_properties():
 	bpy.utils.register_class(VRayMesh)
 
 	class VRayMaterial(bpy.types.PropertyGroup):
-		pass
+		dontOverride = BoolProperty(
+			name        = "Don't Override",
+			description = "Don't override material",
+			default     = False
+		)
 	bpy.utils.register_class(VRayMaterial)
 
 	class VRayLight(bpy.types.PropertyGroup):
