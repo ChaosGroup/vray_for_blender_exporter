@@ -1043,6 +1043,38 @@ def write_lamp(bus):
 			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayLamp,param))))
 
 	ofile.write("\n\ttransform= %s;"%(a(scene,transform(lamp_matrix))))
+
+	# Render Elements
+	#
+	listRenderElements = {
+		'channels_raw'      : [],
+		'channels_diffuse'  : [],
+		'channels_specular' : [],
+	}
+
+	for channel in scene.vray.render_channels:
+		if channel.type == 'LIGHTSELECT' and channel.use:
+			channelData = channel.RenderChannelLightSelect
+			channelName = "LightSelect_%s" % clean_string(channel.name)
+
+			lampList = generateDataList(channelData.lights, 'lamps')
+
+			if lamp in lampList:
+				if channelData.type == 'RAW':
+					listRenderElements['channels_raw'].append(channelName)
+				elif channelData.type == 'DIFFUSE':
+					listRenderElements['channels_diffuse'].append(channelName)
+				elif channelData.type == 'SPECULAR':
+					listRenderElements['channels_specular'].append(channelName)
+
+	for key in listRenderElements:
+		renderChannelArray = listRenderElements[key]
+
+		if not len(renderChannelArray):
+			continue
+
+		ofile.write("\n\t%s=List(%s);" % (key, ",".join(renderChannelArray)))
+
 	ofile.write("\n}\n")
 
 
@@ -1822,9 +1854,9 @@ def run(bus):
 							return
 
 				def my_timer():
-				    t = Timer(0.25, my_timer)
-				    t.start()
-				    task()
+					t = Timer(0.25, my_timer)
+					t.start()
+					task()
 
 				my_timer()
 

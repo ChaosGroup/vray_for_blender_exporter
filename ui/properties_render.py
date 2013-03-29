@@ -1020,7 +1020,7 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 
 
 class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
-	bl_label   = "Channels"
+	bl_label   = "Render Elements"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}

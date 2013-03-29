@@ -684,6 +684,21 @@ def generate_object_list(object_names_string= None, group_names_string= None):
 	return object_list
 
 
+# Generate list of data from ';' separated string
+#
+def generateDataList(namesString, dataType):
+	dataList = []
+
+	dataPtr = getattr(bpy.data, dataType)
+
+	dataNames = namesString.split(';')
+	for dataName in dataNames:
+		if dataName in dataPtr:
+			dataList.append(dataPtr[dataName])
+
+	return dataList
+
+
 # Get object used as ORCO projection
 def get_orco_object(scene, ob, VRayTexture):
 	if VRayTexture.object:
