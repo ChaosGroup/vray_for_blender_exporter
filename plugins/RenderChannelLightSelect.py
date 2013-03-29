@@ -34,10 +34,6 @@ PARAMS = (
     'name',
     'lights',
     'type',
-    'use_channels',
-    'use_channels_raw',
-    'use_channels_diffuse',
-    'use_channels_specular',
     'color_mapping',   # 1
     'consider_for_aa', # 0
 )

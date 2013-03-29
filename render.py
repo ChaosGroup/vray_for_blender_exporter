@@ -821,43 +821,6 @@ def write_materials(bus):
 	VRayScene= scene.vray
 	SettingsOptions= VRayScene.SettingsOptions
 
-	# Skip material override
-	dontOverride = False
-
-	if len(ob.material_slots):
-		for slot in ob.material_slots:
-			ma = slot.material
-			if not ma:
-				continue
-
-			VRayMaterial = ma.vray
-			if VRayMaterial.dontOverride:
-				dontOverride = True
-				break
-
-	# Material override
-	if not dontOverride and SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-		ma = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
-		if ma:
-			bus['material'] = {}
-			bus['material']['material'] = ma
-
-			# Normal mapping settings pointer
-			bus['material']['normal_slot'] = None
-
-			# Bump mapping settings pointer
-			bus['material']['bump_slot']   = None
-
-			# Set if any texture uses object mapping
-			bus['material']['orco_suffix'] = ""
-
-			if ma.use_nodes:
-				bus['node']['material'] = write_node_material(bus)
-			else:
-				bus['node']['material'] = write_material(bus)
-
-			return
-
 	# Multi-material name
 	mtl_name = get_name(ob, prefix='OBMA')
 
@@ -875,7 +838,11 @@ def write_materials(bus):
 			ma= slot.material
 			if ma:
 				bus['material'] = {}
-				bus['material']['material'] = ma
+
+				if not ma.vray.dontOverride and SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
+					bus['material']['material'] = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
+				else:
+					bus['material']['material'] = ma
 
 				# Normal mapping settings pointer
 				bus['material']['normal_slot'] = None
