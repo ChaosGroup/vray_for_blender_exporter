@@ -996,6 +996,16 @@ def write_lamp(bus):
 		ofile.write("\n\tconeAngle= %s;" % a(scene,lamp.spot_size))
 		ofile.write("\n\tpenumbraAngle= %s;" % a(scene, - lamp.spot_size * lamp.spot_blend))
 
+		ofile.write("\n\tdecay=%s;" % a(scene, VRayLamp.decay))
+
+		ofile.write("\n\tuseDecayRegions=1;")
+		ofile.write("\n\tstartDistance1=%s;" % a(scene, 0.0))
+		ofile.write("\n\tendDistance1=%s;" % a(scene, lamp.distance-lamp.spot_blend))
+		ofile.write("\n\tstartDistance2=%s;" % a(scene, lamp.distance-lamp.spot_blend))
+		ofile.write("\n\tendDistance2=%s;" % a(scene, lamp.distance-lamp.spot_blend))
+		ofile.write("\n\tstartDistance3=%s;" % a(scene, lamp.distance-lamp.spot_blend))
+		ofile.write("\n\tendDistance3=%s;" % a(scene, lamp.distance))
+
 	if lamp_type == 'LightRectangle':
 		if lamp.shape == 'RECTANGLE':
 			ofile.write("\n\tu_size= %s;"%(a(scene,lamp.size/2)))

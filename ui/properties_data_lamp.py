@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 ''' Blender modules '''
@@ -104,7 +104,7 @@ class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
 			col.prop(VRayLamp,'intensity', text="Intensity")
 		col.prop(VRayLamp,'subdivs')
 		col.prop(VRayLamp,'causticSubdivs', text="Caustics")
-		
+
 		if wide_ui:
 			col= split.column()
 
@@ -181,7 +181,7 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 				split= layout.split()
 				col= split.column()
 				col.prop(vl,'sky_model')
-				
+
 				split= layout.split()
 				col= split.column()
 				col.prop(vl,'turbidity')
@@ -200,6 +200,7 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 		elif lamp.type == 'SPOT':
 			if vl.spot_type == 'SPOT':
 				col.prop(lamp,'distance')
+				col.prop(vl,'decay')
 				if wide_ui:
 					col= split.column()
 				col.prop(lamp,'spot_size', text="Size")
@@ -207,7 +208,7 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 			else:
 				col.prop(vl,'ies_file', text="File")
 				layout.separator()
-			
+
 			if vl.spot_type == 'IES':
 				split= layout.split()
 				col= split.column()
@@ -238,9 +239,9 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 				col= split.column()
 			if VRayLight.dome_rayDistanceMode:
 				col.prop(VRayLight, 'dome_rayDistance')
-			
+
 			layout.separator()
-			
+
 			split = layout.split()
 			col   = split.column()
 			col.prop(VRayLight, 'tex_resolution')
@@ -283,16 +284,16 @@ class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(vl,'shadowBias', text="Bias")
-		
+
 		if lamp.type == 'SPOT':
 			if vl.spot_type == 'IES':
 				col.prop(vl,'soft_shadows')
 			else:
 				col.prop(vl,'shadowRadius', text="Radius")
-		else:			
+		else:
 			if lamp.type in ('POINT','SUN'):
 				col.prop(vl,'shadowRadius', text="Radius")
-			
+
 
 
 
@@ -315,7 +316,7 @@ class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
 		col.prop(vl,'diffuse_contribution', text="Diffuse cont.")
 		col.prop(vl,'specular_contribution', text="Specular cont.")
 		col.prop(vl,'cutoffThreshold', text="Cutoff")
-		
+
 		if wide_ui:
 			col= split.column()
 		col.prop(vl,'nsamples')
