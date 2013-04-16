@@ -221,7 +221,6 @@ def write_BitmapBuffer(bus):
 				sequence_frame = sequence_start+scene.frame_current-sequence_offset
 
 		ofile.write("\n\tframe_number= %s;" % a(scene,sequence_frame))
-		ofile.write("\n}\n")
 	ofile.write("\n}\n")
 
 	return bitmap_name
