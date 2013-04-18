@@ -467,13 +467,17 @@ def write_GeomMayaHair(bus, ps, hair_geom_name):
   SETTINGS
 '''
 def write_settings(bus):
-	ofile= bus['files']['scene']
-	scene= bus['scene']
+	ofile = bus['files']['scene']
+	scene = bus['scene']
 
-	VRayScene=      scene.vray
-	VRayExporter=   VRayScene.exporter
-	VRayDR=         VRayScene.VRayDR
-	SettingsOutput= VRayScene.SettingsOutput
+	VRayScene      = scene.vray
+	VRayExporter   = VRayScene.exporter
+	VRayDR         = VRayScene.VRayDR
+	SettingsOutput = VRayScene.SettingsOutput
+
+	threadCount = scene.render.threads
+	if VRayExporter.meshExportThreads:
+		threadCount = VRayExporter.meshExportThreads
 
 	for key in bus['filenames']:
 		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
@@ -482,7 +486,7 @@ def write_settings(bus):
 
 		if VRayDR.on:
 			if key == 'geometry':
-				for t in range(scene.render.threads):
+				for t in range(threadCount):
 					if VRayDR.type == 'WW':
 						ofile.write("\n#include \"//%s/%s/%s/%s_%.2i.vrscene\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames']['geometry'][:-11]), t))
 					else:
@@ -497,7 +501,7 @@ def write_settings(bus):
 				if bus['preview']:
 					ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
 				else:
-					for t in range(scene.render.threads):
+					for t in range(threadCount):
 						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
 			else:
 				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
