@@ -1247,6 +1247,7 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		sub= col.column()
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, 'threads', text="Count")
+		layout.prop(VRayExporter, 'meshExportThreads')
 
 		layout.separator()
 

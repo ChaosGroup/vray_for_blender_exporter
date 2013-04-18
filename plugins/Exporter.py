@@ -85,6 +85,16 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	VRayExporter.meshExportThreads = IntProperty(
+		name        = "Mesh Export Threads",
+		description = "Mesh Export Threads",
+		min         = 0,
+		max         = 100,
+		soft_min    = 0,
+		soft_max    = 10,
+		default     = 0
+	)
+
 	VRayExporter.autoclose= BoolProperty(
 		name= "Auto close",
 		description= "Stop render and close VFB on Esc",
