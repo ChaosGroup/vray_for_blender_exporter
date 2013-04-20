@@ -1320,39 +1320,45 @@ def _write_object_dupli(bus):
 			if ps.settings.render_type in {'OBJECT', 'GROUP'}:
 				dupli_from_particles = True
 
-	if (ob.dupli_type in ('VERTS','FACES','GROUP')) or dupli_from_particles:
-		ob.dupli_list_create(bus['scene'])
+	# This will fix "RuntimeError: Error: Object does not have duplis"
+	# when particle system is disabled for render
+	#
+	try:
+		if (ob.dupli_type in ('VERTS','FACES','GROUP')) or dupli_from_particles:
+			ob.dupli_list_create(bus['scene'])
 
-		for dup_id,dup_ob in enumerate(ob.dupli_list):
-			parent_dupli= ""
+			for dup_id,dup_ob in enumerate(ob.dupli_list):
+				parent_dupli= ""
 
-			bus['node']['object']= dup_ob.object
-			bus['node']['base']=   ob
+				bus['node']['object']= dup_ob.object
+				bus['node']['base']=   ob
 
-			# Currently processed dupli name
-			dup_node_name= clean_string("OB%sDO%sID%i" % (ob.name,
-														  dup_ob.object.name,
-														  dup_id))
-			dup_node_matrix= dup_ob.matrix
+				# Currently processed dupli name
+				dup_node_name= clean_string("OB%sDO%sID%i" % (ob.name,
+															  dup_ob.object.name,
+															  dup_id))
+				dup_node_matrix= dup_ob.matrix
 
-			# For case when dupli is inside other dupli
-			if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
-				# Store parent dupli name
-				parent_dupli=   bus['node']['dupli']['name']
-				dup_node_name+= parent_dupli
+				# For case when dupli is inside other dupli
+				if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+					# Store parent dupli name
+					parent_dupli=   bus['node']['dupli']['name']
+					dup_node_name+= parent_dupli
 
-			bus['node']['dupli']=  {}
-			bus['node']['dupli']['name']=   dup_node_name
-			bus['node']['dupli']['matrix']= dup_node_matrix
+				bus['node']['dupli']=  {}
+				bus['node']['dupli']['name']=   dup_node_name
+				bus['node']['dupli']['matrix']= dup_node_matrix
 
-			_write_object(bus)
+				_write_object(bus)
 
-			bus['node']['object']= ob
-			bus['node']['base']=   ob
-			bus['node']['dupli']=  {}
-			bus['node']['dupli']['name']=   parent_dupli
+				bus['node']['object']= ob
+				bus['node']['base']=   ob
+				bus['node']['dupli']=  {}
+				bus['node']['dupli']['name']=   parent_dupli
 
-		ob.dupli_list_clear()
+			ob.dupli_list_clear()
+	except:
+		pass
 
 
 def _write_object(bus):
