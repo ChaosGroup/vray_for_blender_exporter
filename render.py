@@ -1430,7 +1430,7 @@ def write_scene(bus):
 
 	if bus['preview']:
 		bus['files']['lights'].write("\nLightDirectMax LALamp_008 { // PREVIEW")
-		bus['files']['lights'].write("\n\tintensity= 3.000000;")
+		bus['files']['lights'].write("\n\tintensity= 1.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tshadows= 0;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
@@ -1447,7 +1447,7 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n}\n")
 
 		bus['files']['lights'].write("\nLightSpot LALamp_002 { // PREVIEW")
-		bus['files']['lights'].write("\n\tintensity= 30.000000;")
+		bus['files']['lights'].write("\n\tintensity= 5.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tconeAngle= 1.3;")
 		bus['files']['lights'].write("\n\tpenumbraAngle= -0.4;")
@@ -1469,7 +1469,7 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n}\n")
 
 		bus['files']['lights'].write("\nLightOmni LALamp { // PREVIEW")
-		bus['files']['lights'].write("\n\tintensity= 350.000000;")
+		bus['files']['lights'].write("\n\tintensity= 50.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tshadows= 0;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
@@ -1489,7 +1489,7 @@ def write_scene(bus):
 		bus['files']['lights'].write("\n}\n")
 
 		bus['files']['lights'].write("\nLightOmni LALamp_001 { // PREVIEW")
-		bus['files']['lights'].write("\n\tintensity= 300.000000;")
+		bus['files']['lights'].write("\n\tintensity= 20.000000;")
 		bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
 		bus['files']['lights'].write("\n\tshadows= 0;")
 		bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
