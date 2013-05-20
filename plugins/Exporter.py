@@ -204,10 +204,21 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
-	VRayExporter.active_layers= BoolProperty(
-		name= "Active layers",
-		description= "Render objects only from visible layers",
-		default= True
+	VRayExporter.activeLayers= EnumProperty(
+		name        = "Active layers",
+		description = "Render objects from layers",
+		items = (
+			('ACTIVE', "Active", ""),
+			('ALL',    "All",    ""),
+			('CUSTOM', "Custom", "")
+		),
+		default = 'ACTIVE'
+	)
+
+	VRayExporter.customRenderLayers = BoolVectorProperty(
+		subtype = 'LAYER',
+		# default = [True]*20,
+		size    = 20
 	)
 
 	VRayExporter.auto_meshes= BoolProperty(

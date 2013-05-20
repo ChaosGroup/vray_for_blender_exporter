@@ -884,11 +884,20 @@ def get_full_filepath(bus, ob, filepath):
 	return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
 
 
-
 # True if object on active layer
-def object_on_visible_layers(sce,ob):
+def object_on_visible_layers(scene, ob):
+	VRayScene    = scene.vray
+	VRayExporter = VRayScene.exporter
+
+	activeLayers = scene.layers
+
+	if VRayExporter.activeLayers == 'ALL':
+		return True
+	elif VRayExporter.activeLayers == 'CUSTOM':
+		activeLayers = VRayExporter.customRenderLayers
+
 	for l in range(20):
-		if ob.layers[l] and sce.layers[l]:
+		if ob.layers[l] and activeLayers[l]:
 			return True
 	return False
 
@@ -901,13 +910,12 @@ def object_visible(bus, ob):
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
-	if VRayExporter.active_layers:
-		if not object_on_visible_layers(scene,ob):
-			if ob.type == 'LAMP':
-				if not SettingsOptions.light_doHiddenLights:
-					return False
-			if not SettingsOptions.geom_doHidden:
+	if not object_on_visible_layers(scene,ob):
+		if ob.type == 'LAMP':
+			if not SettingsOptions.light_doHiddenLights:
 				return False
+		if not SettingsOptions.geom_doHidden:
+			return False
 
 	if ob.hide_render:
 		if ob.type == 'LAMP':

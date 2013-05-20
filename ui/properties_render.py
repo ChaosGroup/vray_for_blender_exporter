@@ -248,10 +248,12 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
+		col.prop(VRayExporter, 'activeLayers', text="Layers")
+		if VRayExporter.activeLayers == 'CUSTOM':
+			col.prop(VRayExporter, 'customRenderLayers', text="")
 		col.prop(VRayExporter, 'animation')
 		if not VRayExporter.animation:
 			col.prop(VRayExporter, 'camera_loop')
-		col.prop(VRayExporter, 'active_layers')
 		if VRayScene.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.prop(VRayExporter, 'use_still_motion_blur')
@@ -259,7 +261,6 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		col.prop(VRayExporter, 'draft')
 
 		layout.separator()
-
 		layout.prop(rd, "display_mode", text="Display")
 
 
