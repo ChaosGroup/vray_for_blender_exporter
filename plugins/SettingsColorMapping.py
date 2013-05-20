@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 
@@ -34,13 +34,13 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-TYPE= 'SETTINGS'
-ID=   'SettingsColorMapping'
+TYPE = 'SETTINGS'
+ID   = 'SettingsColorMapping'
 
-NAME= 'Color mapping'
-DESC= "Color mapping options"
+NAME = 'Color mapping'
+DESC = "Color mapping options"
 
-PARAMS= (
+PARAMS = (
 	'type',
 	'affect_background',
 	'dark_mult',
@@ -54,21 +54,52 @@ PARAMS= (
 )
 
 
+def getColorMappingData(scene):
+	TYPE = {
+		'LNR'  : 0,
+		'EXP'  : 1,
+		'HSV'  : 2,
+		'INT'  : 3,
+		'GCOR' : 4,
+		'GINT' : 5,
+		'REIN' : 6,
+	}
+
+	VRayScene            = scene.vray
+	SettingsColorMapping = VRayScene.SettingsColorMapping
+
+	cmData = "\nSettingsColorMapping ColorMapping {"
+	for param in PARAMS:
+		if param == 'type':
+			value = TYPE[SettingsColorMapping.type]
+		else:
+			value = getattr(SettingsColorMapping, param)
+		cmData += "\n\t%s= %s;" % (param, p(value))
+	cmData += "\n}\n"
+
+	return cmData
+
+
+def updatePreviewColorMapping(self, context):
+	if bpy.context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+		open(getColorMappingFilepath(), 'w').write(getColorMappingData(context.scene))
+
+
 def add_properties(rna_pointer):
 	class SettingsColorMapping(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(SettingsColorMapping)
 
 	rna_pointer.SettingsColorMapping= PointerProperty(
-		name= "Color Mapping",
-		type=  SettingsColorMapping,
-		description= "Color mapping settings"
+		name        = "Color Mapping",
+		type        =  SettingsColorMapping,
+		description = "Color mapping settings"
 	)
 
 	SettingsColorMapping.type= EnumProperty(
-		name= "Type",
-		description= "Color mapping type",
-		items= (
+		name        = "Type",
+		description = "Color mapping type",
+		items = (
 			('LNR',"Linear",""),
 			('EXP',"Exponential",""),
 			('HSV',"HSV exponential",""),
@@ -77,12 +108,14 @@ def add_properties(rna_pointer):
 			('GINT',"Intensity gamma",""),
 			('REIN',"Reinhard","")
 		),
-		default= "LNR"
+		update  = updatePreviewColorMapping,
+		default = "LNR"
 	)
 
 	SettingsColorMapping.affect_background= BoolProperty(
 		name= "Affect background",
 		description= "Affect colors belonging to the background",
+		update  = updatePreviewColorMapping,
 		default= True
 	)
 
@@ -93,6 +126,7 @@ def add_properties(rna_pointer):
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
+		update  = updatePreviewColorMapping,
 		default= 1.0
 	)
 
@@ -103,6 +137,7 @@ def add_properties(rna_pointer):
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 1.0,
+		update  = updatePreviewColorMapping,
 		default= 1.0
 	)
 
@@ -113,6 +148,7 @@ def add_properties(rna_pointer):
 		max= 10.0,
 		soft_min= 1.0,
 		soft_max= 2.2,
+		update  = updatePreviewColorMapping,
 		default= 1.0
 	)
 
@@ -123,12 +159,14 @@ def add_properties(rna_pointer):
 		max= 10.0,
 		soft_min= 1.0,
 		soft_max= 2.2,
+		update  = updatePreviewColorMapping,
 		default= 1.0
 	)
 
 	SettingsColorMapping.clamp_output= BoolProperty(
 		name= "Clamp output",
 		description= "Clamp colors after color mapping",
+		update  = updatePreviewColorMapping,
 		default= True
 	)
 
@@ -139,50 +177,37 @@ def add_properties(rna_pointer):
 		max= 100.0,
 		soft_min= 0.0,
 		soft_max= 100.0,
+		update  = updatePreviewColorMapping,
 		default= 1.0
 	)
 
 	SettingsColorMapping.subpixel_mapping= BoolProperty(
 		name= "Sub-pixel mapping",
 		description= "This option controls whether color mapping will be applied to the final image pixels, or to the individual sub-pixel samples",
+		update  = updatePreviewColorMapping,
 		default= False
 	)
 
 	SettingsColorMapping.adaptation_only= BoolProperty(
 		name= "Adaptation only",
 		description= "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly)",
+		update  = updatePreviewColorMapping,
 		default= False
 	)
 
 	SettingsColorMapping.linearWorkflow= BoolProperty(
 		name= "Linear workflow",
 		description= "When this option is checked V-Ray will automatically apply the inverse of the Gamma correction that you have set in the Gamma field to all materials in scene",
+		update  = updatePreviewColorMapping,
 		default= False
 	)
 
 
 def write(bus):
-	TYPE= {
-		'LNR':  0,
-		'EXP':  1,
-		'HSV':  2,
-		'INT':  3,
-		'GCOR': 4,
-		'GINT': 5,
-		'REIN': 6,
-	}
+	if bus['preview']:
+		return
 
-	ofile=  bus['files']['scene']
-	scene=  bus['scene']
+	cmData = getColorMappingData(bus['scene'])
 
-	VRayScene=            scene.vray
-	SettingsColorMapping= VRayScene.SettingsColorMapping
-
-	ofile.write("\n%s %s {" % (ID, ID))
-	for param in PARAMS:
-		if param == 'type':
-			value= TYPE[SettingsColorMapping.type]
-		else:
-			value= getattr(SettingsColorMapping, param)
-		ofile.write("\n\t%s= %s;" % (param, p(value)))
-	ofile.write("\n}\n")
+	bus['files']['colorMapping'].write(cmData)
+	bus['files']['scene'].write(cmData)

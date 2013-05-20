@@ -972,6 +972,10 @@ def get_vray_exporter_path():
 	return ""
 
 
+def getColorMappingFilepath():
+	return os.path.join(tempfile.gettempdir(), "colorMapping_%s.vrscene" % (get_username()))
+
+
 # Detects V-Ray Standalone installation
 def get_vray_standalone_path(sce):
 	VRayExporter= sce.vray.exporter
@@ -1066,7 +1070,7 @@ def init_files(bus):
 		export_filename = blendfile_name
 
 	# Distributed rendering
-	# filepath is relative= blend-file-name/filename
+	# filepath is relative = blend-file-name/filename
 	if VRayDR.on:
 		abs_shared_dir  = os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
 		export_filepath = os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
@@ -1099,6 +1103,13 @@ def init_files(bus):
 				filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
 			bus['files'][key] = open(filepath, 'w')
 		bus['filenames'][key] = filepath
+
+	# Duplicate "Color mapping" setting to a separate file for correct preview
+	#
+	cmFilepath = getColorMappingFilepath()
+	bus['filenames']['colorMapping'] = cmFilepath
+	if not bus['preview']:
+		bus['files']['colorMapping'] = open(cmFilepath, 'w')
 
 	# Render output dir
 	bus['filenames']['output'] = create_dir(output_filepath)

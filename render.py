@@ -479,34 +479,6 @@ def write_settings(bus):
 	if VRayExporter.meshExportThreads:
 		threadCount = VRayExporter.meshExportThreads
 
-	for key in bus['filenames']:
-		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
-			# Skip some files
-			continue
-
-		if VRayDR.on:
-			if key == 'geometry':
-				for t in range(threadCount):
-					if VRayDR.type == 'WW':
-						ofile.write("\n#include \"//%s/%s/%s/%s_%.2i.vrscene\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames']['geometry'][:-11]), t))
-					else:
-						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
-			else:
-				if VRayDR.type == 'WW':
-					ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames'][key])))
-				else:
-					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
-		else:
-			if key == 'geometry':
-				if bus['preview']:
-					ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
-				else:
-					for t in range(threadCount):
-						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
-			else:
-				ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
-	ofile.write("\n")
-
 	for key in PLUGINS['SETTINGS']:
 		if key in ('BakeView', 'RenderView'):
 			# Skip some plugins
@@ -551,13 +523,6 @@ def write_settings(bus):
 			bus['files']['scene'].write("\n}\n")
 
 		bus['files']['scene'].write("\n// Preview settings")
-		bus['files']['scene'].write("\nSettingsColorMapping {")
-		bus['files']['scene'].write("\n\ttype= 1;")
-		bus['files']['scene'].write("\n\tsubpixel_mapping= 0;")
-		bus['files']['scene'].write("\n\tclamp_output= 0;")
-		bus['files']['scene'].write("\n\tadaptation_only= 0;")
-		bus['files']['scene'].write("\n\tlinearWorkflow= 0;")
-		bus['files']['scene'].write("\n}\n")
 		bus['files']['scene'].write("\nSettingsDMCSampler {")
 		bus['files']['scene'].write("\n\tadaptive_amount= 0.99;")
 		bus['files']['scene'].write("\n\tadaptive_threshold= 0.2;")
@@ -593,6 +558,38 @@ def write_settings(bus):
 		bus['files']['scene'].write("\nSettingsImageSampler {")
 		bus['files']['scene'].write("\n\ttype= 1;")
 		bus['files']['scene'].write("\n}\n")
+
+	for key in bus['filenames']:
+		if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
+			# Skip some files
+			continue
+
+		if VRayDR.on:
+			if key == 'geometry':
+				for t in range(threadCount):
+					if VRayDR.type == 'WW':
+						ofile.write("\n#include \"//%s/%s/%s/%s_%.2i.vrscene\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames']['geometry'][:-11]), t))
+					else:
+						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
+			else:
+				if VRayDR.type == 'WW':
+					ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames'][key])))
+				else:
+					ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
+		else:
+			if key == 'geometry':
+				if bus['preview']:
+					ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
+				else:
+					for t in range(threadCount):
+						ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+			else:
+				if bus['preview'] and key == 'colorMapping':
+					if os.path.exists(bus['filenames'][key]):
+						ofile.write("\n#include \"%s\"" % bus['filenames'][key])
+				else:
+					ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
+	ofile.write("\n")
 
 
 
