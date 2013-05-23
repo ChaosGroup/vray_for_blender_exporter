@@ -21,7 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 ''' Blender modules '''
@@ -103,7 +103,7 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	TYPE= {
+	TYPE = {
 		'DEFAULT':           0,
 		'SPHERIFICAL':       1,
 		'CYLINDRICAL_POINT': 2,
@@ -115,25 +115,31 @@ def write(bus):
 		'PINHOLE':           8,
 	}
 
-	ofile=  bus['files']['camera']
-	scene=  bus['scene']
-	camera= bus['camera']
+	ofile  = bus['files']['scene']
+	scene  = bus['scene']
+	camera = bus['camera']
 
-	VRayCamera=     camera.data.vray
-	SettingsCamera= VRayCamera.SettingsCamera
+	VRayCamera     = camera.data.vray
+	SettingsCamera = VRayCamera.SettingsCamera
+	CameraPhysical = VRayCamera.CameraPhysical
 
-	fov= VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+	fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
 
-	aspect= scene.render.resolution_x / scene.render.resolution_y
+	aspect = scene.render.resolution_x / scene.render.resolution_y
 
 	if aspect < 1.0:
-		fov= fov * aspect
+		fov = fov * aspect
 
+	ofile.write("\n// Camera: %s" % (camera.name))
 	ofile.write("\nSettingsCamera CA%s {" % clean_string(camera.name))
 	if camera.data.type == 'ORTHO':
-		ofile.write("\n\ttype= 7;")
-		ofile.write("\n\theight= %s;" % a(scene, camera.data.ortho_scale))
+		ofile.write("\n\ttype=7;")
+		ofile.write("\n\theight=%s;" % a(scene, camera.data.ortho_scale))
+	# # We must use 8 if we want to change the fov from RenderView. If we use 0, we must change it from the physical camera
+	# # We must set the camera type to "pinhole" to make the physical camera match the other fov
+	# elif CameraPhysical.use:
+	# 	ofile.write("\n\ttype=8;")
 	else:
-		ofile.write("\n\ttype= %i;" % TYPE[SettingsCamera.type])
-	ofile.write("\n\tfov= %s;" % a(scene, fov))
+		ofile.write("\n\ttype=%i;" % TYPE[SettingsCamera.type])
+	ofile.write("\n\tfov=-1;")
 	ofile.write("\n}\n")

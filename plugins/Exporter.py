@@ -316,3 +316,12 @@ def add_properties(rna_pointer):
 		description = "[TODO] V-Ray Standalone socket interface address",
 		default     = "localhost"
 	)
+
+	VRayExporter.customFrame = IntProperty(
+		name        = "Custom Frame",
+		description = "Custom frame number",
+		options     = {'HIDDEN'},
+		min         = 0,
+		max         = 1024,
+		default     = 0
+	)

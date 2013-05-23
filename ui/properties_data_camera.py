@@ -83,7 +83,7 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 			col= split.column()
 			if ca.lens_unit == 'MILLIMETERS':
 				col.prop(ca, 'lens', text="Angle")
-			elif ca.lens_unit == 'DEGREES':
+			else:
 				col.prop(ca, 'angle')
 			if wide_ui:
 				col= split.column()

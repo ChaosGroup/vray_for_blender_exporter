@@ -381,6 +381,7 @@ def write(bus):
 		focus_distance= 200.0
 
 	if CameraPhysical.use:
+		ofile.write("\n// Camera: %s" % (camera.name))
 		ofile.write("\nCameraPhysical PhysicalCamera {")
 		ofile.write("\n\ttype= %d;" % TYPE[CameraPhysical.type])
 		ofile.write("\n\tspecify_focus= 1;")

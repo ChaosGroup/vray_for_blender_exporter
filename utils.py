@@ -549,7 +549,15 @@ def p(t):
 
 # Animated property
 def a(scene, t):
-	return "interpolate((%i,%s))" % (scene.frame_current, p(t))
+	VRayScene    = scene.vray
+	VRayExporter = VRayScene.exporter
+
+	frame = scene.frame_current
+
+	if VRayExporter.camera_loop:
+		frame = VRayExporter.customFrame
+
+	return "interpolate((%i,%s))" % (frame, p(t))
 
 
 # Hex value format

@@ -479,6 +479,9 @@ def write_settings(bus):
 	if VRayExporter.meshExportThreads:
 		threadCount = VRayExporter.meshExportThreads
 
+	PLUGINS['CAMERA']['SettingsCamera'].write(bus)
+	PLUGINS['CAMERA']['SettingsMotionBlur'].write(bus)
+
 	for key in PLUGINS['SETTINGS']:
 		if key in ('BakeView', 'RenderView'):
 			# Skip some plugins
@@ -1566,7 +1569,8 @@ def write_scene(bus):
 		if VRayExporter.camera_loop:
 			for key in bus['files']:
 				if key in ('nodes','camera'):
-					bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
+					# bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
+					pass
 		else:
 			# Camera
 			bus['camera']= scene.camera
@@ -1608,11 +1612,9 @@ def write_scene(bus):
 
 			_write_object(bus)
 
+		PLUGINS['CAMERA']['CameraPhysical'].write(bus)
 		PLUGINS['SETTINGS']['BakeView'].write(bus)
 		PLUGINS['SETTINGS']['RenderView'].write(bus)
-		PLUGINS['CAMERA']['SettingsCamera'].write(bus)
-		PLUGINS['CAMERA']['CameraPhysical'].write(bus)
-		PLUGINS['CAMERA']['SettingsMotionBlur'].write(bus)
 
 		debug(scene, "Writing frame {0}... done {1:<64}".format(scene.frame_current, "[%.2f]"%(time.clock() - timer)))
 
@@ -1639,8 +1641,9 @@ def write_scene(bus):
 		if VRayExporter.camera_loop:
 			if bus['cameras']:
 				for i,camera in enumerate(bus['cameras']):
-					bus['camera']= camera
-					bus['camera_index']= i
+					bus['camera'] = camera
+					bus['camera_index'] = i
+					VRayExporter.customFrame = i+1
 					write_frame(bus)
 			else:
 				debug(scene, "No cameras selected for \"Camera loop\"!", error= True)

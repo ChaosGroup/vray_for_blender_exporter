@@ -130,15 +130,16 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	ofile  = bus['files']['camera']
+	ofile  = bus['files']['scene']
 	scene  = bus['scene']
 	camera = bus['camera']
 
 	VRayCamera         = camera.data.vray
 	SettingsMotionBlur = VRayCamera.SettingsMotionBlur
 
-	ofile.write("\n%s %s {" % (ID,ID))
-	for param in PARAMS:
-		value = getattr(SettingsMotionBlur, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
-	ofile.write("\n}\n")
+	if SettingsMotionBlur.on:
+		ofile.write("\n%s %s {" % (ID,ID))
+		for param in PARAMS:
+			value = getattr(SettingsMotionBlur, param)
+			ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n}\n")
