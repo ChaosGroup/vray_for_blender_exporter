@@ -50,6 +50,8 @@ PLUGINS= {
 	'SLOT':          {},
 	'TEXTURE':       {},
 	'WORLD':         {},
+
+	'NODE':          {},
 }
 
 
@@ -155,9 +157,21 @@ def add_properties():
 			description = "Don't override material",
 			default     = False
 		)
+
+		nodetree = StringProperty(
+			name        = "Node Tree",
+			description = "Name of the shader node tree for material",
+			default     = ""
+		)
 	bpy.utils.register_class(VRayMaterial)
 
 	class VRayLight(bpy.types.PropertyGroup):
+		nodetree = StringProperty(
+			name        = "Node Tree",
+			description = "Name of the shader node tree for lamp",
+			default     = ""
+		)
+
 		dome_targetRadius= FloatProperty(
 			name= "Target Radius",
 			description= "Target Radius",
@@ -1765,6 +1779,9 @@ def add_properties():
 
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRaySlot)
+
+	for key in PLUGINS['NODE']:
+		PLUGINS['NODE'][key].register()
 
 	for key in PLUGINS['BRDF']:
 		if key != 'BRDFBump':

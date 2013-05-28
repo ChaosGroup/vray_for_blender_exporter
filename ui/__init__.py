@@ -21,12 +21,12 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-  
+
 '''
 
 from vb25.ui import properties_data_geometry
 from vb25.ui import properties_data_camera
-from vb25.ui import properties_data_lamp 
+from vb25.ui import properties_data_lamp
 from vb25.ui import properties_material
 from vb25.ui import properties_object
 from vb25.ui import properties_particles

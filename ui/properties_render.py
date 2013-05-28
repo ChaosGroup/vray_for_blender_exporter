@@ -1210,6 +1210,7 @@ class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.prop_search(VRayBake, 'bake_node',  context.scene, 'objects')
+		col.prop(VRayBake, 'uvChannel')
 		if wide_ui:
 			col= split.column()
 		col.prop(VRayBake, 'dilation')
@@ -1311,12 +1312,11 @@ class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="V-Ray/Blender 2.5 (git)")
+		col.label(text="V-Ray/Blender")
 		col.separator()
-		col.label(text="Author: Andrey M. Izrantsev")
+		col.label(text="Developer: Andrey Izrantsev")
 		col.label(text="URL: http://vray.cgdo.ru")
 		col.label(text="Email: izrantsev@cgdo.ru")
-		col.label(text="Jabber: izrantsev@gmail.com")
 		col.separator()
 		col.label(text="IRC: irc.freenode.net #vrayblender")
 		col.separator()
