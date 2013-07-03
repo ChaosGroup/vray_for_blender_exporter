@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.plugins import BRDFVRayMtl
+
 
 TYPE = 'NODE'
 ID   = 'MaterialNodes'
@@ -32,19 +34,39 @@ PID  = 1
 
 
 # Shortcut for node type menu
-def add_nodetype(layout, type):
-    layout.operator("node.add_node", text=type.bl_label).type = type.bl_rna.identifier
+#
+def add_nodetype(layout, t):
+    layout.operator("node.add_node", text=t.bl_label).type=t.bl_rna.identifier
 
 
-class VRayNodeTree(bpy.types.NodeTree):
-    bl_label  = "V-Ray Node Tree"
-    bl_idname = 'VRayShaderTreeType'
-    bl_icon   = 'MATERIAL'
-
+class VRayData:
     @classmethod
     def poll(cls, context):
-        return True
         return context.scene.render.engine in ['VRAY_RENDER', 'VRAY_RENDER_PREVIEW']
+
+
+# V-Ray Nodes menu
+#
+class VRayNodesMenu(bpy.types.Menu, VRayData):
+    bl_idname = "VRayNodesMenu"
+    bl_label  = "V-Ray Nodes"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeVRayMtl)
+        add_nodetype(self.layout, bpy.types.VRayNodeBRDFLayered)
+        add_nodetype(self.layout, bpy.types.VRayNodeOutput)
+
+
+# Menu extention function for 'NODE_MT_add'
+#
+def vray_shader_nodes_menu(self, context):
+    self.layout.menu("VRayNodesMenu", icon='VRAY_LOGO')
+
+
+class VRayNodeTree(bpy.types.NodeTree, VRayData):
+    bl_label  = "V-Ray Node Tree"
+    bl_idname = 'VRayShaderTreeType'
+    bl_icon   = 'VRAY_LOGO'
 
     # Return a node tree from the context to be used in the editor
     @classmethod
@@ -54,39 +76,72 @@ class VRayNodeTree(bpy.types.NodeTree):
             ma = ob.active_material
             if ma != None:
                 nt_name = ma.vray.nodetree
-                if nt_name != '':
+                if nt_name != '' and nt_name in bpy.data.node_groups:
                     return bpy.data.node_groups[ma.vray.nodetree], ma, ma
         elif ob and ob.type == 'LAMP':
             la = ob.data
             nt_name = la.vray.nodetree
-            if nt_name != '':
+            if nt_name != '' and nt_name in bpy.data.node_groups:
                 return bpy.data.node_groups[la.vray.nodetree], la, la
         return (None, None, None)
 
+    # BUG: This doesn't work. Using manual menu extension by now
+    #
     def draw_add_menu(self, context, layout):
         layout.label("V-Ray")
-        add_nodetype(layout, bpy.types.VRayCustomNode)
+        add_nodetype(layout, bpy.types.VRayTestNode)
+
+
+class MyCustomSocket(bpy.types.NodeSocket):
+    # Description string
+    '''Custom node socket type'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'CustomSocketType'
+    # Label for nice name display
+    bl_label = 'Custom Node Socket'
+
+    # Enum items list
+    my_items = [
+        ("DOWN", "Down", "Where your feet are"),
+        ("UP", "Up", "Where your head should be"),
+        ("LEFT", "Left", "Not right"),
+        ("RIGHT", "Right", "Not left")
+    ]
+
+    myEnumProperty = bpy.props.EnumProperty(name="Direction", description="Just an example", items=my_items, default='UP')
+
+    # Optional function for drawing the socket input value
+    def draw(self, context, layout, node, text):
+        if self.is_linked:
+            layout.label(text)
+        else:
+            layout.prop(self, "myEnumProperty", text=text)
+
+    # Socket color
+    def draw_color(self, context, node):
+        return (1.0, 0.4, 0.216, 0.5)
 
 
 # Base class for all custom nodes in this tree type.
 # Defines a poll function to enable instantiation.
 class VRayTreeNode:
     @classmethod
-    def poll(cls, ntree):
-        return ntree.bl_idname == 'VRayShaderTreeType'
+    def poll(cls, node_tree):
+        return node_tree.bl_idname == 'VRayShaderTreeType'
 
 
-class VRayCustomNode(bpy.types.Node, VRayTreeNode):
-    bl_label  = 'V-Ray Node'
-    bl_idname = 'VRayTestNode'
+class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
+    bl_idname = 'VRayNodeOutput'
+    bl_label  = 'Output'
     bl_icon   = 'VRAY_LOGO'
 
-    # === Custom Properties ===
-    # These work just like custom properties in ID data blocks
-    # Extensive information can be found under
-    # http://wiki.blender.org/index.php/Doc:2.6/Manual/Extensions/Python/Properties
-    myStringProperty = bpy.props.StringProperty()
-    myFloatProperty = bpy.props.FloatProperty(default=3.1415926)
+    # BUG: This doesn't work
+    def poll_instance(self, node_tree):
+        # There could be only one output node
+        for n in node_tree.nodes:
+            if n.bl_idname == self.bl_idname:
+                return None
+        return True
 
     # === Optional Functions ===
     # Initialization function, called when a new node is created.
@@ -94,13 +149,8 @@ class VRayCustomNode(bpy.types.Node, VRayTreeNode):
     # NOTE: this is not the same as the standard __init__ function in Python, which is
     #       a purely internal Python method and unknown to the node system!
     def init(self, context):
-        self.inputs.new('CustomSocketType', "Hello")
-        self.inputs.new('NodeSocketFloat', "World")
-        self.inputs.new('NodeSocketVector', "!")
-
-        self.outputs.new('NodeSocketColor', "How")
-        self.outputs.new('NodeSocketColor', "are")
-        self.outputs.new('NodeSocketFloat', "you")
+        self.inputs.new('NodeSocketColor', "Color")
+        self.inputs.new('NodeSocketColor', "Volume")
 
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
@@ -112,50 +162,117 @@ class VRayCustomNode(bpy.types.Node, VRayTreeNode):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
-        layout.label("Node settings")
-        layout.prop(self, "myFloatProperty")
+        # layout.label("Node settings")
+        # layout.prop(self, "myFloatProperty")
+        # layout.prop(self, "myStringProperty")
+        pass
 
     # Detail buttons in the sidebar.
     # If this function is not defined, the draw_buttons function is used instead
     def draw_buttons_ext(self, context, layout):
-        layout.prop(self, "myFloatProperty")
-        # myStringProperty button will only be visible in the sidebar
-        layout.prop(self, "myStringProperty")
+        # layout.menu("VRayNodesMenu", icon='VRAY_LOGO', text="Create Node")
+        pass
 
 
-# A customized group-like node.
-class MyCustomGroup(bpy.types.NodeGroup, VRayTreeNode):
-    # === Basics ===
-    # Description string
-    '''A custom group node'''
-    # Label for nice name display
-    bl_label = 'Custom Group Node'
-    bl_group_tree_idname = 'CustomTreeType'
+class VRayNodeBRDFVRayMtl(bpy.types.Node, VRayTreeNode):
+    bl_idname = 'VRayNodeVRayMtl'
+    bl_label  = 'VRayMtl'
+    bl_icon   = 'VRAY_LOGO'
 
-    orks = bpy.props.IntProperty(default=3)
-    dwarfs = bpy.props.IntProperty(default=12)
-    wizards = bpy.props.IntProperty(default=1)
+    showAll = bpy.props.BoolProperty(
+        name        = "Show All",
+        description = "Show all properties",
+        default     = False
+    )
 
-    # Additional buttons displayed on the node.
+    def init(self, context):
+        self.inputs.new('NodeSocketColor', "Diffuse")
+        self.outputs.new('NodeSocketColor', "Output")
+
     def draw_buttons(self, context, layout):
-        col = layout.column(align=True)
-        col.prop(self, "orks")
-        col.prop(self, "dwarfs")
-        col.prop(self, "wizards")
+        layout.prop(self, 'showAll')
 
-        layout.label("The Node Tree:")
-        layout.prop(self, "node_tree", text="")
+        if self.showAll:
+            BRDFVRayMtl.gui(context, layout.box(), self.BRDFVRayMtl, node=self)
+
+    def draw_buttons_ext(self, context, layout):
+        BRDFVRayMtl.gui(context, layout, self.BRDFVRayMtl)
+
+
+class VRayNodeBRDFLayered(bpy.types.Node, VRayTreeNode):
+    bl_idname = 'VRayNodeBRDFLayered'
+    bl_label  = 'VRayBlendMtl'
+    bl_icon   = 'VRAY_LOGO'
+
+    additive_mode = bpy.props.BoolProperty(
+        name        = "Additive Mode",
+        description = "Additive mode",
+        default     = False
+    )
+
+    def init(self, context):
+        # BUG: Adding new sockets doesn't update existing nodes
+        #
+        self.inputs.new('NodeSocketColor', "Material1")
+        self.inputs.new('NodeSocketFloat', "Weight1")
+
+        self.inputs.new('NodeSocketColor', "Material2")
+        self.inputs.new('NodeSocketFloat', "Weight2")
+
+        self.inputs.new('NodeSocketColor', "Material3")
+        self.inputs.new('NodeSocketFloat', "Weight3")
+
+        self.outputs.new('NodeSocketColor', "Output")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'additive_mode')
+
+
+class VRAY_OT_add_nodetree(bpy.types.Operator):
+    bl_idname      = "vray.add_material_nodes"
+    bl_label       = "Use Nodes"
+    bl_description = ""
+
+    def execute(self, context):
+        idblock = context.material
+
+        nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
+        nt.use_fake_user = True
+
+        idblock.vray.nodetree = nt.name
+
+        nt.nodes.new('VRayNodeOutput')
+
+        return {'FINISHED'}
 
 
 def register():
     bpy.utils.register_class(VRayNodeTree)
-    bpy.utils.register_class(VRayCustomNode)
+    bpy.utils.register_class(MyCustomSocket)
+
+    bpy.utils.register_class(VRayNodeBRDFVRayMtl)
+    BRDFVRayMtl.add_properties(VRayNodeBRDFVRayMtl)
+
+    bpy.utils.register_class(VRayNodeBRDFLayered)
+    bpy.utils.register_class(VRayNodeOutput)
+
+    bpy.utils.register_class(VRayNodesMenu)
+
+    bpy.utils.register_class(VRAY_OT_add_nodetree)
+
+    bpy.types.NODE_MT_add.append(vray_shader_nodes_menu)
 
 
 def unregister():
     bpy.utils.unregister_class(VRayNodeTree)
-    bpy.utils.unregister_class(VRayCustomNode)
+    bpy.utils.unregister_class(MyCustomSocket)
 
+    bpy.utils.unregister_class(VRayNodeBRDFVRayMtl)
+    bpy.utils.unregister_class(VRayNodeBRDFLayered)
+    bpy.utils.unregister_class(VRayNodeOutput)
 
-if __name__ == "__main__":
-    register()
+    bpy.utils.unregister_class(VRayNodesMenu)
+
+    bpy.utils.unregister_class(VRAY_OT_add_nodetree)
+
+    bpy.types.NODE_MT_add.remove(vray_shader_nodes_menu)

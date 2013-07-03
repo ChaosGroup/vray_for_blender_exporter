@@ -92,6 +92,13 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	# Bake Tools
+	VRayBake.bake_material = StringProperty(
+		name = "Material",
+		subtype = 'NONE'
+	)
+
+
 
 def write(bus):
 	ofile=  bus['files']['camera']

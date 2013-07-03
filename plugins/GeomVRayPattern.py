@@ -24,6 +24,7 @@
 
 # Blender modules
 import bpy
+import mathutils
 
 # V-Ray/Blender modules
 import vb25
@@ -262,6 +263,9 @@ def write(bus):
 			value = '"%s"' % ('VRayPattern'+vb25.utils.get_name(ob, prefix='OB'))
 		elif param == 'base_name':
 			value = '"%s"' % (vb25.utils.get_name(ob, prefix='OB'))
+		elif param == 'crop_size':
+			crop_size = GeomVRayPattern.crop_size
+			value = mathutils.Vector((crop_size.x, crop_size.z, crop_size.y))
 		elif param == 'pattern_name':
 			pattern_name = GeomVRayPattern.pattern_object
 			if pattern_name in scene.objects:
@@ -271,7 +275,8 @@ def write(bus):
 				value = '""'
 		else:
 			value = getattr(GeomVRayPattern, param)
-		ofile.write("\n\t%s=%s;" % (param, vb25.utils.p(value)))
+		ofile.write("\n\t%s=%s;" % (param, vb25.utils.a(scene, value)))
+	ofile.write("\n\tuse_base_map_channel=0;")
 	ofile.write("\n}\n")
 
 	return None

@@ -34,6 +34,7 @@ from vb25.ui.ui import *
 from vb25.plugins import *
 
 from bl_ui.properties_material import active_node_mat
+from bl_ui.properties_texture  import id_tex_datablock
 
 from bpy.types import Brush, Lamp, Material, Object, ParticleSettings, Texture, World
 
@@ -62,7 +63,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 		pin_id = space.pin_id
 
 		if space.use_pin_id and not isinstance(pin_id, bpy.types.Texture):
-			idblock = pin_id
+			idblock = id_tex_datablock(pin_id)
 			pin_id = None
 
 		if not space.use_pin_id:

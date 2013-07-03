@@ -101,7 +101,18 @@ class VRayMaterialPanel():
 
 	@classmethod
 	def poll(cls, context):
-		return engine_poll(cls, context)
+		if not engine_poll(cls, context):
+			return False
+
+		ma = context.material
+		if not ma:
+			return False
+
+		VRayMaterial = ma.vray
+		if VRayMaterial.nodetree:
+			return False
+
+		return True
 
 
 class VRayObjectPanel():

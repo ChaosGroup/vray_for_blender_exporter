@@ -1799,3 +1799,6 @@ def remove_properties():
 	del bpy.types.Object.vray
 	del bpy.types.Scene.vray
 	del bpy.types.Texture.vray
+
+	for key in PLUGINS['NODE']:
+		PLUGINS['NODE'][key].unregister()

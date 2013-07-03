@@ -105,7 +105,9 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				split.template_ID(ob, "active_material", new="material.new")
 				row = split.row()
 				if mat:
-					row.prop(mat, "use_nodes", icon="NODETREE", text="")
+					VRayMaterial = mat.vray
+					if VRayMaterial.nodetree == "":
+						row.operator("vray.add_material_nodes", icon='NODETREE', text="")
 
 				if slot:
 					row.prop(slot, "link", text="")
@@ -121,19 +123,22 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				layout.template_ID(space, "pin_id")
 
 		if mat:
-			VRayMaterial= mat.vray
+			VRayMaterial = mat.vray
 
-			split= layout.split()
-			col= split.column()
-			col.label(text="Simple materials:")
-			if wide_ui:
-				col= split.column()
-			col.menu('VRAY_MT_preset_material', text="Preset")
-
-			if wide_ui:
-				layout.prop(VRayMaterial, 'type', expand=True)
+			if VRayMaterial.nodetree != "":
+				layout.prop_search(VRayMaterial, "nodetree", bpy.data, "node_groups")
 			else:
-				layout.prop(VRayMaterial, 'type')
+				split= layout.split()
+				col= split.column()
+				col.label(text="Simple materials:")
+				if wide_ui:
+					col= split.column()
+				col.menu('VRAY_MT_preset_material', text="Preset")
+
+				if wide_ui:
+					layout.prop(VRayMaterial, 'type', expand=True)
+				else:
+					layout.prop(VRayMaterial, 'type')
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
@@ -143,8 +148,11 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		material= active_node_mat(context.material)
+		material = active_node_mat(context.material)
 		if material is None:
+			return False
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
 			return False
 		return engine_poll(__class__, context)
 
@@ -169,10 +177,12 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		material= active_node_mat(context.material)
+		material = active_node_mat(context.material)
 		if material is None:
 			return False
-		VRayMaterial= material.vray
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
+			return False
 		return VRayMaterial.type == 'BRDFVRayMtl' and engine_poll(__class__, context)
 
 	def draw(self, context):
@@ -193,6 +203,12 @@ class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
+		material = active_node_mat(context.material)
+		if material is None:
+			return False
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
+			return False
 		return active_node_mat(context.material) and engine_poll(__class__, context)
 
 	def draw_header(self, context):
@@ -251,7 +267,13 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return active_node_mat(context.material) and engine_poll(__class__, context)
+		material = active_node_mat(context.material)
+		if material is None:
+			return False
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
+			return False
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ma= active_node_mat(context.material)
@@ -296,7 +318,13 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		return active_node_mat(context.material) and engine_poll(__class__, context)
+		material = active_node_mat(context.material)
+		if material is None:
+			return False
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
+			return False
+		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		mat= active_node_mat(context.material)
@@ -372,8 +400,11 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
+		material = active_node_mat(context.material)
+		if material is None:
+			return False
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
 			return False
 		return engine_poll(__class__, context)
 
@@ -406,11 +437,13 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		active_ma= active_node_mat(context.material)
-		if active_ma is None:
+		material = active_node_mat(context.material)
+		if material is None:
 			return False
-		vma= active_ma.vray
-		return engine_poll(__class__, context) and not (vma.type == 'EMIT' and vma.emitter_type == 'MESH') and not vma.type == 'VOL'
+		VRayMaterial = material.vray
+		if VRayMaterial.nodetree:
+			return False
+		return engine_poll(__class__, context) and not (VRayMaterial.type == 'EMIT' and VRayMaterial.emitter_type == 'MESH') and not VRayMaterial.type == 'VOL'
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui

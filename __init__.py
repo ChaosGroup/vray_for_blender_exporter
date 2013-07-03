@@ -61,7 +61,7 @@ def unregister():
 	wm = bpy.context.window_manager
 	kc = wm.keyconfigs.addon
 	if kc:
-		km = kc.addon.keymaps['Screen']
+		km = kc.keymaps['Screen']
 		for kmi in km.keymap_items:
 			if kmi.idname == 'vray.render':
 				km.keymap_items.remove(kmi)

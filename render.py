@@ -1727,20 +1727,20 @@ def run(bus):
 				params.append('-region=')
 			params.append("%i;%i;%i;%i" % (x0,y0,x1,y1))
 
-		params.append('-frames=')
 		if VRayExporter.use_still_motion_blur:
-			params.append("%d" % scene.frame_end)
+			params.append("-frames=%d" % scene.frame_end)
 		else:
 			if VRayExporter.animation:
+				params.append("-frames")
 				if VRayExporter.animation_type == 'FRAMEBYFRAME':
 					params.append("%d"%(scene.frame_current))
 				else:
 					params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end, int(scene.frame_step)))
 			elif VRayExporter.camera_loop:
 				if bus['cameras']:
-					params.append("1-%d,1" % len(bus['cameras']))
-			else:
-				params.append("%d" % scene.frame_current)
+					params.append("-frames=1-%d,1" % len(bus['cameras']))
+			# else:
+			# 	params.append("%d" % scene.frame_current)
 
 		if VRayDR.on:
 			if len(VRayDR.nodes):

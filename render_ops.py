@@ -36,6 +36,7 @@ import sys
 
 ''' Blender modules '''
 import bpy
+import bgl
 from bpy.props import *
 
 ''' vb modules '''
@@ -47,7 +48,7 @@ from vb25.utils   import *
 from vb25.plugins import *
 
 
-VRAYBLENDER_MENU_ITEM= "V-Ray 2.0"
+VRAYBLENDER_MENU_ITEM= "V-Ray"
 
 
 '''
@@ -1010,6 +1011,16 @@ class VRayRenderer(bpy.types.RenderEngine):
 	bl_idname      = 'VRAY_RENDER'
 	bl_label       = "%s" % VRAYBLENDER_MENU_ITEM
 	bl_use_preview =  False
+
+	# def view_update(self, context):
+	# 	pass
+
+	# def view_draw(self, context):
+	# 	w = context.region.width
+	# 	h = context.region.height
+
+	# 	bgl.glColor3f(1.0, 0.5, 0.0)
+	# 	bgl.glRectf(0, 0, w, h)
 
 	def render(self, scene):
 		VRayScene= scene.vray

@@ -846,8 +846,9 @@ def gui_options(context, layout, BRDFVRayMtl, material= None):
 	col.prop(BRDFVRayMtl, 'environment_priority')
 
 
-def gui(context, layout, BRDFVRayMtl, material= None):
-	wide_ui= context.region.width > narrowui
+def gui(context, layout, BRDFVRayMtl, material=None, node=None):
+	contextWidth = node.width if node else context.region.width
+	wide_ui = contextWidth > narrowui
 
 	row= layout.row()
 	colL= row.column()
