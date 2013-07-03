@@ -536,6 +536,8 @@ def p(t):
 		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
 	elif type(t) is mathutils.Color:
 		return "Color(%.3f,%.3f,%.3f)"%(t.r,t.g,t.b)
+	elif len(t) == 4 and type(t[0]) is float:
+		return "AColor(%.3f,%.3f,%.3f,%.3f)"%(t[0],t[1],t[2],t[3])
 	elif type(t) is str:
 		if t == "True":
 			return "1"
