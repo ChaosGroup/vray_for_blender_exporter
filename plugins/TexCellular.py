@@ -75,6 +75,13 @@ def add_properties(rna_pointer):
 		description= "V-Ray TexCellular settings"
 	)
 
+	# use_3d_mapping
+	TexCellular.use_3d_mapping= BoolProperty(
+		name= "use 3d mapping",
+		description= "",
+		default= True
+	)
+
 	# center_color: acolor texture
 	TexCellular.center_color = FloatVectorProperty(
 		name= "Center Color",
