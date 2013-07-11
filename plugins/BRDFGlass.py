@@ -50,6 +50,7 @@ PARAMS= (
 	'transparency_tex',
 	'transparency_tex_mult',
 	'ior',
+	'ior_tex',
 	'cutoff',
 	'affect_shadows',
 	'affect_alpha',
@@ -59,7 +60,6 @@ PARAMS= (
 	'reflect_exit_color',
 	'refract_exit_color',
 #	'volume',
-	'ior_tex',
 )
 
 
@@ -148,6 +148,13 @@ def add_properties(rna_pointer):
 		soft_max= 10.0,
 		precision= 3,
 		default= 1.55
+	)
+
+	#  ior_tex: float texture
+	BRDFGlass.ior_tex= StringProperty(
+		name= "IOR Texture",
+		description= "IOR Texture",
+		default= ""
 	)
 
 	#  cutoff: float = 0.01
@@ -244,17 +251,7 @@ def add_properties(rna_pointer):
 
 	#  volume: plugin
 
-	#  ior_tex: float texture
-	BRDFGlass.ior_tex= FloatProperty(
-		name= "IOR Texture",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.8
-	)
+
 
 
 
@@ -278,7 +275,7 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 	ofile.write("\n%s %s {" % ('BRDFGlass', brdf_name))
 	for param in PARAMS:
-		if param.endswith('_tex') and param !='ior_tex':
+		if param.endswith('_tex'):
 			continue
 		elif (param == 'affect_alpha'):
 			value= AFFECT_ALPHA[BRDFGlass.affect_alpha]
@@ -325,7 +322,7 @@ def gui(context, layout, BRDFGlass):
 	col= split.column(align=True)
 	col.prop(BRDFGlass, 'ior')
 	col.prop_search(BRDFGlass, 'ior_tex',
-					bpy.data, 'ior texture',
+					bpy.data, 'textures',
 					text= "")
 	col.prop(BRDFGlass, 'affect_shadows')
 	if BRDFGlass.affect_shadows:
