@@ -1731,7 +1731,7 @@ def run(bus):
 			params.append("-frames=%d" % scene.frame_end)
 		else:
 			if VRayExporter.animation:
-				params.append("-frames")
+				params.append("-frames=")
 				if VRayExporter.animation_type == 'FRAMEBYFRAME':
 					params.append("%d"%(scene.frame_current))
 				else:
