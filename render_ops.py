@@ -98,7 +98,12 @@ class VRAY_OT_update(bpy.types.Operator):
 		debug(context.scene, "Copying new files...")
 		if os.path.exists(cur_vb25_dirpath):
 			if sys.platform == 'win32':
-				os.system("rmdir /Q /S %s" % cur_vb25_dirpath)
+				for item in os.listdir(cur_vb25_dirpath):
+					s = os.path.join(cur_vb25_dirpath, item)
+					if os.path.isdir(s):
+						os.system("rmdir /Q /S %s" % s)
+					else:
+						os.system("del /Q /F %s" % s)
 			else:
 				shutil.rmtree(cur_vb25_dirpath)
 				
@@ -149,6 +154,7 @@ bpy.utils.register_class(VRAY_OT_lens_shift)
 class VRAY_OT_effect_add(bpy.types.Operator):
 	bl_idname=      'vray.effect_add'
 	bl_label=       "Add Effect"
+
 	bl_description= "Add effect"
 
 	def execute(self, context):
