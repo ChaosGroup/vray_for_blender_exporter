@@ -85,7 +85,19 @@ def add_properties(rna_pointer):
 		)
 
 		#  cell_color_tex: acolor texture
-		cell_color_tex= StringProperty(
+		cell_color_tex = FloatVectorProperty(
+			name= "Cell Color",
+			description= "Cell Color",
+			subtype= 'COLOR',
+			size=4,
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0,0,0,1)
+		)
+
+		cell_color_tex_tex= StringProperty(
 			name= "Cell Texture",
 			description= "Cell Color Texture",
 			default= ""
@@ -123,7 +135,19 @@ def add_properties(rna_pointer):
 		)
 
 		#  crease_color_tex: acolor texture
-		crease_color_tex= StringProperty(
+		crease_color_tex = FloatVectorProperty(
+			name= "Creases Color",
+			description= "Creases Color",
+			subtype= 'COLOR',
+			size=4,
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0,0,0,1)
+		)
+
+		crease_color_tex_tex= StringProperty(
 			name= "Crease Color Texture",
 			description= "Crease Color Texture",
 			default= ""
@@ -223,7 +247,7 @@ def write(bus):
 
 	TexLeather= getattr(texture.vray, PLUG)
 
-	mapped_keys= ('cell_color', 'crease_color')
+	mapped_keys= ('cell_color_tex', 'crease_color_tex')
 	mapped_params= write_sub_textures(bus,
 					  TexLeather,
 					  [key+'_tex' for key in mapped_keys])
@@ -263,7 +287,8 @@ class VRAY_TP_TexLeather(VRayTexturePanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column(align= True)
 		col.prop(TexLeather, 'cell_color', text="Cell Color")
-		col.prop_search(TexLeather, 'cell_color_tex',
+		col.prop(TexLeather, 'cell_color_tex', text="Cell Color")
+		col.prop_search(TexLeather, 'cell_color_tex_tex',
 						bpy.data,    'textures',
 						text= "")
 		if TexLeather.cell_color_tex:
@@ -273,14 +298,18 @@ class VRAY_TP_TexLeather(VRayTexturePanel, bpy.types.Panel):
 		col= split.column(align= True)
 		col.prop(TexLeather, 'creases')
 
+		split= layout.split()
+		col= split.column(align= True)
+
 		if TexLeather.creases:
-			if wide_ui:
-				col= split.column(align= True)
-			col.prop(TexLeather, 'crease_color', text="Color 2")
-			col.prop_search(TexLeather, 'crease_color_tex',
+#			if wide_ui:
+#			col= split.column(align= True)
+			col.prop(TexLeather, 'crease_color', text="Crease Color")
+			col.prop(TexLeather, 'crease_color_tex', text="Crease Color")
+			col.prop_search(TexLeather, 'crease_color_tex_tex',
 							bpy.data,    'textures',
 							text= "")
-			if TexLeather.cell_color_tex:
+			if TexLeather.crease_color_tex:
 				col.prop(TexLeather, 'crease_color_tex_mult')
 
 		split= layout.split()

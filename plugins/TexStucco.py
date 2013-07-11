@@ -41,7 +41,7 @@ TYPE= 'TEXTURE'
 ID=   'TexStucco'
 PLUG= 'TexStucco'
 NAME= 'Stucco'
-DESC= "TexStucco."
+DESC= "TexStucco"
 PID=   20
 
 PARAMS= (
@@ -111,7 +111,7 @@ def add_properties(rna_pointer):
 			soft_min= 0.0,
 			soft_max= 10.0,
 			precision= 3,
-			default= 1
+			default= 0.1
 		)
 
 		#  thickness: float = 4, Thickness
@@ -123,7 +123,7 @@ def add_properties(rna_pointer):
 			soft_min= 0.0,
 			soft_max= 10.0,
 			precision= 3,
-			default= 4
+			default= 0.4
 		)
 
 		#  threshold: float = 0.2, Threshold
