@@ -97,8 +97,12 @@ class VRAY_OT_update(bpy.types.Operator):
 		# Copying new files
 		debug(context.scene, "Copying new files...")
 		if os.path.exists(cur_vb25_dirpath):
-			shutil.rmtree(cur_vb25_dirpath)
-		shutil.copytree(new_vb25_dirpath, cur_vb25_dirpath)
+			if sys.platform == 'win32':
+				os.system("rmdir /Q /S %s" % cur_vb25_dirpath)
+			else:
+				shutil.rmtree(cur_vb25_dirpath)
+				
+		copytree(new_vb25_dirpath, cur_vb25_dirpath)
 
 		if os.path.exists(filename):
 			self.report({'INFO'}, "Removing update archive: %s"%(filename))
