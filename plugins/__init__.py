@@ -120,6 +120,60 @@ def add_properties():
 	bpy.utils.register_class(VRayCamera)
 
 	class VRayObject(bpy.types.PropertyGroup):
+		overrideWithScene = BoolProperty(
+			name        = "Override With Scene",
+			description = "Override with *.vrscene file",
+			default     = False
+		)
+
+		sceneFilepath = StringProperty(
+			name        = "Scene Path",
+			subtype     = 'FILE_PATH',
+			description = "Path to *.vrscene file"
+		)
+
+		sceneReplace = BoolProperty(
+			name        = "Override Current Scene Objects",
+			description = "Replace objects in the root scene",
+			default     = False
+		)
+
+		sceneUseTransform = BoolProperty(
+			name        = "Use Transform",
+			description = "Use Empty transform as scene transform",
+			default     = True
+		)
+
+		sceneAddNodes = BoolProperty(
+			name        = "Add Nodes",
+			description = "Add nodes from the included files",
+			default     = True
+		)
+
+		sceneAddMaterials = BoolProperty(
+			name        = "Add Materials",
+			description = "Add materials from the included files",
+			default     = True
+		)
+
+		sceneAddLights = BoolProperty(
+			name        = "Add Lights",
+			description = "Add lights from the included files",
+			default     = True
+		)
+
+		sceneAddCameras = BoolProperty(
+			name        = "Add Cameras",
+			description = "Add cameras from the included files",
+			default     = False
+		)
+
+		sceneAddEnvironment = BoolProperty(
+			name        = "Add Environment",
+			description = "Add environment from the included files",
+			default     = False
+		)
+
 		fade_radius= FloatProperty(
 			name= "Sphere fade radius",
 			description= "Sphere fade gizmo radiusBeam radius",

@@ -27,6 +27,7 @@
 from vb25.ui import properties_data_geometry
 from vb25.ui import properties_data_camera
 from vb25.ui import properties_data_lamp
+from vb25.ui import properties_data_empty
 from vb25.ui import properties_material
 from vb25.ui import properties_object
 from vb25.ui import properties_particles

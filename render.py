@@ -1361,8 +1361,32 @@ def _write_object_dupli(bus):
 		pass
 
 
+def writeSceneInclude(bus):
+	sceneFile = bus['files']['scene']
+
+	ob = bus['node']['object']
+
+	VRayObject = ob.vray
+
+	if VRayObject.overrideWithScene:
+		sceneFile.write("\nSceneInclude %s {" % get_name(ob, prefix='SI'))
+		sceneFile.write("\n\tfilepath=\"%s\";" % bpy.path.abspath(VRayObject.sceneFilepath))
+		
+		sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
+		sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
+		
+		sceneFile.write("\n\treplace=%s;" % p(VRayObject.sceneReplace))
+		
+		sceneFile.write("\n\tadd_nodes=%s;" % p(VRayObject.sceneAddNodes))
+		sceneFile.write("\n\tadd_materials=%s;" % p(VRayObject.sceneAddMaterials))
+		sceneFile.write("\n\tadd_lights=%s;" % p(VRayObject.sceneAddLights))
+		sceneFile.write("\n\tadd_cameras=%s;" % p(VRayObject.sceneAddCameras))
+		sceneFile.write("\n\tadd_environment=%s;" % p(VRayObject.sceneAddEnvironment))
+		sceneFile.write("\n}\n")
+
+
 def _write_object(bus):
-	ob= bus['node']['object']
+	ob = bus['node']['object']
 
 	if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 		return
@@ -1371,6 +1395,7 @@ def _write_object(bus):
 		write_lamp(bus)
 
 	elif ob.type == 'EMPTY':
+		writeSceneInclude(bus)
 		_write_object_dupli(bus)
 
 	else:
