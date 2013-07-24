@@ -32,6 +32,57 @@ import bpy
 from vb25.utils import *
 from vb25.ui.ui import *
 
+class VRAY_SP_includer(VRayScenePanel, bpy.types.Panel):
+	bl_label   = "Includes"
+	bl_options = {'DEFAULT_CLOSED'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		layout= self.layout
+
+		row= layout.row()
+
+		vs= context.scene.vray
+		module= vs.Includer
+
+		row.template_list("VRayListUse", "", module, 'nodes', module, 'nodes_selected', rows = 4)
+
+		col= row.column()
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator('vray.includer_add',    text="", icon="ZOOMIN")
+		subsub.operator('vray.includer_remove', text="", icon="ZOOMOUT")
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator("vray.includer_up",   icon='MOVE_UP_VEC',   text="")
+		subsub.operator("vray.includer_down", icon='MOVE_DOWN_VEC', text="")
+
+		if module.nodes_selected >= 0 and len(module.nodes) > 0:
+			render_node= module.nodes[module.nodes_selected]
+
+			layout.separator()
+
+			layout.prop(render_node, 'name')
+			layout.prop(render_node, 'scene')
+
+#		layout.separator()
+#		box= layout.box()
+#		box.label(text="Enable options export in curent scene:")
+#		split = box.split()
+#		col= split.column()
+#		col.prop(module, 'setting', text="Use export scene setting")
+#		col.prop(module, 'camera', text="Use export camera")
+#		col.prop(module, 'materials', text="Use export materials")
+		
+#		col.prop(module, 'environment', text="Use export environment")
+#		col.prop(module, 'lights', text="Use export lights")
+#		col.prop(module, 'colorMapping_standalone', text="Use Color Mapping")
+#		col.prop(module, 'geometry', text="Use export geometry")
+#		col.prop(module, 'scene_nodes', text="Use Vray Nodes")
+
 
 class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Tools"
