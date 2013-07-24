@@ -474,6 +474,7 @@ def write_settings(bus):
 	VRayExporter   = VRayScene.exporter
 	VRayDR         = VRayScene.VRayDR
 	SettingsOutput = VRayScene.SettingsOutput
+	Includer	   = VRayScene.Includer
 
 	threadCount = scene.render.threads
 	if VRayExporter.meshExportThreads:
@@ -595,6 +596,13 @@ def write_settings(bus):
 	ofile.write("\n")
 
 
+	ofile.write("\n// Test Includer out start")
+	for key in Includer.nodes:
+		if key['use']==True:
+			ofile.write("\n#include \"" + key['scene'] + "\"\t\t // " + key['name'])
+	ofile.write("\n// Test Includer out end\n\n")
+
+
 
 '''
   MATERIALS & TEXTURES
@@ -665,8 +673,14 @@ def write_lamp_textures(bus):
 
 
 def	write_material(bus):
-	ofile= bus['files']['materials']
 	scene= bus['scene']
+#	Includer = scene.vray.Includer
+#	if Includer.materials:
+#		return
+
+
+	ofile= bus['files']['materials']
+	
 
 	ob=    bus['node']['object']
 	base=  bus['node']['base']
@@ -1363,12 +1377,18 @@ def _write_object_dupli(bus):
 
 def _write_object(bus):
 	ob= bus['node']['object']
+#	VRayScene = bus['scene'].vray
+#	Includer = VRayScene.Includer
 
 	if ob.type in ('CAMERA','ARMATURE','LATTICE'):
 		return
 
+	# Export LAMP
 	if ob.type == 'LAMP':
+#		if Includer.lights:
 		write_lamp(bus)
+#		else:
+#			return
 
 	elif ob.type == 'EMPTY':
 		_write_object_dupli(bus)
@@ -1390,6 +1410,7 @@ def write_scene(bus):
 
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
+#	Includer = VRayScene.Includer
 
 	# Some failsafe defaults
 	bus['defaults']= {}
@@ -1404,6 +1425,7 @@ def write_scene(bus):
 
 	bus['files']['scene'].write("\n// Settings\n")
 	bus['files']['nodes'].write("\n// Nodes\n")
+#	if Includer.lights:
 	bus['files']['lights'].write("\n// Lights\n")
 	bus['files']['camera'].write("\n// Camera\n")
 	bus['files']['environment'].write("\n// Environment\n")
