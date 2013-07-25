@@ -154,11 +154,13 @@ class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
 
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
-        print("Copying from node ", node)
+        # print("Copying from node ", node)
+        pass
 
     # Free function to clean up on removal.
     def free(self):
-        print("Removing node ", self, ", Goodbye!")
+        #print("Removing node ", self, ", Goodbye!")
+        pass
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
