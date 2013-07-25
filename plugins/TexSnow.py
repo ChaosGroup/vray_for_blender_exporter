@@ -42,7 +42,7 @@ ID=   'TexSnow'
 PLUG= 'TexSnow'
 NAME= 'Snow'
 DESC= "TexSnow."
-PID=   20
+PID=   24
 
 PARAMS= (
 	'uvwgen',
