@@ -57,6 +57,7 @@ class VRAY_DP_empty(VRayDataPanel, bpy.types.Panel):
             split = box.split()
             col = split.column()
             col.prop(VRayObject, 'sceneFilepath')
+            col.prop(VRayObject, 'sceneDirpath')
             
             split = box.split()
             col = split.column()

@@ -121,15 +121,21 @@ def add_properties():
 
 	class VRayObject(bpy.types.PropertyGroup):
 		overrideWithScene = BoolProperty(
-			name        = "Override With Scene",
-			description = "Override with *.vrscene file",
+			name        = "Override With VRScene Asset",
+			description = "Override with *.vrscene asset",
 			default     = False
 		)
 
 		sceneFilepath = StringProperty(
-			name        = "Scene Path",
+			name        = "File Path",
 			subtype     = 'FILE_PATH',
-			description = "Path to *.vrscene file"
+			description = "Path to a *.vrscene file"
+		)
+
+		sceneDirpath = StringProperty(
+			name        = "Directory Path",
+			subtype     = 'DIR_PATH',
+			description = "Path to a directory with *.vrscene files"
 		)
 
 		sceneReplace = BoolProperty(

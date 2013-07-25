@@ -54,6 +54,12 @@ def add_properties(rna_pointer):
 		description= "Inclede files *.vrscene"
 	)
 
+	Includer.use = BoolProperty(
+		name        = "Use Includer",
+		description = "Add additional *.vrscene files",
+		default     = False
+	)
+
 	Includer.setting= BoolProperty(
 		name= "",
 		description= "Use scene Settings",
@@ -127,9 +133,9 @@ def add_properties(rna_pointer):
 	)
 
 	IncluderList.scene= StringProperty(
-		name= "*.vrscene path",
+		name= "Filepath",
 		subtype= 'FILE_PATH',
-		description= "File path include scene (*.vrscene)"
+		description= "Path to a *.vrscene file"
 	)
 
 	IncluderList.use= BoolProperty(

@@ -474,7 +474,8 @@ def write_settings(bus):
 	VRayExporter   = VRayScene.exporter
 	VRayDR         = VRayScene.VRayDR
 	SettingsOutput = VRayScene.SettingsOutput
-	Includer	   = VRayScene.Includer
+	StereoSettings = VRayScene.VRayStereoscopicSettings
+	Includer       = VRayScene.Includer
 
 	threadCount = scene.render.threads
 	if VRayExporter.meshExportThreads:
@@ -595,12 +596,24 @@ def write_settings(bus):
 					ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
 	ofile.write("\n")
 
+	if Includer.use:
+		ofile.write("\n// Include additional *.vrscene files")
+		for includeNode in Includer.nodes:
+			if includeNode.use == True:
+				ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
 
-	ofile.write("\n// Test Includer out start")
-	for key in Includer.nodes:
-		if key['use']==True:
-			ofile.write("\n#include \"" + key['scene'] + "\"\t\t // " + key['name'])
-	ofile.write("\n// Test Includer out end\n\n")
+	if StereoSettings.use:
+		ofile.write("\nVRayStereoscopicSettings StereoSettings {")
+		
+		if StereoSettings.left_camera:
+			ofile.write("\n\tleft_camera=%s;" % p(StereoSettings.left_camera))
+		
+		if StereoSettings.right_camera:
+			ofile.write("\n\tright_camera=%s;" % p(StereoSettings.right_camera))
+
+		ofile.write("\n\teye_distance=%s;" % p(StereoSettings.eye_distance))
+		ofile.write("\n\tinterocular_method=0;")
+		ofile.write("\n}\n")
 
 
 
@@ -1383,8 +1396,24 @@ def writeSceneInclude(bus):
 	VRayObject = ob.vray
 
 	if VRayObject.overrideWithScene:
+		if VRayObject.sceneFilepath == "" and VRayObject.sceneDirpath == "":
+			return
+
 		sceneFile.write("\nSceneInclude %s {" % get_name(ob, prefix='SI'))
-		sceneFile.write("\n\tfilepath=\"%s\";" % bpy.path.abspath(VRayObject.sceneFilepath))
+
+		vrsceneFilelist = []
+
+		if VRayObject.sceneFilepath:
+			vrsceneFilelist.append(bpy.path.abspath(VRayObject.sceneFilepath))
+
+		if VRayObject.sceneDirpath:
+			vrsceneDirpath = bpy.path.abspath(VRayObject.sceneDirpath)
+
+			for dirname, dirnames, filenames in os.walk(vrsceneDirpath):
+				for filename in filenames:
+					vrsceneFilelist.append(os.path.join(dirname, filename))
+		
+		sceneFile.write("\n\tfilepath=\"%s\";" % (";").join(vrsceneFilelist))
 		
 		sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
 		sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
