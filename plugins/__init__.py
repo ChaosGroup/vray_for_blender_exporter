@@ -126,6 +126,11 @@ def add_properties():
 			default     = False
 		)
 
+		scenePrefix = StringProperty(
+			name        = "Prefix",
+			description = "Scene object name prefix"
+		)
+
 		sceneFilepath = StringProperty(
 			name        = "File Path",
 			subtype     = 'FILE_PATH',

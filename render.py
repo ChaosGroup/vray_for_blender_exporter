@@ -1414,7 +1414,8 @@ def writeSceneInclude(bus):
 					vrsceneFilelist.append(os.path.join(dirname, filename))
 		
 		sceneFile.write("\n\tfilepath=\"%s\";" % (";").join(vrsceneFilelist))
-		
+		sceneFile.write("\n\tprefix=\"%s\";" % get_name(ob, prefix='SI'))
+
 		sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
 		sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
 		
