@@ -1411,6 +1411,8 @@ def writeSceneInclude(bus):
 
 			for dirname, dirnames, filenames in os.walk(vrsceneDirpath):
 				for filename in filenames:
+					if not filename.endswith(".vrscene"):
+						continue
 					vrsceneFilelist.append(os.path.join(dirname, filename))
 		
 		sceneFile.write("\n\tfilepath=\"%s\";" % (";").join(vrsceneFilelist))
