@@ -32,6 +32,15 @@ import bpy
 from vb25.utils import *
 from vb25.ui.ui import *
 
+from bl_ui import properties_scene
+for member in dir(properties_scene):
+	subclass = getattr(properties_scene, member)
+	try:
+		subclass.COMPAT_ENGINES.add('VRAY_RENDER')
+		subclass.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+	except:
+		pass
+del properties_scene
 
 class VRAY_SP_includer(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Includes"
