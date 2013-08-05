@@ -57,7 +57,7 @@ def add_properties(rna_pointer):
 		#  sourceA: acolor texture, Left hand side texture.
 		sourceA = FloatVectorProperty(
 			name        = "Source A",
-			description = "Left hand side texture.",
+			description = "Left hand side texture",
 			subtype     = 'COLOR',
 			size        = 4,
 			min         = 0.0,
@@ -76,7 +76,7 @@ def add_properties(rna_pointer):
 		#  sourceB: acolor texture, Right hand side texture.
 		sourceB = FloatVectorProperty(
 			name        = "Source B",
-			description = "Right hand side texture.",
+			description = "Right hand side texture",
 			subtype     = 'COLOR',
 			size        = 4,
 			min         = 0.0,
