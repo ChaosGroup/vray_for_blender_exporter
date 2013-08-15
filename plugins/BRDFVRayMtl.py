@@ -33,8 +33,7 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.lib   import VRaySocket
-
-from bl_ui.properties_material import active_node_mat
+from vb25.lib   import AttributeUtils
 
 
 TYPE= 'BRDF'
@@ -106,18 +105,6 @@ PARAMS= (
 )
 
 
-def callback_match_BI_diffuse(self, context):
-	if not hasattr(context, 'material'):
-		return
-	material = active_node_mat(context.material)
-	if not context.material:
-		return
-	if not self.as_viewport_color:
-		material.diffuse_color = (0.5, 0.5, 0.5)
-		return
-	material.diffuse_color = self.diffuse
-
-
 def add_properties(rna_pointer):
 	class BRDFVRayMtl(bpy.types.PropertyGroup):
 		pass
@@ -138,14 +125,14 @@ def add_properties(rna_pointer):
 		soft_min    = 0.0,
 		soft_max    = 1.0,
 		default     = (0.75,0.75,0.75),
-		update      = callback_match_BI_diffuse
+		update      = AttributeUtils.callback_match_BI_diffuse
 	)
 
 	BRDFVRayMtl.as_viewport_color = BoolProperty(
 		name        = "Use As Viewport Color",
 		description = "Use BRDF diffuse color as viewport color",
 		default     = True,
-		update      = callback_match_BI_diffuse
+		update      = AttributeUtils.callback_match_BI_diffuse
 	)
 
 	BRDFVRayMtl.opacity= FloatProperty(
