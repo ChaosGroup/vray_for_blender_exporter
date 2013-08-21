@@ -474,7 +474,6 @@ def write_settings(bus):
 	VRayExporter   = VRayScene.exporter
 	VRayDR         = VRayScene.VRayDR
 	SettingsOutput = VRayScene.SettingsOutput
-	StereoSettings = VRayScene.VRayStereoscopicSettings
 	Includer       = VRayScene.Includer
 
 	threadCount = scene.render.threads
@@ -602,18 +601,7 @@ def write_settings(bus):
 			if includeNode.use == True:
 				ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
 
-	if StereoSettings.use:
-		ofile.write("\nVRayStereoscopicSettings StereoSettings {")
-		
-		if StereoSettings.left_camera:
-			ofile.write("\n\tleft_camera=%s;" % p(StereoSettings.left_camera))
-		
-		if StereoSettings.right_camera:
-			ofile.write("\n\tright_camera=%s;" % p(StereoSettings.right_camera))
-
-		ofile.write("\n\teye_distance=%s;" % p(StereoSettings.eye_distance))
-		ofile.write("\n\tinterocular_method=0;")
-		ofile.write("\n}\n")
+	
 
 
 
@@ -1694,6 +1682,7 @@ def write_scene(bus):
 		PLUGINS['CAMERA']['CameraPhysical'].write(bus)
 		PLUGINS['SETTINGS']['BakeView'].write(bus)
 		PLUGINS['SETTINGS']['RenderView'].write(bus)
+		PLUGINS['CAMERA']['CameraStereoscopic'].write(bus)
 
 		debug(scene, "Writing frame {0}... done {1:<64}".format(scene.frame_current, "[%.2f]"%(time.clock() - timer)))
 
