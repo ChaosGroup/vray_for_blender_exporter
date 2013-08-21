@@ -277,6 +277,49 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 				colR.prop(CameraPhysical, 'anisotropy')
 
 
+class VRAY_DP_camera_stereoscopic(VRayDataPanel, bpy.types.Panel):
+	bl_label   = "Stereoscopic"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		VRayStereoscopicSettings= context.scene.vray.VRayStereoscopicSettings
+		return (context.camera and engine_poll(__class__, context)  and VRayStereoscopicSettings.use)
+
+	def draw_header(self, context):
+		ca= context.camera
+		VRayCamera= ca.vray
+		CameraStereoscopic= VRayCamera.CameraStereoscopic
+		# RADIOBUT_OFF RADIOBUT_ON
+		if(CameraStereoscopic.use==True):
+			icon_name = "CHECKBOX_HLT"
+		else:
+			icon_name = "CHECKBOX_DEHLT"
+		self.layout.operator('vray.create_stereo_cam', text="", icon=icon_name)
+		
+		
+
+	def draw(self, context):
+		wide_ui= context.region.width > narrowui
+
+		ca= context.camera
+		VRayCamera= ca.vray
+		CameraStereoscopic= VRayCamera.CameraStereoscopic
+
+		layout= self.layout
+		layout.active= CameraStereoscopic.use
+
+		split= layout.split()
+		col= split.column()
+		sub= col.column(align=True)
+		sub.prop(CameraStereoscopic, 'stereo_base', text="Eye Distance")
+		sub.prop(CameraStereoscopic, 'stereo_distance', text="Fov Distance")
+		sub.prop(CameraStereoscopic, 'use_convergence', text="Use convergence")
+		split= layout.split()
+		col= split.column()
+
 class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
