@@ -215,19 +215,35 @@ def write(bus):
 	VRayCamera = camera.data.vray
 	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-	camera_left  = bpy.data.objects.get(CameraStereoscopic.LeftCam)
-	camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
+	if(CameraStereoscopic.LeftCam):
 
-	ofile.write("\n\n// Camera Left: %s" % (camera_left.name))
-	ofile.write("\nRenderView %s {" % (camera_left.name))
-	ofile.write("\n\ttransform=%s;" % a(scene, transform(camera_left.matrix_world)))
-	ofile.write("\n}\n")
+		camera_left = bpy.data.objects.get(CameraStereoscopic.LeftCam)
+		camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
 
-	ofile.write("\n\n// Camera Right: %s" % (camera_right.name))
-	ofile.write("\nRenderView %s {" % (camera_right.name))
-	ofile.write("\n\ttransform=%s;" % a(scene, transform(camera_right.matrix_world)))
-	ofile.write("\n}\n")
+		ofile.write("\n\n// Camera Left: %s" % (camera_left.name))
+		ofile.write("\nRenderView %s {" % (camera_left.name))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(camera_left))))
+		ofile.write("\n}\n")
 
+		ofile.write("\n\n// Camera Right: %s" % (camera_right.name))
+		ofile.write("\nRenderView %s {" % (camera_right.name))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(camera_right))))
+		ofile.write("\n}\n")
+
+
+def matrix_recalc(cam):
+	# TODOD  - added palallax compensation (+ eye_distance/2)
+	mat_world = cam.matrix_world
+	loc_w, rot_w, scale_w = mat_world.decompose()
+	
+	mat = cam.matrix_local
+	loc, rot, scale = mat.decompose()
+	mat_rot = rot_w.to_matrix()
+	mat_rot = mat_rot.to_4x4()
+	mat_loc = mathutils.Matrix.Translation((loc_w/2))
+	mat_sca = mathutils.Matrix.Scale(1, 4)
+	mat_out = mat_loc * mat_rot * mat_sca
+	return mat_out
 
 def remove_stereo_cam(context):
 	cam_obj = context.camera.vray.CameraStereoscopic
