@@ -73,6 +73,22 @@ def factor_but(layout, rna_pointer, use, factor, label= None, color= None):
 		sub.prop(rna_pointer, invert,text= "")
 
 
+def influenceItemUI(layout, rna_pointer, attr, label):
+	textureAttr   = "map_"+attr
+	textureMult   = attr+"_mult"
+	textureInvert = attr+"_invert"
+
+	row = layout.row(align=True)
+	row.prop(rna_pointer, textureAttr, text="")
+
+	sub = row.row(align=True)
+	sub.active = getattr(rna_pointer, textureAttr)
+	sub.prop(rna_pointer, textureMult, slider=True, text=label)
+
+	if hasattr(rna_pointer, textureInvert):
+		sub.prop(rna_pointer, textureInvert, text="")
+
+
 def engine_poll(cls, context):
 	rd= context.scene.render
 	return (rd.engine in cls.COMPAT_ENGINES)
