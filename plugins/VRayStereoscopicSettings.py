@@ -33,15 +33,14 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-TYPE= 'SETTINGS'
-ID=   'VRayStereoscopicSettings'
+TYPE = 'SETTINGS'
+ID   = 'VRayStereoscopicSettings'
 PLUG = 'VRayStereoscopicSettings'
 
-NAME= 'VRayStereoscopicSettings'
-DESC= "VRay Stereoscopic Settings"
+NAME = 'VRayStereoscopicSettings'
+DESC = "VRay Stereoscopic Settings"
 
-PARAMS= (
-	
+PARAMS = (	
 )
 
 
@@ -181,34 +180,33 @@ def add_properties(rna_pointer):
 	
 
 def write(bus):
-
-	FOCUS= {
-		'NONE': 0,
-		'ROT':   1,
-		'SHEAR':      2,
+	FOCUS = {
+		'NONE'  : 0,
+		'ROT'   : 1,
+		'SHEAR' : 2,
 	}
 
-	SM_MODE= {
-		'DISABLED': 0,
-		'RENDER':   1,
-		'USE':      2,
+	SM_MODE = {
+		'DISABLED' : 0,
+		'RENDER'   : 1,
+		'USE'      : 2,
 	}
 
-	CHANEL= {
-		'BOTH':   0,
-		'LEFT':   1,
-		'RIGHT':  2,
+	CHANEL = {
+		'BOTH'  : 0,
+		'LEFT'  : 1,
+		'RIGHT' : 2,
 	}	
 
-	ofile=  bus['files']['camera']
-	scene=  bus['scene']
-	camera= bus['camera']
+	ofile  = bus['files']['camera']
+	scene  = bus['scene']
+	camera = bus['camera']
 
 	VRayScene      = scene.vray
 	StereoSettings = VRayScene.VRayStereoscopicSettings
 
-	VRayCamera=     camera.data.vray
-	CameraStereoscopic= VRayCamera.CameraStereoscopic
+	VRayCamera = camera.data.vray
+	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
 	if StereoSettings.use:
 		ofile.write("\nVRayStereoscopicSettings StereoSettings {")
@@ -226,8 +224,6 @@ def write(bus):
 			ofile.write("\n\tfocus_method=%s;" % p(FOCUS[StereoSettings.focus_method]))
 			ofile.write("\n\tinterocular_method=%s;" % p(CHANEL[StereoSettings.interocular_method]))
 			
-			
-			
 		ofile.write("\n\tview=%s;" % p(CHANEL[StereoSettings.view]))	
 		ofile.write("\n\tsm_mode=%s;" % p(SM_MODE[StereoSettings.sm_mode]))
 		ofile.write("\n\tadjust_resolution=%s;" % p(StereoSettings.adjust_resolution))
@@ -237,6 +233,7 @@ def write(bus):
 
 		ofile.write("\n\tinterocular_method=0;")
 		ofile.write("\n}\n")
+
 
 class VRAY_RP_VRayStereoscopicSettings(VRayRenderPanel, bpy.types.Panel):
 	bl_label       = "Stereoscopic"

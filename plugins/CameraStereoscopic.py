@@ -33,18 +33,23 @@ from vb25.utils import *
 from vb25.ui.ui import *
 
 
-TYPE= 'CAMERA'
-ID=   'CameraStereoscopic'
+TYPE = 'CAMERA'
+ID   = 'CameraStereoscopic'
 PLUG = 'CameraStereoscopic'
 
-NAME= 'Stereoscopic camera'
-DESC= "V-Ray CameraStereoscopic settings"
+NAME = 'Stereoscopic camera'
+DESC = "V-Ray CameraStereoscopic settings"
 
-PARAMS= (
+PARAMS = (
 	'stereo_base',
 	'stereo_distance',
 	'use_convergence',
 )
+
+
+def stereoRigUpdate(self, context):
+	# Dirty hack to update stereo rig drivers
+	context.scene.frame_set(context.scene.frame_current)
 
 
 def add_properties(rna_pointer):
@@ -56,9 +61,8 @@ def add_properties(rna_pointer):
 				cam_angle = math.degrees( math.atan2((stereo_base/2), focal_dist) )
 				return cam_angle
 			else:
-				return 0
+				return 0.0
 
-		pass
 	bpy.utils.register_class(CameraStereoscopic)
 
 	rna_pointer.CameraStereoscopic= PointerProperty(
@@ -82,7 +86,8 @@ def add_properties(rna_pointer):
 	CameraStereoscopic.use_convergence= BoolProperty(
 		name= "Use convergence",
 		description= "",
-		default= False
+		default= False,
+		update = stereoRigUpdate
 	)
 
 	CameraStereoscopic.stereo_base= FloatProperty(
@@ -90,7 +95,8 @@ def add_properties(rna_pointer):
 		description= "Determines the width of the camera aperture and, indirectly, exposure",
 		min=0.0, max=1000.0,
 		soft_min=0.0, soft_max=10.0,
-		default= 0.65
+		default= 0.65,
+		update = stereoRigUpdate
 	)
 
 	CameraStereoscopic.stereo_distance= FloatProperty(
@@ -98,7 +104,8 @@ def add_properties(rna_pointer):
 		description= "Determines the width of the camera aperture and, indirectly, exposure",
 		min=0.0, max=100000.0,
 		soft_min=0.0, soft_max=10.0,
-		default= 20.0
+		default= 20.0,
+		update = stereoRigUpdate
 	)
 
 	CameraStereoscopic.LeftCam = StringProperty(
@@ -119,9 +126,12 @@ def add_properties(rna_pointer):
 		default     = ""
 	)
 
+
 def create_stereo_cam(context):
 	cam = context.object
-	print(cam.name)
+	
+	# print(cam.name)
+
 	cam_obj = context.camera
 	
 	bpy.ops.object.add(type='CAMERA')
@@ -197,16 +207,15 @@ def create_stereo_cam(context):
 	bpy.context.scene.objects.active = cam   
 
 
-
 def write(bus):
-	ofile=  bus['files']['camera']
-	scene=  bus['scene']
-	camera= bus['camera']
+	ofile  = bus['files']['camera']
+	scene  = bus['scene']
+	camera = bus['camera']
 	
-	VRayCamera=     camera.data.vray
-	CameraStereoscopic= VRayCamera.CameraStereoscopic
+	VRayCamera = camera.data.vray
+	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-	camera_left = bpy.data.objects.get(CameraStereoscopic.LeftCam)
+	camera_left  = bpy.data.objects.get(CameraStereoscopic.LeftCam)
 	camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
 
 	ofile.write("\n\n// Camera Left: %s" % (camera_left.name))
@@ -226,6 +235,7 @@ def remove_stereo_cam(context):
 	remove_obj(cam_obj.RightCam)
 	remove_obj(cam_obj.TargetCam)
 
+
 def remove_obj(name):
 	ob = bpy.data.objects.get(name)
 
@@ -238,15 +248,15 @@ def remove_obj(name):
 
 
 class VRAY_OT_create_stereo_cam(bpy.types.Operator):
-	bl_idname=      'vray.create_stereo_cam'
-	bl_label=       "Show Stereo Camera"
-	bl_description= "Create Visual model Stereo Camera"
+	bl_idname      = 'vray.create_stereo_cam'
+	bl_label       = "Show Stereo Camera"
+	bl_description = "Create Visual model Stereo Camera"
 
 	def execute(self, context):
-		VRayCamera=     context.camera.vray
-		CameraStereoscopic= VRayCamera.CameraStereoscopic
+		VRayCamera = context.camera.vray
+		CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-		if(CameraStereoscopic.use==False):
+		if not CameraStereoscopic.use:
 			CameraStereoscopic.use = True
 			# Check use_scripts_auto_execute settings
 			#autoexec = context.user_preferences.system.use_scripts_auto_execute
