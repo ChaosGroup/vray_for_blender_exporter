@@ -264,58 +264,6 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		layout.prop(rd, "display_mode", text="Display")
 
 
-class VRAY_RP_VRayStereoscopicSettings(VRayRenderPanel, bpy.types.Panel):
-	bl_label       = "Stereoscopic"
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		VRayStereoscopicSettings= context.scene.vray.VRayStereoscopicSettings
-		return super().poll(context) and VRayStereoscopicSettings.use
-
-	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
-
-		VRayScene= context.scene.vray
-		VRayStereoscopicSettings= VRayScene.VRayStereoscopicSettings
-
-		split = layout.split()
-		col   = split.column()
-		col.prop_search(VRayStereoscopicSettings, 'left_camera',
-				bpy.data, 'objects',
-				text= "Left Camera:")
-		col.prop_search(VRayStereoscopicSettings, 'right_camera',
-				bpy.data, 'objects',
-				text= "Right Camera:")
-
-		layout.separator()
-
-		split = layout.split()
-		col   = split.column()
-		col.prop(VRayStereoscopicSettings, 'eye_distance')
-
-		sub = col.row(align=True)
-		sub_f = sub.column()
-		sub_f.active = VRayStereoscopicSettings.specify_focus
-		sub_f.prop(VRayStereoscopicSettings, 'focus_distance')
-		sub.prop(VRayStereoscopicSettings, 'specify_focus', text="")
-
-		split = layout.split()
-		col   = split.column()
-		col.prop(VRayStereoscopicSettings, 'focus_method', text="Focus")
-		col.prop(VRayStereoscopicSettings, 'interocular_method', text="Interocular")
-		col.prop(VRayStereoscopicSettings, 'view')
-		col.prop(VRayStereoscopicSettings, 'adjust_resolution')
-
-		layout.separator()
-		layout.prop(VRayStereoscopicSettings, 'shademap_file', text="Shademap")
-		layout.prop(VRayStereoscopicSettings, 'sm_mode', text="Mode")
-		layout.prop(VRayStereoscopicSettings, 'reuse_threshold')
-
-		layout.separator()
-		layout.prop(VRayStereoscopicSettings, 'exclude_list')
-
 
 class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Globals"

@@ -3,8 +3,8 @@
 #
 # http://vray.cgdo.ru
 #
-# Author: Andrey M. Izrantsev (aka bdancer)
-# E-Mail: izrantsev@cgdo.ru
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,8 +22,24 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# VRay base classes
+import bpy
 
-from vb25.lib.VRaySocket     import VRaySocket
-from vb25.lib.VRayProcess    import VRayProcess
-from vb25.lib.AttributeUtils import *
+from bl_ui.properties_material import active_node_mat
+
+
+def callback_match_BI_diffuse(self, context):
+	if not hasattr(context, 'material'):
+		return
+	
+	material = active_node_mat(context.material)
+	
+	if not context.material:
+		return
+	
+	if not self.as_viewport_color:
+		material.diffuse_color = (0.5, 0.5, 0.5)
+		return
+
+	color = self.diffuse if material.vray.type == 'BRDFVRayMtl' else self.color
+
+	material.diffuse_color = color

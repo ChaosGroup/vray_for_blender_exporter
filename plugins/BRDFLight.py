@@ -33,6 +33,7 @@ from bpy.props import *
 from vb25.texture import *
 from vb25.utils   import *
 from vb25.ui.ui   import *
+from vb25.lib     import AttributeUtils
 
 
 TYPE= 'BRDF'
@@ -58,15 +59,23 @@ def add_properties(rna_pointer):
 		description= "V-Ray BRDFLight settings"
 	)
 
-	BRDFLight.color= FloatVectorProperty(
-		name= "Color",
-		description= "Color",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (1.0,1.0,1.0)
+	BRDFLight.color = FloatVectorProperty(
+		name = "Color",
+		description = "Color",
+		subtype = 'COLOR',
+		min = 0.0,
+		max = 1.0,
+		soft_min = 0.0,
+		soft_max = 1.0,
+		default = (1.0,1.0,1.0),
+		update = AttributeUtils.callback_match_BI_diffuse
+	)
+
+	BRDFLight.as_viewport_color = BoolProperty(
+		name        = "Use As Viewport Color",
+		description = "Use BRDF diffuse color as viewport color",
+		default     = True,
+		update      = AttributeUtils.callback_match_BI_diffuse
 	)
 
 	BRDFLight.color_tex= StringProperty(
@@ -116,20 +125,16 @@ def add_properties(rna_pointer):
 
 
 def mapto(bus, BRDFLayered= None):
-	scene= bus['scene']
-	ma=    bus['material']['material']
+	scene = bus['scene']
+	ma    = bus['material']['material']
 
-	defaults= {}
+	defaults = {}
 
-	VRayMaterial= ma.vray
-	BRDFLight=    VRayMaterial.BRDFLight
+	VRayMaterial = ma.vray
+	BRDFLight    = VRayMaterial.BRDFLight
 
-	if BRDFLayered:
-		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFLight.color)),       0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - BRDFLight.transparency]*3)), 0, 'NONE')
-	else:
-		defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)), 0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([1.0 - ma.alpha]*3)),     0, 'NONE')
+	defaults['diffuse'] = (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)" % tuple(BRDFLight.color)),                  0, 'NONE')
+	defaults['opacity'] = (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)" % tuple([1.0 - BRDFLight.transparency]*3)), 0, 'NONE')
 
 	return defaults
 
@@ -179,19 +184,19 @@ def write(bus, VRayBRDF= None, base_name= None):
 
 
 def influence(context, layout, slot):
-	wide_ui= context.region.width > narrowui
+	wide_ui = context.region.width > narrowui
 
-	VRaySlot= slot.texture.vray_slot
+	VRaySlot = slot.texture.vray_slot
 
-	split= layout.split()
-	col= split.column()
+	split = layout.split()
+	col = split.column()
 	col.label(text="Diffuse:")
-	split= layout.split()
-	col= split.column()
-	factor_but(col, slot, 'use_map_color_diffuse', 'diffuse_color_factor', "Diffuse")
+	split = layout.split()
+	col = split.column()
+	factor_but(col, VRaySlot, 'map_diffuse', 'diffuse_mult', "Diffuse")
 	if wide_ui:
-		col= split.column()
-	factor_but(col, slot, 'use_map_alpha', 'alpha_factor', "Alpha")
+		col = split.column()
+	factor_but(col, VRaySlot, 'map_opacity', 'opacity_mult', "Opacity")
 
 
 def gui(context, layout, BRDFLight, material= None):
@@ -202,21 +207,17 @@ def gui(context, layout, BRDFLight, material= None):
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align= True)
-	if material:
-		sub.prop(material, 'diffuse_color', text="")
-	else:
-		sub.prop(BRDFLight, 'color', text="")
-		sub.prop_search(BRDFLight, 'color_tex',
-						bpy.data, 'textures',
-						text= "")
+
+	sub.prop(BRDFLight, 'color', text="")
+	sub.prop_search(BRDFLight, 'color_tex',
+					bpy.data, 'textures',
+					text= "")
 
 	if wide_ui:
 		col= split.column()
 
-	if material:
-		col.prop(BRDFLight, 'transparency', text="Alpha", slider= True)
-	else:
-		col.prop(BRDFLight, 'transparency', slider= True)
+	col.prop(BRDFLight, 'transparency', text="Opacity", slider=True)
+	col.prop(BRDFLight, 'as_viewport_color')
 
 	layout.separator()
 
