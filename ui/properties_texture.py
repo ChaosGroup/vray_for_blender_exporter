@@ -43,7 +43,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -107,7 +107,7 @@ class VRAY_TP_context(VRayTexturePanel, bpy.types.Panel):
 class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Preview"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -137,7 +137,7 @@ class VRAY_TP_preview(VRayTexturePanel, bpy.types.Panel):
 class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Influence"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	# @classmethod
 	# def poll(cls, context):
@@ -259,7 +259,7 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Displacement"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -326,7 +326,7 @@ class VRAY_TP_displacement(VRayTexturePanel, bpy.types.Panel):
 class VRAY_TP_bitmap(VRayTexturePanel, bpy.types.Panel):
 	bl_label = "Bitmap"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

@@ -63,7 +63,7 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -144,7 +144,7 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Parameters"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -173,7 +173,7 @@ class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Options"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -199,7 +199,7 @@ class VRAY_MP_two_sided(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Two-Sided"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -263,7 +263,7 @@ class VRAY_MP_override(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -314,7 +314,7 @@ class VRAY_MP_wrapper(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -396,7 +396,7 @@ class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Outline"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	@classmethod
 	def poll(cls, context):
@@ -433,7 +433,7 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 	bl_label   = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	@classmethod
 	def poll(cls, context):

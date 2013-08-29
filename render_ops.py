@@ -878,6 +878,18 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 bpy.utils.register_class(VRAY_OT_write_geometry)
 
 
+class VRAY_OT_write_vrscene(bpy.types.Operator):
+	bl_idname      = "vray.write_vrscene"
+	bl_label       = "Export Scene"
+	bl_description = "Export scene into a *.vrscene files"
+
+	def execute(self, context):
+		bpy.ops.vray.export_vrscene()
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_write_vrscene)
+
+
 class VRAY_OT_render(bpy.types.Operator):
 	bl_idname      = "vray.render"
 	bl_label       = "V-Ray Renderer"

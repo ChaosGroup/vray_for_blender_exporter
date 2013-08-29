@@ -37,7 +37,7 @@ class VRAY_DP_empty(VRayDataPanel, bpy.types.Panel):
     bl_label   = "Override"
     bl_options = {'DEFAULT_CLOSED'}
 
-    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
     @classmethod
     def poll(cls, context):

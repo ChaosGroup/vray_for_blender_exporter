@@ -46,7 +46,7 @@ del properties_world
 class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
 	bl_label = "Environment"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -79,7 +79,7 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
 	bl_label   = "Effects"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
 		VRayScene= context.scene.vray

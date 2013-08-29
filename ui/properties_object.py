@@ -46,7 +46,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -90,7 +90,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -164,7 +164,7 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -212,7 +212,7 @@ class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Displacement"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -276,7 +276,7 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Light"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -350,7 +350,7 @@ class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
 	bl_label   = "Subdivision"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -395,7 +395,7 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 	bl_label   = "VRayPattern"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

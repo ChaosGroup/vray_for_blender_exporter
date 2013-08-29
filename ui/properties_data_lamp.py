@@ -36,7 +36,7 @@ class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
 	bl_label       = ""
 	bl_options     = {'HIDE_HEADER'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -69,7 +69,7 @@ class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
 class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Lamp"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -125,7 +125,7 @@ class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
 class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 	bl_label       = "Shape"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -262,7 +262,7 @@ class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Shadows"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
 		vl= context.lamp.vray
@@ -301,7 +301,7 @@ class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Advanced"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -329,7 +329,7 @@ class VRAY_DP_include_exclude(VRayDataPanel, bpy.types.Panel):
 	bl_label   = "Include / Exclude"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
 		VRayLamp= context.lamp.vray

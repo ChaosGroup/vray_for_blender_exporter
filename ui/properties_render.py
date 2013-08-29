@@ -59,7 +59,7 @@ class VRAY_MT_preset_gi(bpy.types.Menu):
 class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Dimensions"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -129,7 +129,7 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 	bl_label	   = "Output"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 	def draw_header(self, context):
 		VRayExporter= context.scene.vray.exporter
@@ -201,7 +201,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 	bl_label       = "Render"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -269,7 +269,7 @@ class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -325,7 +325,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -431,11 +431,15 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 				col = split.column()
 			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
 
+		split = box.split()
+		col = split.column()
+		col.operator('vray.write_vrscene', icon='OBJECT_DATA', text="C++ Export Operator")
+
 
 class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Color mapping"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -472,7 +476,7 @@ class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Image sampler"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -531,7 +535,7 @@ class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "DMC sampler"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -555,7 +559,7 @@ class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Global Illumination"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -641,7 +645,7 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Spherical Harmonics"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -718,7 +722,7 @@ class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Irradiance Map"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -856,7 +860,7 @@ class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Brute Force"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -883,7 +887,7 @@ class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Light Cache"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -972,7 +976,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Render Elements"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1053,7 +1057,7 @@ class VRAY_RP_Layers(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Displace / subdiv"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1083,7 +1087,7 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 	bl_label = "Distributed rendering"
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1139,7 +1143,7 @@ class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1169,7 +1173,7 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "System"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -1249,7 +1253,7 @@ class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
 	bl_label   = "About"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

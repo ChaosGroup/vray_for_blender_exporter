@@ -46,7 +46,7 @@ class VRAY_SP_includer(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Includes"
 	bl_options = {'DEFAULT_CLOSED'}
 	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
 		VRayScene = context.scene.vray
@@ -105,7 +105,7 @@ class VRAY_SP_tools(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
@@ -138,7 +138,7 @@ class VRAY_SP_lights_tweaker(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
 	
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		wide_ui= context.region.width > narrowui
