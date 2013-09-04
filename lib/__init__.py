@@ -26,4 +26,5 @@
 
 from vb25.lib.VRaySocket     import VRaySocket
 from vb25.lib.VRayProcess    import VRayProcess
+from vb25.lib.VRayProxy      import MeshFile
 from vb25.lib.AttributeUtils import *

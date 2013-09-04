@@ -44,6 +44,7 @@ import vb25.render
 import vb25.proxy
 
 from vb25.lib     import VRaySocket
+from vb25.lib     import VRayProxy
 from vb25.utils   import *
 from vb25.plugins import *
 
@@ -668,6 +669,56 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 		return {'FINISHED'}
 
 bpy.utils.register_class(VRAY_OT_flip_resolution)
+
+
+class VRAY_OT_proxy_load_preview(bpy.types.Operator):
+	bl_idname      = "vray.proxy_load_preview"
+	bl_label       = "Load Preview"
+	bl_description = "Load VRayProxy mesh preview from file"
+
+	def execute(self, context):
+		originalMesh = context.object.data
+		GeomMeshFile = originalMesh.vray.GeomMeshFile
+
+		proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
+		proxyFilename = os.path.basename(proxyFilepath)
+
+		meshFile = VRayProxy.MeshFile(proxyFilepath)
+		result = meshFile.readFile()
+
+		if result is not None:
+			self.report({'ERROR'}, "Error parsing VRayProxy file!")
+			return {'FINISHED'}
+
+		previewVoxel = meshFile.getVoxelByType(VRayProxy.MVF_PREVIEW_VOXEL)
+
+		vertices = previewVoxel.getVertices()
+		faces    = previewVoxel.getFaces()
+
+		mesh = bpy.data.meshes.new("VRayProxyPreview_%s"%(clean_string(proxyFilename)))
+		mesh.from_pydata(vertices, [], faces)
+		mesh.update()
+
+		# Transfer proxy settings
+		mesh.vray.override = True
+		for attr in dir(GeomMeshFile):
+			if attr.startswith("__") or attr.startswith("rna_"):
+				continue
+			setattr(mesh.vray.GeomMeshFile, attr, getattr(GeomMeshFile, attr))
+
+		for slot in context.object.material_slots:
+			if slot and slot.material:
+				mesh.materials.append(slot.material)
+
+		# Set new mesh
+		context.object.data = mesh
+
+		# Remove old mesh
+		bpy.data.meshes.remove(originalMesh)
+
+		return {'FINISHED'}
+
+bpy.utils.register_class(VRAY_OT_proxy_load_preview)
 
 
 class VRAY_OT_create_proxy(bpy.types.Operator):

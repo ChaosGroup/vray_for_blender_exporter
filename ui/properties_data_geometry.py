@@ -82,6 +82,9 @@ class VRAY_DP_override(VRayDataPanel, bpy.types.Panel):
 					col = split.column()
 				col.prop(GeomMeshFile, 'anim_offset')
 
+				layout.separator()
+				layout.operator('vray.proxy_load_preview', icon='OUTLINER_OB_MESH', text="Load Preview Mesh")
+
 		else:
 			layout.prop(GeomStaticMesh, 'dynamic_geometry')
 
