@@ -37,6 +37,7 @@ import sys
 ''' Blender modules '''
 import bpy
 import bgl
+import bmesh
 from bpy.props import *
 
 ''' vb modules '''
@@ -695,26 +696,20 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 		vertices = previewVoxel.getVertices()
 		faces    = previewVoxel.getFaces()
 
-		mesh = bpy.data.meshes.new("VRayProxyPreview_%s"%(clean_string(proxyFilename)))
+		mesh = bpy.data.meshes.new("VRayProxyPreview")
 		mesh.from_pydata(vertices, [], faces)
 		mesh.update()
 
-		# Transfer proxy settings
-		mesh.vray.override = True
-		for attr in dir(GeomMeshFile):
-			if attr.startswith("__") or attr.startswith("rna_"):
-				continue
-			setattr(mesh.vray.GeomMeshFile, attr, getattr(GeomMeshFile, attr))
+		# Replace object mesh
+		bm = bmesh.new()
+		bm.from_mesh(mesh)
+		bm.to_mesh(context.object.data)
 
-		for slot in context.object.material_slots:
-			if slot and slot.material:
-				mesh.materials.append(slot.material)
+		context.object.data.update()
 
-		# Set new mesh
-		context.object.data = mesh
-
-		# Remove old mesh
-		bpy.data.meshes.remove(originalMesh)
+		# Remove temp
+		bm.free()
+		bpy.data.meshes.remove(mesh)
 
 		return {'FINISHED'}
 
@@ -817,10 +812,12 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 
 				elif GeomMeshFile.mode == 'REPLACE':
-					original_mesh= ob.data
+					bm = bmesh.new()
+					bm.from_mesh(bbox_mesh)
+					bm.to_mesh(ob.data)
+					bm.free()
 
-					ob.data= bbox_mesh
-					ob.draw_type= 'WIRE'
+					ob.draw_type = 'WIRE'
 					for md in ob.modifiers: ob.modifiers.remove(md)
 
 					if GeomMeshFile.apply_transforms:
@@ -834,8 +831,6 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-					bpy.data.meshes.remove(original_mesh)
 			debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
 
 		if len(bpy.context.selected_objects):
