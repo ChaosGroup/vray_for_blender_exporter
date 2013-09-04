@@ -213,17 +213,16 @@ def write(bus):
 		
 		if(CameraStereoscopic.use):
 			if CameraStereoscopic.LeftCam:
-				ofile.write("\n\tleft_camera=%s;" % (clean_string(CameraStereoscopic.LeftCam)))
+				ofile.write("\n\tleft_camera=%s;" % (CameraStereoscopic.LeftCam))
 		
 			if CameraStereoscopic.RightCam:
-				ofile.write("\n\tright_camera=%s;" % (clean_string(CameraStereoscopic.RightCam)))
+				ofile.write("\n\tright_camera=%s;" % (CameraStereoscopic.RightCam))
 		else:
 			ofile.write("\n\teye_distance=%s;" % p(StereoSettings.eye_distance))
 			ofile.write("\n\tspecify_focus=%s;" % p(StereoSettings.specify_focus))
 			ofile.write("\n\tfocus_distance=%s;" % p(StereoSettings.focus_distance))
 			ofile.write("\n\tfocus_method=%s;" % p(FOCUS[StereoSettings.focus_method]))
-
-		ofile.write("\n\tinterocular_method=%s;" % p(CHANEL[StereoSettings.interocular_method]))
+			ofile.write("\n\tinterocular_method=%s;" % p(CHANEL[StereoSettings.interocular_method]))
 			
 		ofile.write("\n\tview=%s;" % p(CHANEL[StereoSettings.view]))	
 		ofile.write("\n\tsm_mode=%s;" % p(SM_MODE[StereoSettings.sm_mode]))

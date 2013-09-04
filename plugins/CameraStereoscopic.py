@@ -65,48 +65,47 @@ def add_properties(rna_pointer):
 
 	bpy.utils.register_class(CameraStereoscopic)
 
-	rna_pointer.CameraStereoscopic = PointerProperty(
-		name        = "CameraStereoscopic",
-		type        =  CameraStereoscopic,
-		description = "Stereoscopic Camera settings"
+	rna_pointer.CameraStereoscopic= PointerProperty(
+		name= "CameraStereoscopic",
+		type=  CameraStereoscopic,
+		description= "Stereoscopic Camera settings"
 	)
 
-	CameraStereoscopic.use = BoolProperty(
-		name        = "Enable Stereoscopic camera",
-		description = "Enable Stereoscopic camera",
-		default     = False
+	CameraStereoscopic.use= BoolProperty(
+		name= "Enable Stereoscopic camera",
+		description= "Enable Stereoscopic camera",
+		default= False
 	)
 
-	CameraStereoscopic.sucess_create = BoolProperty(
-		name        = "flag",
-		description = "flag",
-		default     = False
+	CameraStereoscopic.sucess_create= BoolProperty(
+		name= "flag",
+		description= "flag",
+		default= False
 	)
 
-	CameraStereoscopic.use_convergence = BoolProperty(
-		name        = "Use convergence",
-		description = "",
-		default     = False,
-		update      = stereoRigUpdate
+	CameraStereoscopic.use_convergence= BoolProperty(
+		name= "Use convergence",
+		description= "",
+		default= False,
+		update = stereoRigUpdate
 	)
 
-	CameraStereoscopic.stereo_base = FloatProperty(
-		name = "Eye Distance",
-		description = "Determines the width of the camera aperture and, indirectly, exposure",
-		min = 0.0, max=100.0,
-		soft_min=0.0, soft_max=1.0,
-		precision= 4,
-		default= 0.065,
+	CameraStereoscopic.stereo_base= FloatProperty(
+		name= "Eye Distance",
+		description= "Determines the width of the camera aperture and, indirectly, exposure",
+		min=0.0, max=1000.0,
+		soft_min=0.0, soft_max=10.0,
+		default= 0.65,
 		update = stereoRigUpdate
 	)
 
 	CameraStereoscopic.stereo_distance= FloatProperty(
-		name        = "Distance",
-		description = "Determines the width of the camera aperture and, indirectly, exposure",
+		name= "Distance",
+		description= "Determines the width of the camera aperture and, indirectly, exposure",
 		min=0.0, max=100000.0,
-		soft_min=0.0, soft_max=100.0,
-		default     = 20.0,
-		update      = stereoRigUpdate
+		soft_min=0.0, soft_max=10.0,
+		default= 20.0,
+		update = stereoRigUpdate
 	)
 
 	CameraStereoscopic.LeftCam = StringProperty(
@@ -125,20 +124,6 @@ def add_properties(rna_pointer):
 		name        = "TargetCam",
 		description = "",
 		default     = ""
-	)
-
-	CameraStereoscopic.show_limits = BoolProperty(
-		name        = "Show Limits",
-		description = "",
-		default     = True,
-		update      = stereoRigUpdate
-	)
-
-	CameraStereoscopic.show_cams = BoolProperty(
-		name        = "Show L/R cameras",
-		description = "",
-		default     = True,
-		update      = stereoRigUpdate
 	)
 
 
@@ -190,37 +175,13 @@ def create_stereo_cam(context):
 	left_cam_obj.dof_object = target_cam
 	right_cam_obj.dof_object = target_cam
 
-	left_cam_driver = left_cam_obj.driver_add('lens').driver
-	left_cam_driver.type = 'SCRIPTED'
-	left_cam_driver.expression = "bpy.data.cameras['"+cam_obj.name+"'].lens"
-
-	left_cam_driver = left_cam_obj.driver_add('show_limits').driver
-	left_cam_driver.type = 'SCRIPTED'
-	left_cam_driver.expression = "bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.show_limits"
-
 	left_cam_driver = left_cam.driver_add('rotation_euler',1).driver
 	left_cam_driver.type = 'SCRIPTED'
 	left_cam_driver.expression = "-radians(bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.CalcAngle(bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic))"
 
-	left_cam_driver = left_cam.driver_add('hide').driver
-	left_cam_driver.type = 'SCRIPTED'
-	left_cam_driver.expression = "not bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.show_cams"
-
-	right_cam_driver = right_cam_obj.driver_add('lens').driver
-	right_cam_driver.type = 'SCRIPTED'
-	right_cam_driver.expression = "bpy.data.cameras['"+cam_obj.name+"'].lens"
-
-	right_cam_driver = right_cam_obj.driver_add('show_limits').driver
-	right_cam_driver.type = 'SCRIPTED'
-	right_cam_driver.expression = "bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.show_limits"
-
 	right_cam_driver = right_cam.driver_add('rotation_euler',1).driver
 	right_cam_driver.type = 'SCRIPTED'
 	right_cam_driver.expression = "radians(bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.CalcAngle(bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic))"
-
-	right_cam_driver = right_cam.driver_add('hide').driver
-	right_cam_driver.type = 'SCRIPTED'
-	right_cam_driver.expression = "not bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.show_cams"
     
 	left_cam_driver = left_cam.driver_add('location',0).driver
 	left_cam_driver.type = 'SCRIPTED'
@@ -234,10 +195,10 @@ def create_stereo_cam(context):
 	target_cam_driver.type = 'SCRIPTED'
 	target_cam_driver.expression = "-bpy.data.cameras['"+cam_obj.name+"'].vray.CameraStereoscopic.stereo_distance"
 
-	left_cam.hide_select   = True
-	left_cam.hide_render   = True
-	right_cam.hide_select  = True
-	right_cam.hide_render  = True
+	left_cam.hide_select = True
+	left_cam.hide_render = True
+	right_cam.hide_select = True
+	right_cam.hide_render = True
 	target_cam.hide_select = True
 	target_cam.hide_render = True
 
@@ -250,38 +211,28 @@ def write(bus):
 	ofile  = bus['files']['camera']
 	scene  = bus['scene']
 	camera = bus['camera']
-
-	VRayScene      = scene.vray
-	StereoSettings = VRayScene.VRayStereoscopicSettings
 	
 	VRayCamera = camera.data.vray
 	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-	if CameraStereoscopic.use and StereoSettings.use:
+	if(CameraStereoscopic.LeftCam):
 
 		camera_left = bpy.data.objects.get(CameraStereoscopic.LeftCam)
 		camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
 
-		ofile.write("\n\n// Camera Left: %s" % (clean_string(camera_left.name)))
-		ofile.write("\nRenderView %s {" % (clean_string(camera_left.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_left))))
+		ofile.write("\n\n// Camera Left: %s" % (camera_left.name))
+		ofile.write("\nRenderView %s {" % (camera_left.name))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(camera_left))))
 		ofile.write("\n}\n")
 
-		ofile.write("\n\n// Camera Right: %s" % (clean_string(camera_right.name)))
-		ofile.write("\nRenderView %s {" % (clean_string(camera_right.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_right))))
+		ofile.write("\n\n// Camera Right: %s" % (camera_right.name))
+		ofile.write("\nRenderView %s {" % (camera_right.name))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(camera_right))))
 		ofile.write("\n}\n")
 
 
-def matrix_recalc(bus, cam):
+def matrix_recalc(cam):
 	# TODOD  - added palallax compensation (+ eye_distance/2)
-	ofile  = bus['files']['camera']
-	scene  = bus['scene']
-	camera = bus['camera']
-
-	VRayScene      = scene.vray
-	StereoSettings = VRayScene.VRayStereoscopicSettings
-
 	mat_world = cam.matrix_world
 	loc_w, rot_w, scale_w = mat_world.decompose()
 	
@@ -290,14 +241,8 @@ def matrix_recalc(bus, cam):
 	mat_rot = rot_w.to_matrix()
 	mat_rot = mat_rot.to_4x4()
 	mat_loc = mathutils.Matrix.Translation((loc_w/2))
-
-	if StereoSettings.adjust_resolution:
-		mat_sca = mathutils.Matrix.Scale(2, 4, (0.0, 1.0, 0.0))
-	else:
-		mat_sca = mathutils.Matrix.Scale(1, 4)
-
+	mat_sca = mathutils.Matrix.Scale(1, 4)
 	mat_out = mat_loc * mat_rot * mat_sca
-
 	return mat_out
 
 def remove_stereo_cam(context):

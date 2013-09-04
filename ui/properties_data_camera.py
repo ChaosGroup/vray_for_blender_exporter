@@ -317,11 +317,6 @@ class VRAY_DP_camera_stereoscopic(VRayDataPanel, bpy.types.Panel):
 		sub.prop(CameraStereoscopic, 'stereo_base', text="Eye Distance")
 		sub.prop(CameraStereoscopic, 'stereo_distance', text="Fov Distance")
 		sub.prop(CameraStereoscopic, 'use_convergence', text="Use convergence")
-		sub.prop(CameraStereoscopic, 'show_cams', text="Show L/R cameras")
-		if CameraStereoscopic.show_cams:
-			sub.prop(CameraStereoscopic, 'show_limits', text="Show Limits")
-		
-
 
 
 class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
