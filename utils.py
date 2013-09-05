@@ -571,6 +571,9 @@ def a(scene, t):
 
 	if VRayExporter.camera_loop:
 		frame = VRayExporter.customFrame
+	
+	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
+		return p(t)
 
 	return "interpolate((%i,%s))" % (frame, p(t))
 

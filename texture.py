@@ -347,15 +347,21 @@ def stack_collapse_layers(slots):
 
 
 def write_TexOutput(bus, texmap, mapto):
-	ofile= bus['files']['textures']
+	ofile = bus['files']['textures']
+	scene = bus['scene']
 
-	tex_name= "MAPTO%sTE%s" % (mapto, texmap)
+	VRayScene = scene.vray
+
+	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
+		return texmap
+
+	tex_name = "MAPTO%sTE%s" % (mapto, texmap)
 
 	if not append_unique(bus['cache']['textures'], tex_name):
 		return tex_name
 
 	ofile.write("\nTexOutput %s {" % tex_name)
-	ofile.write("\n\ttexmap= %s;" % texmap)
+	ofile.write("\n\ttexmap=%s;" % texmap)
 	ofile.write("\n}\n")
 
 	return tex_name

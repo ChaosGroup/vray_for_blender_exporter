@@ -1143,20 +1143,23 @@ def write_node(bus):
 	if 'hair' in bus['node'] and bus['node']['hair'] == True:
 		node_name+= 'HAIR'
 
+	material = base_mtl
+
 	if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-		material= get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
+		material = get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
 
-	material= "RS%s" % node_name
+	if not VRayScene.RTEngine.enabled and not VRayScene.RTEngine.use_opencl:
+		material = "RS%s" % node_name
 
-	ofile.write("\nMtlRenderStats %s {" % material)
-	ofile.write("\n\tbase_mtl= %s;" % base_mtl)
-	ofile.write("\n\tvisibility= %s;" %             a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
-	ofile.write("\n\tcamera_visibility= %s;" %      a(scene, (0 if ob in visibility['camera']  else 1)))
-	ofile.write("\n\tgi_visibility= %s;" %          a(scene, (0 if ob in visibility['gi']      else 1)))
-	ofile.write("\n\treflections_visibility= %s;" % a(scene, (0 if ob in visibility['reflect'] else 1)))
-	ofile.write("\n\trefractions_visibility= %s;" % a(scene, (0 if ob in visibility['refract'] else 1)))
-	ofile.write("\n\tshadows_visibility= %s;" %     a(scene, (0 if ob in visibility['shadows'] else 1)))
-	ofile.write("\n}\n")
+		ofile.write("\nMtlRenderStats %s {" % material)
+		ofile.write("\n\tbase_mtl= %s;" % base_mtl)
+		ofile.write("\n\tvisibility= %s;" %             a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
+		ofile.write("\n\tcamera_visibility= %s;" %      a(scene, (0 if ob in visibility['camera']  else 1)))
+		ofile.write("\n\tgi_visibility= %s;" %          a(scene, (0 if ob in visibility['gi']      else 1)))
+		ofile.write("\n\treflections_visibility= %s;" % a(scene, (0 if ob in visibility['reflect'] else 1)))
+		ofile.write("\n\trefractions_visibility= %s;" % a(scene, (0 if ob in visibility['refract'] else 1)))
+		ofile.write("\n\tshadows_visibility= %s;" %     a(scene, (0 if ob in visibility['shadows'] else 1)))
+		ofile.write("\n}\n")
 
 	ofile.write("\nNode %s {" % node_name)
 	ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID', ob.pass_index))
