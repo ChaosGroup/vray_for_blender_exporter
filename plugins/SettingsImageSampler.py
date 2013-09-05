@@ -55,12 +55,65 @@ PARAMS= (
 	'subdivision_normals_threshold',
 	'subdivision_jitter',
 	'subdivision_show_samples',
+	'progressive_minSubdivs',
+	'progressive_maxSubdivs',
+	'progressive_threshold',
+	'progressive_maxTime',
+	'progressive_bundleSize',
+	'progressive_showMask',
 )
 
 
 def add_properties(rna_pointer):
 	class SettingsImageSampler(bpy.types.PropertyGroup):
-		pass
+			progressive_minSubdivs = bpy.props.IntProperty(
+				name = "Min Subdivs",
+				description = "Min. subdivs value for the progressive image sampler",
+				min = 1,
+				max = 100,
+				default = 1
+			)
+
+			progressive_maxSubdivs = bpy.props.IntProperty(
+				name = "Max Subdivs",
+				description = "Max. subdivs value for the progressive image sampler",
+				min = 1,
+				max = 100,
+				default = 4
+			)
+
+			progressive_threshold = bpy.props.FloatProperty(
+				name = "Threshold",
+				description = "Noise threshold for the progressive image sampler",
+				min = 0.0,
+				max = 1.0,
+				soft_min = 0.0,
+				soft_max = 1.0,
+				default = 0.01
+			)
+
+			progressive_maxTime = bpy.props.FloatProperty(
+				name = "Max Time",
+				description = "Max. render time for the progressive image sampler",
+				min = 0.0,
+				max = 1024.0,
+				default = 0.0
+			)
+
+			progressive_bundleSize = bpy.props.IntProperty(
+				name = "Bundle Size",
+				description = "The maximum number of samples for a pixel",
+				min = 32,
+				max = 1024,
+				default = 64
+			)
+
+			progressive_showMask = bpy.props.BoolProperty(
+				name = "Show Mask",
+				description  = "Show AA mask",
+				default = 0
+			)
+
 	bpy.utils.register_class(SettingsImageSampler)
 
 	rna_pointer.SettingsImageSampler= PointerProperty(
@@ -101,7 +154,8 @@ def add_properties(rna_pointer):
 		items= (
 			('FXD',"Fixed",""),
 			('DMC',"Adaptive DMC",""),
-			('SBD',"Adaptive subdivision","")
+			('SBD',"Adaptive subdivision",""),
+			('PRG',"Progressive",""),
 		),
 		default= "DMC"
 	)
@@ -228,6 +282,7 @@ def write(bus):
 		'FXD': 0,
 		'DMC': 1,
 		'SBD': 2,
+		'PRG': 3,
 	}
 
 	ofile= bus['files']['scene']

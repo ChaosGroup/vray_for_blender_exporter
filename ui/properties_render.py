@@ -507,7 +507,7 @@ class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 			if not module.dmc_treshhold_use_dmc:
 				col.prop(module, "dmc_threshold")
 			col.prop(module, "dmc_show_samples")
-		else:
+		elif module.type == 'DMC':
 			col.prop(module, "subdivision_minRate")
 			col.prop(module, "subdivision_maxRate")
 			col.prop(module, "subdivision_threshold")
@@ -521,7 +521,18 @@ class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 				col.prop(module, "subdivision_normals_threshold")
 			col.prop(module, "subdivision_jitter")
 			col.prop(module, "subdivision_show_samples")
+		else:
+			col.prop(module, 'progressive_minSubdivs')
+			col.prop(module, 'progressive_maxSubdivs')
+			col.prop(module, 'progressive_showMask')
+			if wide_ui:
+				col = split.column()
+			col.prop(module, 'progressive_threshold')
+			col.prop(module, 'progressive_maxTime')
+			col.prop(module, 'progressive_bundleSize')
 
+		layout.separator()
+		
 		split= layout.split()
 		col= split.column()
 		col.label(text="Filter type:")
