@@ -531,16 +531,17 @@ class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module, 'progressive_maxTime')
 			col.prop(module, 'progressive_bundleSize')
 
-		layout.separator()
-		
-		split= layout.split()
-		col= split.column()
-		col.label(text="Filter type:")
-		if wide_ui:
+		if module.type != 'PRG':
+			layout.separator()
+			
+			split= layout.split()
 			col= split.column()
-		col.prop(module, "filter_type", text="")
-		if not module.filter_type == 'NONE':
-			col.prop(module, "filter_size")
+			col.label(text="Filter type:")
+			if wide_ui:
+				col= split.column()
+			col.prop(module, "filter_type", text="")
+			if not module.filter_type == 'NONE':
+				col.prop(module, "filter_size")
 
 
 class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
