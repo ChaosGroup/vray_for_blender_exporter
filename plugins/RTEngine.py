@@ -157,7 +157,7 @@ def add_properties(rna_pointer):
 
 	# use_opencl
 	RTEngine.use_opencl= BoolProperty(
-		name= "Use OpenCL",
+		name= "Use GPU",
 		description= "",
 		default= False
 	)
