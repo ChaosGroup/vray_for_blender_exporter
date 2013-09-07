@@ -106,10 +106,21 @@ PARAMS= {
 		# 'opacity_tex',
 		# 'distortion_tex',
 	),
+
+	'SphereFade': (
+		#'gizmos',
+		'empty_color',
+		'affect_alpha',
+		'falloff'
+	),
 }
 
 
 def add_properties(rna_pointer):
+	class SphereFade(bpy.types.PropertyGroup):
+		pass
+	bpy.utils.register_class(SphereFade)
+
 	class VolumeVRayToon(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(VolumeVRayToon)
@@ -130,6 +141,12 @@ def add_properties(rna_pointer):
 		name= "EnvironmentFog",
 		type=  EnvironmentFog,
 		description= "EnvironmentFog settings"
+	)
+
+	rna_pointer.SphereFade= PointerProperty(
+		name= "SphereFade",
+		type=  SphereFade,
+		description= "SphereFade settings"
 	)
 
 	rna_pointer.VolumeVRayToon= PointerProperty(
@@ -169,7 +186,8 @@ def add_properties(rna_pointer):
 		description= "Distributed rendering network type",
 		items= (
 			('TOON', "Toon", "Object outline (toon style)."),
-			('FOG',  "Fog",  "Environment / object fog.")
+			('FOG',  "Fog",  "Environment / object fog."),
+			('SFADE',  "SphereFade",  "Sphere Fade.")
 		),
 		default= 'FOG'
 	)
@@ -190,6 +208,12 @@ def add_properties(rna_pointer):
 		name= "VolumeVRayToon",
 		type=  VolumeVRayToon,
 		description= "V-Ray VolumeVRayToon settings"
+	)
+
+	EnvironmentEffect.SphereFade= PointerProperty(
+		name= "SphereFade",
+		type=  SphereFade,
+		description= "SphereFade settings"
 	)
 
 	EnvironmentFog.emission= FloatVectorProperty(
@@ -710,6 +734,52 @@ def add_properties(rna_pointer):
 		default= 1.0
 	)
 
+	SphereFade.use = BoolProperty(
+		name        = "",
+		description = "",
+		default     = False
+	)
+
+	SphereFade.affect_alpha = BoolProperty(
+		name        = "Affect Alpha",
+		description = "Affect Alpha",
+		default     = False
+	)
+
+	SphereFade.empty_color= FloatVectorProperty(
+		name= "Empty Color",
+		description= "",
+		subtype= 'COLOR',
+		min= 0.0,
+		max= 1.0,
+		soft_min= 0.0,
+		soft_max= 1.0,
+		default= (0.5,0.5,0.5)
+	)
+
+	SphereFade.falloff= FloatProperty(
+		name= "Falloff",
+		description= "",
+		min= 0.0,
+		max= 100.0,
+		soft_min= 0.0,
+		soft_max= 10.0,
+		precision= 3,
+		default= 0.2
+	)
+
+	SphereFade.gizmos_objects= StringProperty(
+		name= "Gizmo",
+		description= "",
+		default= ""
+	)
+
+	SphereFade.gizmos_groups= StringProperty(
+		name= "Gizmo group",
+		description= "",
+		default= ""
+	)
+
 
 
 '''
@@ -767,6 +837,32 @@ def write(bus):
 		ofile.write("\n}\n")
 
 		return name
+
+	def write_SphereFadeGizmo(bus, ob):
+		vray = ob.vray
+		name= "MG%s" % get_name(ob, prefix='EMPTY')
+		ofile.write("\nSphereFadeGizmo %s {" % name)
+		ofile.write("\n\ttransform= %s;" % a(scene, transform(ob.matrix_world)))
+		if ob.type == 'EMPTY':
+			ofile.write("\n\tradius=%s;" % ob.empty_draw_size)
+		elif vray.MtlRenderStats.use:
+			ofile.write("\n\tradius=%s;" % vray.fade_radius)
+		ofile.write("\n\tinvert=0;")
+		ofile.write("\n}\n")
+		return name
+
+	def write_SphereFade(bus, effect, gizmos):
+		scene= bus['scene']
+		name= "ESF%s" % clean_string(effect.name)
+
+		ofile.write("\nSphereFade %s {" % name)
+		print(gizmos)
+		ofile.write("\n\tgizmos= List(%s);" % ','.join(gizmos))
+		for param in PARAMS['SphereFade']:
+			value= getattr(effect.SphereFade, param)
+			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+
+		ofile.write("\n}\n")
 
 	def write_EnvironmentFog_from_material(ofile,volume,material):
 		LIGHT_MODE= {
@@ -922,6 +1018,11 @@ def write(bus):
 							toon_objects.extend( [ get_name(ob, prefix='OB') for ob in bus['effects']['toon']['objects'] ] )
 
 					volumes.append(write_VolumeVRayToon(bus, effect, toon_objects))
+
+				elif effect.type == 'SFADE':
+					SphereFade= effect.SphereFade
+					gizmos= [write_SphereFadeGizmo(bus, ob) for ob in generate_object_list(SphereFade.gizmos_objects, SphereFade.gizmos_groups) if object_visible(bus,ob)]
+					write_SphereFade(bus, effect, gizmos)
 
 	volumes.reverse()
 	volumes.extend(bus['effects']['toon']['effects'])
@@ -1163,6 +1264,25 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 						bpy.data,       'groups',
 						text="Groups")
 
+def draw_SphereFade(context, layout, rna_pointer):
+	wide_ui= context.region.width > narrowui
+
+	SphereFade= rna_pointer.SphereFade
+
+	split= layout.split()
+	col= split.column()
+	col.prop(SphereFade, 'empty_color')
+	col.prop(SphereFade, 'affect_alpha')
+	col.prop(SphereFade, 'falloff')
+
+	#col= split.column()
+	col.prop_search(SphereFade, 'gizmos_objects',
+					context.scene,  'objects',
+					text="Objects")
+	col.prop_search(SphereFade, 'gizmos_groups',
+					bpy.data,       'groups',
+					text="Groups")	
+	
 
 def gui(context, layout, VRayEffects):
 	wide_ui= context.region.width > narrowui
@@ -1194,7 +1314,6 @@ def gui(context, layout, VRayEffects):
 
 		elif effect.type == 'TOON':
 			draw_VolumeVRayToon(context, layout, rna_pointer)
-
 		else:
 			split= layout.split()
 			col= split.column()
