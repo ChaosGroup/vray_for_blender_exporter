@@ -82,7 +82,7 @@ def add_properties(rna_pointer):
 		soft_min= 0.0,
 		soft_max= 10.0,
 		precision= 3,
-		default= 6.5
+		default= 0.065
 	)
 
 	VRayStereoscopicSettings.specify_focus= BoolProperty(
@@ -117,9 +117,9 @@ def add_properties(rna_pointer):
 		name= "Interocular Method",
 		description= "Specifies how the two virtual cameras will be placed in relation to the real camera in the scene",
 		items= (		
-			('BOTH',  "Both",  "Both virtual cameras will be shifted in opposite directions at a distance equal to half of the eye distance"),
-			('LEFT',  "Left",  "The virtual cameras are shifted to the left so that the right camera takes the position of the original camera. The left camera is shifted to the left at a distance equal to the 'Eye Distance'"),
-			('RIGHT', "Right", "The virtual cameras are shifted to the right so that the left camera takes the position of the original camera. The right camera is shifted to the right at a distance equal to the 'Eye Distance'")
+			('BOTH',  "Shift Both",  "Both virtual cameras will be shifted in opposite directions at a distance equal to half of the eye distance"),
+			('LEFT',  "Shift Left",  "The virtual cameras are shifted to the left so that the right camera takes the position of the original camera. The left camera is shifted to the left at a distance equal to the 'Eye Distance'"),
+			('RIGHT', "Shift Right", "The virtual cameras are shifted to the right so that the left camera takes the position of the original camera. The right camera is shifted to the right at a distance equal to the 'Eye Distance'")
 		),
 		default= 'BOTH'
 	)
@@ -139,6 +139,12 @@ def add_properties(rna_pointer):
 		name= "Adjust Resolution",
 		description= "When on this option will automatically adjust the resolution for the final image rendered",
 		default= False
+	)
+
+	VRayStereoscopicSettings.deep_pixel_mode= BoolProperty(
+		name= "Deep Pixel Mode",
+		description= "Enable deep pixel shademap mode: save DOF & motion blur, weight, camera Z coordinate.",
+		default= True
 	)
 
 
@@ -167,8 +173,8 @@ def add_properties(rna_pointer):
 	VRayStereoscopicSettings.shademap_file= StringProperty(
 		name= "Shademap File",
 		subtype= 'FILE_PATH',
-		description= "The name of the file in which the shade map information is stored",
-		default= "//lightmaps/shade.vrmap"
+		description= "The name of the file in which the shade map information is stored (*.vrst V-Ray stereoscopic format)",
+		default= "//lightmaps/shade.vrst"
 	)
 
 	VRayStereoscopicSettings.exclude_list= StringProperty(
@@ -213,22 +219,24 @@ def write(bus):
 		
 		if(CameraStereoscopic.use):
 			if CameraStereoscopic.LeftCam:
-				ofile.write("\n\tleft_camera=%s;" % (CameraStereoscopic.LeftCam))
+				ofile.write("\n\tleft_camera=%s;" % (clean_string(CameraStereoscopic.LeftCam)))
 		
 			if CameraStereoscopic.RightCam:
-				ofile.write("\n\tright_camera=%s;" % (CameraStereoscopic.RightCam))
+				ofile.write("\n\tright_camera=%s;" % (clean_string(CameraStereoscopic.RightCam)))
 		else:
 			ofile.write("\n\teye_distance=%s;" % p(StereoSettings.eye_distance))
 			ofile.write("\n\tspecify_focus=%s;" % p(StereoSettings.specify_focus))
 			ofile.write("\n\tfocus_distance=%s;" % p(StereoSettings.focus_distance))
 			ofile.write("\n\tfocus_method=%s;" % p(FOCUS[StereoSettings.focus_method]))
-			ofile.write("\n\tinterocular_method=%s;" % p(CHANEL[StereoSettings.interocular_method]))
+
+		ofile.write("\n\tinterocular_method=%s;" % p(CHANEL[StereoSettings.interocular_method]))
 			
 		ofile.write("\n\tview=%s;" % p(CHANEL[StereoSettings.view]))	
 		ofile.write("\n\tsm_mode=%s;" % p(SM_MODE[StereoSettings.sm_mode]))
 		ofile.write("\n\tadjust_resolution=%s;" % p(StereoSettings.adjust_resolution))
 		ofile.write("\n\tshademap_file=\"%s\";" % path_sep_to_unix(bpy.path.abspath(StereoSettings.shademap_file)))
-		#ofile.write("\n\tdeep_pixel_mode=%s;" % p(StereoSettings.deep_pixel_mode))
+		ofile.write("\n\tdeep_pixel_mode=%s;" % p(StereoSettings.deep_pixel_mode))
+		ofile.write("\n\treuse_threshold=%s;" % p(StereoSettings.reuse_threshold))
 		#ofile.write("\n\texclude_list=%s;" % p(StereoSettings.exclude_list))
 
 		ofile.write("\n\tinterocular_method=0;")
