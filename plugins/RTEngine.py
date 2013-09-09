@@ -156,10 +156,16 @@ def add_properties(rna_pointer):
 	)
 
 	# use_opencl
-	RTEngine.use_opencl= BoolProperty(
-		name= "Use GPU",
-		description= "",
-		default= False
+	RTEngine.use_opencl = EnumProperty(
+		name = "Device",
+		description = "Computation Device",
+		items = (
+			('CPU',           "CPU",             ""),
+			('CUDA_SINGLE',   "CUDA (Single)",   ""),
+			('OPENCL_SINGLE', "OpenCL (Single)", ""),
+			('OPENCL_MULTI',  "OpenCL (Multi)",  ""),
+		),
+		default = 'CPU'
 	)
 
 	# stereo_mode
@@ -242,33 +248,42 @@ def add_properties(rna_pointer):
 
 
 def write(bus):
-	ofile=  bus['files']['scene']
-	scene=  bus['scene']
+	ofile = bus['files']['scene']
+	scene = bus['scene']
 
-	VRayScene= scene.vray
-	RTEngine=  VRayScene.RTEngine
+	VRayScene = scene.vray
+	RTEngine  = VRayScene.RTEngine
 
-	STEREO_MODE= {
+	STEREO_MODE = {
 		'STEREO': 1,
 		'NONE':   0,
 	}
 
-	STEREO_FOCUS= {
+	STEREO_FOCUS = {
 		'SHEAR': 2,
 		'ROT':   1,
 		'NONE':  0,
+	}
+
+	DEVICE = {
+		'CPU'           : 0,
+		'OPENCL_SINGLE' : 1,
+		'OPENCL_MULTI'  : 2,
+		'CUDA_SINGLE'   : 4,
 	}
 
 	if RTEngine.enabled:
 		ofile.write("\n%s %s {" % (ID, ID))
 		for param in PARAMS:
 			if param == 'stereo_mode':
-				value= STEREO_MODE[RTEngine.stereo_mode]
+				value = STEREO_MODE[RTEngine.stereo_mode]
 			elif param == 'stereo_focus':
-				value= STEREO_FOCUS[RTEngine.stereo_focus]
+				value = STEREO_FOCUS[RTEngine.stereo_focus]
+			elif param == 'use_opencl':
+				value = DEVICE[RTEngine.use_opencl]
 			else:
-				value= getattr(RTEngine, param)
-			ofile.write("\n\t%s= %s;"%(param, p(value)))
+				value = getattr(RTEngine, param)
+			ofile.write("\n\t%s=%s;"%(param, p(value)))
 		ofile.write("\n}\n")
 
 
@@ -309,6 +324,7 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 		col.prop(RTEngine, 'trace_depth')
 		col.prop(RTEngine, 'bundle_size')
 		col.prop(RTEngine, 'samples_per_pixel')
+		col.prop(RTEngine, 'opencl_texsize')
 
 		layout.separator()
 
@@ -325,16 +341,6 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 
 		layout.separator()
 
-		split= layout.split()
-		col= split.column()
-		col.prop(RTEngine, 'use_opencl')
-		if wide_ui:
-			col= split.column()
-		if RTEngine.use_opencl:
-			col.prop(RTEngine, 'opencl_texsize')
-
-		layout.separator()
-
 		split = layout.split()
 		col = split.column()
 		col.prop(RTEngine, 'rtSampleLevel')
@@ -344,6 +350,9 @@ class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
 		if wide_ui:
 			col= split.column()
 		col.prop(RTEngine, 'rtTimeOut')
+
+		layout.separator()
+		layout.prop(RTEngine, 'use_opencl')
 
 		layout.separator()
 		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
