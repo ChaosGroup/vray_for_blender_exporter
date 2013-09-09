@@ -137,4 +137,3 @@ class VRAY_DP_tools(VRayDataPanel, bpy.types.Panel):
 		split= layout.split()
 		col= split.column()
 		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
-

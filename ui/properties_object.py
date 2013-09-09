@@ -401,7 +401,7 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 	def poll(cls, context):
 		if not engine_poll(__class__, context):
 			return False
-		if not context.scene.vray.exporter.use_VRayPattern:
+		if not context.scene.vray.exporter.experimental:
 			return False
 		return True
 

@@ -693,6 +693,10 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 
 		previewVoxel = meshFile.getVoxelByType(VRayProxy.MVF_PREVIEW_VOXEL)
 
+		if not previewVoxel:
+			self.report({'ERROR'}, "Can't find preview voxel!")
+			return {'FINISHED'}
+
 		vertices = previewVoxel.getVertices()
 		faces    = previewVoxel.getFaces()
 
@@ -722,7 +726,10 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 	bl_description = "Creates proxy from selection"
 
 	def execute(self, context):
-		sce= context.scene
+		sce = context.scene
+
+		VRayScene    = sce.vray
+		VRayExporter = VRayScene.exporter
 
 		def _create_proxy(ob):
 			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
@@ -762,7 +769,12 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 				sce.frame_set(selected_frame)
 
 			else:
-				vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
+				if VRayExporter.experimental:
+					bpy.ops.vray.generate_vrayproxy(
+						filepath = vrmesh_filepath,
+					)
+				else:
+					vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
 
 			ob_name= ob.name
 			ob_data_name= ob.data.name
@@ -832,7 +844,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 			debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
-
+		
 		if len(bpy.context.selected_objects):
 			for ob in bpy.context.selected_objects:
 				_create_proxy(ob)

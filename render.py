@@ -1229,7 +1229,7 @@ def write_object(bus):
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
 		return
 
-	if VRayObject.GeomVRayPattern.use:
+	if VRayExporter.experimental and VRayObject.GeomVRayPattern.use:
 		PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
 
 	complex_material= []
