@@ -91,20 +91,24 @@ def add_properties(rna_pointer):
 	)
 
 	CameraStereoscopic.stereo_base = FloatProperty(
-		name = "Eye Distance",
+		name        = "Eye Distance",
 		description = "Determines the width of the camera aperture and, indirectly, exposure",
-		min = 0.0, max=100.0,
-		soft_min=0.0, soft_max=1.0,
-		precision= 4,
-		default= 0.065,
-		update = stereoRigUpdate
+		min         = 0.0,
+		max         = 100.0,
+		soft_min    = 0.0,
+		soft_max    = 1.0,
+		precision   = 4,
+		default     = 0.065,
+		update      = stereoRigUpdate
 	)
 
 	CameraStereoscopic.stereo_distance= FloatProperty(
 		name        = "Distance",
 		description = "Determines the width of the camera aperture and, indirectly, exposure",
-		min=0.0, max=100000.0,
-		soft_min=0.0, soft_max=100.0,
+		min         = 0.0,
+		max         = 100000.0,
+		soft_min    = 0.0,
+		soft_max    = 100.0,
 		default     = 20.0,
 		update      = stereoRigUpdate
 	)
@@ -155,7 +159,7 @@ def create_stereo_cam(context):
 	left_cam.parent = cam
 	left_cam.lock_rotation = [True, True, True]
 	left_cam.lock_scale = [True, True, True]
-	left_cam.lock_location = [True, True, True]        
+	left_cam.lock_location = [True, True, True]
 	left_cam.location = [0,0,0]
 	left_cam_obj = left_cam.data
 	
@@ -169,11 +173,11 @@ def create_stereo_cam(context):
 	right_cam.parent = cam
 	right_cam.lock_rotation = [True, True, True]
 	right_cam.lock_scale = [True, True, True]
-	right_cam.lock_location = [True, True, True]    
+	right_cam.lock_location = [True, True, True]
 	right_cam.location = [0,0,0]
 	right_cam_obj = right_cam.data
 	right_cam_obj.show_limits = True
-	right_cam_obj.draw_size = cam_obj.draw_size    
+	right_cam_obj.draw_size = cam_obj.draw_size
 	cam_obj.vray.CameraStereoscopic.RightCam = right_cam.name
 	
 	bpy.ops.object.add(type='EMPTY')
@@ -183,7 +187,7 @@ def create_stereo_cam(context):
 	target_cam.parent = cam
 	target_cam.lock_rotation = [True, True, True]
 	target_cam.lock_scale = [True, True, True]
-	target_cam.lock_location = [True, True, True]    
+	target_cam.lock_location = [True, True, True]
 	target_cam.location = [0,0,-5]
 	cam_obj.vray.CameraStereoscopic.TargetCam = target_cam.name
 	
@@ -258,23 +262,21 @@ def write(bus):
 	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
 	if CameraStereoscopic.use and StereoSettings.use:
-
-		camera_left = bpy.data.objects.get(CameraStereoscopic.LeftCam)
+		camera_left  = bpy.data.objects.get(CameraStereoscopic.LeftCam)
 		camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
 
 		ofile.write("\n\n// Camera Left: %s" % (clean_string(camera_left.name)))
 		ofile.write("\nRenderView %s {" % (clean_string(camera_left.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_left))))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_left, "left"))))
 		ofile.write("\n}\n")
 
 		ofile.write("\n\n// Camera Right: %s" % (clean_string(camera_right.name)))
 		ofile.write("\nRenderView %s {" % (clean_string(camera_right.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_right))))
+		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_right, "right"))))
 		ofile.write("\n}\n")
 
 
-def matrix_recalc(bus, cam):
-	# TODOD  - added palallax compensation (+ eye_distance/2)
+def matrix_recalc(bus, cam, pos):
 	ofile  = bus['files']['camera']
 	scene  = bus['scene']
 	camera = bus['camera']
@@ -282,16 +284,25 @@ def matrix_recalc(bus, cam):
 	VRayScene      = scene.vray
 	StereoSettings = VRayScene.VRayStereoscopicSettings
 
-	mat_world = cam.matrix_world
+	VRayCamera = camera.data.vray
+	CameraStereoscopic = VRayCamera.CameraStereoscopic
+
+	if pos == "left":
+		shift = mathutils.Matrix.Translation((-CameraStereoscopic.stereo_base, 0, 0))
+		mat_world = cam.matrix_world * shift
+	else:
+		mat_world = cam.matrix_world
+
 	loc_w, rot_w, scale_w = mat_world.decompose()
-	
+
 	mat = cam.matrix_local
 	loc, rot, scale = mat.decompose()
 	mat_rot = rot_w.to_matrix()
 	mat_rot = mat_rot.to_4x4()
+
 	mat_loc = mathutils.Matrix.Translation((loc_w/2))
 
-	if StereoSettings.adjust_resolution:
+	if StereoSettings.adjust_resolution and StereoSettings.sm_mode != 'RENDER':
 		mat_sca = mathutils.Matrix.Scale(2, 4, (0.0, 1.0, 0.0))
 	else:
 		mat_sca = mathutils.Matrix.Scale(1, 4)
@@ -299,6 +310,7 @@ def matrix_recalc(bus, cam):
 	mat_out = mat_loc * mat_rot * mat_sca
 
 	return mat_out
+
 
 def remove_stereo_cam(context):
 	cam_obj = context.camera.vray.CameraStereoscopic
@@ -315,7 +327,9 @@ def remove_obj(name):
 			sce.objects.unlink(ob)
 		except:
 			pass
-	bpy.data.objects.remove(ob)			
+
+	if ob.type != 'EMPTY':
+		bpy.data.objects.remove(ob)
 
 
 class VRAY_OT_create_stereo_cam(bpy.types.Operator):
