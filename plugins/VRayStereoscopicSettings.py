@@ -143,7 +143,7 @@ def add_properties(rna_pointer):
 
 	VRayStereoscopicSettings.deep_pixel_mode= BoolProperty(
 		name= "Deep Pixel Mode",
-		description= "Enable deep pixel shademap mode: save DOF & motion blur, weight, camera Z coordinate.",
+		description= "Enable deep pixel shademap mode: save DOF & motion blur, weight, camera Z coordinate",
 		default= True
 	)
 
