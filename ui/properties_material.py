@@ -478,7 +478,6 @@ class VRAY_MP_render(VRayMaterialPanel, bpy.types.Panel):
 			col= split.column()
 		else:
 			col= col.column()
-		col.active= VRayMaterial.material_id_number
 		col.prop(VRayMaterial, 'material_id_color', text="")
 
 		layout.separator()
