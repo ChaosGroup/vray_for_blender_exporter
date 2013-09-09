@@ -55,9 +55,9 @@ def add_properties(rna_pointer):
 		description= "Exporter settings"
 	)
 
-	VRayExporter.use_VRayPattern = BoolProperty(
-		name        = "Use VRayPattern",
-		description = "Use VRayPattern plugin",
+	VRayExporter.experimental = BoolProperty(
+		name        = "Experimental",
+		description = "Enable experimental options",
 		default     = False
 	)
 
