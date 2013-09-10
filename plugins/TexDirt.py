@@ -338,9 +338,6 @@ def write(bus):
         elif param == 'radius':
             if radiusTexture:
                 ofile.write("\n\tradius=%s;" % radiusTextureFloat)
-            else:
-                ofile.write("\n\tradius=%s;"%(param, value))
-            continue
         elif param in ('white_color','black_color'):
             tex_key = param+'_tex'
             if tex_key in mapped_params:
