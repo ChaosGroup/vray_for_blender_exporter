@@ -58,6 +58,22 @@ PARAMS= (
 	'opencl_texsize',
 )
 
+PARAMS_SETTINGS_RT_ENGINE = (
+	'trace_depth',
+	'use_gi',
+	'gi_depth',
+	'gi_reflective_caustics',
+	'gi_refractive_caustics',
+	'bundle_size',
+	'samples_per_pixel',
+	'coherent_tracing',
+	'stereo_mode',
+	'stereo_eye_distance',
+	'stereo_focus',
+	'opencl_texsize',
+)
+
+
 def add_properties(rna_pointer):
 	class RTEngine(bpy.types.PropertyGroup):
 		pass
@@ -273,8 +289,23 @@ def write(bus):
 	}
 
 	if RTEngine.enabled:
+		# Write all the params to support previous versions
+		#
 		ofile.write("\n%s %s {" % (ID, ID))
 		for param in PARAMS:
+			if param == 'stereo_mode':
+				value = STEREO_MODE[RTEngine.stereo_mode]
+			elif param == 'stereo_focus':
+				value = STEREO_FOCUS[RTEngine.stereo_focus]
+			elif param == 'use_opencl':
+				value = DEVICE[RTEngine.use_opencl]
+			else:
+				value = getattr(RTEngine, param)
+			ofile.write("\n\t%s=%s;"%(param, p(value)))
+		ofile.write("\n}\n")
+
+		ofile.write("\nSettingsRTEngine settingsRT {")
+		for param in PARAMS_SETTINGS_RT_ENGINE:
 			if param == 'stereo_mode':
 				value = STEREO_MODE[RTEngine.stereo_mode]
 			elif param == 'stereo_focus':
