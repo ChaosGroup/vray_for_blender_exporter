@@ -307,6 +307,17 @@ def write(bus):
 
     mapped_params = write_sub_textures(bus, TexDirt, ('white_color_tex', 'black_color_tex', 'radius_tex'))
 
+    radiusTexture      = None
+    radiusTextureFloat = None
+    if 'radius_tex' in mapped_params:
+        radiusTexture = tex_name + "Radius"
+        radiusTextureFloat = radiusTexture + "::product"
+
+        ofile.write("\nTexFloatOp %s {" % radiusTexture)
+        ofile.write("\n\tfloat_a=%s::out_intensity;" % mapped_params['radius_tex'])
+        ofile.write("\n\tfloat_b=%s;" % a(scene, TexDirt.radius))
+        ofile.write("\n}\n")
+
     ofile.write("\n%s %s {"%(PLUG, tex_name))
     for param in PARAMS:
         if not hasattr(TexDirt, param):
@@ -324,14 +335,16 @@ def write(bus):
             value = "List(%s)" % ",".join([get_name(ob, prefix='OB') for ob in generate_object_list(None, nodeGroups)])
             ofile.write("\n\t%s=%s;" % (param, value))
             continue
-        elif param in ('white_color','black_color','radius'):
+        elif param == 'radius':
+            if radiusTexture:
+                ofile.write("\n\tradius=%s;" % radiusTextureFloat)
+            else:
+                ofile.write("\n\tradius=%s;"%(param, value))
+            continue
+        elif param in ('white_color','black_color'):
             tex_key = param+'_tex'
             if tex_key in mapped_params:
-                value = mapped_params[tex_key]
-                if tex_key == 'radius_tex':
-                    ofile.write("\n\tradius=%s::out_intensity;" % (value))
-                else:
-                    ofile.write("\n\t%s=%s;"%(param, value))
+                ofile.write("\n\t%s=%s;"%(param, mapped_params[tex_key]))
                 continue
             else:
                 pass
