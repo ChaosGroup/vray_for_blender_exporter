@@ -878,6 +878,8 @@ def get_full_filepath(bus, ob, filepath):
 		component_subdir= "misc"
 	elif file_type.lower() == "vrmesh":
 		component_subdir= "proxy"
+	elif file_type.lower() == "vrmap":
+		component_subdir= "lightmaps"
 	else:
 		component_subdir= "textures"
 
