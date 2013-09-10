@@ -1818,6 +1818,10 @@ def add_properties():
 		description= "V-Ray world settings"
 	)
 
+	for pluginType in PLUGINS:
+		for plugin in PLUGINS[pluginType]:
+			if 'register' in dir(PLUGINS[pluginType][plugin]):
+				PLUGINS[pluginType][plugin].register()
 
 	'''
 	  Loading plugin properties
@@ -1845,9 +1849,6 @@ def add_properties():
 	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)
 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRaySlot)
 
-	for key in PLUGINS['NODE']:
-		PLUGINS['NODE'][key].register()
-
 	for key in PLUGINS['BRDF']:
 		if key != 'BRDFBump':
 			if key == 'BRDFLayered':
@@ -1865,5 +1866,7 @@ def remove_properties():
 	del bpy.types.Scene.vray
 	del bpy.types.Texture.vray
 
-	for key in PLUGINS['NODE']:
-		PLUGINS['NODE'][key].unregister()
+	for pluginType in PLUGINS:
+		for plugin in PLUGINS[pluginType]:
+			if 'unregister' in dir(PLUGINS[pluginType][plugin]):
+				PLUGINS[pluginType][plugin].unregister()
