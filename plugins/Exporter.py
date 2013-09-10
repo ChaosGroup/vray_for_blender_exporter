@@ -141,8 +141,8 @@ def add_properties(rna_pointer):
 
 	VRayExporter.log_window_term= StringProperty(
 		name= "Log window terminal",
-		description= "Log window terminal command. You must leave the execution parameter at the end",
-		default= "x-terminal-emulator -e"
+		description= "Log window terminal command",
+		default= "x-terminal-emulator"
 	)
 
 	VRayExporter.animation= BoolProperty(

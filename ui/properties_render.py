@@ -396,7 +396,10 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col= split.column()
 		if PLATFORM == "linux":
 			col.prop(ve, 'log_window')
-
+			if ve.log_window:
+				col.prop(ve, 'log_window_type', text="Terminal")
+				if ve.log_window_type == 'CUSTOM':
+					col.prop(ve, 'log_window_term')
 		layout.separator()
 
 		split= layout.split()

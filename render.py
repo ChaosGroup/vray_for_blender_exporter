@@ -1837,15 +1837,30 @@ def run(bus):
 
 	if PLATFORM == "linux":
 		if VRayExporter.log_window:
-			log_window= []
-			log_window.append("xterm")
-			log_window.append("-T")
-			log_window.append("VRAYSTANDALONE")
-			log_window.append("-geometry")
-			log_window.append("90x10")
-			log_window.append("-e")
-			log_window.extend(params)
-			params= log_window
+			LOG_TERMINAL = {
+				'DEFAULT' : 'xterm',
+				'XTERM'   : 'xterm',
+				'GNOME'   : 'gnome-terminal',
+				'KDE'     : 'konsole',
+				'CUSTOM'  : VRayExporter.log_window_term,
+			}
+
+			log_window = []
+			if VRayExporter.log_window_type in ['DEFAULT', 'XTERM']:
+				log_window.append("xterm")
+				log_window.append("-T")
+				log_window.append("VRAYSTANDALONE")
+				log_window.append("-geometry")
+				log_window.append("90x10")
+				log_window.extend(params)
+			else:
+				log_window.extend(LOG_TERMINAL[VRayExporter.log_window_type].split(" "))
+				log_window.append("-e")
+				if VRayExporter.log_window_type == "GNOME":
+					log_window.append("\"%s\"" % (" ".join(params)))
+				else:
+					log_window.extend(params)
+			params = log_window
 
 	if (VRayExporter.autoclose
 		or (VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME')
