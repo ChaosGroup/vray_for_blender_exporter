@@ -107,7 +107,7 @@ def write_UVWGenChannel(bus):
 	VRaySlot    = texture.vray_slot
 	VRayTexture = texture.vray
 
-	if VRayExporter.experimental:
+	if True:
 		ofile.write("\nUVWGenMayaPlace2dTexture %s {" % uvw_name)
 		if slot and hasattr(slot, 'uv_layer') and slot.uv_layer:
 			ofile.write('\n\tuv_set_name="%s";' % slot.uv_layer)
