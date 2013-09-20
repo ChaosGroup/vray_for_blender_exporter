@@ -86,15 +86,15 @@ def add_properties(rna_pointer):
 
 		img_file= StringProperty(
 			name= "File name",
-			description= "Render file name (Variables: %C - camera name; %S - scene name)",
-			default= "render_%C"
+			description= "Render file name (Variables: %C - camera name; %S - scene name; %F - blend file name)",
+			default= "%F_%C"
 		)
 
 		img_dir= StringProperty(
 			name= "Path",
-			description= "Render file directory",
+			description= "Render file directory (Variables: %C - camera name; %S - scene name; %F - blend file name)",
 			subtype= 'DIR_PATH',
-			default= "//render/"
+			default= "//render_%F/"
 		)
 
 		img_file_needFrameNumber= BoolProperty(
