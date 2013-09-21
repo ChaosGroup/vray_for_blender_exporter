@@ -813,6 +813,12 @@ def path_sep_to_unix(filepath):
 	return filepath
 
 
+def Quotes(path):
+	if PLATFORM != 'win32':
+		return '"%s"' % (path)
+	return path
+
+
 # Create directory
 def create_dir(directory):
 	directory = path_sep_to_unix(directory)
