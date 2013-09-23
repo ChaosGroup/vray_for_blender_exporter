@@ -31,6 +31,7 @@ import bpy
 ''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
+from vb25.plugins import *
 
 from bl_ui import properties_scene
 for member in dir(properties_scene):
@@ -41,6 +42,92 @@ for member in dir(properties_scene):
 	except:
 		pass
 del properties_scene
+
+
+class VRAY_RP_Layers(VRayRenderLayersPanel, bpy.types.Panel):
+	bl_label   = "Render Elements"
+	bl_options = {'HIDE_HEADER'}
+	
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(__class__, context)
+
+	def draw_header(self, context):
+		VRayScene = context.scene.vray
+		self.layout.prop(VRayScene, 'render_channels_use', text="")
+
+	def draw(self, context):
+		VRayScene = context.scene.vray
+		self.layout.prop(VRayScene, 'render_channels_use', text="Use Render Elements")
+
+		wide_ui = context.region.width > narrowui
+		layout= self.layout
+
+		sce= context.scene
+		vsce= sce.vray
+		render_channels= vsce.render_channels
+
+		layout.active= vsce.render_channels_use
+
+		row= layout.row()
+		row.template_list("VRayListUse", "",
+						  vsce, 'render_channels',
+						  vsce, 'render_channels_index',
+						  rows= 4)
+		col= row.column()
+		sub= col.row()
+		subsub= sub.column(align=True)
+		subsub.operator('vray.render_channels_add',	   text="", icon="ZOOMIN")
+		subsub.operator('vray.render_channels_remove', text="", icon="ZOOMOUT")
+
+		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
+			render_channel= render_channels[vsce.render_channels_index]
+
+			layout.separator()
+
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Name:")
+			if wide_ui:
+				col= split.column()
+			row= col.row(align=True)
+			row.prop(render_channel, 'name', text="")
+
+			if wide_ui:
+				split= layout.split(percentage=0.2)
+			else:
+				split= layout.split()
+			col= split.column()
+			col.label(text="Type:")
+			if wide_ui:
+				col= split.column()
+			col.prop(render_channel, 'type', text="")
+
+			layout.separator()
+
+			if render_channel.type != 'NONE':
+				# Box border
+				layout= layout.box()
+
+				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
+				if plugin is not None:
+					render_channel_data= getattr(render_channel,plugin.PLUG)
+
+					if render_channel.name == "" or render_channel.name == "RenderChannel":
+						def get_unique_name():
+							for chan in render_channels:
+								if render_channel_data.name == chan.name:
+									return render_channel_data.name + " (enter unique name)"
+							return render_channel_data.name
+						render_channel.name= get_unique_name()
+
+					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
+
 
 class VRAY_SP_includer(VRayScenePanel, bpy.types.Panel):
 	bl_label   = "Includes"
@@ -162,4 +249,4 @@ class VRAY_SP_lights_tweaker(VRayScenePanel, bpy.types.Panel):
 				sub_v.prop(VRayLamp, 'intensity', text="")
 				sub_v.prop(VRayLamp, 'subdivs',   text="")
 		else:
-			col.label(text= "Nothing in bpy.data.lamps...")
+			col.label(text="Nothing in bpy.data.lamps...")

@@ -161,6 +161,16 @@ class VRayRenderPanel():
 		return engine_poll(cls, context)
 
 
+class VRayRenderLayersPanel():
+	bl_space_type  = 'PROPERTIES'
+	bl_region_type = 'WINDOW'
+	bl_context     = 'render_layer'
+
+	@classmethod
+	def poll(cls, context):
+		return engine_poll(cls, context)
+
+
 class VRayScenePanel():
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
