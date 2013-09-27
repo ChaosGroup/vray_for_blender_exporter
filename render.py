@@ -1743,11 +1743,9 @@ def run(bus):
 	resolution_x= int(scene.render.resolution_x * scene.render.resolution_percentage / 100)
 	resolution_y= int(scene.render.resolution_y * scene.render.resolution_percentage / 100)
 
-	params= []
+	params = []
 	params.append(vray_standalone)
-
-	params.append('-sceneFile=')
-	params.append(bus['filenames']['scene'])
+	params.append('-sceneFile=%s' % Quotes(bus['filenames']['scene']))
 
 	preview_file     = os.path.join(tempfile.gettempdir(), "preview.jpg")
 	preview_loadfile = os.path.join(tempfile.gettempdir(), "preview.0000.jpg")
@@ -1755,36 +1753,24 @@ def run(bus):
 	load_file  = preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 
 	if not scene.render.threads_mode == 'AUTO':
-		params.append('-numThreads=')
-		params.append(str(scene.render.threads))
+		params.append('-numThreads=%i' % (scene.render.threads))
 
 	if bus['preview']:
-		params.append('-imgFile=')
-		params.append(preview_file)
-		params.append('-showProgress=')
-		params.append('0')
-		params.append('-display=')
-		params.append('0')
-		params.append('-autoclose=')
-		params.append('1')
-		params.append('-verboseLevel=')
-		params.append('0')
+		params.append('-imgFile=%s' % Quotes(preview_file))
+		params.append('-showProgress=0')
+		params.append('-display=0')
+		params.append('-autoclose=1')
+		params.append('-verboseLevel=0')
 
 	else:
 		if RTEngine.enabled:
-			params.append('-rtTimeOut=')
-			params.append("%.3f"%(RTEngine.rtTimeOut))
-			params.append('-rtNoise=')
-			params.append("%.3f"%(RTEngine.rtNoise))
-			params.append('-rtSampleLevel=')
-			params.append("%i"%(RTEngine.rtSampleLevel))
+			params.append('-rtTimeOut=%.3f' % (RTEngine.rtTimeOut))
+			params.append('-rtNoise=%.3f' % (RTEngine.rtNoise))
+			params.append('-rtSampleLevel=%i' % (RTEngine.rtSampleLevel))
 			params.append('-cmdMode=1')
 
-		params.append('-display=')
-		params.append(str(int(VRayExporter.display)))
-
-		params.append('-verboseLevel=')
-		params.append(VRayExporter.verboseLevel)
+		params.append('-display=%i' % (VRayExporter.display))
+		params.append('-verboseLevel=%s' % (VRayExporter.verboseLevel))
 
 		if scene.render.use_border:
 			x0= resolution_x * scene.render.border_min_x
@@ -1792,11 +1778,8 @@ def run(bus):
 			x1= resolution_x * scene.render.border_max_x
 			y1= resolution_y * (1.0 - scene.render.border_min_y)
 
-			if scene.render.use_crop_to_border:
-				params.append('-crop=')
-			else:
-				params.append('-region=')
-			params.append("%i;%i;%i;%i" % (x0,y0,x1,y1))
+			region = 'crop' if scene.render.use_crop_to_border else 'region'
+			params.append("-%s=%i;%i;%i;%i" % (region, x0, y0, x1, y1))
 
 		if VRayExporter.use_still_motion_blur:
 			params.append("-frames=%d" % scene.frame_end)
@@ -1815,25 +1798,16 @@ def run(bus):
 
 		if VRayDR.on:
 			if len(VRayDR.nodes):
-				params.append('-distributed=')
-				params.append('1')
-				params.append('-portNumber=')
-				params.append(str(VRayDR.port))
-				params.append('-renderhost=')
-				if PLATFORM == "win32":
-					params.append("%s" % ';'.join([n.address for n in VRayDR.nodes]))
-				else:
-					params.append("\"%s\"" % ';'.join([n.address for n in VRayDR.nodes]))
-				params.append('-include=')
-				params.append("\"%s\"" % (bus['filenames']['DR']['shared_dir'] + os.sep))
+				params.append('-distributed=1')
+				params.append('-portNumber=%i' % (VRayDR.port))
+				params.append('-renderhost=%s' % Quotes(';'.join([n.address for n in VRayDR.nodes])))
+				params.append('-include=%s' % Quotes(bus['filenames']['DR']['shared_dir'] + os.sep))
 
 		if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
-			params.append('-imgFile=')
-			params.append(image_file)
+			params.append('-imgFile=%s' % Quotes(image_file))
 
 		if VRayExporter.auto_save_render and VRayExporter.image_to_blender:
-			params.append('-autoclose=')
-			params.append('1')
+			params.append('-autoclose=1')
 
 	if PLATFORM == "linux":
 		if VRayExporter.log_window:
@@ -1865,23 +1839,19 @@ def run(bus):
 	if (VRayExporter.autoclose
 		or (VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME')
 		or (VRayExporter.animation and VRayExporter.animation_type == 'FULL' and VRayExporter.use_still_motion_blur)):
-		params.append('-autoclose=')
-		params.append('1')
+		params.append('-autoclose=1')
 
 	engine = bus['engine']
 
 	if VRayExporter.display_srgb:
-		params.append('-displaySRGB=')
-		params.append('1')
+		params.append('-displaySRGB=1')
 
 	# If this is a background task, wait until render end
 	# and no VFB is required
 	if bpy.app.background or VRayExporter.wait:
 		if bpy.app.background:
-			params.append('-display=')   # Disable VFB
-			params.append('0')
-			params.append('-autoclose=') # Exit on render end
-			params.append('1')
+			params.append('-display=0')   # Disable VFB
+			params.append('-autoclose=1') # Exit on render end
 		subprocess.call(params)
 		return
 

@@ -144,7 +144,7 @@ def write(ofile, render_channel, sce= None, name= None):
 		
 		if(getattr(render_channel, 'channel_%s' % chan_prop)):
 			ofile.write("\nRenderChannelColor %s {" % (clean_string("%s_%s" % (channel_name,chan_name))))
-			ofile.write("\n\tname= \"VRay_%s\";" % chan_name)
+			ofile.write("\n\tname= \"%s\";" % chan_name)
 			ofile.write("\n\talias= %d;" % chan_id)
 			ofile.write("\n\tcolor_mapping= %d;"%(chan_cm))
 			ofile.write("\n\tconsider_for_aa= %d;"%(chan_aa))

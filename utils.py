@@ -813,6 +813,12 @@ def path_sep_to_unix(filepath):
 	return filepath
 
 
+def Quotes(path):
+	if PLATFORM != 'win32':
+		return '"%s"' % (path)
+	return path
+
+
 # Create directory
 def create_dir(directory):
 	directory = path_sep_to_unix(directory)
@@ -1088,6 +1094,9 @@ def init_files(bus):
 	if bpy.data.filepath:
 		if SettingsOutput.img_dir:
 			output_filepath = bpy.path.abspath(SettingsOutput.img_dir)
+			if '%C' in output_filepath: output_filepath = output_filepath.replace('%C', scene.camera.name)
+			if '%S' in output_filepath: output_filepath = output_filepath.replace('%S', scene.name)
+			if '%F' in output_filepath: output_filepath = output_filepath.replace('%F', clean_string(blendfile_name))
 
 		if VRayExporter.output == 'USER':
 			if VRayExporter.output_dir:
@@ -1160,6 +1169,8 @@ def init_files(bus):
 			file_name = file_name.replace("%C", scene.camera.name)
 		if file_name.find("%S") != -1:
 			file_name = file_name.replace("%S", scene.name)
+		if file_name.find("%F") != -1:
+			file_name = file_name.replace("%F", blendfile_name)
 		file_name = clean_string(file_name)
 		load_file_name = file_name
 	bus['filenames']['output_filename'] = "%s.%s" % (file_name, ext)

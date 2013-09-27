@@ -177,7 +177,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 			col.prop(rd, 'quality', slider= True)
 		elif img_format == 'PNG':
 			col.prop(rd, 'quality', slider= True, text= "Compression")
-		elif img_format == 'OPENEXR':
+		elif img_format == 'EXR':
 			row= col.row()
 			row.prop(rd, 'exr_codec')
 
