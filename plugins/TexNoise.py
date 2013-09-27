@@ -186,66 +186,96 @@ def add_properties(rna_pointer):
 	)
 
 
-def write(bus):
-	TYPE= {
+def writeDatablock(bus, TexNoiseMax, pluginName, mapped_params=None):
+	ofile = bus['files']['textures']
+	scene = bus['scene']
+
+	TYPE = {
 		'REGULAR':    0,
 		'FRACTAL':    1,
 		'TRUBULENCE': 2,
 	}
-	PLACEMENT_TYPE= {
+
+	PLACEMENT_TYPE = {
 		'FULL':  0,
 		'CROP':  1,
 		'PLACE': 2,
 	}
+	
+	uvwgen = write_uvwgen(bus)
 
-	scene= bus['scene']
-	ofile= bus['files']['textures']
-
-	slot=     bus['mtex']['slot']
-	texture=  bus['mtex']['texture']
-	tex_name= bus['mtex']['name']
-
-	uvwgen= write_uvwgen(bus)
-
-	TexNoiseMax= getattr(texture.vray, PLUG)
-
-	mapped_keys= ('color1', 'color2')
-	mapped_params= write_sub_textures(bus,
-									  TexNoiseMax,
-									  [key+'_tex' for key in mapped_keys])
-
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+	ofile.write("\n%s %s {"%(PLUG, pluginName))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 
 	for param in PARAMS:
 		if param == 'type':
-			value= TYPE[TexNoiseMax.type]
+			value = TYPE[TexNoiseMax.type]
 
 		elif param == 'placement_type':
-			value= PLACEMENT_TYPE[TexNoiseMax.placement_type]
+			value = PLACEMENT_TYPE[TexNoiseMax.placement_type]
 
 		elif param == 'uvwgen':
-			value= uvwgen
-
-		elif param in mapped_keys and param+'_tex' in mapped_params:
-			value= mapped_params[param+'_tex']
-
+			if not uvwgen and not 'uvwgen' in bus:
+				continue
+			value = uvwgen if uvwgen else bus['uvwgen']
+		elif param in ('color1', 'color2') and param+'_tex' in mapped_params:
+			value = mapped_params[param+'_tex']
 		else:
-			value= getattr(TexNoiseMax, param)
+			value = getattr(TexNoiseMax, param)
 		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
-
 	ofile.write("\n}\n")
 
-	return tex_name
+	return pluginName
 
 
-'''
-  GUI
-'''
+def write(bus):
+	texture  = bus['mtex']['texture']
+	tex_name = bus['mtex']['name']	
+
+	TexNoiseMax = getattr(texture.vray, PLUG)
+
+	mapped_keys = ('color1', 'color2')
+	mapped_params = write_sub_textures(
+		bus,
+		TexNoiseMax,
+		[key+'_tex' for key in mapped_keys]
+	)
+
+	return writeDatablock(bus, TexNoiseMax, tex_name, mapped_params)
+
+
+def gui(layout, width, TexNoiseMax):
+	wide_ui = width > narrowui
+
+	split= layout.split()
+	col= split.column(align= True)
+	col.prop(TexNoiseMax, 'color1')
+	col.prop_search(TexNoiseMax, 'color1_tex',
+					bpy.data,    'textures',
+					text= "")
+	if wide_ui:
+		col= split.column(align= True)
+	col.prop(TexNoiseMax, 'color2')
+	col.prop_search(TexNoiseMax, 'color2_tex',
+					bpy.data,    'textures',
+					text= "")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexNoiseMax, 'type')
+	col.prop(TexNoiseMax, 'size')
+	col.prop(TexNoiseMax, 'iterations')
+	if wide_ui:
+		col= split.column()
+	col.prop(TexNoiseMax, 'low')
+	col.prop(TexNoiseMax, 'high')
+	col.prop(TexNoiseMax, 'phase')
+
+
 class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 	bl_label       = NAME
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAYBLENDER_REALTIME','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -256,35 +286,9 @@ class VRAY_TP_TexNoiseMax(VRayTexturePanel, bpy.types.Panel):
 		return ((tex and tex.type == 'VRAY' and tex.vray.type == ID) and (engine_poll(__class__, context)))
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
+		TexNoiseMax = getattr(context.texture.vray, PLUG)
 
-		tex= context.texture
-		TexNoiseMax= getattr(tex.vray, PLUG)
-
-		split= layout.split()
-		col= split.column(align= True)
-		col.prop(TexNoiseMax, 'color1')
-		col.prop_search(TexNoiseMax, 'color1_tex',
-						bpy.data,    'textures',
-						text= "")
-		if wide_ui:
-			col= split.column(align= True)
-		col.prop(TexNoiseMax, 'color2')
-		col.prop_search(TexNoiseMax, 'color2_tex',
-						bpy.data,    'textures',
-						text= "")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexNoiseMax, 'type')
-		col.prop(TexNoiseMax, 'size')
-		col.prop(TexNoiseMax, 'iterations')
-		if wide_ui:
-			col= split.column()
-		col.prop(TexNoiseMax, 'low')
-		col.prop(TexNoiseMax, 'high')
-		col.prop(TexNoiseMax, 'phase')
+		gui(self.layout, context.region.width, TexNoiseMax)
 
 
 bpy.utils.register_class(VRAY_TP_TexNoiseMax)

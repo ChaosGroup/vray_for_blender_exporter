@@ -117,43 +117,62 @@ def add_properties(rna_pointer):
 	)
 
 
-'''
-  OUTPUT
-'''
-def write(bus):
-	scene= bus['scene']
-	ofile= bus['files']['textures']
-
-	slot=     bus['mtex']['slot']
-	texture=  bus['mtex']['texture']
-	tex_name= bus['mtex']['name']
-
+def writeDatablock(bus, TexChecker, pluginName, mapped_params=None):
+	ofile = bus['files']['textures']
+	scene = bus['scene']
+	
 	uvwgen= write_uvwgen(bus)
 
-	TexChecker= getattr(texture.vray, PLUG)
-
-	ofile.write("\n%s %s {"%(PLUG, tex_name))
+	ofile.write("\n%s %s {"%(PLUG, pluginName))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 
 	for param in PARAMS:
 		if param == 'uvwgen':
-			value= uvwgen
+			if not uvwgen and not 'uvwgen' in bus:
+				continue
+			value = uvwgen if uvwgen else bus['uvwgen']
+			ofile.write("\n\t%s=%s;"%(param, value))
+			continue
 		else:
-			value= getattr(TexChecker, param)
-		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
-
+			value = getattr(TexChecker, param)
+		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return pluginName
 
 
-'''
-  GUI
-'''
+def write(bus):
+	scene = bus['scene']
+	ofile = bus['files']['textures']
+
+	slot     = bus['mtex']['slot']
+	texture  = bus['mtex']['texture']
+	tex_name = bus['mtex']['name']
+
+	TexChecker = getattr(texture.vray, PLUG)
+
+	return writeDatablock(bus, TexNoiseMax, tex_name, mapped_params)
+
+
+def gui(layout, width, TexChecker):
+	wide_ui = width > narrowui
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexChecker, 'white_color', text="")
+	if wide_ui:
+		col= split.column()
+	col.prop(TexChecker, 'black_color', text="")
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexChecker, 'contrast', slider= True)
+
+
 class VRAY_TP_TexChecker(VRayTexturePanel, bpy.types.Panel):
 	bl_label       = NAME
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAYBLENDER_REALTIME','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -161,22 +180,9 @@ class VRAY_TP_TexChecker(VRayTexturePanel, bpy.types.Panel):
 		return tex and tex.type == 'VRAY' and tex.vray.type == ID and engine_poll(cls, context)
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
+		TexChecker = getattr(context.texture.vray, PLUG)
 
-		tex= context.texture
-		TexChecker= getattr(tex.vray, PLUG)
+		gui(self.layout, context.region.width, TexChecker)
 
-		split= layout.split()
-		col= split.column()
-		col.prop(TexChecker, 'white_color', text="")
-		if wide_ui:
-			col= split.column()
-		col.prop(TexChecker, 'black_color', text="")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexChecker, 'contrast', slider= True)
 
 bpy.utils.register_class(VRAY_TP_TexChecker)
-

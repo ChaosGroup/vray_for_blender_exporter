@@ -191,7 +191,7 @@ def add_properties(VRayTexture):
 
 
 
-def write(bus):
+def writeDatablock(bus, TexFalloff, pluginName, mapped_params=None):
 	TYPE= {
 		'TA':   0,
 		'PP':   1,
@@ -216,47 +216,85 @@ def write(bus):
 	ofile= bus['files']['textures']
 	scene= bus['scene']
 
-	slot=     bus['mtex']['slot']
-	texture=  bus['mtex']['texture']
-	tex_name= bus['mtex']['name']
-
-	TexFalloff= getattr(texture.vray, PLUG)
-
-	mapped_params= write_sub_textures(bus,
-									  TexFalloff,
-									  ('color1_tex', 'color2_tex'))
-
-	ofile.write("\n%s %s {" % (PLUG, tex_name))
+	ofile.write("\n%s %s {" % (PLUG, pluginName))
 
 	PLUGINS['TEXTURE']['TexCommon'].write(bus)
 
 	for param in PARAMS:
 		if param == 'direction_type':
-			value= DIRECTION_TYPE[TexFalloff.direction_type]
+			value = DIRECTION_TYPE[TexFalloff.direction_type]
 
 		elif param == 'type':
-			value= TYPE[TexFalloff.type]
+			value = TYPE[TexFalloff.type]
 
 		elif param in ('color1','color2') and param+'_tex' in mapped_params:
-			value= mapped_params[param+'_tex']
+			value = mapped_params[param+'_tex']
 
 		else:
-			value= getattr(TexFalloff, param)
+			value = getattr(TexFalloff, param)
 		
-		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
+		ofile.write("\n\t%s=%s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return tex_name
+	return pluginName
 
 
+def write(bus):
+	ofile = bus['files']['textures']
+	scene = bus['scene']
 
-'''
-  GUI
-'''
+	slot     = bus['mtex']['slot']
+	texture  = bus['mtex']['texture']
+	tex_name = bus['mtex']['name']
+
+	TexFalloff = getattr(texture.vray, PLUG)
+
+	mapped_params = write_sub_textures(bus, TexFalloff, ('color1_tex', 'color2_tex'))
+
+	return writeDatablock(bus, TexFalloff, tex_name, mapped_params)
+
+
+def gui(layout, width, TexFalloff):
+	wide_ui = width > narrowui
+
+	split= layout.split()
+	col= split.column()
+	sub= col.column(align= True)
+	sub.prop(TexFalloff, 'color1')
+	sub.prop_search(TexFalloff, 'color1_tex',
+					bpy.data, 'textures',
+					text= "")
+	if wide_ui:
+		col= split.column()
+	sub= col.column(align= True)
+	sub.prop(TexFalloff, 'color2')
+	sub.prop_search(TexFalloff, 'color2_tex',
+					bpy.data, 'textures',
+					text= "")
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexFalloff, 'type')
+	col.prop(TexFalloff, 'direction_type')
+
+	split= layout.split()
+	col= split.column()
+	if TexFalloff.type == 'FRES':
+		col.prop(TexFalloff, 'fresnel_ior')
+	elif TexFalloff.type == 'DIST':
+		col.prop(TexFalloff, 'dist_near')
+		if wide_ui:
+			col= split.column()
+		col.prop(TexFalloff, 'dist_far')
+		col.prop(TexFalloff, 'dist_extrapolate')
+
+
 class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAYBLENDER_REALTIME','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -268,45 +306,9 @@ class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 		return ((tex.type == 'VRAY' and vtex.type == ID) and (engine in __class__.COMPAT_ENGINES))
 	
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
+		TexFalloff= getattr(context.texture.vray, PLUG)
 
-		tex= context.texture
-		TexFalloff= getattr(tex.vray, PLUG)
-
-		split= layout.split()
-		col= split.column()
-		sub= col.column(align= True)
-		sub.prop(TexFalloff, 'color1')
-		sub.prop_search(TexFalloff, 'color1_tex',
-						bpy.data, 'textures',
-						text= "")
-		if wide_ui:
-			col= split.column()
-		sub= col.column(align= True)
-		sub.prop(TexFalloff, 'color2')
-		sub.prop_search(TexFalloff, 'color2_tex',
-						bpy.data, 'textures',
-						text= "")
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexFalloff, 'type')
-		col.prop(TexFalloff, 'direction_type')
-
-		split= layout.split()
-		col= split.column()
-		if TexFalloff.type == 'FRES':
-			col.prop(TexFalloff, 'fresnel_ior')
-		elif TexFalloff.type == 'DIST':
-			col.prop(TexFalloff, 'dist_near')
-			if wide_ui:
-				col= split.column()
-			col.prop(TexFalloff, 'dist_far')
-			col.prop(TexFalloff, 'dist_extrapolate')
+		gui(layout, context.region.width, TexFalloff)
 
 
 bpy.utils.register_class(VRAY_TP_TexFalloff)
-

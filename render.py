@@ -50,6 +50,8 @@ from vb25.plugins import *
 from vb25.texture import *
 from vb25.nodes   import *
 
+from vb25.shader_nodes import pynodes
+
 
 VERSION = '2.5'
 
@@ -872,13 +874,16 @@ def write_materials(bus):
 				# Set if any texture uses object mapping
 				bus['material']['orco_suffix'] = ""
 
-				if ma.use_nodes:
-					mtls_list.append(write_node_material(bus))
-
+				if ma.vray.nodetree:
+					if VRayScene.exporter.experimental:
+						mtls_list.append(pynodes.ExportNodeMaterial(bus))
+					else:
+						mtls_list.append(write_node_material(bus))
 				else:
 					mtls_list.append(write_material(bus))
-					ma_id+= 1
-					ids_list.append(str(ma_id))
+				
+				ma_id += 1
+				ids_list.append(str(ma_id))
 
 	# No materials assigned - use default material
 	if len(mtls_list) == 0:

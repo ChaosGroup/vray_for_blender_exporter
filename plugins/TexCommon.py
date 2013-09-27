@@ -55,14 +55,6 @@ def update_blender_mapping_type(self, context):
 
 
 def add_properties(rna_pointer):
-	rna_pointer.name= StringProperty(
-		name= "V-Ray Texture name",
-		description= "V-Ray texture name for internal usage",
-		subtype= 'NONE',
-		options= {'HIDDEN'},
-		default= ""
-	)
-
 	rna_pointer.texture_coords= EnumProperty(
 		name= "Coords",
 		description= "Image texure placement type",
@@ -439,6 +431,9 @@ def write(bus):
 
 	ofile= bus['files']['textures']
 	scene= bus['scene']
+
+	if 'mtex' not in bus:
+		return
 
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']

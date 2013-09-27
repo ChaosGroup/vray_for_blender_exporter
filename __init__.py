@@ -39,12 +39,14 @@ else:
 	from vb25 import ui
 	from vb25 import preset
 	from vb25 import render_ops
+	from vb25 import shader_nodes
 
 
 def register():
 	bpy.utils.register_module(__name__)
 
 	plugins.add_properties()
+	shader_nodes.register()
 
 	wm = bpy.context.window_manager
 	kc = wm.keyconfigs.addon
@@ -57,6 +59,7 @@ def unregister():
 	bpy.utils.unregister_module(__name__)
 
 	plugins.remove_properties()
+	shader_nodes.unregister()
 
 	wm = bpy.context.window_manager
 	kc = wm.keyconfigs.addon

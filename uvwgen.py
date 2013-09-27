@@ -224,6 +224,9 @@ def write_UVWGenEnvironment(bus):
 
 
 def write_uvwgen(bus):
+	if 'mtex' not in bus:
+		return None
+		
 	slot=    bus['mtex']['slot']
 	texture= bus['mtex']['texture']
 
