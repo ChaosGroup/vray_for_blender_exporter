@@ -571,6 +571,10 @@ def register():
         VRayNodeTypes[pluginType] = []
 
         for pluginName in sorted(PLUGINS[pluginType]):
+            # Skip manually created plugins
+            if pluginName in ['BRDFVRayMtl', 'BRDFLayered']:
+                continue
+
             if not pluginName in dir(bpy.types):
                 continue
 
