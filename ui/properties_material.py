@@ -33,7 +33,6 @@ from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.plugins import *
 
-
 from bl_ui.properties_material import active_node_mat
 
 
@@ -139,6 +138,44 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 					layout.prop(VRayMaterial, 'type', expand=True)
 				else:
 					layout.prop(VRayMaterial, 'type')
+
+
+class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
+	bl_label   = "Node"
+
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+
+	@classmethod
+	def poll(cls, context):
+		material = active_node_mat(context.material)
+		if material is None:
+			return False
+		ntreeName = material.vray.nodetree
+		if not ntreeName:
+			return False		
+		if ntreeName not in bpy.data.node_groups:
+			return False
+
+		return engine_poll(__class__, context)
+
+	def draw(self, context):
+		material = active_node_mat(context.material)
+
+		ntree = bpy.data.node_groups[material.vray.nodetree]
+
+		activeNode = ntree.nodes[-1]
+
+		if not hasattr(activeNode, 'vray_type') or activeNode.vray_type == 'NONE':
+			self.layout.label(text="Selected node has no attibutes to show...")
+			return
+
+		vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
+
+		if not hasattr(vrayPlugin, 'gui'):
+			self.layout.label(text="Selected node has no attibutes to show...")
+			return
+
+		vrayPlugin.gui(self.layout, context.region.width, getattr(activeNode, activeNode.vray_plugin))		
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):

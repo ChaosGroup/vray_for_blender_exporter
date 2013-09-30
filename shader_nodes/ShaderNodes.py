@@ -33,6 +33,21 @@ from pprint import pprint
 from vb25.plugins import PLUGINS, load_plugins, gen_menu_items
 
 
+########  ######## ######## #### ##    ## ########  ######  
+##     ## ##       ##        ##  ###   ## ##       ##    ## 
+##     ## ##       ##        ##  ####  ## ##       ##       
+##     ## ######   ######    ##  ## ## ## ######    ######  
+##     ## ##       ##        ##  ##  #### ##             ## 
+##     ## ##       ##        ##  ##   ### ##       ##    ## 
+########  ######## ##       #### ##    ## ########  ######  
+
+VRAY_SOCKET_TYPE = {
+    'BRDF'     : 'VRayBRDFSocket',
+    'MATERIAL' : 'VRayMtlSocket',
+    'COLOR'    : 'NodeSocketColor',
+}
+
+
 ##     ## ######## #### ##       #### ######## #### ########  ######  
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##       
@@ -121,7 +136,7 @@ class VRAY_OT_node_add_brdf_layered_sockets(bpy.types.Operator):
         brdfSockName   = "BRDF %i" % newIndex
         weightSockName = "Weight %i" % newIndex
 
-        node.inputs.new('NodeSocketColor', brdfSockName)
+        node.inputs.new('VRayBRDFSocket',  brdfSockName)
         node.inputs.new('NodeSocketFloat', weightSockName)
 
         node.inputs[weightSockName].default_value = 1.0
@@ -232,6 +247,8 @@ class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
     bl_label  = 'Output'
     bl_icon   = 'VRAY_LOGO'
 
+    vray_type = 'NONE'
+
     # BUG: This doesn't work
     def poll_instance(self, node_tree):
         # There could be only one output node
@@ -241,8 +258,7 @@ class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
         return True
 
     def init(self, context):
-        self.inputs.new('NodeSocketColor', "Color")
-        # self.inputs.new('NodeSocketColor', "Volume")
+        self.inputs.new('VRayMtlSocket', "Material")
 
 
  ######   #######   ######  ##    ## ######## ########  ######  
@@ -261,7 +277,29 @@ class VRayCoordsSocket(bpy.types.NodeSocket):
         layout.label(text)
 
     def draw_color(self, context, node):
-        return (1.0, 0.4, 0.216, 1.0)
+        return (0.250, 0.273, 0.750, 1.00)
+
+
+class VRayBRDFSocket(bpy.types.NodeSocket):
+    bl_idname = 'VRayBRDFSocket'
+    bl_label  = 'BRDF socket'
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (0.156, 0.750, 0.304, 1.000)
+
+
+class VRayMtlSocket(bpy.types.NodeSocket):
+    bl_idname = 'VRayMtlSocket'
+    bl_label  = 'Material socket'
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (1.000, 0.468, 0.087, 1.000)
 
 
 ##     ## ##     ## 
@@ -394,6 +432,9 @@ class VRayNodeBRDFVRayMtl(bpy.types.Node, VRayTreeNode):
     bl_label  = 'VRayMtl'
     bl_icon   = 'VRAY_LOGO'
 
+    vray_type   = 'BRDF'
+    vray_plugin = 'BRDFVRayMtl'
+
     showAll = bpy.props.BoolProperty(
         name        = "Show All",
         description = "Show all properties",
@@ -401,8 +442,9 @@ class VRayNodeBRDFVRayMtl(bpy.types.Node, VRayTreeNode):
     )
 
     def init(self, context):
-        self.inputs.new('NodeSocketColor',  "Diffuse")
-        self.outputs.new('NodeSocketColor', "Output")
+        self.inputs.new('NodeSocketColor', "Diffuse")
+
+        self.outputs.new('VRayBRDFSocket', "BRDF")
 
     def draw_buttons(self, context, layout):
         layout.prop(self, 'showAll')
@@ -418,6 +460,9 @@ class VRayNodeBRDFLayered(bpy.types.Node, VRayTreeNode):
     bl_label  = 'Layered'
     bl_icon   = 'VRAY_LOGO'
 
+    vray_type   = 'BRDF'
+    vray_plugin = 'BRDFLayered'
+
     additive_mode = bpy.props.BoolProperty(
         name        = "Additive Mode",
         description = "Additive mode",
@@ -431,12 +476,12 @@ class VRayNodeBRDFLayered(bpy.types.Node, VRayTreeNode):
             brdfSockName   = "BRDF %i" % humanIndex
             weightSockName = "Weight %i" % humanIndex
 
-            self.inputs.new('NodeSocketColor', brdfSockName)
+            self.inputs.new('VRayBRDFSocket',  brdfSockName)
             self.inputs.new('NodeSocketFloat', weightSockName)
 
             self.inputs[weightSockName].default_value = 1.0
 
-        self.outputs.new('NodeSocketColor', "Output")
+        self.outputs.new('VRayBRDFSocket', "BRDF")
 
     def draw_buttons(self, context, layout):
         split = layout.split()
@@ -456,8 +501,9 @@ class VRayNodeBRDFLayered(bpy.types.Node, VRayTreeNode):
 ##     ## ######## ##    ##  #######  
 
 VRayNodeTypes = {
-    'TEXTURE' : [],
-    'BRDF'    : [],
+    'TEXTURE'  : [],
+    'BRDF'     : [],
+    'MATERIAL' : [],
 }
 
 
@@ -481,12 +527,12 @@ class VRayNodesMenuMapping(bpy.types.Menu, VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeUVChannel)
 
 
-class VRayNodesMenuTextures(bpy.types.Menu, VRayData):
-    bl_idname = "VRayNodesMenuTextures"
-    bl_label  = "Textures"
+class VRayNodesMenuTexture(bpy.types.Menu, VRayData):
+    bl_idname = "VRayNodesMenuTexture"
+    bl_label  = "Texture"
 
     def draw(self, context):
-        for vrayNodeType in VRayNodeTypes['TEXTURE']:
+        for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
             add_nodetype(self.layout, vrayNodeType)
 
 
@@ -495,15 +541,203 @@ class VRayNodesMenuBRDF(bpy.types.Menu, VRayData):
     bl_label  = "BRDF"
 
     def draw(self, context):
-        for vrayNodeType in VRayNodeTypes['BRDF']:
+        for vrayNodeType in sorted(VRayNodeTypes['BRDF'], key=lambda t: t.bl_label):
+            add_nodetype(self.layout, vrayNodeType)
+
+
+class VRayNodesMenuMaterial(bpy.types.Menu, VRayData):
+    bl_idname = "VRayNodesMenuMaterial"
+    bl_label  = "Material"
+
+    def draw(self, context):
+        for vrayNodeType in sorted(VRayNodeTypes['MATERIAL'], key=lambda t: t.bl_label):
             add_nodetype(self.layout, vrayNodeType)
 
 
 def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuBRDF",     icon='VRAY_LOGO')
-    self.layout.menu("VRayNodesMenuTextures", icon='VRAY_LOGO')
+    self.layout.menu("VRayNodesMenuTexture",  icon='VRAY_LOGO')
     self.layout.menu("VRayNodesMenuMapping",  icon='VRAY_LOGO')
+    self.layout.menu("VRayNodesMenuMaterial", icon='VRAY_LOGO')
     self.layout.menu("VRayNodesMenuOutput",   icon='VRAY_LOGO')
+
+
+########  ########     ###    ##      ## 
+##     ## ##     ##   ## ##   ##  ##  ## 
+##     ## ##     ##  ##   ##  ##  ##  ## 
+##     ## ########  ##     ## ##  ##  ## 
+##     ## ##   ##   ######### ##  ##  ## 
+##     ## ##    ##  ##     ## ##  ##  ## 
+########  ##     ## ##     ##  ###  ###  
+
+def VRayNodeDraw(self, context, layout):
+    layout.prop(self, 'showAll')
+    if not self.showAll:
+        return
+    vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]                    
+    if not hasattr(vrayPlugin, 'gui'):
+        return
+    vrayPlugin.gui(layout, self.width, getattr(self, self.vray_plugin))
+
+def VRayNodeDrawSide(self, context, layout):
+    vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+    if not hasattr(vrayPlugin, 'gui'):
+        return
+    vrayPlugin.gui(layout, context.region.width, getattr(self, self.vray_plugin))
+
+
+########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######  
+##     ##  ##  ##  ###   ##   ## ##   ###   ###  ##  ##    ##    ###   ## ##     ## ##     ## ##       ##    ## 
+##     ##   ####   ####  ##  ##   ##  #### ####  ##  ##          ####  ## ##     ## ##     ## ##       ##       
+##     ##    ##    ## ## ## ##     ## ## ### ##  ##  ##          ## ## ## ##     ## ##     ## ######    ######  
+##     ##    ##    ##  #### ######### ##     ##  ##  ##          ##  #### ##     ## ##     ## ##             ## 
+##     ##    ##    ##   ### ##     ## ##     ##  ##  ##    ##    ##   ### ##     ## ##     ## ##       ##    ## 
+########     ##    ##    ## ##     ## ##     ## ####  ######     ##    ##  #######  ########  ########  ######  
+
+DynamicClasses = []
+
+
+def LoadDynamicNodes():
+    global DynamicClasses
+    global VRayNodeTypes
+
+    DynamicClasses = []
+ 
+    # Manually defined classes
+    #
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
+
+    # Load attributes to manually defined classes
+    #
+    PLUGINS['BRDF']['BRDFVRayMtl'].add_properties(VRayNodeBRDFVRayMtl)
+
+    # Runtime Node classes generation
+    #
+    for pluginType in ['TEXTURE', 'BRDF', 'MATERIAL']:
+        VRayNodeTypes[pluginType] = []
+
+        for pluginName in sorted(PLUGINS[pluginType]):
+            # Skip manually created plugins
+            if pluginName in ['BRDFVRayMtl', 'BRDFLayered']:
+                continue
+
+            if not hasattr(bpy.types, pluginName):
+                continue
+
+            vrayPlugin  = PLUGINS[pluginType][pluginName]
+            textureBpyType = getattr(bpy.types, pluginName)
+
+            # print("Creating Node from plugin: %s" % (pluginName))
+
+            DynNodeClassName = "VRayNode%s" % (pluginName)
+
+            DynNodeClassAttrs = {
+                'bl_idname'   : DynNodeClassName,
+                'bl_label'    : vrayPlugin.NAME,
+                'bl_icon'     : 'VRAY_LOGO',
+
+                'vray_type'   : pluginType,
+                'vray_plugin' : pluginName,
+
+                'showAll'     : bpy.props.BoolProperty(
+                                    name        = "Show All",
+                                    description = "Show all properties",
+                                    default     = False
+                                ),
+            }
+
+            if pluginType == 'TEXTURE':
+                def TextureNodeInit(self, context):
+                    # print("Plugin: %s" % (self.vray_plugin))
+
+                    texBpyType = getattr(bpy.types, self.vray_plugin)
+
+                    for prop in texBpyType.bl_rna.properties:
+                        if prop.name in ['RNA', 'Name']:
+                            continue
+                        
+                        # print("  Property: %s [%s]" % (prop.name, prop.default))
+
+                        if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
+                            if prop.name not in self.inputs:
+                                AddInput(self, 'NodeSocketColor', prop.name, prop.default_array)
+
+                    AddInput(self, 'VRayCoordsSocket', "Mapping")
+
+                    AddOutput(self, 'NodeSocketColor', "Output")
+
+                DynNodeClassAttrs['init'] = TextureNodeInit
+
+            elif pluginType == 'BRDF':
+                def BRDFNodeInit(self, context):
+                    # print("Plugin: %s" % (self.vray_plugin))
+
+                    texBpyType = getattr(bpy.types, self.vray_plugin)
+
+                    for prop in texBpyType.bl_rna.properties:
+                        if prop.name in ['RNA', 'Name']:
+                            continue
+                        
+                        # print("  Property: %s [%s]" % (prop.name, prop.default))
+
+                        if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
+                            if prop.name not in self.inputs:
+                                AddInput(self, 'NodeSocketColor', prop.name, prop.default_array)
+
+                    AddOutput(self, 'VRayBRDFSocket', "Output")
+
+                DynNodeClassAttrs['init'] = BRDFNodeInit
+
+            elif pluginType == 'MATERIAL':
+                def MtlNodeInit(self, context):
+                    vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+                    bpyType    = getattr(bpy.types, self.vray_plugin)                   
+
+                    for prop in bpyType.bl_rna.properties:
+                        if prop.name in ['RNA', 'Name']:
+                            continue
+                        
+                        # print("  Property: %s \"%s\" [%s]" % (prop.identifier, prop.name, prop.default))
+
+                        if hasattr(vrayPlugin, 'MAPPED_PARAMS'):
+                            if prop.identifier in vrayPlugin.MAPPED_PARAMS:
+                                if prop.name not in self.inputs:
+                                    AddInput(self, VRAY_SOCKET_TYPE[vrayPlugin.MAPPED_PARAMS[prop.identifier]], prop.name)
+                        else:
+                            # Try to guess type
+                            #
+                            if prop.type == 'STRING':
+                                if prop.name not in self.inputs:
+                                    AddInput(self, 'VRayBRDFSocket', prop.name)
+
+                    AddOutput(self, 'VRayMtlSocket', "Material")
+
+                DynNodeClassAttrs['init'] = MtlNodeInit
+
+            DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
+            DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
+
+            DynNodeClass = type(            
+                DynNodeClassName,               # Name            
+                (bpy.types.Node, VRayTreeNode), # Inheritance            
+                DynNodeClassAttrs               # Attributes
+            )
+
+            bpy.utils.register_class(DynNodeClass)
+            
+            # Load attributes
+            #
+            vrayPlugin.add_properties(DynNodeClass)
+            
+            VRayNodeTypes[pluginType].append(getattr(bpy.types, DynNodeClassName))
+
+            DynamicClasses.append(DynNodeClass)
+
+    # Add manually defined classes
+    #
+    VRayNodeTypes['BRDF'].append(getattr(bpy.types, 'VRayNodeBRDFVRayMtl'))
+    VRayNodeTypes['BRDF'].append(getattr(bpy.types, 'VRayNodeBRDFLayered'))
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
@@ -524,6 +758,8 @@ StaticClasses = [
     VRayNodeTree,
     
     VRayCoordsSocket,
+    VRayBRDFSocket,
+    VRayMtlSocket,
     
     VRayNodeUVChannel,
 
@@ -534,13 +770,12 @@ StaticClasses = [
 
     VRayNodeOutput,
 
-    VRayNodesMenuTextures,
+    VRayNodesMenuTexture,
     VRayNodesMenuBRDF,
     VRayNodesMenuMapping,
+    VRayNodesMenuMaterial,
     VRayNodesMenuOutput,
 ]
-
-DynamicClasses = []
 
 
 def GetRegClasses():
@@ -548,151 +783,8 @@ def GetRegClasses():
 
 
 def register():
-    global DynamicClasses
-    global VRayNodeTypes
+    LoadDynamicNodes()
 
-    DynamicClasses = []
- 
-    # Manually defined classes
-    #
-    for regClass in GetRegClasses():
-        bpy.utils.register_class(regClass)
-
-    # Load attributes to manually defined classes
-    #
-    PLUGINS['BRDF']['BRDFVRayMtl'].add_properties(VRayNodeBRDFVRayMtl)
-
-    VRayNodeTypes['BRDF'].append(getattr(bpy.types, 'VRayNodeBRDFVRayMtl'))
-    VRayNodeTypes['BRDF'].append(getattr(bpy.types, 'VRayNodeBRDFLayered'))
-
-    # Runtime Node classes generation
-    #
-    for pluginType in ['TEXTURE', 'BRDF']:
-        VRayNodeTypes[pluginType] = []
-
-        for pluginName in sorted(PLUGINS[pluginType]):
-            # Skip manually created plugins
-            if pluginName in ['BRDFVRayMtl', 'BRDFLayered']:
-                continue
-
-            if not pluginName in dir(bpy.types):
-                continue
-
-            vrayPlugin  = PLUGINS[pluginType][pluginName]
-            textureBpyType = getattr(bpy.types, pluginName)
-
-            # print("Creating Node from plugin: %s" % (pluginName))
-
-            TextureNodeClassName = "VRayNode%s" % (pluginName)
-
-            TextureNodeClassAttrs = {
-                'bl_idname'   : TextureNodeClassName,
-                'bl_label'    : vrayPlugin.NAME,
-                'bl_icon'     : 'VRAY_LOGO',
-
-                'vray_plugin' : pluginName,
-
-                'showAll'     : bpy.props.BoolProperty(
-                                    name        = "Show All",
-                                    description = "Show all properties",
-                                    default     = False
-                                ),
-            }
-
-            if pluginType == 'TEXTURE':
-                def TextureNodeInit(self, context):
-                    # print("Plugin: %s" % (self.vray_plugin))
-
-                    texBpyType = getattr(bpy.types, self.vray_plugin)
-
-                    for prop in texBpyType.bl_rna.properties:
-                        if prop.name in ['RNA', 'Name']:
-                            continue                
-                        
-                        # print("  Property: %s [%s]" % (prop.name, prop.default))
-
-                        if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
-                            if prop.name not in self.inputs:
-                                AddInput(self, 'NodeSocketColor', prop.name, prop.default_array)
-
-                    AddInput(self, 'VRayCoordsSocket', "Mapping")
-
-                    AddOutput(self, 'NodeSocketColor', "Output")
-
-                def TextureNodeDraw(self, context, layout):
-                    layout.prop(self, 'showAll')
-
-                    if not self.showAll:
-                        return
-                                
-                    vrayPlugin = PLUGINS[pluginType][self.vray_plugin]
-                    
-                    if not hasattr(vrayPlugin, 'gui'):
-                        return
-
-                    vrayPlugin.gui(layout, self.width, getattr(self, self.vray_plugin))
-
-                def TextureNodeDrawSide(self, context, layout):
-                    return
-
-                TextureNodeClassAttrs['init']             = TextureNodeInit
-                TextureNodeClassAttrs['draw_buttons']     = TextureNodeDraw
-                TextureNodeClassAttrs['draw_buttons_ext'] = TextureNodeDrawSide
-
-            else:
-                def BRDFNodeInit(self, context):
-                    # print("Plugin: %s" % (self.vray_plugin))
-
-                    texBpyType = getattr(bpy.types, self.vray_plugin)
-
-                    for prop in texBpyType.bl_rna.properties:
-                        if prop.name in ['RNA', 'Name']:
-                            continue                
-                        
-                        # print("  Property: %s [%s]" % (prop.name, prop.default))
-
-                        if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
-                            if prop.name not in self.inputs:
-                                AddInput(self, 'NodeSocketColor', prop.name, prop.default_array)
-
-                    AddOutput(self, 'NodeSocketColor', "Output")
-
-                def BRDFNodeDraw(self, context, layout):
-                    layout.prop(self, 'showAll')
-
-                    if not self.showAll:
-                        return
-                                
-                    vrayPlugin = PLUGINS[pluginType][self.vray_plugin]
-                    
-                    if not hasattr(vrayPlugin, 'gui'):
-                        return
-
-                    vrayPlugin.gui(layout, self.width, getattr(self, self.vray_plugin))
-
-                def BRDFNodeDrawSide(self, context, layout):
-                    return
-
-                TextureNodeClassAttrs['init']             = BRDFNodeInit
-                TextureNodeClassAttrs['draw_buttons']     = BRDFNodeDraw
-                TextureNodeClassAttrs['draw_buttons_ext'] = BRDFNodeDrawSide
-
-            TextureNodeClass = type(            
-                TextureNodeClassName,           # Name            
-                (bpy.types.Node, VRayTreeNode), # Inheritance            
-                TextureNodeClassAttrs           # Attributes
-            )
-
-            bpy.utils.register_class(TextureNodeClass)
-            
-            # Load attributes
-            #
-            vrayPlugin.add_properties(TextureNodeClass)
-            
-            VRayNodeTypes[pluginType].append(getattr(bpy.types, TextureNodeClassName))
-
-            DynamicClasses.append(TextureNodeClass)
-  
     # Menu
     #
     bpy.types.NODE_MT_add.append(VRayNodesMenu)

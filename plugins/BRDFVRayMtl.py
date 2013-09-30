@@ -104,6 +104,13 @@ PARAMS= (
 	'environment_priority',
 )
 
+MAPPED_PARAMS = {
+	'diffuse' : 'COLOR',
+	'opacity' : 'COLOR',
+
+	'translucency_tex' : 'TEXTURE',
+}
+
 
 def add_properties(rna_pointer):
 	class BRDFVRayMtl(bpy.types.PropertyGroup):

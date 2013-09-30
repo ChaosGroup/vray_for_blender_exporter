@@ -40,6 +40,13 @@ DESC= "Mtl2Sided settings."
 PARAMS= (
 )
 
+MAPPED_PARAMS = {
+	'front' : 'MATERIAL',
+	'back'  : 'MATERIAL',
+
+	'translucency_tex' : 'TEXTURE',
+}
+
 
 def add_properties(rna_pointer):
 	class Mtl2Sided(bpy.types.PropertyGroup):
@@ -58,9 +65,15 @@ def add_properties(rna_pointer):
 		default= False
 	)
 
+	Mtl2Sided.front= StringProperty(
+		name= "Front material",
+		description= "Front material",
+		default= ""
+	)
+
 	Mtl2Sided.back= StringProperty(
 		name= "Back material",
-		description= "Back material. Same material if nothing is set",
+		description= "Back material. Same as Front material if nothing is set",
 		default= ""
 	)
 
