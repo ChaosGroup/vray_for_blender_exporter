@@ -38,7 +38,7 @@ ID=   'BRDFCarPaint'
 PID=   4
 MAIN_BRDF= True
 
-NAME= 'BRDFCarPaint'
+NAME= 'CarPaint'
 UI=   "Car"
 DESC= "BRDFCarPaint."
 

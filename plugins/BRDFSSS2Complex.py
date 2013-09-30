@@ -39,7 +39,7 @@ ID=   'BRDFSSS2Complex'
 PID=   2
 MAIN_BRDF= True
 
-NAME= 'BRDFSSS2Complex'
+NAME= 'SSS'
 UI=   "SSS"
 DESC= "Fast SSS 2 BRDF settings"
 

@@ -38,7 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFGlass'
 PID=   9
 
-NAME= 'BRDFGlass'
+NAME= 'Glass'
 UI=   "Glass"
 DESC= "BRDFGlass."
 

@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from pprint import pprint
+
 import bpy
 import mathutils
 
@@ -74,11 +76,11 @@ def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
         ofile.write('\n\tuv_set_name="%s";' % clean_string(node.uv_layer))
     else:
         ofile.write('\n\tuvw_channel=0;')
-    # ofile.write("\n\tmirror_u=%d;" % VRayTexture.mirror_u)
-    # ofile.write("\n\tmirror_v=%d;" % VRayTexture.mirror_v)
-    # ofile.write("\n\trepeat_u=%d;" % VRayTexture.tile_u)
-    # ofile.write("\n\trepeat_v=%d;" % VRayTexture.tile_v)
-    # ofile.write("\n\trotate_frame=%.3f;" % VRaySlot.texture_rot)
+    ofile.write("\n\tmirror_u=%d;" % node.mirror_u)
+    ofile.write("\n\tmirror_v=%d;" % node.mirror_v)
+    ofile.write("\n\trepeat_u=%d;" % node.repeat_u)
+    ofile.write("\n\trepeat_v=%d;" % node.repeat_v)
+    ofile.write("\n\trotate_frame=%.3f;" % node.rotate_frame)
     ofile.write("\n}\n")
 
     return pluginName
@@ -95,23 +97,38 @@ def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
 def WriteNodeTexture(bus, nodetree, node):
     ofile = bus['files']['textures']
     
+    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
+
+    socketParams = {}
+
+    for inputSocket in node.inputs:
+        if inputSocket.name == 'Mapping':
+            if inputSocket.is_linked:
+                connectedNode = GetConnectedNode(nodetree, inputSocket)
+                if connectedNode:
+                    socketParams['uvwgen'] = WriteUVWGenMayaPlace2dTexture(bus, nodetree, connectedNode)
+        
+        else:
+            value = inputSocket.default_value
+
+            if inputSocket.is_linked:
+                connectedNode = GetConnectedNode(nodetree, inputSocket)
+                if connectedNode:
+                    value = WriteNodeTexture(bus, nodetree, connectedNode)
+
+            vray_attr = inputSocket.name.lower().replace(" ", "_")
+
+            socketParams[vray_attr] = value
+
+    pprint(socketParams)
+
     ofile.write("\n// Tree: \"%s\"" % (nodetree.name))
     ofile.write("\n// Node: \"%s\"" % (node.name))
     ofile.write("\n// Type:  %s"    % (node.bl_idname))
+    ofile.write("\n// Plugin:  %s"  % (node.vray_plugin))
     ofile.write("\n//")
 
-    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
-
-    uvSocket = node.inputs['UV']
-
-    if uvSocket.is_linked:
-        uvNode = GetConnectedNode(nodetree, uvSocket)
-
-        bus['uvwgen'] = WriteUVWGenMayaPlace2dTexture(bus, nodetree, uvNode)
-
-    mappedParams = {}
-
-    return PLUGINS['TEXTURE'][node.textureType].writeDatablock(bus, getattr(node, node.textureType), pluginName, mappedParams)
+    return PLUGINS['TEXTURE'][node.vray_plugin].writeDatablock(bus, getattr(node, node.vray_plugin), pluginName, socketParams)
 
 
 ########  ########  ########  ######## 
@@ -220,7 +237,7 @@ def WriteShaderNode(bus, nodetree, node):
         return WriteVRayNodeBRDFVRayMtl(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
-    elif node.bl_idname == 'VRayNodeTexture':
+    elif node.bl_idname.startswith('VRayNodeTex'):
         return WriteNodeTexture(bus, nodetree, node)
     return "BRDFNOBRDFISSET"
 

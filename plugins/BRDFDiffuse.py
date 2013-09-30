@@ -40,7 +40,7 @@ TYPE= 'BRDF'
 ID=   'BRDFDiffuse'
 PID=   5
 
-NAME= 'BRDFDiffuse'
+NAME= 'Diffuse'
 UI=   "Diffuse"
 DESC= "BRDFDiffuse."
 

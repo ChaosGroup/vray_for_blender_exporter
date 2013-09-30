@@ -38,7 +38,7 @@ TYPE= 'BRDF'
 ID=   'BRDFGlassGlossy'
 PID=   10
 
-NAME= 'BRDFGlassGlossy'
+NAME= 'Glass Glossy'
 UI=   "GlassGlossy"
 DESC= "BRDFGlassGlossy."
 

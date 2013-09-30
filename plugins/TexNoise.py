@@ -216,9 +216,16 @@ def writeDatablock(bus, TexNoiseMax, pluginName, mapped_params=None):
 			value = PLACEMENT_TYPE[TexNoiseMax.placement_type]
 
 		elif param == 'uvwgen':
-			if not uvwgen and not 'uvwgen' in bus:
+			if 'uvwgen' in mapped_params:
+				uvwgenValue = mapped_params['uvwgen']
+			elif 'uvwgen' in bus:
+				uvwgenValue = bus['uvwgen']
+			else:
+				uvwgenValue = uvwgen
+			if not uvwgenValue:
 				continue
-			value = uvwgen if uvwgen else bus['uvwgen']
+			ofile.write("\n\tuvwgen=%s;" % (uvwgenValue))
+			continue
 		elif param in ('color1', 'color2') and param+'_tex' in mapped_params:
 			value = mapped_params[param+'_tex']
 		else:

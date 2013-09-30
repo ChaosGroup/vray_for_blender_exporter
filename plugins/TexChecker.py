@@ -54,7 +54,6 @@ PARAMS= (
 
 def add_properties(rna_pointer):
 	class TexChecker(bpy.types.PropertyGroup):
-		# white_color
 		white_color= FloatVectorProperty(
 			name= "White color",
 			description= "The white checker color",
@@ -66,13 +65,6 @@ def add_properties(rna_pointer):
 			default= (1,1,1)
 		)
 
-		white_color_tex= StringProperty(
-			name= "White color",
-			description= "The white checker color",
-			default= ""
-		)
-
-		# black_color
 		black_color= FloatVectorProperty(
 			name= "Black color",
 			description= "The black checker color",
@@ -84,13 +76,6 @@ def add_properties(rna_pointer):
 			default= (0,0,0)
 		)
 
-		black_color_tex= StringProperty(
-			name= "Black color",
-			description= "The black checker color",
-			default= ""
-		)
-
-		# contrast
 		contrast= FloatProperty(
 			name= "Contrast",
 			description= "Contrast value",
@@ -100,12 +85,6 @@ def add_properties(rna_pointer):
 			soft_max= 2.0,
 			precision= 3,
 			default= 1.0
-		)
-
-		contrast_tex= StringProperty(
-			name= "Contrast",
-			description= "Contrast value",
-			default= ""
 		)
 
 	bpy.utils.register_class(TexChecker)
@@ -121,7 +100,7 @@ def writeDatablock(bus, TexChecker, pluginName, mapped_params=None):
 	ofile = bus['files']['textures']
 	scene = bus['scene']
 	
-	uvwgen= write_uvwgen(bus)
+	uvwgen = write_uvwgen(bus)
 
 	ofile.write("\n%s %s {"%(PLUG, pluginName))
 
@@ -129,11 +108,18 @@ def writeDatablock(bus, TexChecker, pluginName, mapped_params=None):
 
 	for param in PARAMS:
 		if param == 'uvwgen':
-			if not uvwgen and not 'uvwgen' in bus:
+			if 'uvwgen' in mapped_params:
+				uvwgenValue = mapped_params['uvwgen']
+			elif 'uvwgen' in bus:
+				uvwgenValue = bus['uvwgen']
+			else:
+				uvwgenValue = uvwgen
+			if not uvwgenValue:
 				continue
-			value = uvwgen if uvwgen else bus['uvwgen']
-			ofile.write("\n\t%s=%s;"%(param, value))
+			ofile.write("\n\tuvwgen=%s;" % (uvwgenValue))
 			continue
+		elif param in mapped_params:
+			value = mapped_params[param]
 		else:
 			value = getattr(TexChecker, param)
 		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
@@ -152,7 +138,7 @@ def write(bus):
 
 	TexChecker = getattr(texture.vray, PLUG)
 
-	return writeDatablock(bus, TexNoiseMax, tex_name, mapped_params)
+	return writeDatablock(bus, TexChecker, tex_name)
 
 
 def gui(layout, width, TexChecker):

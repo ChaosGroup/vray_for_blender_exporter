@@ -39,9 +39,9 @@ from vb25.plugins import *
 TYPE= 'BRDF'
 ID=   'BRDFLayered'
 PID=   200 # BRDFLayered must be last
-MAIN_BRDF= True
+MAIN_BRDF= False
 
-NAME= "BRDFLayered"
+NAME= "Layered"
 UI=   "Layered"
 DESC= "BRDFLayered"
 

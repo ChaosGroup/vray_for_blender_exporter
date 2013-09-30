@@ -1831,6 +1831,7 @@ def run(bus):
 				log_window.append("VRAYSTANDALONE")
 				log_window.append("-geometry")
 				log_window.append("90x10")
+				log_window.append("-e")
 				log_window.extend(params)
 			else:
 				log_window.extend(LOG_TERMINAL[VRayExporter.log_window_type].split(" "))

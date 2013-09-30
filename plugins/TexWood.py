@@ -382,6 +382,78 @@ def write(bus):
 '''
   GUI
 '''
+def gui(layout, width, TexWood):
+	wide_ui = width > narrowui
+
+	layout.label(text="Colors:")
+
+	split= layout.split()
+	row= split.row(align= True)
+	row.prop(TexWood, 'filler_color_tex', text="")
+	row.prop(TexWood, 'vein_color_tex', text="")
+	row.prop(TexWood, 'grain_color_tex', text="")
+
+	layout.label(text="Textures:")
+
+	split= layout.split()
+	row= split.row(align= True)
+	row.prop_search(TexWood,  'filler_color_tex_tex',
+					bpy.data, 'textures',
+					text= "")
+	row.prop_search(TexWood,  'vein_color_tex_tex',
+					bpy.data, 'textures',
+					text= "")
+	row.prop_search(TexWood,  'grain_color_tex_tex',
+					bpy.data, 'textures',
+					text= "")
+
+	layout.separator()
+
+	layout.label(text="Ripples:")
+
+	split= layout.split()
+	row= split.row(align= True)
+	row.prop(TexWood, 'ripples_x', text="X")
+	row.prop(TexWood, 'ripples_y', text="Y")
+	row.prop(TexWood, 'ripples_z', text="Z")
+
+	layout.separator()
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexWood, 'age')
+	col.prop(TexWood, 'vein_spread')
+	if wide_ui:
+		col= split.column()
+	col.prop(TexWood, 'grain_contr')
+	col.prop(TexWood, 'grain_spacing')
+
+	split= layout.split()
+	col= split.column()
+	sub= col.column(align= True)
+	sub.prop(TexWood, 'center_u')
+	sub.prop(TexWood, 'center_v')
+	if wide_ui:
+		col= split.column()
+	sub= col.column(align= True)
+	sub.prop(TexWood, 'amplitude_x')
+	sub.prop(TexWood, 'amplitude_y')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexWood, 'layer_size')
+	col.prop(TexWood, 'ratio')
+	if wide_ui:
+		col= split.column()
+	sub= col.column(align= True)
+	sub.prop(TexWood, 'depth_min')
+	sub.prop(TexWood, 'depth_max')
+
+	split= layout.split()
+	col= split.column()
+	col.prop(TexWood, 'randomness')
+
+
 class VRAY_TP_TexWood(VRayTexturePanel, bpy.types.Panel):
 	bl_label       = NAME
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
@@ -392,79 +464,8 @@ class VRAY_TP_TexWood(VRayTexturePanel, bpy.types.Panel):
 		return tex and tex.type == 'VRAY' and tex.vray.type == ID and engine_poll(cls, context)
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
+		TexWood = getattr(context.texture.vray, PLUG)
 
-		tex= context.texture
-		TexWood= getattr(tex.vray, PLUG)
-
-		layout.label(text="Colors:")
-
-		split= layout.split()
-		row= split.row(align= True)
-		row.prop(TexWood, 'filler_color_tex', text="")
-		row.prop(TexWood, 'vein_color_tex', text="")
-		row.prop(TexWood, 'grain_color_tex', text="")
-
-		layout.label(text="Textures:")
-
-		split= layout.split()
-		row= split.row(align= True)
-		row.prop_search(TexWood,  'filler_color_tex_tex',
-						bpy.data, 'textures',
-						text= "")
-		row.prop_search(TexWood,  'vein_color_tex_tex',
-						bpy.data, 'textures',
-						text= "")
-		row.prop_search(TexWood,  'grain_color_tex_tex',
-						bpy.data, 'textures',
-						text= "")
-
-		layout.separator()
-
-		layout.label(text="Ripples:")
-
-		split= layout.split()
-		row= split.row(align= True)
-		row.prop(TexWood, 'ripples_x', text="X")
-		row.prop(TexWood, 'ripples_y', text="Y")
-		row.prop(TexWood, 'ripples_z', text="Z")
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexWood, 'age')
-		col.prop(TexWood, 'vein_spread')
-		if wide_ui:
-			col= split.column()
-		col.prop(TexWood, 'grain_contr')
-		col.prop(TexWood, 'grain_spacing')
-
-		split= layout.split()
-		col= split.column()
-		sub= col.column(align= True)
-		sub.prop(TexWood, 'center_u')
-		sub.prop(TexWood, 'center_v')
-		if wide_ui:
-			col= split.column()
-		sub= col.column(align= True)
-		sub.prop(TexWood, 'amplitude_x')
-		sub.prop(TexWood, 'amplitude_y')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexWood, 'layer_size')
-		col.prop(TexWood, 'ratio')
-		if wide_ui:
-			col= split.column()
-		sub= col.column(align= True)
-		sub.prop(TexWood, 'depth_min')
-		sub.prop(TexWood, 'depth_max')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(TexWood, 'randomness')
+		gui(self.layout, context.region.width, TexWood)
 
 bpy.utils.register_class(VRAY_TP_TexWood)
-

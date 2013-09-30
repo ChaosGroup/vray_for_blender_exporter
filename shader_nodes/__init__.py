@@ -23,18 +23,18 @@
 #
 
 __all__ = [
-    'MaterialNodes',
+    'ShaderNodes',
     'pynodes',
 ]
 
 
 def register():
-    from vb25.shader_nodes import MaterialNodes
+    from vb25.shader_nodes import ShaderNodes
 
-    MaterialNodes.register()
+    ShaderNodes.register()
 
 
 def unregister():
-    from vb25.shader_nodes import MaterialNodes
+    from vb25.shader_nodes import ShaderNodes
 
-    MaterialNodes.unregister()
+    ShaderNodes.unregister()

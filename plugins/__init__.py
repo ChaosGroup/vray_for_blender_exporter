@@ -61,7 +61,7 @@ def load_plugins(plugins, rna_pointer):
 		plugins[key].add_properties(rna_pointer)
 
 def gen_material_menu_items(plugins):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and hasattr(plugins[plug], 'MAIN_BRDF')]
+	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and (hasattr(plugins[plug], 'MAIN_BRDF') and plugins[plug].MAIN_BRDF)]
 
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes

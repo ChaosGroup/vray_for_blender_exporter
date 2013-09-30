@@ -41,7 +41,7 @@ ID=   'BRDFLight'
 PID=   3
 MAIN_BRDF= True
 
-NAME= 'BRDFLight'
+NAME= 'Light'
 UI=   "Light"
 DESC= "V-Ray light shader"
 

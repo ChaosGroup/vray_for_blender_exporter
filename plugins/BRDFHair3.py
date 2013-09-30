@@ -39,7 +39,7 @@ ID        = 'BRDFHair3'
 PID       =  8
 MAIN_BRDF =  True
 
-NAME   = 'BRDFHair3'
+NAME   = 'Hair'
 UI     = "Hair"
 DESC   = "Hair material"
 

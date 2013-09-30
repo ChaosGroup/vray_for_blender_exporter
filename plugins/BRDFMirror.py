@@ -39,7 +39,7 @@ TYPE= 'BRDF'
 ID=   'BRDFMirror'
 PID=   6
 
-NAME= 'BRDFMirror'
+NAME= 'Mirror'
 UI=   "Mirror"
 DESC= "BRDFMirror."
 
