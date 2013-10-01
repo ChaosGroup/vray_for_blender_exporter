@@ -536,7 +536,7 @@ class VRayNodeTexLayered(bpy.types.Node, VRayTreeNode):
             self.inputs.new('VRaySocketColor', texSockName)
             self.inputs.new('VRaySocketFloatColor', weightSockName)
 
-            self.inputs[weightSockName].default_value = 1.0
+            self.inputs[weightSockName].value = 1.0
 
         self.outputs.new('VRaySocketColor', "Output")
 
