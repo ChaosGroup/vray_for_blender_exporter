@@ -31,6 +31,26 @@ from bl_ui.properties_material import active_node_mat
 narrowui = 200
 
 
+def GetContextType(context):
+	if hasattr(context, 'node'):
+		return 'NODE'
+
+	if hasattr(context, 'material'):
+		return 'MATERIAL'
+	
+	return None
+
+
+def GetRegionWidthFromContext(context):
+	contextType = GetContextType(context)
+	if contextType == 'NODE':
+		return context.node.width
+	elif hasattr(context, 'region'):
+		return context.region.width
+	# Assume wide region width
+	return 1024
+
+
 def context_tex_datablock(context):
 	idblock = context.material
 	if idblock:

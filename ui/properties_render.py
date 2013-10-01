@@ -370,7 +370,10 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.prop(ve, 'use_hair')
 
 		layout.separator()
+		layout.label(text="Nodes:")
+		layout.prop(ve, 'nodesUseSidePanel')
 
+		layout.separator()
 		layout.label(text="Experimental:")
 		split = layout.split()
 		col = split.column()

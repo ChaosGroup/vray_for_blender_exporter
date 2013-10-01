@@ -33,50 +33,65 @@ from bpy.props import *
 from vb25.utils import *
 from vb25.ui.ui import *
 
+from vb25.lib import ExportUtils
+
 
 TYPE= 'BRDF'
 ID=   'BRDFBlinn'
 PID=   7
 
-NAME= 'Blinn'
+NAME= 'Glossy'
 UI=   "Glossy"
 DESC= "BRDFBlinn."
 
+
+MAPPED_PARAMS = {
+	'color_tex'                : 'TEXTURE',
+	'hilightGlossiness_tex'    : 'FLOAT_TEXTURE',
+	'reflectionGlossiness_tex' : 'FLOAT_TEXTURE',
+	'transparency_tex'         : 'FLOAT_TEXTURE',
+	'anisotropy'               : 'FLOAT_TEXTURE',
+	'anisotropy_rotation'      : 'FLOAT_TEXTURE',
+}
+
 PARAMS= (
-	'color',
-	'color_tex',
-	'color_tex_mult',
-	'transparency',
-	'transparency_tex',
-	'transparency_tex_mult',
-	'cutoff',
+	# 'anisotropy_uvwgen',
+	'anisotropy',
+	'anisotropy_rotation',
 	'back_side',
-	'trace_reflections',
-	'trace_depth',
-	'reflect_exit_color',
-	'reflect_dim_distance',
-	'reflect_dim_distance_on',
-	'reflect_dim_distance_falloff',
-	'hilightGlossiness',
+	'color_tex',
+	'cutoff',
+	'fix_dark_edges',
 	'hilightGlossiness_tex',
-	'hilightGlossiness_tex_mult',
-	'reflectionGlossiness',
-	'reflectionGlossiness_tex',
-	'reflectionGlossiness_tex_mult',
-	'subdivs',
-	'glossyAsGI',
-	'soften_edge',
-	'interpolation_on',
-	'imap_min_rate',
-	'imap_max_rate',
 	'imap_color_thresh',
+	'imap_max_rate',
+	'imap_min_rate',
 	'imap_norm_thresh',
 	'imap_samples',
-	'anisotropy',
-	# 'anisotropy_uvwgen',
-	'anisotropy_rotation',
-	'fix_dark_edges',
+	'interpolation_on',
+	'reflect_dim_distance',
+	'reflect_dim_distance_falloff',
+	'reflect_dim_distance_on',
+	'reflect_exit_color',
+	'reflectionGlossiness_tex',
+	'soften_edge',
+	'subdivs',
+	'trace_depth',
+	'trace_reflections',
+	'transparency_tex',
 )
+
+BRDF_TYPE = {
+	'PHONG': 'BRDFPhong',
+	'BLINN': 'BRDFBlinn',
+	'WARD':  'BRDFWard',
+}
+
+GLOSSY_RAYS = {
+	'NEVER':  0,
+	'GI':     1,
+	'ALWAYS': 2,
+}
 
 
 def add_properties(rna_pointer):
@@ -101,8 +116,7 @@ def add_properties(rna_pointer):
 		default= 'BLINN'
 	)
 
-	# color
-	BRDFBlinn.color= FloatVectorProperty(
+	BRDFBlinn.color_tex = FloatVectorProperty(
 		name= "Color",
 		description= "Reflection color",
 		subtype= 'COLOR',
@@ -113,44 +127,7 @@ def add_properties(rna_pointer):
 		default= (1,1,1)
 	)
 
-	# color_tex
-	BRDFBlinn.color_tex= StringProperty(
-		name= "Color texture",
-		description= "",
-		default= ""
-	)
-
-	BRDFBlinn.map_color_tex= BoolProperty(
-		name= "Color texture",
-		description= "",
-		default= False
-	)
-
-	# color_tex_mult
-	BRDFBlinn.color_tex_mult= FloatProperty(
-		name= "Color texture multiplier",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# transparency
-	# BRDFBlinn.transparency= FloatVectorProperty(
-	# 	name= "Transparency",
-	# 	description= "",
-	# 	subtype= 'COLOR',
-	# 	min= 0.0,
-	# 	max= 1.0,
-	# 	soft_min= 0.0,
-	# 	soft_max= 1.0,
-	# 	default= (0,0,0)
-	# )
-
-	BRDFBlinn.transparency= FloatProperty(
+	BRDFBlinn.transparency_tex = FloatProperty(
 		name= "Transparency",
 		description= "BRDF transparency",
 		min= 0.0,
@@ -160,32 +137,6 @@ def add_properties(rna_pointer):
 		default= 0.0
 	)
 
-	# transparency_tex
-	BRDFBlinn.transparency_tex= StringProperty(
-		name= "Transparency",
-		description= "",
-		default= ""
-	)
-
-	BRDFBlinn.map_transparency_tex= BoolProperty(
-		name= "transparency tex",
-		description= "",
-		default= False
-	)
-
-	# transparency_tex_mult
-	BRDFBlinn.transparency_tex_mult= FloatProperty(
-		name= "transparency tex",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# cutoff
 	BRDFBlinn.cutoff= FloatProperty(
 		name= "Cutoff",
 		description= "",
@@ -197,21 +148,18 @@ def add_properties(rna_pointer):
 		default= 0.01
 	)
 
-	# back_side
 	BRDFBlinn.back_side= BoolProperty(
 		name= "Back side",
 		description= "",
 		default= False
 	)
 
-	# trace_reflections
 	BRDFBlinn.trace_reflections= BoolProperty(
 		name= "Trace reflections",
 		description= "",
 		default= True
 	)
 
-	# trace_depth
 	BRDFBlinn.trace_depth= IntProperty(
 		name= "Depth",
 		description= "The maximum reflection depth (-1 is controlled by the global options)",
@@ -222,7 +170,6 @@ def add_properties(rna_pointer):
 		default= -1
 	)
 
-	# reflect_exit_color
 	BRDFBlinn.reflect_exit_color= FloatVectorProperty(
 		name= "Exit color",
 		description= "The color to use when the maximum depth is reached",
@@ -282,8 +229,7 @@ def add_properties(rna_pointer):
 		default= 0
 	)
 
-	# hilightGlossiness
-	BRDFBlinn.hilightGlossiness= FloatProperty(
+	BRDFBlinn.hilightGlossiness_tex= FloatProperty(
 		name= "Hilight",
 		description= "",
 		min= 0.0,
@@ -294,27 +240,7 @@ def add_properties(rna_pointer):
 		default= 1.0
 	)
 
-	# hilightGlossiness_tex
-	BRDFBlinn.map_hilightGlossiness_tex= BoolProperty(
-		name= "hilightGlossiness tex",
-		description= "",
-		default= False
-	)
-
-	# hilightGlossiness_tex_mult
-	BRDFBlinn.hilightGlossiness_tex_mult= FloatProperty(
-		name= "hilightGlossiness tex mult",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	# reflectionGlossiness
-	BRDFBlinn.reflectionGlossiness= FloatProperty(
+	BRDFBlinn.reflectionGlossiness_tex= FloatProperty(
 		name= "Glossiness",
 		description= "",
 		min= 0.0,
@@ -325,26 +251,6 @@ def add_properties(rna_pointer):
 		default= 1.0
 	)
 
-	# reflectionGlossiness_tex
-	BRDFBlinn.map_reflectionGlossiness_tex= BoolProperty(
-		name= "reflectionGlossiness tex",
-		description= "",
-		default= False
-	)
-
-	# reflectionGlossiness_tex_mult
-	BRDFBlinn.reflectionGlossiness_tex_mult= FloatProperty(
-		name= "reflectionGlossiness tex mult",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	# subdivs
 	BRDFBlinn.subdivs= IntProperty(
 		name= "Subdivs",
 		description= "",
@@ -355,7 +261,6 @@ def add_properties(rna_pointer):
 		default= 8
 	)
 
-	# glossyAsGI
 	BRDFBlinn.glossyAsGI= EnumProperty(
 		name= "Glossy rays as GI",
 		description= "Specifies when to treat GI rays as glossy rays (0 - never; 1 - only for rays that are already GI rays; 2 - always",
@@ -367,7 +272,6 @@ def add_properties(rna_pointer):
 		default= 'GI'
 	)
 
-	# soften_edge
 	BRDFBlinn.soften_edge= FloatProperty(
 		name= "Soften edge",
 		description= "Soften edge of the BRDF at light/shadow transition",
@@ -379,14 +283,12 @@ def add_properties(rna_pointer):
 		default= 0
 	)
 
-	# interpolation_on
 	BRDFBlinn.interpolation_on= BoolProperty(
 		name= "Interpolation",
 		description= "",
 		default= False
 	)
 
-	# imap_min_rate
 	BRDFBlinn.imap_min_rate= IntProperty(
 		name= "Min rate",
 		description= "",
@@ -397,7 +299,6 @@ def add_properties(rna_pointer):
 		default= -1
 	)
 
-	# imap_max_rate
 	BRDFBlinn.imap_max_rate= IntProperty(
 		name= "Max rate",
 		description= "",
@@ -408,7 +309,6 @@ def add_properties(rna_pointer):
 		default= 1
 	)
 
-	# imap_color_thresh
 	BRDFBlinn.imap_color_thresh= FloatProperty(
 		name= "Color thresh",
 		description= "",
@@ -420,7 +320,6 @@ def add_properties(rna_pointer):
 		default= 0.25
 	)
 
-	# imap_norm_thresh
 	BRDFBlinn.imap_norm_thresh= FloatProperty(
 		name= "Normal thresh",
 		description= "",
@@ -432,7 +331,6 @@ def add_properties(rna_pointer):
 		default= 0.4
 	)
 
-	# imap_samples
 	BRDFBlinn.imap_samples= IntProperty(
 		name= "Samples",
 		description= "",
@@ -443,7 +341,6 @@ def add_properties(rna_pointer):
 		default= 20
 	)
 
-	# anisotropy
 	BRDFBlinn.anisotropy= FloatProperty(
 		name= "Anisotropy",
 		description= "Reflection anisotropy in the range (-1, 1)",
@@ -455,26 +352,8 @@ def add_properties(rna_pointer):
 		default= 0.0
 	)
 
-	BRDFBlinn.map_anisotropy= BoolProperty(
-		name= "Anisotropy",
-		description= "Reflection anisotropy in the range (-1, 1)",
-		default= False
-	)
-
-	BRDFBlinn.anisotropy_mult= FloatProperty(
-		name= "anisotropy",
-		description= "Reflection anisotropy in the range (-1, 1)",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
 	# anisotropy_uvwgen
 	
-	# anisotropy_rotation
 	BRDFBlinn.anisotropy_rotation= FloatProperty(
 		name= "Rotation",
 		description= "Anisotropy rotation in the range [0, 1]",
@@ -486,24 +365,6 @@ def add_properties(rna_pointer):
 		default= 0.0
 	)
 
-	BRDFBlinn.map_anisotropy_rotation= BoolProperty(
-		name= "anisotropy rotation",
-		description= "Anisotropy rotation in the range [0, 1]",
-		default= False
-	)
-
-	BRDFBlinn.anisotropy_rotation_mult= FloatProperty(
-		name= "anisotropy rotation",
-		description= "Anisotropy rotation in the range [0, 1]",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# fix_dark_edges
 	BRDFBlinn.fix_dark_edges= BoolProperty(
 		name= "Fix dark edges",
 		description= "true to fix dark edges with glossy reflections; only set this to false for compatibility with older versions",
@@ -511,84 +372,54 @@ def add_properties(rna_pointer):
 	)
 
 
+def writeDatablock(bus, dataPointer, pluginName, mappedParams):
+	ofile = bus['files']['materials']
+	scene = bus['scene']
 
-'''
-  OUTPUT
-'''
-def write(bus, VRayBRDF= None, base_name= None):
-	BRDF_TYPE= {
-		'PHONG': 'BRDFPhong',
-		'BLINN': 'BRDFBlinn',
-		'WARD':  'BRDFWard',
-	}
-	GLOSSY_RAYS= {
-		'NEVER':  0,
-		'GI':     1,
-		'ALWAYS': 2,
-	}
+	brdf_type = BRDF_TYPE[dataPointer.brdf_type]
 
-	ofile= bus['files']['materials']
-	scene= bus['scene']
+	ofile.write("\n%s %s {" % (brdf_type, pluginName))
+	ofile.write("\n\tcolor=Color(0.0,0.0,0.0);")
+	ofile.write("\n\tcolor_tex_mult=1.0;")
+	ofile.write("\n\ttransparency=Color(0.0,0.0,0.0);")
+	ofile.write("\n\ttransparency_tex_mult=1.0;")
+	ofile.write("\n\thilightGlossiness=Color(0.0,0.0,0.0);")
+	ofile.write("\n\thilightGlossiness_tex_mult=1.0;")
+	ofile.write("\n\treflectionGlossiness=Color(0.0,0.0,0.0);")
+	ofile.write("\n\treflectionGlossiness_tex_mult=1.0;")
+	ofile.write("\n\tglossyAsGI=%i;" % GLOSSY_RAYS[dataPointer.glossyAsGI])
 
-	BRDFBlinn= getattr(VRayBRDF, ID)
+	ExportUtils.writeParamsBlock(bus, ofile, dataPointer, mappedParams, PARAMS, MAPPED_PARAMS)
 
-	brdf_type= BRDF_TYPE[BRDFBlinn.brdf_type]
-
-	brdf_name= "%s%s%s" % (brdf_type, ID, clean_string(VRayBRDF.name))
-
-	ofile.write("\n%s %s {" % (brdf_type, brdf_name))
-	for param in PARAMS:
-		if brdf_type == 'BRDFPhong' and param in ('anisotropy', 'anisotropy_rotation'):
-			continue
-		elif param.endswith('_tex'):
-			continue
-		elif param == 'transparency':
-			value= mathutils.Color([1.0 - BRDFBlinn.transparency]*3)
-		elif param == 'glossyAsGI':
-			value= GLOSSY_RAYS[BRDFBlinn.glossyAsGI]
-		else:
-			value= getattr(BRDFBlinn, param)
-		ofile.write("\n\t%s= %s;" % (param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return brdf_name
+	return pluginName
 
 
+def write(bus, VRayBRDF= None, base_name= None):
+	print("This shouldn't happen!")
+	
 
-'''
-  GUI
-'''
 def gui(context, layout, BRDFBlinn):
-	wide_ui= context.region.width > narrowui
+	contextType = GetContextType(context)
+	regionWidth = GetRegionWidthFromContext(context)
+
+	wide_ui = regionWidth > narrowui
 
 	split= layout.split()
 	col= split.column(align=True)
-	col.prop(BRDFBlinn, 'color', text="")
-	col.prop_search(BRDFBlinn, 'color_tex',
-					bpy.data, 'textures',
-					text= "")
-	if BRDFBlinn.color_tex:
-		col.prop(BRDFBlinn, 'color_tex_mult', text="Mult")
+	col.prop(BRDFBlinn, 'color_tex', text="")
 	if wide_ui:
 		col= split.column(align=True)
-	col.prop(BRDFBlinn, 'transparency', text= "Reflection", slider= True)
-	col.prop_search(BRDFBlinn, 'transparency_tex',
-					bpy.data, 'textures',
-					text= "")
-	if BRDFBlinn.transparency_tex:
-		col.prop(BRDFBlinn, 'transparency_tex_mult', text="Mult")
+	col.prop(BRDFBlinn, 'transparency_tex', text= "Reflection", slider= True)
 
 	layout.separator()
 
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
-	sub.prop(BRDFBlinn, 'hilightGlossiness', slider= True)
-	# sub.prop(BRDFBlinn, 'hilightGlossiness_tex')
-	# sub.prop(BRDFBlinn, 'hilightGlossiness_tex_mult')
-	sub.prop(BRDFBlinn, 'reflectionGlossiness', slider= True)
-	# sub.prop(BRDFBlinn, 'reflectionGlossiness_tex')
-	# sub.prop(BRDFBlinn, 'reflectionGlossiness_tex_mult')
+	sub.prop(BRDFBlinn, 'hilightGlossiness_tex', slider= True)
+	sub.prop(BRDFBlinn, 'reflectionGlossiness_tex', slider= True)
 	sub.prop(BRDFBlinn, 'subdivs')
 	sub.prop(BRDFBlinn, 'trace_depth')
 	if wide_ui:
@@ -605,7 +436,6 @@ def gui(context, layout, BRDFBlinn):
 	col.prop(BRDFBlinn, 'cutoff')
 	col.prop(BRDFBlinn, 'back_side')
 	col.prop(BRDFBlinn, 'trace_reflections')
-	col.prop(BRDFBlinn, 'reflect_exit_color')
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFBlinn, 'reflect_dim_distance_on')
@@ -613,15 +443,21 @@ def gui(context, layout, BRDFBlinn):
 		col.prop(BRDFBlinn, 'reflect_dim_distance')
 		col.prop(BRDFBlinn, 'reflect_dim_distance_falloff')
 
-	split= layout.split()
-	col= split.column()
-	col.prop(BRDFBlinn, 'glossyAsGI')
+	layout.separator()
+
+	layout.prop(BRDFBlinn, 'glossyAsGI')
+	layout.prop(BRDFBlinn, 'reflect_exit_color', text="Exit Color")
+
+	layout.separator()
+
 	split= layout.split()
 	col= split.column()
 	col.prop(BRDFBlinn, 'soften_edge')
 	if wide_ui:
 		col= split.column()
 	col.prop(BRDFBlinn, 'fix_dark_edges')
+
+	layout.separator()
 
 	split= layout.split()
 	col= split.column()
@@ -636,5 +472,3 @@ def gui(context, layout, BRDFBlinn):
 			col= split.column()
 		col.prop(BRDFBlinn, 'imap_color_thresh')
 		col.prop(BRDFBlinn, 'imap_norm_thresh')
-
-

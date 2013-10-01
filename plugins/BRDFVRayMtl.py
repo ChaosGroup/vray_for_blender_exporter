@@ -46,17 +46,39 @@ UI=   "VRayMtl"
 DESC= "BRDFVRayMtl settings."
 
 
-PARAMS= (
-	#'opacity',
-	#'iffuse',
-	#'roughness',
-	##'brdf_type',
-	#'reflect',
-	#'reflect_glossiness',
-	#'hilight_glossiness',
+MAPPED_PARAMS = {
+	'diffuse' : 'TEXTURE',
+
+	'opacity'   : 'FLOAT_TEXTURE',
+	'roughness' : 'FLOAT_TEXTURE',
+
+	'reflect_glossiness' : 'FLOAT_TEXTURE',
+	'hilight_glossiness' : 'FLOAT_TEXTURE',
+	'refract_glossiness' : 'FLOAT_TEXTURE',
+	
+	'reflect' : 'TEXTURE',
+	'refract' : 'TEXTURE',
+
+	'fresnel_ior' : 'FLOAT_TEXTURE',
+	'refract_ior' : 'FLOAT_TEXTURE',
+
+	'anisotropy'          : 'FLOAT_TEXTURE',
+	'anisotropy_rotation' : 'FLOAT_TEXTURE',
+
+	'translucency_color' : 'TEXTURE',
+}
+
+PARAMS = (
+	'opacity',
+	'diffuse',
+	'roughness',
+	## 'brdf_type',
+	'reflect',
+	'reflect_glossiness',
+	'hilight_glossiness',
 	'hilight_glossiness_lock',
 	'fresnel',
-	#'fresnel_ior',
+	'fresnel_ior',
 	'fresnel_ior_lock',
 	'reflect_subdivs',
 	'reflect_trace',
@@ -67,16 +89,16 @@ PARAMS= (
 	'reflect_dim_distance_on',
 	'reflect_dim_distance_falloff',
 	'reflect_affect_alpha',
-	#anisotropy',
-	#anisotropy_rotation',
+	'anisotropy',
+	'anisotropy_rotation',
 	'anisotropy_derivation',
 	'anisotropy_axis',
-	##'anisotropy_uvwgen',
-	#'refract',
-	#'refract_ior',
+	## 'anisotropy_uvwgen',
+	'refract',
+	'refract_ior',
 	'dispersion_on',
 	'dispersion',
-	#'refract_glossiness',
+	'refract_glossiness',
 	'refract_subdivs',
 	'refract_trace',
 	'refract_depth',
@@ -89,7 +111,7 @@ PARAMS= (
 	'fog_bias',
 	'fog_unit_scale_on',
 	'translucency',
-	#'translucency_color',
+	'translucency_color',
 	'translucency_light_mult',
 	'translucency_scatter_dir',
 	'translucency_scatter_coeff',
@@ -100,15 +122,38 @@ PARAMS= (
 	'option_cutoff',
 	'option_use_irradiance_map',
 	'option_energy_mode',
-	#'environment_override',
+	## 'environment_override',
 	'environment_priority',
 )
 
-MAPPED_PARAMS = {
-	'diffuse' : 'COLOR',
-	'opacity' : 'COLOR',
+BRDF_TYPE= {
+	'PHONG': 0,
+	'BLINN': 1,
+	'WARD':  2,
+}
 
-	'translucency_tex' : 'TEXTURE',
+TRANSLUCENSY= {
+	'NONE':   0,
+	'HARD':   1,
+	'SOFT':   2,
+	'HYBRID': 3,
+}
+
+GLOSSY_RAYS= {
+	'NEVER':  0,
+	'GI':     1,
+	'ALWAYS': 2,
+}
+
+ENERGY_MODE= {
+	'COLOR': 0,
+	'MONO':  1,
+}
+
+AFFECT_ALPHA= {
+	'COL':  0,
+	'RERF': 1,
+	'ALL':  2
 }
 
 
@@ -163,7 +208,7 @@ def add_properties(rna_pointer):
 		default= (1.0,1.0,1.0)
 	)
 
-	BRDFVRayMtl.refract_color= FloatVectorProperty(
+	BRDFVRayMtl.refract= FloatVectorProperty(
 		name= "Refraction color",
 		description= "Refraction color",
 		subtype= 'COLOR',
@@ -174,7 +219,7 @@ def add_properties(rna_pointer):
 		default= (0.0,0.0,0.0)
 	)
 
-	BRDFVRayMtl.reflect_color= FloatVectorProperty(
+	BRDFVRayMtl.reflect= FloatVectorProperty(
 		name= "Reflection color",
 		description= "Reflection color",
 		subtype= 'COLOR',
@@ -622,127 +667,63 @@ def add_properties(rna_pointer):
 	)
 
 
+def writeDatablock(bus, BRDFVRayMtl, pluginName, mappedParams):
+	ofile = bus['files']['materials']
+	scene = bus['scene']
 
-'''
-  OUTPUT
-'''
-def mapto(bus, BRDFLayered= None):
-	scene= bus['scene']
-	ma=    bus['material']['material']
-
-	VRayMaterial= ma.vray
-
-	BRDFVRayMtl=  BRDFLayered.BRDFVRayMtl if BRDFLayered else VRayMaterial.BRDFVRayMtl
-
-	defaults= {}
-
-	defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.diffuse)),     0, 'NONE')
-	if BRDFLayered:
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.opacity]*3)), 0, 'NONE')
-	else:
-		# defaults['diffuse']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),        0, 'NONE')
-		defaults['opacity']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([ma.alpha]*3)),            0, 'NONE')
-
-	defaults['roughness']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.roughness]*3)), 0, 'NONE')
-
-	defaults['reflect_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.reflect_glossiness]*3)),  0, 'NONE')
-	defaults['hilight_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.hilight_glossiness]*3)),  0, 'NONE')
-
-	defaults['reflect']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.reflect_color)),           0, 'NONE')
-	defaults['anisotropy']=          (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy]*3)),          0, 'NONE')
-	defaults['anisotropy_rotation']= (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.anisotropy_rotation]*3)), 0, 'NONE')
-	defaults['refract']=             (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.refract_color)),           0, 'NONE')
-	defaults['refract_glossiness']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([BRDFVRayMtl.refract_glossiness]*3)),  0, 'NONE')
-	defaults['translucency_color']=  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(BRDFVRayMtl.translucency_color)),      0, 'NONE')
-
-	defaults['fresnel_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['refract_ior']=  ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['normal']=       ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['bump']=         ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-	defaults['displacement']= ("AColor(0.0,0.0,0.0,1.0)", 0, 'NONE')
-
-	return defaults
-
-
-def write(bus, VRayBRDF= None, base_name= None):
-	BRDF_TYPE= {
-		'PHONG': 0,
-		'BLINN': 1,
-		'WARD':  2,
-	}
-	TRANSLUCENSY= {
-		'NONE':   0,
-		'HARD':   1,
-		'SOFT':   2,
-		'HYBRID': 3,
-	}
-	GLOSSY_RAYS= {
-		'NEVER':  0,
-		'GI':     1,
-		'ALWAYS': 2,
-	}
-	ENERGY_MODE= {
-		'COLOR': 0,
-		'MONO':  1,
-	}
-	AFFECT_ALPHA= {
-		'COL':  0,
-		'RERF': 1,
-		'ALL':  2
-	}
-
-	ofile=    bus['files']['materials']
-	scene=    bus['scene']
-
-	ma=       bus['material']['material']
-	textures= bus['textures']
-
-	brdf_name= "%s%s%s" % (ID, get_name(ma, prefix='MA'), bus['material']['orco_suffix'])
-	if base_name:
-		brdf_name= "%s%s%s" % (base_name, ID, bus['material']['orco_suffix'])
-	if VRayBRDF:
-		brdf_name+= clean_string(VRayBRDF.name)
-
-	BRDFVRayMtl= getattr(VRayBRDF, ID) if VRayBRDF else ma.vray.BRDFVRayMtl
-
-	defaults= mapto(bus, VRayBRDF)
-
-	ofile.write("\nBRDFVRayMtl %s {"%(brdf_name))
-	ofile.write("\n\tbrdf_type= %s;"%(a(scene,BRDF_TYPE[BRDFVRayMtl.brdf_type])))
-
-	for key in ('diffuse','reflect','refract','translucency_color'):
-		ofile.write("\n\t%s= %s;" % (key, a(scene,textures[key]) if key in textures else defaults[key][0]))
-
-	for key in ('roughness','reflect_glossiness','refract_glossiness','hilight_glossiness','fresnel_ior','refract_ior','anisotropy','anisotropy_rotation'):
-		ofile.write("\n\t%s= %s;" % (key, "%s::out_intensity"%(textures[key]) if key in textures else a(scene,getattr(BRDFVRayMtl,key))))
-
-	if 'opacity' in textures:
-		ofile.write("\n\topacity= %s::out_intensity;" % textures['opacity'])
-	else:
-		ofile.write("\n\topacity= %s;" % a(scene, BRDFVRayMtl.opacity))
+	ofile.write("\nBRDFVRayMtl %s {" % pluginName)
+	ofile.write("\n\tbrdf_type=%s;" % (a(scene, BRDF_TYPE[BRDFVRayMtl.brdf_type])))
 
 	for param in PARAMS:
-		if param == 'translucency':
-			value= TRANSLUCENSY[BRDFVRayMtl.translucency]
-		elif param == 'refract_affect_alpha':
-			value= AFFECT_ALPHA[BRDFVRayMtl.refract_affect_alpha]
-		elif param == 'reflect_affect_alpha':
-			value= AFFECT_ALPHA[BRDFVRayMtl.reflect_affect_alpha]
-		elif param == 'translucency_thickness':
-			value= BRDFVRayMtl.translucency_thickness * 1000000000000
-		elif param == 'option_glossy_rays_as_gi':
-			value= GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
-		elif param == 'option_energy_mode':
-			value= ENERGY_MODE[BRDFVRayMtl.option_energy_mode]
-		elif param == 'fog_mult':
-			value= BRDFVRayMtl.fog_mult
+		value = getattr(BRDFVRayMtl, param)
+
+		if param in MAPPED_PARAMS:
+			if param in mappedParams:
+				value = mappedParams[param]
+
+			if MAPPED_PARAMS[param] == 'FLOAT_TEXTURE':
+				if type(value) is str:
+					value = "%s::out_intensity" % value
 		else:
-			value= getattr(BRDFVRayMtl,param)
-		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+			if param == 'translucency':
+				value = TRANSLUCENSY[BRDFVRayMtl.translucency]
+			elif param == 'refract_affect_alpha':
+				value = AFFECT_ALPHA[BRDFVRayMtl.refract_affect_alpha]
+			elif param == 'reflect_affect_alpha':
+				value = AFFECT_ALPHA[BRDFVRayMtl.reflect_affect_alpha]
+			elif param == 'option_glossy_rays_as_gi':
+				value = GLOSSY_RAYS[BRDFVRayMtl.option_glossy_rays_as_gi]
+			elif param == 'option_energy_mode':
+				value = ENERGY_MODE[BRDFVRayMtl.option_energy_mode]	
+			elif param == 'translucency_thickness':
+				value = BRDFVRayMtl.translucency_thickness * 1000000000000
+
+		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
-	return brdf_name
+	return pluginName
 
+
+def write(bus, baseName=None):
+	ma       = bus['material']['material']
+	textures = bus['textures']
+
+	BRDFVRayMtl = ma.vray.BRDFVRayMtl
+
+	brdf_name = "%s%s%s" % (ID, get_name(ma, prefix='MA'), bus['material']['orco_suffix'])
+	if baseName:
+		brdf_name = "%s%s%s" % (baseName, ID, bus['material']['orco_suffix'])
+
+	mappedParams = {}
+	for key in MAPPED_PARAMS:
+		if key in textures:
+			mappedParams[key] = textures[key]
+		else:
+			mappedParams[key] = getattr(BRDFVRayMtl, key)
+
+	writeDatablock(bus, BRDFVRayMtl, brdf_name, mappedParams)
+
+	return brdf_name
 
 
 '''
@@ -791,8 +772,11 @@ def influence(context, layout, slot):
 	factor_but(col, VRaySlot, 'map_translucency_color', 'translucency_color_mult', "Translucency")
 
 
-def gui_options(context, layout, BRDFVRayMtl, material= None):
-	wide_ui= context.region.width > narrowui
+def gui_options(context, layout, BRDFVRayMtl):
+	contextType = GetContextType(context)
+	regionWidth = GetRegionWidthFromContext(context)
+
+	wide_ui = regionWidth > narrowui
 
 	split= layout.split()
 	col= split.column()
@@ -840,9 +824,11 @@ def gui_options(context, layout, BRDFVRayMtl, material= None):
 	col.prop(BRDFVRayMtl, 'environment_priority')
 
 
-def gui(context, layout, BRDFVRayMtl, material=None, node=None):
-	contextWidth = node.width if node else context.region.width
-	wide_ui = contextWidth > narrowui
+def gui(context, layout, BRDFVRayMtl):
+	contextType = GetContextType(context)
+	regionWidth = GetRegionWidthFromContext(context)
+
+	wide_ui = regionWidth > narrowui
 
 	row= layout.row()
 	colL= row.column()
@@ -850,10 +836,6 @@ def gui(context, layout, BRDFVRayMtl, material=None, node=None):
 
 	split= layout.split()
 	col= split.column(align= True)
-	# if material:
-	# 	col.prop(material, 'diffuse_color', text="")
-	# else:
-	# 	col.prop(BRDFVRayMtl, 'diffuse', text="")
 	col.prop(BRDFVRayMtl, 'diffuse', text="")
 	col.prop(BRDFVRayMtl, 'opacity', slider=True)
 	if wide_ui:
@@ -868,17 +850,15 @@ def gui(context, layout, BRDFVRayMtl, material=None, node=None):
 	split= layout.split()
 	col= split.column()
 	sub= col.column(align=True)
-	sub.prop(BRDFVRayMtl, 'reflect_color', text="")
+	sub.prop(BRDFVRayMtl, 'reflect', text="")
 	if not BRDFVRayMtl.hilight_glossiness_lock:
 		sub.prop(BRDFVRayMtl, 'hilight_glossiness', slider=True)
 	sub.prop(BRDFVRayMtl, 'reflect_glossiness', text="Glossiness", slider=True)
 	sub.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
 	sub.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
 	col.prop(BRDFVRayMtl, 'reflect_affect_alpha', text="Affect")
-
 	if wide_ui:
 		col= split.column()
-
 	col.prop(BRDFVRayMtl, 'brdf_type', text="")
 	col.prop(BRDFVRayMtl, "hilight_glossiness_lock")
 	if not BRDFVRayMtl.brdf_type == 'PHONG':
@@ -893,7 +873,7 @@ def gui(context, layout, BRDFVRayMtl, material=None, node=None):
 	col= split.column()
 	col.label(text="Refractions:")
 	sub= col.column(align=True)
-	sub.prop(BRDFVRayMtl, 'refract_color', text="")
+	sub.prop(BRDFVRayMtl, 'refract', text="")
 	sub.prop(BRDFVRayMtl, 'refract_ior', text="IOR")
 	sub.prop(BRDFVRayMtl, 'refract_glossiness', text="Glossiness", slider=True)
 	sub.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
@@ -932,7 +912,10 @@ def gui(context, layout, BRDFVRayMtl, material=None, node=None):
 		col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
 		col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
 
-	if not material:
+	# Material will draw advanced BRDFVRayMtl
+	# options in a separate panel
+	#
+	if contextType not in ['MATERIAL'] or context.material.vray.nodetree:
 		layout.separator()
 
 		gui_options(context, layout, BRDFVRayMtl)

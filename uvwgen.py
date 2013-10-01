@@ -107,6 +107,13 @@ def write_UVWGenChannel(bus):
 	VRaySlot    = texture.vray_slot
 	VRayTexture = texture.vray
 
+	baseUVWGen = None
+
+	if VRayTexture.texture_coords == 'ORCO':
+		baseUVWGen = write_UVWGenProjection(bus)
+	elif VRayTexture.texture_coords == 'WORLD':
+		baseUVWGen = write_UVWGenPlanarWorld(bus)
+
 	if True:
 		ofile.write("\nUVWGenMayaPlace2dTexture %s {" % uvw_name)
 		if slot and hasattr(slot, 'uv_layer') and slot.uv_layer:
@@ -118,21 +125,17 @@ def write_UVWGenChannel(bus):
 		ofile.write("\n\trepeat_u=%d;" % VRayTexture.tile_u)
 		ofile.write("\n\trepeat_v=%d;" % VRayTexture.tile_v)
 		ofile.write("\n\trotate_frame=%.3f;" % VRaySlot.texture_rot)
+		if baseUVWGen:
+			ofile.write("\n\tuvwgen=%s;" % baseUVWGen)
 		ofile.write("\n}\n")
+	
 	else:
 		uvw_channel = 0
-		uvwgen      = None
-
-		if VRayTexture.texture_coords == 'ORCO':
-			uvwgen = write_UVWGenProjection(bus)
-		elif VRayTexture.texture_coords == 'WORLD':
-			uvwgen = write_UVWGenPlanarWorld(bus)
-		else:
-			if slot and hasattr(slot, 'uv_layer'):
-				if slot.uv_layer.isdigit():
-					uvw_channel = int(slot.uv_layer)
-				else:
-					uvw_channel = get_uv_layer_id(bus['uvs'], slot.uv_layer)	
+		if slot and hasattr(slot, 'uv_layer'):
+			if slot.uv_layer.isdigit():
+				uvw_channel = int(slot.uv_layer)
+			else:
+				uvw_channel = get_uv_layer_id(bus['uvs'], slot.uv_layer)	
 
 		ofile.write("\nUVWGenChannel %s {" % uvw_name)
 		ofile.write("\n\tuvw_channel= %i;" % uvw_channel)
@@ -175,8 +178,8 @@ def write_UVWGenChannel(bus):
 
 		# Optional UVWGen from which the initial uvw coordinates
 		# will be taken, instead of the surface point
-		if uvwgen:
-			ofile.write("\n\tuvwgen= %s;" % uvwgen)
+		if baseUVWGen:
+			ofile.write("\n\tuvwgen=%s;" % baseUVWGen)
 		ofile.write("\n}\n")
 
 	return uvw_name

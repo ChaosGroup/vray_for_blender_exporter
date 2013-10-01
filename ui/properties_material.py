@@ -42,7 +42,7 @@ class VRAY_MT_preview(VRayMaterialPanel, bpy.types.Panel):
 
 	@classmethod
 	def poll(cls, context):
-		material= active_node_mat(context.material)
+		material = context.material
 		if material is None:
 			return False
 		return engine_poll(__class__, context)
@@ -141,41 +141,50 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 
 
 class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
-	bl_label   = "Node"
+	bl_label = "Node"
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		material = active_node_mat(context.material)
-		if material is None:
+		material = context.material
+		if not material:
 			return False
 		ntreeName = material.vray.nodetree
 		if not ntreeName:
-			return False		
-		if ntreeName not in bpy.data.node_groups:
 			return False
-
+		if not ntreeName in bpy.data.node_groups:
+			return False
+		ntree = bpy.data.node_groups[ntreeName]
+		if not len(ntree.nodes):
+			return False
 		return engine_poll(__class__, context)
 
 	def draw(self, context):
-		material = active_node_mat(context.material)
-
-		ntree = bpy.data.node_groups[material.vray.nodetree]
+		ntree = bpy.data.node_groups[context.material.vray.nodetree]
 
 		activeNode = ntree.nodes[-1]
 
-		if not hasattr(activeNode, 'vray_type') or activeNode.vray_type == 'NONE':
+		toShow = True
+
+		if activeNode.vray_type == 'NONE' or activeNode.vray_plugin == 'NONE':
+			toShow = False
+
+		else:
+			if not hasattr(activeNode, activeNode.vray_plugin):
+				toShow = False
+			
+			vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
+
+			if not hasattr(vrayPlugin, 'gui'):
+				toShow = False
+
+		if not toShow:
 			self.layout.label(text="Selected node has no attibutes to show...")
-			return
-
-		vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
-
-		if not hasattr(vrayPlugin, 'gui'):
-			self.layout.label(text="Selected node has no attibutes to show...")
-			return
-
-		vrayPlugin.gui(self.layout, context.region.width, getattr(activeNode, activeNode.vray_plugin))		
+		else:
+			self.layout.label(text="Node name: %s" % activeNode.name)
+			self.layout.separator()
+			vrayPlugin.gui(context, self.layout, getattr(activeNode, activeNode.vray_plugin))		
 
 
 class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
@@ -201,9 +210,7 @@ class VRAY_MP_basic(VRayMaterialPanel, bpy.types.Panel):
 
 		VRayMaterial= material.vray
 
-		PLUGINS['BRDF'][VRayMaterial.type].gui(context, layout,
-											   getattr(VRayMaterial, VRayMaterial.type),
-											   material)
+		PLUGINS['BRDF'][VRayMaterial.type].gui(context, layout, getattr(VRayMaterial, VRayMaterial.type))
 
 
 class VRAY_MP_options(VRayMaterialPanel, bpy.types.Panel):

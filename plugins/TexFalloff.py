@@ -294,7 +294,7 @@ def gui(layout, width, TexFalloff):
 class VRAY_TP_TexFalloff(VRayTexturePanel, bpy.types.Panel):
 	bl_label = NAME
 
-	COMPAT_ENGINES = COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAYBLENDER_REALTIME','VRAY_RENDER_PREVIEW'}
+	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAYBLENDER_REALTIME','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):

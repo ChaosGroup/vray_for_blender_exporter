@@ -61,6 +61,13 @@ def add_properties(rna_pointer):
 		default     = False
 	)
 
+	VRayExporter.nodesUseSidePanel = BoolProperty(
+		name        = "Nodes Panel",
+		description = "Draw properties in node's side panel",
+		default     = False
+	)
+	
+
 	VRayExporter.draft= BoolProperty(
 		name= "Draft render",
 		description= "Render with low settings",

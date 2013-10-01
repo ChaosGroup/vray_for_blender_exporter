@@ -139,26 +139,6 @@ class VRAY_TP_influence(VRayTexturePanel, bpy.types.Panel):
 
 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
-	# @classmethod
-	# def poll(cls, context):
-	# 	idblock = context_tex_datablock(context)
-	# 	if isinstance(idblock, bpy.types.Brush):
-	# 		return False
-
-	# 	# If texture used in nodes influence is set by node itself
-	# 	if not hasattr(context, 'texture_slot'):
-	# 		return False
-
-	# 	texture= context.texture_slot.texture if context.texture_slot else context.texture
-
-	# 	if not texture:
-	# 		return False
-
-	# 	if texture.type == 'VRAY' and texture.vray.type == 'NONE':
-	# 		return False
-
-	# 	return super().poll(context) and (context.material or context.world or context.lamp or context.brush or context.texture)
-
 	@classmethod
 	def poll(cls, context):
 		idblock = context_tex_datablock(context)

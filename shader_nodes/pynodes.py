@@ -40,9 +40,9 @@ from vb25.utils   import *
  #######     ##    #### ######## ####    ##    #### ########  ######  
 
 def GetConnectedNode(nodeTree, nodeSocket):
-    for node in nodeTree.links:
-        if node.to_socket == nodeSocket:
-            return node.from_node
+    for l in nodeSocket.links:
+        if l.from_node:
+            return l.from_node
     return None
 
 
@@ -152,40 +152,6 @@ def WriteBRDFDiffuseColor(bus, nodetree, nodeSocket):
     return pluginName
 
 
-def WriteVRayNodeBRDFVRayMtl(bus, nodetree, node):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-
-    ofile.write("\n// Tree: \"%s\"" % (nodetree.name))
-    ofile.write("\n// Node: \"%s\"" % (node.name))
-    ofile.write("\n// Type:  %s"    % (node.bl_idname))
-    ofile.write("\n//")
-
-    texturedSockets = {
-        'diffuse' : {
-            'socket' : node.inputs['Diffuse'],
-            'value'  : None
-        },
-    }
-
-    for key in texturedSockets:
-        texturedSocket = texturedSockets[key]
-
-        texSocket = texturedSocket['socket']       
-        texNode   = GetConnectedNode(nodetree, texSocket)
-        
-        if not texNode:
-            texturedSocket['value'] = texSocket.default_value
-        else:
-            texturedSocket['value'] = WriteShaderNode(bus, nodetree, texNode)
-
-    bus['textures'] = {}
-    for key in texturedSockets:
-        bus['textures'][key] = texturedSockets[key]['value']
-
-    return PLUGINS['BRDF']['BRDFVRayMtl'].write(bus, VRayBRDF=node)
-
-
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile = bus['files']['materials']
     scene = bus['scene']
@@ -203,15 +169,15 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
             continue
 
         brdfNode = GetConnectedNode(nodetree, node.inputs[brdfSocket])
-        brdfs.append(WriteShaderNode(bus, nodetree, brdfNode))
+        brdfs.append(WriteNode(bus, nodetree, brdfNode))
 
         if node.inputs[weightSocket].is_linked:
             weigthNode = GetConnectedNode(nodetree, node.inputs[weightSocket])
-            weights.append(WriteShaderNode(bus, nodetree, weigthNode))
+            weights.append(WriteNode(bus, nodetree, weigthNode))
         else:
             weightParam = "%sW%sI%i"%(pluginName, brdfs[i], i)
             ofile.write("\nTexAColor %s {" % (weightParam))
-            ofile.write("\n\ttexture=%s;" % (a(scene, [node.inputs[weightSocket].default_value]*4)))
+            ofile.write("\n\ttexture=%s;" % (a(scene, [node.inputs[weightSocket].value]*4)))
             ofile.write("\n}\n")
             weights.append(weightParam)
 
@@ -224,53 +190,63 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     return pluginName
 
 
-##     ##    ###    ######## ######## ########  ####    ###    ##       
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##       
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##       
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##       
-##     ## #########    ##    ##       ##   ##    ##  ######### ##       
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
+######## ##     ## ########   #######  ########  ######## 
+##        ##   ##  ##     ## ##     ## ##     ##    ##    
+##         ## ##   ##     ## ##     ## ##     ##    ##    
+######      ###    ########  ##     ## ########     ##    
+##         ## ##   ##        ##     ## ##   ##      ##    
+##        ##   ##  ##        ##     ## ##    ##     ##    
+######## ##     ## ##         #######  ##     ##    ##    
 
-def WriteShaderNode(bus, nodetree, node):
-    if node.bl_idname == 'VRayNodeBRDFVRayMtl':
-        return WriteVRayNodeBRDFVRayMtl(bus, nodetree, node)
-    elif node.bl_idname == 'VRayNodeBRDFLayered':
+def WriteConnectedNode(bus, nodetree, nodeSocket):
+    print("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
+
+    if nodeSocket.is_linked:
+        connectedNode = GetConnectedNode(nodetree, nodeSocket)
+        if connectedNode:
+            return WriteNode(bus, nodetree, connectedNode)
+
+    return nodeSocket.value
+
+
+def WriteNode(bus, nodetree, node):
+    print("Processing node: %s..." % node.name)
+
+    # Write some nodes in a special way
+    if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
-    elif node.bl_idname.startswith('VRayNodeTex'):
-        return WriteNodeTexture(bus, nodetree, node)
-    return "BRDFNOBRDFISSET"
+    elif node.bl_idname == 'VRayNodeUVChannel':
+        return WriteUVWGenMayaPlace2dTexture(bus, nodetree, node)
+
+    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
+
+    vrayType   = node.vray_type
+    vrayPlugin = node.vray_plugin
+
+    print("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin))
+
+    dataPointer = getattr(node, vrayPlugin)
+
+    socketParams = {}
+
+    for nodeSocket in node.inputs:
+        vrayAttr = nodeSocket.vray_attr
+
+        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket)
+
+    return PLUGINS[vrayType][vrayPlugin].writeDatablock(bus, dataPointer, pluginName, socketParams)
 
 
 def WriteVRayMaterialNodeTree(bus, nodetree):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-
-    ob   = bus['node']['object']
-    base = bus['node']['base']
-
-    ma = bus['material']['material']
-
     outputNode = GetOutputNode(nodetree)
     if not outputNode:
         return bus['defaults']['material']
 
-    colorSocket = outputNode.inputs['Color']
-    colorNode   = GetConnectedNode(nodetree, colorSocket)
+    materialSocket = outputNode.inputs['Material']
+    if not materialSocket.is_linked:
+        return bus['defaults']['material']
 
-    if colorNode:
-        brdf = WriteShaderNode(bus, nodetree, colorNode)
-
-        pluginName = get_name(ma, prefix='MA')
-
-        ofile.write("\nMtlSingleBRDF %s {" % (pluginName))
-        ofile.write("\n\tbrdf=%s;" % brdf)
-        ofile.write("\n\tallow_negative_colors=1;")
-        ofile.write("\n}\n")
-
-        return pluginName
-
-    return WriteBRDFDiffuseColor(bus, nodetree, colorSocket)
+    return WriteConnectedNode(bus, nodetree, materialSocket)
 
 
 def ExportVRayNodes(bus, datablock):

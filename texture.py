@@ -539,7 +539,12 @@ def write_material_textures(bus):
 
 	VRayMaterial= ma.vray
 
-	mapped_params= PLUGINS['BRDF'][VRayMaterial.type].mapto(bus)
+	dataPointer = getattr(VRayMaterial, VRayMaterial.type)
+	vrayPlugin  = PLUGINS['BRDF'][VRayMaterial.type]
+
+	mapped_params = {}
+	if hasattr(vrayPlugin, 'MAPPED_PARAMS'):
+		mapped_params = vrayPlugin.MAPPED_PARAMS
 
 	# Mapped parameters
 	bus['textures']= {}
@@ -566,7 +571,8 @@ def write_material_textures(bus):
 						# we need to add this value
 						# (for example, texture blended over diffuse color)
 						if factor < 1.0 or VRaySlot.blend_mode != 'NONE' or slot.use_stencil:
-							bus['textures'][mapto].append(mapped_params[mapto])
+							texFromParam = (p(getattr(dataPointer, mapto)), 0, 'NONE')
+							bus['textures'][mapto].append(texFromParam)
 
 					# Store slot for GeomDisplaceMesh
 					if mapto == 'displacement':
