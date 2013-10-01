@@ -165,21 +165,22 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 
 		activeNode = ntree.nodes[-1]
 
-		toShow = True
+		vrayPlugin = None
+		toShow     = True
 
-		if activeNode.vray_type == 'NONE' or activeNode.vray_plugin == 'NONE':
+		if not hasattr(activeNode, 'vray_type'):
 			toShow = False
-
 		else:
-			if not hasattr(activeNode, activeNode.vray_plugin):
+			if activeNode.vray_type == 'NONE' or activeNode.vray_plugin == 'NONE':
 				toShow = False
-			
-			vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
+			else:
+				if not hasattr(activeNode, activeNode.vray_plugin):
+					toShow = False
+				vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
+				if not hasattr(vrayPlugin, 'gui'):
+					toShow = False
 
-			if not hasattr(vrayPlugin, 'gui'):
-				toShow = False
-
-		if not toShow:
+		if not toShow or not vrayPlugin:
 			self.layout.label(text="Selected node has no attibutes to show...")
 		else:
 			self.layout.label(text="Node name: %s" % activeNode.name)

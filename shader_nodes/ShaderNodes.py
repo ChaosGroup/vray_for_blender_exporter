@@ -422,13 +422,13 @@ class VRaySocketMtl(bpy.types.NodeSocket):
         return (1.000, 0.468, 0.087, 1.000)
 
 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ##  ##   ##  
-##     ##   ## ##   
- #######     ###   
+ ######   #######   #######  ########  ########   ######  
+##    ## ##     ## ##     ## ##     ## ##     ## ##    ## 
+##       ##     ## ##     ## ##     ## ##     ## ##       
+##       ##     ## ##     ## ########  ##     ##  ######  
+##       ##     ## ##     ## ##   ##   ##     ##       ## 
+##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
+ ######   #######   #######  ##     ## ########   ######  
 
 class VRayNodeUVChannel(bpy.types.Node, VRayTreeNode):
     bl_idname = 'VRayNodeUVChannel'
@@ -483,7 +483,9 @@ class VRayNodeUVChannel(bpy.types.Node, VRayTreeNode):
     )
 
     def init(self, context):
-        self.outputs.new('VRaySocketCoords', "Output")
+        self.inputs.new('VRaySocketCoords', "UV")
+
+        self.outputs.new('VRaySocketCoords', "UV")
 
     def draw_buttons(self, context, layout):
         ob = context.object
@@ -495,7 +497,7 @@ class VRayNodeUVChannel(bpy.types.Node, VRayTreeNode):
                               ob.data, 'uv_textures',
                               text="")
         else:
-            split.prop(slot, 'uv_layer', text="")
+            split.prop(self, 'uv_layer', text="")
         
         split = layout.split()
         col = split.column(align=True)
@@ -663,6 +665,9 @@ def VRayNodesMenu(self, context):
 #### ##    ## ####    ##    
 
 def VRayNodeDraw(self, context, layout):
+    if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
+        return
+
     if context.scene.vray.exporter.debug:
         layout.label(text="Type: %s"   % self.vray_type)
         layout.label(text="Plugin: %s" % self.vray_plugin)
@@ -677,6 +682,11 @@ def VRayNodeDrawSide(self, context, layout):
 
 
 def VRayNodeInit(self, context):
+    if not hasattr(self, 'vray_type') or self.vray_type == 'NONE':
+        return
+    if not hasattr(self, 'vray_plugin') or self.vray_plugin == 'NONE':
+        return
+    
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     bpyType    = getattr(bpy.types, self.vray_plugin)                   
 

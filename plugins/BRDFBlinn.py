@@ -389,7 +389,7 @@ def writeDatablock(bus, dataPointer, pluginName, mappedParams):
 	ofile.write("\n\treflectionGlossiness_tex_mult=1.0;")
 	ofile.write("\n\tglossyAsGI=%i;" % GLOSSY_RAYS[dataPointer.glossyAsGI])
 
-	ExportUtils.writeParamsBlock(bus, ofile, dataPointer, mappedParams, PARAMS, MAPPED_PARAMS)
+	ExportUtils.WriteParamsBlock(bus, ofile, dataPointer, mappedParams, PARAMS, MAPPED_PARAMS)
 
 	ofile.write("\n}\n")
 

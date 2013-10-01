@@ -27,19 +27,48 @@ import bpy
 from bl_ui.properties_material import active_node_mat
 
 
+TexturableTypes = (
+    'COLOR',
+    'TEXTURE',
+    'FLOAT_TEXTURE',
+)
+
+
 def callback_match_BI_diffuse(self, context):
-	if not hasattr(context, 'material'):
-		return
-	
-	material = active_node_mat(context.material)
-	
-	if not context.material:
-		return
-	
-	if not self.as_viewport_color:
-		material.diffuse_color = (0.5, 0.5, 0.5)
-		return
+    if not hasattr(context, 'material'):
+        return
+    
+    material = active_node_mat(context.material)
+    
+    if not context.material:
+        return
+    
+    if not self.as_viewport_color:
+        material.diffuse_color = (0.5, 0.5, 0.5)
+        return
 
-	color = self.diffuse if material.vray.type == 'BRDFVRayMtl' else self.color
+    color = self.diffuse if material.vray.type == 'BRDFVRayMtl' else self.color
 
-	material.diffuse_color = color
+    material.diffuse_color = color
+
+
+def GenerateAttribute(dataPointer, attrDesc):
+    attributeFunc = {
+        'BOOL'          : bpy.props.BoolProperty,
+        'INT'           : bpy.props.IntProperty,
+        'TEXTURE'       : bpy.props.FloatVectorProperty,
+        'FLOAT_TEXTURE' : bpy.props.FloatProperty,      
+    }
+    
+    attrFunc = attributeFunc[attrDesc['type']]
+    attrArgs = {
+        'attr'        : attrDesc['attr'],
+        'name'        : attrDesc['name'],
+        'description' : attrDesc['desc'],
+        'default'     : attrDesc['default'],
+    }
+
+    if attrDesc['type'] == 'TEXTURE':
+        attrArgs['subtype'] = 'COLOR'
+
+    setattr(dataPointer, attrDesc['attr'], attrFunc(**attrArgs))

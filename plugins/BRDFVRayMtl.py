@@ -1,50 +1,45 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
 from bpy.props import *
 
-''' vb modules '''
 from vb25.utils import *
 from vb25.ui.ui import *
 from vb25.lib   import VRaySocket
 from vb25.lib   import AttributeUtils
 
 
-TYPE= 'BRDF'
-ID=   'BRDFVRayMtl'
-PID=   1
-MAIN_BRDF= True
+TYPE = 'BRDF'
+ID   = 'BRDFVRayMtl'
+PID  =  1
 
-NAME= "VRayMtl"
-UI=   "VRayMtl"
-DESC= "BRDFVRayMtl settings."
+MAIN_BRDF = True # To show in "Material Type" menu
 
+NAME = "VRayMtl"
+UI   = "VRayMtl"
+DESC = "BRDFVRayMtl settings."
 
 MAPPED_PARAMS = {
 	'diffuse' : 'TEXTURE',
@@ -726,9 +721,6 @@ def write(bus, baseName=None):
 	return brdf_name
 
 
-'''
-  GUI
-'''
 def influence(context, layout, slot):
 	wide_ui= context.region.width > narrowui
 
@@ -824,7 +816,7 @@ def gui_options(context, layout, BRDFVRayMtl):
 	col.prop(BRDFVRayMtl, 'environment_priority')
 
 
-def gui(context, layout, BRDFVRayMtl):
+def gui(context, layout, BRDFVRayMtl, node=None):
 	contextType = GetContextType(context)
 	regionWidth = GetRegionWidthFromContext(context)
 

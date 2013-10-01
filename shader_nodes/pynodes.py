@@ -28,7 +28,7 @@ import bpy
 import mathutils
 
 from vb25.plugins import PLUGINS
-from vb25.utils   import * 
+from vb25.utils   import *
 
 
 ##     ## ######## #### ##       #### ######## #### ########  ######  
@@ -57,13 +57,13 @@ def GetOutputNode(nodetree):
     return GetNodeByType(nodetree, 'VRayNodeOutput')
 
 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ## ##     ## 
-##     ##  ##   ##  
-##     ##   ## ##   
- #######     ###    
+ ######   #######   #######  ########  ########   ######  
+##    ## ##     ## ##     ## ##     ## ##     ## ##    ## 
+##       ##     ## ##     ## ##     ## ##     ## ##       
+##       ##     ## ##     ## ########  ##     ##  ######  
+##       ##     ## ##     ## ##   ##   ##     ##       ## 
+##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
+ ######   #######   #######  ##     ## ########   ######  
 
 def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
     ofile = bus['files']['textures']
@@ -86,71 +86,13 @@ def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
     return pluginName
 
 
-######## ######## ##     ## ######## ##     ## ########  ######## 
-   ##    ##        ##   ##     ##    ##     ## ##     ## ##       
-   ##    ##         ## ##      ##    ##     ## ##     ## ##       
-   ##    ######      ###       ##    ##     ## ########  ######   
-   ##    ##         ## ##      ##    ##     ## ##   ##   ##       
-   ##    ##        ##   ##     ##    ##     ## ##    ##  ##       
-   ##    ######## ##     ##    ##     #######  ##     ## ######## 
-   
-def WriteNodeTexture(bus, nodetree, node):
-    ofile = bus['files']['textures']
-    
-    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
-
-    socketParams = {}
-
-    for inputSocket in node.inputs:
-        if inputSocket.name == 'Mapping':
-            if inputSocket.is_linked:
-                connectedNode = GetConnectedNode(nodetree, inputSocket)
-                if connectedNode:
-                    socketParams['uvwgen'] = WriteUVWGenMayaPlace2dTexture(bus, nodetree, connectedNode)
-        
-        else:
-            value = inputSocket.default_value
-
-            if inputSocket.is_linked:
-                connectedNode = GetConnectedNode(nodetree, inputSocket)
-                if connectedNode:
-                    value = WriteNodeTexture(bus, nodetree, connectedNode)
-
-            vray_attr = inputSocket.name.lower().replace(" ", "_")
-
-            socketParams[vray_attr] = value
-
-    pprint(socketParams)
-
-    ofile.write("\n// Tree: \"%s\"" % (nodetree.name))
-    ofile.write("\n// Node: \"%s\"" % (node.name))
-    ofile.write("\n// Type:  %s"    % (node.bl_idname))
-    ofile.write("\n// Plugin:  %s"  % (node.vray_plugin))
-    ofile.write("\n//")
-
-    return PLUGINS['TEXTURE'][node.vray_plugin].writeDatablock(bus, getattr(node, node.vray_plugin), pluginName, socketParams)
-
-
-########  ########  ########  ######## 
-##     ## ##     ## ##     ## ##       
-##     ## ##     ## ##     ## ##       
-########  ########  ##     ## ######   
-##     ## ##   ##   ##     ## ##       
-##     ## ##    ##  ##     ## ##       
-########  ##     ## ########  ##       
-
-def WriteBRDFDiffuseColor(bus, nodetree, nodeSocket):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-
-    pluginName = clean_string("nt%sns%s" % (nodetree.name, nodeSocket.name))
-
-    ofile.write("\nBRDFDiffuse %s {" % (pluginName))
-    ofile.write("\n\tcolor=%s;" % (a(scene, nodeSocket.default_value)))
-    ofile.write("\n}")
-
-    return pluginName
-
+##          ###    ##    ## ######## ########  ######## ########  
+##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
+##        ##   ##    ####   ##       ##     ## ##       ##     ## 
+##       ##     ##    ##    ######   ########  ######   ##     ## 
+##       #########    ##    ##       ##   ##   ##       ##     ## 
+##       ##     ##    ##    ##       ##    ##  ##       ##     ## 
+######## ##     ##    ##    ######## ##     ## ######## ########       
 
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile = bus['files']['materials']
