@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -22,22 +22,20 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# Blender modules
 import bpy
 from bpy.props import *
 
-# V-Ray/Blender modules
-from vb25.utils import *
-from vb25.shaders import *
-from vb25.ui.ui import *
+from vb25.ui.ui import VRayTexturePanel, narrowui
+from vb25.lib   import ExportUtils
+from vb25.lib   import AttributeUtils
 
 
 TYPE = 'TEXTURE'
-
 ID   = 'TexDirt'
+
 NAME = 'Dirt'
 PLUG = 'TexDirt'
-DESC = "TODO."
+DESC = "V-Ray Dirt texture"
 PID  =  0
 
 PARAMS = (
@@ -382,15 +380,9 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
         split = layout.split()
         col = split.column(align=True)
         col.prop(TexDirt, 'white_color')
-        col.prop_search(TexDirt, 'white_color_tex',
-                        bpy.data, 'textures',
-                        text="")
         if wide_ui:
             col = split.column(align=True)
         col.prop(TexDirt,'black_color')
-        col.prop_search(TexDirt, 'black_color_tex',
-                        bpy.data, 'textures',
-                        text="")
 
         layout.separator()
 
@@ -398,9 +390,7 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
         col = split.column()
         sub_radius = col.column(align=True)
         sub_radius.prop(TexDirt,'radius')
-        sub_radius.prop_search(TexDirt, 'radius_tex',
-                               bpy.data, 'textures',
-                               text="")
+
         col.prop(TexDirt,'distribution')
         if TexDirt.mode != 'AO':
             col.prop(TexDirt, 'glossiness')
@@ -448,6 +438,7 @@ class TEXTURE_PT_TexDirt(VRayTexturePanel, bpy.types.Panel):
                         bpy.data, 'groups',
                         text="Result Affect")
         col.prop(TexDirt, 'affect_result_nodes_inclusive')
+
 
 def register():
     bpy.utils.register_class(TEXTURE_PT_TexDirt)

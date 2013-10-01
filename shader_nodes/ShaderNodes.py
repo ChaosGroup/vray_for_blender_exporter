@@ -30,6 +30,7 @@ import mathutils
 
 from pprint import pprint
 
+from vb25.lib     import AttributeUtils
 from vb25.plugins import PLUGINS, load_plugins, gen_menu_items
 
 
@@ -347,7 +348,7 @@ class VRaySocketColor(bpy.types.NodeSocket):
             split.label(text=text)
 
     def draw_color(self, context, node):
-        return (0.250, 0.273, 0.750, 1.00)
+        return (1.000, 0.819, 0.119, 1.000)
 
 
 class VRaySocketCoords(bpy.types.NodeSocket):
@@ -690,30 +691,38 @@ def VRayNodeInit(self, context):
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     bpyType    = getattr(bpy.types, self.vray_plugin)                   
 
-    for prop in bpyType.bl_rna.properties:
-        if prop.name in ['RNA', 'Name']:
-            continue
-        
-        # print("  Property: %s \"%s\" [%s]" % (prop.identifier, prop.name, prop.default))
-        if prop.name in self.inputs:
-            continue
+    if hasattr(vrayPlugin, 'PluginParams'):
+        for attr in vrayPlugin.PluginParams:
+            if not attr['type'] in AttributeUtils.TexturableTypes:
+                continue
+            
+            AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr['name'], attr['attr'], attr['default'])
 
-        if hasattr(vrayPlugin, 'MAPPED_PARAMS'):
-            if prop.identifier in vrayPlugin.MAPPED_PARAMS:
-                socketType = VRAY_SOCKET_TYPE[vrayPlugin.MAPPED_PARAMS[prop.identifier]]
-                
-                default = prop.default
-                if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
-                    default = prop.default_array
+    else:
+        for prop in bpyType.bl_rna.properties:
+            if prop.name in ['RNA', 'Name']:
+                continue
+            
+            # print("  Property: %s \"%s\" [%s]" % (prop.identifier, prop.name, prop.default))
+            if prop.name in self.inputs:
+                continue
 
-                AddInput(self, socketType, prop.name, prop.identifier, default)
-        else:
-            # Try to guess type
-            if prop.type == 'STRING':
-                AddInput(self, 'VRaySocketBRDF', prop.name, prop.identifier)
-            elif prop.type == 'FLOAT':
-                if prop.subtype == 'COLOR':
-                    AddInput(self, 'VRaySocketColor', prop.name, prop.identifier, prop.default_array)
+            if hasattr(vrayPlugin, 'MAPPED_PARAMS'):
+                if prop.identifier in vrayPlugin.MAPPED_PARAMS:
+                    socketType = VRAY_SOCKET_TYPE[vrayPlugin.MAPPED_PARAMS[prop.identifier]]
+                    
+                    default = prop.default
+                    if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
+                        default = prop.default_array
+
+                    AddInput(self, socketType, prop.name, prop.identifier, default)
+            else:
+                # Try to guess type
+                if prop.type == 'STRING':
+                    AddInput(self, 'VRaySocketBRDF', prop.name, prop.identifier)
+                elif prop.type == 'FLOAT':
+                    if prop.subtype == 'COLOR':
+                        AddInput(self, 'VRaySocketColor', prop.name, prop.identifier, prop.default_array)
 
     if self.vray_type == 'TEXTURE':
         AddInput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')

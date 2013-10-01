@@ -37,14 +37,6 @@ PID  =  5
 NAME = 'Diffuse'
 DESC = "BRDFDiffuse."
 
-# For node sockets generation
-#
-MAPPED_PARAMS = {
-    'color_tex'        : 'TEXTURE',
-    'transparency_tex' : 'FLOAT_TEXTURE',
-    'roughness'        : 'FLOAT_TEXTURE',
-}
-
 PluginParams = (
     {
         'attr'    : 'color_tex',
