@@ -575,6 +575,9 @@ def a(scene, t):
 	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
 		return p(t)
 
+	if not VRayExporter.animation and not VRayExporter.use_still_motion_blur:
+		return p(t)
+
 	return "interpolate((%i,%s))" % (frame, p(t))
 
 

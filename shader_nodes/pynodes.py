@@ -46,6 +46,13 @@ def GetConnectedNode(nodeTree, nodeSocket):
     return None
 
 
+def GetConnectedSocket(nodeTree, nodeSocket):
+    for l in nodeSocket.links:
+        if l.from_socket:
+            return l.from_socket
+    return None
+
+
 def GetNodeByType(nodetree, nodeType):
     for n in nodetree.nodes:
         if n.bl_idname == nodeType:
@@ -144,9 +151,15 @@ def WriteConnectedNode(bus, nodetree, nodeSocket):
     print("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
 
     if nodeSocket.is_linked:
-        connectedNode = GetConnectedNode(nodetree, nodeSocket)
+        connectedNode   = GetConnectedNode(nodetree, nodeSocket)
+        connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
         if connectedNode:
-            return WriteNode(bus, nodetree, connectedNode)
+            vrayPlugin = WriteNode(bus, nodetree, connectedNode)
+
+            if connectedSocket.vray_attr:
+                vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
+            
+            return vrayPlugin
 
     return nodeSocket.value
 

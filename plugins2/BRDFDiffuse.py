@@ -25,12 +25,13 @@
 import bpy
 from bpy.props import *
 
-from vb25.ui.ui import *
 from vb25.lib   import ExportUtils
 from vb25.lib   import AttributeUtils
+from vb25.ui.ui import *
 
 
 TYPE = 'BRDF'
+PLUG = 'BRDFDiffuse'
 ID   = 'BRDFDiffuse'
 PID  =  5
 
@@ -73,21 +74,6 @@ PluginParams = (
 )
 
 
-def add_properties(rna_pointer):
-    class BRDFDiffuse(bpy.types.PropertyGroup):
-        pass
-    bpy.utils.register_class(BRDFDiffuse)
-
-    for param in PluginParams:
-        AttributeUtils.GenerateAttribute(BRDFDiffuse, param)
-
-    rna_pointer.BRDFDiffuse = PointerProperty(
-        name        = "BRDFDiffuse",
-        type        =  BRDFDiffuse,
-        description = "V-Ray BRDFDiffuse settings"
-    )
-
-
 def writeDatablock(bus, BRDFDiffuse, pluginName, mappedParams):
     ofile = bus['files']['materials']
     scene = bus['scene']
@@ -108,10 +94,6 @@ def writeDatablock(bus, BRDFDiffuse, pluginName, mappedParams):
     ofile.write("\n}\n")
 
     return pluginName
-
-
-def write(bus, baseName=None):
-    print("This shouldn't happen!")
 
 
 def gui(context, layout, BRDFDiffuse):

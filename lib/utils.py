@@ -83,6 +83,9 @@ def AnimatedValue(scene, value):
 		frame = VRayExporter.customFrame
 	
 	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
-		return FormatFalue(t)
+		return FormatFalue(value)
+	
+	if not VRayExporter.animation and not VRayExporter.use_still_motion_blur:
+		return FormatFalue(value)
 
 	return "interpolate((%i,%s))" % (frame, FormatFalue(value))

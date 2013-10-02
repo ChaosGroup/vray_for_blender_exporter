@@ -25,12 +25,17 @@
 import bpy
 
 
-TexturableTypes = (
+InputTypes = (
     'COLOR',
     'TEXTURE',
     'FLOAT_TEXTURE',
 )
 
+OutputTypes = (
+    'OUTPUT_COLOR',
+    'OUTPUT_TEXTURE',
+    'OUTPUT_FLOAT_TEXTURE',
+)
 
 TypeToSocket = {
     'COLOR'         : 'VRaySocketColor',
@@ -38,15 +43,22 @@ TypeToSocket = {
     'FLOAT_TEXTURE' : 'VRaySocketFloatColor',
     'BRDF'          : 'VRaySocketBRDF',
     'MATERIAL'      : 'VRaySocketMtl',
-}
 
+    'OUTPUT_COLOR'         : 'VRaySocketColor',
+    'OUTPUT_TEXTURE'       : 'VRaySocketColor',
+    'OUTPUT_FLOAT_TEXTURE' : 'VRaySocketFloatColor',
+}
 
 TypeToProp = {
     'BOOL'          : bpy.props.BoolProperty,
     'INT'           : bpy.props.IntProperty,
     'TEXTURE'       : bpy.props.FloatVectorProperty,
-    'FLOAT_TEXTURE' : bpy.props.FloatProperty,      
-    'ENUM'          : bpy.props.EnumProperty,      
+    'FLOAT_TEXTURE' : bpy.props.FloatProperty,
+    'ENUM'          : bpy.props.EnumProperty,
+
+    'OUTPUT_COLOR'         : bpy.props.FloatVectorProperty,
+    'OUTPUT_TEXTURE'       : bpy.props.FloatVectorProperty,
+    'OUTPUT_FLOAT_TEXTURE' : bpy.props.FloatProperty,
 }
 
 
@@ -75,13 +87,41 @@ def GenerateAttribute(dataPointer, attrDesc):
 
     attrArgs = {
         'attr'        : attrDesc['attr'],
-        'name'        : attrDesc['name'],
+        'name'        : attrDesc.get('name', attrDesc['attr'].replace("_", " ").title()),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
     }
 
-    if attrDesc['type'] == 'TEXTURE':
+    if 'options' in attrDesc:
+        attrArgs['options'] = attrDesc['options']
+
+    if attrDesc['type'] in ['COLOR', 'ACOLOR', 'TEXTURE']:
         attrArgs['subtype'] = 'COLOR'
         attrArgs['size']    = len(attrDesc['default'])
+
+    elif attrDesc['type'] in ['FLOAT', 'FLOAT_TEXTURE']:
+        defUi = {
+            'min' : -1024.0,
+            'max' :  1024.0,
+            'soft_min' : 0.0,
+            'soft_max' : 1.0,
+        }
+
+    elif attrDesc['type'] in ['INT', 'INT_TEXTURE']:
+        defUi = {
+            'min' : -1024,
+            'max' :  1024,
+            'soft_min' : 0,
+            'soft_max' : 8,
+        }
+
+    if attrDesc['type'] in ['INT', 'INT_TEXTURE', 'FLOAT', 'FLOAT_TEXTURE']:
+        if 'ui' not in attrDesc:
+            attrDesc['ui'] = defUi
+
+        attrArgs['min'] = attrDesc['ui'].get('min', defUi['min'])
+        attrArgs['max'] = attrDesc['ui'].get('max', defUi['max'])
+        attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', defUi['soft_min'])
+        attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', defUi['soft_max'])
 
     setattr(dataPointer, attrDesc['attr'], attrFunc(**attrArgs))

@@ -27,11 +27,12 @@ from bpy.props import *
 
 from vb25.lib   import ExportUtils
 from vb25.lib   import AttributeUtils
+from vb25.ui.ui import *
 
 
 TYPE = 'TEXTURE'
-PLUG = 'TexAColor'
 ID   = 'TexAColor'
+PLUG = 'TexAColor'
 PID  =  100
 
 NAME = 'Color'

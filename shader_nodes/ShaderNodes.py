@@ -31,7 +31,8 @@ import mathutils
 from pprint import pprint
 
 from vb25.lib     import AttributeUtils
-from vb25.plugins import PLUGINS, load_plugins, gen_menu_items
+from vb25.lib     import ClassUtils
+from vb25.plugins import PLUGINS
 
 
 ########  ######## ######## #### ##    ## ########  ######  
@@ -63,7 +64,7 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
     if socketName in node.inputs:
         return
 
-    print("Adding socket: '%s' <= '%s'" % (socketName, attrName))
+    print("Adding input socket: '%s' <= '%s'" % (socketName, attrName))
 
     node.inputs.new(socketType, socketName)
 
@@ -82,10 +83,18 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
             print("  Setting default value: %s" % default)
 
 
-def AddOutput(node, socketType, socketName):
+def AddOutput(node, socketType, socketName, attrName=None):
     if socketName in node.outputs:
         return
+
+    print("Adding output socket: '%s' <= '%s'" % (socketName, attrName))
+
     node.outputs.new(socketType, socketName)
+
+    createdSocket = node.outputs[socketName]
+
+    if attrName is not None:
+        createdSocket.vray_attr = attrName
 
 
 def GetNodeTreeFromContext(context):
@@ -293,10 +302,10 @@ class VRaySocketFloatColor(bpy.types.NodeSocket):
     value = bpy.props.FloatProperty(
         name = "Value",
         description = "Intensity",
-        min = 0.0,
-        max = 1.0,
-        soft_min = 0.0,
-        soft_max = 1.0,
+        min = -1024.0,
+        max =  1024.0,
+        soft_min = -100.0,
+        soft_max =  100.0,
         default = 0.5
     )
 
@@ -689,15 +698,18 @@ def VRayNodeInit(self, context):
         return
     
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
-    bpyType    = getattr(bpy.types, self.vray_plugin)                   
+    bpyType    = getattr(bpy.types, self.vray_plugin)
 
     if hasattr(vrayPlugin, 'PluginParams'):
         for attr in vrayPlugin.PluginParams:
-            if not attr['type'] in AttributeUtils.TexturableTypes:
-                continue
-            
-            AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr['name'], attr['attr'], attr['default'])
+            attr_name = attr.get('name', attr['attr'].capitalize())
 
+            if attr['type'] in AttributeUtils.InputTypes:
+                AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
+
+            if attr['type'] in AttributeUtils.OutputTypes:
+                AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
+    
     else:
         for prop in bpyType.bl_rna.properties:
             if prop.name in ['RNA', 'Name']:
@@ -725,8 +737,8 @@ def VRayNodeInit(self, context):
                         AddInput(self, 'VRaySocketColor', prop.name, prop.identifier, prop.default_array)
 
     if self.vray_type == 'TEXTURE':
-        AddInput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
         AddOutput(self, 'VRaySocketColor', "Output")
+        AddInput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
     
     elif self.vray_type == 'BRDF':
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
@@ -767,6 +779,8 @@ def LoadDynamicNodes():
             if pluginName in ['BRDFLayered']:
                 continue
 
+            # Plugin was not registered by the plugin manager,
+            # skit it then.
             if not hasattr(bpy.types, pluginName):
                 continue
 
@@ -791,16 +805,18 @@ def LoadDynamicNodes():
             }
 
             DynNodeClass = type(            
-                DynNodeClassName,               # Name            
-                (bpy.types.Node, VRayTreeNode), # Inheritance            
+                DynNodeClassName,               # Name
+                (bpy.types.Node, VRayTreeNode), # Inheritance
                 DynNodeClassAttrs               # Attributes
             )
 
             bpy.utils.register_class(DynNodeClass)
             
             # Load attributes
-            #
-            vrayPlugin.add_properties(DynNodeClass)
+            if hasattr(vrayPlugin, 'add_properties'):
+                vrayPlugin.add_properties(DynNodeClass)
+            else:
+                ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
             
             VRayNodeTypes[pluginType].append(getattr(bpy.types, DynNodeClassName))
 

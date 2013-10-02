@@ -36,6 +36,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.lib   import ClassUtils
 
 
 PLUGINS= {
@@ -56,9 +57,18 @@ PLUGINS= {
 
 
 # Load settings to the RNA Pointer
-def load_plugins(plugins, rna_pointer):
-	for key in plugins:
-		plugins[key].add_properties(rna_pointer)
+#
+def AddProperties(plugin, rna_pointer):
+	if hasattr(plugin, 'add_properties'):
+		plugin.add_properties(rna_pointer)
+	else:
+		ClassUtils.RegisterPluginPropertyGroup(rna_pointer, plugin)
+
+
+def LoadPlugins(plugins, rna_pointer):
+	for plugin in plugins:
+		AddProperties(plugins[plugin], rna_pointer)
+
 
 def gen_material_menu_items(plugins):
 	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and (hasattr(plugins[plug], 'MAIN_BRDF') and plugins[plug].MAIN_BRDF)]
@@ -99,16 +109,17 @@ def gen_menu_items(plugins, none_item= True):
 
 base_dir= get_vray_exporter_path()
 if base_dir is not None:
-	plugins_dir= os.path.join(base_dir,"plugins")
+	for subdir in ["plugins", "plugins2"]:
+		plugins_dir= os.path.join(base_dir,subdir)
 
-	if not plugins_dir in sys.path:
-		sys.path.append(plugins_dir)
+		if not plugins_dir in sys.path:
+			sys.path.append(plugins_dir)
 
-	plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname and fname.endswith(".py") and not fname == "__init__.py"]
-	plugins= [__import__(fname) for fname in plugins_files]
+		plugins_files= [fname[:-3] for fname in os.listdir(plugins_dir) if fname and fname.endswith(".py") and not fname == "__init__.py"]
+		plugins= [__import__(fname) for fname in plugins_files]
 
-	for plugin in plugins:
-		PLUGINS[plugin.TYPE][plugin.ID]= plugin
+		for plugin in plugins:
+			PLUGINS[plugin.TYPE][plugin.ID]= plugin
 
 else:
 	debug(None, "Plugins not found!", error= True)
@@ -1826,35 +1837,32 @@ def add_properties():
 	'''
 	  Loading plugin properties
 	'''
-	load_plugins(PLUGINS['SETTINGS'],      VRayScene)
-	load_plugins(PLUGINS['TEXTURE'],       VRayTexture)
-	load_plugins(PLUGINS['GEOMETRY'],      VRayMesh)
-	load_plugins(PLUGINS['CAMERA'],        VRayCamera)
-	load_plugins(PLUGINS['MATERIAL'],      VRayMaterial)
-	load_plugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
-	load_plugins(PLUGINS['OBJECT'],        VRayObject)
+	LoadPlugins(PLUGINS['SETTINGS'],      VRayScene)
+	LoadPlugins(PLUGINS['TEXTURE'],       VRayTexture)
+	LoadPlugins(PLUGINS['GEOMETRY'],      VRayMesh)
+	LoadPlugins(PLUGINS['CAMERA'],        VRayCamera)
+	LoadPlugins(PLUGINS['MATERIAL'],      VRayMaterial)
+	LoadPlugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
+	LoadPlugins(PLUGINS['OBJECT'],        VRayObject)
 
-	PLUGINS['SETTINGS']['SettingsEnvironment'].add_properties(VRayMaterial)
-	PLUGINS['SETTINGS']['SettingsEnvironment'].add_properties(VRayObject)
+	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
+	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
 
-	PLUGINS['MATERIAL']['MtlOverride'].add_properties(VRayObject)
-	PLUGINS['MATERIAL']['MtlWrapper'].add_properties(VRayObject)
-	PLUGINS['MATERIAL']['MtlRenderStats'].add_properties(VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
 
-	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayObject)
-	PLUGINS['GEOMETRY']['LightMesh'].add_properties(VRayMaterial)
-	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRayObject)
-	PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].add_properties(VRayObject)
+	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayObject)
+	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayMaterial)
+	AddProperties(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRayObject)
+	AddProperties(PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'], VRayObject)
 
-	PLUGINS['BRDF']['BRDFBump'].add_properties(VRaySlot)
-	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].add_properties(VRaySlot)
+	AddProperties(PLUGINS['BRDF']['BRDFBump'], VRaySlot)
+	AddProperties(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRaySlot)
 
 	for key in PLUGINS['BRDF']:
 		if key != 'BRDFBump':
-			if key == 'BRDFLayered':
-				load_plugins(PLUGINS['BRDF'], PLUGINS['BRDF']['BRDFLayered'].add_properties(VRayMaterial))
-			else:
-				PLUGINS['BRDF'][key].add_properties(VRayMaterial)
+			AddProperties(PLUGINS['BRDF'][key], VRayMaterial)
 
 
 def remove_properties():

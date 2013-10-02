@@ -25,6 +25,7 @@
 # VRay base classes
 
 from vb25.lib.utils          import *
+from vb25.lib.ClassUtils     import *
 from vb25.lib.AttributeUtils import *
 from vb25.lib.ExportUtils    import *
 

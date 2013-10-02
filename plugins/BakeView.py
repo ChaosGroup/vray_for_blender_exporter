@@ -79,11 +79,11 @@ def add_properties(rna_pointer):
 	VRayBake.uvChannel = IntProperty(
 		name        = "UV Channel",
 		description = "UV channel to use",
-		min         = 1,
+		min         = 0,
 		max         = 256,
-		soft_min    = 1,
-		soft_max    = 8,
-		default     = 1,
+		soft_min    = 0,
+		soft_max    = 10,
+		default     = 0,
 	)
 
 	VRayBake.flip_derivs= BoolProperty(

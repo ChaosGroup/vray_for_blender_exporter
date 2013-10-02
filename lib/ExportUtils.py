@@ -23,6 +23,7 @@
 #
 
 from . import utils
+from . import AttributeUtils
 
 
 def WriteParamsBlock(bus, ofile, dataPointer, mappedParams, DEF_PARAMS, DEF_MAPPED_PARAMS):
@@ -34,10 +35,9 @@ def WriteParamsBlock(bus, ofile, dataPointer, mappedParams, DEF_PARAMS, DEF_MAPP
         if param in DEF_MAPPED_PARAMS:
             if param in mappedParams:
                 value = mappedParams[param]
-
-            if DEF_MAPPED_PARAMS[param] == 'FLOAT_TEXTURE':
-                if type(value) is str:
-                    value = "%s::out_intensity" % value
+            # if DEF_MAPPED_PARAMS[param] == 'FLOAT_TEXTURE':
+            #     if type(value) is str:
+            #         value = "%s::out_intensity" % value
 
         ofile.write("\n\t%s=%s;" % (param, utils.AnimatedValue(scene, value)))
 
@@ -49,12 +49,11 @@ def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
         value = None
         attr  = attrDesc['attr']
 
+        if attrDesc['type'] in AttributeUtils.OutputTypes:
+            continue
+
         if attr in mappedParams:
             value = mappedParams[attr]
-
-            if attrDesc['type'] == 'FLOAT_TEXTURE':
-                if type(value) is str:
-                    value = "%s::out_intensity" % value
         else:
             value = getattr(dataPointer, attr)
         
