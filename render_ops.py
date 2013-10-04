@@ -44,8 +44,7 @@ from bpy.props import *
 import vb25.render
 import vb25.proxy
 
-from vb25.lib     import VRaySocket
-from vb25.lib     import VRayProxy
+from vb25.lib     import VRaySocket, VRayProxy
 from vb25.utils   import *
 from vb25.plugins import *
 

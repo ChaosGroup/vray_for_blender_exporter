@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexPtex'
-NAME = 'TexPtex'
+NAME = 'Ptex'
 DESC = ""
 
 PluginParams = (

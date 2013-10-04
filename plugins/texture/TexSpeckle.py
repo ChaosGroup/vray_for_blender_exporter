@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexSpeckle'
-NAME = 'TexSpeckle'
+NAME = 'Speckle'
 DESC = ""
 
 PluginParams = (

@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexGradient'
-NAME = 'TexGradient'
+NAME = 'Gradient'
 DESC = ""
 
 PluginParams = (

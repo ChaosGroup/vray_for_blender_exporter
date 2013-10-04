@@ -1,31 +1,27 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Python modules  '''
 import math
 import os
 import string
@@ -34,23 +30,14 @@ import sys
 import tempfile
 import time
 
-import threading
-from threading import Timer
-
-
-''' Blender modules '''
 import bpy
 import mathutils
 
-''' vb modules '''
-import vb25
+from vb25.plugins import PLUGINS
 from vb25.lib     import VRayProcess
-from vb25.utils   import *
-from vb25.plugins import *
-from vb25.texture import *
-from vb25.nodes   import *
+from vb25         import nodes
 
-from vb25.shader_nodes import pynodes
+from vb25.utils   import *
 
 
 VERSION = '2.5'
@@ -872,7 +859,7 @@ def write_materials(bus):
 				if not ma.vray.nodetree:
 					continue
 				
-				nodeMaterial = pynodes.ExportNodeMaterial(bus)		
+				nodeMaterial = nodes.export.ExportNodeMaterial(bus)
 
 				if nodeMaterial:
 					ma_id += 1
@@ -1458,7 +1445,6 @@ def write_scene(bus):
 
 	VRayExporter=    VRayScene.exporter
 	SettingsOptions= VRayScene.SettingsOptions
-#	Includer = VRayScene.Includer
 
 	# Some failsafe defaults
 	bus['defaults']= {}
@@ -1472,8 +1458,8 @@ def write_scene(bus):
 		bus['files'][key].write("// V-Ray/Blender")
 
 	bus['files']['scene'].write("\n// Settings\n")
+	bus['files']['nodetree'].write("\n// Shading Nodes\n")
 	bus['files']['nodes'].write("\n// Nodes\n")
-#	if Includer.lights:
 	bus['files']['lights'].write("\n// Lights\n")
 	bus['files']['camera'].write("\n// Camera\n")
 	bus['files']['environment'].write("\n// Environment\n")

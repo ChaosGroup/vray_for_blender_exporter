@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexLeather'
-NAME = 'TexLeather'
+NAME = 'Leather'
 DESC = ""
 
 PluginParams = (

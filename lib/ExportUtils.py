@@ -81,7 +81,7 @@ def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
 
 
 def WriteDatablock(bus, vrayPlugin, pluginName, PluginParams, dataPointer, mappedParams):
-    ofile = bus['files']['materials']
+    ofile = bus['files']['nodetree']
 
     ofile.write("\n%s %s {" % (vrayPlugin, pluginName))
 

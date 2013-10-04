@@ -46,7 +46,6 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.shaders import *
 
 
 class RenderChannelExtraTex(bpy.types.PropertyGroup):

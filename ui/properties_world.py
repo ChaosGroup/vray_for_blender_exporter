@@ -61,46 +61,16 @@ class WORLD_PT_context_world(VRayWorldPanel, bpy.types.Panel):
         elif world:
             split.template_ID(space, "pin_id")
 
-        layout.separator()
-
         VRayWorld = context.world.vray
 
+        layout.separator()
+        layout.prop(VRayWorld, 'global_light_level', slider=True)
+
+        layout.separator()
         if VRayWorld.nodetree:
             layout.prop_search(VRayWorld, "nodetree", bpy.data, "node_groups")
         else:
             layout.operator("vray.add_world_nodetree", icon='NODETREE', text="Add Node Tree")
-
-
-class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
-    bl_label = "Environment"
-
-    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-    def draw(self, context):
-        layout = self.layout
-
-        VRayWorld = context.world.vray
-
-        split= layout.split()
-        col= split.column()
-        col.label(text="Background:")
-
-        row= layout.row(align=True)
-        row.prop(VRayWorld, 'bg_color_mult', text="Mult", slider=True)
-        row.prop(VRayWorld, 'bg_color', text="")
-
-        split= layout.split()
-        col= split.column()
-        col.label(text="Override:")
-
-        split= layout.split()
-        col= split.column()
-        factor_but(col, VRayWorld, 'gi_override',         'gi_color_mult',         color= 'gi_color',         label= "GI")
-        factor_but(col, VRayWorld, 'reflection_override', 'reflection_color_mult', color= 'reflection_color', label= "Reflection")
-        factor_but(col, VRayWorld, 'refraction_override', 'refraction_color_mult', color= 'refraction_color', label= "Refraction")
-
-        layout.separator()
-        layout.prop(VRayWorld, 'global_light_level', slider= True)
 
 
 class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
@@ -178,5 +148,4 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
                 PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
 
 
-bpy.utils.register_class(VRAY_WP_environment)
 bpy.utils.register_class(VRAY_WP_effects)

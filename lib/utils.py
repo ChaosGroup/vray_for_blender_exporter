@@ -22,8 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# Misc utility functions
-
 import struct
 
 import bpy

@@ -22,12 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# Blender modules
 import bpy
 import mathutils
 
-# V-Ray/Blender modules
-import vb25
+from vb25 import utils
 
 
 TYPE = 'OBJECT'
@@ -260,9 +258,9 @@ def write(bus):
 	ofile.write("\nVRayPattern %s {" % (plug_name))
 	for param in PARAMS:
 		if param == 'node_name':
-			value = '"%s"' % ('VRayPattern'+vb25.utils.get_name(ob, prefix='OB'))
+			value = '"%s"' % ('VRayPattern'+utils.get_name(ob, prefix='OB'))
 		elif param == 'base_name':
-			value = '"%s"' % (vb25.utils.get_name(ob, prefix='OB'))
+			value = '"%s"' % (utils.get_name(ob, prefix='OB'))
 		elif param == 'crop_size':
 			crop_size = GeomVRayPattern.crop_size
 			value = mathutils.Vector((crop_size.x, crop_size.z, crop_size.y))
@@ -270,12 +268,12 @@ def write(bus):
 			pattern_name = GeomVRayPattern.pattern_object
 			if pattern_name in scene.objects:
 				pattern_object = scene.objects[pattern_name]
-				value = '"%s"' % (vb25.utils.get_name(pattern_object, prefix='OB'))
+				value = '"%s"' % (utils.get_name(pattern_object, prefix='OB'))
 			else:
 				value = '""'
 		else:
 			value = getattr(GeomVRayPattern, param)
-		ofile.write("\n\t%s=%s;" % (param, vb25.utils.a(scene, value)))
+		ofile.write("\n\t%s=%s;" % (param, utils.a(scene, value)))
 	ofile.write("\n\tuse_base_map_channel=0;")
 	ofile.write("\n}\n")
 

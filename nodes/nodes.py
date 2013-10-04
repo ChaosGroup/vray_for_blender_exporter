@@ -122,132 +122,6 @@ def GetActiveNode(nodetree):
     return nodetree.nodes[-1]
 
 
- #######  ########  ######## ########     ###    ########  #######  ########   ######  
-##     ## ##     ## ##       ##     ##   ## ##      ##    ##     ## ##     ## ##    ## 
-##     ## ##     ## ##       ##     ##  ##   ##     ##    ##     ## ##     ## ##       
-##     ## ########  ######   ########  ##     ##    ##    ##     ## ########   ######  
-##     ## ##        ##       ##   ##   #########    ##    ##     ## ##   ##         ## 
-##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ## 
- #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ###### 
-
-class VRAY_OT_add_world_nodetree(bpy.types.Operator):
-    bl_idname      = "vray.add_world_nodetree"
-    bl_label       = "Add World Nodetree"
-    bl_description = ""
-
-    def execute(self, context):
-        idblock = context.world
-
-        nt = bpy.data.node_groups.new("World", type='VRayWorldNodeTree')
-        nt.use_fake_user = True
-
-        idblock.vray.nodetree = nt.name
-
-        outputNode = nt.nodes.new('VRayNodeWorldOutput')
-         
-        return {'FINISHED'}
-
-
-class VRAY_OT_add_material_nodetree(bpy.types.Operator):
-    bl_idname      = "vray.add_material_nodetree"
-    bl_label       = "Use Nodes"
-    bl_description = ""
-
-    def execute(self, context):
-        idblock = context.material
-
-        nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
-        nt.use_fake_user = True
-
-        idblock.vray.nodetree = nt.name
-
-        outputNode = nt.nodes.new('VRayNodeOutput')
-
-        singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
-        singleMaterial.location.x  = outputNode.location.x - 250
-        singleMaterial.location.y += 50
-
-        brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
-        brdfVRayMtl.location.x  = singleMaterial.location.x - 250
-        brdfVRayMtl.location.y += 100
-
-        nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
-                
-        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])        
-        
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_add_brdf_layered_sockets(bpy.types.Operator):
-    bl_idname      = 'vray.node_add_brdf_layered_sockets'
-    bl_label       = "Add BRDFLayered Socket"
-    bl_description = "Adds BRDFLayered sockets"
-
-    def execute(self, context):
-        node = context.node
-        
-        newIndex = int(len(node.inputs) / 2) + 1
-
-        # BRDFLayered sockets are always in pairs
-        #
-        brdfSockName   = "BRDF %i" % newIndex
-        weightSockName = "Weight %i" % newIndex
-
-        node.inputs.new('VRaySocketBRDF',  brdfSockName)
-        node.inputs.new('VRaySocketFloatColor', weightSockName)
-
-        node.inputs[weightSockName].value = 1.0
-
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
-    bl_idname      = 'vray.node_del_brdf_layered_sockets'
-    bl_label       = "Remove BRDFLayered Socket"
-    bl_description = "Removes BRDFLayered socket (only not linked sockets will be removed)"
-
-    def execute(self, context):
-        node = context.node
-
-        nSockets = len(node.inputs)
-
-        if not nSockets:
-            return {'FINISHED'}
-
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
-            if not s.is_linked:
-                index = re.findall(r'\d+', s.name)[0]
-
-                brdfSockName   = "BRDF %s" % index
-                weightSockName = "Weight %s" % index
-
-                if not node.inputs[brdfSockName].is_linked and not node.inputs[weightSockName].is_linked:          
-                    node.inputs.remove(node.inputs[brdfSockName])
-                    node.inputs.remove(node.inputs[weightSockName])
-                    break
-
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_add_socket_color(bpy.types.Operator):
-    bl_idname      = 'vray.node_add_socket_color'
-    bl_label       = "Add Color Socket"
-    bl_description = "Adds color socket"
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_del_socket_color(bpy.types.Operator):
-    bl_idname      = 'vray.node_del_socket_color'
-    bl_label       = "Remove Color Socket"
-    bl_description = "Removes color socket (only not linked sockets will be removed)"
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-
  #######  ##     ## ######## ########  ##     ## ######## 
 ##     ## ##     ##    ##    ##     ## ##     ##    ##    
 ##     ## ##     ##    ##    ##     ## ##     ##    ##    
@@ -256,47 +130,58 @@ class VRAY_OT_node_del_socket_color(bpy.types.Operator):
 ##     ## ##     ##    ##    ##        ##     ##    ##    
  #######   #######     ##    ##         #######     ##    
 
+# <lukas_t> instead of limiting to 1 node instance you could also allow
+#           multiple nodes but have an exclusive "enable" option on them
+# <lukas_t> enable node -> all others of same type get disabled
+
 class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
     bl_idname = 'VRayNodeOutput'
-    bl_label  = 'Output'
+    bl_label  = 'Material Output'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
-
-    # BUG: This doesn't work
-    def poll_instance(self, node_tree):
-        # There could be only one output node
-        for n in node_tree.nodes:
-            if n.bl_idname == self.bl_idname:
-                return None
-        return True
-
+    
     def init(self, context):
         AddInput(self, 'VRaySocketMtl', "Material")
 
 
 class VRayNodeWorldOutput(bpy.types.Node, VRayTreeNode):
     bl_idname = 'VRayNodeWorldOutput'
-    bl_label  = 'Output'
+    bl_label  = 'World Output'
     bl_icon   = 'VRAY_LOGO'
+
+    gi_tex = bpy.props.BoolProperty(
+        name        = "Override GI",
+        description = "Override environment for GI",
+        default     = False
+    )
+    
+    reflect_tex = bpy.props.BoolProperty(
+        name        = "Override Reflect",
+        description = "Override environment for reflection",
+        default     = False
+    )
+
+    refract_tex = bpy.props.BoolProperty(
+        name        = "Override Refract",
+        description = "Override environment for refraction",
+        default     = False
+    )
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    # BUG: This doesn't work
-    def poll_instance(self, node_tree):
-        # There could be only one output node
-        for n in node_tree.nodes:
-            if n.bl_idname == self.bl_idname:
-                return None
-        return True
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'gi_tex')
+        layout.prop(self, 'reflect_tex')
+        layout.prop(self, 'refract_tex')
 
     def init(self, context):
-        AddInput(self, 'VRaySocketColor', "Background")
-        AddInput(self, 'VRaySocketColor', "GI")
-        AddInput(self, 'VRaySocketColor', "Reflection")
-        AddInput(self, 'VRaySocketColor', "Refraction")
+        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex')
+        AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
+        AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
+        AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
 
 
  ######   #######   #######  ########  ########   ######  
@@ -488,6 +373,7 @@ class VRayNodesMenuOutput(bpy.types.Menu, VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)        
 
 
 class VRayNodesMenuMapping(bpy.types.Menu, VRayData):
@@ -692,26 +578,39 @@ def LoadDynamicNodes():
                 'draw_buttons_ext' : VRayNodeDrawSide,
             }
 
-            DynNodeClass = type(            
+            # pynodes_framework
+            # for attr in vrayPlugin.PluginParams:
+            #     attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+            #
+            #     if attr['type'] not in AttributeUtils.OutputTypes or attr['type'] not in AttributeUtils.InputTypes:
+            #         continue
+            #
+            #     isOutput = attr['type'] in AttributeUtils.OutputTypes
+            #
+            #     if attr['type'] == 'FLOAT':
+            #         DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, attr['desc'], is_output=isOutput)
+
+            DynNodeClass = type(
                 DynNodeClassName,               # Name
                 (bpy.types.Node, VRayTreeNode), # Inheritance
                 DynNodeClassAttrs               # Attributes
             )
 
             bpy.utils.register_class(DynNodeClass)
-            
+          
             # Load attributes
             if hasattr(vrayPlugin, 'add_properties'):
                 vrayPlugin.add_properties(DynNodeClass)
             else:
                 ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
+  
+            ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
             
             VRayNodeTypes[pluginType].append(getattr(bpy.types, DynNodeClassName))
 
             DynamicClasses.append(DynNodeClass)
 
     # Add manually defined classes
-    #
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
     VRayNodeTypes['UVWGEN'].append(bpy.types.VRayNodeUVChannel)
 
@@ -725,14 +624,7 @@ def LoadDynamicNodes():
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
 
 StaticClasses = (
-    VRAY_OT_node_add_brdf_layered_sockets,
-    VRAY_OT_node_del_brdf_layered_sockets,
-    VRAY_OT_node_add_socket_color,
-    VRAY_OT_node_del_socket_color,
-
-    VRAY_OT_add_material_nodetree,
-    VRAY_OT_add_world_nodetree,
-    
+   
     VRayNodeTree,
     VRayWorldNodeTree,
   

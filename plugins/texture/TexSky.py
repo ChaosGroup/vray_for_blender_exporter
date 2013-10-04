@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexSky'
-NAME = 'TexSky'
+NAME = 'Sky'
 DESC = ""
 
 PluginParams = (
@@ -81,12 +81,6 @@ PluginParams = (
         'desc' : "Sunlight color. Used to add user control to light color definition",
         'type' : 'COLOR',
         'default' : (1, 1, 1),
-    },
-    {
-        'attr' : 'up_vector',
-        'desc' : "",
-        'type' : 'VECTOR',
-        'default' : (0, 0, 1),
     },
     {
         'attr' : 'invisible',
