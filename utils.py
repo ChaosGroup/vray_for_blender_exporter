@@ -645,31 +645,6 @@ def append_unique(array, item):
 	return True
 
 
-# V-Ray uses UV indexes, Blender uses UV names
-# Here we store UV name->index map
-def get_uv_layer_id(uv_layers, uv_layer_name):
-	if not uv_layer_name:
-		return 1
-	return uv_layers[uv_layer_name] if uv_layer_name in uv_layers else 1
-
-def get_uv_layers_map(sce):
-	uv_layers= {}
-	uv_id= 1
-	for ma in bpy.data.materials:
-		for slot in ma.texture_slots:
-			if slot and slot.texture:
-				if slot.texture.vray.texture_coords == 'UV':
-					if slot.uv_layer and slot.uv_layer not in uv_layers:
-						uv_layers[slot.uv_layer]= uv_id
-						uv_id+= 1
-
-	if sce.vray.exporter.debug:
-		for uv_layer in uv_layers:
-			print_dict(sce, "UV layer name map", uv_layers)
-
-	return uv_layers
-
-
 # Generate visibility list for "Hide From View"
 def get_visibility_lists(camera):
 	VRayCamera= camera.data.vray

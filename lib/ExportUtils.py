@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb25.debug import Debug
+
 from . import utils
 from . import AttributeUtils
 
@@ -35,9 +37,6 @@ def WriteParamsBlock(bus, ofile, dataPointer, mappedParams, DEF_PARAMS, DEF_MAPP
         if param in DEF_MAPPED_PARAMS:
             if param in mappedParams:
                 value = mappedParams[param]
-            # if DEF_MAPPED_PARAMS[param] == 'FLOAT_TEXTURE':
-            #     if type(value) is str:
-            #         value = "%s::out_intensity" % value
 
         ofile.write("\n\t%s=%s;" % (param, utils.AnimatedValue(scene, value)))
 
@@ -46,16 +45,42 @@ def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
     scene = bus['scene']
     
     for attrDesc in PluginParams:
-        value = None
         attr  = attrDesc['attr']
+        skip  = attrDesc.get('skip', False)
+
+        if skip:
+            continue
+
+        if attrDesc['type'] in AttributeUtils.SkippedTypes:
+            continue
 
         if attrDesc['type'] in AttributeUtils.OutputTypes:
             continue
+
+        value = None
 
         if attr in mappedParams:
             value = mappedParams[attr]
         else:
             value = getattr(dataPointer, attr)
+
+        if value is None:
+            Debug("%s::%s value is None!" % (dataPointer, attr), msgType='ERROR')
+            continue
         
-        if value is not None:
-            ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
+        if attrDesc['type'] in AttributeUtils.PluginTypes and not value:
+            continue
+
+        ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
+
+
+def WriteDatablock(bus, vrayPlugin, pluginName, PluginParams, dataPointer, mappedParams):
+    ofile = bus['files']['materials']
+
+    ofile.write("\n%s %s {" % (vrayPlugin, pluginName))
+
+    WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    return pluginName

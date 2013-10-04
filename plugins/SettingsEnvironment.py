@@ -42,7 +42,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsEnvironment'
 
 NAME= 'Environment Effects'
-DESC= "Environment effects."
+DESC= "Environment effects"
 
 PARAMS= {
 	'SettingsEnvironment': (
@@ -185,9 +185,9 @@ def add_properties(rna_pointer):
 		name= "Type",
 		description= "Distributed rendering network type",
 		items= (
-			('TOON', "Toon", "Object outline (toon style)."),
-			('FOG',  "Fog",  "Environment / object fog."),
-			('SFADE',  "SphereFade",  "Sphere Fade.")
+			('TOON', "Toon", "Object outline (toon style)"),
+			('FOG',  "Fog",  "Environment / object fog"),
+			('SFADE',  "SphereFade",  "Sphere Fade")
 		),
 		default= 'FOG'
 	)
@@ -558,8 +558,8 @@ def add_properties(rna_pointer):
 		name= "Type",
 		description= "",
 		items= (
-			('WORLD', "World",  "World units."),
-			('PIXEL', "Pixels", "Pixels.")
+			('WORLD', "World",  "World units"),
+			('PIXEL', "Pixels", "Pixels")
 		),
 		default= 'PIXEL'
 	)
@@ -643,8 +643,8 @@ def add_properties(rna_pointer):
 		name= "Include / exclude",
 		description= "",
 		items= (
-			('INCLUDE', "Include", "Include objects."),
-			('EXCLUDE', "Exclude", "Exclude objects.")
+			('INCLUDE', "Include", "Include objects"),
+			('EXCLUDE', "Exclude", "Exclude objects")
 		),
 		default= 'EXCLUDE'
 	)
@@ -1317,7 +1317,7 @@ def gui(context, layout, VRayEffects):
 		else:
 			split= layout.split()
 			col= split.column()
-			col.label(text="Strange, but this effect type doesn\'t exist...")
+			col.label(text="Strange, but this effect type doesn\'t exist..")
 
 
 # elif VRayMaterial.type == 'VOL':

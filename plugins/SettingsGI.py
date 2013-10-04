@@ -461,14 +461,14 @@ def add_properties(parent_struct):
 		name= "Irradiance map mode",
 		description= "Irradiance map mode",
 		items= (
-			('SINGLE',"Single frame","A new irradiance map is created for each frame."),
-			('INC',"Multiframe incremental","At the start of the rendering, the irradiance map is deleted, and then each frame incrementally adds to the irradiance map in memory."),
-			('FILE',"From file","The irradiance map is loaded from a file."),
-			('ADD',"Add to current map","A new irradiance map is created and added to the one in memory."),
-			('INC',"Incremental add to current map","Each frame adds incrementally to the irradiance map in memory; the old map is not deleted."),
-			('BUCKET',"Bucket mode","Each render region (bucket) calculates its own irradiance map independently of the rest."),
-			('ANIM_PRE',"Animation (prepass)","Separate irradiance map is rendered and saved with a different name for each frame; no final image is rendered."),
-			('ANIM_REND',"Animation (rendering)","Final rendering of animation using saved per-frame irradiance maps.")
+			('SINGLE',"Single frame","A new irradiance map is created for each frame"),
+			('INC',"Multiframe incremental","At the start of the rendering, the irradiance map is deleted, and then each frame incrementally adds to the irradiance map in memory"),
+			('FILE',"From file","The irradiance map is loaded from a file"),
+			('ADD',"Add to current map","A new irradiance map is created and added to the one in memory"),
+			('INC',"Incremental add to current map","Each frame adds incrementally to the irradiance map in memory; the old map is not deleted"),
+			('BUCKET',"Bucket mode","Each render region (bucket) calculates its own irradiance map independently of the rest"),
+			('ANIM_PRE',"Animation (prepass)","Separate irradiance map is rendered and saved with a different name for each frame; no final image is rendered"),
+			('ANIM_REND',"Animation (rendering)","Final rendering of animation using saved per-frame irradiance maps")
 		),
 		default= "SINGLE"
 	)
@@ -501,8 +501,8 @@ def add_properties(parent_struct):
 		name= "Detail enhancement scale",
 		description= "Build-in presets",
 		items= (
-			('SCREEN', "Screen", "Radius in pixels."),
-			('WORLD',  "World",  "Radius in Blender Units.")
+			('SCREEN', "Screen", "Radius in pixels"),
+			('WORLD',  "World",  "Radius in Blender Units")
 		),
 		default= 'WORLD'
 	)

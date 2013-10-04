@@ -38,7 +38,7 @@ TYPE= 'SETTINGS'
 ID=   'RenderView'
 
 NAME= 'Render view'
-DESC= "Render view settings."
+DESC= "Render view settings"
 
 PARAMS= (
 )

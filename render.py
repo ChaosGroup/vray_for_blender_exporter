@@ -677,14 +677,9 @@ def write_lamp_textures(bus):
 
 def	write_material(bus):
 	scene= bus['scene']
-#	Includer = scene.vray.Includer
-#	if Includer.materials:
-#		return
-
 
 	ofile= bus['files']['materials']
 	
-
 	ob=    bus['node']['object']
 	base=  bus['node']['base']
 
@@ -874,16 +869,16 @@ def write_materials(bus):
 				# Set if any texture uses object mapping
 				bus['material']['orco_suffix'] = ""
 
-				if ma.vray.nodetree:
-					if VRayScene.exporter.experimental:
-						mtls_list.append(pynodes.ExportNodeMaterial(bus))
-					else:
-						mtls_list.append(write_node_material(bus))
-				else:
-					mtls_list.append(write_material(bus))
+				if not ma.vray.nodetree:
+					continue
 				
-				ma_id += 1
-				ids_list.append(str(ma_id))
+				nodeMaterial = pynodes.ExportNodeMaterial(bus)		
+
+				if nodeMaterial:
+					ma_id += 1
+					
+					mtls_list.append(nodeMaterial)					
+					ids_list.append(str(ma_id))
 
 	# No materials assigned - use default material
 	if len(mtls_list) == 0:
@@ -1237,58 +1232,58 @@ def write_object(bus):
 	if VRayExporter.experimental and VRayObject.GeomVRayPattern.use:
 		PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
 
-	complex_material= []
-	complex_material.append(bus['node']['material'])
-	for component in (VRayObject.MtlWrapper.use,
-					  VRayObject.MtlOverride.use,
-					  VRayObject.MtlRenderStats.use):
-		if component:
-			complex_material.append("OC%.2d_%s" % (len(complex_material), bus['node']['material']))
-	complex_material.reverse()
+	# complex_material= []
+	# complex_material.append(bus['node']['material'])
+	# for component in (VRayObject.MtlWrapper.use,
+	# 				  VRayObject.MtlOverride.use,
+	# 				  VRayObject.MtlRenderStats.use):
+	# 	if component:
+	# 		complex_material.append("OC%.2d_%s" % (len(complex_material), bus['node']['material']))
+	# complex_material.reverse()
 
-	if VRayObject.MtlWrapper.use:
-		base_material= complex_material.pop()
-		ma_name= complex_material[-1]
-		ofile.write("\nMtlWrapper %s {"%(ma_name))
-		ofile.write("\n\tbase_material= %s;"%(base_material))
-		for param in PLUGINS['MATERIAL']['MtlWrapper'].PARAMS:
-			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlWrapper,param))))
-		ofile.write("\n}\n")
+	# if VRayObject.MtlWrapper.use:
+	# 	base_material= complex_material.pop()
+	# 	ma_name= complex_material[-1]
+	# 	ofile.write("\nMtlWrapper %s {"%(ma_name))
+	# 	ofile.write("\n\tbase_material= %s;"%(base_material))
+	# 	for param in PLUGINS['MATERIAL']['MtlWrapper'].PARAMS:
+	# 		ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlWrapper,param))))
+	# 	ofile.write("\n}\n")
 
-		bus['node']['material']= ma_name
+	# 	bus['node']['material']= ma_name
 
-	if VRayObject.MtlOverride.use:
-		base_mtl= complex_material.pop()
-		ma_name= complex_material[-1]
-		ofile.write("\nMtlOverride %s {"%(ma_name))
-		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+	# if VRayObject.MtlOverride.use:
+	# 	base_mtl= complex_material.pop()
+	# 	ma_name= complex_material[-1]
+	# 	ofile.write("\nMtlOverride %s {"%(ma_name))
+	# 	ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
 
-		for param in ('gi_mtl','reflect_mtl','refract_mtl','shadow_mtl'):
-			override_material= getattr(VRayObject.MtlOverride, param)
-			if override_material:
-				if override_material in bpy.data.materials:
-					ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material],"Material")))
+	# 	for param in ('gi_mtl','reflect_mtl','refract_mtl','shadow_mtl'):
+	# 		override_material= getattr(VRayObject.MtlOverride, param)
+	# 		if override_material:
+	# 			if override_material in bpy.data.materials:
+	# 				ofile.write("\n\t%s= %s;"%(param, get_name(bpy.data.materials[override_material],"Material")))
 
-		environment_override= VRayObject.MtlOverride.environment_override
-		if environment_override:
-			if environment_override in bpy.data.materials:
-				ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override],"Texture"))
+	# 	environment_override= VRayObject.MtlOverride.environment_override
+	# 	if environment_override:
+	# 		if environment_override in bpy.data.materials:
+	# 			ofile.write("\n\tenvironment_override= %s;" % get_name(bpy.data.textures[environment_override],"Texture"))
 
-		ofile.write("\n\tenvironment_priority= %i;"%(VRayObject.MtlOverride.environment_priority))
-		ofile.write("\n}\n")
+	# 	ofile.write("\n\tenvironment_priority= %i;"%(VRayObject.MtlOverride.environment_priority))
+	# 	ofile.write("\n}\n")
 
-		bus['node']['material']= ma_name
+	# 	bus['node']['material']= ma_name
 
-	if VRayObject.MtlRenderStats.use:
-		base_mtl= complex_material.pop()
-		ma_name= complex_material[-1]
-		ofile.write("\nMtlRenderStats %s {"%(ma_name))
-		ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
-		for param in PLUGINS['MATERIAL']['MtlRenderStats'].PARAMS:
-			ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlRenderStats,param))))
-		ofile.write("\n}\n")
+	# if VRayObject.MtlRenderStats.use:
+	# 	base_mtl= complex_material.pop()
+	# 	ma_name= complex_material[-1]
+	# 	ofile.write("\nMtlRenderStats %s {"%(ma_name))
+	# 	ofile.write("\n\tbase_mtl= %s;"%(base_mtl))
+	# 	for param in PLUGINS['MATERIAL']['MtlRenderStats'].PARAMS:
+	# 		ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayObject.MtlRenderStats,param))))
+	# 	ofile.write("\n}\n")
 
-		bus['node']['material']= ma_name
+	# 	bus['node']['material']= ma_name
 
 	write_node(bus)
 
@@ -1638,6 +1633,7 @@ def write_scene(bus):
 		bus['cache']['displace']=  []
 		bus['cache']['proxy']=     []
 		bus['cache']['bitmap']=    []
+		bus['cache']['nodes']=     []
 		bus['cache']['uvwgen']=    {}
 
 		# Fake frame for "Camera loop"
@@ -2031,9 +2027,8 @@ def init_bus(engine, scene, preview = False):
 	# Preview
 	bus['preview']= preview
 
-	# V-Ray uses UV indexes, Blender uses UV names
-	# Here we store UV name->index map
-	bus['uvs']= get_uv_layers_map(scene)
+	# XXX: remove
+	bus['uvs']= {}
 
 	# Output files
 	bus['files']=     {}

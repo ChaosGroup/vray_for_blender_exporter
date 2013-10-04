@@ -22,12 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from pprint import pprint
-
 import bpy
 import mathutils
-
+ 
+from vb25.lib     import ExportUtils
 from vb25.plugins import PLUGINS
+from vb25.debug   import Debug
 from vb25.utils   import *
 
 
@@ -76,18 +76,27 @@ def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
     ofile = bus['files']['textures']
     scene = bus['scene']
 
+    uvwgen = None
+    uvwgenSocket = node.inputs['Mapping']
+    if uvwgenSocket.is_linked:
+        uvwgenNode = GetConnectedNode(nodetree, uvwgenSocket)
+        uvwgen     = WriteNode(bus, nodetree, uvwgenNode)
+
+
     pluginName = clean_string("nt%sns%s" % (nodetree.name, node.name))
 
     ofile.write("\nUVWGenMayaPlace2dTexture %s {" % pluginName)
     if node.uv_layer:
         ofile.write('\n\tuv_set_name="%s";' % clean_string(node.uv_layer))
-    else:
-        ofile.write('\n\tuvw_channel=0;')
+    # else:
+    #     ofile.write('\n\tuvw_channel=0;')
     ofile.write("\n\tmirror_u=%d;" % node.mirror_u)
     ofile.write("\n\tmirror_v=%d;" % node.mirror_v)
     ofile.write("\n\trepeat_u=%d;" % node.repeat_u)
     ofile.write("\n\trepeat_v=%d;" % node.repeat_v)
     ofile.write("\n\trotate_frame=%.3f;" % node.rotate_frame)
+    if uvwgen is not None:
+        ofile.write("\n\tuvwgen=%s;" % uvwgen)
     ofile.write("\n}\n")
 
     return pluginName
@@ -148,7 +157,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 ######## ##     ## ##         #######  ##     ##    ##    
 
 def WriteConnectedNode(bus, nodetree, nodeSocket):
-    print("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
+    Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
 
     if nodeSocket.is_linked:
         connectedNode   = GetConnectedNode(nodetree, nodeSocket)
@@ -157,7 +166,12 @@ def WriteConnectedNode(bus, nodetree, nodeSocket):
             vrayPlugin = WriteNode(bus, nodetree, connectedNode)
 
             if connectedSocket.vray_attr:
-                vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
+                # XXX: use as a workaround
+                # TODO: get plugin desc and check if the attr is output,
+                # but skip uvwgen anyway.
+                #
+                if connectedSocket.vray_attr not in ['uvwgen']:
+                    vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
             
             return vrayPlugin
 
@@ -165,7 +179,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket):
 
 
 def WriteNode(bus, nodetree, node):
-    print("Processing node: %s..." % node.name)
+    Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
@@ -175,10 +189,15 @@ def WriteNode(bus, nodetree, node):
 
     pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
 
+    if pluginName in bus['cache']['nodes']:
+        return pluginName
+
+    bus['cache']['nodes'].append(pluginName)
+
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin
 
-    print("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin))
+    Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
     dataPointer = getattr(node, vrayPlugin)
 
@@ -189,34 +208,34 @@ def WriteNode(bus, nodetree, node):
 
         socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket)
 
-    return PLUGINS[vrayType][vrayPlugin].writeDatablock(bus, dataPointer, pluginName, socketParams)
+    result     = None
+    pluginDesc = PLUGINS[vrayType][vrayPlugin]
+
+    if hasattr(pluginDesc, 'writeDatablock'):
+        result = pluginDesc.writeDatablock(bus, dataPointer, pluginName, socketParams)
+    else:
+        result = ExportUtils.WriteDatablock(bus, vrayPlugin, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)
+
+    return result
 
 
 def WriteVRayMaterialNodeTree(bus, nodetree):
     outputNode = GetOutputNode(nodetree)
     if not outputNode:
-        return bus['defaults']['material']
+        Debug("Output node not found!", msgType='ERROR')
+        return None
 
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
-        return bus['defaults']['material']
+        ma = bus['material']['material']
+
+        Debug("Material: %s" % ma.name, msgType='ERROR')
+        Debug("  Node: %s" % outputNode.name, msgType='ERROR')
+        prDebugint("  Error: Material socket is not connected!", msgType='ERROR')
+
+        return None
 
     return WriteConnectedNode(bus, nodetree, materialSocket)
-
-
-def ExportVRayNodes(bus, datablock):
-    if not datablock.vray.nodetree:
-        return None
-
-    if not datablock.vray.nodetree in bpy.data.node_groups:
-        return None
-
-    nodetree = bpy.data.node_groups[datablock.vray.nodetree]
-
-    if type(datablock) == bpy.types.Material:
-        return WriteVRayMaterialNodeTree(bus, nodetree)
-
-    return None
 
 
 def ExportNodeMaterial(bus):
@@ -225,4 +244,18 @@ def ExportNodeMaterial(bus):
     if not ma.vray.nodetree:
         return bus['defaults']['material']
     
-    return ExportVRayNodes(bus, ma)
+    if not ma.vray.nodetree:
+        Debug("Node tree is no set for material \"%s\"!" % ma.name, msgType='ERROR')
+        return None
+
+    if not ma.vray.nodetree in bpy.data.node_groups:
+        Debug("Node tree is not found in 'bpy.data.node_groups'!", msgType='ERROR')
+        return None
+
+    nodetree = bpy.data.node_groups[ma.vray.nodetree]
+
+    pluginName = WriteVRayMaterialNodeTree(bus, nodetree)
+    if pluginName is None:
+        return bus['defaults']['material']
+    
+    return pluginName

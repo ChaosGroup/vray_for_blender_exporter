@@ -38,7 +38,7 @@ TYPE= 'GEOMETRY'
 ID=   'GeomDisplacedMesh'
 
 NAME= 'Displace'
-DESC= "Displace settings."
+DESC= "Displace settings"
 
 PARAMS= (
 	'displacement_amount',
@@ -81,9 +81,9 @@ def add_properties(rna_pointer):
 		name= "Type",
 		description= "Displacement type",
 		items= (
-			('2D',  "2D",     "2D displacement."),
-			('NOR', "Normal", "Normal displacement."),
-			('3D',  "Vector", "Vector displacement.")
+			('2D',  "2D",     "2D displacement"),
+			('NOR', "Normal", "Normal displacement"),
+			('3D',  "Vector", "Vector displacement")
 		),
 		default= 'NOR'
 	)
@@ -92,8 +92,8 @@ def add_properties(rna_pointer):
 		name= "Amount type",
 		description= "Displacement amount type",
 		items= (
-			('MULT', "Multiply", "Multiply material amount."),
-			('OVER', "Override", "Override material amount.")
+			('MULT', "Multiply", "Multiply material amount"),
+			('OVER', "Override", "Override material amount")
 		),
 		default= 'OVER'
 	)

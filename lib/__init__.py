@@ -25,9 +25,13 @@
 # VRay base classes
 
 from vb25.lib.utils          import *
+
+from vb25.lib.CallbackUI     import *
+
 from vb25.lib.ClassUtils     import *
 from vb25.lib.AttributeUtils import *
 from vb25.lib.ExportUtils    import *
+from vb25.lib.DrawUtils      import *
 
 from vb25.lib.VRaySocket     import VRaySocket
 from vb25.lib.VRayProcess    import VRayProcess

@@ -37,7 +37,7 @@ TYPE= 'SETTINGS'
 ID=   'BakeView'
 
 NAME= 'Bake'
-DESC= "Bake settings."
+DESC= "Bake settings"
 
 PARAMS= (
 )
@@ -129,4 +129,4 @@ def write(bus):
 			ofile.write("\n\tflip_derivs=%i;" % VRayBake.flip_derivs)
 			ofile.write("\n}\n")
 		else:
-			debug(scene, "Bake object not found.", error=True)
+			debug(scene, "Bake object not found", error=True)

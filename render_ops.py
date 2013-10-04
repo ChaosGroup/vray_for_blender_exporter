@@ -874,9 +874,8 @@ def init(context):
 	# Preview
 	bus['preview']= False
 
-	# V-Ray uses UV indexes, Blender uses UV names
-	# Here we store UV name->index map
-	bus['uvs']= get_uv_layers_map(scene)
+	# XXX: remove
+	bus['uvs']= {}
 
 	# Output files
 	bus['files']=     {}

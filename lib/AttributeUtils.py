@@ -24,82 +24,120 @@
 
 import bpy
 
+from vb25.debug import Debug, PrintDict
 
-InputTypes = (
-    'COLOR',
+
+PluginTypes = {
+    'BRDF',
+    'MATERIAL',
+    'PLUGIN',
     'TEXTURE',
-    'FLOAT_TEXTURE',
-)
+    'UVWGEN',
+}
 
-OutputTypes = (
+SkippedTypes = {
+    'LIST',
+    'TRANSFORM',
+    'TRANSFORM_TEXTURE',
+}
+
+InputTypes = {
+    'BRDF',
+    'COLOR',
+    'FLOAT_TEXTURE',
+    'MATERIAL',
+    'PLUGIN',
+    'TEXTURE',
+    'VECTOR',
+    'UVWGEN',
+}
+
+OutputTypes = {
     'OUTPUT_COLOR',
-    'OUTPUT_TEXTURE',
     'OUTPUT_FLOAT_TEXTURE',
-)
+    'OUTPUT_VECTOR_TEXTURE',
+    'OUTPUT_TEXTURE',
+}
 
 TypeToSocket = {
-    'COLOR'         : 'VRaySocketColor',
+    'COLOR'  : 'VRaySocketColor',
+    'VECTOR' : 'VRaySocketVector',
+    'FLOAT'  : 'VRaySocketFloat',
+    'INT'    : 'VRaySocketInt',
+
+    'BRDF'     : 'VRaySocketBRDF',
+    'MATERIAL' : 'VRaySocketMtl',
+    'PLUGIN'   : 'VRaySocketObject',
+    'UVWGEN'   : 'VRaySocketCoords',
+
     'TEXTURE'       : 'VRaySocketColor',
     'FLOAT_TEXTURE' : 'VRaySocketFloatColor',
-    'BRDF'          : 'VRaySocketBRDF',
-    'MATERIAL'      : 'VRaySocketMtl',
+    'INT_TEXTURE'   : 'VRaySocketFloatColor',
 
-    'OUTPUT_COLOR'         : 'VRaySocketColor',
-    'OUTPUT_TEXTURE'       : 'VRaySocketColor',
-    'OUTPUT_FLOAT_TEXTURE' : 'VRaySocketFloatColor',
+    'OUTPUT_COLOR'          : 'VRaySocketColor',
+    'OUTPUT_FLOAT_TEXTURE'  : 'VRaySocketFloatColor',
+    'OUTPUT_TEXTURE'        : 'VRaySocketColor',
+    'OUTPUT_VECTOR_TEXTURE' : 'VRaySocketFloatColor',
 }
 
 TypeToProp = {
-    'BOOL'          : bpy.props.BoolProperty,
-    'INT'           : bpy.props.IntProperty,
-    'TEXTURE'       : bpy.props.FloatVectorProperty,
-    'FLOAT_TEXTURE' : bpy.props.FloatProperty,
-    'ENUM'          : bpy.props.EnumProperty,
+    'BOOL'   : bpy.props.BoolProperty,
+    'COLOR'  : bpy.props.FloatVectorProperty,
+    'VECTOR'  : bpy.props.FloatVectorProperty,
+    'ENUM'   : bpy.props.EnumProperty,
+    'FLOAT'  : bpy.props.FloatProperty,
+    'INT'    : bpy.props.IntProperty,
+    'STRING' : bpy.props.StringProperty,
 
-    'OUTPUT_COLOR'         : bpy.props.FloatVectorProperty,
-    'OUTPUT_TEXTURE'       : bpy.props.FloatVectorProperty,
-    'OUTPUT_FLOAT_TEXTURE' : bpy.props.FloatProperty,
+    'BRDF'     : bpy.props.StringProperty,
+    'MATERIAL' : bpy.props.StringProperty,
+    'PLUGIN'   : bpy.props.StringProperty,
+    'UVWGEN'   : bpy.props.StringProperty,
+
+    'INT_TEXTURE'   : bpy.props.IntProperty,
+    'FLOAT_TEXTURE' : bpy.props.FloatProperty,
+    'TEXTURE'       : bpy.props.FloatVectorProperty,
+
+    'OUTPUT_COLOR'          : bpy.props.FloatVectorProperty,
+    'OUTPUT_FLOAT_TEXTURE'  : bpy.props.FloatProperty,
+    'OUTPUT_TEXTURE'        : bpy.props.FloatVectorProperty,
+    'OUTPUT_VECTOR_TEXTURE' : bpy.props.FloatVectorProperty,
 }
 
 
-def callback_match_BI_diffuse(self, context):
-    if not hasattr(context, 'material'):
+def GetNameFromAttr(attr):
+    return attr.replace("_", " ").title()
+
+
+def GenerateAttribute(dataPointer, attrDesc):
+    if attrDesc['type'] in SkippedTypes:
         return
 
-    from bl_ui.properties_material import active_node_mat
-    
-    material = active_node_mat(context.material)
-    
-    if not context.material:
-        return
-    
-    if not self.as_viewport_color:
-        material.diffuse_color = (0.5, 0.5, 0.5)
-        return
+    # PrintDict("attrDesc", attrDesc)
 
-    color = self.diffuse if material.vray.type == 'BRDFVRayMtl' else self.color
+    defUi = None
 
-    material.diffuse_color = color
-
-
-def GenerateAttribute(dataPointer, attrDesc):   
     attrFunc = TypeToProp[attrDesc['type']]
 
     attrArgs = {
         'attr'        : attrDesc['attr'],
-        'name'        : attrDesc.get('name', attrDesc['attr'].replace("_", " ").title()),
+        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
     }
 
-    if 'options' in attrDesc:
-        attrArgs['options'] = attrDesc['options']
+    if attrDesc['type'] in {'STRING'}:
+        pass
 
-    if attrDesc['type'] in ['COLOR', 'ACOLOR', 'TEXTURE']:
+    elif attrDesc['type'] in {'COLOR', 'ACOLOR', 'TEXTURE'}:
         attrArgs['subtype'] = 'COLOR'
         attrArgs['size']    = len(attrDesc['default'])
 
-    elif attrDesc['type'] in ['FLOAT', 'FLOAT_TEXTURE']:
+    elif attrDesc['type'] in {'VECTOR'}:
+        if 'subtype' not in attrDesc:
+            attrArgs['subtype'] = 'TRANSLATION'
+
+    elif attrDesc['type'] in {'FLOAT', 'FLOAT_TEXTURE'}:
         defUi = {
             'min' : -1024.0,
             'max' :  1024.0,
@@ -107,15 +145,22 @@ def GenerateAttribute(dataPointer, attrDesc):
             'soft_max' : 1.0,
         }
 
-    elif attrDesc['type'] in ['INT', 'INT_TEXTURE']:
+    elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
         defUi = {
             'min' : -1024,
             'max' :  1024,
             'soft_min' : 0,
             'soft_max' : 8,
         }
+    
+    elif attrDesc['type'] in {'ENUM'}:
+        attrArgs['items'] = attrDesc['items']
 
-    if attrDesc['type'] in ['INT', 'INT_TEXTURE', 'FLOAT', 'FLOAT_TEXTURE']:
+    for optionalKey in ('size', 'options', 'precision', 'subtype'):
+        if optionalKey in attrDesc:
+            attrArgs[optionalKey] = attrDesc[optionalKey]
+
+    if attrDesc['type'] in {'INT', 'INT_TEXTURE', 'FLOAT', 'FLOAT_TEXTURE'}:
         if 'ui' not in attrDesc:
             attrDesc['ui'] = defUi
 

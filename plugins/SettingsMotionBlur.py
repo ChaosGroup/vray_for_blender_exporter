@@ -37,7 +37,7 @@ TYPE = 'CAMERA'
 ID   = 'SettingsMotionBlur'
 
 NAME = 'Motion Blur'
-DESC = "V-Ray SettingsMotionBlur settings."
+DESC = "V-Ray SettingsMotionBlur settings"
 
 PARAMS = (
 	'on',

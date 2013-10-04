@@ -38,7 +38,7 @@ TYPE= 'GEOMETRY'
 ID=	  'GeomStaticSmoothedMesh'
 
 NAME= 'Subdivision'
-DESC= "Subdivision surface settings."
+DESC= "Subdivision surface settings"
 
 PARAMS= (
 	'use_globals',

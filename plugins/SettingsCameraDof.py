@@ -39,7 +39,7 @@ TYPE= 'CAMERA'
 ID=   'SettingsCameraDof'
 
 NAME= 'Depth of field'
-DESC= "V-Ray SettingsCameraDof settings."
+DESC= "V-Ray SettingsCameraDof settings"
 
 PARAMS= (
 )
@@ -63,7 +63,7 @@ def add_properties(rna_pointer):
 	)
 
 	SettingsCameraDof.sides_on= BoolProperty(
-		name="This option allows you to simulate the polygonal shape of the aperture of real-world cameras.",
+		name="This option allows you to simulate the polygonal shape of the aperture of real-world cameras",
 		description="Enable Bokeh effects",
 		default= False
 	)

@@ -29,7 +29,7 @@ from . import AttributeUtils
 
 def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
     if not propGroupName:
-        propGroupName = pluginModule.PLUG
+        propGroupName = pluginModule.ID
 
     DynPropGroup = None
 
@@ -46,5 +46,5 @@ def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
         attr        = propGroupName,
         name        = propGroupName,
         type        = DynPropGroup,
-        description = "V-Ray \"%s\" plugin settings" % (propGroupName)
+        description = pluginModule.DESC
     ))

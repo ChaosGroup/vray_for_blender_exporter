@@ -134,8 +134,6 @@ def write_UVWGenChannel(bus):
 		if slot and hasattr(slot, 'uv_layer'):
 			if slot.uv_layer.isdigit():
 				uvw_channel = int(slot.uv_layer)
-			else:
-				uvw_channel = get_uv_layer_id(bus['uvs'], slot.uv_layer)	
 
 		ofile.write("\nUVWGenChannel %s {" % uvw_name)
 		ofile.write("\n\tuvw_channel= %i;" % uvw_channel)

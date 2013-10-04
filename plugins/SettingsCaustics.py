@@ -38,7 +38,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsCaustics'
 
 NAME= 'Caustics'
-DESC= "Caustics settings."
+DESC= "Caustics settings"
 
 PARAMS= (
 	'on',

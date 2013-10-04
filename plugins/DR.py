@@ -38,7 +38,7 @@ TYPE= 'SETTINGS'
 
 ID=   'DR'
 NAME= 'Distributed render'
-DESC= "Distributed render options."
+DESC= "Distributed render options"
 
 PARAMS= (
 )
@@ -85,10 +85,10 @@ def add_properties(rna_pointer):
 		name= "Type",
 		description= "Distributed rendering network type",
 		items= (
-			('WW', "Windows - Windows", "Window master & Windows nodes."),
-			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes."),
-			('UU', "Unix - Unix",       "Unix master & Unix nodes."),
-			('UW', "Unix - Windows (TODO)", "Unix master & Windows nodes."),
+			('WW', "Windows - Windows", "Window master & Windows nodes"),
+			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes"),
+			('UU', "Unix - Unix",       "Unix master & Unix nodes"),
+			('UW', "Unix - Windows (TODO)", "Unix master & Windows nodes"),
 		),
 		default= 'WW'
 	)

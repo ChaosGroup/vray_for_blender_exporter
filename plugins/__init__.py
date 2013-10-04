@@ -36,6 +36,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
+from vb25.debug import Debug
 from vb25.lib   import ClassUtils
 
 
@@ -51,6 +52,7 @@ PLUGINS= {
 	'SLOT':          {},
 	'TEXTURE':       {},
 	'WORLD':         {},
+	'UVWGEN':        {},
 
 	'NODE':          {},
 }
@@ -60,6 +62,7 @@ PLUGINS= {
 #
 def AddProperties(plugin, rna_pointer):
 	if hasattr(plugin, 'add_properties'):
+		Debug("Plugin \"%s\" uses legacy registration system!" % plugin.__name__, msgType='INFO')
 		plugin.add_properties(rna_pointer)
 	else:
 		ClassUtils.RegisterPluginPropertyGroup(rna_pointer, plugin)
@@ -71,7 +74,7 @@ def LoadPlugins(plugins, rna_pointer):
 
 
 def gen_material_menu_items(plugins):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID') and (hasattr(plugins[plug], 'MAIN_BRDF') and plugins[plug].MAIN_BRDF)]
+	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID') and hasattr(plugins[plug], 'MAIN_BRDF')]
 
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes
@@ -79,14 +82,12 @@ def gen_material_menu_items(plugins):
 
 	enum_items= []
 	for plugin in plugs:
-		if hasattr(plugin,'ID'):
-			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
-			enum_items.append((plugin.ID, ui_label, plugin.DESC))
+		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
 
 	return enum_items
 
 def gen_menu_items(plugins, none_item= True):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'PID')]
+	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID')]
 
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes
@@ -96,9 +97,9 @@ def gen_menu_items(plugins, none_item= True):
 	if none_item:
 		enum_items.append(('NONE', "None", ""))
 	for plugin in plugs:
-		if hasattr(plugin,'ID'):
-			ui_label= plugin.UI if hasattr(plugin,'UI') else plugin.NAME
-			enum_items.append((plugin.ID, ui_label, plugin.DESC))
+		if not hasattr(plugin, 'ID'):
+			continue
+		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
 
 	# print("<Debug information. Remove this from release!>")
 	# for item in enum_items:
@@ -107,10 +108,13 @@ def gen_menu_items(plugins, none_item= True):
 	return enum_items
 
 
-base_dir= get_vray_exporter_path()
-if base_dir is not None:
-	for subdir in ["plugins", "plugins2"]:
-		plugins_dir= os.path.join(base_dir,subdir)
+base_dir = os.path.join(get_vray_exporter_path(), "plugins")
+
+if not base_dir or not os.path.exists(base_dir):
+	Debug("Plugin directory not found!", msgType='ERROR')
+else:
+	for subdir in ("", "brdf", "texture", "material", "uvwgen"):
+		plugins_dir = os.path.join(base_dir, subdir)
 
 		if not plugins_dir in sys.path:
 			sys.path.append(plugins_dir)
@@ -119,10 +123,9 @@ if base_dir is not None:
 		plugins= [__import__(fname) for fname in plugins_files]
 
 		for plugin in plugins:
+			if not hasattr(plugin, 'ID'):
+				continue
 			PLUGINS[plugin.TYPE][plugin.ID]= plugin
-
-else:
-	debug(None, "Plugins not found!", error= True)
 
 
 def add_properties():
@@ -736,7 +739,7 @@ def add_properties():
 			items= (
 				('CIEOVER',"CIE Overcast",""),
 				('CIECLEAR',"CIE Clear",""),
-				('PREETH',"Preetham et al.","")
+				('PREETH',"Preetham et al","")
 			),
 			default= 'PREETH'
 		)
@@ -1725,12 +1728,13 @@ def add_properties():
 	)
 
 	class VRayTexture(bpy.types.PropertyGroup):
-		type= EnumProperty(
-			name= "Texture Type",
-			description= "V-Ray texture type",
-			items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
-			default= 'NONE'
-		)
+		pass
+		# type= EnumProperty(
+		# 	name= "Texture Type",
+		# 	description= "V-Ray texture type",
+		# 	items= (tuple(gen_menu_items(PLUGINS['TEXTURE']))),
+		# 	default= 'NONE'
+		# )
 	bpy.utils.register_class(VRayTexture)
 
 	class VRayRenderChannel(bpy.types.PropertyGroup):
@@ -1839,30 +1843,32 @@ def add_properties():
 	'''
 	LoadPlugins(PLUGINS['SETTINGS'],      VRayScene)
 	LoadPlugins(PLUGINS['TEXTURE'],       VRayTexture)
+	LoadPlugins(PLUGINS['UVWGEN'],        VRayTexture)
 	LoadPlugins(PLUGINS['GEOMETRY'],      VRayMesh)
 	LoadPlugins(PLUGINS['CAMERA'],        VRayCamera)
 	LoadPlugins(PLUGINS['MATERIAL'],      VRayMaterial)
+	LoadPlugins(PLUGINS['BRDF'],          VRayMaterial)
 	LoadPlugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
 	LoadPlugins(PLUGINS['OBJECT'],        VRayObject)
 
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
 
-	AddProperties(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
-	AddProperties(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
-	AddProperties(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
+	# AddProperties(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
+	# AddProperties(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
+	# AddProperties(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
 
 	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayObject)
 	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayMaterial)
 	AddProperties(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRayObject)
 	AddProperties(PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'], VRayObject)
 
-	AddProperties(PLUGINS['BRDF']['BRDFBump'], VRaySlot)
+	# AddProperties(PLUGINS['BRDF']['BRDFBump'], VRaySlot)
 	AddProperties(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRaySlot)
 
-	for key in PLUGINS['BRDF']:
-		if key != 'BRDFBump':
-			AddProperties(PLUGINS['BRDF'][key], VRayMaterial)
+	# for key in PLUGINS['BRDF']:
+	# 	if key != 'BRDFBump':
+	# 		AddProperties(PLUGINS['BRDF'][key], VRayMaterial)
 
 
 def remove_properties():

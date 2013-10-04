@@ -38,7 +38,7 @@ TYPE= 'GEOMETRY'
 ID=   'GeomPlane'
 
 NAME= 'Infinite place'
-DESC= "Procedural infinite plane."
+DESC= "Procedural infinite plane"
 
 PARAMS= ()
 

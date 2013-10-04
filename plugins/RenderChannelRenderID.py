@@ -81,4 +81,4 @@ def write(ofile, render_channel, sce= None, name= None):
   GUI
 '''
 def draw(rna_pointer, layout, wide_ui):
-	layout.label(text="The object's \"Pass index\" contributes the pixel value.")
+	layout.label(text="The object's \"Pass index\" contributes the pixel value")

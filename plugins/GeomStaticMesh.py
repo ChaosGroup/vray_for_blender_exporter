@@ -38,7 +38,7 @@ TYPE= 'GEOMETRY'
 ID=   'GeomStaticMesh'
 
 NAME= 'Mesh'
-DESC= "Mesh settings."
+DESC= "Mesh settings"
 
 PARAMS= (
 	'dynamic_geometry',
@@ -177,10 +177,8 @@ def write_mesh_hex(bus):
 			if uv_texture_idx:
 				ofile.write(",")
 
-			uv_layer_index= get_uv_layer_id(bus['uvs'], uv_texture.name)
-
 			ofile.write("\n\t\t// %s"%(uv_texture.name))
-			ofile.write("\n\t\tList(%d,ListVectorHex(\""%(uv_layer_index))
+			ofile.write("\n\t\tList(%d,ListVectorHex(\""%(uv_texture_idx))
 
 			for face in uv_texture.data:
 				for uv in face.uv:

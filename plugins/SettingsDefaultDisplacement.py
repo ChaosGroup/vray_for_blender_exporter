@@ -38,7 +38,7 @@ TYPE= 'SETTINGS'
 ID=   'SettingsDefaultDisplacement'
 
 NAME= 'Default displacement'
-DESC= "Default displacement options."
+DESC= "Default displacement options"
 
 PARAMS= (
 	'override_on',
