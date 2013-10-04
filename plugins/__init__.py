@@ -62,7 +62,6 @@ PLUGINS= {
 #
 def AddProperties(plugin, rna_pointer):
 	if hasattr(plugin, 'add_properties'):
-		Debug("Plugin \"%s\" uses legacy registration system!" % plugin.__name__, msgType='INFO')
 		plugin.add_properties(rna_pointer)
 	else:
 		ClassUtils.RegisterPluginPropertyGroup(rna_pointer, plugin)
