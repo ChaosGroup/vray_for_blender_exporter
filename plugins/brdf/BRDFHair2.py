@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'BRDF'
 ID   = 'BRDFHair2'
-NAME = 'BRDFHair2'
+NAME = 'Hair2'
 DESC = ""
 
 PluginParams = (

@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlRoundEdges'
-NAME = 'MtlRoundEdges'
+NAME = 'Round Edges'
 DESC = ""
 
 PluginParams = (

@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlStreakFade'
-NAME = 'MtlStreakFade'
+NAME = 'Streak Fade'
 DESC = ""
 
 PluginParams = (

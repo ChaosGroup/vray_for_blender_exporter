@@ -30,14 +30,14 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlMaterialID'
-NAME = 'MtlMaterialID'
+NAME = 'Material ID'
 DESC = ""
 
 PluginParams = (
     {
         'attr' : 'base_mtl',
         'desc' : "The base material",
-        'type' : 'PLUGIN',
+        'type' : 'MATERIAL',
         'default' : "",
     },
     {
@@ -48,8 +48,13 @@ PluginParams = (
     },
     {
         'attr' : 'material_id_number',
+        'name' : "ID",
         'desc' : "",
         'type' : 'INT',
         'default' : 0,
     },
 )
+
+
+def nodeDraw(context, layout, MtlSingleBRDF):
+    layout.prop(MtlSingleBRDF, 'material_id_number')

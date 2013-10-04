@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlDoubleSided'
-NAME = 'MtlDoubleSided'
+NAME = "Double Sided"
 DESC = ""
 
 PluginParams = (

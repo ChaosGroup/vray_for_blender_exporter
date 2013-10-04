@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlRenderStats'
-NAME = 'MtlRenderStats'
+NAME = 'Render Stats'
 DESC = ""
 
 PluginParams = (

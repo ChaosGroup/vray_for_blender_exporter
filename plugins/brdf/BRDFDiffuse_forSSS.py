@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'BRDF'
 ID   = 'BRDFDiffuse_forSSS'
-NAME = 'BRDFDiffuse_forSSS'
+NAME = 'Diffuse For SSS'
 DESC = ""
 
 PluginParams = (

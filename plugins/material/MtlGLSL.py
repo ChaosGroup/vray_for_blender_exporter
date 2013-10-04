@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlGLSL'
-NAME = 'MtlGLSL'
+NAME = 'GLSL'
 DESC = ""
 
 PluginParams = (
@@ -38,6 +38,7 @@ PluginParams = (
         'attr' : 'shader_file',
         'desc' : "",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {

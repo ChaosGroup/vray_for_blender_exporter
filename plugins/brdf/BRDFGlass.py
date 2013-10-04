@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'BRDF'
 ID   = 'BRDFGlass'
-NAME = 'BRDFGlass'
+NAME = 'Glass'
 DESC = ""
 
 PluginParams = (

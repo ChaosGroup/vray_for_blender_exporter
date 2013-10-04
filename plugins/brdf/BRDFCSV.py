@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'BRDF'
 ID   = 'BRDFCSV'
-NAME = 'BRDFCSV'
+NAME = 'CSV'
 DESC = ""
 
 PluginParams = (

@@ -1854,9 +1854,9 @@ def add_properties():
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
 
-	# AddProperties(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
-	# AddProperties(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
-	# AddProperties(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
+	AddProperties(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
 
 	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayObject)
 	AddProperties(PLUGINS['GEOMETRY']['LightMesh'], VRayMaterial)

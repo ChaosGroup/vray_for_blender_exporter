@@ -30,14 +30,14 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'MATERIAL'
 ID   = 'MtlWrapper'
-NAME = 'MtlWrapper'
+NAME = 'Wrapper'
 DESC = ""
 
 PluginParams = (
     {
         'attr' : 'base_material',
         'desc' : "The base material",
-        'type' : 'PLUGIN',
+        'type' : 'MATERIAL',
         'default' : "",
     },
     {
@@ -187,13 +187,13 @@ PluginParams = (
     {
         'attr' : 'reflection_exclude',
         'desc' : "A list of plugins that will be excluded from reflections",
-        'type' : 'PLUGIN',
+        'type' : 'LIST',
         'default' : "",
     },
     {
         'attr' : 'refraction_exclude',
         'desc' : "A list of plugins that will be excluded from refractions",
-        'type' : 'PLUGIN',
+        'type' : 'LIST',
         'default' : "",
     },
 )

@@ -69,8 +69,6 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 
 		mat = active_node_mat(context.material)
 
-		VRayMaterial = mat.vray
-
 		ob = context.object
 		slot = context.material_slot
 		space = context.space_data
@@ -104,6 +102,7 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				row.label()
 
 			if mat:
+				VRayMaterial = mat.vray
 				if VRayMaterial.nodetree == "":
 					layout.separator()
 					layout.operator("vray.add_material_nodes", icon='NODETREE', text="Add Node Tree")
@@ -114,6 +113,7 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 			layout.separator()
 			layout.prop(mat, "diffuse_color", text="Viewport Color")
 
+			VRayMaterial = mat.vray
 			if VRayMaterial.nodetree:
 				layout.separator()
 				layout.prop_search(VRayMaterial, "nodetree", bpy.data, "node_groups")
@@ -154,7 +154,10 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 			else:
 				if not hasattr(activeNode, activeNode.vray_plugin):
 					toShow = False
-				vrayPlugin = PLUGINS[activeNode.vray_type][activeNode.vray_plugin]
+				pluginTypes = PLUGINS[activeNode.vray_type]
+
+				if activeNode.vray_plugin in pluginTypes:
+					vrayPlugin = pluginTypes[activeNode.vray_plugin]
 
 		if not toShow or not vrayPlugin:
 			self.layout.label(text="Selected node has no attibutes to show...")
