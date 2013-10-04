@@ -52,6 +52,7 @@ PluginParams = (
     #     'type' : 'FLOAT',
     #     'default' : 1,
     # },
+
     # {
     #     'attr' : 'transparency',
     #     'desc' : "",
@@ -70,6 +71,7 @@ PluginParams = (
     #     'type' : 'FLOAT',
     #     'default' : 1,
     # },
+    
     {
         'attr' : 'roughness',
         'desc' : "",

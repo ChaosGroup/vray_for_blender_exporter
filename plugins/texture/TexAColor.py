@@ -49,18 +49,3 @@ PluginParams = (
         'default' : "",
     },
 )
-
-
-def writeDatablock(bus, TexAColor, pluginName, mappedParams):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
-
-    ofile.write("\nTexAColor %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, TexAColor, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName
-
-
-def gui(context, layout, TexAColor):
-    layout.prop(TexAColor, 'texture', text="Color")

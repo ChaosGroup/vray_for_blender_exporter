@@ -231,26 +231,3 @@ PluginParams = (
         'default' : 0,
     },
 )
-
-
-def writeDatablock(bus, TexChecker, pluginName, mappedParams):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
-
-    ofile.write("\nTexChecker %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, TexChecker, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName
-
-
-def gui(context, layout, TexChecker):
-    split = layout.split()
-    col = split.column()
-    col.prop(TexChecker, 'white_color', text="")
-    col = split.column()
-    col.prop(TexChecker, 'black_color', text="")
-
-    split = layout.split()
-    col = split.column()
-    col.prop(TexChecker, 'contrast', slider= True)

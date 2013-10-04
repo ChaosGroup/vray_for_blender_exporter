@@ -35,119 +35,147 @@ from vb25.ui.ui import *
 from vb25.plugins import *
 
 
-from bl_ui import properties_world
-try:
-	properties_world.WORLD_PT_context_world.COMPAT_ENGINES.add('VRAY_RENDER')
-except:
-	pass
-del properties_world
+class WORLD_PT_context_world(VRayWorldPanel, bpy.types.Panel):
+    bl_label = ""
+    bl_options = {'HIDE_HEADER'}
+    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+    
+    @classmethod
+    def poll(cls, context):
+        rd = context.scene.render
+        return (not rd.use_game_engine) and (rd.engine in cls.COMPAT_ENGINES)
+
+    def draw(self, context):
+        layout = self.layout
+
+        scene = context.scene
+        world = context.world
+        space = context.space_data
+        rd = context.scene.render
+
+        texture_count = world and len(world.texture_slots.keys())
+
+        split = layout.split(percentage=0.85)
+        if scene:
+            split.template_ID(scene, "world", new="world.new")
+        elif world:
+            split.template_ID(space, "pin_id")
+
+        layout.separator()
+
+        VRayWorld = context.world.vray
+
+        if VRayWorld.nodetree:
+            layout.prop_search(VRayWorld, "nodetree", bpy.data, "node_groups")
+        else:
+            layout.operator("vray.add_world_nodetree", icon='NODETREE', text="Add Node Tree")
 
 
 class VRAY_WP_environment(VRayWorldPanel, bpy.types.Panel):
-	bl_label = "Environment"
+    bl_label = "Environment"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
-	def draw(self, context):
-		layout= self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		VRayWorld= context.world.vray
+        VRayWorld = context.world.vray
 
-		split= layout.split()
-		col= split.column()
-		col.label(text="Background:")
+        split= layout.split()
+        col= split.column()
+        col.label(text="Background:")
 
-		row= layout.row(align=True)
-		row.prop(VRayWorld, 'bg_color_mult', text="Mult", slider=True)
-		row.prop(VRayWorld, 'bg_color', text="")
+        row= layout.row(align=True)
+        row.prop(VRayWorld, 'bg_color_mult', text="Mult", slider=True)
+        row.prop(VRayWorld, 'bg_color', text="")
 
-		split= layout.split()
-		col= split.column()
-		col.label(text="Override:")
+        split= layout.split()
+        col= split.column()
+        col.label(text="Override:")
 
-		split= layout.split()
-		col= split.column()
-		factor_but(col, VRayWorld, 'gi_override',         'gi_color_mult',         color= 'gi_color',         label= "GI")
-		factor_but(col, VRayWorld, 'reflection_override', 'reflection_color_mult', color= 'reflection_color', label= "Reflection")
-		factor_but(col, VRayWorld, 'refraction_override', 'refraction_color_mult', color= 'refraction_color', label= "Refraction")
+        split= layout.split()
+        col= split.column()
+        factor_but(col, VRayWorld, 'gi_override',         'gi_color_mult',         color= 'gi_color',         label= "GI")
+        factor_but(col, VRayWorld, 'reflection_override', 'reflection_color_mult', color= 'reflection_color', label= "Reflection")
+        factor_but(col, VRayWorld, 'refraction_override', 'refraction_color_mult', color= 'refraction_color', label= "Refraction")
 
-		layout.separator()
-		layout.prop(VRayWorld, 'global_light_level', slider= True)
+        layout.separator()
+        layout.prop(VRayWorld, 'global_light_level', slider= True)
 
 
 class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
-	bl_label   = "Effects"
-	bl_options = {'DEFAULT_CLOSED'}
+    bl_label   = "Effects"
+    bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
-	def draw_header(self, context):
-		VRayScene= context.scene.vray
-		self.layout.prop(VRayScene.VRayEffects, 'use', text="")
+    def draw_header(self, context):
+        VRayScene= context.scene.vray
+        self.layout.prop(VRayScene.VRayEffects, 'use', text="")
 
-	def draw(self, context):
-		layout= self.layout
+    def draw(self, context):
+        layout= self.layout
 
-		wide_ui= context.region.width > narrowui
+        wide_ui= context.region.width > narrowui
 
-		VRayScene= context.scene.vray
-		VRayEffects= VRayScene.VRayEffects
+        VRayScene= context.scene.vray
+        VRayEffects= VRayScene.VRayEffects
 
-		layout.active= VRayEffects.use
+        layout.active= VRayEffects.use
 
-		split= layout.split()
-		row= split.row()
-		row.template_list("VRayListUse", "",
-						  VRayEffects, 'effects',
-						  VRayEffects, 'effects_selected',
-						  rows= 4)
-		col= row.column()
-		sub= col.row()
-		subsub= sub.column(align=True)
-		subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
-		subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
-		sub= col.row()
-		subsub= sub.column(align=True)
-		subsub.operator("vray.effect_up",   icon='MOVE_UP_VEC',   text="")
-		subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
+        split= layout.split()
+        row= split.row()
+        row.template_list("VRayListUse", "",
+                          VRayEffects, 'effects',
+                          VRayEffects, 'effects_selected',
+                          rows= 4)
+        col= row.column()
+        sub= col.row()
+        subsub= sub.column(align=True)
+        subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
+        subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+        sub= col.row()
+        subsub= sub.column(align=True)
+        subsub.operator("vray.effect_up",   icon='MOVE_UP_VEC',   text="")
+        subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
-		if VRayEffects.effects_selected >= 0:
-			layout.separator()
+        if VRayEffects.effects_selected >= 0:
+            layout.separator()
 
-			effect= VRayEffects.effects[VRayEffects.effects_selected]
+            effect= VRayEffects.effects[VRayEffects.effects_selected]
 
-			if wide_ui:
-				split= layout.split(percentage=0.2)
-			else:
-				split= layout.split()
-			col= split.column()
-			col.label(text="Name:")
-			if wide_ui:
-				col= split.column()
-			row= col.row(align=True)
-			row.prop(effect, 'name', text="")
+            if wide_ui:
+                split= layout.split(percentage=0.2)
+            else:
+                split= layout.split()
+            col= split.column()
+            col.label(text="Name:")
+            if wide_ui:
+                col= split.column()
+            row= col.row(align=True)
+            row.prop(effect, 'name', text="")
 
-			if wide_ui:
-				split= layout.split(percentage=0.2)
-			else:
-				split= layout.split()
-			col= split.column()
-			col.label(text="Type:")
-			if wide_ui:
-				col= split.column()
-			col.prop(effect, 'type', text="")
+            if wide_ui:
+                split= layout.split(percentage=0.2)
+            else:
+                split= layout.split()
+            col= split.column()
+            col.label(text="Type:")
+            if wide_ui:
+                col= split.column()
+            col.prop(effect, 'type', text="")
 
-			layout.separator()
+            layout.separator()
 
-			# Box border
-			box = layout.box()
-			box.active = effect.use
+            # Box border
+            box = layout.box()
+            box.active = effect.use
 
-			if effect.type == 'FOG':
-				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, box, effect)
+            if effect.type == 'FOG':
+                PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, box, effect)
 
-			elif effect.type == 'TOON':
-				PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
+            elif effect.type == 'TOON':
+                PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
 
 
 bpy.utils.register_class(VRAY_WP_environment)

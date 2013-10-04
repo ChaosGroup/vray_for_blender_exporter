@@ -41,14 +41,3 @@ PluginParams = (
         'default' : 1.0,
     },    
 )
-
-
-def writeDatablock(bus, FloatToTex, pluginName, mappedParams):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
-
-    ofile.write("\nFloatToTex %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, FloatToTex, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName

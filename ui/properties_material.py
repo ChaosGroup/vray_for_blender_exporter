@@ -105,7 +105,7 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				VRayMaterial = mat.vray
 				if VRayMaterial.nodetree == "":
 					layout.separator()
-					layout.operator("vray.add_material_nodes", icon='NODETREE', text="Add Node Tree")
+					layout.operator("vray.add_material_nodetree", icon='NODETREE', text="Add Node Tree")
 		elif mat:
 			split.template_ID(space, "pin_id")
 

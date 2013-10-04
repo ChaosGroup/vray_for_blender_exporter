@@ -58,7 +58,6 @@ PluginParams = (
         'type' : 'MATERIAL',
         'default' : "",
     },
-
     {
         'attr' : 'expanded',
         'name' : "Expanded",
@@ -74,3 +73,6 @@ PluginParams = (
 def nodeDraw(context, layout, MtlVRmat):
     layout.prop(MtlVRmat, 'filename')
     layout.prop(MtlVRmat, 'mtlname')
+
+
+# TODO: custom export function

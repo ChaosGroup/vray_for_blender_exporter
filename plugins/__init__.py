@@ -790,6 +790,12 @@ def add_properties():
 	bpy.utils.register_class(VRayLight)
 
 	class VRayWorld(bpy.types.PropertyGroup):
+		nodetree = StringProperty(
+			name        = "Node Tree",
+			description = "Name of the shader node tree for world",
+			default     = ""
+		)
+
 		# Move to World plugin
 		bg_color= FloatVectorProperty(
 			name= "Background color",

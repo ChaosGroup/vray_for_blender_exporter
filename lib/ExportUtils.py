@@ -63,13 +63,19 @@ def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
             value = mappedParams[attr]
         else:
             value = getattr(dataPointer, attr)
-
+        
         if value is None:
             Debug("%s::%s value is None!" % (dataPointer, attr), msgType='ERROR')
             continue
         
         if attrDesc['type'] in AttributeUtils.PluginTypes and not value:
             continue
+
+        if attrDesc['type'] in {'STRING'}:
+            if not value:
+                continue
+            else:
+                value = '"%s"' % value
 
         ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
 

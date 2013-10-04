@@ -30,7 +30,7 @@ from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexBitmap'
-NAME = 'TexBitmap'
+NAME = 'Image Texture'
 DESC = ""
 
 PluginParams = (
@@ -49,8 +49,8 @@ PluginParams = (
         'desc' : "",
         'type' : 'ENUM',
         'items' : (
-            ('0', "Self", "The alpha is taken from the alpha"),
-            ('1', "Maya", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
+            ('0', "Alpha",     "Use the alpha channel"),
+            ('1', "Intensity", "The resulting alpha is the color intensity (if 'Compatibility' is '3ds max') or the color luminance (if 'Compatibility' is 'Maya')"),
             ('2', "Force 1.0", "The alpha is forced to 1.0f"),
         ),
         'default' : '0',

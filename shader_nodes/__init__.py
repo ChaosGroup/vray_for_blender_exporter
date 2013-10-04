@@ -22,19 +22,19 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [
-    'ShaderNodes',
-    'pynodes',
-]
+__all__ = [ 'pynodes' ]
 
 
 def register():
-    from vb25.shader_nodes import ShaderNodes
-
+    from . import sockets
+    from . import ShaderNodes
+    
+    sockets.register()
     ShaderNodes.register()
 
 
 def unregister():
-    from vb25.shader_nodes import ShaderNodes
+    from . import ShaderNodes
 
+    sockets.unregister()
     ShaderNodes.unregister()

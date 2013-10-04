@@ -35,6 +35,8 @@ from vb25.lib import AttributeUtils
 from vb25.lib import ClassUtils
 from vb25.lib import CallbackUI
 
+from .tree import *
+
 
 ########  ######## ######## #### ##    ## ########  ######  
 ##     ## ##       ##        ##  ###   ## ##       ##    ## 
@@ -75,7 +77,7 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
         createdSocket.vray_attr = attrName
 
     if default is not None:
-        if socketType == 'VRaySocketColor':
+        if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
             createdSocket.value = (default[0], default[1], default[2])
             Debug("  Setting default value: (%.3f, %.3f, %.3f)" % (default[0], default[1], default[2]), msgType='INFO')
         else:
@@ -128,8 +130,26 @@ def GetActiveNode(nodetree):
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ## 
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ###### 
 
-class VRAY_OT_add_nodetree(bpy.types.Operator):
-    bl_idname      = "vray.add_material_nodes"
+class VRAY_OT_add_world_nodetree(bpy.types.Operator):
+    bl_idname      = "vray.add_world_nodetree"
+    bl_label       = "Add World Nodetree"
+    bl_description = ""
+
+    def execute(self, context):
+        idblock = context.world
+
+        nt = bpy.data.node_groups.new("World", type='VRayWorldNodeTree')
+        nt.use_fake_user = True
+
+        idblock.vray.nodetree = nt.name
+
+        outputNode = nt.nodes.new('VRayNodeWorldOutput')
+         
+        return {'FINISHED'}
+
+
+class VRAY_OT_add_material_nodetree(bpy.types.Operator):
+    bl_idname      = "vray.add_material_nodetree"
     bl_label       = "Use Nodes"
     bl_description = ""
 
@@ -228,49 +248,6 @@ class VRAY_OT_node_del_socket_color(bpy.types.Operator):
         return {'FINISHED'}
 
 
-######## ########  ######## ######## 
-   ##    ##     ## ##       ##       
-   ##    ##     ## ##       ##       
-   ##    ########  ######   ######   
-   ##    ##   ##   ##       ##       
-   ##    ##    ##  ##       ##       
-   ##    ##     ## ######## ######## 
-
-class VRayData:
-    @classmethod
-    def poll(cls, context):
-        return context.scene.render.engine in ['VRAY_RENDER', 'VRAY_RENDER_PREVIEW']
-
-
-class VRayNodeTree(bpy.types.NodeTree, VRayData):
-    bl_label  = "V-Ray Node Tree"
-    bl_idname = 'VRayShaderTreeType'
-    bl_icon   = 'VRAY_LOGO'
-
-    # Return a node tree from the context to be used in the editor
-    @classmethod
-    def get_from_context(cls, context):
-        ob = context.active_object
-        if ob and ob.type not in {'LAMP', 'CAMERA'}:
-            ma = ob.active_material
-            if ma != None:
-                nt_name = ma.vray.nodetree
-                if nt_name != '' and nt_name in bpy.data.node_groups:
-                    return bpy.data.node_groups[ma.vray.nodetree], ma, ma
-        elif ob and ob.type == 'LAMP':
-            la = ob.data
-            nt_name = la.vray.nodetree
-            if nt_name != '' and nt_name in bpy.data.node_groups:
-                return bpy.data.node_groups[la.vray.nodetree], la, la
-        return (None, None, None)
-
-
-class VRayTreeNode:
-    @classmethod
-    def poll(cls, node_tree):
-        return node_tree.bl_idname == 'VRayShaderTreeType'
-
-
  #######  ##     ## ######## ########  ##     ## ######## 
 ##     ## ##     ##    ##    ##     ## ##     ##    ##    
 ##     ## ##     ##    ##    ##     ## ##     ##    ##    
@@ -296,272 +273,30 @@ class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
         return True
 
     def init(self, context):
-        self.inputs.new('VRaySocketMtl', "Material")
+        AddInput(self, 'VRaySocketMtl', "Material")
 
 
- ######   #######   ######  ##    ## ######## ########  ######  
-##    ## ##     ## ##    ## ##   ##  ##          ##    ##    ## 
-##       ##     ## ##       ##  ##   ##          ##    ##       
- ######  ##     ## ##       #####    ######      ##     ######  
-      ## ##     ## ##       ##  ##   ##          ##          ## 
-##    ## ##     ## ##    ## ##   ##  ##          ##    ##    ## 
- ######   #######   ######  ##    ## ########    ##     ######  
+class VRayNodeWorldOutput(bpy.types.Node, VRayTreeNode):
+    bl_idname = 'VRayNodeWorldOutput'
+    bl_label  = 'Output'
+    bl_icon   = 'VRAY_LOGO'
 
-class VRaySocketObject(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketObject'
-    bl_label  = 'Object socket'
+    vray_type   = 'NONE'
+    vray_plugin = 'NONE'
 
-    value = bpy.props.StringProperty(
-        name = "Object",
-        description = "Object",
-        default = ""
-    )
+    # BUG: This doesn't work
+    def poll_instance(self, node_tree):
+        # There could be only one output node
+        for n in node_tree.nodes:
+            if n.bl_idname == self.bl_idname:
+                return None
+        return True
 
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        layout.label(text)
-
-    def draw_color(self, context, node):
-        return (1.0, 1.0, 1.0, 1.0)
-
-
-class VRaySocketInt(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketInt'
-    bl_label  = 'Integer socket'
-
-    value = bpy.props.IntProperty(
-        name = "Value",
-        description = "Value",
-        min = -1024,
-        max =  1024,
-        soft_min = -100,
-        soft_max =  100,
-        default = 1
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            layout.prop(self, 'value', text=text)
-
-    def draw_color(self, context, node):
-        return (0.1, 0.4, 0.4, 1.00)
-
-
-class VRaySocketFloat(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketFloat'
-    bl_label  = 'Float socket'
-
-    value = bpy.props.FloatProperty(
-        name = "Value",
-        description = "Value",
-        min = -1024.0,
-        max =  1024.0,
-        soft_min = -100.0,
-        soft_max =  100.0,
-        default = 0.5
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            layout.prop(self, 'value', text=text)
-
-    def draw_color(self, context, node):
-        return (0.1, 0.4, 0.4, 1.00)
-
-
-class VRaySocketFloatColor(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketFloatColor'
-    bl_label  = 'Float color socket'
-
-    value = bpy.props.FloatProperty(
-        name = "Value",
-        description = "Value",
-        min = -1024.0,
-        max =  1024.0,
-        soft_min = -100.0,
-        soft_max =  100.0,
-        default = 0.5
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            layout.prop(self, 'value', text=text)
-
-    def draw_color(self, context, node):
-        return (0.4, 0.4, 0.4, 1.00)
-
-
-class VRaySocketColor(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketColor'
-    bl_label  = 'Color socket'
-
-    value = bpy.props.FloatVectorProperty(
-        name = "Color",
-        description = "Color",
-        subtype = 'COLOR',
-        min = 0.0,
-        max = 1.0,
-        soft_min = 0.0,
-        soft_max = 1.0,
-        default = (1.0, 1.0, 1.0)
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            split = layout.split(percentage=0.3)
-            split.prop(self, 'value', text="")
-            split.label(text=text)
-
-    def draw_color(self, context, node):
-        return (1.000, 0.819, 0.119, 1.000)
-
-
-class VRaySocketVector(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketVector'
-    bl_label  = 'Vector socket'
-
-    value = bpy.props.FloatVectorProperty(
-        name = "Vector",
-        description = "Vector",
-        subtype = 'TRANSLATION',
-        min = 0.0,
-        max = 1.0,
-        soft_min = 0.0,
-        soft_max = 1.0,
-        default = (1.0, 1.0, 1.0)
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            layout.label(text)
-        else:
-            split = layout.split(percentage=0.3)
-            split.prop(self, 'value', text="")
-            split.label(text=text)
-
-    def draw_color(self, context, node):
-        return (1.000, 0.819, 0.119, 1.000)
-
-
-class VRaySocketCoords(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketCoords'
-    bl_label  = 'Mapping socket'
-
-    value = bpy.props.StringProperty(
-        name        = "Defautl Coordinates",
-        description = "Defautl coordinates",
-        default     = "DEFAULTUVWC"
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        layout.label(text)
-
-    def draw_color(self, context, node):
-        return (0.250, 0.273, 0.750, 1.00)
-
-
-class VRaySocketBRDF(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketBRDF'
-    bl_label  = 'BRDF socket'
-
-    value = bpy.props.StringProperty(
-        name        = "Defautl BRDF",
-        description = "Defautl BRDF",
-        default     = "BRDFNOBRDFISSET"
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        layout.label(text)
-
-    def draw_color(self, context, node):
-        return (0.156, 0.750, 0.304, 1.000)
-
-
-class VRaySocketMtl(bpy.types.NodeSocket):
-    bl_idname = 'VRaySocketMtl'
-    bl_label  = 'Material socket'
-
-    value = bpy.props.StringProperty(
-        name        = "Defautl Material",
-        description = "Defautl material",
-        default     = "MANOMATERIALISSET"
-    )
-
-    vray_attr = bpy.props.StringProperty(
-        name = "V-Ray Attribute",
-        description = "V-Ray plugin attribute name",
-        options = {'HIDDEN'},
-        default = ""
-    )
-
-    def draw(self, context, layout, node, text):
-        layout.label(text)
-
-    def draw_color(self, context, node):
-        return (1.000, 0.468, 0.087, 1.000)
+    def init(self, context):
+        AddInput(self, 'VRaySocketColor', "Background")
+        AddInput(self, 'VRaySocketColor', "GI")
+        AddInput(self, 'VRaySocketColor', "Reflection")
+        AddInput(self, 'VRaySocketColor', "Refraction")
 
 
  ######   #######   #######  ########  ########   ######  
@@ -989,26 +724,20 @@ def LoadDynamicNodes():
 ##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
 
-StaticClasses = [
+StaticClasses = (
     VRAY_OT_node_add_brdf_layered_sockets,
     VRAY_OT_node_del_brdf_layered_sockets,
     VRAY_OT_node_add_socket_color,
     VRAY_OT_node_del_socket_color,
-    VRAY_OT_add_nodetree,
+
+    VRAY_OT_add_material_nodetree,
+    VRAY_OT_add_world_nodetree,
     
     VRayNodeTree,
-
-    VRaySocketObject,
-    VRaySocketInt,
-    VRaySocketFloat,
-    VRaySocketFloatColor,
-    VRaySocketColor,
-    VRaySocketVector,
-    VRaySocketCoords,
-    VRaySocketBRDF,
-    VRaySocketMtl,
-    
+    VRayWorldNodeTree,
+  
     VRayNodeOutput,
+    VRayNodeWorldOutput,
 
     VRayNodeUVChannel,
     VRayNodeTexLayered,    
@@ -1019,7 +748,7 @@ StaticClasses = [
     VRayNodesMenuMapping,
     VRayNodesMenuMaterial,
     VRayNodesMenuOutput,
-]
+)
 
 
 def GetRegClasses():
