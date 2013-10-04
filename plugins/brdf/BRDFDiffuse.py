@@ -89,7 +89,7 @@ def writeDatablock(bus, dataPointer, pluginName, mappedParams):
     ofile = bus['files']['materials']
     scene = bus['scene']
 
-    ofile.write("\nBRDFDiffuse %s {" pluginName)
+    ofile.write("\nBRDFDiffuse %s {" % pluginName)
     ofile.write("\n\tcolor=Color(0.0,0.0,0.0);")
     ofile.write("\n\tcolor_tex_mult=1.0;")
     ofile.write("\n\ttransparency=Color(0.0,0.0,0.0);")
