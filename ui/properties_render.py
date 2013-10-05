@@ -1163,11 +1163,15 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop_search(VRayBake, 'bake_node',  context.scene, 'objects')
+		col.prop_search(VRayBake, 'bake_node', context.scene, 'objects')
+		
 		col.prop(VRayBake, 'uvChannel')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayBake, 'dilation')
 		if wide_ui:
 			col= split.column()
-		col.prop(VRayBake, 'dilation')
 		col.prop(VRayBake, 'flip_derivs')
 
 

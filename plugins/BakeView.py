@@ -82,7 +82,7 @@ def add_properties(rna_pointer):
 		min         = 0,
 		max         = 256,
 		soft_min    = 0,
-		soft_max    = 10,
+		soft_max    = 8,
 		default     = 0,
 	)
 
@@ -109,7 +109,7 @@ def write(bus):
 	VRayBake=  VRayScene.VRayBake
 
 	if VRayBake.use and VRayBake.bake_node:
-		bake_node= get_data_by_name(scene, 'objects', VRayBake.bake_node)
+		bake_node = get_data_by_name(scene, 'objects', VRayBake.bake_node)
 		if bake_node:
 			ofile.write("\nUVWGenChannel bakeViewUVW {")
 			ofile.write("\n\tuvw_transform=Transform(")
@@ -120,8 +120,10 @@ def write(bus):
 			ofile.write("\n\t\t),")
 			ofile.write("\n\t\tVector(0.0,0.0,0.0)")
 			ofile.write("\n\t);")
-			ofile.write("\n\tuvw_channel=%i;"%(VRayBake.uvChannel))
+			ofile.write("\n\tuvwgen=uvwNamedChannel;")
+			ofile.write("\n\tuvw_channel=%i;" % VRayBake.uvChannel)
 			ofile.write("\n}\n")
+
 			ofile.write("\nBakeView bakeView {")
 			ofile.write("\n\tbake_node=%s;" % get_name(bake_node, prefix='OB'))
 			ofile.write("\n\tbake_uvwgen=bakeViewUVW;")
