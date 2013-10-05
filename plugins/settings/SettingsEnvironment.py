@@ -1031,14 +1031,12 @@ def write(bus):
 	socketParams = {}
 	outputNode = None
 	
-	if VRayWorld.nodetree and VRayWorld.nodetree in bpy.data.node_groups:
-		ntree = bpy.data.node_groups[VRayWorld.nodetree]
-
-		outputNode = nodes.export.GetNodeByType(ntree, 'VRayNodeWorldOutput')
+	if VRayWorld.ntree:
+		outputNode = nodes.export.GetNodeByType(VRayWorld.ntree, 'VRayNodeWorldOutput')
 
 		for nodeSocket in outputNode.inputs:
 			vrayAttr = nodeSocket.vray_attr
-			socketParams[vrayAttr] = nodes.export.WriteConnectedNode(bus, ntree, nodeSocket)
+			socketParams[vrayAttr] = nodes.export.WriteConnectedNode(bus, VRayWorld.ntree, nodeSocket)
 
 	ofile.write("\nSettingsEnvironment settingsEnvironment {")
 	ofile.write("\n\tglobal_light_level=%s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))

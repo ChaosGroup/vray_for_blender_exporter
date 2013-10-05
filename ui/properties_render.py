@@ -258,7 +258,7 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 
 	@classmethod
 	def poll(cls, context):
-		rtengineOn     = context.scene.vray.RTEngine
+		rtengineOn     = context.scene.vray.RTEngine.enabled
 		rtengineChosen = context.scene.render.engine == 'VRAY_RENDER_RT'
 
 		useRTEgine = rtengineOn or rtengineChosen

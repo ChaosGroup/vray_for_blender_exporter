@@ -27,6 +27,8 @@ import bpy
 from vb25.ui      import classes
 from vb25.plugins import PLUGINS
 
+from ..pynodes_framework import idref
+
 
 class VRAY_WP_context_world(classes.VRayWorldPanel):
     bl_label = ""
@@ -54,10 +56,10 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         layout.prop(VRayWorld, 'global_light_level', slider=True)
 
         layout.separator()
-        if VRayWorld.nodetree:
-            layout.prop_search(VRayWorld, "nodetree", bpy.data, "node_groups")
-        else:
-            layout.operator("vray.add_world_nodetree", icon='NODETREE', text="Add Node Tree")
+        split = layout.split()
+        row = split.row(align=True)
+        idref.draw_idref(row, VRayWorld, 'ntree', text="Node Tree")
+        row.operator("vray.add_world_nodetree", icon='ZOOMIN', text="")
 
 
 class VRAY_WP_effects(classes.VRayWorldPanel):

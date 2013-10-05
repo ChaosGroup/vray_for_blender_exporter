@@ -52,9 +52,8 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         idblock = context.material
 
         nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
-        nt.use_fake_user = True
 
-        idblock.vray.nodetree = nt.name
+        idblock.vray.ntree = nt
 
         outputNode = nt.nodes.new('VRayNodeOutput')
 

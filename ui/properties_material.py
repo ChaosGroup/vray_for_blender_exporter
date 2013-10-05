@@ -24,9 +24,11 @@
 
 import bpy
 
-from vb25.ui import classes
+from vb25.ui      import classes
 from vb25.lib     import DrawUtils
 from vb25.plugins import PLUGINS
+
+from ..pynodes_framework import idref
 
 
 class VRAY_MP_preview(classes.VRayMaterialPanel):
@@ -83,24 +85,22 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 				row.prop(slot, "link", text="")
 			else:
 				row.label()
-
-			if mat:
-				VRayMaterial = mat.vray
-				if VRayMaterial.nodetree == "":
-					layout.separator()
-					layout.operator("vray.add_material_nodetree", icon='NODETREE', text="Add Node Tree")
 		elif mat:
 			split.template_ID(space, "pin_id")
 
 		if mat:
+			VRayMaterial = mat.vray
+
 			layout.separator()
 			layout.prop(mat, "diffuse_color", text="Viewport Color")
-
-			VRayMaterial = mat.vray
-			if VRayMaterial.nodetree:
-				layout.separator()
-				layout.prop_search(VRayMaterial, "nodetree", bpy.data, "node_groups")
 			
+			layout.separator()
+			
+			split = layout.split()
+			row = split.row(align=True)
+			idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
+			row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
+
 
 class VRAY_MP_node(classes.VRayMaterialPanel):
 	bl_label = "Node"
@@ -110,18 +110,12 @@ class VRAY_MP_node(classes.VRayMaterialPanel):
 		material = context.material
 		if not material:
 			return False
-		ntreeName = material.vray.nodetree
-		if not ntreeName:
-			return False
-		if not ntreeName in bpy.data.node_groups:
-			return False
-		ntree = bpy.data.node_groups[ntreeName]
-		if not len(ntree.nodes):
+		if not material.vray.ntree:
 			return False
 		return classes.VRayMaterialPanel.poll(context)
 
 	def draw(self, context):
-		ntree      = bpy.data.node_groups[context.material.vray.nodetree]
+		ntree      = context.material.vray.ntree
 		activeNode = ntree.nodes[-1]
 
 		vrayPlugin = None

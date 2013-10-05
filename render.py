@@ -856,7 +856,7 @@ def write_materials(bus):
 				# Set if any texture uses object mapping
 				bus['material']['orco_suffix'] = ""
 
-				if not ma.vray.nodetree:
+				if not ma.vray.ntree:
 					continue
 				
 				nodeMaterial = NodesExport.ExportNodeMaterial(bus)

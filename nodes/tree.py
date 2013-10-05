@@ -49,7 +49,7 @@ class VRayData:
 class VRayNodeTree(bpy.types.NodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayShaderTreeType'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'MATERIAL'
 
     # Return a node tree from the context to be used in the editor
     @classmethod
@@ -58,14 +58,8 @@ class VRayNodeTree(bpy.types.NodeTree, VRayData):
         if ob and ob.type not in {'LAMP', 'CAMERA'}:
             ma = ob.active_material
             if ma != None:
-                nt_name = ma.vray.nodetree
-                if nt_name != '' and nt_name in bpy.data.node_groups:
-                    return bpy.data.node_groups[ma.vray.nodetree], ma, ma
-        elif ob and ob.type == 'LAMP':
-            la = ob.data
-            nt_name = la.vray.nodetree
-            if nt_name != '' and nt_name in bpy.data.node_groups:
-                return bpy.data.node_groups[la.vray.nodetree], la, la
+                if ma.vray.ntree:
+                    return ma.vray.ntree, ma, ma
         return (None, None, None)
 
 
@@ -86,7 +80,7 @@ class VRayTreeNode:
 class VRayWorldNodeTree(bpy.types.NodeTree, VRayData):
     bl_label  = "V-Ray World Node Tree"
     bl_idname = 'VRayWorldNodeTree'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'WORLD'
 
     @classmethod
     def get_from_context(cls, context):
@@ -97,9 +91,8 @@ class VRayWorldNodeTree(bpy.types.NodeTree, VRayData):
         if world is None:
             return (None, None, None)
 
-        ntreeName = world.vray.nodetree
-        if ntreeName and ntreeName in bpy.data.node_groups:
-            return bpy.data.node_groups[ntreeName], world, world
+        if world.vray.ntree:
+            return world.vray.ntree, world, world
 
         return (None, None, None)
 

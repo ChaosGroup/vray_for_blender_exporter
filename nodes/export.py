@@ -236,17 +236,11 @@ def WriteVRayMaterialNodeTree(bus, nodetree):
 def ExportNodeMaterial(bus):
     ma = bus['material']['material']
  
-    if not ma.vray.nodetree:
+    if not ma.vray.ntree:
         Debug("Node tree is no set for material \"%s\"!" % ma.name, msgType='ERROR')
         return bus['defaults']['material']
 
-    if not ma.vray.nodetree in bpy.data.node_groups:
-        Debug("Node tree is not found in 'bpy.data.node_groups'!", msgType='ERROR')
-        return None
-
-    nodetree = bpy.data.node_groups[ma.vray.nodetree]
-
-    pluginName = WriteVRayMaterialNodeTree(bus, nodetree)
+    pluginName = WriteVRayMaterialNodeTree(bus, ma.vray.ntree)
     if pluginName is None:
         return bus['defaults']['material']
     
