@@ -707,23 +707,20 @@ def get_orco_object(scene, ob, VRayTexture):
 
 
 # Naming
-# def get_name(data, bus):
-# 	name= data.name
-# 	if bus['object']['particle'].get('name'):
-# 		name= "%s_%s" % (bus['object']['particle']['name'], name)
-# 	if bus['object']['dupli'].get('name'):
-# 		name= "%s_%s" % (bus['object']['dupli']['name'], name)
-# 	if issubclass(type(data), bpy.types.Lamp):
-# 		name= 'LA'+name
-# 	elif issubclass(type(data), bpy.types.Texture):
-# 		name= 'TE'+name
-# 	elif type(data) == bpy.types.Material:
-# 		name= 'MA'+name
-# 	else:
-# 		name= 'OB'+name
-# 	if data.library:
-# 		name+= "%s%s" % ('LI', get_filename(data.library.filepath))
-# 	return clean_string(name)
+def GetObjectName(ob):
+	name = ob.name
+
+	if ob.type == 'LAMP':
+		name = 'LA' + name
+	else:
+		name = 'OB' + name
+
+	if ob.library:
+		name = 'LI' + get_filename(ob.library.filepath) + name
+
+	return clean_string(name)
+
+
 def get_name(ob, prefix= None):
 	if not ob:
 		return None

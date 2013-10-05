@@ -117,8 +117,7 @@ def scene_update_post(scene):
 					cmd_socket.send("set CameraView.transform=%s" % (utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
 			if ob.is_updated:
-				if ob.type == 'MESH':
-					cmd_socket.send("set %s.transform=%s" % (utils.get_name(ob, prefix='OB'), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+				cmd_socket.send("set %s.transform=%s" % (utils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
 		cmd_socket.send("render")
 		cmd_socket.disconnect()
