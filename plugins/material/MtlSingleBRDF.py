@@ -62,16 +62,6 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, MtlSingleBRDF, pluginName, mappedParams):
-    ofile = bus['files']['materials']
-
-    ofile.write("\nMtlSingleBRDF %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, MtlSingleBRDF, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName
-
-
 def nodeDraw(context, layout, MtlSingleBRDF):
     layout.prop(MtlSingleBRDF, 'double_sided')
     layout.prop(MtlSingleBRDF, 'allow_negative_colors')

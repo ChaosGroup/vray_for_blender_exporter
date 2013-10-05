@@ -26,23 +26,18 @@ from vb25.debug import Debug
 
 from . import utils
 from . import AttributeUtils
+from . import VRaySocket
 
 
-def WriteParamsBlock(bus, ofile, dataPointer, mappedParams, DEF_PARAMS, DEF_MAPPED_PARAMS):
-    scene = bus['scene']
+def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams):    
+    scene      = None
+    vraySocket = None
+    
+    if bus['mode'] == 'VRSCENE':
+        scene = bus['scene']
 
-    for param in DEF_PARAMS:
-        value = getattr(dataPointer, param)
-
-        if param in DEF_MAPPED_PARAMS:
-            if param in mappedParams:
-                value = mappedParams[param]
-
-        ofile.write("\n\t%s=%s;" % (param, utils.AnimatedValue(scene, value)))
-
-
-def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
-    scene = bus['scene']
+    if bus['mode'] == 'SOCKET':
+        vraySocket = VRaySocket.VRaySocket()
     
     for attrDesc in PluginParams:
         attr  = attrDesc['attr']
@@ -76,17 +71,29 @@ def WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams):
                 continue
             else:
                 value = '"%s"' % value
+        
+        if bus['mode'] == 'VRSCENE':
+            ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
+        
+        if bus['mode'] == 'SOCKET' and vraySocket:
+            vraySocket.send("set %s.%s=%s" % (pluginName, attr, utils.FormatFalue(value)))
 
-        ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
+    if vraySocket:
+        vraySocket.send("render")
+        vraySocket.disconnect()
 
 
-def WriteDatablock(bus, vrayPlugin, pluginName, PluginParams, dataPointer, mappedParams):
-    ofile = bus['files']['nodetree']
+def WriteDatablock(bus, pluginType, pluginName, PluginParams, dataPointer, mappedParams):
+    ofile = None
 
-    ofile.write("\n%s %s {" % (vrayPlugin, pluginName))
+    if bus['mode'] == 'VRSCENE':
+        ofile = bus['files']['nodetree']
 
-    WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams)
+        ofile.write("\n%s %s {" % (pluginType, pluginName))
 
-    ofile.write("\n}\n")
+    WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams)
+
+    if bus['mode'] == 'VRSCENE':
+        ofile.write("\n}\n")
 
     return pluginName

@@ -254,12 +254,16 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
-	bl_label = "Realtime engine"
+	bl_label = "Realtime Engine"
 
 	@classmethod
 	def poll(cls, context):
-		RTEngine = context.scene.vray.RTEngine
-		return RTEngine.enabled and classes.VRayRenderPanel.poll(context)
+		rtengineOn     = context.scene.vray.RTEngine
+		rtengineChosen = context.scene.render.engine == 'VRAY_RENDER_RT'
+
+		useRTEgine = rtengineOn or rtengineChosen
+		
+		return useRTEgine and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
@@ -268,6 +272,8 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 		VRayScene= context.scene.vray
 
 		RTEngine= VRayScene.RTEngine
+
+		layout.prop(RTEngine, 'realtimeUpdate')
 
 		split= layout.split()
 		col= split.column()

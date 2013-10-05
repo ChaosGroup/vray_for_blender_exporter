@@ -499,17 +499,6 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, BRDFVRayMtl, pluginName, mappedParams):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-
-    ofile.write("\nBRDFVRayMtl %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, BRDFVRayMtl, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName
-
-
 def gui(context, layout, BRDFVRayMtl, node=None):
     contextType = GetContextType(context)
     regionWidth = GetRegionWidthFromContext(context)

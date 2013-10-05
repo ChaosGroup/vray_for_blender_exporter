@@ -80,6 +80,12 @@ def add_properties(rna_pointer):
 		description= "V-Ray Realtime Engine settings"
 	)
 
+	RTEngine.realtimeUpdate = BoolProperty(
+		name        = "Realtime Interaction",
+		description = "Export scene changes in realtime",
+		default     = False
+	)
+
 	# enabled
 	RTEngine.enabled= BoolProperty(
 		name= "Realtime engine",
@@ -283,34 +289,37 @@ def write(bus):
 		'CUDA_SINGLE'   : 4,
 	}
 
-	if RTEngine.enabled:
-		# Write all the params to support previous versions
-		#
-		ofile.write("\n%s %s {" % (ID, ID))
-		for param in PARAMS:
-			if param == 'stereo_mode':
-				value = STEREO_MODE[RTEngine.stereo_mode]
-			elif param == 'stereo_focus':
-				value = STEREO_FOCUS[RTEngine.stereo_focus]
-			elif param == 'use_opencl':
-				value = DEVICE[RTEngine.use_opencl]
-			else:
-				value = getattr(RTEngine, param)
-			ofile.write("\n\t%s=%s;"%(param, p(value)))
-		ofile.write("\n}\n")
+	# Write all the params to support previous versions
+	#
+	ofile.write("\n%s %s {" % (ID, ID))
+	for param in PARAMS:
+		if param == 'stereo_mode':
+			value = STEREO_MODE[RTEngine.stereo_mode]
+		elif param == 'enabled':
+			value = RTEngine.enabled
+			if bus["engine"] == 'VRAY_RENDER_RT':
+				value = 1
+		elif param == 'stereo_focus':
+			value = STEREO_FOCUS[RTEngine.stereo_focus]
+		elif param == 'use_opencl':
+			value = DEVICE[RTEngine.use_opencl]
+		else:
+			value = getattr(RTEngine, param)
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
+	ofile.write("\n}\n")
 
-		ofile.write("\nSettingsRTEngine settingsRT {")
-		for param in PARAMS_SETTINGS_RT_ENGINE:
-			if param == 'stereo_mode':
-				value = STEREO_MODE[RTEngine.stereo_mode]
-			elif param == 'stereo_focus':
-				value = STEREO_FOCUS[RTEngine.stereo_focus]
-			elif param == 'use_opencl':
-				value = DEVICE[RTEngine.use_opencl]
-			else:
-				value = getattr(RTEngine, param)
-			ofile.write("\n\t%s=%s;"%(param, p(value)))
-		ofile.write("\n}\n")
+	ofile.write("\nSettingsRTEngine settingsRT {")
+	for param in PARAMS_SETTINGS_RT_ENGINE:
+		if param == 'stereo_mode':
+			value = STEREO_MODE[RTEngine.stereo_mode]
+		elif param == 'stereo_focus':
+			value = STEREO_FOCUS[RTEngine.stereo_focus]
+		elif param == 'use_opencl':
+			value = DEVICE[RTEngine.use_opencl]
+		else:
+			value = getattr(RTEngine, param)
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
+	ofile.write("\n}\n")
 
 
 def GetRegClasses():

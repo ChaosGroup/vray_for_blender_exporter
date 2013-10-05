@@ -73,4 +73,6 @@ def write(bus):
 		if camera.data.type == 'ORTHO':
 			ofile.write("\n\torthographic=1;")
 			ofile.write("\n\torthographicWidth=%s;" % a(scene, camera.data.ortho_scale))
+		if bus["engine"] == 'VRAY_RENDER_RT':
+			ofile.write("\n\tuse_scene_offset=0;")
 		ofile.write("\n}\n")

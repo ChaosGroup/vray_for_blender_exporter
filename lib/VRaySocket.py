@@ -72,34 +72,13 @@ class VRaySocket():
         self.socket = None
 
 
-    def get_result(self):
-        res = b''
-
-        while True:
-            r = self.socket.recv(1);
-            if r == b'\0':
-                break
-            if r != b'\n':
-                res += r;
-
-        return res
-
-
     def send(self, cmd, result=True):
         if self.socket is None:
             res = self.connect()
             if res is not None:
                 return
 
-        sent_size = None
-        sent_res  = None
-
-        try:
-            sent_size = self.socket.send(bytes(cmd+'\0', 'ascii'))
-            if result:
-                sent_res = self.get_result()
-        except:
-            return None
+        self.socket.send(bytes(cmd+'\0', 'ascii'))
 
         return None
 

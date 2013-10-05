@@ -153,17 +153,23 @@ PluginParams = (
 
 
 def writeDatablock(bus, UVWGenProjection, pluginName, mappedParams):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
+    ofile = None
+    scene = None
+    ob    = None
+    
+    if bus['mode'] == 'VRSCENE':    
+        ofile = bus['files']['textures']
+        scene = bus['scene']
+        ob    = bus['node']['object']
 
-    ob    = bus['node']['object']
+        ofile.write("\nUVWGenProjection %s {" % pluginName)
 
-    ofile.write("\nUVWGenProjection %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, UVWGenProjection, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, 'UVWGenProjection', pluginName, UVWGenProjection, mappedParams, PluginParams)
 
-    if ob:
-        ofile.write("\n\tuvw_transform=%s; // Object: %s" % (utils.AnimatedValue(scene, ob.matrix_world.copy().inverted()), ob.name))
-    ofile.write("\n}\n")
+    if bus['mode'] == 'VRSCENE':    
+        if ob:
+            ofile.write("\n\tuvw_transform=%s; // Object: %s" % (utils.AnimatedValue(scene, ob.matrix_world.copy().inverted()), ob.name))
+        ofile.write("\n}\n")
 
     return pluginName
 

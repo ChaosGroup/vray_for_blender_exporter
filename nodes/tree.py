@@ -29,11 +29,13 @@
 
 import bpy
 
+from vb25.ui import classes
+
 
 class VRayData:
     @classmethod
     def poll(cls, context):
-        return context.scene.render.engine in ['VRAY_RENDER', 'VRAY_RENDER_PREVIEW']
+        return context.scene.render.engine in classes.VRayEngines
 
 
 ##     ##    ###    ######## ######## ########  ####    ###    ##       

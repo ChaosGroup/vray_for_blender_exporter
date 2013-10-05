@@ -36,10 +36,6 @@ del properties_data_camera
 
 class VRAY_DP_camera(classes.VRayCameraPanel):
 	bl_label = "Parameters"
-	
-	@classmethod
-	def poll(cls, context):
-		return (context.camera and engine_poll(__class__, context))
 
 	def draw(self, context):
 		layout= self.layout

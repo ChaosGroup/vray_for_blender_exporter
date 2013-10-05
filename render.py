@@ -1705,14 +1705,14 @@ def write_scene(bus):
 					write_frame(bus)
 			else:
 				debug(scene, "No cameras selected for \"Camera loop\"!", error= True)
-				return True # Error
+				return True
 
 		else:
 			write_frame(bus)
 
 	debug(scene, "Writing scene... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
-	return False # No errors
+	return None
 
 
 def run(bus):
@@ -2019,6 +2019,8 @@ def init_bus(engine, scene, preview = False):
 	# Output files
 	bus['files']=     {}
 	bus['filenames']= {}
+
+	bus['mode'] = 'VRSCENE'
 
 	init_files(bus)
 

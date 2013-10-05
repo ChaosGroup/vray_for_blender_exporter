@@ -82,14 +82,11 @@ def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
         uvwgenNode = GetConnectedNode(nodetree, uvwgenSocket)
         uvwgen     = WriteNode(bus, nodetree, uvwgenNode)
 
-
     pluginName = clean_string("nt%sns%s" % (nodetree.name, node.name))
 
     ofile.write("\nUVWGenMayaPlace2dTexture %s {" % pluginName)
     if node.uv_layer:
         ofile.write('\n\tuv_set_name="%s";' % clean_string(node.uv_layer))
-    # else:
-    #     ofile.write('\n\tuvw_channel=0;')
     ofile.write("\n\tmirror_u=%d;" % node.mirror_u)
     ofile.write("\n\tmirror_v=%d;" % node.mirror_v)
     ofile.write("\n\trepeat_u=%d;" % node.repeat_u)
@@ -189,10 +186,11 @@ def WriteNode(bus, nodetree, node):
 
     pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
 
-    if pluginName in bus['cache']['nodes']:
-        return pluginName
+    if 'cache' in bus:
+        if pluginName in bus['cache']['nodes']:
+            return pluginName
 
-    bus['cache']['nodes'].append(pluginName)
+        bus['cache']['nodes'].append(pluginName)
 
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin
@@ -220,19 +218,16 @@ def WriteNode(bus, nodetree, node):
 
 
 def WriteVRayMaterialNodeTree(bus, nodetree):
-    outputNode = GetOutputNode(nodetree)
+    outputNode = GetNodeByType(nodetree, 'VRayNodeOutput')
     if not outputNode:
         Debug("Output node not found!", msgType='ERROR')
         return None
 
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
-        ma = bus['material']['material']
-
-        Debug("Material: %s" % ma.name, msgType='ERROR')
+        Debug("NodeTree: %s" % nodetree.name, msgType='ERROR')
         Debug("  Node: %s" % outputNode.name, msgType='ERROR')
-        prDebugint("  Error: Material socket is not connected!", msgType='ERROR')
-
+        Debug("  Error: Material socket is not connected!", msgType='ERROR')
         return None
 
     return WriteConnectedNode(bus, nodetree, materialSocket)

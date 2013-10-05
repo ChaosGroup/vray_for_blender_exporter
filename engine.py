@@ -25,6 +25,7 @@
 import bpy
 
 from vb25 import render
+from vb25 import realtime
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -67,7 +68,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
     height = None
 
     def render(self, scene):
-        export_scene(self, scene)
+        realtime.export_scene(self, scene)
 
 
 def GetRegClasses():

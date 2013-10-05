@@ -32,6 +32,7 @@ if "bpy" in locals():
     imp.reload(proxy)
     imp.reload(ui)
     imp.reload(engine)
+    imp.reload(realtime)
 else:
     import bpy
     from vb25 import lib
@@ -42,6 +43,7 @@ else:
     from vb25 import nodes
     from vb25 import ui
     from vb25 import engine
+    from vb25 import realtime
 
 
 def register():
@@ -52,6 +54,8 @@ def register():
     ui.register()
     operators.register()
     engine.register()
+
+    realtime.register()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
@@ -68,6 +72,8 @@ def unregister():
     ui.unregister()
     operators.unregister()
     engine.unregister()    
+
+    realtime.unregister()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
