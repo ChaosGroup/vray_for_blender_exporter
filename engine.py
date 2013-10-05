@@ -68,7 +68,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
     height = None
 
     def render(self, scene):
-        realtime.export_scene(self, scene)
+        realtime.export_scene(scene, self.bl_idname)
 
 
 def GetRegClasses():

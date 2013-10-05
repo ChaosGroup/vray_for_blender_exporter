@@ -84,7 +84,7 @@ def scene_update_post(scene):
 
 	if tag_reload and SCE_FILE:
 		Debug("Reloading scene from *.vrscene files...", msgType='INFO')
-		export_scene('UPDATE_CALL', scene)
+		export_scene(scene, 'VRAY_UPDATE_CALL')
 		process.reload_scene(SCE_FILE)
 		return
 
@@ -123,13 +123,11 @@ def scene_update_post(scene):
 		cmd_socket.disconnect()
 
 
-def export_scene(render_engine, scene):
+def export_scene(scene, renderEngine):
 	global SCE_FILE
 
 	VRayScene    = scene.vray
 	VRayExporter = VRayScene.exporter
-
-	engine = render_engine.bl_idname if render_engine is not None else 'VRAY_RENDER_RT'
 
 	# Settings bus
 	bus= {}
@@ -140,7 +138,7 @@ def export_scene(render_engine, scene):
 	bus['files']     = {}
 	bus['filenames'] = {}
 	bus['cameras']   = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-	bus['engine']    = engine
+	bus['engine']    = renderEngine
 	bus['mode']      = 'VRSCENE'
 
 	utils.init_files(bus)
@@ -154,7 +152,7 @@ def export_scene(render_engine, scene):
 	for key in bus['files']:
 		bus['files'][key].close()
 
-	if render_engine == 'UPDATE_CALL':
+	if renderEngine == 'VRAY_UPDATE_CALL':
 		if process.is_running():
 			process.reload_scene(SCE_FILE)
 		# This was the reload call, we don't need to start V-Ray
