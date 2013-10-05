@@ -76,10 +76,14 @@ def add_properties(rna_pointer):
 		default= 2,
 	)
 
-	VRayBake.uvChannel = StringProperty(
+	VRayBake.uvChannel = IntProperty(
 		name        = "UV Channel",
 		description = "UV channel to use",
-		default     = "",
+		min         = 0,
+		max         = 256,
+		soft_min    = 0,
+		soft_max    = 8,
+		default     = 0,
 	)
 
 	VRayBake.flip_derivs= BoolProperty(
@@ -105,12 +109,19 @@ def write(bus):
 	VRayBake=  VRayScene.VRayBake
 
 	if VRayBake.use and VRayBake.bake_node:
-		bake_node= get_data_by_name(scene, 'objects', VRayBake.bake_node)
+		bake_node = get_data_by_name(scene, 'objects', VRayBake.bake_node)
 		if bake_node:
-			ofile.write("\nUVWGenMayaPlace2dTexture bakeViewUVW {")
-			ofile.write('\n\tuv_set_name="%s";' % VRayBake.uvChannel)
-			if VRayBake.uvChannel.isdigit():
-				ofile.write("\n\tuvw_channel=%i;" % int(VRayBake.uvChannel))
+			ofile.write("\nUVWGenChannel bakeViewUVW {")
+			ofile.write("\n\tuvw_transform=Transform(")
+			ofile.write("\n\t\tMatrix(")
+			ofile.write("\n\t\tVector(1.0,0.0,0.0),")
+			ofile.write("\n\t\tVector(0.0,1.0,0.0),")
+			ofile.write("\n\t\tVector(0.0,0.0,1.0)")
+			ofile.write("\n\t\t),")
+			ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+			ofile.write("\n\t);")
+			ofile.write("\n\tuvwgen=uvwNamedChannel;")
+			ofile.write("\n\tuvw_channel=%i;" % VRayBake.uvChannel)
 			ofile.write("\n}\n")
 
 			ofile.write("\nBakeView bakeView {")

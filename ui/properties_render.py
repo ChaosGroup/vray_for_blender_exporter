@@ -1096,11 +1096,7 @@ class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 		col= split.column()
 		col.prop_search(VRayBake, 'bake_node', context.scene, 'objects')
 		
-		if VRayBake.bake_node and VRayBake.bake_node in context.scene.objects:
-			ob = context.scene.objects[VRayBake.bake_node]
-			col.prop_search(VRayBake, 'uvChannel', ob.data, 'uv_textures')
-		else:
-			col.prop(VRayBake, 'uvChannel')
+		col.prop(VRayBake, 'uvChannel')
 
 		split= layout.split()
 		col= split.column()
