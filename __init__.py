@@ -41,10 +41,9 @@ else:
 
 
 def register():
-    bpy.utils.register_module(__name__)
-
-    plugins.add_properties()
+    plugins.register()
     nodes.register()
+    ui.register()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
@@ -54,10 +53,9 @@ def register():
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
-
-    plugins.remove_properties()
+    plugins.unregister()
     nodes.unregister()
+    ui.unregister()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon

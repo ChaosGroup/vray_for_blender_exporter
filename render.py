@@ -35,7 +35,7 @@ import mathutils
 
 from vb25.plugins import PLUGINS
 from vb25.lib     import VRayProcess
-from vb25         import nodes
+from vb25.nodes   import export as NodesExport
 
 from vb25.utils   import *
 
@@ -859,7 +859,7 @@ def write_materials(bus):
 				if not ma.vray.nodetree:
 					continue
 				
-				nodeMaterial = nodes.export.ExportNodeMaterial(bus)
+				nodeMaterial = NodesExport.ExportNodeMaterial(bus)
 
 				if nodeMaterial:
 					ma_id += 1

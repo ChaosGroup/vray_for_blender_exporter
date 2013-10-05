@@ -1,38 +1,33 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
+import os
+import sys
 
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
-from bpy.props import *
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
-from vb25.plugins import *
+from vb25.ui import classes
 
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
@@ -56,14 +51,12 @@ class VRAY_MT_preset_gi(bpy.types.Menu):
 	draw= bpy.types.Menu.draw_preset
 
 
-class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_dimensions(classes.VRayRenderPanel):
 	bl_label = "Dimensions"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		scene= context.scene
 		rd=    scene.render
@@ -126,10 +119,8 @@ class VRAY_RP_dimensions(VRayRenderPanel, bpy.types.Panel):
 		subrow.prop(rd, "frame_map_new", text="New")
 
 
-class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
-	bl_label	   = "Output"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+class VRAY_RP_output(classes.VRayRenderPanel):
+	bl_label = "Output"
 
 	def draw_header(self, context):
 		VRayExporter= context.scene.vray.exporter
@@ -137,7 +128,7 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		scene = context.scene
 		rd    = scene.render.image_settings
@@ -198,14 +189,12 @@ class VRAY_RP_output(VRayRenderPanel, bpy.types.Panel):
 		# sub.prop(rd, "use_overwrite")
 
 
-class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
-	bl_label       = "Render"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+class VRAY_RP_render(classes.VRayRenderPanel):
+	bl_label = "Render"
+	
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		rd= context.scene.render
 
@@ -264,16 +253,117 @@ class VRAY_RP_render(VRayRenderPanel, bpy.types.Panel):
 		layout.prop(rd, "display_mode", text="Display")
 
 
+class VRAY_RP_RTEngine(classes.VRayRenderPanel):
+	bl_label = "Realtime engine"
 
-class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
+	@classmethod
+	def poll(cls, context):
+		RTEngine = context.scene.vray.RTEngine
+		return RTEngine.enabled and classes.VRayRenderPanel.poll(context)
+
+	def draw(self, context):
+		wide_ui= context.region.width > classes.narrowui
+		layout= self.layout
+
+		VRayScene= context.scene.vray
+
+		RTEngine= VRayScene.RTEngine
+
+		split= layout.split()
+		col= split.column()
+		col.prop(RTEngine, 'use_gi')
+		if RTEngine.use_gi:
+			col.prop(RTEngine, 'gi_depth', text="Depth")
+			col.prop(RTEngine, 'gi_reflective_caustics', text="Reflective caustics")
+			col.prop(RTEngine, 'gi_refractive_caustics', text="Refractive caustics")
+		if wide_ui:
+			col= split.column()
+		col.prop(RTEngine, 'coherent_tracing')
+		col.prop(RTEngine, 'trace_depth')
+		col.prop(RTEngine, 'bundle_size')
+		col.prop(RTEngine, 'samples_per_pixel')
+		col.prop(RTEngine, 'opencl_texsize')
+
+		layout.separator()
+
+		split= layout.split()
+		col= split.column()
+		col.prop(RTEngine, 'stereo_mode')
+		if RTEngine.stereo_mode != 'NONE':
+			split= layout.split()
+			col= split.column()
+			col.prop(RTEngine, 'stereo_focus', text="Focus")
+			if wide_ui:
+				col= split.column()
+			col.prop(RTEngine, 'stereo_eye_distance', text="Eye distance")
+
+		layout.separator()
+
+		split = layout.split()
+		col = split.column()
+		col.prop(RTEngine, 'rtSampleLevel')
+		split = layout.split()
+		col = split.column()
+		col.prop(RTEngine, 'rtNoise')
+		if wide_ui:
+			col= split.column()
+		col.prop(RTEngine, 'rtTimeOut')
+
+		layout.separator()
+		layout.prop(RTEngine, 'use_opencl')
+
+		layout.separator()
+		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+
+
+class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
+	bl_label = "Stereoscopic"
+
+	@classmethod
+	def poll(cls, context):
+		VRayStereoscopicSettings = context.scene.vray.VRayStereoscopicSettings
+		return VRayStereoscopicSettings.use and classes.VRayRenderPanel.poll(context)
+
+	def draw(self, context):
+		wide_ui= context.region.width > classes.narrowui
+		layout= self.layout
+
+		VRayScene= context.scene.vray
+		VRayStereoscopicSettings= VRayScene.VRayStereoscopicSettings
+
+		split = layout.split()
+		col   = split.column()
+		col.prop(VRayStereoscopicSettings, 'eye_distance')
+
+		sub = col.row(align=True)
+		sub_f = sub.column()
+		sub_f.active = VRayStereoscopicSettings.specify_focus
+		sub_f.prop(VRayStereoscopicSettings, 'focus_distance')
+		sub.prop(VRayStereoscopicSettings, 'specify_focus', text="")
+
+		split = layout.split()
+		col   = split.column()
+		col.prop(VRayStereoscopicSettings, 'focus_method', text="Focus")
+		col.prop(VRayStereoscopicSettings, 'interocular_method', text="Interocular")
+		col.prop(VRayStereoscopicSettings, 'view')
+		col.prop(VRayStereoscopicSettings, 'adjust_resolution')
+
+		layout.separator()
+		layout.prop(VRayStereoscopicSettings, 'shademap_file', text="Shademap")
+		layout.prop(VRayStereoscopicSettings, 'sm_mode', text="Mode")
+		layout.prop(VRayStereoscopicSettings, 'reuse_threshold')
+
+		#layout.separator()
+		#layout.prop(VRayStereoscopicSettings, 'exclude_list')
+
+
+class VRAY_RP_Globals(classes.VRayRenderPanel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene= context.scene.vray
 		VRayExporter=    VRayScene.exporter
@@ -321,15 +411,13 @@ class VRAY_RP_SettingsOptions(VRayRenderPanel, bpy.types.Panel):
 		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
 
-class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_exporter(classes.VRayRenderPanel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		rd= context.scene.render
 		ve= context.scene.vray.exporter
@@ -397,7 +485,7 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 			col.prop(ve, 'vray_binary')
 		split= layout.split()
 		col= split.column()
-		if PLATFORM == "linux":
+		if sys.platform == "linux":
 			col.prop(ve, 'log_window')
 			if ve.log_window:
 				col.prop(ve, 'log_window_type', text="Terminal")
@@ -442,14 +530,12 @@ class VRAY_RP_exporter(VRayRenderPanel, bpy.types.Panel):
 		col.operator('vray.write_vrscene', icon='OBJECT_DATA', text="C++ Export Operator")
 
 
-class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_cm(classes.VRayRenderPanel):
 	bl_label = "Color mapping"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		cm= vs.SettingsColorMapping
@@ -479,14 +565,12 @@ class VRAY_RP_cm(VRayRenderPanel, bpy.types.Panel):
 			col.prop(cm, "clamp_level")
 
 
-class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_aa(classes.VRayRenderPanel):
 	bl_label = "Image sampler"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		module= vs.SettingsImageSampler
@@ -550,14 +634,12 @@ class VRAY_RP_aa(VRayRenderPanel, bpy.types.Panel):
 				col.prop(module, "filter_size")
 
 
-class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_dmc(classes.VRayRenderPanel):
 	bl_label = "DMC sampler"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		module= vs.SettingsDMCSampler
@@ -574,19 +656,17 @@ class VRAY_RP_dmc(VRayRenderPanel, bpy.types.Panel):
 		col.prop(module, "adaptive_min_samples")
 
 
-class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_gi(classes.VRayRenderPanel):
 	bl_label = "Global Illumination"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		SettingsGI= context.scene.vray.SettingsGI
-		return super().poll(context) and SettingsGI.on
+		SettingsGI = context.scene.vray.SettingsGI
+		return SettingsGI.on and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene=  context.scene.vray
 		SettingsGI= VRayScene.SettingsGI
@@ -660,19 +740,17 @@ class VRAY_RP_gi(VRayRenderPanel, bpy.types.Panel):
 		sub.prop(SettingsGI, 'ray_distance')
 
 
-class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 	bl_label = "Spherical Harmonics"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray.SettingsGI
-		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'SH'))
+		SettingsGI = context.scene.vray.SettingsGI
+		return SettingsGI.on and SettingsGI.primary_engine == 'SH' and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene=                  context.scene.vray
 		SettingsGI=                 VRayScene.SettingsGI
@@ -737,19 +815,17 @@ class VRAY_RP_GI_sh(VRayRenderPanel, bpy.types.Panel):
 				col.prop(SphericalHarmonicsExporter, 'hit_recording')
 
 
-class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_im(classes.VRayRenderPanel):
 	bl_label = "Irradiance Map"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray.SettingsGI
-		return engine_poll(__class__, context) and module.on and module.primary_engine == 'IM'
+		SettingsGI = context.scene.vray.SettingsGI
+		return SettingsGI.on and SettingsGI.primary_engine == 'IM' and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		gi= vs.SettingsGI
@@ -875,19 +951,18 @@ class VRAY_RP_GI_im(VRayRenderPanel, bpy.types.Panel):
 			colR.prop(module,"auto_save_file", text="")
 
 
-class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 	bl_label = "Brute Force"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray.SettingsGI
-		return engine_poll(__class__, context) and module.on and (module.primary_engine == 'BF' or module.secondary_engine == 'BF') and (module.primary_engine != 'SH')
+		SettingsGI = context.scene.vray.SettingsGI
+		showPanel = (SettingsGI.primary_engine == 'BF' or SettingsGI.secondary_engine == 'BF') and SettingsGI.primary_engine != 'SH'
+		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vsce= context.scene.vray
 		gi= vsce.SettingsGI
@@ -902,19 +977,18 @@ class VRAY_RP_GI_bf(VRayRenderPanel, bpy.types.Panel):
 			col.prop(module, "depth")
 
 
-class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 	bl_label = "Light Cache"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
-		module= context.scene.vray.SettingsGI
-		return (engine_poll(__class__, context) and module.on and (module.primary_engine == 'LC' or module.secondary_engine == 'LC')) and (module.primary_engine != 'SH')
+		SettingsGI = context.scene.vray.SettingsGI
+		showPanel = (SettingsGI.primary_engine == 'LC' or SettingsGI.secondary_engine == 'LC') and SettingsGI.primary_engine != 'SH'
+		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		module= vs.SettingsGI.SettingsLightCache
@@ -990,19 +1064,17 @@ class VRAY_RP_GI_lc(VRayRenderPanel, bpy.types.Panel):
 			colR.prop(module,"auto_save_file", text="")
 
 
-class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
-	bl_label = "Displace / subdiv"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+class VRAY_RP_displace(classes.VRayRenderPanel):
+	bl_label = "Displace / Subdivision"
 
 	@classmethod
 	def poll(cls, context):
-		VRayExporter= context.scene.vray.exporter
-		return engine_poll(__class__, context) and VRayExporter.use_displace
+		VRayExporter = context.scene.vray.exporter
+		return VRayExporter.use_displace and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene= context.scene.vray
 		SettingsDefaultDisplacement= VRayScene.SettingsDefaultDisplacement
@@ -1020,20 +1092,17 @@ class VRAY_RP_displace(VRayRenderPanel, bpy.types.Panel):
 		col.prop(SettingsDefaultDisplacement, 'override_on')
 
 
-class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
-	bl_label = "Distributed rendering"
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+class VRAY_RP_dr(classes.VRayRenderPanel):
+	bl_label = "Distributed Rendering"
 
 	@classmethod
 	def poll(cls, context):
-		vs= context.scene.vray
-		module= vs.VRayDR
-		return engine_poll(__class__, context) and module.on
+		VRayDR = context.scene.vray.VRayDR
+		return VRayDR.on and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
 		module= vs.VRayDR
@@ -1075,20 +1144,17 @@ class VRAY_RP_dr(VRayRenderPanel, bpy.types.Panel):
 			layout.prop(render_node, 'address')
 
 
-class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_bake(classes.VRayRenderPanel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	@classmethod
 	def poll(cls, context):
-		VRayScene= context.scene.vray
-		VRayBake= VRayScene.VRayBake
-		return (engine_poll(__class__, context) and VRayBake.use)
-
+		VRayBake = context.scene.vray.VRayBake
+		return VRayBake.use and classes.VRayRenderPanel.poll(context)
+	
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene= context.scene.vray
 		VRayBake= VRayScene.VRayBake
@@ -1105,19 +1171,56 @@ class VRAY_RP_bake(VRayRenderPanel, bpy.types.Panel):
 		col.prop(VRayBake, 'flip_derivs')
 
 
-class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
-	bl_label   = "System"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
+class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
+	bl_label = "Caustics"
 
 	@classmethod
 	def poll(cls, context):
-		return engine_poll(__class__, context)
+		SettingsCaustics = context.scene.vray.SettingsCaustics
+		return SettingsCaustics.on and classes.VRayRenderPanel.poll(context)
+	
+	def draw(self, context):
+		wide_ui= context.region.width > classes.narrowui
+		layout= self.layout
+
+		vsce= context.scene.vray
+		vmodule= getattr(vsce, 'SettingsCaustics')
+
+		layout.prop(vmodule,'mode')
+
+		if vmodule.mode == 'FILE':
+			layout.prop(vmodule,'file')
+		else:
+			split= layout.split()
+			col= split.column()
+			col.prop(vmodule,'multiplier')
+			col.prop(vmodule,'search_distance')
+			if wide_ui:
+				col = split.column()
+			col.prop(vmodule,'max_photons')
+			col.prop(vmodule,'max_density')
+			col.prop(vmodule,'show_calc_phase')
+
+			split= layout.split()
+			split.label(text="Files:")
+			split= layout.split(percentage=0.25)
+			colL= split.column()
+			colR= split.column()
+			if wide_ui:
+				colL.prop(vmodule,"auto_save", text="Auto save")
+			else:
+				colL.prop(vmodule,"auto_save", text="")
+			colR.active= vmodule.auto_save
+			colR.prop(vmodule,"auto_save_file", text="")
+
+
+class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
+	bl_label   = "System"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	def draw(self, context):
 		layout= self.layout
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		rd= context.scene.render
 
@@ -1185,27 +1288,61 @@ class VRAY_RP_SettingsSystem(VRayRenderPanel, bpy.types.Panel):
 		layout.prop(VRayExporter, 'verboseLevel')
 
 
-class VRAY_RP_about(VRayRenderPanel, bpy.types.Panel):
+class VRAY_RP_about(classes.VRayRenderPanel):
 	bl_label   = "About"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout= self.layout
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="V-Ray/Blender")
+		col.label(text="V-Ray For Blender")
 		col.separator()
-		col.label(text="Developer: Andrey Izrantsev")
+		col.label(text="Developer: Andrei Izrantcev")
 		col.label(text="URL: http://vray.cgdo.ru")
-		col.label(text="Email: izrantsev@cgdo.ru")
+		col.label(text="Email: andrei.izrantcev@chaosgroup.com")
 		col.separator()
 		col.label(text="IRC: irc.freenode.net #vrayblender")
 		col.separator()
 		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
+
+
+def GetRegClasses():
+	return (
+		VRAY_MT_preset_gi,
+		VRAY_MT_preset_global,
+		VRAY_MT_preset_IM,
+
+		VRAY_RP_dimensions,
+		VRAY_RP_output,
+		VRAY_RP_render,
+		VRAY_RP_Globals,
+		VRAY_RP_RTEngine,
+		VRAY_RP_SettingsCaustics,
+		VRAY_RP_exporter,
+		VRAY_RP_cm,
+		VRAY_RP_aa,
+		VRAY_RP_dmc,
+		VRAY_RP_gi,
+		VRAY_RP_GI_sh,
+		VRAY_RP_GI_im,
+		VRAY_RP_GI_bf,
+		VRAY_RP_GI_lc,
+		VRAY_RP_displace,
+		VRAY_RP_dr,
+		VRAY_RP_bake,
+		VRAY_RP_SettingsSystem,
+		VRAY_RP_about,
+
+	)
+
+
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

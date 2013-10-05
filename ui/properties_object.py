@@ -1,40 +1,30 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Python modules '''
-import os
-
-''' Blender modules '''
 import bpy
-from bpy.props import *
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.ui import classes
 
 
 def engine_poll(cls, context):
@@ -42,15 +32,9 @@ def engine_poll(cls, context):
 	return (context.object and (context.object.type not in ('LAMP','CAMERA','ARMATURE'))) and (rd.engine in cls.COMPAT_ENGINES)
 
 
-class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_override(classes.VRayObjectPanel):
 	bl_label   = "Override"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -58,7 +42,7 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 
@@ -74,10 +58,10 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 		col.prop_search(MtlOverride, 'refract_mtl', bpy.data, 'materials', text= "Refraction")
 		col.prop_search(MtlOverride, 'shadow_mtl',  bpy.data, 'materials', text= "Shadow")
 
-		layout.separator()
-		split= layout.split()
-		col= split.column()
-		col.prop_search(MtlOverride, 'environment_override',  bpy.data, 'textures', text= "Environment")
+		# layout.separator()
+		# split= layout.split()
+		# col= split.column()
+		# col.prop_search(MtlOverride, 'environment_override',  bpy.data, 'textures', text= "Environment")
 
 		layout.separator()
 
@@ -86,15 +70,9 @@ class VRAY_OBP_override(VRayObjectPanel, bpy.types.Panel):
 		col.prop(MtlOverride, 'environment_priority')
 
 
-class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_wrapper(classes.VRayObjectPanel):
 	bl_label = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -102,7 +80,7 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 		plugin= ob.vray.MtlWrapper
@@ -160,15 +138,13 @@ class VRAY_OBP_wrapper(VRayObjectPanel, bpy.types.Panel):
 		col.prop(plugin, 'matte_for_secondary_rays')
 
 
-class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_render(classes.VRayObjectPanel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	@classmethod
 	def poll(cls, context):
-		return engine_poll(__class__, context) and not context.object.vray.LightMesh.use
+		return classes.VRayObjectPanel.poll(context) and not context.object.vray.LightMesh.use
 
 	def draw_header(self, context):
 		ob= context.object
@@ -176,7 +152,7 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(plugin, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 		VRayObject= ob.vray
@@ -208,15 +184,9 @@ class VRAY_OBP_render(VRayObjectPanel, bpy.types.Panel):
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
 
-class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_displacement(classes.VRayObjectPanel):
 	bl_label = "Displacement"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -225,7 +195,7 @@ class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(GeomDisplacedMesh, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 		VRayObject= ob.vray
@@ -272,15 +242,9 @@ class VRAY_OBP_displacement(VRayObjectPanel, bpy.types.Panel):
 			col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
-class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
 	bl_label = "Light"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -289,7 +253,7 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(LightMesh, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 		VRayObject= ob.vray
@@ -346,15 +310,9 @@ class VRAY_OBP_lightmesh(VRayObjectPanel, bpy.types.Panel):
 							text="Groups")
 
 
-class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_subdivision(classes.VRayObjectPanel):
 	bl_label   = "Subdivision"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return engine_poll(__class__, context)
 
 	def draw_header(self, context):
 		ob= context.object
@@ -363,7 +321,7 @@ class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(GeomStaticSmoothedMesh, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ob= context.object
 		VRayObject= ob.vray
@@ -391,19 +349,13 @@ class VRAY_OBP_subdivision(VRayObjectPanel, bpy.types.Panel):
 
 
 
-class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
+class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 	bl_label   = "VRayPattern"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	@classmethod
 	def poll(cls, context):
-		if not engine_poll(__class__, context):
-			return False
-		if not context.scene.vray.exporter.experimental:
-			return False
-		return True
+		return classes.VRayObjectPanel.poll(context) and context.scene.vray.exporter.experimental
 
 	def draw_header(self, context):
 		ob = context.object
@@ -412,7 +364,7 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 		self.layout.prop(GeomVRayPattern, 'use', text="")
 
 	def draw(self, context):
-		wide_ui = context.region.width > narrowui
+		wide_ui = context.region.width > classes.narrowui
 
 		ob = context.object
 		VRayObject = ob.vray
@@ -479,3 +431,23 @@ class VRAY_OBP_VRayPattern(VRayObjectPanel, bpy.types.Panel):
 		col.prop(GeomVRayPattern, 'render_pattern_object')
 
 
+def GetRegClasses():
+	return (
+		VRAY_OBP_override,
+		VRAY_OBP_wrapper,
+		VRAY_OBP_render,
+		VRAY_OBP_displacement,
+		VRAY_OBP_lightmesh,
+		VRAY_OBP_subdivision,
+		VRAY_OBP_VRayPattern,
+	)
+
+
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

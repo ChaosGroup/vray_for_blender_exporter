@@ -1,10 +1,10 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
-# Author: Andrey M. Izrantsev (aka bdancer)
-# E-Mail: izrantsev@cgdo.ru
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+
 import bpy
 import mathutils
 
@@ -30,7 +31,6 @@ from vb25 import utils
 
 TYPE = 'OBJECT'
 ID   = 'GeomVRayPattern'
-
 NAME = 'VRayPattern'
 DESC = "VRayPattern plugin settings"
 

@@ -25,7 +25,7 @@
 import bpy
 
 from vb25.lib   import ExportUtils
-from vb25.ui.ui import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
 TYPE = 'BRDF'

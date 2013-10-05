@@ -1,51 +1,42 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.ui import classes
 
 
 from bl_ui import properties_data_camera
-properties_data_camera.DATA_PT_context_camera.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_data_camera.DATA_PT_context_camera.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
-properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add('VRAY_RENDER')
-properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add('VRAY_RENDER_PREVIEW')
+for compatEngine in classes.VRayEngines:
+	properties_data_camera.DATA_PT_context_camera.COMPAT_ENGINES.add(compatEngine)
+	properties_data_camera.DATA_PT_camera_display.COMPAT_ENGINES.add(compatEngine)
 del properties_data_camera
 
 
-class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_camera(classes.VRayDataPanel):
 	bl_label = "Parameters"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+	
 	@classmethod
 	def poll(cls, context):
 		return (context.camera and engine_poll(__class__, context))
@@ -62,7 +53,7 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		SettingsMotionBlur= VRayCamera.SettingsMotionBlur
 		CameraPhysical=     VRayCamera.CameraPhysical
 
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		if wide_ui:
 			layout.prop(ca, 'type', expand=True)
@@ -177,12 +168,11 @@ class VRAY_DP_camera(VRayDataPanel, bpy.types.Panel):
 		col.prop(VRayCamera, 'use_camera_loop')
 
 
-class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_physical_camera(classes.VRayDataPanel):
 	bl_label   = "Physical"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+	
 	@classmethod
 	def poll(cls, context):
 		return (context.camera and engine_poll(__class__, context))
@@ -194,7 +184,7 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 		self.layout.prop(CameraPhysical, 'use', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ca= context.camera
 		VRayCamera= ca.vray
@@ -277,12 +267,11 @@ class VRAY_DP_physical_camera(VRayDataPanel, bpy.types.Panel):
 				colR.prop(CameraPhysical, 'anisotropy')
 
 
-class VRAY_DP_camera_stereoscopic(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_camera_stereoscopic(classes.VRayDataPanel):
 	bl_label   = "Stereoscopic"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+	
 	@classmethod
 	def poll(cls, context):
 		VRayStereoscopicSettings = context.scene.vray.VRayStereoscopicSettings
@@ -302,7 +291,7 @@ class VRAY_DP_camera_stereoscopic(VRayDataPanel, bpy.types.Panel):
 		self.layout.operator('vray.create_stereo_cam', text="", icon=icon_name, emboss=False)
 
 	def draw(self, context):
-		wide_ui = context.region.width > narrowui
+		wide_ui = context.region.width > classes.narrowui
 
 		ca = context.camera
 		VRayCamera = ca.vray
@@ -324,12 +313,11 @@ class VRAY_DP_camera_stereoscopic(VRayDataPanel, bpy.types.Panel):
 
 
 
-class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_hide_from_view(classes.VRayDataPanel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+	
 	@classmethod
 	def poll(cls, context):
 		return (context.camera and engine_poll(__class__, context))
@@ -340,7 +328,7 @@ class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
 		self.layout.prop(VRayCamera, 'hide_from_view', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		ca= context.camera
 		VRayCamera= ca.vray
@@ -429,3 +417,17 @@ class VRAY_DP_hide_from_view(VRayDataPanel, bpy.types.Panel):
 			sub.active= not VRayCamera.hf_shadows_auto
 			sub.prop_search(VRayCamera, 'hf_shadows_objects',  context.scene, 'objects')
 			sub.prop_search(VRayCamera, 'hf_shadows_groups',   bpy.data,      'groups')
+
+
+def register():
+	bpy.utils.register_class(VRAY_DP_camera)
+	bpy.utils.register_class(VRAY_DP_physical_camera)
+	bpy.utils.register_class(VRAY_DP_camera_stereoscopic)
+	bpy.utils.register_class(VRAY_DP_hide_from_view)
+
+
+def unregister():
+	bpy.utils.unregister_class(VRAY_DP_camera)
+	bpy.utils.unregister_class(VRAY_DP_physical_camera)
+	bpy.utils.unregister_class(VRAY_DP_camera_stereoscopic)
+	bpy.utils.unregister_class(VRAY_DP_hide_from_view)

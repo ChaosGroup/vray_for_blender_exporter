@@ -31,7 +31,6 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.ui.ui import *
 
 
 TYPE= 'GEOMETRY'
@@ -340,7 +339,7 @@ def write(bus):
 
 
 def influence(context, layout, slot):
-	wide_ui= context.region.width > narrowui
+	wide_ui= context.region.width > classes.narrowui
 
 	VRaySlot= slot.texture.vray_slot
 

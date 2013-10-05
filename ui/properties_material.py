@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -24,50 +24,28 @@
 
 import bpy
 
-from vb25.utils   import *
-from vb25.ui.ui   import *
-from vb25.plugins import *
+from vb25.ui import classes
 from vb25.lib     import DrawUtils
+from vb25.plugins import PLUGINS
 
-from bl_ui.properties_material import active_node_mat
 
-
-class VRAY_MT_preview(VRayMaterialPanel, bpy.types.Panel):
+class VRAY_MP_preview(classes.VRayMaterialPanel):
 	bl_label = "Preview"
+	
 	COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
-	@classmethod
-	def poll(cls, context):
-		material = context.material
-		if material is None:
-			return False
-		return engine_poll(__class__, context)
-
 	def draw(self, context):
-		self.layout.template_preview(context.material, show_buttons = False)
+		self.layout.template_preview(context.material, show_buttons=False)
 
 
-class VRAY_MT_preset_material(bpy.types.Menu):
-	bl_label= "Material Presets"
-	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "material")
-	preset_operator = "script.execute_preset"
-	draw = bpy.types.Menu.draw_preset
-
-
-class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
+class VRAY_MP_context_material(classes.VRayMaterialPanel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		return (context.material or context.object) and engine_poll(__class__, context)
 
 	def draw(self, context):
 		layout = self.layout
 
-		mat = active_node_mat(context.material)
+		mat = context.material
 
 		ob = context.object
 		slot = context.material_slot
@@ -119,10 +97,8 @@ class VRAY_MP_context_material(VRayMaterialPanel, bpy.types.Panel):
 				layout.prop_search(VRayMaterial, "nodetree", bpy.data, "node_groups")
 			
 
-class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
+class VRAY_MP_node(classes.VRayMaterialPanel):
 	bl_label = "Node"
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	@classmethod
 	def poll(cls, context):
@@ -137,7 +113,7 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 		ntree = bpy.data.node_groups[ntreeName]
 		if not len(ntree.nodes):
 			return False
-		return engine_poll(__class__, context)
+		return ui.engine_poll(__class__, context)
 
 	def draw(self, context):
 		ntree      = bpy.data.node_groups[context.material.vray.nodetree]
@@ -173,7 +149,7 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 				DrawUtils.Draw(context, self.layout, dataPointer, vrayPlugin.PluginParams)		
 
 
-# class VRAY_MP_outline(VRayMaterialPanel, bpy.types.Panel):
+# class VRAY_MP_outline(classes.VRayMaterialPanel):
 # 	bl_label   = "Outline"
 # 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -181,7 +157,7 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 
 # 	@classmethod
 # 	def poll(cls, context):
-# 		material = active_node_mat(context.material)
+# 		material = context.material
 # 		if material is None:
 # 			return False
 # 		VRayMaterial = material.vray
@@ -190,17 +166,17 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 # 		return engine_poll(__class__, context)
 
 # 	def draw_header(self, context):
-# 		ma= active_node_mat(context.material)
+# 		ma= context.material
 # 		VRayMaterial= ma.vray
 # 		VolumeVRayToon= VRayMaterial.VolumeVRayToon
 # 		self.layout.prop(VolumeVRayToon, 'use', text="")
 
 # 	def draw(self, context):
-# 		wide_ui= context.region.width > narrowui
+# 		wide_ui= context.region.width > classes.narrowui
 # 		layout= self.layout
 
 # 		ob= context.object
-# 		ma= active_node_mat(context.material)
+# 		ma= context.material
 
 # 		VRayMaterial= ma.vray
 # 		VolumeVRayToon= VRayMaterial.VolumeVRayToon
@@ -208,3 +184,21 @@ class VRAY_MP_node(VRayMaterialPanel, bpy.types.Panel):
 # 		layout.active= VolumeVRayToon.use
 
 # 		PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, VRayMaterial)
+
+
+def GetRegClasses():
+	return (
+		VRAY_MP_preview,
+		VRAY_MP_context_material,
+		VRAY_MP_node,
+	)
+
+
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

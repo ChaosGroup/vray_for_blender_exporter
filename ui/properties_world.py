@@ -1,50 +1,37 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
-from bpy.props import *
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
-from vb25.plugins import *
+from vb25.ui      import classes
+from vb25.plugins import PLUGINS
 
 
-class WORLD_PT_context_world(VRayWorldPanel, bpy.types.Panel):
+class VRAY_WP_context_world(classes.VRayWorldPanel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
-    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-    
-    @classmethod
-    def poll(cls, context):
-        rd = context.scene.render
-        return (not rd.use_game_engine) and (rd.engine in cls.COMPAT_ENGINES)
-
+        
     def draw(self, context):
         layout = self.layout
 
@@ -73,12 +60,11 @@ class WORLD_PT_context_world(VRayWorldPanel, bpy.types.Panel):
             layout.operator("vray.add_world_nodetree", icon='NODETREE', text="Add Node Tree")
 
 
-class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
+class VRAY_WP_effects(classes.VRayWorldPanel):
     bl_label   = "Effects"
     bl_options = {'DEFAULT_CLOSED'}
 
-    COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
+    
     def draw_header(self, context):
         VRayScene= context.scene.vray
         self.layout.prop(VRayScene.VRayEffects, 'use', text="")
@@ -86,7 +72,7 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
     def draw(self, context):
         layout= self.layout
 
-        wide_ui= context.region.width > narrowui
+        wide_ui= context.region.width > classes.narrowui
 
         VRayScene= context.scene.vray
         VRayEffects= VRayScene.VRayEffects
@@ -148,4 +134,18 @@ class VRAY_WP_effects(VRayWorldPanel, bpy.types.Panel):
                 PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
 
 
-bpy.utils.register_class(VRAY_WP_effects)
+def GetRegClasses():
+    return (
+        VRAY_WP_context_world,
+        VRAY_WP_effects,
+    )
+
+
+def register():
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
+
+
+def unregister():
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

@@ -1,42 +1,35 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-''' Blender modules '''
 import bpy
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.ui import classes
 
 
-class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_context_lamp(classes.VRayLampPanel):
 	bl_label       = ""
 	bl_options     = {'HIDE_HEADER'}
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
 		layout= self.layout
@@ -44,7 +37,7 @@ class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
 		ob= context.object
 		lamp= context.lamp
 		space= context.space_data
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 
 		if wide_ui:
 			split= layout.split(percentage=0.65)
@@ -66,13 +59,11 @@ class VRAY_DP_context_lamp(VRayDataPanel, bpy.types.Panel):
 			layout.prop(lamp, 'type')
 
 
-class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_light(classes.VRayLampPanel):
 	bl_label       = "Lamp"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
 
 		ob= context.object
@@ -122,13 +113,11 @@ class VRAY_DP_light(VRayDataPanel, bpy.types.Panel):
 			col.prop(VRayLamp,'storeWithIrradianceMap')
 
 
-class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_light_shape(classes.VRayLampPanel):
 	bl_label       = "Shape"
 
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
 
 		ob        = context.object
@@ -258,7 +247,7 @@ class VRAY_DP_light_shape(VRayDataPanel, bpy.types.Panel):
 				col.prop(VRayLight, 'dome_emitRadius')
 
 
-class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_light_shadows(classes.VRayLampPanel):
 	bl_label   = "Shadows"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -269,7 +258,7 @@ class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
 		self.layout.prop(vl,'shadows', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
 
 		ob= context.object
@@ -295,16 +284,14 @@ class VRAY_DP_light_shadows(VRayDataPanel, bpy.types.Panel):
 				col.prop(vl,'shadowRadius', text="Radius")
 
 
-
-
-class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_light_advanced(classes.VRayLampPanel):
 	bl_label   = "Advanced"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
 
 		ob= context.object
@@ -325,7 +312,7 @@ class VRAY_DP_light_advanced(VRayDataPanel, bpy.types.Panel):
 		col.prop(vl,'areaSpeculars')
 
 
-class VRAY_DP_include_exclude(VRayDataPanel, bpy.types.Panel):
+class VRAY_DP_include_exclude(classes.VRayLampPanel):
 	bl_label   = "Include / Exclude"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -336,7 +323,7 @@ class VRAY_DP_include_exclude(VRayDataPanel, bpy.types.Panel):
 		self.layout.prop(VRayLamp, 'use_include_exclude', text="")
 
 	def draw(self, context):
-		wide_ui= context.region.width > narrowui
+		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
 
 		VRayLamp= context.lamp.vray
@@ -350,3 +337,22 @@ class VRAY_DP_include_exclude(VRayDataPanel, bpy.types.Panel):
 		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
 
 
+def GetRegClasses():
+	return (
+		VRAY_DP_context_lamp,
+		VRAY_DP_light,
+		VRAY_DP_light_shape,
+		VRAY_DP_light_shadows,
+		VRAY_DP_light_advanced,
+		VRAY_DP_include_exclude,
+	)
+
+
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

@@ -30,7 +30,7 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.ui.ui   import *
+from vb25.ui   import classes
 from vb25.plugins import *
 from vb25.utils   import *
 
@@ -1069,7 +1069,7 @@ def write(bus):
 
 
 def draw_EnvironmentFog(context, layout, rna_pointer):
-	wide_ui= context.region.width > narrowui
+	wide_ui= context.region.width > classes.narrowui
 
 	EnvironmentFog= rna_pointer.EnvironmentFog
 
@@ -1159,7 +1159,7 @@ def draw_EnvironmentFog(context, layout, rna_pointer):
 
 
 def draw_VolumeVRayToon(context, layout, rna_pointer):
-	wide_ui= context.region.width > narrowui
+	wide_ui= context.region.width > classes.narrowui
 
 	VolumeVRayToon= rna_pointer.VolumeVRayToon
 
@@ -1200,7 +1200,7 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 						text="Groups")
 
 def draw_SphereFade(context, layout, rna_pointer):
-	wide_ui= context.region.width > narrowui
+	wide_ui= context.region.width > classes.narrowui
 
 	SphereFade= rna_pointer.SphereFade
 
@@ -1220,7 +1220,7 @@ def draw_SphereFade(context, layout, rna_pointer):
 	
 
 def gui(context, layout, VRayEffects):
-	wide_ui= context.region.width > narrowui
+	wide_ui= context.region.width > classes.narrowui
 
 	split= layout.split()
 	row= split.row()

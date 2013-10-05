@@ -30,7 +30,6 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.ui.ui import *
 
 
 TYPE = 'CAMERA'
@@ -354,4 +353,18 @@ class VRAY_OT_create_stereo_cam(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_create_stereo_cam)
+
+def GetRegClasses():
+	return (
+		VRAY_OT_create_stereo_cam,
+	)
+
+
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

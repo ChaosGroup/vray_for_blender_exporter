@@ -24,12 +24,13 @@
 
 import re
 import math
+import sys
 
 import bpy
 import mathutils
 
 from vb25.plugins import PLUGINS
-from vb25.debug   import Debug
+from vb25.debug   import Debug, PrintDict
 
 from vb25.lib import AttributeUtils
 from vb25.lib import ClassUtils
@@ -573,28 +574,45 @@ def LoadDynamicNodes():
                 'vray_type'   : pluginType,
                 'vray_plugin' : pluginName,
 
-                'init'             : VRayNodeInit,
+
                 'draw_buttons'     : VRayNodeDraw,
                 'draw_buttons_ext' : VRayNodeDrawSide,
             }
 
-            # pynodes_framework
-            # for attr in vrayPlugin.PluginParams:
-            #     attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
-            #
-            #     if attr['type'] not in AttributeUtils.OutputTypes or attr['type'] not in AttributeUtils.InputTypes:
-            #         continue
-            #
-            #     isOutput = attr['type'] in AttributeUtils.OutputTypes
-            #
-            #     if attr['type'] == 'FLOAT':
-            #         DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, attr['desc'], is_output=isOutput)
+            if 0:
+                # pynodes_framework
+                #
+                for attr in vrayPlugin.PluginParams:
+                    attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+                
+                    if attr['type'] not in AttributeUtils.OutputTypes and attr['type'] not in AttributeUtils.InputTypes:
+                        continue
+                
+                    isOutput = attr['type'] in AttributeUtils.OutputTypes
+                
+                    if attr['type'] in {'FLOAT_TEXTURE'}:
+                        DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, is_output=isOutput, description=attr['desc'])
 
-            DynNodeClass = type(
-                DynNodeClassName,               # Name
-                (bpy.types.Node, VRayTreeNode), # Inheritance
-                DynNodeClassAttrs               # Attributes
-            )
+                PrintDict("DynNodeClassAttrs", DynNodeClassAttrs)
+
+                DynNodeClass = type(
+                    # Name
+                    DynNodeClassName,
+                    
+                    # Inheritance
+                    (bpy.types.Node, base.Node, VRayTreeNode),
+                    
+                    # Attributes
+                    DynNodeClassAttrs
+                )
+            else:
+                DynNodeClassAttrs['init'] = VRayNodeInit
+
+                DynNodeClass = type(
+                    DynNodeClassName,
+                    (bpy.types.Node, VRayTreeNode),
+                    DynNodeClassAttrs
+                )
 
             bpy.utils.register_class(DynNodeClass)
           

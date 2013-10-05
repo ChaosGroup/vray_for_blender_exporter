@@ -29,7 +29,6 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.ui.ui import *
 
 TYPE= 'SETTINGS'
 

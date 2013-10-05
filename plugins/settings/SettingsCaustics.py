@@ -31,7 +31,7 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.ui    import classes
 
 
 TYPE= 'SETTINGS'
@@ -183,62 +183,3 @@ def write(bus):
 			value= getattr(SettingsCaustics, param)
 		ofile.write("\n\t%s= %s;"%(param, p(value)))
 	ofile.write("\n}\n")
-
-
-
-'''
-  GUI
-'''
-class RENDER_PT_SettingsCaustics(VRayRenderPanel, bpy.types.Panel):
-	bl_label = NAME
-
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		scene= context.scene
-		rd=    scene.render
-		if not hasattr(scene.vray, ID):
-			return False
-		show= scene.vray.SettingsCaustics.on
-		return (show and engine_poll(__class__, context))
-	
-	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
-
-		vsce= context.scene.vray
-		vmodule= getattr(vsce, ID)
-
-		layout.prop(vmodule,'mode')
-
-		if vmodule.mode == 'FILE':
-			layout.prop(vmodule,'file')
-		else:
-			split= layout.split()
-			col= split.column()
-			col.prop(vmodule,'multiplier')
-			col.prop(vmodule,'search_distance')
-			if wide_ui:
-				col = split.column()
-			col.prop(vmodule,'max_photons')
-			col.prop(vmodule,'max_density')
-			col.prop(vmodule,'show_calc_phase')
-
-			split= layout.split()
-			split.label(text="Files:")
-			split= layout.split(percentage=0.25)
-			colL= split.column()
-			colR= split.column()
-			if wide_ui:
-				colL.prop(vmodule,"auto_save", text="Auto save")
-			else:
-				colL.prop(vmodule,"auto_save", text="")
-			colR.active= vmodule.auto_save
-			colR.prop(vmodule,"auto_save_file", text="")
-
-		
-		
-		
-bpy.utils.register_class(RENDER_PT_SettingsCaustics)
-

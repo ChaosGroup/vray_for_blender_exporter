@@ -119,7 +119,7 @@ else:
 			PLUGINS[plugin.TYPE][plugin.ID]= plugin
 
 
-def add_properties():
+def register():
 	class VRayCamera(bpy.types.PropertyGroup):
 		pass
 	bpy.utils.register_class(VRayCamera)
@@ -1770,6 +1770,53 @@ def add_properties():
 		)
 	bpy.utils.register_class(VRayScene)
 
+	class VRayFur(bpy.types.PropertyGroup):
+		width= bpy.props.FloatProperty(
+			name= "Width",
+			description= "Hair thin",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 0.01,
+			precision= 5,
+			default= 0.0001
+		)
+
+		make_thinner= bpy.props.BoolProperty(
+			name= "Make thinner",
+			description= "Make hair thiner to the end [experimental]",
+			default= False
+		)
+
+		thin_start= bpy.props.IntProperty(
+			name= "Thin start segment",
+			description= "Make hair thiner to the end",
+			subtype= 'PERCENTAGE',
+			min= 0,
+			max= 100,
+			soft_min= 0,
+			soft_max= 100,
+			default= 70
+		)
+
+	class VRayParticleSettings(bpy.types.PropertyGroup):
+		pass
+
+	bpy.utils.register_class(VRayFur)
+	bpy.utils.register_class(VRayParticleSettings)
+
+	bpy.types.ParticleSettings.vray= bpy.props.PointerProperty(
+		name= "V-Ray Particle Settings",
+		type=  VRayParticleSettings,
+		description= "V-Ray Particle settings"
+	)
+
+	VRayParticleSettings.VRayFur= bpy.props.PointerProperty(
+		name= "V-Ray Fur Settings",
+		type=  VRayFur,
+		description= "V-Ray Fur settings"
+	)
+
 	bpy.types.Texture.vray= PointerProperty(
 		name= "V-Ray Texture Settings",
 		type=  VRayTexture,
@@ -1868,7 +1915,7 @@ def add_properties():
 	# 		AddProperties(PLUGINS['BRDF'][key], VRayMaterial)
 
 
-def remove_properties():
+def unregister():
 	del bpy.types.Camera.vray
 	del bpy.types.Lamp.vray
 	del bpy.types.Material.vray

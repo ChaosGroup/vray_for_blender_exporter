@@ -30,7 +30,6 @@ from bpy.props import *
 
 ''' vb modules '''
 from vb25.utils import *
-from vb25.ui.ui import *
 
 
 TYPE= 'SETTINGS'

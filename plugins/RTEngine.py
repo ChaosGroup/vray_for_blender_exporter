@@ -1,37 +1,32 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
 from bpy.props import *
 
-''' vb modules '''
-from vb25.utils import *
-from vb25.ui.ui import *
+from vb25.utils import p
+from vb25.ui    import classes 
 
 
 TYPE= 'SETTINGS'
@@ -318,76 +313,15 @@ def write(bus):
 		ofile.write("\n}\n")
 
 
-'''
-  GUI
-'''
-class VRAY_RP_RTEngine(VRayRenderPanel, bpy.types.Panel):
-	bl_label       = "Realtime engine"
-	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDER_PREVIEW'}
-
-	@classmethod
-	def poll(cls, context):
-		scene= context.scene
-		rd=    scene.render
-		if not hasattr(scene.vray, ID):
-			return False
-		use=   scene.vray.RTEngine.enabled
-		return (use and engine_poll(__class__, context))
-
-	def draw(self, context):
-		wide_ui= context.region.width > narrowui
-		layout= self.layout
-
-		VRayScene= context.scene.vray
-
-		RTEngine= getattr(VRayScene, ID)
-
-		split= layout.split()
-		col= split.column()
-		col.prop(RTEngine, 'use_gi')
-		if RTEngine.use_gi:
-			col.prop(RTEngine, 'gi_depth', text="Depth")
-			col.prop(RTEngine, 'gi_reflective_caustics', text="Reflective caustics")
-			col.prop(RTEngine, 'gi_refractive_caustics', text="Refractive caustics")
-		if wide_ui:
-			col= split.column()
-		col.prop(RTEngine, 'coherent_tracing')
-		col.prop(RTEngine, 'trace_depth')
-		col.prop(RTEngine, 'bundle_size')
-		col.prop(RTEngine, 'samples_per_pixel')
-		col.prop(RTEngine, 'opencl_texsize')
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(RTEngine, 'stereo_mode')
-		if RTEngine.stereo_mode != 'NONE':
-			split= layout.split()
-			col= split.column()
-			col.prop(RTEngine, 'stereo_focus', text="Focus")
-			if wide_ui:
-				col= split.column()
-			col.prop(RTEngine, 'stereo_eye_distance', text="Eye distance")
-
-		layout.separator()
-
-		split = layout.split()
-		col = split.column()
-		col.prop(RTEngine, 'rtSampleLevel')
-		split = layout.split()
-		col = split.column()
-		col.prop(RTEngine, 'rtNoise')
-		if wide_ui:
-			col= split.column()
-		col.prop(RTEngine, 'rtTimeOut')
-
-		layout.separator()
-		layout.prop(RTEngine, 'use_opencl')
-
-		layout.separator()
-		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+def GetRegClasses():
+	return ()
 
 
-bpy.utils.register_class(VRAY_RP_RTEngine)
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
 
+
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

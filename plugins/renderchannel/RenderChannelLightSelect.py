@@ -22,6 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
+import vb25.utils
+
+
 TYPE = 'RENDERCHANNEL'
 
 ID   = 'LIGHTSELECT'
@@ -37,13 +42,6 @@ PARAMS = (
     'color_mapping',   # 1
     'consider_for_aa', # 0
 )
-
-
-# Blender modules
-import bpy
-
-# V-Ray/Blender modules
-import vb25.utils
 
 
 def add_properties(parent_struct):
