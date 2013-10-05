@@ -1052,7 +1052,7 @@ def write(bus):
 	ofile.write("\n\trefract_color=Color(0.0,0.0,0.0);")
 	ofile.write("\n\trefract_tex_mult=1.0;")
 
-	ofile.write("\n\tbg_tex=%s;" % a(scene, socketParams['bg_tex']))
+	ofile.write("\n\tbg_tex=%s;" % a(scene, socketParams.get('bg_tex', "Color(0.0,0.0,0.0)")))
 
 	for override in ('gi_tex', 'reflect_tex', 'refract_tex'):
 		value = None
@@ -1060,7 +1060,7 @@ def write(bus):
 		if override in socketParams and getattr(outputNode, override):
 			value = socketParams[override]
 		else:
-			value = socketParams['bg_tex']
+			value = socketParams.get('bg_tex', None)
 
 		if value:
 			ofile.write("\n\t%s=%s;" % (override, a(scene, value)))

@@ -27,23 +27,31 @@ if "bpy" in locals():
     imp.reload(lib)
     imp.reload(plugins)
     imp.reload(preset)
-    imp.reload(render_ops)
+    imp.reload(operators)
     imp.reload(nodes)
+    imp.reload(proxy)
     imp.reload(ui)
+    imp.reload(engine)
 else:
     import bpy
     from vb25 import lib
     from vb25 import plugins
     from vb25 import preset
-    from vb25 import render_ops
+    from vb25 import operators
+    from vb25 import proxy
     from vb25 import nodes
     from vb25 import ui
+    from vb25 import engine
 
 
 def register():
     plugins.register()
+
+    proxy.register()
     nodes.register()
     ui.register()
+    operators.register()
+    engine.register()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
@@ -54,8 +62,12 @@ def register():
 
 def unregister():
     plugins.unregister()
+
+    proxy.unregister()
     nodes.unregister()
     ui.unregister()
+    operators.unregister()
+    engine.unregister()    
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon

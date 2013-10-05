@@ -31,7 +31,7 @@ import urllib.request
 import sys
 
 import bpy
-import bgl
+
 import bmesh
 from bpy.props import *
 
@@ -43,12 +43,14 @@ from vb25.utils   import *
 from vb25.plugins import *
 
 
-VRAYBLENDER_MENU_ITEM= "V-Ray"
+##     ## ########  ########     ###    ######## ######## 
+##     ## ##     ## ##     ##   ## ##      ##    ##       
+##     ## ##     ## ##     ##  ##   ##     ##    ##       
+##     ## ########  ##     ## ##     ##    ##    ######   
+##     ## ##        ##     ## #########    ##    ##       
+##     ## ##        ##     ## ##     ##    ##    ##       
+ #######  ##        ########  ##     ##    ##    ######## 
 
-
-'''
-  SCRIPT AUTOUPDATE
-'''
 class VRAY_OT_update(bpy.types.Operator):
 	bl_idname      = "vray.update"
 	bl_label       = "Update Exporter"
@@ -117,12 +119,14 @@ class VRAY_OT_update(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-bpy.utils.register_class(VRAY_OT_update)
+ ######     ###    ##     ## ######## ########     ###    
+##    ##   ## ##   ###   ### ##       ##     ##   ## ##   
+##        ##   ##  #### #### ##       ##     ##  ##   ##  
+##       ##     ## ## ### ## ######   ########  ##     ## 
+##       ######### ##     ## ##       ##   ##   ######### 
+##    ## ##     ## ##     ## ##       ##    ##  ##     ## 
+ ######  ##     ## ##     ## ######## ##     ## ##     ## 
 
-
-'''
-  Camera operators
-'''
 class VRAY_OT_lens_shift(bpy.types.Operator):
 	bl_idname=      'vray.lens_shift'
 	bl_label=       "Get lens shift"
@@ -140,12 +144,15 @@ class VRAY_OT_lens_shift(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_lens_shift)
 
+######## ######## ######## ########  ######  ########  ######  
+##       ##       ##       ##       ##    ##    ##    ##    ## 
+##       ##       ##       ##       ##          ##    ##       
+######   ######   ######   ######   ##          ##     ######  
+##       ##       ##       ##       ##          ##          ## 
+##       ##       ##       ##       ##    ##    ##    ##    ## 
+######## ##       ##       ########  ######     ##     ######  
 
-'''
-  Effects operators
-'''
 class VRAY_OT_effect_add(bpy.types.Operator):
 	bl_idname=      'vray.effect_add'
 	bl_label=       "Add Effect"
@@ -160,8 +167,6 @@ class VRAY_OT_effect_add(bpy.types.Operator):
 		VRayEffects.effects[-1].name= "Effect"
 
 		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_effect_add)
 
 
 class VRAY_OT_effect_remove(bpy.types.Operator):
@@ -179,8 +184,6 @@ class VRAY_OT_effect_remove(bpy.types.Operator):
 			VRayEffects.effects_selected-= 1
 
 		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_effect_remove)
 
 
 class VRAY_OT_effect_up(bpy.types.Operator):
@@ -202,8 +205,6 @@ class VRAY_OT_effect_up(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_effect_up)
-
 
 class VRAY_OT_effect_down(bpy.types.Operator):
 	bl_idname=      'vray.effect_down'
@@ -224,12 +225,14 @@ class VRAY_OT_effect_down(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_effect_down)
 
-
-'''
-  Includer operators
-'''
+#### ##    ##  ######  ##       ##     ## ########  ######## ########  
+ ##  ###   ## ##    ## ##       ##     ## ##     ## ##       ##     ## 
+ ##  ####  ## ##       ##       ##     ## ##     ## ##       ##     ## 
+ ##  ## ## ## ##       ##       ##     ## ##     ## ######   ########  
+ ##  ##  #### ##       ##       ##     ## ##     ## ##       ##   ##   
+ ##  ##   ### ##    ## ##       ##     ## ##     ## ##       ##    ##  
+#### ##    ##  ######  ########  #######  ########  ######## ##     ## 
 
 class VRAY_OT_includer_add(bpy.types.Operator):
 	bl_idname=      'vray.includer_add'
@@ -246,9 +249,6 @@ class VRAY_OT_includer_add(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-
-bpy.utils.register_class(VRAY_OT_includer_add)
-
 class VRAY_OT_includer_remove(bpy.types.Operator):
 	bl_idname=      'vray.includer_remove'
 	bl_label=       "Remove Include"
@@ -264,7 +264,6 @@ class VRAY_OT_includer_remove(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_includer_remove)
 
 class VRAY_OT_includer_up(bpy.types.Operator):
 	bl_idname=      'vray.includer_up'
@@ -284,7 +283,6 @@ class VRAY_OT_includer_up(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_includer_up)
 
 class VRAY_OT_includer_down(bpy.types.Operator):
 	bl_idname=      'vray.includer_down'
@@ -304,122 +302,15 @@ class VRAY_OT_includer_down(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_includer_down)
 
+######## ##       ######## ##     ## ######## ##    ## ########  ######  
+##       ##       ##       ###   ### ##       ###   ##    ##    ##    ## 
+##       ##       ##       #### #### ##       ####  ##    ##    ##       
+######   ##       ######   ## ### ## ######   ## ## ##    ##     ######  
+##       ##       ##       ##     ## ##       ##  ####    ##          ## 
+##       ##       ##       ##     ## ##       ##   ###    ##    ##    ## 
+######## ######## ######## ##     ## ######## ##    ##    ##     ######  
 
-'''
-  Material operators
-'''
-def active_node_mat(mat):
-	if mat:
-		mat_node= mat.active_node_material
-		if mat_node:
-			return mat_node
-		else:
-			return mat
-	return None
-
-
-def find_brdf_pointer(rna_pointer):
-	if rna_pointer.brdf_selected >= 0 and rna_pointer.brdfs[rna_pointer.brdf_selected].type == 'BRDFLayered':
-		return find_brdf_pointer(getattr(rna_pointer.brdfs[rna_pointer.brdf_selected], 'BRDFLayered'))
-	return rna_pointer
-
-
-class VRAY_OT_brdf_add(bpy.types.Operator):
-	bl_idname=      'vray.brdf_add'
-	bl_label=       "Add BRDF"
-	bl_description= "Add BRDF"
-
-	def execute(self, context):
-		ma= active_node_mat(context.material)
-		if ma:
-			rna_pointer= ma.vray.BRDFLayered
-			# rna_pointer= find_brdf_pointer(VRayMaterial)
-
-			rna_pointer.brdfs.add()
-			rna_pointer.brdfs[-1].name= "BRDF"
-
-			return {'FINISHED'}
-
-		return {'CANCELLED'}
-
-bpy.utils.register_class(VRAY_OT_brdf_add)
-
-
-class VRAY_OT_brdf_remove(bpy.types.Operator):
-	bl_idname=      'vray.brdf_remove'
-	bl_label=       "Remove BRDF"
-	bl_description= "Remove BRDF"
-
-	def execute(self, context):
-		ma= active_node_mat(context.material)
-		if ma:
-			rna_pointer= ma.vray.BRDFLayered
-			# rna_pointer= find_brdf_pointer(VRayMaterial)
-
-			if rna_pointer.brdf_selected >= 0:
-				rna_pointer.brdfs.remove(rna_pointer.brdf_selected)
-				rna_pointer.brdf_selected-= 1
-
-			return {'FINISHED'}
-
-		return {'CANCELLED'}
-
-bpy.utils.register_class(VRAY_OT_brdf_remove)
-
-
-class VRAY_OT_brdf_up(bpy.types.Operator):
-	bl_idname=      'vray.brdf_up'
-	bl_label=       "Move BRDF up"
-	bl_description= "Move BRDF up"
-
-	def execute(self, context):
-		ma= active_node_mat(context.material)
-		if ma:
-			rna_pointer= ma.vray.BRDFLayered
-			# rna_pointer= find_brdf_pointer(VRayMaterial)
-
-			if rna_pointer.brdf_selected <= 0:
-				return {'FINISHED'}
-
-			rna_pointer.brdfs.move(rna_pointer.brdf_selected,
-								   rna_pointer.brdf_selected - 1)
-			rna_pointer.brdf_selected-= 1
-
-			return {'FINISHED'}
-
-		return {'CANCELLED'}
-
-bpy.utils.register_class(VRAY_OT_brdf_up)
-
-
-class VRAY_OT_brdf_down(bpy.types.Operator):
-	bl_idname=      'vray.brdf_down'
-	bl_label=       "Move BRDF down"
-	bl_description= "Move BRDF down"
-
-	def execute(self, context):
-		ma= active_node_mat(context.material)
-		if ma:
-			rna_pointer= ma.vray.BRDFLayered
-			# rna_pointer= find_brdf_pointer(VRayMaterial)
-
-			if rna_pointer.brdf_selected == len(rna_pointer.brdfs) - 1:
-				return {'FINISHED'}
-
-			rna_pointer.brdfs.move(rna_pointer.brdf_selected,
-								   rna_pointer.brdf_selected + 1)
-			rna_pointer.brdf_selected+= 1
-
-			return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_brdf_down)
-
-
-'''
-  Render channel operators
-'''
 class VRAY_OT_channel_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
 	bl_label=       "Add Render Channel"
@@ -435,8 +326,6 @@ class VRAY_OT_channel_add(bpy.types.Operator):
 		render_channels[-1].name= "RenderChannel"
 
 		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_channel_add)
 
 
 class VRAY_OT_channel_del(bpy.types.Operator):
@@ -456,12 +345,15 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_channel_del)
 
+########  ########  
+##     ## ##     ## 
+##     ## ##     ## 
+##     ## ########  
+##     ## ##   ##   
+##     ## ##    ##  
+########  ##     ## 
 
-'''
-  DR node operators
-'''
 class VRAY_OT_node_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
 	bl_label=       "Add Render Node"
@@ -476,7 +368,6 @@ class VRAY_OT_node_add(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_node_add)
 
 
 class VRAY_OT_node_del(bpy.types.Operator):
@@ -494,12 +385,15 @@ class VRAY_OT_node_del(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_node_del)
 
+ ######   #######  ##    ## ##     ## ######## ########  ######## ######## ########  
+##    ## ##     ## ###   ## ##     ## ##       ##     ##    ##    ##       ##     ## 
+##       ##     ## ####  ## ##     ## ##       ##     ##    ##    ##       ##     ## 
+##       ##     ## ## ## ## ##     ## ######   ########     ##    ######   ########  
+##       ##     ## ##  ####  ##   ##  ##       ##   ##      ##    ##       ##   ##   
+##    ## ##     ## ##   ###   ## ##   ##       ##    ##     ##    ##       ##    ##  
+ ######   #######  ##    ##    ###    ######## ##     ##    ##    ######## ##     ## 
 
-'''
-  Some usefull utils
-'''
 class VRAY_OT_convert_scene(bpy.types.Operator):
 	bl_idname      = "vray.convert_materials"
 	bl_label       = "Convert materials"
@@ -581,22 +475,14 @@ class VRAY_OT_convert_scene(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_convert_scene)
 
-
-
-class VRAY_OT_bake_procedural(bpy.types.Operator):
-	bl_idname=      'vray.bake_procedural'
-	bl_label=       "Bake procedural"
-	bl_description= "Render procedural texture to file"
-
-	def execute(self, context):
-		debug(context.scene, "Bake procedural: In progress...")
-		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_bake_procedural)
-
-
+########  #######     ######## ######## ##     ## ######## 
+   ##    ##     ##       ##    ##        ##   ##     ##    
+   ##    ##     ##       ##    ##         ## ##      ##    
+   ##    ##     ##       ##    ######      ###       ##    
+   ##    ##     ##       ##    ##         ## ##      ##    
+   ##    ##     ##       ##    ##        ##   ##     ##    
+   ##     #######        ##    ######## ##     ##    ##    
 
 class VRAY_OT_settings_to_text(bpy.types.Operator):
 	bl_idname=      'vray.settings_to_text'
@@ -640,8 +526,14 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_settings_to_text)
 
+########  ########  ######   #######  ##       ##     ## ######## ####  #######  ##    ## 
+##     ## ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ###   ## 
+##     ## ##       ##       ##     ## ##       ##     ##    ##     ##  ##     ## ####  ## 
+########  ######    ######  ##     ## ##       ##     ##    ##     ##  ##     ## ## ## ## 
+##   ##   ##             ## ##     ## ##       ##     ##    ##     ##  ##     ## ##  #### 
+##    ##  ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ##   ### 
+##     ## ########  ######   #######  ########  #######     ##    ####  #######  ##    ## 
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_idname      = "vray.flip_resolution"
@@ -662,196 +554,15 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_flip_resolution)
 
+######## ##     ## ########   #######  ########  ######## 
+##        ##   ##  ##     ## ##     ## ##     ##    ##    
+##         ## ##   ##     ## ##     ## ##     ##    ##    
+######      ###    ########  ##     ## ########     ##    
+##         ## ##   ##        ##     ## ##   ##      ##    
+##        ##   ##  ##        ##     ## ##    ##     ##    
+######## ##     ## ##         #######  ##     ##    ##    
 
-class VRAY_OT_proxy_load_preview(bpy.types.Operator):
-	bl_idname      = "vray.proxy_load_preview"
-	bl_label       = "Load Preview"
-	bl_description = "Load VRayProxy mesh preview from file"
-
-	def execute(self, context):
-		originalMesh = context.object.data
-		GeomMeshFile = originalMesh.vray.GeomMeshFile
-
-		proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
-		proxyFilename = os.path.basename(proxyFilepath)
-
-		meshFile = VRayProxy.MeshFile(proxyFilepath)
-		result = meshFile.readFile()
-
-		if result is not None:
-			self.report({'ERROR'}, "Error parsing VRayProxy file!")
-			return {'FINISHED'}
-
-		previewVoxel = meshFile.getVoxelByType(VRayProxy.MVF_PREVIEW_VOXEL)
-
-		if not previewVoxel:
-			self.report({'ERROR'}, "Can't find preview voxel!")
-			return {'FINISHED'}
-
-		vertices = previewVoxel.getVertices()
-		faces    = previewVoxel.getFaces()
-
-		mesh = bpy.data.meshes.new("VRayProxyPreview")
-		mesh.from_pydata(vertices, [], faces)
-		mesh.update()
-
-		# Replace object mesh
-		bm = bmesh.new()
-		bm.from_mesh(mesh)
-		bm.to_mesh(context.object.data)
-
-		context.object.data.update()
-
-		# Remove temp
-		bm.free()
-		bpy.data.meshes.remove(mesh)
-
-		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_proxy_load_preview)
-
-
-class VRAY_OT_create_proxy(bpy.types.Operator):
-	bl_idname      = "vray.create_proxy"
-	bl_label       = "Create proxy"
-	bl_description = "Creates proxy from selection"
-
-	def execute(self, context):
-		sce = context.scene
-
-		VRayScene    = sce.vray
-		VRayExporter = VRayScene.exporter
-
-		def _create_proxy(ob):
-			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
-				return
-
-			timer= time.clock()
-
-			GeomMeshFile= ob.data.vray.GeomMeshFile
-
-			vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else clean_string(ob.name)
-			vrmesh_filename+= ".vrmesh"
-
-			vrmesh_dirpath= bpy.path.abspath(GeomMeshFile.dirpath)
-			if not os.path.exists(vrmesh_dirpath):
-				os.mkdir(vrmesh_dirpath)
-			vrmesh_filepath= os.path.join(vrmesh_dirpath,vrmesh_filename)
-
-			if GeomMeshFile.animation:
-				selected_frame= sce.frame_current
-
-				frame_start= sce.frame_start
-				frame_end= sce.frame_end
-				if GeomMeshFile.animation_range == 'MANUAL':
-					frame_start= GeomMeshFile.frame_start
-					frame_end= GeomMeshFile.frame_end
-
-				# Export first frame to create file
-				frame= frame_start
-				sce.frame_set(frame)
-				vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
-				frame+= 1
-				# Export all other frames
-				while(frame <= frame_end):
-					sce.frame_set(frame)
-					vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath,append=True)
-					frame+= 1
-				sce.frame_set(selected_frame)
-
-			else:
-				if VRayExporter.experimental:
-					bpy.ops.vray.generate_vrayproxy(
-						filepath = vrmesh_filepath,
-					)
-				else:
-					vb25.proxy.generate_proxy(sce,ob,vrmesh_filepath)
-
-			ob_name= ob.name
-			ob_data_name= ob.data.name
-
-			VRayMesh= ob.data.vray
-
-			if GeomMeshFile.mode != 'NONE':
-				if GeomMeshFile.mode in ('THIS','REPLACE'):
-					if GeomMeshFile.add_suffix:
-						ob.name+= '_proxy'
-						ob.data.name+= '_proxy'
-
-				if GeomMeshFile.mode == 'THIS':
-					VRayMesh.override= True
-					VRayMesh.override_type= 'VRAYPROXY'
-					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-				bbox_faces= ((0,1,2,3),(4,7,6,5),(0,4,5,1),(1,5,6,2),(2,6,7,3),(4,0,3,7))
-				bbox_mesh= bpy.data.meshes.new(ob_data_name+'_proxy')
-				bbox_mesh.from_pydata(ob.bound_box, [], bbox_faces)
-				bbox_mesh.update()
-
-				if GeomMeshFile.mode in ('NEW','REPLACE'):
-					for slot in ob.material_slots:
-						if slot and slot.material:
-							bbox_mesh.materials.append(slot.material)
-
-				if GeomMeshFile.mode == 'NEW':
-					new_ob= bpy.data.objects.new(ob_name+'_proxy', bbox_mesh)
-					sce.objects.link(new_ob)
-					new_ob.matrix_world= ob.matrix_world
-					new_ob.draw_type= 'WIRE'
-					bpy.ops.object.select_all(action='DESELECT')
-					new_ob.select= True
-					sce.objects.active= new_ob
-
-					if GeomMeshFile.apply_transforms:
-						ob.select= True
-						sce.objects.active= ob
-						bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-
-					VRayMesh= new_ob.data.vray
-					VRayMesh.override= True
-					VRayMesh.override_type= 'VRAYPROXY'
-
-					GeomMeshFile= VRayMesh.GeomMeshFile
-					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-
-				elif GeomMeshFile.mode == 'REPLACE':
-					bm = bmesh.new()
-					bm.from_mesh(bbox_mesh)
-					bm.to_mesh(ob.data)
-					bm.free()
-
-					ob.draw_type = 'WIRE'
-					for md in ob.modifiers: ob.modifiers.remove(md)
-
-					if GeomMeshFile.apply_transforms:
-						ob.select= True
-						sce.objects.active= ob
-						bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-
-					VRayMesh= ob.data.vray
-					VRayMesh.override= True
-					VRayMesh.override_type= 'VRAYPROXY'
-
-					GeomMeshFile= VRayMesh.GeomMeshFile
-					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
-			debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
-		
-		if len(bpy.context.selected_objects):
-			for ob in bpy.context.selected_objects:
-				_create_proxy(ob)
-		else:
-			_create_proxy(context.object)
-
-		return {'FINISHED'}
-
-bpy.utils.register_class(VRAY_OT_create_proxy)
-
-
-'''
-  EXPORT OPERATORS
-'''
 def init(context):
 	scene= context.scene
 
@@ -889,8 +600,6 @@ class VRAY_OT_write_scene(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_write_scene)
-
 
 class VRAY_OT_write_geometry(bpy.types.Operator):
 	bl_idname      = "vray.write_geometry"
@@ -925,8 +634,6 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_write_geometry)
-
 
 class VRAY_OT_write_vrscene(bpy.types.Operator):
 	bl_idname      = "vray.write_vrscene"
@@ -937,8 +644,14 @@ class VRAY_OT_write_vrscene(bpy.types.Operator):
 		bpy.ops.vray.export_vrscene()
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_write_vrscene)
 
+########  ######## ##    ## ########  ######## ########  
+##     ## ##       ###   ## ##     ## ##       ##     ## 
+##     ## ##       ####  ## ##     ## ##       ##     ## 
+########  ######   ## ## ## ##     ## ######   ########  
+##   ##   ##       ##  #### ##     ## ##       ##   ##   
+##    ##  ##       ##   ### ##     ## ##       ##    ##  
+##     ## ######## ##    ## ########  ######## ##     ## 
 
 class VRAY_OT_render(bpy.types.Operator):
 	bl_idname      = "vray.render"
@@ -955,8 +668,15 @@ class VRAY_OT_render(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_render)
 
+
+########  ##     ## ##    ## 
+##     ## ##     ## ###   ## 
+##     ## ##     ## ####  ## 
+########  ##     ## ## ## ## 
+##   ##   ##     ## ##  #### 
+##    ##  ##     ## ##   ### 
+##     ##  #######  ##    ## 
 
 class VRAY_OT_run(bpy.types.Operator):
 	bl_idname      = "vray.run"
@@ -969,7 +689,6 @@ class VRAY_OT_run(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_run)
 
 
 class VRAY_OT_terminate(bpy.types.Operator):
@@ -986,8 +705,14 @@ class VRAY_OT_terminate(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_terminate)
 
+ ######   #######  ##        #######  ########  
+##    ## ##     ## ##       ##     ## ##     ## 
+##       ##     ## ##       ##     ## ##     ## 
+##       ##     ## ##       ##     ## ########  
+##       ##     ## ##       ##     ## ##   ##   
+##    ## ##     ## ##       ##     ## ##    ##  
+ ######   #######  ########  #######  ##     ## 
 
 class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 	bl_idname      = "vray.set_kelvin_color"
@@ -1082,9 +807,14 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_set_kelvin_color)
 
-
+ ######   #######  ##        #######  ########  
+##    ## ##     ## ##       ##     ## ##     ## 
+##       ##     ## ##       ##     ## ##     ## 
+##       ##     ## ##       ##     ## ########  
+##       ##     ## ##       ##     ## ##   ##   
+##    ## ##     ## ##       ##     ## ##    ##  
+ ######   #######  ########  #######  ##     ## 
 class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_idname      = "vray.add_sky"
 	bl_label       = "Add Sky texture"
@@ -1109,13 +839,15 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-bpy.utils.register_class(VRAY_OT_add_sky)
 
+##       #### ##    ## ##    ## #### ##    ##  ######   
+##        ##  ###   ## ##   ##   ##  ###   ## ##    ##  
+##        ##  ####  ## ##  ##    ##  ####  ## ##        
+##        ##  ## ## ## #####     ##  ## ## ## ##   #### 
+##        ##  ##  #### ##  ##    ##  ##  #### ##    ##  
+##        ##  ##   ### ##   ##   ##  ##   ### ##    ##  
+######## #### ##    ## ##    ## #### ##    ##  ######   
 
-
-'''
-  LINK MATERIAL OVERRIDE
-'''
 class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 	bl_idname      = "vray.copy_linked_materials"
 	bl_label       = "Copy linked materials"
@@ -1153,56 +885,43 @@ class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 		debug(scene, "Object \"%s\" has no dupli-group assigned!" % (object.name), error= True)
 		return {'CANCELLED'}
 
-bpy.utils.register_class(VRAY_OT_copy_linked_materials)
+
+def GetRegClasses():
+	return (
+		VRAY_OT_update,
+		VRAY_OT_lens_shift,
+		VRAY_OT_effect_add,
+		VRAY_OT_effect_remove,
+		VRAY_OT_effect_up,
+		VRAY_OT_effect_down,
+		VRAY_OT_includer_add,
+		VRAY_OT_includer_remove,
+		VRAY_OT_includer_up,
+		VRAY_OT_includer_down,
+		VRAY_OT_channel_add,
+		VRAY_OT_channel_del,
+		VRAY_OT_node_add,
+		VRAY_OT_node_del,
+		VRAY_OT_convert_scene,
+		VRAY_OT_settings_to_text,
+		VRAY_OT_flip_resolution,
+		VRAY_OT_write_scene,
+		VRAY_OT_write_geometry,
+		VRAY_OT_write_vrscene,
+		VRAY_OT_render,
+		VRAY_OT_run,
+		VRAY_OT_terminate,
+		VRAY_OT_set_kelvin_color,
+		VRAY_OT_add_sky,
+		VRAY_OT_copy_linked_materials,
+	)
 
 
-'''
-  RENDER ENGINE
-'''
-class VRayRenderer(bpy.types.RenderEngine):
-	bl_idname      = 'VRAY_RENDER'
-	bl_label       = "%s" % VRAYBLENDER_MENU_ITEM
-	bl_use_preview =  False
-
-	# def view_update(self, context):
-	# 	pass
-
-	# def view_draw(self, context):
-	# 	w = context.region.width
-	# 	h = context.region.height
-
-	# 	bgl.glColor3f(1.0, 0.5, 0.0)
-	# 	bgl.glRectf(0, 0, w, h)
-
-	def render(self, scene):
-		VRayScene= scene.vray
-		VRayExporter= VRayScene.exporter
-
-		err = vb25.render.render(self, scene)
-
-		if err is not None:
-			self.report({'ERROR'}, err)
-
-bpy.utils.register_class(VRayRenderer)
+def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
 
 
-class VRayRendererPreview(bpy.types.RenderEngine):
-	bl_idname      = 'VRAY_RENDER_PREVIEW'
-	bl_label       = "%s (material preview)" % VRAYBLENDER_MENU_ITEM
-	bl_use_preview = True
-
-	def render(self, scene):
-		VRayScene    = scene.vray
-		VRayExporter = VRayScene.exporter
-
-		if scene.name == "preview":
-			if scene.render.resolution_x < 64:
-				return
-			vb25.render.render(self, scene, preview=True)
-		else:
-			err = vb25.render.render(self, scene)
-
-			if err is not None:
-				self.report({'ERROR'}, err)
-
-bpy.utils.register_class(VRayRendererPreview)
+def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

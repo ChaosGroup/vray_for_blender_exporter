@@ -34,7 +34,7 @@ for compatEngine in classes.VRayEngines:
 del properties_data_camera
 
 
-class VRAY_DP_camera(classes.VRayDataPanel):
+class VRAY_DP_camera(classes.VRayCameraPanel):
 	bl_label = "Parameters"
 	
 	@classmethod
@@ -168,15 +168,10 @@ class VRAY_DP_camera(classes.VRayDataPanel):
 		col.prop(VRayCamera, 'use_camera_loop')
 
 
-class VRAY_DP_physical_camera(classes.VRayDataPanel):
+class VRAY_DP_physical_camera(classes.VRayCameraPanel):
 	bl_label   = "Physical"
 	bl_options = {'DEFAULT_CLOSED'}
-
 	
-	@classmethod
-	def poll(cls, context):
-		return (context.camera and engine_poll(__class__, context))
-
 	def draw_header(self, context):
 		ca= context.camera
 		VRayCamera= ca.vray
@@ -267,15 +262,14 @@ class VRAY_DP_physical_camera(classes.VRayDataPanel):
 				colR.prop(CameraPhysical, 'anisotropy')
 
 
-class VRAY_DP_camera_stereoscopic(classes.VRayDataPanel):
+class VRAY_DP_camera_stereoscopic(classes.VRayCameraPanel):
 	bl_label   = "Stereoscopic"
 	bl_options = {'DEFAULT_CLOSED'}
-
 	
 	@classmethod
 	def poll(cls, context):
 		VRayStereoscopicSettings = context.scene.vray.VRayStereoscopicSettings
-		return (context.camera and engine_poll(__class__, context)  and VRayStereoscopicSettings.use)
+		return VRayStereoscopicSettings.use and classes.VRayCameraPanel.poll(context)
 
 	def draw_header(self, context):
 		ca = context.camera
@@ -309,18 +303,11 @@ class VRAY_DP_camera_stereoscopic(classes.VRayDataPanel):
 		sub.prop(CameraStereoscopic, 'show_cams', text="Show L/R cameras")
 		if CameraStereoscopic.show_cams:
 			sub.prop(CameraStereoscopic, 'show_limits', text="Show Limits")
-		
 
 
-
-class VRAY_DP_hide_from_view(classes.VRayDataPanel):
+class VRAY_DP_hide_from_view(classes.VRayCameraPanel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	
-	@classmethod
-	def poll(cls, context):
-		return (context.camera and engine_poll(__class__, context))
 
 	def draw_header(self, context):
 		ca= context.camera
@@ -419,15 +406,20 @@ class VRAY_DP_hide_from_view(classes.VRayDataPanel):
 			sub.prop_search(VRayCamera, 'hf_shadows_groups',   bpy.data,      'groups')
 
 
+def GetRegClasses():
+	return (
+	VRAY_DP_camera,
+	VRAY_DP_physical_camera,
+	VRAY_DP_camera_stereoscopic,
+	VRAY_DP_hide_from_view,
+	)
+
+
 def register():
-	bpy.utils.register_class(VRAY_DP_camera)
-	bpy.utils.register_class(VRAY_DP_physical_camera)
-	bpy.utils.register_class(VRAY_DP_camera_stereoscopic)
-	bpy.utils.register_class(VRAY_DP_hide_from_view)
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
 
 
 def unregister():
-	bpy.utils.unregister_class(VRAY_DP_camera)
-	bpy.utils.unregister_class(VRAY_DP_physical_camera)
-	bpy.utils.unregister_class(VRAY_DP_camera_stereoscopic)
-	bpy.utils.unregister_class(VRAY_DP_hide_from_view)
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)

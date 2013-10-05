@@ -514,7 +514,7 @@ def gui(context, layout, BRDFVRayMtl, node=None):
     contextType = GetContextType(context)
     regionWidth = GetRegionWidthFromContext(context)
 
-    wide_ui = regionWidth > classes.narrowui
+    wide_ui = regionWidth > narrowui
 
     layout.label(text="Reflections:")
 

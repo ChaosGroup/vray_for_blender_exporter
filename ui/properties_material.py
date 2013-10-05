@@ -113,7 +113,7 @@ class VRAY_MP_node(classes.VRayMaterialPanel):
 		ntree = bpy.data.node_groups[ntreeName]
 		if not len(ntree.nodes):
 			return False
-		return ui.engine_poll(__class__, context)
+		return classes.VRayMaterialPanel.poll(context)
 
 	def draw(self, context):
 		ntree      = bpy.data.node_groups[context.material.vray.nodetree]
@@ -152,8 +152,6 @@ class VRAY_MP_node(classes.VRayMaterialPanel):
 # class VRAY_MP_outline(classes.VRayMaterialPanel):
 # 	bl_label   = "Outline"
 # 	bl_options = {'DEFAULT_CLOSED'}
-
-# 	COMPAT_ENGINES = {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
 # 	@classmethod
 # 	def poll(cls, context):

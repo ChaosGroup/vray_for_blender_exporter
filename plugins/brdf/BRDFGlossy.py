@@ -297,7 +297,7 @@ def gui(context, layout, BRDFGlossy):
     contextType = GetContextType(context)
     regionWidth = GetRegionWidthFromContext(context)
 
-    wide_ui = regionWidth > classes.narrowui
+    wide_ui = regionWidth > narrowui
 
     split= layout.split()
     col= split.column()

@@ -34,7 +34,7 @@ MsgTypeToColor = {
 }
 
 def Color(text, color=None):
-    if not color or not sys.platform not in ['win32']:
+    if not color or sys.platform in ['win32']:
         return text
     if color == 'green':
         return "\033[0;32m%s\033[0m" % text

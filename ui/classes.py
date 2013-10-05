@@ -105,6 +105,12 @@ class VRayGeomPanel(VRayDataPanel):
 		return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
 
 
+class VRayCameraPanel(VRayDataPanel):
+	@classmethod
+	def poll(cls, context):
+		return context.camera and PollEngine(cls, context)
+
+
 class VRayLampPanel(VRayDataPanel):
 	@classmethod
 	def poll(cls, context):

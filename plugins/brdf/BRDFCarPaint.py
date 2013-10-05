@@ -265,7 +265,7 @@ PluginParams = (
 #     contextType = GetContextType(context)
 #     regionWidth = GetRegionWidthFromContext(context)
 
-#     wide_ui = regionWidth > classes.narrowui
+#     wide_ui = regionWidth > narrowui
 
 #     layout.label(text="Flakes:")
 

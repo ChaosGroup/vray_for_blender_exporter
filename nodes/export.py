@@ -28,7 +28,7 @@ import mathutils
 from vb25.lib     import ExportUtils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug
-from vb25.utils   import *
+from vb25.utils   import clean_string
 
 
 ##     ## ######## #### ##       #### ######## #### ########  ######  

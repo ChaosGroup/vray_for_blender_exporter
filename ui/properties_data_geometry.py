@@ -31,7 +31,7 @@ from bl_ui import properties_data_mesh
 for member in dir(properties_data_mesh):
 	subclass = getattr(properties_data_mesh, member)
 	try:
-		for compatEngine in ui.COMPAT_ENGINES:
+		for compatEngine in classes.VRayEngines:
 			subclass.COMPAT_ENGINES.add(compatEngine)
 	except:
 		pass

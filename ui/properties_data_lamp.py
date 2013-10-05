@@ -251,8 +251,6 @@ class VRAY_DP_light_shadows(classes.VRayLampPanel):
 	bl_label   = "Shadows"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw_header(self, context):
 		vl= context.lamp.vray
 		self.layout.prop(vl,'shadows', text="")
@@ -288,8 +286,6 @@ class VRAY_DP_light_advanced(classes.VRayLampPanel):
 	bl_label   = "Advanced"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout
@@ -315,8 +311,6 @@ class VRAY_DP_light_advanced(classes.VRayLampPanel):
 class VRAY_DP_include_exclude(classes.VRayLampPanel):
 	bl_label   = "Include / Exclude"
 	bl_options = {'DEFAULT_CLOSED'}
-
-	COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
 	def draw_header(self, context):
 		VRayLamp= context.lamp.vray
