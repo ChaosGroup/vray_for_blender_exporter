@@ -42,6 +42,11 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
 
+	@classmethod
+	def poll(cls, context):
+		engine = context.scene.render.engine
+		return (context.material or context.object) and classes.PollEngine(cls, context)
+
 	def draw(self, context):
 		layout = self.layout
 
