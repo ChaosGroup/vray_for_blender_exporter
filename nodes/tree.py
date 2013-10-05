@@ -22,17 +22,14 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# TODO:
-#   Use "idref" for tree storage:
-#     http://www.pasteall.org/46081/python
-#     http://www.pasteall.org/46083/python
-
 import bpy
 
 from vb25.ui import classes
 
+from ..pynodes_framework import base
 
-class VRayData:
+
+class VRayData():
     @classmethod
     def poll(cls, context):
         return context.scene.render.engine in classes.VRayEngines
@@ -46,7 +43,7 @@ class VRayData:
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
 
-class VRayNodeTree(bpy.types.NodeTree, VRayData):
+class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayShaderTreeType'
     bl_icon   = 'MATERIAL'
@@ -77,7 +74,7 @@ class VRayTreeNode:
 ##  ##  ## ##     ## ##    ##  ##       ##     ## 
  ###  ###   #######  ##     ## ######## ########  
 
-class VRayWorldNodeTree(bpy.types.NodeTree, VRayData):
+class VRayWorldNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
     bl_label  = "V-Ray World Node Tree"
     bl_idname = 'VRayWorldNodeTree'
     bl_icon   = 'WORLD'

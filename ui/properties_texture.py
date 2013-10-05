@@ -24,10 +24,11 @@
 
 import bpy
 
-from vb25.ui import classes
-
 from bpy.types import Brush, Lamp, Material, Object, ParticleSettings, Texture, World
 
+from vb25.ui import classes
+
+from bl_ui.properties_texture import context_tex_datablock
 
 from bl_ui import properties_texture
 for compatEngine in classes.VRayEngines:
@@ -46,7 +47,7 @@ class VRAY_TP_context(classes.VRayTexturePanel):
 			return False
 
 		return ((context.material or context.world or context.lamp or context.brush or context.texture or context.particle_system or isinstance(context.space_data.pin_id, bpy.types.ParticleSettings))
-				and engine_poll(cls, context))
+				and classes.PollEngine(cls, context))
 
 	def draw(self, context):
 		layout = self.layout
@@ -112,7 +113,7 @@ class VRAY_TP_preview(classes.VRayTexturePanel):
 		if tex.type == 'VRAY' and context.scene.render.engine == 'VRAY_RENDER':
 			return False
 
-		return super().poll(context)
+		return classes.VRayTexturePanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -127,177 +128,77 @@ class VRAY_TP_preview(classes.VRayTexturePanel):
 			layout.template_preview(tex, slot= slot)
 
 
-class VRAY_TP_influence(classes.VRayTexturePanel):
-	bl_label = "Influence"
+# class VRAY_TP_displacement(classes.VRayTexturePanel):
+# 	bl_label = "Displacement"
 	
-	@classmethod
-	def poll(cls, context):
-		idblock = context_tex_datablock(context)
-		if isinstance(idblock, Brush):
-			return False
+# 	@classmethod
+# 	def poll(cls, context):
+# 		idblock= context_tex_datablock(context)
+# 		if not type(idblock) == bpy.types.Material:
+# 			return False
 
-		if not getattr(context, "texture_slot", None):
-			return False
+# 		texture_slot= getattr(context,'texture_slot',None)
+# 		if not texture_slot:
+# 			return False
 
-		engine = context.scene.render.engine
-		return (engine in cls.COMPAT_ENGINES)
+# 		texture= texture_slot.texture
+# 		if not texture:
+# 			return False
 
-	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
+# 		VRaySlot= texture.vray_slot
+# 		return VRaySlot.map_displacement and engine_poll(cls, context)
 
-		idblock= context_tex_datablock(context)
+# 	def draw(self, context):
+# 		layout= self.layout
+# 		wide_ui= context.region.width > classes.narrowui
 
-		slot=    context.texture_slot
-		texture= slot.texture if slot else context.texture
+# 		texture_slot= getattr(context,'texture_slot',None)
+# 		texture= texture_slot.texture if texture_slot else context.texture
 
-		VRaySlot= texture.vray_slot
+# 		if texture:
+# 			VRaySlot= texture.vray_slot
 
-		if issubclass(type(idblock), bpy.types.Material):
-			material=     active_node_mat(context.material)
-			VRayMaterial= material.vray
+# 			if VRaySlot:
+# 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
 
-			PLUGINS['BRDF'][VRayMaterial.type].influence(context, layout, slot)
+# 				split= layout.split()
+# 				col= split.column()
+# 				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
+# 				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
+# 				col.prop(GeomDisplacedMesh, 'resolution')
+# 				col.prop(GeomDisplacedMesh, 'precision')
+# 				if wide_ui:
+# 					col= split.column()
+# 				col.prop(GeomDisplacedMesh, 'keep_continuity')
+# 				col.prop(GeomDisplacedMesh, 'filter_texture')
+# 				if GeomDisplacedMesh.filter_texture:
+# 					col.prop(GeomDisplacedMesh, 'filter_blur')
+# 				col.prop(GeomDisplacedMesh, 'use_bounds')
+# 				if GeomDisplacedMesh.use_bounds:
+# 					sub= col.column(align= True)
+# 					sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
+# 					sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
 
-			PLUGINS['BRDF']['BRDFBump'].influence(context, layout, slot)
-
-			PLUGINS['GEOMETRY']['GeomDisplacedMesh'].influence(context, layout, slot)
-
-		elif issubclass(type(idblock), bpy.types.Lamp):
-			VRayLight= VRaySlot.VRayLight
-
-			split= layout.split()
-			col= split.column()
-			factor_but(col, VRayLight, 'map_color', 'color_mult', "Color")
-			factor_but(col, VRayLight, 'map_shadowColor', 'shadowColor_mult', "Shadow")
-			if wide_ui:
-				col= split.column()
-			factor_but(col, VRayLight, 'map_intensity', 'intensity_mult', "Intensity")
-
-		elif issubclass(type(idblock), bpy.types.World):
-			split= layout.split()
-			col= split.column()
-			col.label(text="Environment:")
-			factor_but(col, VRaySlot, 'use_map_env_bg',         'env_bg_factor',         "Background")
-			if wide_ui:
-				col= split.column()
-			col.label(text="Override:")
-			factor_but(col, VRaySlot, 'use_map_env_gi',         'env_gi_factor',         "GI")
-			factor_but(col, VRaySlot, 'use_map_env_reflection', 'env_reflection_factor', "Reflections")
-			factor_but(col, VRaySlot, 'use_map_env_refraction', 'env_refraction_factor', "Refractions")
-
-		elif isinstance(idblock, bpy.types.ParticleSettings):
-			split = layout.split()
-
-			col = split.column()
-			col.label(text="General:")
-			factor_but(col, slot, "use_map_time", "time_factor", "Time")
-			factor_but(col, slot, "use_map_life", "life_factor", "Lifetime")
-			factor_but(col, slot, "use_map_density", "density_factor", "Density")
-			factor_but(col, slot, "use_map_size", "size_factor", "Size")
-
-			col = split.column()
-			col.label(text="Physics:")
-			factor_but(col, slot, "use_map_velocity", "velocity_factor", "Velocity")
-			factor_but(col, slot, "use_map_damp", "damp_factor", "Damp")
-			factor_but(col, slot, "use_map_gravity", "gravity_factor", "Gravity")
-			factor_but(col, slot, "use_map_field", "field_factor", "Force Fields")
-
-			layout.label(text="Hair:")
-
-			split = layout.split()
-
-			col = split.column()
-			factor_but(col, slot, "use_map_length", "length_factor", "Length")
-			factor_but(col, slot, "use_map_clump", "clump_factor", "Clump")
-
-			col = split.column()
-			factor_but(col, slot, "use_map_kink", "kink_factor", "Kink")
-			factor_but(col, slot, "use_map_rough", "rough_factor", "Rough")
-
-		layout.separator()
-
-		if not isinstance(idblock, bpy.types.ParticleSettings):
-			split= layout.split()
-			col= split.column()
-			col.prop(VRaySlot,'blend_mode',text="Blend")
-			if wide_ui:
-				col= split.column()
-			col.prop(slot,'use_stencil')
-
-
-class VRAY_TP_displacement(classes.VRayTexturePanel):
-	bl_label = "Displacement"
-	
-	@classmethod
-	def poll(cls, context):
-		idblock= context_tex_datablock(context)
-		if not type(idblock) == bpy.types.Material:
-			return False
-
-		texture_slot= getattr(context,'texture_slot',None)
-		if not texture_slot:
-			return False
-
-		texture= texture_slot.texture
-		if not texture:
-			return False
-
-		VRaySlot= texture.vray_slot
-		return VRaySlot.map_displacement and engine_poll(cls, context)
-
-	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
-
-		texture_slot= getattr(context,'texture_slot',None)
-		texture= texture_slot.texture if texture_slot else context.texture
-
-		if texture:
-			VRaySlot= texture.vray_slot
-
-			if VRaySlot:
-				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
-
-				split= layout.split()
-				col= split.column()
-				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
-				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
-				col.prop(GeomDisplacedMesh, 'resolution')
-				col.prop(GeomDisplacedMesh, 'precision')
-				if wide_ui:
-					col= split.column()
-				col.prop(GeomDisplacedMesh, 'keep_continuity')
-				col.prop(GeomDisplacedMesh, 'filter_texture')
-				if GeomDisplacedMesh.filter_texture:
-					col.prop(GeomDisplacedMesh, 'filter_blur')
-				col.prop(GeomDisplacedMesh, 'use_bounds')
-				if GeomDisplacedMesh.use_bounds:
-					sub= col.column(align= True)
-					sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
-					sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
-
-				split= layout.split()
-				col= split.column()
-				col.prop(GeomDisplacedMesh, 'use_globals')
-				if not GeomDisplacedMesh.use_globals:
-					split= layout.split()
-					col= split.column()
-					col.prop(GeomDisplacedMesh, 'edge_length')
-					col.prop(GeomDisplacedMesh, 'max_subdivs')
-					if wide_ui:
-						col= split.column()
-					col.prop(GeomDisplacedMesh, 'view_dep')
-					col.prop(GeomDisplacedMesh, 'tight_bounds')
+# 				split= layout.split()
+# 				col= split.column()
+# 				col.prop(GeomDisplacedMesh, 'use_globals')
+# 				if not GeomDisplacedMesh.use_globals:
+# 					split= layout.split()
+# 					col= split.column()
+# 					col.prop(GeomDisplacedMesh, 'edge_length')
+# 					col.prop(GeomDisplacedMesh, 'max_subdivs')
+# 					if wide_ui:
+# 						col= split.column()
+# 					col.prop(GeomDisplacedMesh, 'view_dep')
+# 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
 class VRAY_TP_bitmap(classes.VRayTexturePanel):
 	bl_label = "Bitmap"
 
-	
 	@classmethod
 	def poll(cls, context):
-		if not engine_poll(cls, context):
+		if not classes.PollEngine(cls, context):
 			return False
 
 		tex= context.texture
@@ -340,8 +241,6 @@ def GetRegClasses():
 	return (
 		VRAY_TP_context,
 		VRAY_TP_preview,
-		VRAY_TP_influence,
-		VRAY_TP_displacement,
 		VRAY_TP_bitmap,
 	)
 

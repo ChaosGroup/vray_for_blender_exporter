@@ -28,11 +28,12 @@ if "bpy" in locals():
     imp.reload(plugins)
     imp.reload(preset)
     imp.reload(operators)
-    imp.reload(nodes)
     imp.reload(proxy)
+    imp.reload(nodes)
     imp.reload(ui)
     imp.reload(engine)
     imp.reload(realtime)
+    imp.reload(keymap)
 else:
     import bpy
     from vb25 import lib
@@ -44,42 +45,26 @@ else:
     from vb25 import ui
     from vb25 import engine
     from vb25 import realtime
+    from vb25 import keymap
 
 
 def register():
     plugins.register()
-
-    proxy.register()
-    nodes.register()
-    ui.register()
     operators.register()
+    ui.register()
     engine.register()
-
+    nodes.register()
+    proxy.register()
     realtime.register()
-
-    wm = bpy.context.window_manager
-    kc = wm.keyconfigs.addon
-    if kc:
-        km = kc.keymaps.new('Screen', space_type='EMPTY', region_type='WINDOW')
-        kmi = km.keymap_items.new('vray.render', 'F10', 'PRESS')
+    keymap.register()
 
 
 def unregister():
     plugins.unregister()
-
-    proxy.unregister()
-    nodes.unregister()
-    ui.unregister()
     operators.unregister()
-    engine.unregister()    
-
+    engine.unregister()
+    nodes.unregister()
+    proxy.unregister()
     realtime.unregister()
-
-    wm = bpy.context.window_manager
-    kc = wm.keyconfigs.addon
-    if kc:
-        km = kc.keymaps['Screen']
-        for kmi in km.keymap_items:
-            if kmi.idname == 'vray.render':
-                km.keymap_items.remove(kmi)
-                break
+    ui.unregister()
+    keymap.unregister()

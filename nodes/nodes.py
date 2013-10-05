@@ -38,6 +38,8 @@ from vb25.lib import CallbackUI
 
 from .tree import *
 
+from ..pynodes_framework import base, parameter
+
 
 ########  ######## ######## #### ##    ## ########  ######  
 ##     ## ##       ##        ##  ###   ## ##       ##    ## 
@@ -98,23 +100,6 @@ def AddOutput(node, socketType, socketName, attrName=None):
 
     if attrName is not None:
         createdSocket.vray_attr = attrName
-
-
-def GetNodeTreeFromContext(context):
-    ob = context.active_object
-    if ob and ob.type not in {'LAMP', 'CAMERA'}:
-        ma = ob.active_material
-        if ma is None:
-            return None
-
-        nt_name = ma.vray.nodetree
-        if not nt_name:
-            return None
-        
-        if nt_name in bpy.data.node_groups:
-            return bpy.data.node_groups[ma.vray.nodetree]
-
-    return None
 
 
 def GetActiveNode(nodetree):
@@ -562,7 +547,7 @@ def LoadDynamicNodes():
             vrayPlugin  = PLUGINS[pluginType][pluginName]
             textureBpyType = getattr(bpy.types, pluginName)
 
-            # Debug("Creating Node from plugin: %s" % (pluginName))
+            # Debug("Creating Node from plugin: %s" % (pluginName), msgType='INFO')
 
             DynNodeClassName = "VRayNode%s" % (pluginName)
 
@@ -573,14 +558,10 @@ def LoadDynamicNodes():
 
                 'vray_type'   : pluginType,
                 'vray_plugin' : pluginName,
-
-
-                'draw_buttons'     : VRayNodeDraw,
-                'draw_buttons_ext' : VRayNodeDrawSide,
             }
 
             if 0:
-                # pynodes_framework
+                # XXX: Loads fine, but sockets are not drawn
                 #
                 for attr in vrayPlugin.PluginParams:
                     attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
@@ -591,9 +572,8 @@ def LoadDynamicNodes():
                     isOutput = attr['type'] in AttributeUtils.OutputTypes
                 
                     if attr['type'] in {'FLOAT_TEXTURE'}:
+                        Debug("Adding attribute: %s" % attr_name)
                         DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, is_output=isOutput, description=attr['desc'])
-
-                PrintDict("DynNodeClassAttrs", DynNodeClassAttrs)
 
                 DynNodeClass = type(
                     # Name
@@ -606,7 +586,9 @@ def LoadDynamicNodes():
                     DynNodeClassAttrs
                 )
             else:
-                DynNodeClassAttrs['init'] = VRayNodeInit
+                DynNodeClassAttrs['init']             = VRayNodeInit
+                DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
+                DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
 
                 DynNodeClass = type(
                     DynNodeClassName,
