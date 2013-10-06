@@ -38,7 +38,7 @@ from vb25.lib import AttributeUtils
 from vb25.lib import ClassUtils
 from vb25.lib import CallbackUI
 
-from .tree import *
+from . import tree
 
 
 ########  ######## ######## #### ##    ## ########  ######  
@@ -120,7 +120,7 @@ def GetActiveNode(nodetree):
 #           multiple nodes but have an exclusive "enable" option on them
 # <lukas_t> enable node -> all others of same type get disabled
 
-class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
+class VRayNodeOutput(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeOutput'
     bl_label  = 'Material Output'
     bl_icon   = 'VRAY_LOGO'
@@ -132,7 +132,7 @@ class VRayNodeOutput(bpy.types.Node, VRayTreeNode):
         AddInput(self, 'VRaySocketMtl', "Material")
 
 
-class VRayNodeWorldOutput(bpy.types.Node, VRayTreeNode):
+class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeWorldOutput'
     bl_label  = 'World Output'
     bl_icon   = 'VRAY_LOGO'
@@ -178,7 +178,7 @@ class VRayNodeWorldOutput(bpy.types.Node, VRayTreeNode):
 ##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
  ######   #######   #######  ##     ## ########   ######  
 
-class VRayNodeUVChannel(bpy.types.Node, VRayTreeNode):
+class VRayNodeUVChannel(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeUVChannel'
     bl_label  = 'UV Channel'
     bl_icon   = 'VRAY_LOGO'
@@ -268,7 +268,7 @@ class VRayNodeUVChannel(bpy.types.Node, VRayTreeNode):
    ##    ##        ##   ##     ##    ##     ## ##    ##  ##       
    ##    ######## ##     ##    ##     #######  ##     ## ######## 
 
-class VRayNodeTexLayered(bpy.types.Node, VRayTreeNode):
+class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeTexLayered'
     bl_label  = 'Texture Layered'
     bl_icon   = 'VRAY_LOGO'
@@ -296,7 +296,7 @@ class VRayNodeTexLayered(bpy.types.Node, VRayTreeNode):
 ##     ## ##    ##  ##     ## ##       
 ########  ##     ## ########  ##       
 
-class VRayNodeBRDFLayered(bpy.types.Node, VRayTreeNode):
+class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeBRDFLayered'
     bl_label  = 'Layered'
     bl_icon   = 'VRAY_LOGO'
@@ -353,7 +353,7 @@ def add_nodetype(layout, t):
     layout.operator("node.add_node", text=t.bl_label).type=t.bl_rna.identifier
 
 
-class VRayNodesMenuOutput(bpy.types.Menu, VRayData):
+class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuOutput"
     bl_label  = "Output"
 
@@ -362,7 +362,7 @@ class VRayNodesMenuOutput(bpy.types.Menu, VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)        
 
 
-class VRayNodesMenuMapping(bpy.types.Menu, VRayData):
+class VRayNodesMenuMapping(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuMapping"
     bl_label  = "Mapping"
 
@@ -371,7 +371,7 @@ class VRayNodesMenuMapping(bpy.types.Menu, VRayData):
             add_nodetype(self.layout, vrayNodeType)
 
 
-class VRayNodesMenuTexture(bpy.types.Menu, VRayData):
+class VRayNodesMenuTexture(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuTexture"
     bl_label  = "Texture"
 
@@ -384,7 +384,7 @@ class VRayNodesMenuTexture(bpy.types.Menu, VRayData):
             add_nodetype(sub, vrayNodeType)
 
 
-class VRayNodesMenuBRDF(bpy.types.Menu, VRayData):
+class VRayNodesMenuBRDF(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuBRDF"
     bl_label  = "BRDF"
 
@@ -397,7 +397,7 @@ class VRayNodesMenuBRDF(bpy.types.Menu, VRayData):
             add_nodetype(sub, vrayNodeType)
 
 
-class VRayNodesMenuMaterial(bpy.types.Menu, VRayData):
+class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuMaterial"
     bl_label  = "Material"
 
@@ -547,7 +547,7 @@ def LoadDynamicNodes():
             vrayPlugin  = PLUGINS[pluginType][pluginName]
             textureBpyType = getattr(bpy.types, pluginName)
 
-            # Debug("Creating Node from plugin: %s" % (pluginName), msgType='INFO')
+            # Debug("Creating Node from plugin: %s" % pluginName, msgType='INFO')
 
             DynNodeClassName = "VRayNode%s" % (pluginName)
 
@@ -560,7 +560,10 @@ def LoadDynamicNodes():
                 'vray_plugin' : pluginName,
             }
 
-            if 1:
+            if 0:
+                # !!! Associates nodes with a socket type
+                DynNodeClassAttrs['socket_type'] = tree.VRayTreeSockets
+
                 # XXX: Loads fine, but sockets are not drawn
                 #
                 for attr in vrayPlugin.PluginParams:
@@ -575,12 +578,14 @@ def LoadDynamicNodes():
                         Debug("Adding attribute: %s" % attr_name)
                         DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, is_output=isOutput, description=attr['desc'])
 
+                # PrintDict("DynNodeClassAttrs for %s" % pluginName, DynNodeClassAttrs)
+
                 DynNodeClass = type(
                     # Name
                     DynNodeClassName,
                     
                     # Inheritance
-                    (bpy.types.Node, base.Node, VRayTreeNode),
+                    (bpy.types.Node, base.Node, tree.VRayTreeNode),
                     
                     # Attributes
                     DynNodeClassAttrs
@@ -592,7 +597,7 @@ def LoadDynamicNodes():
 
                 DynNodeClass = type(
                     DynNodeClassName,
-                    (bpy.types.Node, VRayTreeNode),
+                    (bpy.types.Node, tree.VRayTreeNode),
                     DynNodeClassAttrs
                 )
 
@@ -623,10 +628,9 @@ def LoadDynamicNodes():
 ##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
 
-StaticClasses = (
-   
-    VRayNodeTree,
-    VRayWorldNodeTree,
+StaticClasses = (   
+    tree.VRayNodeTree,
+    tree.VRayWorldNodeTree,
   
     VRayNodeOutput,
     VRayNodeWorldOutput,

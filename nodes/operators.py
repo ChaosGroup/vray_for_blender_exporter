@@ -34,7 +34,6 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         VRayWorld = context.world.vray
 
         nt = bpy.data.node_groups.new("World", type='VRayWorldNodeTree')
-        nt.use_fake_user = False
 
         outputNode = nt.nodes.new('VRayNodeWorldOutput')
         
@@ -52,7 +51,6 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         idblock = context.material
 
         nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
-        nt.use_fake_user = False
 
         outputNode = nt.nodes.new('VRayNodeOutput')
 

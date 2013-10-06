@@ -24,7 +24,7 @@
 
 import bpy
 
-from pynodes_framework import base
+from pynodes_framework import parameter, base
 
 from vb25.ui import classes
 
@@ -43,10 +43,21 @@ class VRayData():
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
 
+class VRayTreeSockets(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = "VRayTreeSockets"
+ 
+    parameter_types = [parameter.NodeParamFloat, parameter.NodeParamInt, parameter.NodeParamBool, parameter.NodeParamColor,
+                       parameter.NodeParamVector, parameter.NodeParamPoint, parameter.NodeParamNormal, parameter.NodeParamMatrix,
+                       parameter.NodeParamString]
+
+
 class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayShaderTreeType'
     bl_icon   = 'MATERIAL'
+
+    # !!! Associates trees with a socket type, needed for node group interfaces
+    socket_type = VRayTreeSockets
 
     # Return a node tree from the context to be used in the editor
     @classmethod

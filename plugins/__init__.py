@@ -66,37 +66,20 @@ def LoadPlugins(plugins, rna_pointer):
 		AddProperties(plugins[plugin], rna_pointer)
 
 
-def gen_material_menu_items(plugins):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID') and hasattr(plugins[plug], 'MAIN_BRDF')]
-
-	# We need to sort plugins by PID so that adding new plugins
-	# won't mess enum indexes in existing scenes
-	plugs= sorted(plugs, key=lambda plug: plug.PID)
-
-	enum_items= []
-	for plugin in plugs:
-		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
-
-	return enum_items
-
 def gen_menu_items(plugins, none_item= True):
-	plugs= [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID')]
+	plugs = [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID')]
 
 	# We need to sort plugins by PID so that adding new plugins
 	# won't mess enum indexes in existing scenes
-	plugs= sorted(plugs, key=lambda plug: plug.PID)
+	plugs = sorted(plugs, key=lambda plug: plug.PID)
 
-	enum_items= []
+	enum_items = []
 	if none_item:
 		enum_items.append(('NONE', "None", ""))
 	for plugin in plugs:
 		if not hasattr(plugin, 'ID'):
 			continue
 		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
-
-	# print("<Debug information. Remove this from release!>")
-	# for item in enum_items:
-	# 	print(" ", item)
 
 	return enum_items
 
@@ -1101,6 +1084,22 @@ def register():
 		options = {'FAKE_USER'},
 	))
 
+	idref.bpy_register_idref(VRayObject, 'ntree', idref.IDRefProperty(
+		"Node Tree",
+		"V-Ray object node tree",
+		idtype = 'NODETREE',
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeObject',
+		options = {'FAKE_USER'},
+	))
+
+	idref.bpy_register_idref(VRayLight, 'ntree', idref.IDRefProperty(
+		"Node Tree",
+		"V-Ray light node tree",
+		idtype = 'NODETREE',
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeLight',
+		options = {'FAKE_USER'},
+	))
+
 	bpy.types.ParticleSettings.vray= bpy.props.PointerProperty(
 		name= "V-Ray Particle Settings",
 		type=  VRayParticleSettings,
@@ -1176,14 +1175,16 @@ def register():
 	  Loading plugin properties
 	'''
 	LoadPlugins(PLUGINS['SETTINGS'],      VRayScene)
-	LoadPlugins(PLUGINS['TEXTURE'],       VRayTexture)
-	LoadPlugins(PLUGINS['UVWGEN'],        VRayTexture)
 	LoadPlugins(PLUGINS['GEOMETRY'],      VRayMesh)
 	LoadPlugins(PLUGINS['CAMERA'],        VRayCamera)
-	LoadPlugins(PLUGINS['MATERIAL'],      VRayMaterial)
-	LoadPlugins(PLUGINS['BRDF'],          VRayMaterial)
 	LoadPlugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
 	LoadPlugins(PLUGINS['OBJECT'],        VRayObject)
+
+	LoadPlugins(PLUGINS['TEXTURE'],       VRayTexture)
+	LoadPlugins(PLUGINS['UVWGEN'],        VRayTexture)
+
+	LoadPlugins(PLUGINS['MATERIAL'],      VRayMaterial)
+	LoadPlugins(PLUGINS['BRDF'],          VRayMaterial)
 
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddProperties(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
@@ -1220,6 +1221,8 @@ def unregister():
 
 	idref.bpy_unregister_idref(VRayMaterial, 'ntree')
 	idref.bpy_unregister_idref(VRayWorld, 'ntree')
+	idref.bpy_unregister_idref(VRayObject, 'ntree')
+	idref.bpy_unregister_idref(VRayLight, 'ntree')
 
 	for pluginType in PLUGINS:
 		for plugin in PLUGINS[pluginType]:
