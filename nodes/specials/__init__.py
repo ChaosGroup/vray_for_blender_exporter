@@ -22,34 +22,20 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [ 'export' ]
+__all__ = []
 
 
 def register():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
+    from . import outputs
+    from . import selector
     
-    operators.register()
-    
-    tree.register()
-    sockets.register()
-    nodes.register()
-    specials.register()
+    outputs.register()
+    selector.register()
 
 
 def unregister():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-
-    specials.unregister()
-    nodes.unregister()
-    sockets.unregister()
-    tree.unregister()
-
-    operators.unregister()
+    from . import outputs
+    from . import selector
+    
+    outputs.unregister()
+    selector.unregister()

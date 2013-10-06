@@ -24,12 +24,22 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.ui import classes
 
 
-def engine_poll(cls, context):
-	rd= context.scene.render
-	return (context.object and (context.object.type not in ('LAMP','CAMERA','ARMATURE'))) and (rd.engine in cls.COMPAT_ENGINES)
+class VRAY_OBP_context_node(classes.VRayObjectPanel):
+	bl_label = ""
+	bl_options = {'HIDE_HEADER'}
+
+	def draw(self, context):
+		VRayObject = context.object.vray
+
+		split = self.layout.split()
+		row = split.row(align=True)
+		idref.draw_idref(row, VRayObject, 'ntree', text="Node Tree")
+		row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 
 
 class VRAY_OBP_override(classes.VRayObjectPanel):
@@ -433,6 +443,7 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 
 def GetRegClasses():
 	return (
+		VRAY_OBP_context_node,
 		VRAY_OBP_override,
 		VRAY_OBP_wrapper,
 		VRAY_OBP_render,

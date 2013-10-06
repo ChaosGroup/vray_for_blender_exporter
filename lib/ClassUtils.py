@@ -24,6 +24,8 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from . import AttributeUtils
 
 
@@ -35,12 +37,24 @@ def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
 
     if hasattr(bpy.types, propGroupName):
         DynPropGroup = getattr(bpy.types, propGroupName)
+        
     else:
-        DynPropGroup = type(propGroupName, (bpy.types.PropertyGroup,), dict())
+        classMembers = {}
+
+        for param in pluginModule.PluginParams:
+            AttributeUtils.GenerateAttribute(classMembers, param)
+
+        if hasattr(pluginModule, 'PluginRefs'):
+            for ref in pluginModule.PluginRefs:
+                AttributeUtils.GenerateIDRef(classMembers, ref)
+
+        DynPropGroup = type(propGroupName, (bpy.types.PropertyGroup,), classMembers)
+        
         bpy.utils.register_class(DynPropGroup)
 
-    for param in pluginModule.PluginParams:
-        AttributeUtils.GenerateAttribute(DynPropGroup, param)
+        if hasattr(pluginModule, 'PluginRefs'):
+            for ref in pluginModule.PluginRefs:
+                idref.bpy_register_idref(DynPropGroup, ref['attr'], getattr(DynPropGroup, ref['attr']))
 
     setattr(dataPointer, propGroupName, bpy.props.PointerProperty(
         attr        = propGroupName,

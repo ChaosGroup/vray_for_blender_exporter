@@ -24,6 +24,8 @@
 
 from . import AttributeUtils
 
+from pynodes_framework import idref
+
 
 def Draw(context, layout, dataPointer, PluginParams):
     for attrDesc in PluginParams:
@@ -34,4 +36,8 @@ def Draw(context, layout, dataPointer, PluginParams):
         if attrDesc['type'] in AttributeUtils.InputTypes:
             continue
 
-        layout.prop(dataPointer, attrDesc['attr'])
+        if attrDesc['type'] in {'IMAGE'}:
+            if 0:
+                idref.draw_idref(layout, dataPointer, attrDesc['attr'])
+        else:
+            layout.prop(dataPointer, attrDesc['attr'])

@@ -24,6 +24,8 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.ui import classes
 
 
@@ -53,10 +55,21 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
 			elif lamp:
 				layout.template_ID(space, 'pin_id')
 
+		layout.separator()
+
 		if wide_ui:
 			layout.prop(lamp, 'type', expand=True)
 		else:
 			layout.prop(lamp, 'type')
+
+		layout.separator()
+
+		VRayLight = lamp.vray
+
+		split = self.layout.split()
+		row = split.row(align=True)
+		idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
+		row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="")
 
 
 class VRAY_DP_light(classes.VRayLampPanel):

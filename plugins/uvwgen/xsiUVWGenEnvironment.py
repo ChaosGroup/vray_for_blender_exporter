@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -22,34 +22,31 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [ 'export' ]
+import bpy
 
 
-def register():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-    
-    operators.register()
-    
-    tree.register()
-    sockets.register()
-    nodes.register()
-    specials.register()
+TYPE = 'UVWGEN'
+ID   = 'xsiUVWGenEnvironment'
+NAME = 'Environment (XSI)'
+DESC = ""
 
-
-def unregister():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-
-    specials.unregister()
-    nodes.unregister()
-    sockets.unregister()
-    tree.unregister()
-
-    operators.unregister()
+PluginParams = (
+    {
+        'attr' : 'uvw_matrix',
+        'desc' : "Transformation of the input directions",
+        'type' : 'MATRIX',
+        'default' : None,
+    },
+    {
+        'attr' : 'uvw_transform',
+        'desc' : "Transformation of the resulting UVW coordinates",
+        'type' : 'TRANSFORM',
+        'default' : None,
+    },
+    {
+        'attr' : 'mapping_type',
+        'desc' : "spherical(0), cylindrical(1), cubic strip(2), cubic cross sideways(3), cubic cross(4)",
+        'type' : 'INT',
+        'default' : 1,
+    },
+)

@@ -25,6 +25,59 @@
 import bpy
 
 
+class VRAY_OT_open_image(bpy.types.Operator):
+    bl_idname      = "vray.open_image"
+    bl_label       = "Open Image File"
+    bl_description = "Open image file"
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+
+class VRAY_OT_add_nodetree_light(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_light"
+    bl_label       = "Add Light Nodetree"
+    bl_description = ""
+
+    def execute(self, context):
+        VRayObject = context.object.vray
+
+        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeObject')
+
+        outputNode = nt.nodes.new('VRayNodeObjectOutput')
+
+        materialInput = nt.nodes.new('VRayNodeObjectMaterialInput')
+        materialInput.location.x  = outputNode.location.x - 200
+
+        nt.links.new(materialInput.outputs['Material'], outputNode.inputs['Material'])
+
+        VRayObject.ntree = nt
+
+        return {'FINISHED'}
+
+
+class VRAY_OT_add_nodetree_object(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_object"
+    bl_label       = "Add Object Nodetree"
+    bl_description = ""
+
+    def execute(self, context):
+        VRayObject = context.object.vray
+
+        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeObject')
+
+        outputNode = nt.nodes.new('VRayNodeObjectOutput')
+
+        materialInput = nt.nodes.new('VRayNodeObjectMaterialInput')
+        materialInput.location.x  = outputNode.location.x - 200
+
+        nt.links.new(materialInput.outputs['Material'], outputNode.inputs['Material'])
+
+        VRayObject.ntree = nt
+
+        return {'FINISHED'}
+
+
 class VRAY_OT_add_world_nodetree(bpy.types.Operator):
     bl_idname      = "vray.add_world_nodetree"
     bl_label       = "Add World Nodetree"
@@ -48,9 +101,9 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
     bl_description = ""
 
     def execute(self, context):
-        idblock = context.material
+        VRayMaterial = context.material.vray
 
-        nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
+        nt = bpy.data.node_groups.new(context.material.name, type='VRayShaderTreeType')
 
         outputNode = nt.nodes.new('VRayNodeOutput')
 
@@ -66,7 +119,7 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
                 
         nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
 
-        idblock.vray.ntree = nt
+        VRayMaterial.ntree = nt
         
         return {'FINISHED'}
 
@@ -123,7 +176,6 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
         return {'FINISHED'}
 
 
-
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
@@ -134,9 +186,13 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
 
 def GetRegClasses():
     return (
+        VRAY_OT_open_image,
+        
         VRAY_OT_node_add_brdf_layered_sockets,
         VRAY_OT_node_del_brdf_layered_sockets,
         
+        VRAY_OT_add_nodetree_light,
+        VRAY_OT_add_nodetree_object,
         VRAY_OT_add_material_nodetree,
         VRAY_OT_add_world_nodetree,
     )

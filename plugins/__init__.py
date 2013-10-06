@@ -97,7 +97,7 @@ base_dir = os.path.join(get_vray_exporter_path(), "plugins")
 if not base_dir or not os.path.exists(base_dir):
 	Debug("Plugin directory not found!", msgType='ERROR')
 else:
-	for subdir in ("", "brdf", "texture", "material", "uvwgen", "geometry", "settings", "renderchannel"):
+	for subdir in ("", "brdf", "texture", "material", "uvwgen", "light", "geometry", "settings", "renderchannel"):
 		plugins_dir = os.path.join(base_dir, subdir)
 
 		if not plugins_dir in sys.path:
@@ -1179,6 +1179,8 @@ def register():
 	LoadPlugins(PLUGINS['CAMERA'],        VRayCamera)
 	LoadPlugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)
 	LoadPlugins(PLUGINS['OBJECT'],        VRayObject)
+
+	LoadPlugins(PLUGINS['LIGHT'],         VRayLight)
 
 	LoadPlugins(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPlugins(PLUGINS['UVWGEN'],        VRayTexture)

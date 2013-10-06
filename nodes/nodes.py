@@ -41,23 +41,6 @@ from vb25.lib import CallbackUI
 from . import tree
 
 
-########  ######## ######## #### ##    ## ########  ######  
-##     ## ##       ##        ##  ###   ## ##       ##    ## 
-##     ## ##       ##        ##  ####  ## ##       ##       
-##     ## ######   ######    ##  ## ## ## ######    ######  
-##     ## ##       ##        ##  ##  #### ##             ## 
-##     ## ##       ##        ##  ##   ### ##       ##    ## 
-########  ######## ##       #### ##    ## ########  ######  
-
-VRAY_SOCKET_TYPE = {
-    'BRDF'          : 'VRaySocketBRDF',
-    'MATERIAL'      : 'VRaySocketMtl',
-    'COLOR'         : 'VRaySocketColor',
-    'TEXTURE'       : 'VRaySocketColor',
-    'FLOAT_TEXTURE' : 'VRaySocketFloatColor',
-}
-
-
 ##     ## ######## #### ##       #### ######## #### ########  ######  
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##       
@@ -106,158 +89,6 @@ def GetActiveNode(nodetree):
     if not nodetree:
         return None
     return nodetree.nodes[-1]
-
-
- #######  ##     ## ######## ########  ##     ## ######## 
-##     ## ##     ##    ##    ##     ## ##     ##    ##    
-##     ## ##     ##    ##    ##     ## ##     ##    ##    
-##     ## ##     ##    ##    ########  ##     ##    ##    
-##     ## ##     ##    ##    ##        ##     ##    ##    
-##     ## ##     ##    ##    ##        ##     ##    ##    
- #######   #######     ##    ##         #######     ##    
-
-# <lukas_t> instead of limiting to 1 node instance you could also allow
-#           multiple nodes but have an exclusive "enable" option on them
-# <lukas_t> enable node -> all others of same type get disabled
-
-class VRayNodeOutput(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeOutput'
-    bl_label  = 'Material Output'
-    bl_icon   = 'VRAY_LOGO'
-
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
-    
-    def init(self, context):
-        AddInput(self, 'VRaySocketMtl', "Material")
-
-
-class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeWorldOutput'
-    bl_label  = 'World Output'
-    bl_icon   = 'VRAY_LOGO'
-
-    gi_tex = bpy.props.BoolProperty(
-        name        = "Override GI",
-        description = "Override environment for GI",
-        default     = False
-    )
-    
-    reflect_tex = bpy.props.BoolProperty(
-        name        = "Override Reflect",
-        description = "Override environment for reflection",
-        default     = False
-    )
-
-    refract_tex = bpy.props.BoolProperty(
-        name        = "Override Refract",
-        description = "Override environment for refraction",
-        default     = False
-    )
-
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
-
-    def draw_buttons(self, context, layout):
-        layout.prop(self, 'gi_tex')
-        layout.prop(self, 'reflect_tex')
-        layout.prop(self, 'refract_tex')
-
-    def init(self, context):
-        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex')
-        AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
-        AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
-        AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
-
-
- ######   #######   #######  ########  ########   ######  
-##    ## ##     ## ##     ## ##     ## ##     ## ##    ## 
-##       ##     ## ##     ## ##     ## ##     ## ##       
-##       ##     ## ##     ## ########  ##     ##  ######  
-##       ##     ## ##     ## ##   ##   ##     ##       ## 
-##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
- ######   #######   #######  ##     ## ########   ######  
-
-class VRayNodeUVChannel(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeUVChannel'
-    bl_label  = 'UV Channel'
-    bl_icon   = 'VRAY_LOGO'
-
-    uv_layer = bpy.props.StringProperty(
-        name        = "Layer",
-        description = "UV layer name",
-        default     = ""
-    )
-
-    repeat_u = bpy.props.FloatProperty(
-        name        = "Tile U",
-        description = "Tile in U",
-        min         = 0.0,
-        max         = 1000.0,
-        soft_min    = 1,
-        soft_max    = 20.0,
-        default     = 1.0
-    )
-
-    repeat_v = bpy.props.FloatProperty(
-        name        = "Tile V",
-        description = "Tile in V",
-        min         = 0.0,
-        max         = 1000.0,
-        soft_min    = 1.0,
-        soft_max    = 20.0,
-        default     = 1.0
-    )
-
-    mirror_u = bpy.props.BoolProperty(
-        name        = "Mirror U",
-        description = "Mirror in U",
-        default     = False
-    )
-
-    mirror_v = bpy.props.BoolProperty(
-        name        = "Mirror V",
-        description = "Mirror in V",
-        default     = False
-    )
-
-    rotate_frame = bpy.props.FloatProperty(
-        name        = "Rotation",
-        description = "Texture rotation",
-        subtype     = 'ANGLE',
-        soft_min    = -math.pi,
-        soft_max    =  math.pi,
-        default     = 0.0
-    )
-
-    def init(self, context):
-        AddInput(self,  'VRaySocketCoords', "Mapping", 'uvwgen')
-        AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
-
-    def draw_buttons(self, context, layout):
-        ob = context.object
-
-        split = layout.split(percentage=0.3)
-        split.label(text="Layer:")
-        if ob and ob.type == 'MESH':
-            split.prop_search(self,    'uv_layer',
-                              ob.data, 'uv_textures',
-                              text="")
-        else:
-            split.prop(self, 'uv_layer', text="")
-        
-        split = layout.split()
-        col = split.column(align=True)
-        col.prop(self, 'repeat_u')
-        col.prop(self, 'repeat_v')
-
-        split = layout.split()
-        col = split.column(align=True)
-        col.prop(self, 'mirror_u')
-        col.prop(self, 'mirror_v')
-        
-        split = layout.split()
-        split.prop(self, 'rotate_frame')
 
 
 ######## ######## ##     ## ######## ##     ## ########  ######## 
@@ -359,7 +190,9 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeOutput)
-        add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)        
+        add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeObjectMaterialInput)
 
 
 class VRayNodesMenuMapping(bpy.types.Menu, tree.VRayData):
@@ -456,53 +289,21 @@ def VRayNodeInit(self, context):
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     bpyType    = getattr(bpy.types, self.vray_plugin)
 
-    if hasattr(vrayPlugin, 'PluginParams'):
-        for attr in vrayPlugin.PluginParams:
-            attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+    for attr in vrayPlugin.PluginParams:
+        attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
-            if attr['type'] in AttributeUtils.InputTypes:
-                AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
+        if attr['type'] in AttributeUtils.InputTypes:
+            AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
-            if attr['type'] in AttributeUtils.OutputTypes:
-                AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
+        if attr['type'] in AttributeUtils.OutputTypes:
+            AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
     
-    else:
-        Debug("Plugin \"%s\" uses legacy registration system!" % self.vray_plugin, msgType='INFO')
-
-        for prop in bpyType.bl_rna.properties:
-            if prop.name in ['RNA', 'Name']:
-                continue
-            
-            # Debug("  Property: %s \"%s\" [%s]" % (prop.identifier, prop.name, prop.default))
-            if prop.name in self.inputs:
-                continue
-
-            if hasattr(vrayPlugin, 'MAPPED_PARAMS'):
-                if prop.identifier in vrayPlugin.MAPPED_PARAMS:
-                    socketType = VRAY_SOCKET_TYPE[vrayPlugin.MAPPED_PARAMS[prop.identifier]]
-                    
-                    default = prop.default
-                    if prop.type == 'FLOAT' and prop.subtype == 'COLOR':
-                        default = prop.default_array
-
-                    AddInput(self, socketType, prop.name, prop.identifier, default)
-            else:
-                # Try to guess type
-                if prop.type == 'STRING':
-                    AddInput(self, 'VRaySocketBRDF', prop.name, prop.identifier)
-                elif prop.type == 'FLOAT':
-                    if prop.subtype == 'COLOR':
-                        AddInput(self, 'VRaySocketColor', prop.name, prop.identifier, prop.default_array)
-
     if self.vray_type == 'TEXTURE':
         AddOutput(self, 'VRaySocketColor', "Output")
-    
-    elif self.vray_type == 'UVWGEN':    
+    elif self.vray_type == 'UVWGEN':
         AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
-    
     elif self.vray_type == 'BRDF':
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
-
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
 
@@ -617,7 +418,6 @@ def LoadDynamicNodes():
 
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
-    VRayNodeTypes['UVWGEN'].append(bpy.types.VRayNodeUVChannel)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
@@ -628,14 +428,7 @@ def LoadDynamicNodes():
 ##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
 
-StaticClasses = (   
-    tree.VRayNodeTree,
-    tree.VRayWorldNodeTree,
-  
-    VRayNodeOutput,
-    VRayNodeWorldOutput,
-
-    VRayNodeUVChannel,
+StaticClasses = (
     VRayNodeTexLayered,    
     VRayNodeBRDFLayered,
 

@@ -91,14 +91,3 @@ PluginParams = (
         'default' : False,
     },
 )
-
-
-def writeDatablock(bus, MtlOverride, pluginName, mappedParams):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-
-    ofile.write("\nMtlOverride %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, MtlOverride, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName

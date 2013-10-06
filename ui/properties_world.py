@@ -24,10 +24,10 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.ui      import classes
 from vb25.plugins import PLUGINS
-
-from ..pynodes_framework import idref
 
 
 class VRAY_WP_context_world(classes.VRayWorldPanel):

@@ -24,6 +24,8 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.lib   import ExportUtils, utils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 from vb25.utils import get_full_filepath
@@ -140,18 +142,20 @@ PluginParams = (
 
     {
         'attr' : 'file',
-        'desc' : "The file name; can contain <UDIM> or <UVTILE> tags for Mari or Mudbox tiles respectively,or $nU and $nV for explicit tiles; lower-case tags consider the tiles as starting from 0 whereas upper-case tags start from 1",
+        'desc' : "The file name; can contain <UDIM> or <UVTILE> tags for Mari or Mudbox tiles respectively, or $nU and $nV for explicit tiles; lower-case tags consider the tiles as starting from 0 whereas upper-case tags start from 1",
         'type' : 'STRING',
         'subtype' : 'FILE_PATH',
         'skip' : True,
         'default' : "",
     },
+)
+
+PluginRefs = (
     {
         'attr' : 'image',
-        'desc' : "",
-        'type' : 'STRING',
-        'skip' : True,
-        'default' : "",
+        'desc' : "Image pointer",
+        'type' : 'IMAGE',
+        'default' : None,
     },
 )
 
@@ -159,24 +163,22 @@ PluginParams = (
 def nodeDraw(context, layout, BitmapBuffer):
     split = layout.split()
     row = split.row(align=True)
-    row.prop_search(BitmapBuffer, 'image', bpy.data, 'images', text="", icon='FILE_IMAGE')
-    row.operator("image.open", text="", icon='FILE_FOLDER')
+    # idref.draw_idref(row, BitmapBuffer, 'image', text="")
+    row.operator("vray.open_image", icon='ZOOMIN', text="")
 
 
 def writeDatablock(bus, BitmapBuffer, pluginName, mappedParams):
     ofile = bus['files']['textures']
     scene = bus['scene']
 
-    ofile.write("\nBitmapBuffer %s {" % pluginName)
+    ofile.write("\n%s %s {" % (ID, pluginName))
 
-    if BitmapBuffer.image in bpy.data.images:
-        image = bpy.data.images[BitmapBuffer.image]
+    # XXX: Wait for lucas_t fix...
+    # if BitmapBuffer.image:
+    #     filepath = get_full_filepath(bus, BitmapBuffer.image, BitmapBuffer.image.filepath)
+    #     ofile.write('\n\tfile="%s";' % utils.AnimatedValue(scene, filepath))
 
-        filepath = get_full_filepath(bus, image, image.filepath)
-
-        ofile.write('\n\tfile="%s";' % utils.AnimatedValue(scene, filepath))
-
-    ExportUtils.WritePluginParams(bus, ofile, BitmapBuffer, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, BitmapBuffer, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 

@@ -24,6 +24,8 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.debug import Debug, PrintDict
 
 
@@ -37,6 +39,7 @@ PluginTypes = {
 
 SkippedTypes = {
     'LIST',
+    'MATRIX',
     'TRANSFORM',
     'TRANSFORM_TEXTURE',
 }
@@ -109,15 +112,26 @@ def GetNameFromAttr(attr):
     return attr.replace("_", " ").title()
 
 
-def GenerateAttribute(dataPointer, attrDesc):
+def GenerateIDRef(classMembers, attrDesc):
+    attrArgs = {
+        'attr'        : attrDesc['attr'],
+        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
+        'description' : attrDesc['desc'],
+        'default'     : attrDesc['default'],
+    }
+    
+    if attrDesc['type'] in {'IMAGE'}:
+        classMembers[attrDesc['attr']] = idref.IDRefProperty(
+            attrArgs['name'],
+            attrArgs['description'],
+            idtype = attrDesc['type'],
+            options = {'FAKE_USER'},
+        )
+
+
+def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in SkippedTypes:
         return
-
-    # PrintDict("attrDesc", attrDesc)
-
-    defUi = None
-
-    attrFunc = TypeToProp[attrDesc['type']]
 
     attrArgs = {
         'attr'        : attrDesc['attr'],
@@ -125,6 +139,9 @@ def GenerateAttribute(dataPointer, attrDesc):
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
     }
+    
+    defUi    = None
+    attrFunc = TypeToProp[attrDesc['type']]
 
     if attrDesc['type'] in {'STRING'}:
         pass
@@ -169,4 +186,4 @@ def GenerateAttribute(dataPointer, attrDesc):
         attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', defUi['soft_min'])
         attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', defUi['soft_max'])
 
-    setattr(dataPointer, attrDesc['attr'], attrFunc(**attrArgs))
+    classMembers[attrDesc['attr']] = attrFunc(**attrArgs)

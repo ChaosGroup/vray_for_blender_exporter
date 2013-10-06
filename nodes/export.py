@@ -64,41 +64,6 @@ def GetOutputNode(nodetree):
     return GetNodeByType(nodetree, 'VRayNodeOutput')
 
 
- ######   #######   #######  ########  ########   ######  
-##    ## ##     ## ##     ## ##     ## ##     ## ##    ## 
-##       ##     ## ##     ## ##     ## ##     ## ##       
-##       ##     ## ##     ## ########  ##     ##  ######  
-##       ##     ## ##     ## ##   ##   ##     ##       ## 
-##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
- ######   #######   #######  ##     ## ########   ######  
-
-def WriteUVWGenMayaPlace2dTexture(bus, nodetree, node):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
-
-    uvwgen = None
-    uvwgenSocket = node.inputs['Mapping']
-    if uvwgenSocket.is_linked:
-        uvwgenNode = GetConnectedNode(nodetree, uvwgenSocket)
-        uvwgen     = WriteNode(bus, nodetree, uvwgenNode)
-
-    pluginName = clean_string("nt%sns%s" % (nodetree.name, node.name))
-
-    ofile.write("\nUVWGenMayaPlace2dTexture %s {" % pluginName)
-    if node.uv_layer:
-        ofile.write('\n\tuv_set_name="%s";' % clean_string(node.uv_layer))
-    ofile.write("\n\tmirror_u=%d;" % node.mirror_u)
-    ofile.write("\n\tmirror_v=%d;" % node.mirror_v)
-    ofile.write("\n\trepeat_u=%d;" % node.repeat_u)
-    ofile.write("\n\trepeat_v=%d;" % node.repeat_v)
-    ofile.write("\n\trotate_frame=%.3f;" % node.rotate_frame)
-    if uvwgen is not None:
-        ofile.write("\n\tuvwgen=%s;" % uvwgen)
-    ofile.write("\n}\n")
-
-    return pluginName
-
-
 ##          ###    ##    ## ######## ########  ######## ########  
 ##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
 ##        ##   ##    ####   ##       ##     ## ##       ##     ## 
@@ -181,8 +146,6 @@ def WriteNode(bus, nodetree, node):
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
-    elif node.bl_idname == 'VRayNodeUVChannel':
-        return WriteUVWGenMayaPlace2dTexture(bus, nodetree, node)
 
     pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
 

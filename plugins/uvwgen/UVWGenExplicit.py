@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -22,34 +22,37 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [ 'export' ]
+import bpy
 
 
-def register():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-    
-    operators.register()
-    
-    tree.register()
-    sockets.register()
-    nodes.register()
-    specials.register()
+TYPE = 'UVWGEN'
+ID   = 'UVWGenExplicit'
+NAME = 'Explicit'
+DESC = ""
 
-
-def unregister():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-
-    specials.unregister()
-    nodes.unregister()
-    sockets.unregister()
-    tree.unregister()
-
-    operators.unregister()
+PluginParams = (
+    {
+        'attr' : 'u',
+        'desc' : "the U input",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'v',
+        'desc' : "the V input",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'w',
+        'desc' : "the W input",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'uvw',
+        'desc' : "",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0, 1.0),
+    },
+)

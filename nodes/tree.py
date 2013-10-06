@@ -24,7 +24,7 @@
 
 import bpy
 
-from pynodes_framework import parameter, base
+from pynodes_framework import parameter, base, group
 
 from vb25.ui import classes
 
@@ -109,3 +109,88 @@ class VRayWorldNode:
     @classmethod
     def poll(cls, node_tree):
         return node_tree.bl_idname == 'VRayWorldNodeTree'
+
+
+ #######  ########        ## ########  ######  ######## 
+##     ## ##     ##       ## ##       ##    ##    ##    
+##     ## ##     ##       ## ##       ##          ##    
+##     ## ########        ## ######   ##          ##    
+##     ## ##     ## ##    ## ##       ##          ##    
+##     ## ##     ## ##    ## ##       ##    ##    ##    
+ #######  ########   ######  ########  ######     ##    
+
+class VRayNodeTreeObject(bpy.types.NodeTree, base.NodeTree, VRayData):
+    bl_label  = "V-Ray Object Node Tree"
+    bl_idname = 'VRayNodeTreeObject'
+    bl_icon   = 'OBJECT_DATA'
+
+    @classmethod
+    def get_from_context(cls, context):
+        ob = context.active_object
+        if ob and ob.type not in {'LAMP', 'CAMERA'}:
+            if ob.vray.ntree:
+                return ob.vray.ntree, ob, ob
+        return (None, None, None)
+
+
+class VRayObjectNode:
+    @classmethod
+    def poll(cls, node_tree):
+        return node_tree.bl_idname == 'VRayNodeTreeObject'
+
+
+##       ####  ######   ##     ## ######## 
+##        ##  ##    ##  ##     ##    ##    
+##        ##  ##        ##     ##    ##    
+##        ##  ##   #### #########    ##    
+##        ##  ##    ##  ##     ##    ##    
+##        ##  ##    ##  ##     ##    ##    
+######## ####  ######   ##     ##    ##      
+
+class VRayNodeTreeLight(bpy.types.NodeTree, base.NodeTree, VRayData):
+    bl_label  = "V-Ray Light Node Tree"
+    bl_idname = 'VRayNodeTreeLight'
+    bl_icon   = 'LAMP_SUN'
+
+    @classmethod
+    def get_from_context(cls, context):
+        ob = context.active_object
+        if ob and ob.type == 'LAMP':
+            if ob.data.vray.ntree:
+                return ob.data.vray.ntree, ob.data, ob.data
+        return (None, None, None)
+
+
+class VRayLightNode:
+    @classmethod
+    def poll(cls, node_tree):
+        return node_tree.bl_idname == 'VRayNodeTreeLight'
+
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+
+def GetRegClasses():
+    return (
+        VRayNodeTree,
+        VRayNodeTreeObject,
+        VRayNodeTreeLight,
+        VRayWorldNodeTree,
+    )
+
+
+def register():
+    for regClass in GetRegClasses():
+        # Only for NodeGroup:
+        #  regClass.register_class()
+        bpy.utils.register_class(regClass)
+
+
+def unregister():
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)
