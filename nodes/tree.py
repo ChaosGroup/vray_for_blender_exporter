@@ -24,9 +24,9 @@
 
 import bpy
 
-from vb25.ui import classes
+from pynodes_framework import base
 
-from ..pynodes_framework import base
+from vb25.ui import classes
 
 
 class VRayData():

@@ -29,11 +29,11 @@ import math
 import bpy
 from bpy.props import *
 
+from pynodes_framework import idref
+
 from vb25.utils import *
 from vb25.debug import Debug
 from vb25.lib   import ClassUtils
-
-from ..pynodes_framework import idref
 
 
 PLUGINS = {

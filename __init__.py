@@ -22,6 +22,13 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+import sys
+
+directory = os.path.dirname(__file__)
+if directory not in sys.path:
+    sys.path.append(directory)
+
 if "bpy" in locals():
     import imp
     imp.reload(lib)

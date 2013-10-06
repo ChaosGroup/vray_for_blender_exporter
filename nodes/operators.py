@@ -31,15 +31,15 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
     bl_description = ""
 
     def execute(self, context):
-        idblock = context.world
+        VRayWorld = context.world.vray
 
         nt = bpy.data.node_groups.new("World", type='VRayWorldNodeTree')
-        nt.use_fake_user = True
-
-        idblock.vray.nodetree = nt.name
+        nt.use_fake_user = False
 
         outputNode = nt.nodes.new('VRayNodeWorldOutput')
-         
+        
+        VRayWorld.ntree = nt
+
         return {'FINISHED'}
 
 
@@ -52,8 +52,7 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         idblock = context.material
 
         nt = bpy.data.node_groups.new(idblock.name, type='VRayShaderTreeType')
-
-        idblock.vray.ntree = nt
+        nt.use_fake_user = False
 
         outputNode = nt.nodes.new('VRayNodeOutput')
 
@@ -67,7 +66,9 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
 
         nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
                 
-        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])        
+        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
+
+        idblock.vray.ntree = nt
         
         return {'FINISHED'}
 

@@ -29,6 +29,8 @@ import sys
 import bpy
 import mathutils
 
+from pynodes_framework import base, parameter
+
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
 
@@ -37,8 +39,6 @@ from vb25.lib import ClassUtils
 from vb25.lib import CallbackUI
 
 from .tree import *
-
-from ..pynodes_framework import base, parameter
 
 
 ########  ######## ######## #### ##    ## ########  ######  
@@ -560,7 +560,7 @@ def LoadDynamicNodes():
                 'vray_plugin' : pluginName,
             }
 
-            if 0:
+            if 1:
                 # XXX: Loads fine, but sockets are not drawn
                 #
                 for attr in vrayPlugin.PluginParams:
