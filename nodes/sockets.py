@@ -250,9 +250,8 @@ class VRaySocketVector(bpy.types.NodeSocket):
         if self.is_linked:
             layout.label(text)
         else:
-            split = layout.split(percentage=0.3)
-            split.prop(self, 'value', text="")
-            split.label(text=text)
+            layout.label(text=text)
+            layout.prop(self, 'value', text="")
 
     def draw_color(self, context, node):
         return (1.000, 0.819, 0.119, 1.000)
