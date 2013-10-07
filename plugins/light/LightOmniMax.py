@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightOmniMax'
-NAME = 'LightOmniMax'
+NAME = 'Omni (3ds max)'
 DESC = ""
 
 PluginParams = (

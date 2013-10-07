@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightDome'
-NAME = 'LightDome'
+NAME = 'Dome'
 DESC = ""
 
 PluginParams = (

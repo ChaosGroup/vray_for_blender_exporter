@@ -33,10 +33,7 @@ from pynodes_framework import base, parameter
 
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
-
-from vb25.lib import AttributeUtils
-from vb25.lib import ClassUtils
-from vb25.lib import CallbackUI
+from vb25.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
 
 from .        import tree
 from .sockets import AddInput, AddOutput
@@ -141,6 +138,7 @@ VRayNodeTypes = {
     'TEXTURE'  : [],
     'BRDF'     : [],
     'MATERIAL' : [],
+    'GEOMETRY' : [],
     'UVWGEN'   : [],
 }
 
@@ -158,6 +156,19 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeOutputMaterial)
         add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
         add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
+
+
+class VRayNodesMenuGeom(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuGeom"
+    bl_label  = "Geomtery"
+
+    def draw(self, context):
+        row = self.layout.row()
+        sub = row.column()
+        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['GEOMETRY'], key=lambda t: t.bl_label)):
+            if i and i % 15 == 0:
+                sub = row.column()
+            add_nodetype(sub, vrayNodeType)
 
 
 class VRayNodesMenuMapping(bpy.types.Menu, tree.VRayData):
@@ -224,6 +235,7 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuMaterial")
     self.layout.menu("VRayNodesMenuOutput")
     self.layout.menu("VRayNodesMenuSelector")
+    self.layout.menu("VRayNodesMenuGeom")
 
 
 #### ##    ## #### ########
@@ -248,11 +260,16 @@ def VRayNodeDraw(self, context, layout):
 
 
 def VRayNodeDrawSide(self, context, layout):
+    if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
+        return
+
     if context.scene.vray.exporter.nodesUseSidePanel:
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
-        if not hasattr(vrayPlugin, 'gui'):
-            return
-        vrayPlugin.gui(context, layout, getattr(self, self.vray_plugin))
+
+        if hasattr(vrayPlugin, 'gui'):
+            vrayPlugin.gui(context, layout, getattr(self, self.vray_plugin))
+        else:
+            DrawUtils.Draw(context, layout, getattr(self, self.vray_plugin), vrayPlugin.PluginParams)
 
 
 def VRayNodeInit(self, context):
@@ -279,6 +296,8 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
     elif self.vray_type == 'BRDF':
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
+    elif self.vray_type == 'GEOMETRY':
+        AddOutput(self, 'VRaySocketGeom', "Geomtery")
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
 
@@ -404,6 +423,7 @@ StaticClasses = (
     VRayNodesMenuMaterial,
     VRayNodesMenuOutput,
     VRayNodesMenuSelector,
+    VRayNodesMenuGeom,
 )
 
 

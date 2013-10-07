@@ -31,7 +31,6 @@ class VRAY_OT_AddTemplateMaterial(bpy.types.Operator):
     bl_description = "Add a simple material"
     bl_options     = {'REGISTER', 'UNDO'}
 
-
     def execute(self, context):
         return {'FINISHED'}
 

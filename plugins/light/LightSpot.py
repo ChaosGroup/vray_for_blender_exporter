@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightSpot'
-NAME = 'LightSpot'
+NAME = 'Spot'
 DESC = ""
 
 PluginParams = (

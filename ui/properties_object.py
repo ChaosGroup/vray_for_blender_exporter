@@ -194,64 +194,6 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
 
-class VRAY_OBP_displacement(classes.VRayObjectPanel):
-	bl_label = "Displacement"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		ob= context.object
-		VRayObject= ob.vray
-		GeomDisplacedMesh= VRayObject.GeomDisplacedMesh
-		self.layout.prop(GeomDisplacedMesh, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		ob= context.object
-		VRayObject= ob.vray
-		GeomDisplacedMesh= VRayObject.GeomDisplacedMesh
-
-		layout= self.layout
-		layout.active= GeomDisplacedMesh.use
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomDisplacedMesh, 'amount_type', text="Amount")
-		if GeomDisplacedMesh.amount_type == 'OVER':
-			col.prop(GeomDisplacedMesh, 'displacement_amount')
-		else:
-			col.prop(GeomDisplacedMesh, 'amount_mult')
-		col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
-		col.prop(GeomDisplacedMesh, 'water_level', slider=True)
-		col.prop(GeomDisplacedMesh, 'resolution')
-		col.prop(GeomDisplacedMesh, 'precision')
-		if wide_ui:
-			col= split.column()
-		col.prop(GeomDisplacedMesh, 'type')
-		col.prop(GeomDisplacedMesh, 'keep_continuity')
-		col.prop(GeomDisplacedMesh, 'filter_texture')
-		if GeomDisplacedMesh.filter_texture:
-			col.prop(GeomDisplacedMesh, 'filter_blur')
-		col.prop(GeomDisplacedMesh, 'use_bounds')
-		if GeomDisplacedMesh.use_bounds:
-			sub= col.column(align= True)
-			sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
-			sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomDisplacedMesh, 'use_globals')
-		if not GeomDisplacedMesh.use_globals:
-			split= layout.split()
-			col= split.column()
-			col.prop(GeomDisplacedMesh, 'edge_length')
-			col.prop(GeomDisplacedMesh, 'max_subdivs')
-			if wide_ui:
-				col= split.column()
-			col.prop(GeomDisplacedMesh, 'view_dep')
-			col.prop(GeomDisplacedMesh, 'tight_bounds')
-
-
 class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
 	bl_label = "Light"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -280,7 +222,7 @@ class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
 		if LightMesh.color_type == 'RGB':
 			sub= col.row(align= True)
 			sub.prop(LightMesh, 'color', text="")
-			sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.vray.LightMesh.color"
+			sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path="object.vray.LightMesh.color"
 		else:
 			col.prop(LightMesh, 'temperature', text="K")
 
@@ -447,7 +389,6 @@ def GetRegClasses():
 		VRAY_OBP_override,
 		VRAY_OBP_wrapper,
 		VRAY_OBP_render,
-		VRAY_OBP_displacement,
 		VRAY_OBP_lightmesh,
 		VRAY_OBP_subdivision,
 		VRAY_OBP_VRayPattern,

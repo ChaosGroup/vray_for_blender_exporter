@@ -37,7 +37,7 @@ PluginParams = (
     {
         'attr' : 'base_mtl',
         'desc' : "Base material",
-        'type' : 'PLUGIN',
+        'type' : 'MATERIAL',
         'default' : "",
     },
     {

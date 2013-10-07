@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightDirectMax'
-NAME = 'LightDirectMax'
+NAME = 'Direct (3ds max)'
 DESC = ""
 
 PluginParams = (

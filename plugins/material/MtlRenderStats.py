@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 
 TYPE = 'MATERIAL'
 ID   = 'MtlRenderStats'
@@ -37,7 +34,7 @@ PluginParams = (
     {
         'attr' : 'base_mtl',
         'desc' : "Base material",
-        'type' : 'PLUGIN',
+        'type' : 'MATERIAL',
         'default' : "",
     },
     {
@@ -73,8 +70,8 @@ PluginParams = (
     {
         'attr' : 'visibility',
         'desc' : "Overall visibility",
-        'type' : 'FLOAT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : True,
     },
 
     {
@@ -86,3 +83,13 @@ PluginParams = (
         'default' : False,
     },
 )
+
+
+def nodeDraw(context, layout, MtlRenderStats):
+    layout.prop(MtlRenderStats, 'visibility', text="Primary Visibility")
+    layout.label(text="Visible to:")
+    layout.prop(MtlRenderStats, 'camera_visibility', text="Camera")
+    layout.prop(MtlRenderStats, 'gi_visibility', text="GI")
+    layout.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
+    layout.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
+    layout.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")

@@ -28,7 +28,7 @@ __all__ = []
 def register():
     from . import outputs
     from . import selector
-    
+
     outputs.register()
     selector.register()
 
@@ -36,6 +36,6 @@ def register():
 def unregister():
     from . import outputs
     from . import selector
-    
+
     outputs.unregister()
     selector.unregister()

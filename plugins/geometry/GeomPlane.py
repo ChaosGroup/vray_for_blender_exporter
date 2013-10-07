@@ -27,15 +27,15 @@ import bpy
 
 TYPE = 'GEOMETRY'
 ID   = 'GeomPlane'
-NAME = 'Infinite place'
+NAME = 'Infinite Plane'
 DESC = "Procedural infinite plane"
 
+PluginParams = ()
 
-def add_properties(rna_pointer):
-    pass
 
-def write(bus):
+def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
     ofile = bus['files']['nodes']
-    scene = bus['scene']
 
-    ofile.write("\nGeomPlane %s {}\n" % bus['node']['geometry'])	
+    ofile.write("\nGeomPlane %s {}\n" % (ID, pluginName))
+
+    return pluginName

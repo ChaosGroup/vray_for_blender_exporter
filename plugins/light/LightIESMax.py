@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightIESMax'
-NAME = 'LightIESMax'
+NAME = 'IES (3ds max)'
 DESC = ""
 
 PluginParams = (

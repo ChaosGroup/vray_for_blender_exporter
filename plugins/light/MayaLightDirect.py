@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'MayaLightDirect'
-NAME = 'MayaLightDirect'
+NAME = 'Direct (Maya)'
 DESC = ""
 
 PluginParams = (

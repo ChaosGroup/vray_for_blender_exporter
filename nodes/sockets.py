@@ -94,7 +94,7 @@ class VRaySocketGeom(bpy.types.NodeSocket, base.NodeSocket):
         layout.label(text)
 
     def draw_color(self, context, node):
-        return (0.1, 0.1, 0.1, 1.0)
+        return (0.15, 0.15, 0.15, 1.0)
 
 
  #######  ########        ## ########  ######  ########

@@ -120,7 +120,6 @@ def write(bus):
 			ofile.write("\n\t\t),")
 			ofile.write("\n\t\tVector(0.0,0.0,0.0)")
 			ofile.write("\n\t);")
-			ofile.write("\n\tuvwgen=uvwNamedChannel;")
 			ofile.write("\n\tuvw_channel=%i;" % VRayBake.uvChannel)
 			ofile.write("\n}\n")
 

@@ -1,357 +1,270 @@
-'''
+#
+# V-Ray/Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
-from bpy.props import *
 
-''' vb modules '''
-from vb25.utils import *
+from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
-TYPE= 'GEOMETRY'
-ID=   'GeomDisplacedMesh'
+TYPE = 'GEOMETRY'
+ID   = 'GeomDisplacedMesh'
+NAME = "Displacement"
+DESC = "Displacement settings"
 
-NAME= 'Displace'
-DESC= "Displace settings"
 
-PARAMS= (
-	'displacement_amount',
-	'displacement_shift',
-	'water_level',
-	'use_globals',
-	'view_dep',
-	'edge_length',
-	'max_subdivs',
-	'keep_continuity',
-	'map_channel',
-	'use_bounds',
-	'min_bound',
-	'max_bound',
-	'resolution',
-	'precision',
-	'tight_bounds',
-	'filter_texture',
-	'filter_blur'
+PluginParams = (
+    {
+        'attr' : 'mesh',
+        'desc' : "The triangle mesh that will be displaced",
+        'type' : 'GEOMETRY',
+        'default' : "",
+    },
+    {
+        'attr' : 'displacement_tex_color',
+        'name' : "Vector Texture",
+        'desc' : "The displacement texture",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0, 1.0),
+    },
+    {
+        'attr' : 'displacement_tex_float',
+        'name' : "Float Texture",
+        'desc' : "The displacement texture",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'displacement_amount',
+        'desc' : "Determines the displacement amount for white areas in the displacement map; if use_globals is true this is multiplied by the global displacement amount option",
+        'type' : 'FLOAT',
+        'default' : 0.25,
+    },
+    {
+        'attr' : 'displacement_shift',
+        'desc' : "This constant value is added to the displacement map",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'use_globals',
+        'desc' : "If true, the global displacement quality settings will be used",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'view_dep',
+        'desc' : "If use_globals is false, this determines if view-dependent tesselation is used",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'edge_length',
+        'desc' : "If use_globals is false, this determines the approximate edge length for the sub-triangles",
+        'type' : 'FLOAT',
+        'default' : 4,
+    },
+    {
+        'attr' : 'max_subdivs',
+        'desc' : "If use_globals is false, this determines the maximum subdivisions for a triangle of the original mesh",
+        'type' : 'INT',
+        'default' : 256,
+    },
+    {
+        'attr' : 'keep_continuity',
+        'desc' : "If true, the plugin will attempt to keep the continuity of the displaced surface",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'water_level',
+        'desc' : "Geometry below this displacement level will be clipped away",
+        'type' : 'FLOAT',
+        'default' : -1e+30,
+    },
+    {
+        'attr' : 'map_channel',
+        'desc' : "The mapping channel to use for vector and 2d displacement",
+        'type' : 'INT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'static_displacement',
+        'desc' : "If true, the resulting triangles of the displacement algorithm will be inserted into the rayserver as static geometry",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'image_width',
+        'desc' : "This parameter overrides the imgWidth paramter from VRayFrameData during the calculation of the subdivision depth",
+        'type' : 'INT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'cache_normals',
+        'desc' : "If this option is equal to 1 then the normals of the generated triangles are cached",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'use_bounds',
+        'desc' : "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'min_bound',
+        'desc' : "The lowest value for the displacement texture",
+        'type' : 'COLOR',
+        'default' : (0, 0, 0),
+    },
+    {
+        'attr' : 'max_bound',
+        'desc' : "The biggest value for the displacement texture",
+        'type' : 'COLOR',
+        'default' : (1, 1, 1),
+    },
+    {
+        'attr' : 'resolution',
+        'desc' : "Resolution at which to sample the displacement map for 2d displacement",
+        'type' : 'INT',
+        'default' : 256,
+    },
+    {
+        'attr' : 'precision',
+        'desc' : "Increase for curved surfaces to avoid artifacts",
+        'type' : 'INT',
+        'default' : 8,
+    },
+    {
+        'attr' : 'tight_bounds',
+        'desc' : "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'filter_texture',
+        'desc' : "Filter the texture for 2d displacement",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'filter_blur',
+        'desc' : "The amount of UV space to average for filtering purposes. A value of 1.0 will average thw whole texture",
+        'type' : 'FLOAT',
+        'default' : 0.001,
+    },
+
+
+    # {
+    #     'attr' : 'displace_2d',
+    #     'desc' : "Use to enable 2d displacement. Overrides the vector_displacement flag",
+    #     'type' : 'BOOL',
+    #     'default' : False,
+    # },
+    # {
+    #     'attr' : 'vector_displacement',
+    #     'desc' : "When this is 1, the red, green and blue channels of displacement_tex_color will be used to perform vector displacement with base 0.5; if this is 2, then the map matches the Mudbox displacement maps",
+    #     'type' : 'INT',
+    #     'default' : 0,
+    # },
+    {
+        'attr' : 'type',
+        'desc' : "Displacement type",
+        'type' : 'ENUM',
+        'items' : (
+            ('NOR', "Normal", "Normal displacement"),
+            ('2D',  "2D",     "2D displacement"),
+            ('3D',  "Vector", "Vector displacement"),
+        ),
+        'skip' : True,
+        'default' : 'NOR',
+    },
 )
 
-def add_properties(rna_pointer):
-	class GeomDisplacedMesh(bpy.types.PropertyGroup):
-		pass
-	bpy.utils.register_class(GeomDisplacedMesh)
 
-	rna_pointer.GeomDisplacedMesh= PointerProperty(
-		name= "GeomDisplacedMesh",
-		type=  GeomDisplacedMesh,
-		description= "GeomDisplacedMesh texture slot settings"
-	)
-
-	GeomDisplacedMesh.use= BoolProperty(
-		name= "Override displacement settings",
-		description= "Override material displacement settings",
-		default= False
-	)
-
-	GeomDisplacedMesh.type= EnumProperty(
-		name= "Type",
-		description= "Displacement type",
-		items= (
-			('2D',  "2D",     "2D displacement"),
-			('NOR', "Normal", "Normal displacement"),
-			('3D',  "Vector", "Vector displacement")
-		),
-		default= 'NOR'
-	)
-
-	GeomDisplacedMesh.amount_type= EnumProperty(
-		name= "Amount type",
-		description= "Displacement amount type",
-		items= (
-			('MULT', "Multiply", "Multiply material amount"),
-			('OVER', "Override", "Override material amount")
-		),
-		default= 'OVER'
-	)
-
-	GeomDisplacedMesh.displacement_amount= FloatProperty(
-		name= "Amount",
-		description= "Displacement amount",
-		min= -100.0,
-		max= 100.0,
-		soft_min= -0.1,
-		soft_max= 0.1,
-		precision= 5,
-		default= 0.02
-	)
-
-	GeomDisplacedMesh.amount_mult= FloatProperty(
-		name= "Mult",
-		description= "Displacement amount multiplier",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 2.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	GeomDisplacedMesh.displacement_shift= FloatProperty(
-		name="Shift",
-		description="",
-		min=-100.0,
-		max=100.0,
-		soft_min=-1.0,
-		soft_max=1.0,
-		precision=4,
-		default=0.0
-	)
-
-	GeomDisplacedMesh.water_level= FloatProperty(
-		name="Water level",
-		description="",
-		min=-1000.0, max=1000.0, soft_min=-1.0, soft_max=1.0,
-		default=-1.0
-	)
-
-	GeomDisplacedMesh.use_globals= BoolProperty(
-		name= "Use globals",
-		description= "If true, the global displacement quality settings will be used",
-		default= True
-	)
-
-	GeomDisplacedMesh.view_dep= BoolProperty(
-		name= "View dependent",
-		description= "Determines if view-dependent tesselation is used",
-		default= True
-	)
-
-	GeomDisplacedMesh.edge_length= FloatProperty(
-		name= "Edge length",
-		description= "Determines the approximate edge length for the sub-triangles",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 4
-	)
-
-	GeomDisplacedMesh.max_subdivs= IntProperty(
-		name= "Max subdivs",
-		description= "Determines the maximum subdivisions for a triangle of the original mesh",
-		min= 0,
-		max= 2048,
-		soft_min= 0,
-		soft_max= 1024,
-		default= 256
-	)
-
-	GeomDisplacedMesh.keep_continuity= BoolProperty(
-		name= "Keep continuity",
-		description= "If true, the plugin will attempt to keep the continuity of the displaced surface",
-		default= False
-	)
-
-	GeomDisplacedMesh.map_channel= IntProperty(
-		name= "Map channel",
-		description= "The mapping channel to use for vector and 2d displacement",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 1
-	)
-
-	GeomDisplacedMesh.use_bounds= BoolProperty(
-		name= "Use bounds",
-		description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically",
-		default= False
-	)
-
-	# GeomDisplacedMesh.min_bound= FloatVectorProperty(
-	# 	name= "Min bound",
-	# 	description= "The lowest value for the displacement texture",
-	# 	subtype= 'COLOR',
-	# 	min= 0.0,
-	# 	max= 1.0,
-	# 	soft_min= 0.0,
-	# 	soft_max= 1.0,
-	# 	default= (0,0,0)
-	# )
-
-	# GeomDisplacedMesh.max_bound= FloatVectorProperty(
-	# 	name= "Max bound",
-	# 	description= "The biggest value for the displacement texture",
-	# 	subtype= 'COLOR',
-	# 	min= 0.0,
-	# 	max= 1.0,
-	# 	soft_min= 0.0,
-	# 	soft_max= 1.0,
-	# 	default= (1,1,1)
-	# )
-
-	GeomDisplacedMesh.min_bound= FloatProperty(
-		name= "Min bound",
-		description= "The lowest value for the displacement texture",
-		min= -1.0,
-		max=  1.0,
-		soft_min= -1.0,
-		soft_max=  1.0,
-		default= 0.0
-	)
-
-	GeomDisplacedMesh.max_bound= FloatProperty(
-		name= "Max bound",
-		description= "The biggest value for the displacement texture",
-		min= -1.0,
-		max=  1.0,
-		soft_min= -1.0,
-		soft_max=  1.0,
-		default= 1.0
-	)
-
-	GeomDisplacedMesh.resolution= IntProperty(
-		name= "Resolution",
-		description= "Resolution at which to sample the displacement map for 2d displacement",
-		min= 1,
-		max= 100000,
-		soft_min= 1,
-		soft_max= 2048,
-		default= 256
-	)
-
-	GeomDisplacedMesh.precision= IntProperty(
-		name= "Precision",
-		description= "Increase for curved surfaces to avoid artifacts",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 8
-	)
-
-	GeomDisplacedMesh.tight_bounds= BoolProperty(
-		name= "Tight bounds",
-		description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster",
-		default= False
-	)
-
-	GeomDisplacedMesh.filter_texture= BoolProperty(
-		name= "Filter texture",
-		description= "Filter the texture for 2d displacement",
-		default= False
-	)
-
-	GeomDisplacedMesh.filter_blur= FloatProperty(
-		name= "Blur",
-		description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.001
-	)
+def nodeDraw(context, layout, GeomDisplacedMesh):
+    layout.prop(GeomDisplacedMesh, 'type')
+    layout.prop(GeomDisplacedMesh, 'displacement_amount', text="Amount")
 
 
-def write(bus):
-	ofile= bus['files']['nodes']
-	scene= bus['scene']
+def gui(context, layout, GeomDisplacedMesh):
+    contextType = GetContextType(context)
+    regionWidth = GetRegionWidthFromContext(context)
 
-	ob=    bus['node']['object']
-	me=    bus['node']['geometry']
+    wide_ui = regionWidth > narrowui
 
-	VRayScene= scene.vray
-	VRayExporter= VRayScene.exporter
+    split = layout.split()
+    col = split.column()
+    col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
+    col.prop(GeomDisplacedMesh, 'water_level', slider=True)
+    col.prop(GeomDisplacedMesh, 'resolution')
+    col.prop(GeomDisplacedMesh, 'precision')
+    if wide_ui:
+        col = split.column()
+    col.prop(GeomDisplacedMesh, 'type')
+    col.prop(GeomDisplacedMesh, 'keep_continuity')
+    col.prop(GeomDisplacedMesh, 'filter_texture')
+    if GeomDisplacedMesh.filter_texture:
+        col.prop(GeomDisplacedMesh, 'filter_blur')
+    col.prop(GeomDisplacedMesh, 'use_bounds')
+    if GeomDisplacedMesh.use_bounds:
+        sub = col.column(align= True)
+        sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
+        sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
 
-	if not (bus['node'].get('displacement_slot') and VRayExporter.use_displace):
-		return
-
-	slot= bus['node']['displacement_slot']
-
-	VRaySlot=            slot.texture.vray_slot
-	GeomDisplacedMesh=   VRaySlot.GeomDisplacedMesh
-	displacement_amount= GeomDisplacedMesh.displacement_amount
-
-	VRayObject=                 ob.vray
-	ObjectDisplacementOverride= VRayObject.GeomDisplacedMesh
-
-	displace_name= 'D'+me
-	if ObjectDisplacementOverride.use:
-		displace_name= get_name(ob, prefix='DOB')
-		GeomDisplacedMesh= ObjectDisplacementOverride
-
-	if not append_unique(bus['cache']['displace'], displace_name):
-		return displace_name
-
-	ofile.write("\nGeomDisplacedMesh %s {" % displace_name)
-	ofile.write("\n\tmesh= %s;" % me)
-	ofile.write("\n\tdisplacement_tex_float= %s;" % bus['node']['displacement_texture'])
-	ofile.write("\n\tdisplacement_tex_color= %s;" % bus['node']['displacement_texture'])
-	if GeomDisplacedMesh.type == '2D':
-		ofile.write("\n\tdisplace_2d= 1;")
-	elif GeomDisplacedMesh.type == '3D':
-		ofile.write("\n\tvector_displacement= 1;")
-	else:
-		ofile.write("\n\tdisplace_2d= 0;")
-		ofile.write("\n\tvector_displacement= 0;")
-	for param in PARAMS:
-		if param == 'displacement_amount':
-			if ob.vray.GeomDisplacedMesh.use:
-				if GeomDisplacedMesh.amount_type == 'OVER':
-					value= GeomDisplacedMesh.displacement_amount
-				else:
-					value= GeomDisplacedMesh.amount_mult * displacement_amount
-			else:
-				value= displacement_amount
-		elif param in ('min_bound', 'max_bound'):
-			value= "Color(%.3f,%.3f,%.3f)" % (tuple([getattr(GeomDisplacedMesh, param)]*3))
-		else:
-			value= getattr(GeomDisplacedMesh, param)
-		ofile.write("\n\t%s= %s;" % (param, a(scene,value)))
-	ofile.write("\n}\n")
-
-	bus['node']['geometry']= displace_name
+    split = layout.split()
+    col = split.column()
+    col.prop(GeomDisplacedMesh, 'use_globals')
+    if not GeomDisplacedMesh.use_globals:
+        split = layout.split()
+        col = split.column()
+        col.prop(GeomDisplacedMesh, 'edge_length')
+        col.prop(GeomDisplacedMesh, 'max_subdivs')
+        if wide_ui:
+            col = split.column()
+        col.prop(GeomDisplacedMesh, 'view_dep')
+        col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
-def influence(context, layout, slot):
-	wide_ui= context.region.width > classes.narrowui
+def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
+    ofile = bus['files']['materials']
+    scene = bus['scene']
 
-	VRaySlot= slot.texture.vray_slot
+    ofile.write("\n%s %s {" % (ID, pluginName))
 
-	GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
+    if GeomDisplacedMesh.type == '2D':
+        ofile.write("\n\tdisplace_2d=1;")
+        ofile.write("\n\tvector_displacement=0;")
+    elif GeomDisplacedMesh.type == '3D':
+        ofile.write("\n\tdisplace_2d=0;")
+        ofile.write("\n\tvector_displacement=1;")
+    else:
+        ofile.write("\n\tdisplace_2d=0;")
+        ofile.write("\n\tvector_displacement=0;")
 
-	layout.label(text="Geometry:")
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomDisplacedMesh, mappedParams, PluginParams)
 
-	split= layout.split()
-	col= split.column()
-	factor_but(col, VRaySlot, 'map_displacement', 'displacement_mult', "Displace")
-	if wide_ui:
-		col= split.column()
-	col.active= VRaySlot.map_displacement
-	col.prop(GeomDisplacedMesh, 'type')
-	col.prop(GeomDisplacedMesh, 'displacement_amount', slider=True)
+    ofile.write("\n}\n")
+
+    return pluginName

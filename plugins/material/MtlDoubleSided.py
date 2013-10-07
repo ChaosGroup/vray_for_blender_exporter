@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
@@ -37,7 +37,7 @@ PluginParams = (
     {
         'attr' : 'base_mtl',
         'desc' : "Base material",
-        'type' : 'PLUGIN',
+        'type' : 'MATERIAL',
         'default' : "",
     },
 )

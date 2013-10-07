@@ -60,7 +60,7 @@ PluginParams = (
     },
     {
         'attr' : 'wrap_id',
-        'desc' : "true to wrap the material ID's to the largest specified ID for the material",
+        'desc' : "Wrap the material ID's to the largest specified ID for the material",
         'type' : 'BOOL',
         'default' : False,
     },

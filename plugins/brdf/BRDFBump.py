@@ -37,7 +37,7 @@ PluginParams = (
     {
         'attr' : 'base_brdf',
         'desc' : "Base BRDF",
-        'type' : 'PLUGIN',
+        'type' : 'BRDF',
         'default' : "",
     },
     {

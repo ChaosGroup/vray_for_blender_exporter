@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightSphere'
-NAME = 'LightSphere'
+NAME = 'Sphere'
 DESC = ""
 
 PluginParams = (

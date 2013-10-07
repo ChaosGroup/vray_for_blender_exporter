@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightDirect'
-NAME = 'LightDirect'
+NAME = 'Direct'
 DESC = ""
 
 PluginParams = (

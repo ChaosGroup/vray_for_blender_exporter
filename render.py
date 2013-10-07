@@ -590,7 +590,7 @@ def write_settings(bus):
 			if includeNode.use == True:
 				ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
 
-	
+
 
 
 
@@ -666,7 +666,7 @@ def	write_material(bus):
 	scene= bus['scene']
 
 	ofile= bus['files']['materials']
-	
+
 	ob=    bus['node']['object']
 	base=  bus['node']['base']
 
@@ -858,13 +858,13 @@ def write_materials(bus):
 
 				if not ma.vray.ntree:
 					continue
-				
+
 				nodeMaterial = NodesExport.ExportNodeMaterial(bus)
 
 				if nodeMaterial:
 					ma_id += 1
-					
-					mtls_list.append(nodeMaterial)					
+
+					mtls_list.append(nodeMaterial)
 					ids_list.append(str(ma_id))
 
 	# No materials assigned - use default material
@@ -1207,10 +1207,10 @@ def write_object(bus):
 			PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
 
 	# Displace or Subdivision
-	if ob.vray.GeomStaticSmoothedMesh.use:
-		PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
-	else:
-		PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
+	# if ob.vray.GeomStaticSmoothedMesh.use:
+	# 	PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
+	# else:
+	# 	PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
 
 	# Mesh-light
 	if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
@@ -1392,15 +1392,15 @@ def writeSceneInclude(bus):
 					if not filename.endswith(".vrscene"):
 						continue
 					vrsceneFilelist.append(os.path.join(dirname, filename))
-		
+
 		sceneFile.write("\n\tfilepath=\"%s\";" % (";").join(vrsceneFilelist))
 		sceneFile.write("\n\tprefix=\"%s\";" % get_name(ob, prefix='SI'))
 
 		sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
 		sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
-		
+
 		sceneFile.write("\n\treplace=%s;" % p(VRayObject.sceneReplace))
-		
+
 		sceneFile.write("\n\tadd_nodes=%s;" % p(VRayObject.sceneAddNodes))
 		sceneFile.write("\n\tadd_materials=%s;" % p(VRayObject.sceneAddMaterials))
 		sceneFile.write("\n\tadd_lights=%s;" % p(VRayObject.sceneAddLights))

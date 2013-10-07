@@ -23,23 +23,3 @@
 #
 
 import bpy
-
-
-def callback_match_BI_diffuse(self, context):
-    if not hasattr(context, 'material'):
-        return
-
-    from bl_ui.properties_material import active_node_mat
-    
-    material = active_node_mat(context.material)
-    
-    if not context.material:
-        return
-    
-    if not self.as_viewport_color:
-        material.diffuse_color = (0.5, 0.5, 0.5)
-        return
-
-    color = self.diffuse if material.vray.type == 'BRDFVRayMtl' else self.color
-
-    material.diffuse_color = color

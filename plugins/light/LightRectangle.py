@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightRectangle'
-NAME = 'LightRectangle'
+NAME = 'Rectangle'
 DESC = ""
 
 PluginParams = (

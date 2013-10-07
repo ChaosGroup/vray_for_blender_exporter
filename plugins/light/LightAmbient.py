@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightAmbient'
-NAME = 'LightAmbient'
+NAME = 'Ambient'
 DESC = ""
 
 PluginParams = (

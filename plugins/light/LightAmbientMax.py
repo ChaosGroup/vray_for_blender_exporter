@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightAmbientMax'
-NAME = 'LightAmbientMax'
+NAME = 'Ambient (3ds max)'
 DESC = ""
 
 PluginParams = (

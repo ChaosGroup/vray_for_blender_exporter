@@ -39,6 +39,7 @@ PluginTypes = {
 
 SkippedTypes = {
     'LIST',
+    'INT_LIST',
     'MATRIX',
     'TRANSFORM',
     'TRANSFORM_TEXTURE',
@@ -49,6 +50,7 @@ InputTypes = {
     'COLOR',
     'FLOAT_TEXTURE',
     'MATERIAL',
+    'GEOMETRY',
     'PLUGIN',
     'TEXTURE',
     'VECTOR',
@@ -69,6 +71,7 @@ TypeToSocket = {
     'INT'    : 'VRaySocketInt',
 
     'BRDF'     : 'VRaySocketBRDF',
+    'GEOMETRY' : 'VRaySocketGeom',
     'MATERIAL' : 'VRaySocketMtl',
     'PLUGIN'   : 'VRaySocketObject',
     'UVWGEN'   : 'VRaySocketCoords',
@@ -86,13 +89,14 @@ TypeToSocket = {
 TypeToProp = {
     'BOOL'   : bpy.props.BoolProperty,
     'COLOR'  : bpy.props.FloatVectorProperty,
-    'VECTOR'  : bpy.props.FloatVectorProperty,
+    'VECTOR' : bpy.props.FloatVectorProperty,
     'ENUM'   : bpy.props.EnumProperty,
     'FLOAT'  : bpy.props.FloatProperty,
     'INT'    : bpy.props.IntProperty,
     'STRING' : bpy.props.StringProperty,
 
     'BRDF'     : bpy.props.StringProperty,
+    'GEOMETRY' : bpy.props.StringProperty,
     'MATERIAL' : bpy.props.StringProperty,
     'PLUGIN'   : bpy.props.StringProperty,
     'UVWGEN'   : bpy.props.StringProperty,

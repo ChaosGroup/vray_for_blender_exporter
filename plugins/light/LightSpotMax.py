@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightSpotMax'
-NAME = 'LightSpotMax'
+NAME = 'Spot (3ds max)'
 DESC = ""
 
 PluginParams = (

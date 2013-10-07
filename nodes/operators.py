@@ -40,18 +40,7 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_description = ""
 
     def execute(self, context):
-        VRayObject = context.object.vray
-
-        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeObject')
-
-        outputNode = nt.nodes.new('VRayNodeObjectOutput')
-
-        materialInput = nt.nodes.new('VRayNodeObjectMaterialInput')
-        materialInput.location.x  = outputNode.location.x - 200
-
-        nt.links.new(materialInput.outputs['Material'], outputNode.inputs['Material'])
-
-        VRayObject.ntree = nt
+        VRayLight = context.object.data.vray
 
         return {'FINISHED'}
 

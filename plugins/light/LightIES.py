@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightIES'
-NAME = 'LightIES'
+NAME = 'IES'
 DESC = ""
 
 PluginParams = (

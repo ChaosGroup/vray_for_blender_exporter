@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightMesh'
-NAME = 'LightMesh'
+NAME = 'Mesh'
 DESC = ""
 
 PluginParams = (
