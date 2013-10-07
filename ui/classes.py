@@ -25,6 +25,14 @@
 import bpy
 
 
+########  ######## ######## #### ##    ## ########  ######
+##     ## ##       ##        ##  ###   ## ##       ##    ##
+##     ## ##       ##        ##  ####  ## ##       ##
+##     ## ######   ######    ##  ## ## ## ######    ######
+##     ## ##       ##        ##  ##  #### ##             ##
+##     ## ##       ##        ##  ##   ### ##       ##    ##
+########  ######## ##       #### ##    ## ########  ######
+
 VRayEngines = {
 	'VRAY_RENDER',
 	'VRAY_RENDER_PREVIEW',
@@ -35,13 +43,19 @@ VRayEngines = {
 narrowui = 200
 
 
+##     ## ######## #### ##        ######
+##     ##    ##     ##  ##       ##    ##
+##     ##    ##     ##  ##       ##
+##     ##    ##     ##  ##        ######
+##     ##    ##     ##  ##             ##
+##     ##    ##     ##  ##       ##    ##
+ #######     ##    #### ########  ######
+
 def GetContextType(context):
 	if hasattr(context, 'node'):
 		return 'NODE'
-
 	if hasattr(context, 'material'):
 		return 'MATERIAL'
-	
 	return None
 
 
@@ -55,33 +69,18 @@ def GetRegionWidthFromContext(context):
 	return 1024
 
 
-def context_tex_datablock(context):
-	idblock = context.material
-	if idblock:
-		return idblock
-
-	idblock = context.lamp
-	if idblock:
-		return idblock
-
-	idblock = context.world
-	if idblock:
-		return idblock
-
-	idblock = context.brush
-	if idblock:
-		return idblock
-
-	if context.particle_system:
-		idblock = context.particle_system.settings
-
-	return idblock
-
-
 def PollEngine(cls, context):
 	rd = context.scene.render
 	return rd.engine in cls.COMPAT_ENGINES
 
+
+########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
+##     ##   ## ##   ##    ## ##          ##    ## ##         ## ##   ##    ## ##    ## ##       ##    ##
+##     ##  ##   ##  ##       ##          ##       ##        ##   ##  ##       ##       ##       ##
+########  ##     ##  ######  ######      ##       ##       ##     ##  ######   ######  ######    ######
+##     ## #########       ## ##          ##       ##       #########       ##       ## ##             ##
+##     ## ##     ## ##    ## ##          ##    ## ##       ##     ## ##    ## ##    ## ##       ##    ##
+########  ##     ##  ######  ########     ######  ######## ##     ##  ######   ######  ########  ######
 
 class VRayPanel(bpy.types.Panel):
 	COMPAT_ENGINES = VRayEngines
@@ -193,15 +192,30 @@ class VRayWorldPanel(VRayPanel):
 	bl_space_type  = 'PROPERTIES'
 	bl_region_type = 'WINDOW'
 	bl_context     = 'world'
-	
+
 	@classmethod
 	def poll(cls, context):
 		return context.world and PollEngine(cls, context)
 
 
-# List item:
-#  <item name> <item use-flag>
-#
+##       ####  ######  ########
+##        ##  ##    ##    ##
+##        ##  ##          ##
+##        ##   ######     ##
+##        ##        ##    ##
+##        ##  ##    ##    ##
+######## ####  ######     ##
+
+# The draw_item function is called for each item of the collection that is visible in the list.
+#   data is the RNA object containing the collection,
+#   item is the current drawn item of the collection,
+#   icon is the "computed" icon for the item (as an integer, because some objects like materials or textures
+#   have custom icons ID, which are not available as enum items).
+#   active_data is the RNA object containing the active property for the collection (i.e. integer pointing to the
+#   active item of the collection).
+#   active_propname is the name of the active property (use 'getattr(active_data, active_propname)').
+#   index is index of the current item in the collection.
+
 class VRayListUse(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		layout.label(item.name)
@@ -213,8 +227,32 @@ class VRayList(bpy.types.UIList):
 		layout.label(item.name)
 
 
+class VRayListMaterialSlots(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        ob   = data
+        slot = item
+        ma   = slot.material
+
+        split = layout.split(percentage=0.75)
+
+        if ma:
+            split.label(text=ma.name, translate=False, icon_value=icon)
+            split.prop(slot, 'link', text="", emboss=False, translate=False)
+        else:
+            split.label(text="")
+
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
+
 def GetRegClasses():
 	return (
+		VRayListMaterialSlots,
 		VRayListUse,
 		VRayList,
 	)
