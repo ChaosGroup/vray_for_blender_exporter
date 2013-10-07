@@ -37,24 +37,31 @@ def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
 
     if hasattr(bpy.types, propGroupName):
         DynPropGroup = getattr(bpy.types, propGroupName)
-        
+
     else:
-        classMembers = {}
+        classMembers = {
+            '__metaclass__' : idref.MetaIDRefContainer(),
+        }
 
         for param in pluginModule.PluginParams:
             AttributeUtils.GenerateAttribute(classMembers, param)
 
-        if hasattr(pluginModule, 'PluginRefs'):
-            for ref in pluginModule.PluginRefs:
-                AttributeUtils.GenerateIDRef(classMembers, ref)
+        DynPropGroup = type(
+            propGroupName,
+            (bpy.types.PropertyGroup,),
+            classMembers
+        )
 
-        DynPropGroup = type(propGroupName, (bpy.types.PropertyGroup,), classMembers)
-        
         bpy.utils.register_class(DynPropGroup)
 
-        if hasattr(pluginModule, 'PluginRefs'):
-            for ref in pluginModule.PluginRefs:
-                idref.bpy_register_idref(DynPropGroup, ref['attr'], getattr(DynPropGroup, ref['attr']))
+        if hasattr(pluginModule, 'PluginRefParams'):
+            for param in pluginModule.PluginRefParams:
+                idref.bpy_register_idref(getattr(bpy.types, propGroupName), param['attr'], idref.IDRefProperty(
+                    param['name'],
+                    param['desc'],
+                    idtype = param['type'],
+                    options = {'FAKE_USER'},
+                ))
 
     setattr(dataPointer, propGroupName, bpy.props.PointerProperty(
         attr        = propGroupName,

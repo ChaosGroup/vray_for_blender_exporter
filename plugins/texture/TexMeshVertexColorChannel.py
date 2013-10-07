@@ -30,19 +30,20 @@ from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 TYPE = 'TEXTURE'
 ID   = 'TexMeshVertexColorChannel'
-NAME = 'MeshVertexColorChannel'
+NAME = 'Mesh Vertex Channel'
 DESC = ""
 
 PluginParams = (
     {
         'attr' : 'channelIndex',
+        'name' : "Channel Index",
         'desc' : "",
         'type' : 'INT',
         'default' : 0,
     },
     {
         'attr' : 'channel_name',
-        'desc' : "Name of the channel to use (it will match one of the channels in GeomStaticMesh::map_channels_names)",
+        'desc' : "Name of the channel to use",
         'type' : 'STRING',
         'default' : "",
     },
@@ -53,3 +54,20 @@ PluginParams = (
         'default' : (0.0, 0.0, 0.0, 1.0),
     },
 )
+
+
+def nodeDraw(context, layout, TexMeshVertexColorChannel):
+    ob = context.object
+
+    layout.prop(TexMeshVertexColorChannel, 'channelIndex')
+    layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                       ob.data, 'uv_textures',
+                       text="")
+
+
+def gui(context, layout, TexMeshVertexColorChannel):
+    ob = context.object
+
+    layout.prop(TexMeshVertexColorChannel, 'channelIndex')
+    layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                       ob.data, 'uv_textures')

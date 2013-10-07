@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
@@ -71,7 +71,7 @@ PluginParams = (
     #     'type' : 'FLOAT',
     #     'default' : 1,
     # },
-    
+
     {
         'attr' : 'roughness',
         'desc' : "",
@@ -87,7 +87,7 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, dataPointer, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, dataPointer, mappedParams):
     ofile = bus['files']['materials']
     scene = bus['scene']
 

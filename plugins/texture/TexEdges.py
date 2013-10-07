@@ -47,16 +47,14 @@ PluginParams = (
         'default' : (0, 0, 0, 1),
     },
     {
-        'attr' : 'show_hidden_edges',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
         'attr' : 'width_type',
-        'desc' : "0 : World units, 1 : Pixels",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Width Type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "World", ""),
+            ('1', "Pixels", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'pixel_width',
@@ -71,9 +69,15 @@ PluginParams = (
         'default' : 1,
     },
     {
+        'attr' : 'show_hidden_edges',
+        'desc' : "",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
         'attr' : 'show_subtriangles',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
 )

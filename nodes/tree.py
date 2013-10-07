@@ -24,7 +24,7 @@
 
 import bpy
 
-from pynodes_framework import parameter, base, group
+from pynodes_framework import parameter, base, group, category
 
 from vb25.ui import classes
 
@@ -35,28 +35,27 @@ class VRayData():
         return context.scene.render.engine in classes.VRayEngines
 
 
-##     ##    ###    ######## ######## ########  ####    ###    ##       
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##       
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##       
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##       
-##     ## #########    ##    ##       ##   ##    ##  ######### ##       
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
-
 class VRayTreeSockets(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = "VRayTreeSockets"
- 
+
     parameter_types = [parameter.NodeParamFloat, parameter.NodeParamInt, parameter.NodeParamBool, parameter.NodeParamColor,
                        parameter.NodeParamVector, parameter.NodeParamPoint, parameter.NodeParamNormal, parameter.NodeParamMatrix,
                        parameter.NodeParamString]
 
 
-class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
+##     ##    ###    ######## ######## ########  ####    ###    ##
+###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
+#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
+## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
+##     ## #########    ##    ##       ##   ##    ##  ######### ##
+##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
+##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
+
+class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayShaderTreeType'
     bl_icon   = 'MATERIAL'
 
-    # !!! Associates trees with a socket type, needed for node group interfaces
     socket_type = VRayTreeSockets
 
     # Return a node tree from the context to be used in the editor
@@ -77,18 +76,20 @@ class VRayTreeNode:
         return node_tree.bl_idname == 'VRayShaderTreeType'
 
 
-##      ##  #######  ########  ##       ########  
-##  ##  ## ##     ## ##     ## ##       ##     ## 
-##  ##  ## ##     ## ##     ## ##       ##     ## 
-##  ##  ## ##     ## ########  ##       ##     ## 
-##  ##  ## ##     ## ##   ##   ##       ##     ## 
-##  ##  ## ##     ## ##    ##  ##       ##     ## 
- ###  ###   #######  ##     ## ######## ########  
+##      ##  #######  ########  ##       ########
+##  ##  ## ##     ## ##     ## ##       ##     ##
+##  ##  ## ##     ## ##     ## ##       ##     ##
+##  ##  ## ##     ## ########  ##       ##     ##
+##  ##  ## ##     ## ##   ##   ##       ##     ##
+##  ##  ## ##     ## ##    ##  ##       ##     ##
+ ###  ###   #######  ##     ## ######## ########
 
-class VRayWorldNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
+class VRayNodeTreeWorld(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray World Node Tree"
-    bl_idname = 'VRayWorldNodeTree'
+    bl_idname = 'VRayNodeTreeWorld'
     bl_icon   = 'WORLD'
+
+    socket_type = VRayTreeSockets
 
     @classmethod
     def get_from_context(cls, context):
@@ -108,21 +109,23 @@ class VRayWorldNodeTree(bpy.types.NodeTree, base.NodeTree, VRayData):
 class VRayWorldNode:
     @classmethod
     def poll(cls, node_tree):
-        return node_tree.bl_idname == 'VRayWorldNodeTree'
+        return node_tree.bl_idname == 'VRayNodeTreeWorld'
 
 
- #######  ########        ## ########  ######  ######## 
-##     ## ##     ##       ## ##       ##    ##    ##    
-##     ## ##     ##       ## ##       ##          ##    
-##     ## ########        ## ######   ##          ##    
-##     ## ##     ## ##    ## ##       ##          ##    
-##     ## ##     ## ##    ## ##       ##    ##    ##    
- #######  ########   ######  ########  ######     ##    
+ #######  ########        ## ########  ######  ########
+##     ## ##     ##       ## ##       ##    ##    ##
+##     ## ##     ##       ## ##       ##          ##
+##     ## ########        ## ######   ##          ##
+##     ## ##     ## ##    ## ##       ##          ##
+##     ## ##     ## ##    ## ##       ##    ##    ##
+ #######  ########   ######  ########  ######     ##
 
-class VRayNodeTreeObject(bpy.types.NodeTree, base.NodeTree, VRayData):
+class VRayNodeTreeObject(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Object Node Tree"
     bl_idname = 'VRayNodeTreeObject'
     bl_icon   = 'OBJECT_DATA'
+
+    socket_type = VRayTreeSockets
 
     @classmethod
     def get_from_context(cls, context):
@@ -139,18 +142,20 @@ class VRayObjectNode:
         return node_tree.bl_idname == 'VRayNodeTreeObject'
 
 
-##       ####  ######   ##     ## ######## 
-##        ##  ##    ##  ##     ##    ##    
-##        ##  ##        ##     ##    ##    
-##        ##  ##   #### #########    ##    
-##        ##  ##    ##  ##     ##    ##    
-##        ##  ##    ##  ##     ##    ##    
-######## ####  ######   ##     ##    ##      
+##       ####  ######   ##     ## ########
+##        ##  ##    ##  ##     ##    ##
+##        ##  ##        ##     ##    ##
+##        ##  ##   #### #########    ##
+##        ##  ##    ##  ##     ##    ##
+##        ##  ##    ##  ##     ##    ##
+######## ####  ######   ##     ##    ##
 
-class VRayNodeTreeLight(bpy.types.NodeTree, base.NodeTree, VRayData):
+class VRayNodeTreeLight(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Light Node Tree"
     bl_idname = 'VRayNodeTreeLight'
     bl_icon   = 'LAMP_SUN'
+
+    socket_type = VRayTreeSockets
 
     @classmethod
     def get_from_context(cls, context):
@@ -167,28 +172,27 @@ class VRayLightNode:
         return node_tree.bl_idname == 'VRayNodeTreeLight'
 
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
     return (
         VRayNodeTree,
         VRayNodeTreeObject,
         VRayNodeTreeLight,
-        VRayWorldNodeTree,
+        VRayNodeTreeWorld,
     )
 
 
 def register():
     for regClass in GetRegClasses():
-        # Only for NodeGroup:
-        #  regClass.register_class()
         bpy.utils.register_class(regClass)
+        regClass.register_categories()
 
 
 def unregister():

@@ -31,13 +31,16 @@ def register():
     from . import nodes
     from . import operators
     from . import tree
-    
+    from . import menu
+
     operators.register()
-    
+
     tree.register()
     sockets.register()
     nodes.register()
     specials.register()
+
+    menu.register()
 
 
 def unregister():
@@ -46,6 +49,9 @@ def unregister():
     from . import nodes
     from . import operators
     from . import tree
+    from . import menu
+
+    menu.unregister()
 
     specials.unregister()
     nodes.unregister()

@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'UVWGEN'
 ID   = 'UVWGenChannel'
@@ -132,3 +134,24 @@ PluginParams = (
 
 def nodeDraw(context, layout, UVWGenChannel):
     layout.prop(UVWGenChannel, 'uvw_channel')
+
+
+def writeDatablock(bus, dataPointer, pluginName, mappedParams):
+    ofile = bus['files']['nodetree']
+    scene = bus['scene']
+
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\tuvw_transform=Transform(")
+    ofile.write("\n\t\tMatrix(")
+    ofile.write("\n\t\tVector(1.0,0.0,0.0),")
+    ofile.write("\n\t\tVector(0.0,1.0,0.0),")
+    ofile.write("\n\t\tVector(0.0,0.0,1.0)")
+    ofile.write("\n\t\t),")
+    ofile.write("\n\t\tVector(0.0,0.0,0.0)")
+    ofile.write("\n\t);")
+
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, dataPointer, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    return pluginName

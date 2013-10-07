@@ -40,7 +40,7 @@ PluginParams = (
         'type' : 'ENUM',
         'items' : (
             ('0', "3ds Max", ""),
-            ('1', "Maya", ""),
+            ('1', "Maya",    ""),
         ),
         'default' : '0',
     },
@@ -49,9 +49,9 @@ PluginParams = (
         'desc' : "",
         'type' : 'ENUM',
         'items' : (
-            ('0', "Self", "The alpha is taken from the alpha"),
-            ('1', "Maya", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
-            ('2', "Force 1.0", "The alpha is forced to 1.0f"),
+            ('0', "Self",          "The alpha is taken from the alpha"),
+            ('1', "Сompatibility", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
+            ('2', "Force 1.0",     "The alpha is forced to 1.0f"),
         ),
         'default' : '0',
     },
@@ -121,6 +121,7 @@ PluginParams = (
         'type' : 'OUTPUT_FLOAT_TEXTURE',
         'default' : 1.0,
     },
+
     {
         'attr' : 'color1',
         'desc' : "First color",

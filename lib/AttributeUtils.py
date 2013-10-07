@@ -112,34 +112,26 @@ def GetNameFromAttr(attr):
     return attr.replace("_", " ").title()
 
 
-def GenerateIDRef(classMembers, attrDesc):
-    attrArgs = {
-        'attr'        : attrDesc['attr'],
-        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
-        'description' : attrDesc['desc'],
-        'default'     : attrDesc['default'],
-    }
-    
-    if attrDesc['type'] in {'IMAGE'}:
-        classMembers[attrDesc['attr']] = idref.IDRefProperty(
-            attrArgs['name'],
-            attrArgs['description'],
-            idtype = attrDesc['type'],
-            options = {'FAKE_USER'},
-        )
-
-
 def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in SkippedTypes:
         return
 
     attrArgs = {
         'attr'        : attrDesc['attr'],
-        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
+        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])).title(),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
     }
-    
+
+    if attrDesc['type'] in {'IMAGE', 'NODETREE'}:
+        classMembers[attrDesc['attr']] = idref.IDRefProperty(
+            attrArgs['name'],
+            attrArgs['description'],
+            idtype = attrDesc['type'],
+            options = {'FAKE_USER'},
+        )
+        return
+
     defUi    = None
     attrFunc = TypeToProp[attrDesc['type']]
 
@@ -169,7 +161,7 @@ def GenerateAttribute(classMembers, attrDesc):
             'soft_min' : 0,
             'soft_max' : 8,
         }
-    
+
     elif attrDesc['type'] in {'ENUM'}:
         attrArgs['items'] = attrDesc['items']
 

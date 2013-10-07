@@ -22,18 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
-
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
-
-TYPE = 'TEXTURE'
-ID   = 'TexCompMax'
-NAME = 'CompMax'
-DESC = ""
-
-PluginParams = (
+PluginTextureCommonParams = (
     {
         'attr' : 'compatibility_with',
         'desc' : "This is used to differentiate between textures exported from different applications",
@@ -71,13 +60,13 @@ PluginParams = (
         'attr' : 'color_mult',
         'desc' : "A multiplier for the texture color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color_offset',
         'desc' : "An additional offset for the texture color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'alpha_mult',
@@ -102,13 +91,13 @@ PluginParams = (
         'attr' : 'color',
         'desc' : "The resulting color",
         'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'out_transparency',
         'desc' : "The resulting transparency",
         'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'out_alpha',
@@ -123,32 +112,100 @@ PluginParams = (
         'default' : 1.0,
     },
     {
-        'attr' : 'sourceA',
-        'name' : 'Source A',
-        'desc' : "Left hand side texture",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'attr' : 'uvwgen',
+        'name' : "Mapping",
+        'desc' : "The uvw generator for the texture",
+        'type' : 'UVWGEN',
+        'default' : "",
     },
     {
-        'attr' : 'sourceB',
-        'name' : 'Source B',
-        'desc' : "Right hand side texture",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
-    },
-    {
-        'attr' : 'operator',
-        'desc' : "Operator",
+        'attr' : 'placement_type',
+        'desc' : "The way the valid portion of the texture is applied",
         'type' : 'ENUM',
         'items' : (
-            ('0', "Add", ""),
-            ('1', "Subtract", ""),
-            ('2', "Difference", ""),
-            ('3', "Multiply", ""),
-            ('4', "Divide", ""),
-            ('5', "Minimum", ""),
-            ('6', "Maximum", ""),
+            ('0', "Full",  "The whole texture is valid."),
+            ('1', "Crop",  "Crop texture."),
+            ('2', "Place", "Place texture."),
         ),
         'default' : '0',
+    },
+    {
+        'attr' : 'u',
+        'desc' : "U coordinate of the valid texture sector",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'v',
+        'desc' : "V coordinate of the valid texture sector",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'w',
+        'desc' : "Width of the valid texture sector",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'h',
+        'desc' : "Height of the valid texture sector",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'jitter',
+        'desc' : "Amount of random placement variation",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'tile_u',
+        'desc' : "If true there is horizontal tiling",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'tile_v',
+        'desc' : "If true there is vertical tiling",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'uv_noise_on',
+        'desc' : "If true the noise is enabled",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'uv_noise_animate',
+        'desc' : "If true the noise is animated",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'uv_noise_amount',
+        'desc' : "UV noise amount",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'uv_noise_levels',
+        'desc' : "UV noise iterations",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'uv_noise_size',
+        'desc' : "UV noise size",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'un_noise_phase',
+        'name' : "UV Noise Phase",
+        'desc' : "UV noise phase",
+        'type' : 'FLOAT',
+        'default' : 0,
     },
 )

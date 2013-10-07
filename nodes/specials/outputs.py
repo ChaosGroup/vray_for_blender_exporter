@@ -24,68 +24,71 @@
 
 import bpy
 
-from .. import tree
+from ..        import tree
+from ..sockets import AddInput, AddOutput
 
 
- #######  ########        ## ########  ######  ######## 
-##     ## ##     ##       ## ##       ##    ##    ##    
-##     ## ##     ##       ## ##       ##          ##    
-##     ## ########        ## ######   ##          ##    
-##     ## ##     ## ##    ## ##       ##          ##    
-##     ## ##     ## ##    ## ##       ##    ##    ##    
- #######  ########   ######  ########  ######     ##    
+ #######  ########        ## ########  ######  ########
+##     ## ##     ##       ## ##       ##    ##    ##
+##     ## ##     ##       ## ##       ##          ##
+##     ## ########        ## ######   ##          ##
+##     ## ##     ## ##    ## ##       ##          ##
+##     ## ##     ## ##    ## ##       ##    ##    ##
+ #######  ########   ######  ########  ######     ##
 
 class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeObjectOutput'
-    bl_label  = 'Object Output'
+    bl_label  = 'V-Ray Node'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
-    
+
     def init(self, context):
-        AddInput(self, 'VRaySocketMtl', "Material")
+        AddInput(self, 'VRaySocketMtl',  "Material")
+        AddInput(self, 'VRaySocketGeom', "Geometry")
 
 
-class VRayNodeObjectMaterialInput(bpy.types.Node, tree.VRayObjectNode):
-    bl_idname = 'VRayNodeObjectMaterialInput'
-    bl_label  = 'Material Input'
+class VRayNodeBlenderOutput(bpy.types.Node, tree.VRayObjectNode):
+    bl_idname = 'VRayNodeBlenderOutput'
+    bl_label  = 'Blender Object'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
-    
+
     def init(self, context):
-        AddOutput(self, 'VRaySocketMtl', "Material")
+        AddOutput(self, 'VRaySocketMtl',  "Material")
+        AddOutput(self, 'VRaySocketGeom', "Geometry")
 
 
-##     ##    ###    ######## ######## ########  ####    ###    ##       
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##       
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##       
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##       
-##     ## #########    ##    ##       ##   ##    ##  ######### ##       
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
+##     ##    ###    ######## ######## ########  ####    ###    ##
+###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
+#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
+## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
+##     ## #########    ##    ##       ##   ##    ##  ######### ##
+##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
+##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-class VRayNodeOutput(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeOutput'
+class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
+    bl_idname = 'VRayNodeOutputMaterial'
     bl_label  = 'Material Output'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
-    
+
     def init(self, context):
         AddInput(self, 'VRaySocketMtl', "Material")
 
 
-##      ##  #######  ########  ##       ########  
-##  ##  ## ##     ## ##     ## ##       ##     ## 
-##  ##  ## ##     ## ##     ## ##       ##     ## 
-##  ##  ## ##     ## ########  ##       ##     ## 
-##  ##  ## ##     ## ##   ##   ##       ##     ## 
-##  ##  ## ##     ## ##    ##  ##       ##     ## 
- ###  ###   #######  ##     ## ######## ########  
+##      ##  #######  ########  ##       ########
+##  ##  ## ##     ## ##     ## ##       ##     ##
+##  ##  ## ##     ## ##     ## ##       ##     ##
+##  ##  ## ##     ## ########  ##       ##     ##
+##  ##  ## ##     ## ##   ##   ##       ##     ##
+##  ##  ## ##     ## ##    ##  ##       ##     ##
+ ###  ###   #######  ##     ## ######## ########
 
 class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeWorldOutput'
@@ -97,7 +100,7 @@ class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
         description = "Override environment for GI",
         default     = False
     )
-    
+
     reflect_tex = bpy.props.BoolProperty(
         name        = "Override Reflect",
         description = "Override environment for reflection",
@@ -125,20 +128,21 @@ class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
         AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
 
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
     return (
-        VRayNodeOutput,
+        VRayNodeBlenderOutput,
+
+        VRayNodeOutputMaterial,
         VRayNodeWorldOutput,
         VRayNodeObjectOutput,
-        VRayNodeObjectMaterialInput,
     )
 
 

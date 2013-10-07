@@ -40,7 +40,7 @@ del properties_texture
 class VRAY_TP_context(classes.VRayTexturePanel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
-	
+
 	@classmethod
 	def poll(cls, context):
 		if not hasattr(context, "texture_slot"):
@@ -102,7 +102,7 @@ class VRAY_TP_context(classes.VRayTexturePanel):
 
 class VRAY_TP_preview(classes.VRayTexturePanel):
 	bl_label = "Preview"
-	
+
 	@classmethod
 	def poll(cls, context):
 		tex= context.texture
@@ -130,7 +130,7 @@ class VRAY_TP_preview(classes.VRayTexturePanel):
 
 # class VRAY_TP_displacement(classes.VRayTexturePanel):
 # 	bl_label = "Displacement"
-	
+
 # 	@classmethod
 # 	def poll(cls, context):
 # 		idblock= context_tex_datablock(context)
@@ -193,55 +193,10 @@ class VRAY_TP_preview(classes.VRayTexturePanel):
 # 					col.prop(GeomDisplacedMesh, 'tight_bounds')
 
 
-class VRAY_TP_bitmap(classes.VRayTexturePanel):
-	bl_label = "Bitmap"
-
-	@classmethod
-	def poll(cls, context):
-		if not classes.PollEngine(cls, context):
-			return False
-
-		tex= context.texture
-		if not tex:
-			return False
-
-		return (tex.type == 'IMAGE' and tex.image)
-
-	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
-
-		slot= getattr(context,'texture_slot',None)
-		tex= slot.texture if slot else context.texture
-
-		BitmapBuffer= tex.image.vray.BitmapBuffer
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BitmapBuffer, 'color_space')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(BitmapBuffer, 'filter_type', text="Filter")
-		if BitmapBuffer.filter_type != 'NONE':
-			col.prop(BitmapBuffer, 'filter_blur')
-		if BitmapBuffer.filter_type == 'MIPMAP':
-			col.prop(BitmapBuffer, 'interpolation', text="Interp.")
-		if wide_ui:
-			col= split.column()
-		col.prop(BitmapBuffer, 'use_input_gamma')
-		if not BitmapBuffer.use_input_gamma:
-			col.prop(BitmapBuffer, 'gamma')
-			#col.prop(BitmapBuffer, 'gamma_correct')
-		col.prop(BitmapBuffer, 'allow_negative_colors')
-		col.prop(BitmapBuffer, 'use_data_window')
-
-
 def GetRegClasses():
 	return (
 		VRAY_TP_context,
 		VRAY_TP_preview,
-		VRAY_TP_bitmap,
 	)
 
 

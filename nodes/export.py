@@ -24,20 +24,20 @@
 
 import bpy
 import mathutils
- 
+
 from vb25.lib     import ExportUtils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug
 from vb25.utils   import clean_string
 
 
-##     ## ######## #### ##       #### ######## #### ########  ######  
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##       
-##     ##    ##     ##  ##        ##     ##     ##  ######    ######  
-##     ##    ##     ##  ##        ##     ##     ##  ##             ## 
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
- #######     ##    #### ######## ####    ##    #### ########  ######  
+##     ## ######## #### ##       #### ######## #### ########  ######
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##
+##     ##    ##     ##  ##        ##     ##     ##  ######    ######
+##     ##    ##     ##  ##        ##     ##     ##  ##             ##
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
+ #######     ##    #### ######## ####    ##    #### ########  ######
 
 def GetConnectedNode(nodeTree, nodeSocket):
     for l in nodeSocket.links:
@@ -61,16 +61,16 @@ def GetNodeByType(nodetree, nodeType):
 
 
 def GetOutputNode(nodetree):
-    return GetNodeByType(nodetree, 'VRayNodeOutput')
+    return GetNodeByType(nodetree, 'VRayNodeOutputMaterial')
 
 
-##          ###    ##    ## ######## ########  ######## ########  
-##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
-##        ##   ##    ####   ##       ##     ## ##       ##     ## 
-##       ##     ##    ##    ######   ########  ######   ##     ## 
-##       #########    ##    ##       ##   ##   ##       ##     ## 
-##       ##     ##    ##    ##       ##    ##  ##       ##     ## 
-######## ##     ##    ##    ######## ##     ## ######## ########       
+##          ###    ##    ## ######## ########  ######## ########
+##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
+##        ##   ##    ####   ##       ##     ## ##       ##     ##
+##       ##     ##    ##    ######   ########  ######   ##     ##
+##       #########    ##    ##       ##   ##   ##       ##     ##
+##       ##     ##    ##    ##       ##    ##  ##       ##     ##
+######## ##     ##    ##    ######## ##     ## ######## ########
 
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile = bus['files']['materials']
@@ -110,13 +110,13 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     return pluginName
 
 
-######## ##     ## ########   #######  ########  ######## 
-##        ##   ##  ##     ## ##     ## ##     ##    ##    
-##         ## ##   ##     ## ##     ## ##     ##    ##    
-######      ###    ########  ##     ## ########     ##    
-##         ## ##   ##        ##     ## ##   ##      ##    
-##        ##   ##  ##        ##     ## ##    ##     ##    
-######## ##     ## ##         #######  ##     ##    ##    
+######## ##     ## ########   #######  ########  ########
+##        ##   ##  ##     ## ##     ## ##     ##    ##
+##         ## ##   ##     ## ##     ## ##     ##    ##
+######      ###    ########  ##     ## ########     ##
+##         ## ##   ##        ##     ## ##   ##      ##
+##        ##   ##  ##        ##     ## ##    ##     ##
+######## ##     ## ##         #######  ##     ##    ##
 
 def WriteConnectedNode(bus, nodetree, nodeSocket):
     Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
@@ -134,7 +134,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket):
                 #
                 if connectedSocket.vray_attr not in ['uvwgen']:
                     vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
-            
+
             return vrayPlugin
 
     return nodeSocket.value
@@ -147,16 +147,18 @@ def WriteNode(bus, nodetree, node):
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
 
+    vrayType   = node.vray_type
+    vrayPlugin = node.vray_plugin
+
+    if vrayType == 'NONE' or vrayPlugin == 'NONE':
+        return None
+
     pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
 
     if 'cache' in bus:
         if pluginName in bus['cache']['nodes']:
             return pluginName
-
         bus['cache']['nodes'].append(pluginName)
-
-    vrayType   = node.vray_type
-    vrayPlugin = node.vray_plugin
 
     Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
@@ -173,7 +175,7 @@ def WriteNode(bus, nodetree, node):
     pluginDesc = PLUGINS[vrayType][vrayPlugin]
 
     if hasattr(pluginDesc, 'writeDatablock'):
-        result = pluginDesc.writeDatablock(bus, dataPointer, pluginName, socketParams)
+        result = pluginDesc.writeDatablock(bus, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)
     else:
         result = ExportUtils.WriteDatablock(bus, vrayPlugin, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)
 
@@ -181,7 +183,7 @@ def WriteNode(bus, nodetree, node):
 
 
 def WriteVRayMaterialNodeTree(bus, nodetree):
-    outputNode = GetNodeByType(nodetree, 'VRayNodeOutput')
+    outputNode = GetNodeByType(nodetree, 'VRayNodeOutputMaterial')
     if not outputNode:
         Debug("Output node not found!", msgType='ERROR')
         return None
@@ -198,7 +200,7 @@ def WriteVRayMaterialNodeTree(bus, nodetree):
 
 def ExportNodeMaterial(bus):
     ma = bus['material']['material']
- 
+
     if not ma.vray.ntree:
         Debug("Node tree is no set for material \"%s\"!" % ma.name, msgType='ERROR')
         return bus['defaults']['material']
@@ -206,5 +208,5 @@ def ExportNodeMaterial(bus):
     pluginName = WriteVRayMaterialNodeTree(bus, ma.vray.ntree)
     if pluginName is None:
         return bus['defaults']['material']
-    
+
     return pluginName

@@ -106,12 +106,14 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, TexAColor, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, FloatOp, mappedParams):
     ofile = bus['files']['textures']
     scene = bus['scene']
 
-    ofile.write("\nFloatOp %s {" % pluginName)
-    ExportUtils.WritePluginParams(bus, ofile, TexAColor, mappedParams, PluginParams)
+    ofile.write("\n%s %s {" % (ID, pluginName))
+
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, FloatOp, mappedParams, PluginParams)
+
     ofile.write("\n}\n")
 
     return pluginName

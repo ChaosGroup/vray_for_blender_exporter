@@ -38,52 +38,17 @@ from vb25.lib import AttributeUtils
 from vb25.lib import ClassUtils
 from vb25.lib import CallbackUI
 
-from . import tree
+from .        import tree
+from .sockets import AddInput, AddOutput
 
 
-##     ## ######## #### ##       #### ######## #### ########  ######  
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##       
-##     ##    ##     ##  ##        ##     ##     ##  ######    ######  
-##     ##    ##     ##  ##        ##     ##     ##  ##             ## 
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ## 
- #######     ##    #### ######## ####    ##    #### ########  ######  
-
-def AddInput(node, socketType, socketName, attrName=None, default=None):
-    if socketName in node.inputs:
-        return
-
-    Debug("Adding input socket: '%s' <= '%s'" % (socketName, attrName), msgType='INFO')
-
-    node.inputs.new(socketType, socketName)
-
-    createdSocket = node.inputs[socketName]
-
-    if attrName is not None:
-        createdSocket.vray_attr = attrName
-
-    if default is not None:
-        if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
-            createdSocket.value = (default[0], default[1], default[2])
-            Debug("  Setting default value: (%.3f, %.3f, %.3f)" % (default[0], default[1], default[2]), msgType='INFO')
-        else:
-            createdSocket.value = default
-            Debug("  Setting default value: %s" % default, msgType='INFO')
-
-
-def AddOutput(node, socketType, socketName, attrName=None):
-    if socketName in node.outputs:
-        return
-
-    Debug("Adding output socket: '%s' <= '%s'" % (socketName, attrName), msgType='INFO')
-
-    node.outputs.new(socketType, socketName)
-
-    createdSocket = node.outputs[socketName]
-
-    if attrName is not None:
-        createdSocket.vray_attr = attrName
-
+##     ## ######## #### ##       #### ######## #### ########  ######
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##
+##     ##    ##     ##  ##        ##     ##     ##  ######    ######
+##     ##    ##     ##  ##        ##     ##     ##  ##             ##
+##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
+ #######     ##    #### ######## ####    ##    #### ########  ######
 
 def GetActiveNode(nodetree):
     if not nodetree:
@@ -91,13 +56,13 @@ def GetActiveNode(nodetree):
     return nodetree.nodes[-1]
 
 
-######## ######## ##     ## ######## ##     ## ########  ######## 
-   ##    ##        ##   ##     ##    ##     ## ##     ## ##       
-   ##    ##         ## ##      ##    ##     ## ##     ## ##       
-   ##    ######      ###       ##    ##     ## ########  ######   
-   ##    ##         ## ##      ##    ##     ## ##   ##   ##       
-   ##    ##        ##   ##     ##    ##     ## ##    ##  ##       
-   ##    ######## ##     ##    ##     #######  ##     ## ######## 
+######## ######## ##     ## ######## ##     ## ########  ########
+   ##    ##        ##   ##     ##    ##     ## ##     ## ##
+   ##    ##         ## ##      ##    ##     ## ##     ## ##
+   ##    ######      ###       ##    ##     ## ########  ######
+   ##    ##         ## ##      ##    ##     ## ##   ##   ##
+   ##    ##        ##   ##     ##    ##     ## ##    ##  ##
+   ##    ######## ##     ##    ##     #######  ##     ## ########
 
 class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeTexLayered'
@@ -119,13 +84,13 @@ class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
         self.outputs.new('VRaySocketColor', "Output")
 
 
-########  ########  ########  ######## 
-##     ## ##     ## ##     ## ##       
-##     ## ##     ## ##     ## ##       
-########  ########  ##     ## ######   
-##     ## ##   ##   ##     ## ##       
-##     ## ##    ##  ##     ## ##       
-########  ##     ## ########  ##       
+########  ########  ########  ########
+##     ## ##     ## ##     ## ##
+##     ## ##     ## ##     ## ##
+########  ########  ##     ## ######
+##     ## ##   ##   ##     ## ##
+##     ## ##    ##  ##     ## ##
+########  ##     ## ########  ##
 
 class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeBRDFLayered'
@@ -160,17 +125,17 @@ class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
         row = split.row(align=True)
         row.operator('vray.node_add_brdf_layered_sockets', icon="ZOOMIN", text="Add")
         row.operator('vray.node_del_brdf_layered_sockets', icon="ZOOMOUT", text="")
-        
+
         layout.prop(self, 'additive_mode')
 
 
-##     ## ######## ##    ## ##     ## 
-###   ### ##       ###   ## ##     ## 
-#### #### ##       ####  ## ##     ## 
-## ### ## ######   ## ## ## ##     ## 
-##     ## ##       ##  #### ##     ## 
-##     ## ##       ##   ### ##     ## 
-##     ## ######## ##    ##  #######  
+##     ## ######## ##    ## ##     ##
+###   ### ##       ###   ## ##     ##
+#### #### ##       ####  ## ##     ##
+## ### ## ######   ## ## ## ##     ##
+##     ## ##       ##  #### ##     ##
+##     ## ##       ##   ### ##     ##
+##     ## ######## ##    ##  #######
 
 VRayNodeTypes = {
     'TEXTURE'  : [],
@@ -189,10 +154,10 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
     bl_label  = "Output"
 
     def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeOutputMaterial)
         add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
         add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
-        add_nodetype(self.layout, bpy.types.VRayNodeObjectMaterialInput)
 
 
 class VRayNodesMenuMapping(bpy.types.Menu, tree.VRayData):
@@ -230,6 +195,15 @@ class VRayNodesMenuBRDF(bpy.types.Menu, tree.VRayData):
             add_nodetype(sub, vrayNodeType)
 
 
+class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuSelector"
+    bl_label  = "Selectors"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeSelectObject)
+        add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
+
+
 class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuMaterial"
     bl_label  = "Material"
@@ -249,24 +223,25 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuMapping")
     self.layout.menu("VRayNodesMenuMaterial")
     self.layout.menu("VRayNodesMenuOutput")
+    self.layout.menu("VRayNodesMenuSelector")
 
 
-#### ##    ## #### ######## 
- ##  ###   ##  ##     ##    
- ##  ####  ##  ##     ##    
- ##  ## ## ##  ##     ##    
- ##  ##  ####  ##     ##    
- ##  ##   ###  ##     ##    
-#### ##    ## ####    ##    
+#### ##    ## #### ########
+ ##  ###   ##  ##     ##
+ ##  ####  ##  ##     ##
+ ##  ## ## ##  ##     ##
+ ##  ##  ####  ##     ##
+ ##  ##   ###  ##     ##
+#### ##    ## ####    ##
 
-def VRayNodeDraw(self, context, layout): 
+def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
     if context.scene.vray.exporter.debug:
         layout.label(text="Type: %s"   % self.vray_type)
         layout.label(text="Plugin: %s" % self.vray_plugin)
-    
+
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     if hasattr(vrayPlugin, 'nodeDraw'):
         vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
@@ -285,7 +260,7 @@ def VRayNodeInit(self, context):
         return
     if not hasattr(self, 'vray_plugin') or self.vray_plugin == 'NONE':
         return
-    
+
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     bpyType    = getattr(bpy.types, self.vray_plugin)
 
@@ -297,7 +272,7 @@ def VRayNodeInit(self, context):
 
         if attr['type'] in AttributeUtils.OutputTypes:
             AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
-    
+
     if self.vray_type == 'TEXTURE':
         AddOutput(self, 'VRaySocketColor', "Output")
     elif self.vray_type == 'UVWGEN':
@@ -308,13 +283,13 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketMtl', "Material")
 
 
-########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######  
-##     ##  ##  ##  ###   ##   ## ##   ###   ###  ##  ##    ##    ###   ## ##     ## ##     ## ##       ##    ## 
-##     ##   ####   ####  ##  ##   ##  #### ####  ##  ##          ####  ## ##     ## ##     ## ##       ##       
-##     ##    ##    ## ## ## ##     ## ## ### ##  ##  ##          ## ## ## ##     ## ##     ## ######    ######  
-##     ##    ##    ##  #### ######### ##     ##  ##  ##          ##  #### ##     ## ##     ## ##             ## 
-##     ##    ##    ##   ### ##     ## ##     ##  ##  ##    ##    ##   ### ##     ## ##     ## ##       ##    ## 
-########     ##    ##    ## ##     ## ##     ## ####  ######     ##    ##  #######  ########  ########  ######  
+########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######
+##     ##  ##  ##  ###   ##   ## ##   ###   ###  ##  ##    ##    ###   ## ##     ## ##     ## ##       ##    ##
+##     ##   ####   ####  ##  ##   ##  #### ####  ##  ##          ####  ## ##     ## ##     ## ##       ##
+##     ##    ##    ## ## ## ##     ## ## ### ##  ##  ##          ## ## ## ##     ## ##     ## ######    ######
+##     ##    ##    ##  #### ######### ##     ##  ##  ##          ##  #### ##     ## ##     ## ##             ##
+##     ##    ##    ##   ### ##     ## ##     ##  ##  ##    ##    ##   ### ##     ## ##     ## ##       ##    ##
+########     ##    ##    ## ##     ## ##     ## ####  ######     ##    ##  #######  ########  ########  ######
 
 DynamicClasses = []
 
@@ -324,7 +299,7 @@ def LoadDynamicNodes():
     global VRayNodeTypes
 
     DynamicClasses = []
- 
+
     # Manually defined classes
     #
     for regClass in GetRegClasses():
@@ -361,57 +336,48 @@ def LoadDynamicNodes():
                 'vray_plugin' : pluginName,
             }
 
-            if 0:
+            # XXX: Loads fine, but sockets are not drawn
+            usePynodesFramwork = False
+
+            if usePynodesFramwork:
                 # !!! Associates nodes with a socket type
                 DynNodeClassAttrs['socket_type'] = tree.VRayTreeSockets
 
-                # XXX: Loads fine, but sockets are not drawn
-                #
                 for attr in vrayPlugin.PluginParams:
                     attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
-                
+
                     if attr['type'] not in AttributeUtils.OutputTypes and attr['type'] not in AttributeUtils.InputTypes:
                         continue
-                
-                    isOutput = attr['type'] in AttributeUtils.OutputTypes
-                
-                    if attr['type'] in {'FLOAT_TEXTURE'}:
-                        Debug("Adding attribute: %s" % attr_name)
-                        DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(attr_name, is_output=isOutput, description=attr['desc'])
 
-                # PrintDict("DynNodeClassAttrs for %s" % pluginName, DynNodeClassAttrs)
+                    isOutput = attr['type'] in AttributeUtils.OutputTypes
+
+                    if attr['type'] in {'FLOAT_TEXTURE'}:
+                        # Debug("  Adding attribute '%s' {%s}" % (attr_name, attr['type']))
+                        DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(name=attr_name, is_output=isOutput, description=attr['desc'])
+
+                PrintDict("DynNodeClassAttrs for %s" % pluginName, DynNodeClassAttrs)
 
                 DynNodeClass = type(
-                    # Name
                     DynNodeClassName,
-                    
-                    # Inheritance
-                    (bpy.types.Node, base.Node, tree.VRayTreeNode),
-                    
-                    # Attributes
+                    (bpy.types.Node, base.Node),
                     DynNodeClassAttrs
                 )
+
             else:
                 DynNodeClassAttrs['init']             = VRayNodeInit
                 DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
                 DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
 
                 DynNodeClass = type(
-                    DynNodeClassName,
-                    (bpy.types.Node, tree.VRayTreeNode),
-                    DynNodeClassAttrs
+                    DynNodeClassName,  # Name
+                    (bpy.types.Node,), # Inheritance
+                    DynNodeClassAttrs  # Attributes
                 )
 
             bpy.utils.register_class(DynNodeClass)
-          
-            # Load attributes
-            if hasattr(vrayPlugin, 'add_properties'):
-                vrayPlugin.add_properties(DynNodeClass)
-            else:
-                ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
-  
+
             ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
-            
+
             VRayNodeTypes[pluginType].append(getattr(bpy.types, DynNodeClassName))
 
             DynamicClasses.append(DynNodeClass)
@@ -420,16 +386,16 @@ def LoadDynamicNodes():
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
 
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 StaticClasses = (
-    VRayNodeTexLayered,    
+    VRayNodeTexLayered,
     VRayNodeBRDFLayered,
 
     VRayNodesMenuTexture,
@@ -437,6 +403,7 @@ StaticClasses = (
     VRayNodesMenuMapping,
     VRayNodesMenuMaterial,
     VRayNodesMenuOutput,
+    VRayNodesMenuSelector,
 )
 
 

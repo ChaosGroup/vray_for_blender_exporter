@@ -68,10 +68,11 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
 
         outputNode = nt.nodes.new('VRayNodeObjectOutput')
 
-        materialInput = nt.nodes.new('VRayNodeObjectMaterialInput')
-        materialInput.location.x  = outputNode.location.x - 200
+        blenderOut = nt.nodes.new('VRayNodeBlenderOutput')
+        blenderOut.location.x  = outputNode.location.x - 200
 
-        nt.links.new(materialInput.outputs['Material'], outputNode.inputs['Material'])
+        nt.links.new(blenderOut.outputs['Material'], outputNode.inputs['Material'])
+        nt.links.new(blenderOut.outputs['Geometry'], outputNode.inputs['Geometry'])
 
         VRayObject.ntree = nt
 
@@ -86,10 +87,10 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
     def execute(self, context):
         VRayWorld = context.world.vray
 
-        nt = bpy.data.node_groups.new("World", type='VRayWorldNodeTree')
+        nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
 
         outputNode = nt.nodes.new('VRayNodeWorldOutput')
-        
+
         VRayWorld.ntree = nt
 
         return {'FINISHED'}
@@ -105,7 +106,7 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
 
         nt = bpy.data.node_groups.new(context.material.name, type='VRayShaderTreeType')
 
-        outputNode = nt.nodes.new('VRayNodeOutput')
+        outputNode = nt.nodes.new('VRayNodeOutputMaterial')
 
         singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
         singleMaterial.location.x  = outputNode.location.x - 250
@@ -116,11 +117,11 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         brdfVRayMtl.location.y += 100
 
         nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
-                
+
         nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
 
         VRayMaterial.ntree = nt
-        
+
         return {'FINISHED'}
 
 
@@ -131,7 +132,7 @@ class VRAY_OT_node_add_brdf_layered_sockets(bpy.types.Operator):
 
     def execute(self, context):
         node = context.node
-        
+
         newIndex = int(len(node.inputs) / 2) + 1
 
         # BRDFLayered sockets are always in pairs
@@ -168,7 +169,7 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
                 brdfSockName   = "BRDF %s" % index
                 weightSockName = "Weight %s" % index
 
-                if not node.inputs[brdfSockName].is_linked and not node.inputs[weightSockName].is_linked:          
+                if not node.inputs[brdfSockName].is_linked and not node.inputs[weightSockName].is_linked:
                     node.inputs.remove(node.inputs[brdfSockName])
                     node.inputs.remove(node.inputs[weightSockName])
                     break
@@ -176,21 +177,21 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
         return {'FINISHED'}
 
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
     return (
         VRAY_OT_open_image,
-        
+
         VRAY_OT_node_add_brdf_layered_sockets,
         VRAY_OT_node_del_brdf_layered_sockets,
-        
+
         VRAY_OT_add_nodetree_light,
         VRAY_OT_add_nodetree_object,
         VRAY_OT_add_material_nodetree,

@@ -24,16 +24,17 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 import TexCommonParams
 
 
 TYPE = 'TEXTURE'
-ID   = 'TexSpeckle'
-NAME = 'Speckle'
+ID   = 'TexNoiseMax'
+NAME = 'Noise (3ds Max)'
 DESC = ""
+
 PluginParams = list(TexCommonParams.PluginTextureCommonParams)
 
 PluginParams.extend([
@@ -59,7 +60,37 @@ PluginParams.extend([
     {
         'attr' : 'size',
         'desc' : "Size",
-        'type' : 'FLOAT',
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0.1,
+    },
+    {
+        'attr' : 'phase',
+        'desc' : "Phase",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0,
+    },
+    {
+        'attr' : 'iterations',
+        'desc' : "Number of iterations for the fractal generator",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 3,
+    },
+    {
+        'attr' : 'low',
+        'desc' : "Low threshold",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0,
+    },
+    {
+        'attr' : 'high',
+        'desc' : "High threshold",
+        'type' : 'FLOAT_TEXTURE',
         'default' : 1,
+    },
+    {
+        'attr' : 'type',
+        'desc' : "Type (0 - regular, 1 - fractal, 3 - turbulence)",
+        'type' : 'INT',
+        'default' : 0,
     },
 ])

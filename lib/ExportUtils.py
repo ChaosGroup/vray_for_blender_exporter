@@ -29,16 +29,16 @@ from . import AttributeUtils
 from . import VRaySocket
 
 
-def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams):    
+def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams):
     scene      = None
     vraySocket = None
-    
+
     if bus['mode'] == 'VRSCENE':
         scene = bus['scene']
 
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
-    
+
     for attrDesc in PluginParams:
         attr  = attrDesc['attr']
         skip  = attrDesc.get('skip', False)
@@ -58,11 +58,11 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
             value = mappedParams[attr]
         else:
             value = getattr(dataPointer, attr)
-        
+
         if value is None:
-            Debug("%s::%s value is None!" % (dataPointer, attr), msgType='ERROR')
+            Debug("%s.%s value is None!" % (pluginName, attr), msgType='ERROR')
             continue
-        
+
         if attrDesc['type'] in AttributeUtils.PluginTypes and not value:
             continue
 
@@ -71,10 +71,10 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
                 continue
             else:
                 value = '"%s"' % value
-        
+
         if bus['mode'] == 'VRSCENE':
             ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
-        
+
         if bus['mode'] == 'SOCKET' and vraySocket:
             vraySocket.send("set %s.%s=%s" % (pluginName, attr, utils.FormatFalue(value)))
 

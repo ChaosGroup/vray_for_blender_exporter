@@ -24,16 +24,88 @@
 
 import bpy
 
+from pynodes_framework import base
 
- #######  ########        ## ########  ######  ######## 
-##     ## ##     ##       ## ##       ##    ##    ##    
-##     ## ##     ##       ## ##       ##          ##    
-##     ## ########        ## ######   ##          ##    
-##     ## ##     ## ##    ## ##       ##          ##    
-##     ## ##     ## ##    ## ##       ##    ##    ##    
- #######  ########   ######  ########  ######     ##    
+from vb25.debug import Debug
 
-class VRaySocketObject(bpy.types.NodeSocket):
+
+def AddInput(node, socketType, socketName, attrName=None, default=None):
+    if socketName in node.inputs:
+        return
+
+    Debug("Adding input socket: '%s' <= '%s'" % (socketName, attrName), msgType='INFO')
+
+    node.inputs.new(socketType, socketName)
+
+    createdSocket = node.inputs[socketName]
+
+    if attrName is not None:
+        createdSocket.vray_attr = attrName
+
+    if default is not None:
+        if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
+            createdSocket.value = (default[0], default[1], default[2])
+            Debug("  Setting default value: (%.3f, %.3f, %.3f)" % (default[0], default[1], default[2]), msgType='INFO')
+        else:
+            createdSocket.value = default
+            Debug("  Setting default value: %s" % default, msgType='INFO')
+
+
+def AddOutput(node, socketType, socketName, attrName=None):
+    if socketName in node.outputs:
+        return
+
+    Debug("Adding output socket: '%s' <= '%s'" % (socketName, attrName), msgType='INFO')
+
+    node.outputs.new(socketType, socketName)
+
+    createdSocket = node.outputs[socketName]
+
+    if attrName is not None:
+        createdSocket.vray_attr = attrName
+
+
+ ######   ########  #######  ##     ## ######## ######## ########  ##    ##
+##    ##  ##       ##     ## ###   ### ##          ##    ##     ##  ##  ##
+##        ##       ##     ## #### #### ##          ##    ##     ##   ####
+##   #### ######   ##     ## ## ### ## ######      ##    ########     ##
+##    ##  ##       ##     ## ##     ## ##          ##    ##   ##      ##
+##    ##  ##       ##     ## ##     ## ##          ##    ##    ##     ##
+ ######   ########  #######  ##     ## ########    ##    ##     ##    ##
+
+class VRaySocketGeom(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = 'VRaySocketGeom'
+    bl_label  = 'Geomtery socket'
+
+    value = bpy.props.StringProperty(
+        name = "Geometry",
+        description = "Geometry",
+        default = ""
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (0.1, 0.1, 0.1, 1.0)
+
+
+ #######  ########        ## ########  ######  ########
+##     ## ##     ##       ## ##       ##    ##    ##
+##     ## ##     ##       ## ##       ##          ##
+##     ## ########        ## ######   ##          ##
+##     ## ##     ## ##    ## ##       ##          ##
+##     ## ##     ## ##    ## ##       ##    ##    ##
+ #######  ########   ######  ########  ######     ##
+
+class VRaySocketObject(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketObject'
     bl_label  = 'Object socket'
 
@@ -57,15 +129,15 @@ class VRaySocketObject(bpy.types.NodeSocket):
         return (1.0, 1.0, 1.0, 1.0)
 
 
-#### ##    ## ######## 
- ##  ###   ##    ##    
- ##  ####  ##    ##    
- ##  ## ## ##    ##    
- ##  ##  ####    ##    
- ##  ##   ###    ##    
-#### ##    ##    ##    
+#### ##    ## ########
+ ##  ###   ##    ##
+ ##  ####  ##    ##
+ ##  ## ## ##    ##
+ ##  ##  ####    ##
+ ##  ##   ###    ##
+#### ##    ##    ##
 
-class VRaySocketInt(bpy.types.NodeSocket):
+class VRaySocketInt(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketInt'
     bl_label  = 'Integer socket'
 
@@ -96,15 +168,15 @@ class VRaySocketInt(bpy.types.NodeSocket):
         return (0.1, 0.4, 0.4, 1.00)
 
 
-######## ##        #######     ###    ######## 
-##       ##       ##     ##   ## ##      ##    
-##       ##       ##     ##  ##   ##     ##    
-######   ##       ##     ## ##     ##    ##    
-##       ##       ##     ## #########    ##    
-##       ##       ##     ## ##     ##    ##    
-##       ########  #######  ##     ##    ##    
+######## ##        #######     ###    ########
+##       ##       ##     ##   ## ##      ##
+##       ##       ##     ##  ##   ##     ##
+######   ##       ##     ## ##     ##    ##
+##       ##       ##     ## #########    ##
+##       ##       ##     ## ##     ##    ##
+##       ########  #######  ##     ##    ##
 
-class VRaySocketFloat(bpy.types.NodeSocket):
+class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketFloat'
     bl_label  = 'Float socket'
 
@@ -135,15 +207,15 @@ class VRaySocketFloat(bpy.types.NodeSocket):
         return (0.1, 0.4, 0.4, 1.00)
 
 
-######## ##        #######     ###    ########     ######   #######  ##        #######  ########  
-##       ##       ##     ##   ## ##      ##       ##    ## ##     ## ##       ##     ## ##     ## 
-##       ##       ##     ##  ##   ##     ##       ##       ##     ## ##       ##     ## ##     ## 
-######   ##       ##     ## ##     ##    ##       ##       ##     ## ##       ##     ## ########  
-##       ##       ##     ## #########    ##       ##       ##     ## ##       ##     ## ##   ##   
-##       ##       ##     ## ##     ##    ##       ##    ## ##     ## ##       ##     ## ##    ##  
-##       ########  #######  ##     ##    ##        ######   #######  ########  #######  ##     ## 
+######## ##        #######     ###    ########     ######   #######  ##        #######  ########
+##       ##       ##     ##   ## ##      ##       ##    ## ##     ## ##       ##     ## ##     ##
+##       ##       ##     ##  ##   ##     ##       ##       ##     ## ##       ##     ## ##     ##
+######   ##       ##     ## ##     ##    ##       ##       ##     ## ##       ##     ## ########
+##       ##       ##     ## #########    ##       ##       ##     ## ##       ##     ## ##   ##
+##       ##       ##     ## ##     ##    ##       ##    ## ##     ## ##       ##     ## ##    ##
+##       ########  #######  ##     ##    ##        ######   #######  ########  #######  ##     ##
 
-class VRaySocketFloatColor(bpy.types.NodeSocket):
+class VRaySocketFloatColor(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketFloatColor'
     bl_label  = 'Float color socket'
 
@@ -174,15 +246,15 @@ class VRaySocketFloatColor(bpy.types.NodeSocket):
         return (0.4, 0.4, 0.4, 1.00)
 
 
- ######   #######  ##        #######  ########  
-##    ## ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ########  
-##       ##     ## ##       ##     ## ##   ##   
-##    ## ##     ## ##       ##     ## ##    ##  
- ######   #######  ########  #######  ##     ## 
+ ######   #######  ##        #######  ########
+##    ## ##     ## ##       ##     ## ##     ##
+##       ##     ## ##       ##     ## ##     ##
+##       ##     ## ##       ##     ## ########
+##       ##     ## ##       ##     ## ##   ##
+##    ## ##     ## ##       ##     ## ##    ##
+ ######   #######  ########  #######  ##     ##
 
-class VRaySocketColor(bpy.types.NodeSocket):
+class VRaySocketColor(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketColor'
     bl_label  = 'Color socket'
 
@@ -216,15 +288,15 @@ class VRaySocketColor(bpy.types.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
-##     ## ########  ######  ########  #######  ########  
-##     ## ##       ##    ##    ##    ##     ## ##     ## 
-##     ## ##       ##          ##    ##     ## ##     ## 
-##     ## ######   ##          ##    ##     ## ########  
- ##   ##  ##       ##          ##    ##     ## ##   ##   
-  ## ##   ##       ##    ##    ##    ##     ## ##    ##  
-   ###    ########  ######     ##     #######  ##     ## 
+##     ## ########  ######  ########  #######  ########
+##     ## ##       ##    ##    ##    ##     ## ##     ##
+##     ## ##       ##          ##    ##     ## ##     ##
+##     ## ######   ##          ##    ##     ## ########
+ ##   ##  ##       ##          ##    ##     ## ##   ##
+  ## ##   ##       ##    ##    ##    ##     ## ##    ##
+   ###    ########  ######     ##     #######  ##     ##
 
-class VRaySocketVector(bpy.types.NodeSocket):
+class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketVector'
     bl_label  = 'Vector socket'
 
@@ -257,15 +329,15 @@ class VRaySocketVector(bpy.types.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
- ######   #######   #######  ########  ########   ######  
-##    ## ##     ## ##     ## ##     ## ##     ## ##    ## 
-##       ##     ## ##     ## ##     ## ##     ## ##       
-##       ##     ## ##     ## ########  ##     ##  ######  
-##       ##     ## ##     ## ##   ##   ##     ##       ## 
-##    ## ##     ## ##     ## ##    ##  ##     ## ##    ## 
- ######   #######   #######  ##     ## ########   ######  
+ ######   #######   #######  ########  ########   ######
+##    ## ##     ## ##     ## ##     ## ##     ## ##    ##
+##       ##     ## ##     ## ##     ## ##     ## ##
+##       ##     ## ##     ## ########  ##     ##  ######
+##       ##     ## ##     ## ##   ##   ##     ##       ##
+##    ## ##     ## ##     ## ##    ##  ##     ## ##    ##
+ ######   #######   #######  ##     ## ########   ######
 
-class VRaySocketCoords(bpy.types.NodeSocket):
+class VRaySocketCoords(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketCoords'
     bl_label  = 'Mapping socket'
 
@@ -289,7 +361,7 @@ class VRaySocketCoords(bpy.types.NodeSocket):
         return (0.250, 0.273, 0.750, 1.00)
 
 
-class VRaySocketBRDF(bpy.types.NodeSocket):
+class VRaySocketBRDF(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketBRDF'
     bl_label  = 'BRDF socket'
 
@@ -313,15 +385,15 @@ class VRaySocketBRDF(bpy.types.NodeSocket):
         return (0.156, 0.750, 0.304, 1.000)
 
 
-##     ##    ###    ######## ######## ########  ####    ###    ##       
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##       
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##       
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##       
-##     ## #########    ##    ##       ##   ##    ##  ######### ##       
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ######## 
+##     ##    ###    ######## ######## ########  ####    ###    ##
+###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
+#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
+## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
+##     ## #########    ##    ##       ##   ##    ##  ######### ##
+##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
+##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-class VRaySocketMtl(bpy.types.NodeSocket):
+class VRaySocketMtl(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketMtl'
     bl_label  = 'Material socket'
 
@@ -345,16 +417,17 @@ class VRaySocketMtl(bpy.types.NodeSocket):
         return (1.000, 0.468, 0.087, 1.000)
 
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
     return (
+        VRaySocketGeom,
         VRaySocketObject,
         VRaySocketInt,
         VRaySocketFloat,

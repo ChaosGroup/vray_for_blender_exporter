@@ -150,9 +150,10 @@ PluginParams = (
     },
 )
 
-PluginRefs = (
+PluginRefParams = (
     {
         'attr' : 'image',
+        'name' : "Image",
         'desc' : "Image pointer",
         'type' : 'IMAGE',
         'default' : None,
@@ -163,20 +164,19 @@ PluginRefs = (
 def nodeDraw(context, layout, BitmapBuffer):
     split = layout.split()
     row = split.row(align=True)
-    # idref.draw_idref(row, BitmapBuffer, 'image', text="")
+    idref.draw_idref(row, BitmapBuffer, 'image', text="")
     row.operator("vray.open_image", icon='ZOOMIN', text="")
 
 
-def writeDatablock(bus, BitmapBuffer, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, BitmapBuffer, mappedParams):
     ofile = bus['files']['textures']
     scene = bus['scene']
 
     ofile.write("\n%s %s {" % (ID, pluginName))
 
-    # XXX: Wait for lucas_t fix...
-    # if BitmapBuffer.image:
-    #     filepath = get_full_filepath(bus, BitmapBuffer.image, BitmapBuffer.image.filepath)
-    #     ofile.write('\n\tfile="%s";' % utils.AnimatedValue(scene, filepath))
+    if BitmapBuffer.image:
+        filepath = get_full_filepath(bus, BitmapBuffer.image, BitmapBuffer.image.filepath)
+        ofile.write('\n\tfile="%s";' % utils.AnimatedValue(scene, filepath))
 
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, BitmapBuffer, mappedParams, PluginParams)
 

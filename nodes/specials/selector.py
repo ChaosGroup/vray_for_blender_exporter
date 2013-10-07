@@ -24,7 +24,8 @@
 
 import bpy
 
-from .. import tree
+from ..        import tree
+from ..sockets import AddInput, AddOutput
 
 
 class VRayNodeSelectObject(bpy.types.Node, tree.VRayObjectNode):
@@ -32,20 +33,56 @@ class VRayNodeSelectObject(bpy.types.Node, tree.VRayObjectNode):
     bl_label  = 'Object Select'
     bl_icon   = 'VRAY_LOGO'
 
+    vray_type   = 'NONE'
+    vray_plugin = 'NONE'
+
+    objectName = bpy.props.StringProperty(
+        name        = "Object",
+        description = "Object name",
+        default     = ""
+    )
+
+    def init(self, context):
+        AddOutput(self, 'VRaySocketObject', "Object")
+
+
+    def draw_buttons(self, context, layout):
+        layout.prop_search(self, 'objectName',
+                           context.scene, 'objects',
+                           text="")
+
 
 class VRayNodeSelectGroup(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeSelectGroup'
     bl_label  = 'Group Select'
     bl_icon   = 'VRAY_LOGO'
 
+    vray_type   = 'NONE'
+    vray_plugin = 'NONE'
 
-########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ## 
-##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ## 
-##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ## 
-########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ## 
+    groupName = bpy.props.StringProperty(
+        name        = "Group",
+        description = "Group name",
+        default     = ""
+    )
+
+    def init(self, context):
+        AddOutput(self, 'VRaySocketObject', "Group")
+
+
+    def draw_buttons(self, context, layout):
+        layout.prop_search(self, 'groupName',
+                           bpy.data, 'groups',
+                           text="")
+
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
     return (

@@ -499,7 +499,7 @@ PluginParams = (
 )
 
 
-def gui(context, layout, BRDFVRayMtl, node=None):
+def gui(context, layout, BRDFVRayMtl):
     contextType = GetContextType(context)
     regionWidth = GetRegionWidthFromContext(context)
 
@@ -514,7 +514,7 @@ def gui(context, layout, BRDFVRayMtl, node=None):
     row = split.row(align=True)
     row.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
     row.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
-    
+
     split = layout.split()
     row = split.row()
     row.prop(BRDFVRayMtl, 'fresnel')

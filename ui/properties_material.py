@@ -33,7 +33,7 @@ from vb25.plugins import PLUGINS
 
 class VRAY_MP_preview(classes.VRayMaterialPanel):
 	bl_label = "Preview"
-	
+
 	COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
 	def draw(self, context):
@@ -61,7 +61,7 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 		if ob:
 			row = layout.row()
 
-			row.template_list("MATERIAL_UL_matslots", "", ob, "material_slots", ob, "active_material_index", rows=2)
+			row.template_list("VRayListMaterialSlots", "", ob, "material_slots", ob, "active_material_index", rows=4)
 
 			col = row.column(align=True)
 			col.operator("object.material_slot_add", icon='ZOOMIN', text="")
@@ -75,16 +75,10 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 				row.operator("object.material_slot_select", text="Select")
 				row.operator("object.material_slot_deselect", text="Deselect")
 
-		split = layout.split(percentage=0.65)
+		split = layout.split()
 
 		if ob:
-			split.template_ID(ob, "active_material", new="material.new")
-			row = split.row()
-
-			if slot:
-				row.prop(slot, "link", text="")
-			else:
-				row.label()
+			layout.template_ID(ob, "active_material", new="material.new")
 		elif mat:
 			split.template_ID(space, "pin_id")
 
@@ -93,9 +87,9 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 
 			layout.separator()
 			layout.prop(mat, "diffuse_color", text="Viewport Color")
-			
+
 			layout.separator()
-			
+
 			split = layout.split()
 			row = split.row(align=True)
 			idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
@@ -111,6 +105,8 @@ class VRAY_MP_node(classes.VRayMaterialPanel):
 		if not material:
 			return False
 		if not material.vray.ntree:
+			return False
+		if not len(material.vray.ntree.nodes):
 			return False
 		return classes.VRayMaterialPanel.poll(context)
 
@@ -139,13 +135,13 @@ class VRAY_MP_node(classes.VRayMaterialPanel):
 		else:
 			self.layout.label(text="Node: %s" % activeNode.name)
 			self.layout.separator()
-			
+
 			dataPointer = getattr(activeNode, activeNode.vray_plugin)
 
 			if hasattr(vrayPlugin, 'gui'):
 				vrayPlugin.gui(context, self.layout, dataPointer)
 			else:
-				DrawUtils.Draw(context, self.layout, dataPointer, vrayPlugin.PluginParams)		
+				DrawUtils.Draw(context, self.layout, dataPointer, vrayPlugin.PluginParams)
 
 
 # class VRAY_MP_outline(classes.VRayMaterialPanel):
