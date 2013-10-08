@@ -175,7 +175,6 @@ PluginParams = (
         'default' : 0.001,
     },
 
-
     # {
     #     'attr' : 'displace_2d',
     #     'desc' : "Use to enable 2d displacement. Overrides the vector_displacement flag",

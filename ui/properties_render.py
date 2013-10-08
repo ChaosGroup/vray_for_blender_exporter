@@ -191,7 +191,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 
 class VRAY_RP_render(classes.VRayRenderPanel):
 	bl_label = "Render"
-	
+
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > classes.narrowui
@@ -262,7 +262,7 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 		rtengineChosen = context.scene.render.engine == 'VRAY_RENDER_RT'
 
 		useRTEgine = rtengineOn or rtengineChosen
-		
+
 		return useRTEgine and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
@@ -526,14 +526,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = box.split()
 		col = split.column()
 		col.operator('vray.render', text=render_label, icon=render_icon)
-		if not ve.auto_meshes:
-			if wide_ui:
-				col = split.column()
-			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
-
-		split = box.split()
-		col = split.column()
-		col.operator('vray.write_vrscene', icon='OBJECT_DATA', text="C++ Export Operator")
+		col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
 
 
 class VRAY_RP_cm(classes.VRayRenderPanel):
@@ -629,7 +622,7 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 
 		if module.type != 'PRG':
 			layout.separator()
-			
+
 			split= layout.split()
 			col= split.column()
 			col.label(text="Filter type:")
@@ -1158,7 +1151,7 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 	def poll(cls, context):
 		VRayBake = context.scene.vray.VRayBake
 		return VRayBake.use and classes.VRayRenderPanel.poll(context)
-	
+
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 
@@ -1170,7 +1163,7 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.prop_search(VRayBake, 'bake_node', context.scene, 'objects')
-		
+
 		col.prop(VRayBake, 'uvChannel')
 
 		split= layout.split()
@@ -1188,7 +1181,7 @@ class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 	def poll(cls, context):
 		SettingsCaustics = context.scene.vray.SettingsCaustics
 		return SettingsCaustics.on and classes.VRayRenderPanel.poll(context)
-	
+
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 		layout= self.layout

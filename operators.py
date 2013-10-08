@@ -40,16 +40,16 @@ import vb25.proxy
 
 from vb25.lib     import VRaySocket, VRayProxy
 from vb25.utils   import *
-from vb25.plugins import *
+from vb25.plugins import PLUGINS
 
 
-##     ## ########  ########     ###    ######## ######## 
-##     ## ##     ## ##     ##   ## ##      ##    ##       
-##     ## ##     ## ##     ##  ##   ##     ##    ##       
-##     ## ########  ##     ## ##     ##    ##    ######   
-##     ## ##        ##     ## #########    ##    ##       
-##     ## ##        ##     ## ##     ##    ##    ##       
- #######  ##        ########  ##     ##    ##    ######## 
+##     ## ########  ########     ###    ######## ########
+##     ## ##     ## ##     ##   ## ##      ##    ##
+##     ## ##     ## ##     ##  ##   ##     ##    ##
+##     ## ########  ##     ## ##     ##    ##    ######
+##     ## ##        ##     ## #########    ##    ##
+##     ## ##        ##     ## ##     ##    ##    ##
+ #######  ##        ########  ##     ##    ##    ########
 
 class VRAY_OT_update(bpy.types.Operator):
 	bl_idname      = "vray.update"
@@ -103,7 +103,7 @@ class VRAY_OT_update(bpy.types.Operator):
 						os.system("del /Q /F %s" % s)
 			else:
 				shutil.rmtree(cur_vb25_dirpath)
-				
+
 		copytree(new_vb25_dirpath, cur_vb25_dirpath)
 
 		if os.path.exists(filename):
@@ -119,13 +119,13 @@ class VRAY_OT_update(bpy.types.Operator):
 		return {'FINISHED'}
 
 
- ######     ###    ##     ## ######## ########     ###    
-##    ##   ## ##   ###   ### ##       ##     ##   ## ##   
-##        ##   ##  #### #### ##       ##     ##  ##   ##  
-##       ##     ## ## ### ## ######   ########  ##     ## 
-##       ######### ##     ## ##       ##   ##   ######### 
-##    ## ##     ## ##     ## ##       ##    ##  ##     ## 
- ######  ##     ## ##     ## ######## ##     ## ##     ## 
+ ######     ###    ##     ## ######## ########     ###
+##    ##   ## ##   ###   ### ##       ##     ##   ## ##
+##        ##   ##  #### #### ##       ##     ##  ##   ##
+##       ##     ## ## ### ## ######   ########  ##     ##
+##       ######### ##     ## ##       ##   ##   #########
+##    ## ##     ## ##     ## ##       ##    ##  ##     ##
+ ######  ##     ## ##     ## ######## ##     ## ##     ##
 
 class VRAY_OT_lens_shift(bpy.types.Operator):
 	bl_idname=      'vray.lens_shift'
@@ -145,13 +145,13 @@ class VRAY_OT_lens_shift(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-######## ######## ######## ########  ######  ########  ######  
-##       ##       ##       ##       ##    ##    ##    ##    ## 
-##       ##       ##       ##       ##          ##    ##       
-######   ######   ######   ######   ##          ##     ######  
-##       ##       ##       ##       ##          ##          ## 
-##       ##       ##       ##       ##    ##    ##    ##    ## 
-######## ##       ##       ########  ######     ##     ######  
+######## ######## ######## ########  ######  ########  ######
+##       ##       ##       ##       ##    ##    ##    ##    ##
+##       ##       ##       ##       ##          ##    ##
+######   ######   ######   ######   ##          ##     ######
+##       ##       ##       ##       ##          ##          ##
+##       ##       ##       ##       ##    ##    ##    ##    ##
+######## ##       ##       ########  ######     ##     ######
 
 class VRAY_OT_effect_add(bpy.types.Operator):
 	bl_idname=      'vray.effect_add'
@@ -226,13 +226,13 @@ class VRAY_OT_effect_down(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-#### ##    ##  ######  ##       ##     ## ########  ######## ########  
- ##  ###   ## ##    ## ##       ##     ## ##     ## ##       ##     ## 
- ##  ####  ## ##       ##       ##     ## ##     ## ##       ##     ## 
- ##  ## ## ## ##       ##       ##     ## ##     ## ######   ########  
- ##  ##  #### ##       ##       ##     ## ##     ## ##       ##   ##   
- ##  ##   ### ##    ## ##       ##     ## ##     ## ##       ##    ##  
-#### ##    ##  ######  ########  #######  ########  ######## ##     ## 
+#### ##    ##  ######  ##       ##     ## ########  ######## ########
+ ##  ###   ## ##    ## ##       ##     ## ##     ## ##       ##     ##
+ ##  ####  ## ##       ##       ##     ## ##     ## ##       ##     ##
+ ##  ## ## ## ##       ##       ##     ## ##     ## ######   ########
+ ##  ##  #### ##       ##       ##     ## ##     ## ##       ##   ##
+ ##  ##   ### ##    ## ##       ##     ## ##     ## ##       ##    ##
+#### ##    ##  ######  ########  #######  ########  ######## ##     ##
 
 class VRAY_OT_includer_add(bpy.types.Operator):
 	bl_idname=      'vray.includer_add'
@@ -303,13 +303,13 @@ class VRAY_OT_includer_down(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-######## ##       ######## ##     ## ######## ##    ## ########  ######  
-##       ##       ##       ###   ### ##       ###   ##    ##    ##    ## 
-##       ##       ##       #### #### ##       ####  ##    ##    ##       
-######   ##       ######   ## ### ## ######   ## ## ##    ##     ######  
-##       ##       ##       ##     ## ##       ##  ####    ##          ## 
-##       ##       ##       ##     ## ##       ##   ###    ##    ##    ## 
-######## ######## ######## ##     ## ######## ##    ##    ##     ######  
+######## ##       ######## ##     ## ######## ##    ## ########  ######
+##       ##       ##       ###   ### ##       ###   ##    ##    ##    ##
+##       ##       ##       #### #### ##       ####  ##    ##    ##
+######   ##       ######   ## ### ## ######   ## ## ##    ##     ######
+##       ##       ##       ##     ## ##       ##  ####    ##          ##
+##       ##       ##       ##     ## ##       ##   ###    ##    ##    ##
+######## ######## ######## ##     ## ######## ##    ##    ##     ######
 
 class VRAY_OT_channel_add(bpy.types.Operator):
 	bl_idname=      'vray.render_channels_add'
@@ -346,13 +346,13 @@ class VRAY_OT_channel_del(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-########  ########  
-##     ## ##     ## 
-##     ## ##     ## 
-##     ## ########  
-##     ## ##   ##   
-##     ## ##    ##  
-########  ##     ## 
+########  ########
+##     ## ##     ##
+##     ## ##     ##
+##     ## ########
+##     ## ##   ##
+##     ## ##    ##
+########  ##     ##
 
 class VRAY_OT_node_add(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_add'
@@ -386,154 +386,62 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		return {'FINISHED'}
 
 
- ######   #######  ##    ## ##     ## ######## ########  ######## ######## ########  
-##    ## ##     ## ###   ## ##     ## ##       ##     ##    ##    ##       ##     ## 
-##       ##     ## ####  ## ##     ## ##       ##     ##    ##    ##       ##     ## 
-##       ##     ## ## ## ## ##     ## ######   ########     ##    ######   ########  
-##       ##     ## ##  ####  ##   ##  ##       ##   ##      ##    ##       ##   ##   
-##    ## ##     ## ##   ###   ## ##   ##       ##    ##     ##    ##       ##    ##  
- ######   #######  ##    ##    ###    ######## ##     ##    ##    ######## ##     ## 
-
-class VRAY_OT_convert_scene(bpy.types.Operator):
-	bl_idname      = "vray.convert_materials"
-	bl_label       = "Convert materials"
-	bl_description = "Convert scene materials from Blender Internal to V-Ray"
-
-	CONVERT_BLEND_TYPE= {
-		'MIX':          'OVER',
-		'SCREEN':       'OVER',
-		'DIVIDE':       'OVER',
-		'HUE':          'OVER',
-		'VALUE':        'OVER',
-		'COLOR':        'OVER',
-		'SOFT LIGHT':   'OVER',
-		'LINEAR LIGHT': 'OVER',
-		'OVERLAY':      'OVER',
-		'ADD':          'ADD',
-		'SUBTRACT':     'SUBTRACT',
-		'MULTIPLY':     'MULTIPLY',
-		'DIFFERENCE':   'DIFFERENCE',
-		'DARKEN':       'DARKEN',
-		'LIGHTEN':      'LIGHTEN',
-		'SATURATION':   'SATURATE',
-	}
-
-	def execute(self, context):
-		for ma in bpy.data.materials:
-			debug(context.scene, "Converting material: %s" % ma.name)
-
-			rm= ma.raytrace_mirror
-			rt= ma.raytrace_transparency
-
-			VRayMaterial= ma.vray
-			BRDFVRayMtl=  VRayMaterial.BRDFVRayMtl
-
-			BRDFVRayMtl.diffuse = ma.diffuse_color
-
-			if ma.emit > 0.0:
-				VRayMaterial.type= 'BRDFLight'
-
-			if rm.use:
-				BRDFVRayMtl.reflect_color= tuple([rm.reflect_factor]*3)
-				BRDFVRayMtl.reflect_glossiness= rm.gloss_factor
-				BRDFVRayMtl.reflect_subdivs= rm.gloss_samples
-				BRDFVRayMtl.reflect_depth= rm.depth
-				BRDFVRayMtl.option_cutoff= rm.gloss_threshold
-				BRDFVRayMtl.anisotropy= 1.0 - rm.gloss_anisotropic
-
-				if rm.fresnel > 0.0:
-					BRDFVRayMtl.fresnel= True
-					BRDFVRayMtl.fresnel_ior= rm.fresnel
-
-			for slot in ma.texture_slots:
-				if slot and slot.texture and slot.texture.type in TEX_TYPES:
-					VRaySlot=    slot.texture.vray_slot
-					VRayTexture= slot.texture.vray
-
-					VRaySlot.blend_mode= self.CONVERT_BLEND_TYPE[slot.blend_type]
-
-					if slot.use_map_emit:
-						VRayMaterial.type= 'BRDFLight'
-
-						VRaySlot.map_diffuse=  True
-
-					if slot.use_map_normal:
-						VRaySlot.map_normal=             True
-						VRaySlot.BRDFBump.bump_tex_mult= slot.normal_factor
-
-					if slot.use_map_color_diffuse:
-						VRaySlot.map_diffuse=  True
-						VRaySlot.diffuse_mult= slot.diffuse_color_factor
-
-					if slot.use_map_raymir:
-						VRaySlot.map_reflect=  True
-						VRaySlot.reflect_mult= slot.raymir_factor
-
-					if slot.use_map_alpha:
-						VRaySlot.map_opacity=  True
-						VRaySlot.opacity_mult= slot.alpha_factor
-
-		return {'FINISHED'}
-
-
-########  #######     ######## ######## ##     ## ######## 
-   ##    ##     ##       ##    ##        ##   ##     ##    
-   ##    ##     ##       ##    ##         ## ##      ##    
-   ##    ##     ##       ##    ######      ###       ##    
-   ##    ##     ##       ##    ##         ## ##      ##    
-   ##    ##     ##       ##    ##        ##   ##     ##    
-   ##     #######        ##    ######## ##     ##    ##    
+########  #######     ######## ######## ##     ## ########
+   ##    ##     ##       ##    ##        ##   ##     ##
+   ##    ##     ##       ##    ##         ## ##      ##
+   ##    ##     ##       ##    ######      ###       ##
+   ##    ##     ##       ##    ##         ## ##      ##
+   ##    ##     ##       ##    ##        ##   ##     ##
+   ##     #######        ##    ######## ##     ##    ##
 
 class VRAY_OT_settings_to_text(bpy.types.Operator):
-	bl_idname=      'vray.settings_to_text'
-	bl_label=       "Settings to Text"
-	bl_description= "Export settings to Text"
+	bl_idname      = 'vray.settings_to_text'
+	bl_label       = "Settings to Text"
+	bl_description = "Export settings to Text"
 
-	bb_code= BoolProperty(
-		name= "Use BB-code",
-		description= "Use BB-code formatting",
-		default= True
+	bb_code = BoolProperty(
+		name = "Use BB-code",
+		description = "Use BB-code formatting",
+		default = True
 	)
 
 	def execute(self, context):
+		text = bpy.data.texts.new(name="Settings")
 
-		text= bpy.data.texts.new(name="Settings")
+		bus = {}
+		bus['scene'] = context.scene
+		bus['preview'] = False
+		bus['files'] = {}
+		bus['files']['scene'] = text
+		bus['filenames'] = {}
+		bus['plugins'] = PLUGINS
+		bus['effects'] = {}
+		bus['effects']['fog']  = {}
+		bus['effects']['toon'] = {}
+		bus['effects']['toon']['effects'] = []
+		bus['effects']['toon']['objects'] = []
 
-		bus= {}
-		bus['scene']= context.scene
-		bus['preview']= False
-		bus['files']= {}
-		bus['files']['scene']= text
-		bus['filenames']= {}
-		bus['plugins']= PLUGINS
-		bus['effects']= {}
-		bus['effects']['fog']= {}
-		bus['effects']['toon']= {}
-		bus['effects']['toon']['effects']= []
-		bus['effects']['toon']['objects']= []
-
-		text.write("V-Ray/Blender 2.0 | Scene: %s | %s\n" % (context.scene.name,
-															 time.strftime("%d %b %Y %H:%m:%S")))
+		text.write("V-Ray/Blender 2.0 | Scene: %s | %s\n" % (context.scene.name, time.strftime("%d %b %Y %H:%m:%S")))
 
 		for key in PLUGINS['SETTINGS']:
 			if key in ('BakeView', 'RenderView', 'SettingsEnvironment'):
 				# Skip some plugins
 				continue
 
-			plugin= PLUGINS['SETTINGS'][key]
+			plugin = PLUGINS['SETTINGS'][key]
 			if hasattr(plugin, 'write'):
 				plugin.write(bus)
 
 		return {'FINISHED'}
 
 
-########  ########  ######   #######  ##       ##     ## ######## ####  #######  ##    ## 
-##     ## ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ###   ## 
-##     ## ##       ##       ##     ## ##       ##     ##    ##     ##  ##     ## ####  ## 
-########  ######    ######  ##     ## ##       ##     ##    ##     ##  ##     ## ## ## ## 
-##   ##   ##             ## ##     ## ##       ##     ##    ##     ##  ##     ## ##  #### 
-##    ##  ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ##   ### 
-##     ## ########  ######   #######  ########  #######     ##    ####  #######  ##    ## 
+########  ########  ######   #######  ##       ##     ## ######## ####  #######  ##    ##
+##     ## ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ###   ##
+##     ## ##       ##       ##     ## ##       ##     ##    ##     ##  ##     ## ####  ##
+########  ######    ######  ##     ## ##       ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##             ## ##     ## ##       ##     ##    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ## ##     ## ##       ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   #######  ########  #######     ##    ####  #######  ##    ##
 
 class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_idname      = "vray.flip_resolution"
@@ -541,13 +449,13 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 	bl_description = "Flip render resolution"
 
 	def execute(self, context):
-		scene= context.scene
-		rd=    scene.render
+		scene = context.scene
+		rd    = scene.render
 
-		VRayScene= scene.vray
+		VRayScene = scene.vray
 
 		if VRayScene.image_aspect_lock:
-			VRayScene.image_aspect= 1.0 / VRayScene.image_aspect
+			VRayScene.image_aspect = 1.0 / VRayScene.image_aspect
 
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
@@ -555,48 +463,31 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-######## ##     ## ########   #######  ########  ######## 
-##        ##   ##  ##     ## ##     ## ##     ##    ##    
-##         ## ##   ##     ## ##     ## ##     ##    ##    
-######      ###    ########  ##     ## ########     ##    
-##         ## ##   ##        ##     ## ##   ##      ##    
-##        ##   ##  ##        ##     ## ##    ##     ##    
-######## ##     ## ##         #######  ##     ##    ##    
+######## ##     ## ########   #######  ########  ########
+##        ##   ##  ##     ## ##     ## ##     ##    ##
+##         ## ##   ##     ## ##     ## ##     ##    ##
+######      ###    ########  ##     ## ########     ##
+##         ## ##   ##        ##     ## ##   ##      ##
+##        ##   ##  ##        ##     ## ##    ##     ##
+######## ##     ## ##         #######  ##     ##    ##
 
-def init(context):
-	scene= context.scene
-
-	# Settings bus
-	bus= {}
-
-	# Plugins
-	bus['plugins']= PLUGINS
-
-	# Scene
-	bus['scene']= scene
-
-	# Preview
-	bus['preview']= False
-
-	# XXX: remove
-	bus['uvs']= {}
-
-	# Output files
-	bus['files']=     {}
-	bus['filenames']= {}
-
-	init_files(bus)
-
-	return bus
 
 class VRAY_OT_write_scene(bpy.types.Operator):
 	bl_idname      = "vray.write_scene"
 	bl_label       = "Export scene"
-	bl_description = "Export scene to \"vrscene\" file"
+	bl_description = "Export scene to a \"vrscene\" file"
 
 	def execute(self, context):
+		bus = {}
+		bus['plugins'] = PLUGINS
+		bus['scene'] = context.scene
+		bus['preview'] = False
+		bus['files']     = {}
+		bus['filenames'] = {}
 
-		vb25.render.write_scene(init(context))
+		init_files(bus)
+
+		vb25.render.write_scene(bus)
 
 		return {'FINISHED'}
 
@@ -629,29 +520,27 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 		return self.execute(context)
 
 	def execute(self, context):
+		bus = {}
+		bus['plugins'] = PLUGINS
+		bus['scene'] = context.scene
+		bus['preview'] = False
+		bus['files']     = {}
+		bus['filenames'] = {}
 
-		vb25.render.write_geometry(init(context))
+		init_files(bus, skipGeom=True)
+
+		vb25.render.write_geometry(bus)
 
 		return {'FINISHED'}
 
 
-class VRAY_OT_write_vrscene(bpy.types.Operator):
-	bl_idname      = "vray.write_vrscene"
-	bl_label       = "Export Scene"
-	bl_description = "Export scene into a *.vrscene files"
-
-	def execute(self, context):
-		bpy.ops.vray.export_vrscene()
-		return {'FINISHED'}
-
-
-########  ######## ##    ## ########  ######## ########  
-##     ## ##       ###   ## ##     ## ##       ##     ## 
-##     ## ##       ####  ## ##     ## ##       ##     ## 
-########  ######   ## ## ## ##     ## ######   ########  
-##   ##   ##       ##  #### ##     ## ##       ##   ##   
-##    ##  ##       ##   ### ##     ## ##       ##    ##  
-##     ## ######## ##    ## ########  ######## ##     ## 
+########  ######## ##    ## ########  ######## ########
+##     ## ##       ###   ## ##     ## ##       ##     ##
+##     ## ##       ####  ## ##     ## ##       ##     ##
+########  ######   ## ## ## ##     ## ######   ########
+##   ##   ##       ##  #### ##     ## ##       ##   ##
+##    ##  ##       ##   ### ##     ## ##       ##    ##
+##     ## ######## ##    ## ########  ######## ##     ##
 
 class VRAY_OT_render(bpy.types.Operator):
 	bl_idname      = "vray.render"
@@ -670,13 +559,13 @@ class VRAY_OT_render(bpy.types.Operator):
 
 
 
-########  ##     ## ##    ## 
-##     ## ##     ## ###   ## 
-##     ## ##     ## ####  ## 
-########  ##     ## ## ## ## 
-##   ##   ##     ## ##  #### 
-##    ##  ##     ## ##   ### 
-##     ##  #######  ##    ## 
+########  ##     ## ##    ##
+##     ## ##     ## ###   ##
+##     ## ##     ## ####  ##
+########  ##     ## ## ## ##
+##   ##   ##     ## ##  ####
+##    ##  ##     ## ##   ###
+##     ##  #######  ##    ##
 
 class VRAY_OT_run(bpy.types.Operator):
 	bl_idname      = "vray.run"
@@ -684,11 +573,8 @@ class VRAY_OT_run(bpy.types.Operator):
 	bl_description = "Run V-Ray renderer"
 
 	def execute(self, context):
-
 		vb25.render.run(None, context.scene)
-
 		return {'FINISHED'}
-
 
 
 class VRAY_OT_terminate(bpy.types.Operator):
@@ -706,13 +592,13 @@ class VRAY_OT_terminate(bpy.types.Operator):
 		return {'FINISHED'}
 
 
- ######   #######  ##        #######  ########  
-##    ## ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ########  
-##       ##     ## ##       ##     ## ##   ##   
-##    ## ##     ## ##       ##     ## ##    ##  
- ######   #######  ########  #######  ##     ## 
+ ######   #######  ##        #######  ########
+##    ## ##     ## ##       ##     ## ##     ##
+##       ##     ## ##       ##     ## ##     ##
+##       ##     ## ##       ##     ## ########
+##       ##     ## ##       ##     ## ##   ##
+##    ## ##     ## ##       ##     ## ##    ##
+ ######   #######  ########  #######  ##     ##
 
 class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 	bl_idname      = "vray.set_kelvin_color"
@@ -808,13 +694,14 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 		return {'FINISHED'}
 
 
- ######   #######  ##        #######  ########  
-##    ## ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ##     ## 
-##       ##     ## ##       ##     ## ########  
-##       ##     ## ##       ##     ## ##   ##   
-##    ## ##     ## ##       ##     ## ##    ##  
- ######   #######  ########  #######  ##     ## 
+######## ######## ##     ## ######## ##     ## ########  ########  ######
+   ##    ##        ##   ##     ##    ##     ## ##     ## ##       ##    ##
+   ##    ##         ## ##      ##    ##     ## ##     ## ##       ##
+   ##    ######      ###       ##    ##     ## ########  ######    ######
+   ##    ##         ## ##      ##    ##     ## ##   ##   ##             ##
+   ##    ##        ##   ##     ##    ##     ## ##    ##  ##       ##    ##
+   ##    ######## ##     ##    ##     #######  ##     ## ########  ######
+
 class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_idname      = "vray.add_sky"
 	bl_label       = "Add Sky texture"
@@ -840,13 +727,13 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-##       #### ##    ## ##    ## #### ##    ##  ######   
-##        ##  ###   ## ##   ##   ##  ###   ## ##    ##  
-##        ##  ####  ## ##  ##    ##  ####  ## ##        
-##        ##  ## ## ## #####     ##  ## ## ## ##   #### 
-##        ##  ##  #### ##  ##    ##  ##  #### ##    ##  
-##        ##  ##   ### ##   ##   ##  ##   ### ##    ##  
-######## #### ##    ## ##    ## #### ##    ##  ######   
+##       #### ##    ## ##    ## #### ##    ##  ######
+##        ##  ###   ## ##   ##   ##  ###   ## ##    ##
+##        ##  ####  ## ##  ##    ##  ####  ## ##
+##        ##  ## ## ## #####     ##  ## ## ## ##   ####
+##        ##  ##  #### ##  ##    ##  ##  #### ##    ##
+##        ##  ##   ### ##   ##   ##  ##   ### ##    ##
+######## #### ##    ## ##    ## #### ##    ##  ######
 
 class VRAY_OT_copy_linked_materials(bpy.types.Operator):
 	bl_idname      = "vray.copy_linked_materials"
@@ -902,12 +789,10 @@ def GetRegClasses():
 		VRAY_OT_channel_del,
 		VRAY_OT_node_add,
 		VRAY_OT_node_del,
-		VRAY_OT_convert_scene,
 		VRAY_OT_settings_to_text,
 		VRAY_OT_flip_resolution,
 		VRAY_OT_write_scene,
 		VRAY_OT_write_geometry,
-		VRAY_OT_write_vrscene,
 		VRAY_OT_render,
 		VRAY_OT_run,
 		VRAY_OT_terminate,

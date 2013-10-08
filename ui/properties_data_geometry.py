@@ -97,7 +97,7 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 		col.prop(GeomMeshFile, 'dirpath')
 		col.prop(GeomMeshFile, 'filename')
 		col.separator()
-		col.prop(GeomMeshFile, 'mode', text="Attach mode")
+		col.prop(GeomMeshFile, 'proxy_attach_mode', text="Attach mode")
 
 		split= layout.split()
 		col= split.column()

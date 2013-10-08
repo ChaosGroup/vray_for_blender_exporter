@@ -498,21 +498,14 @@ def color(text, color=None):
 
 
 # Log message
-def debug(scene, message, newline= True, cr= True, error= False):
-	# sys.stdout.write("[%s] V-Ray/Blender: %s%s%s" % (
-	# 	time.strftime("%Y/%b/%d|%H:%m:%S"),
-	# 	color("Error! ", 'red') if error else '',
-	# 	message,
-	# 	'\n' if newline else '\r' if cr else '')
-	# )
+def debug(scene, message, newline=True, cr=True, error=False):
 	sys.stdout.write("%s: %s%s%s" % (
 		color("V-Ray/Blender", 'green'),
 		color("Error! ", 'red') if error else '',
 		message,
 		'\n' if newline else '\r' if cr else '')
 	)
-	if not newline:
-		sys.stdout.flush()
+	sys.stdout.flush()
 
 
 # Prints dictionary
@@ -565,7 +558,7 @@ def a(scene, t):
 
 	if VRayExporter.camera_loop:
 		frame = VRayExporter.customFrame
-	
+
 	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
 		return p(t)
 
@@ -1039,7 +1032,7 @@ def get_vray_standalone_path(sce):
 
 
 # Inits directories / files
-def init_files(bus):
+def init_files(bus, skipGeom=False):
 	scene = bus['scene']
 
 	VRayScene      = scene.vray
@@ -1106,24 +1099,27 @@ def init_files(bus):
 
 	export_directory = create_dir(export_filepath)
 
-	for key in ('geometry', 'lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment', 'nodetree'):
-		if key == 'geometry':
-			filepath = os.path.join(export_directory, "%s_geometry_00.vrscene" % (export_filename))
+	fileTypes = ['lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment', 'nodetree', 'geom']
+
+	for key in fileTypes:
+		if key == 'scene' and VRayDR.on:
+			# Scene file MUST be on top of scene directory
+			filepath = os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
 		else:
-			if key == 'scene' and VRayDR.on:
-				# Scene file MUST be on top of scene directory
-				filepath = os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
-			else:
-				filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
-			bus['files'][key] = open(filepath, 'w')
+			filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
+
 		bus['filenames'][key] = filepath
+		# Do no reset geometry file
+		if key == 'geom' and skipGeom:
+			continue
+		bus['files'][key] = open(filepath, 'w', encoding='ascii')
 
 	# Duplicate "Color mapping" setting to a separate file for correct preview
 	#
 	cmFilepath = getColorMappingFilepath()
 	bus['filenames']['colorMapping'] = cmFilepath
 	if not bus['preview']:
-		bus['files']['colorMapping'] = open(cmFilepath, 'w')
+		bus['files']['colorMapping'] = open(cmFilepath, 'w', encoding='ascii')
 
 	# Render output dir
 	bus['filenames']['output'] = create_dir(output_filepath)

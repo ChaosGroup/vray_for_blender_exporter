@@ -39,29 +39,49 @@ from vb25.utils   import clean_string
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
  #######     ##    #### ######## ####    ##    #### ########  ######
 
-def GetConnectedNode(nodeTree, nodeSocket):
+def GetNodeName(ntree, node):
+    return clean_string("NT%sN%s" % (ntree.name, node.name))
+
+
+def GetConnectedNode(ntree, nodeSocket):
     for l in nodeSocket.links:
         if l.from_node:
             return l.from_node
     return None
 
 
-def GetConnectedSocket(nodeTree, nodeSocket):
+def GetConnectedSocket(ntree, nodeSocket):
     for l in nodeSocket.links:
         if l.from_socket:
             return l.from_socket
     return None
 
 
-def GetNodeByType(nodetree, nodeType):
-    for n in nodetree.nodes:
+def GetNodeByType(ntree, nodeType):
+    for n in ntree.nodes:
         if n.bl_idname == nodeType:
             return n
     return None
 
 
-def GetOutputNode(nodetree):
-    return GetNodeByType(nodetree, 'VRayNodeOutputMaterial')
+def GetOutputNode(ntree):
+    return GetNodeByType(ntree, 'VRayNodeOutputMaterial')
+
+
+def GetOutputName(ntree):
+    outputNode = GetNodeByType(ntree, 'VRayNodeOutputMaterial')
+    if not outputNode:
+        return bus['defaults']['material']
+
+    materialSocket = outputNode.inputs['Material']
+    if not materialSocket.is_linked:
+        return bus['defaults']['material']
+
+    connectedNode = GetConnectedNode(ntree, materialSocket)
+    if not connectedNode:
+        return bus['defaults']['material']
+
+    return GetNodeName(ntree, connectedNode)
 
 
 ##          ###    ##    ## ######## ########  ######## ########
@@ -132,7 +152,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket):
                 # TODO: get plugin desc and check if the attr is output,
                 # but skip uvwgen anyway.
                 #
-                if connectedSocket.vray_attr not in ['uvwgen']:
+                if connectedSocket.vray_attr not in {'uvwgen'}:
                     vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
 
             return vrayPlugin
@@ -158,7 +178,7 @@ def WriteNode(bus, nodetree, node):
     if 'cache' in bus:
         if pluginName in bus['cache']['nodes']:
             return pluginName
-        bus['cache']['nodes'].append(pluginName)
+        bus['cache']['nodes'][pluginName] = None
 
     Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
@@ -182,31 +202,25 @@ def WriteNode(bus, nodetree, node):
     return result
 
 
+##     ##    ###    ######## ######## ########  ####    ###    ##
+###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
+#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
+## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
+##     ## #########    ##    ##       ##   ##    ##  ######### ##
+##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
+##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
+
 def WriteVRayMaterialNodeTree(bus, nodetree):
     outputNode = GetNodeByType(nodetree, 'VRayNodeOutputMaterial')
     if not outputNode:
         Debug("Output node not found!", msgType='ERROR')
-        return None
+        return bus['defaults']['material']
 
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
         Debug("NodeTree: %s" % nodetree.name, msgType='ERROR')
         Debug("  Node: %s" % outputNode.name, msgType='ERROR')
         Debug("  Error: Material socket is not connected!", msgType='ERROR')
-        return None
+        return bus['defaults']['material']
 
     return WriteConnectedNode(bus, nodetree, materialSocket)
-
-
-def ExportNodeMaterial(bus):
-    ma = bus['material']['material']
-
-    if not ma.vray.ntree:
-        Debug("Node tree is no set for material \"%s\"!" % ma.name, msgType='ERROR')
-        return bus['defaults']['material']
-
-    pluginName = WriteVRayMaterialNodeTree(bus, ma.vray.ntree)
-    if pluginName is None:
-        return bus['defaults']['material']
-
-    return pluginName

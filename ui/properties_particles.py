@@ -27,17 +27,6 @@ import bpy
 from vb25.ui import classes
 
 
-from bl_ui import properties_particle
-for member in dir(properties_particle):
-	subclass= getattr(properties_particle, member)
-	try:
-		for compatEngine in ui.COMPAT_ENGINES:
-			subclass.COMPAT_ENGINES.add(compatEngine)
-	except:
-		pass
-del properties_particle
-
-
 class VRAY_PP_hair(classes.VRayParticlePanel):
 	bl_label       = "Fur"
 	bl_options     = {'DEFAULT_CLOSED'}
@@ -71,10 +60,30 @@ def GetRegClasses():
 
 
 def register():
+	from bl_ui import properties_particle
+	for member in dir(properties_particle):
+		subclass = getattr(properties_particle, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.add(compatEngine)
+		except:
+			pass
+	del properties_particle
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
 
 def unregister():
+	from bl_ui import properties_particle
+	for member in dir(properties_particle):
+		subclass = getattr(properties_particle, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.remove(compatEngine)
+		except:
+			pass
+	del properties_particle
+
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)

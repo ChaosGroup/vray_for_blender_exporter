@@ -32,6 +32,7 @@ import time
 import bpy
 import bmesh
 
+from vb25.lib   import VRayProxy
 from vb25.utils import *
 
 
@@ -101,7 +102,7 @@ def write_mesh_hq(ofile, sce, ob):
 				ofile.write("uf=%i,%i,%i\n" % (k,k+1,k+2))
 				k+= 3
 	ofile.write("\n")
-	
+
 	debug(sce, "Generating HQ file done [%.2f]" % (time.clock() - timer))
 
 
@@ -113,13 +114,13 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 	os.remove(hq_file.name)
 
 
-########  ########   #######  ##     ## ##    ## 
-##     ## ##     ## ##     ##  ##   ##   ##  ##  
-##     ## ##     ## ##     ##   ## ##     ####   
-########  ########  ##     ##    ###       ##    
-##        ##   ##   ##     ##   ## ##      ##    
-##        ##    ##  ##     ##  ##   ##     ##    
-##        ##     ##  #######  ##     ##    ##    
+########  ########   #######  ##     ## ##    ##
+##     ## ##     ## ##     ##  ##   ##   ##  ##
+##     ## ##     ## ##     ##   ## ##     ####
+########  ########  ##     ##    ###       ##
+##        ##   ##   ##     ##   ## ##      ##
+##        ##    ##  ##     ##  ##   ##     ##
+##        ##     ##  #######  ##     ##    ##
 
 class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 	bl_idname      = "vray.proxy_load_preview"
@@ -132,6 +133,14 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 
 		proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
 		proxyFilename = os.path.basename(proxyFilepath)
+
+		if not proxyFilepath:
+			self.report({'ERROR'}, "Proxy filepath is not set!")
+			return {'FINISHED'}
+
+		if not os.path.exists(proxyFilepath):
+			self.report({'ERROR'}, "Proxy filepath does not exist!")
+			return {'FINISHED'}
 
 		meshFile = VRayProxy.MeshFile(proxyFilepath)
 		result = meshFile.readFile()
@@ -291,7 +300,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 					GeomMeshFile= VRayMesh.GeomMeshFile
 					GeomMeshFile.file= bpy.path.relpath(vrmesh_filepath)
 			debug(context.scene, "Proxy generation total time: %.2f\n" % (time.clock() - timer))
-		
+
 		if len(bpy.context.selected_objects):
 			for ob in bpy.context.selected_objects:
 				_create_proxy(ob)
