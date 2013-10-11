@@ -31,7 +31,6 @@ if directory not in sys.path:
 
 if "bpy" in locals():
     import imp
-    imp.reload(lib)
     imp.reload(plugins)
     imp.reload(preset)
     imp.reload(operators)
@@ -43,7 +42,6 @@ if "bpy" in locals():
     imp.reload(keymap)
 else:
     import bpy
-    from vb25 import lib
     from vb25 import plugins
     from vb25 import preset
     from vb25 import operators

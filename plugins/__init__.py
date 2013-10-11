@@ -49,6 +49,7 @@ PLUGINS = {
 	'TEXTURE':       {},
 	'WORLD':         {},
 	'UVWGEN':        {},
+	'EFFECT':        {},
 }
 
 
@@ -97,7 +98,7 @@ base_dir = os.path.join(get_vray_exporter_path(), "plugins")
 if not base_dir or not os.path.exists(base_dir):
 	Debug("Plugin directory not found!", msgType='ERROR')
 else:
-	for subdir in ("", "brdf", "texture", "material", "uvwgen", "light", "geometry", "settings", "renderchannel"):
+	for subdir in ("", "brdf", "texture", "material", "uvwgen", "light", "geometry", "settings", "renderchannel", "effects"):
 		plugins_dir = os.path.join(base_dir, subdir)
 
 		if not plugins_dir in sys.path:
@@ -1068,19 +1069,27 @@ def register():
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
-	idref.bpy_register_idref(VRayMaterial, 'ntree', idref.IDRefProperty(
+	idref.bpy_register_idref(VRayScene, 'ntree', idref.IDRefProperty(
 		"Node Tree",
-		"V-Ray material node tree",
+		"V-Ray scene node tree",
 		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayShaderTreeType',
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeScene',
 		options = {'FAKE_USER'},
 	))
-
+	
 	idref.bpy_register_idref(VRayWorld, 'ntree', idref.IDRefProperty(
 		"Node Tree",
 		"V-Ray environment node tree",
 		idtype = 'NODETREE',
 		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeWorld',
+		options = {'FAKE_USER'},
+	))
+	
+	idref.bpy_register_idref(VRayMaterial, 'ntree', idref.IDRefProperty(
+		"Node Tree",
+		"V-Ray material node tree",
+		idtype = 'NODETREE',
+		poll = lambda s, p: p.bl_idname == 'VRayShaderTreeType',
 		options = {'FAKE_USER'},
 	))
 
@@ -1175,6 +1184,8 @@ def register():
 	  Loading plugin properties
 	'''
 	LoadPlugins(PLUGINS['SETTINGS'],      VRayScene)
+	LoadPlugins(PLUGINS['EFFECT'],        VRayScene)
+
 	LoadPlugins(PLUGINS['GEOMETRY'],      VRayMesh)
 	LoadPlugins(PLUGINS['CAMERA'],        VRayCamera)
 	LoadPlugins(PLUGINS['RENDERCHANNEL'], VRayRenderChannel)

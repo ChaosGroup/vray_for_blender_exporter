@@ -314,7 +314,7 @@ def write_geometry(bus):
 
     def write_frame(bus):
         bus['cache'] = {}
-        bus['cache']['mesh'] = []
+        bus['cache']['mesh'] = set()
 
         for ob in scene.objects:
             if ob.type not in GEOM_TYPES:
@@ -336,25 +336,14 @@ def write_geometry(bus):
 
             if mesh_name in bus['cache']['mesh']:
                 continue
-            bus['cache']['mesh'].append(mesh_name)
+            bus['cache']['mesh'].add(mesh_name)
 
-            mesh = ob.to_mesh(scene, True, 'RENDER')
-
-            if False:
-                _vray_for_blender.exportMesh(
-                    bpy.context.as_pointer(), # Context
-                    ob.as_pointer(),          # Object
-                    mesh.as_pointer(),        # Mesh
-                    mesh_name,                # Result plugin name
-                    bus['files']['geom']      # Output file
-                )
-            else:
-                _vray_for_blender.exportObjectMesh(
-                    bpy.context.as_pointer(), # Context
-                    ob.as_pointer(),          # Object
-                    mesh_name,                # Result plugin name
-                    bus['files']['geom']      # Output file
-                )
+            _vray_for_blender.exportMesh(
+                bpy.context.as_pointer(), # Context
+                ob.as_pointer(),          # Object
+                mesh_name,                # Result plugin name
+                bus['files']['geom']      # Output file
+            )
 
     timer = time.clock()
     debug(scene, "Writing meshes...")
@@ -895,23 +884,6 @@ def write_object(bus):
     bus['node']['geometry'] = get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
     bus['node']['matrix']   = ob.matrix_world
 
-    if len(ob.modifiers):
-        for md in ob.modifiers:
-            if not md.type == 'SMOKE':
-                continue
-            if not md.smoke_type == 'DOMAIN':
-                continue
-
-            texVoxelData = clean_string("OB%sSMD%s" % (ob.name, md.name))
-
-            _vray_for_blender.exportSmoke(
-                bpy.context.as_pointer(), # Context
-                ob.as_pointer(),          # Object
-                md.as_pointer(),          # SmokeModifierData
-                texVoxelData,             # Result plugin name
-                bus['files']['geom']      # Output file
-            )
-
     # Write object materials
     write_materials(bus)
 
@@ -927,9 +899,9 @@ def write_object(bus):
 
     if VRayExporter.auto_meshes:
         if bus['node']['geometry'] not in bus['cache']['mesh']:
-            bus['cache']['mesh'][bus['node']['geometry']] = None
+            bus['cache']['mesh'].add(bus['node']['geometry'])
 
-            _vray_for_blender.exportObjectMesh(
+            _vray_for_blender.exportMesh(
                 bpy.context.as_pointer(), # Context
                 ob.as_pointer(),          # Object
                 bus['node']['geometry'],  # Result plugin name
@@ -1293,8 +1265,34 @@ def write_scene(bus):
                     for ob in fog_objects:
                         if not object_visible(bus, ob):
                             continue
-                        if ob not in exclude_list:
-                            exclude_list.append(ob)
+                        if ob in exclude_list:
+                            continue
+
+                        exclude_list.append(ob)
+
+                        if len(ob.modifiers):
+                            for md in ob.modifiers:
+                                if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
+                                    # Export smoke data
+                                    texVoxelData = clean_string("OB%sSMD%s" % (ob.name, md.name))
+
+                                    _vray_for_blender.exportSmoke(
+                                        bpy.context.as_pointer(), # Context
+                                        ob.as_pointer(),          # Object
+                                        md.as_pointer(),          # SmokeModifierData
+                                        texVoxelData,             # Result plugin name
+                                        bus['files']['geom']      # Output file
+                                    )
+
+                                    # Since object will be skipped, export smoke domain here
+                                    mesh_name = get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
+
+                                    _vray_for_blender.exportMesh(
+                                        bpy.context.as_pointer(), # Context
+                                        ob.as_pointer(),          # Object
+                                        mesh_name,                # Result plugin name
+                                        bus['files']['geom']      # Output file
+                                    )
 
     for ob in scene.objects:
         if ob.type in ('CAMERA','ARMATURE','LATTICE'):
@@ -1317,8 +1315,8 @@ def write_scene(bus):
 
         # Cache stores already exported data
         bus['cache'] = {}
-        bus['cache']['nodes'] = {}
-        bus['cache']['mesh'] = {}
+        bus['cache']['nodes'] = set()
+        bus['cache']['mesh'] = set()
 
         # Fake frame for "Camera loop"
         if VRayExporter.camera_loop:

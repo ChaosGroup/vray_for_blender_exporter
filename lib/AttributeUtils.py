@@ -61,6 +61,7 @@ OutputTypes = {
     'OUTPUT_COLOR',
     'OUTPUT_FLOAT_TEXTURE',
     'OUTPUT_VECTOR_TEXTURE',
+    'OUTPUT_TRANSFORM_TEXTURE',
     'OUTPUT_TEXTURE',
 }
 
@@ -80,10 +81,11 @@ TypeToSocket = {
     'FLOAT_TEXTURE' : 'VRaySocketFloatColor',
     'INT_TEXTURE'   : 'VRaySocketFloatColor',
 
-    'OUTPUT_COLOR'          : 'VRaySocketColor',
-    'OUTPUT_FLOAT_TEXTURE'  : 'VRaySocketFloatColor',
-    'OUTPUT_TEXTURE'        : 'VRaySocketColor',
-    'OUTPUT_VECTOR_TEXTURE' : 'VRaySocketFloatColor',
+    'OUTPUT_COLOR'             : 'VRaySocketColor',
+    'OUTPUT_FLOAT_TEXTURE'     : 'VRaySocketFloatColor',
+    'OUTPUT_TEXTURE'           : 'VRaySocketColor',
+    'OUTPUT_VECTOR_TEXTURE'    : 'VRaySocketFloatColor',
+    'OUTPUT_TRANSFORM_TEXTURE' : 'VRaySocketVector',
 }
 
 TypeToProp = {
@@ -105,10 +107,11 @@ TypeToProp = {
     'FLOAT_TEXTURE' : bpy.props.FloatProperty,
     'TEXTURE'       : bpy.props.FloatVectorProperty,
 
-    'OUTPUT_COLOR'          : bpy.props.FloatVectorProperty,
-    'OUTPUT_FLOAT_TEXTURE'  : bpy.props.FloatProperty,
-    'OUTPUT_TEXTURE'        : bpy.props.FloatVectorProperty,
-    'OUTPUT_VECTOR_TEXTURE' : bpy.props.FloatVectorProperty,
+    'OUTPUT_COLOR'             : bpy.props.FloatVectorProperty,
+    'OUTPUT_FLOAT_TEXTURE'     : bpy.props.FloatProperty,
+    'OUTPUT_TEXTURE'           : bpy.props.FloatVectorProperty,
+    'OUTPUT_VECTOR_TEXTURE'    : bpy.props.FloatVectorProperty,
+    'OUTPUT_TRANSFORM_TEXTURE' : bpy.props.FloatVectorProperty,
 }
 
 
@@ -127,12 +130,17 @@ def GenerateAttribute(classMembers, attrDesc):
         'default'     : attrDesc['default'],
     }
 
-    if attrDesc['type'] in {'IMAGE', 'NODETREE'}:
+    if attrDesc['type'] in {'IMAGE', 'NODETREE', 'TEXTURE'}:
+        options = {'FAKE_USER'}
+        if 'options' in attrDesc:
+            for opt in attrDesc['options']:
+                options.add(opt)
+
         classMembers[attrDesc['attr']] = idref.IDRefProperty(
             attrArgs['name'],
             attrArgs['description'],
             idtype = attrDesc['type'],
-            options = {'FAKE_USER'},
+            options = options,
         )
         return
 

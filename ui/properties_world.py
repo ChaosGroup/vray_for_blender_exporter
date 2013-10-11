@@ -27,7 +27,16 @@ import bpy
 from pynodes_framework import idref
 
 from vb25.ui      import classes
+from vb25.lib     import DrawUtils
 from vb25.plugins import PLUGINS
+
+
+def TreeHasNodes(ntree):
+    if not ntree:
+        return False
+    if not len(ntree.nodes):
+        return False
+    return True
 
 
 class VRAY_WP_context_world(classes.VRayWorldPanel):
@@ -60,86 +69,121 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         row = split.row(align=True)
         idref.draw_idref(row, VRayWorld, 'ntree', text="Node Tree")
         row.operator("vray.add_world_nodetree", icon='ZOOMIN', text="")
+    
+        if not TreeHasNodes(VRayWorld.ntree):
+            return
+
+        activeNode = VRayWorld.ntree.nodes[-1]
+
+        vrayPlugin = None
+        toShow     = True
+
+        if not hasattr(activeNode, 'vray_type'):
+            toShow = False
+        else:
+            if activeNode.vray_type == 'NONE' or activeNode.vray_plugin == 'NONE':
+                toShow = False
+            else:
+                if not hasattr(activeNode, activeNode.vray_plugin):
+                    toShow = False
+                pluginTypes = PLUGINS[activeNode.vray_type]
+
+                if activeNode.vray_plugin in pluginTypes:
+                    vrayPlugin = pluginTypes[activeNode.vray_plugin]
+
+        layout.separator()
+
+        if not toShow or not vrayPlugin:
+            self.layout.label(text="Selected node has no attibutes to show...")
+        else:
+            self.layout.label(text="Selected node: %s" % activeNode.name)
+            self.layout.separator()
+
+            dataPointer = getattr(activeNode, activeNode.vray_plugin)
+
+            if hasattr(vrayPlugin, 'gui'):
+                vrayPlugin.gui(context, self.layout, dataPointer)
+            else:
+                DrawUtils.Draw(context, self.layout, dataPointer, vrayPlugin.PluginParams)
 
 
-class VRAY_WP_effects(classes.VRayWorldPanel):
-    bl_label   = "Effects"
-    bl_options = {'DEFAULT_CLOSED'}
+# class VRAY_WP_effects(classes.VRayWorldPanel):
+#     bl_label   = "Effects"
+#     bl_options = {'DEFAULT_CLOSED'}
 
     
-    def draw_header(self, context):
-        VRayScene= context.scene.vray
-        self.layout.prop(VRayScene.VRayEffects, 'use', text="")
+#     def draw_header(self, context):
+#         VRayScene= context.scene.vray
+#         self.layout.prop(VRayScene.VRayEffects, 'use', text="")
 
-    def draw(self, context):
-        layout= self.layout
+#     def draw(self, context):
+#         layout= self.layout
 
-        wide_ui= context.region.width > classes.narrowui
+#         wide_ui= context.region.width > classes.narrowui
 
-        VRayScene= context.scene.vray
-        VRayEffects= VRayScene.VRayEffects
+#         VRayScene= context.scene.vray
+#         VRayEffects= VRayScene.VRayEffects
 
-        layout.active= VRayEffects.use
+#         layout.active= VRayEffects.use
 
-        split= layout.split()
-        row= split.row()
-        row.template_list("VRayListUse", "",
-                          VRayEffects, 'effects',
-                          VRayEffects, 'effects_selected',
-                          rows= 4)
-        col= row.column()
-        sub= col.row()
-        subsub= sub.column(align=True)
-        subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
-        subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
-        sub= col.row()
-        subsub= sub.column(align=True)
-        subsub.operator("vray.effect_up",   icon='MOVE_UP_VEC',   text="")
-        subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
+#         split= layout.split()
+#         row= split.row()
+#         row.template_list("VRayListUse", "",
+#                           VRayEffects, 'effects',
+#                           VRayEffects, 'effects_selected',
+#                           rows= 4)
+#         col= row.column()
+#         sub= col.row()
+#         subsub= sub.column(align=True)
+#         subsub.operator('vray.effect_add',    text="", icon="ZOOMIN")
+#         subsub.operator('vray.effect_remove', text="", icon="ZOOMOUT")
+#         sub= col.row()
+#         subsub= sub.column(align=True)
+#         subsub.operator("vray.effect_up",   icon='MOVE_UP_VEC',   text="")
+#         subsub.operator("vray.effect_down", icon='MOVE_DOWN_VEC', text="")
 
-        if VRayEffects.effects_selected >= 0:
-            layout.separator()
+#         if VRayEffects.effects_selected >= 0:
+#             layout.separator()
 
-            effect= VRayEffects.effects[VRayEffects.effects_selected]
+#             effect= VRayEffects.effects[VRayEffects.effects_selected]
 
-            if wide_ui:
-                split= layout.split(percentage=0.2)
-            else:
-                split= layout.split()
-            col= split.column()
-            col.label(text="Name:")
-            if wide_ui:
-                col= split.column()
-            row= col.row(align=True)
-            row.prop(effect, 'name', text="")
+#             if wide_ui:
+#                 split= layout.split(percentage=0.2)
+#             else:
+#                 split= layout.split()
+#             col= split.column()
+#             col.label(text="Name:")
+#             if wide_ui:
+#                 col= split.column()
+#             row= col.row(align=True)
+#             row.prop(effect, 'name', text="")
 
-            if wide_ui:
-                split= layout.split(percentage=0.2)
-            else:
-                split= layout.split()
-            col= split.column()
-            col.label(text="Type:")
-            if wide_ui:
-                col= split.column()
-            col.prop(effect, 'type', text="")
+#             if wide_ui:
+#                 split= layout.split(percentage=0.2)
+#             else:
+#                 split= layout.split()
+#             col= split.column()
+#             col.label(text="Type:")
+#             if wide_ui:
+#                 col= split.column()
+#             col.prop(effect, 'type', text="")
 
-            layout.separator()
+#             layout.separator()
 
-            # Box border
-            box = layout.box()
-            box.active = effect.use
+#             # Box border
+#             box = layout.box()
+#             box.active = effect.use
 
-            if effect.type == 'FOG':
-                PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, box, effect)
+#             if effect.type == 'FOG':
+#                 PLUGINS['SETTINGS']['SettingsEnvironment'].draw_EnvironmentFog(context, box, effect)
 
-            elif effect.type == 'TOON':
-                PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
+#             elif effect.type == 'TOON':
+#                 PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, box, effect)
 
 
 def GetRegClasses():
     return (
         VRAY_WP_context_world,
-        VRAY_WP_effects,
     )
 
 

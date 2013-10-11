@@ -117,16 +117,52 @@ PARAMS= {
 
 def add_properties(rna_pointer):
 	class SphereFade(bpy.types.PropertyGroup):
-		pass
+		use = BoolProperty(
+			name        = "",
+			description = "",
+			default     = False
+		)
+
+		affect_alpha = BoolProperty(
+			name        = "Affect Alpha",
+			description = "Affect Alpha",
+			default     = False
+		)
+
+		empty_color= FloatVectorProperty(
+			name= "Empty Color",
+			description= "",
+			subtype= 'COLOR',
+			min= 0.0,
+			max= 1.0,
+			soft_min= 0.0,
+			soft_max= 1.0,
+			default= (0.5,0.5,0.5)
+		)
+
+		falloff= FloatProperty(
+			name= "Falloff",
+			description= "",
+			min= 0.0,
+			max= 100.0,
+			soft_min= 0.0,
+			soft_max= 10.0,
+			precision= 3,
+			default= 0.2
+		)
+
+		gizmos_objects= StringProperty(
+			name= "Gizmo",
+			description= "",
+			default= ""
+		)
+
+		gizmos_groups= StringProperty(
+			name= "Gizmo group",
+			description= "",
+			default= ""
+		)
 	bpy.utils.register_class(SphereFade)
-
-	class VolumeVRayToon(bpy.types.PropertyGroup):
-		pass
-	bpy.utils.register_class(VolumeVRayToon)
-
-	class EnvironmentFog(bpy.types.PropertyGroup):
-		pass
-	bpy.utils.register_class(EnvironmentFog)
 
 	class EnvironmentEffect(bpy.types.PropertyGroup):
 		pass
@@ -136,22 +172,10 @@ def add_properties(rna_pointer):
 		pass
 	bpy.utils.register_class(VRayEffects)
 
-	rna_pointer.EnvironmentFog= PointerProperty(
-		name= "EnvironmentFog",
-		type=  EnvironmentFog,
-		description= "EnvironmentFog settings"
-	)
-
 	rna_pointer.SphereFade= PointerProperty(
 		name= "SphereFade",
 		type=  SphereFade,
 		description= "SphereFade settings"
-	)
-
-	rna_pointer.VolumeVRayToon= PointerProperty(
-		name= "VolumeVRayToon",
-		type=  VolumeVRayToon,
-		description= "VolumeVRayToon settings"
 	)
 
 	rna_pointer.VRayEffects= PointerProperty(
@@ -197,586 +221,10 @@ def add_properties(rna_pointer):
 		default= True
 	)
 
-	EnvironmentEffect.EnvironmentFog= PointerProperty(
-		name= "EnvironmentFog",
-		type=  EnvironmentFog,
-		description= "V-Ray EnvironmentFog settings"
-	)
-
-	EnvironmentEffect.VolumeVRayToon= PointerProperty(
-		name= "VolumeVRayToon",
-		type=  VolumeVRayToon,
-		description= "V-Ray VolumeVRayToon settings"
-	)
-
 	EnvironmentEffect.SphereFade= PointerProperty(
 		name= "SphereFade",
 		type=  SphereFade,
 		description= "SphereFade settings"
-	)
-
-	EnvironmentFog.emission= FloatVectorProperty(
-		name= "Emission",
-		description= "Fog emission color",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0,0,0)
-	)
-
-	EnvironmentFog.emission_mult= FloatProperty(
-		name= "Emission mult",
-		description= "Emission mult",
-		min= 0.0,
-		max= 100000.0,
-		soft_min= 0.0,
-		soft_max= 100.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	EnvironmentFog.emission_mult_tex= FloatProperty(
-		name= "Emission texture mult",
-		description= "Emission texture mult",
-		min= 0.0,
-		max= 100000.0,
-		soft_min= 0.0,
-		soft_max= 100.0,
-		precision= 3,
-		default= 1
-	)
-
-	EnvironmentFog.color= FloatVectorProperty(
-		name= "Color",
-		description= "Fog color",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (1.0,1.0,1.0)
-	)
-
-	EnvironmentFog.distance= FloatProperty(
-		name= "Distance",
-		description= "Distance between fog particles",
-		min= 0.0,
-		max= 10000.0,
-		soft_min= 0.0,
-		soft_max= 100.0,
-		precision= 3,
-		default= 0.2
-	)
-
-	EnvironmentFog.density= FloatProperty(
-		name= "Density",
-		description= "A multiplier for the Fog distance parameter that allows a texture to be used for the density of the fog",
-		min= 0.0,
-		max= 1000.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	EnvironmentFog.density_tex = StringProperty(
-		name        = "Density Texture",
-		description = "",
-		default     = ""
-	)
-
-	EnvironmentFog.emission_tex = StringProperty(
-		name        = "Emission Texture",
-		description = "",
-		default     = ""
-	)
-
-	EnvironmentFog.use_height= BoolProperty(
-		name= "Use height",
-		description= "Whether or not the height should be taken into account",
-		default= False
-	)
-
-	EnvironmentFog.height= FloatProperty(
-		name= "Height",
-		description= "Fog starting point along the Z-axis",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 100
-	)
-
-	EnvironmentFog.subdivs= IntProperty(
-		name= "Subdivs",
-		description= "Fog subdivision",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 8
-	)
-
-	EnvironmentFog.affect_background= BoolProperty(
-		name= "Affect background",
-		description= "Affect background",
-		default= True
-	)
-
-	EnvironmentFog.yup= BoolProperty(
-		name= "Y-up",
-		description= "If true, y is the up axis, not z",
-		default= False
-	)
-
-	EnvironmentFog.fade_out_mode= EnumProperty(
-		name= "Fade out mode",
-		description= "Fade out mode",
-		items= (
-			('SUBSTRACT', "Substract", ""),
-			('MULT',      "Multiply",  ""),
-		),
-		default= 'MULT'
-	)
-
-	EnvironmentFog.fade_out_radius= FloatProperty(
-		name= "Fade out radius",
-		description= "Fade out effect for the edges",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0
-	)
-
-	EnvironmentFog.per_object_fade_out_radius= BoolProperty(
-		name= "Per object fade out radius",
-		description= "Fade out effect for the edges per object",
-		default= False
-	)
-
-	EnvironmentFog.use_fade_out_tex= BoolProperty(
-		name= "Use fade out tex",
-		description= "True if the fade_out_tex should be used for fade out computation",
-		default= False
-	)
-
-	EnvironmentFog.edge_fade_out= FloatProperty(
-		name= "Edge fade out",
-		description= "Used with the fade_out_tex, mimics Maya fluid's edge dropoff attribute",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0
-	)
-
-	EnvironmentFog.fade_out_type= IntProperty(
-		name= "Fade out type",
-		description= "0 - used for the gradients and the grid falloff(fadeout);1 - used for the sphere, cone and double cone types;2 - used for the cube type, the computations are done in the TexMayaFluidProcedural plug-in;",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 0
-	)
-
-	EnvironmentFog.scatter_gi= BoolProperty(
-		name= "Scatter GI",
-		description= "Scatter global illumination",
-		default= True
-	)
-
-	EnvironmentFog.scatter_bounces= IntProperty(
-		name= "Scatter bounces",
-		description= "Number of GI bounces calculated inside the fog",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 8
-	)
-
-	EnvironmentFog.simplify_gi= BoolProperty(
-		name= "Simplify GI",
-		description= "Simplify global illumination",
-		default= False
-	)
-
-	EnvironmentFog.step_size= FloatProperty(
-		name= "Step size",
-		description= "Size of one step through the volume",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	EnvironmentFog.max_steps= IntProperty(
-		name= "Max steps",
-		description= "Maximum number of steps through the volume",
-		min= 0,
-		max= 10000,
-		soft_min= 0,
-		soft_max= 10000,
-		default= 1000
-	)
-
-	EnvironmentFog.tex_samples= IntProperty(
-		name= "Texture samples",
-		description= "Number of texture samples for each step through the volume",
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 10,
-		default= 4
-	)
-
-	EnvironmentFog.cutoff_threshold= FloatProperty(
-		name= "Cutoff",
-		description= "Controls when the raymarcher will stop traversing the volume",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.001
-	)
-
-	EnvironmentFog.light_mode= EnumProperty(
-		name= "Light mode",
-		description= "Light mode",
-		items= (
-			('ADDGIZMO',"Add to per-gizmo lights",""),
-			('INTERGIZMO',"Intersect with per-gizmo lights",""),
-			('OVERGIZMO',"Override per-gizmo lights",""),
-			('PERGIZMO',"Use per-gizmo lights",""),
-			('NO',"No lights","")
-		),
-		default= 'PERGIZMO'
-	)
-
-	EnvironmentFog.lights= StringProperty(
-		name= "Lights",
-		description= "",
-		default= ""
-	)
-
-	EnvironmentFog.use_shade_instance= BoolProperty(
-		name= "Use shade instance",
-		description= "True if the shade instance should be used when sampling textures",
-		default= False
-	)
-
-	EnvironmentFog.objects= StringProperty(
-		name= "Objects",
-		description= "",
-		default= ""
-	)
-
-	EnvironmentFog.groups= StringProperty(
-		name= "Groups",
-		description= "",
-		default= ""
-	)
-	# affect_background
-	EnvironmentFog.affect_background= BoolProperty(
-		name= "Affect background",
-		description= "Affect background",
-		default= True
-	)
-
-	# affect_reflections
-	EnvironmentFog.affect_reflections= BoolProperty(
-		name= "Affect reflections",
-		description= "true if the fog is visible to reflection rays",
-		default= True
-	)
-
-	# affect_refractions
-	EnvironmentFog.affect_refractions= BoolProperty(
-		name= "Affect refractions",
-		description= "true if the fog is visible to refraction rays",
-		default= True
-	)
-
-	# affect_shadows
-	EnvironmentFog.affect_shadows= BoolProperty(
-		name= "Affect shadows",
-		description= "true if the fog affects shadow rays",
-		default= True
-	)
-
-	# affect_gi
-	EnvironmentFog.affect_gi= BoolProperty(
-		name= "Affect GI",
-		description= "true if the fog affects GI rays",
-		default= True
-	)
-
-	# affect_camera
-	EnvironmentFog.affect_camera= BoolProperty(
-		name= "Affect camera",
-		description= "true if the fog affects primary camera rays",
-		default= True
-	)
-
-	VolumeVRayToon.use= BoolProperty(
-		name= "Use",
-		description= "Render outline",
-		default= False
-	)
-
-	VolumeVRayToon.override_material= BoolProperty(
-		name= "Override material",
-		description= "Override outline set in materials",
-		default= False
-	)
-
-	# lineColor
-	VolumeVRayToon.lineColor= FloatVectorProperty(
-		name= "Color",
-		description= "The color of cartoon line",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0,0,0)
-	)
-
-	# widthType
-	VolumeVRayToon.widthType= EnumProperty(
-		name= "Type",
-		description= "",
-		items= (
-			('WORLD', "World",  "World units"),
-			('PIXEL', "Pixels", "Pixels")
-		),
-		default= 'PIXEL'
-	)
-
-	# lineWidth
-	VolumeVRayToon.lineWidth= FloatProperty(
-		name= "Width",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 5,
-		default= 1.5
-	)
-
-	# opacity
-	VolumeVRayToon.opacity= FloatProperty(
-		name= "Opacity",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1
-	)
-
-	# hideInnerEdges
-	VolumeVRayToon.hideInnerEdges= BoolProperty(
-		name= "Hide inner edges",
-		description= "",
-		default= True
-	)
-
-	# normalThreshold
-	VolumeVRayToon.normalThreshold= FloatProperty(
-		name= "Normal thresh",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.7
-	)
-
-	# overlapThreshold
-	VolumeVRayToon.overlapThreshold= FloatProperty(
-		name= "Overlap thresh",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.95
-	)
-
-	# traceBias
-	VolumeVRayToon.traceBias= FloatProperty(
-		name= "Bias",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.2
-	)
-
-	# doSecondaryRays
-	VolumeVRayToon.doSecondaryRays= BoolProperty(
-		name= "Do sec. rays",
-		description= "Do reflections / refractons",
-		default= False
-	)
-
-	# excludeType
-	VolumeVRayToon.excludeType= EnumProperty(
-		name= "Include / exclude",
-		description= "",
-		items= (
-			('INCLUDE', "Include", "Include objects"),
-			('EXCLUDE', "Exclude", "Exclude objects")
-		),
-		default= 'EXCLUDE'
-	)
-
-	# excludeList
-	VolumeVRayToon.excludeList_objects= StringProperty(
-		name= "excludeList",
-		description= "",
-		default= ""
-	)
-
-	VolumeVRayToon.excludeList_groups= StringProperty(
-		name= "excludeList",
-		description= "",
-		default= ""
-	)
-
-	# lineColor_tex
-	VolumeVRayToon.map_lineColor_tex= BoolProperty(
-		name= "lineColor tex",
-		description= "",
-		default= False
-	)
-
-	VolumeVRayToon.lineColor_tex_mult= FloatProperty(
-		name= "lineColor tex",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# lineWidth_tex
-	VolumeVRayToon.map_lineWidth_tex= BoolProperty(
-		name= "lineWidth tex",
-		description= "",
-		default= False
-	)
-
-	VolumeVRayToon.lineWidth_tex_mult= FloatProperty(
-		name= "lineWidth tex",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# opacity_tex
-	VolumeVRayToon.map_opacity_tex= BoolProperty(
-		name= "opacity tex",
-		description= "",
-		default= False
-	)
-
-	VolumeVRayToon.opacity_tex_mult= FloatProperty(
-		name= "opacity tex",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	# distortion_tex
-	VolumeVRayToon.map_distortion_tex= BoolProperty(
-		name= "distortion tex",
-		description= "",
-		default= False
-	)
-
-	VolumeVRayToon.distortion_tex_mult= FloatProperty(
-		name= "distortion tex",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 1.0
-	)
-
-	SphereFade.use = BoolProperty(
-		name        = "",
-		description = "",
-		default     = False
-	)
-
-	SphereFade.affect_alpha = BoolProperty(
-		name        = "Affect Alpha",
-		description = "Affect Alpha",
-		default     = False
-	)
-
-	SphereFade.empty_color= FloatVectorProperty(
-		name= "Empty Color",
-		description= "",
-		subtype= 'COLOR',
-		min= 0.0,
-		max= 1.0,
-		soft_min= 0.0,
-		soft_max= 1.0,
-		default= (0.5,0.5,0.5)
-	)
-
-	SphereFade.falloff= FloatProperty(
-		name= "Falloff",
-		description= "",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 10.0,
-		precision= 3,
-		default= 0.2
-	)
-
-	SphereFade.gizmos_objects= StringProperty(
-		name= "Gizmo",
-		description= "",
-		default= ""
-	)
-
-	SphereFade.gizmos_groups= StringProperty(
-		name= "Gizmo group",
-		description= "",
-		default= ""
 	)
 
 
@@ -864,7 +312,7 @@ def write(bus):
 		ofile.write("\n}\n")
 
 	def write_EnvironmentFog_from_material(ofile,volume,material):
-		LIGHT_MODE= {
+		LIGHT_MODE = {
 			'ADDGIZMO':    4,
 			'INTERGIZMO':  3,
 			'OVERGIZMO':   2,
@@ -872,19 +320,19 @@ def write(bus):
 			'NO':          0
 		}
 
-		plugin= 'EnvironmentFog'
-		name= "%s_%s" % (plugin,material)
+		plugin = 'EnvironmentFog'
+		name   = "%s_%s" % (plugin, material)
 
-		ofile.write("\n%s %s {"%(plugin,name))
-		ofile.write("\n\tgizmos= List(%s);" % ','.join(volume[material]['gizmos']))
+		ofile.write("\n%s %s {" % (plugin, name))
+		ofile.write("\n\tgizmos=List(%s);" % ','.join(volume[material]['gizmos']))
 		for param in volume[material]['params']:
 			if param == 'light_mode':
-				value= LIGHT_MODE[volume[material]['params'][param]]
+				value = LIGHT_MODE[volume[material]['params'][param]]
 			elif param in ('density_tex','fade_out_tex','emission_mult_tex'):
-				value= "%s::out_intensity" % volume[material]['params'][param]
+				value = "%s::out_intensity" % volume[material]['params'][param]
 			else:
-				value= volume[material]['params'][param]
-			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+				value = volume[material]['params'][param]
+			ofile.write("\n\t%s=%s;" % (param, a(scene,value)))
 		ofile.write("\n}\n")
 
 		return name
@@ -904,22 +352,35 @@ def write(bus):
 
 		EnvironmentFog= effect.EnvironmentFog
 
-		density_tex       = None
 		density_tex_voxel = False
+
+		density_tex  = None
+		emission_tex = None
+		color_tex    = None
+
 		if EnvironmentFog.density_tex:
 			if EnvironmentFog.density_tex in bpy.data.textures:
-				if bpy.data.textures[EnvironmentFog.density_tex].type == 'VOXEL_DATA':
-					density_tex_voxel = True
-			density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
+				density_tex = write_subtexture(bus, EnvironmentFog.density_tex)
 
-		emission_tex = None
 		if EnvironmentFog.emission_tex:
-			emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
+			if EnvironmentFog.emission_tex in bpy.data.textures:
+				emission_tex = write_subtexture(bus, EnvironmentFog.emission_tex)
+
+		if not emission_tex or not density_tex:
+			if EnvironmentFog.objects:
+				ob = get_data_by_name(scene, 'objects', EnvironmentFog.objects)
+				if ob and len(ob.modifiers):
+					for md in ob.modifiers:
+						if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
+							density_tex_voxel = True
+							density_tex  = clean_string("OB%sSMD%s" % (ob.name, md.name))
+							emission_tex = density_tex
+							color_tex    = density_tex
 
 		if emission_tex:
 			emission_tex_mult_name = "%sMult" % emission_tex
 			ofile.write("\nTexAColorOp %s {" % emission_tex_mult_name)
-			ofile.write("\n\tcolor_a=%s;" % emission_tex)
+			ofile.write("\n\tcolor_a=%s::out_color;" % emission_tex)
 			ofile.write("\n\tmult_a=%.3f;" % EnvironmentFog.emission_mult)
 			ofile.write("\n}\n")
 			emission_tex = emission_tex_mult_name
@@ -932,11 +393,13 @@ def write(bus):
 
 			if param.endswith('_tex') or param.endswith('_mult'):
 				if param == 'density_tex' and density_tex:
-					value = "%s"%(density_tex)
-					if not density_tex_voxel:
-						value += "::out_intensity"
+					value = density_tex + "::out_density"
 				elif param == 'emission_tex' and emission_tex:
-					value = "%s"%(emission_tex)
+					value = emission_tex
+				elif param == 'color_tex' and color_tex:
+					value = color_tex + "::out_color"
+				# elif param == 'emission_mult_tex':
+				# 	value = density_tex + "::out_flame"					
 				else:
 					continue
 			elif param == 'emission':
@@ -1020,7 +483,7 @@ def write(bus):
 
 				elif effect.type == 'SFADE':
 					SphereFade= effect.SphereFade
-					gizmos= [write_SphereFadeGizmo(bus, ob) for ob in generate_object_list(SphereFade.gizmos_objects, SphereFade.gizmos_groups) if object_visible(bus,ob)]
+					gizmos= [write_SphereFadeGizmo(bus, ob) for ob in generate_object_list(gizmos_objects, gizmos_groups) if object_visible(bus,ob)]
 					write_SphereFade(bus, effect, gizmos)
 
 	volumes.reverse()
@@ -1030,7 +493,7 @@ def write(bus):
 
 	socketParams = {}
 	outputNode = None
-	
+
 	if VRayWorld.ntree:
 		outputNode = nodes.export.GetNodeByType(VRayWorld.ntree, 'VRayNodeWorldOutput')
 
@@ -1064,96 +527,6 @@ def write(bus):
 			ofile.write("\n\t%s=%s;" % (override, a(scene, value)))
 
 	ofile.write("\n}\n")
-
-
-def draw_EnvironmentFog(context, layout, rna_pointer):
-	wide_ui= context.region.width > classes.narrowui
-
-	EnvironmentFog= rna_pointer.EnvironmentFog
-
-	split= layout.split()
-	col= split.column()
-	col.prop_search(EnvironmentFog, 'objects',
-					context.scene,  'objects',
-					text="Objects")
-	col.prop_search(EnvironmentFog, 'groups',
-					bpy.data,       'groups',
-					text="Groups")
-
-	layout.separator()
-
-	layout.prop_search(EnvironmentFog, 'density_tex',  bpy.data, 'textures', text = "Density Texture")
-	layout.prop_search(EnvironmentFog, 'emission_tex', bpy.data, 'textures', text = "Emission Texture")
-
-	layout.separator()
-
-	split= layout.split()
-	col= split.column()
-	col.prop(EnvironmentFog, 'color')
-	if wide_ui:
-		col= split.column()
-	col.prop(EnvironmentFog, 'emission')
-	col.prop(EnvironmentFog, 'emission_mult', text = "Mult")
-
-	layout.separator()
-
-	split= layout.split()
-	col= split.column()
-	col.prop(EnvironmentFog, 'distance')
-	col.prop(EnvironmentFog, 'density')
-	col.prop(EnvironmentFog, 'subdivs')
-	col.prop(EnvironmentFog, 'scatter_gi')
-	if EnvironmentFog.scatter_gi:
-		col.prop(EnvironmentFog, 'scatter_bounces')
-	col.prop(EnvironmentFog, 'use_height')
-	if EnvironmentFog.use_height:
-		col.prop(EnvironmentFog, 'height')
-	if wide_ui:
-		col= split.column()
-	#col.prop(EnvironmentFog, 'fade_out_type')
-	col.prop(EnvironmentFog, 'fade_out_radius')
-	col.prop(EnvironmentFog, 'affect_background')
-	col.prop(EnvironmentFog, 'use_shade_instance')
-	col.prop(EnvironmentFog, 'simplify_gi')
-
-	layout.separator()
-
-	split= layout.split()
-	col= split.column()
-	col.prop(EnvironmentFog, 'light_mode')
-	col.prop(EnvironmentFog, 'fade_out_mode')
-
-	split= layout.split()
-	col= split.column()
-	col.prop_search(EnvironmentFog, 'lights',
-					context.scene,  'objects',
-					text="Lights")
-
-	layout.separator()
-
-	split= layout.split()
-	col= split.column()
-	col.prop(EnvironmentFog, 'step_size')
-	col.prop(EnvironmentFog, 'max_steps')
-	if wide_ui:
-		col= split.column()
-	col.prop(EnvironmentFog, 'tex_samples')
-	col.prop(EnvironmentFog, 'cutoff_threshold')
-
-	#col.prop(EnvironmentFog, 'per_object_fade_out_radius')
-	#col.prop(EnvironmentFog, 'yup')
-
-	layout.separator()
-
-	split= layout.split()
-	col= split.column()
-	col.prop(EnvironmentFog, 'affect_shadows')
-	col.prop(EnvironmentFog, 'affect_gi')
-	col.prop(EnvironmentFog, 'affect_camera')
-	if wide_ui:
-		col= split.column()
-	col.prop(EnvironmentFog, 'affect_reflections')
-	col.prop(EnvironmentFog, 'affect_refractions')
 
 
 def draw_VolumeVRayToon(context, layout, rna_pointer):
@@ -1197,6 +570,7 @@ def draw_VolumeVRayToon(context, layout, rna_pointer):
 						bpy.data,       'groups',
 						text="Groups")
 
+
 def draw_SphereFade(context, layout, rna_pointer):
 	wide_ui= context.region.width > classes.narrowui
 
@@ -1214,8 +588,8 @@ def draw_SphereFade(context, layout, rna_pointer):
 					text="Objects")
 	col.prop_search(SphereFade, 'gizmos_groups',
 					bpy.data,       'groups',
-					text="Groups")	
-	
+					text="Groups")
+
 
 def gui(context, layout, VRayEffects):
 	wide_ui= context.region.width > classes.narrowui
@@ -1244,41 +618,9 @@ def gui(context, layout, VRayEffects):
 
 		if effect.type == 'FOG':
 			draw_EnvironmentFog(context, layout, effect)
-
 		elif effect.type == 'TOON':
 			draw_VolumeVRayToon(context, layout, rna_pointer)
 		else:
 			split= layout.split()
 			col= split.column()
 			col.label(text="Strange, but this effect type doesn\'t exist..")
-
-
-# elif VRayMaterial.type == 'VOL':
-# 	return {
-# 		'color_tex':    (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(ma.diffuse_color)),           0, 'NONE'),
-# 		'emission_tex': (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple(EnvironmentFog.emission)),    0, 'NONE'),
-# 		'density_tex':  (a(scene,"AColor(%.6f,%.6f,%.6f,1.0)"%tuple([EnvironmentFog.density]*3)), 0, 'NONE'),
-# 	}
-
-# elif VRayMaterial.type == 'VOL':
-# 	bus['node']['volume']= {}
-# 	for param in OBJECT_PARAMS['EnvironmentFog']:
-# 		if param == 'color':
-# 			value= ma.diffuse_color
-# 		else:
-# 			value= getattr(VRayMaterial.EnvironmentFog,param)
-# 		object_params['volume'][param]= value
-# 	for param in ('color_tex','emission_tex','density_tex'):
-# 		if param in textures['mapto']:
-# 			object_params['volume'][param]= textures['mapto'][param]
-# 	return None
-
-
-# if object_params['volume'] is not None:
-# 	if ma_name not in types['volume'].keys():
-# 		types['volume'][ma_name]= {}
-# 		types['volume'][ma_name]['params']= object_params['volume']
-# 		types['volume'][ma_name]['gizmos']= []
-# 	if ob not in types['volume'][ma_name]:
-# 		types['volume'][ma_name]['gizmos'].append(write_EnvFogMeshGizmo(files['nodes'], node_name, node_geometry, node_matrix))
-# 	return

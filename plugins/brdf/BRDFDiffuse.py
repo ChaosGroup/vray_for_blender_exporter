@@ -88,7 +88,7 @@ PluginParams = (
 
 
 def writeDatablock(bus, pluginName, PluginParams, dataPointer, mappedParams):
-    ofile = bus['files']['materials']
+    ofile = bus['files']['nodetree']
     scene = bus['scene']
 
     ofile.write("\n%s %s {" % (ID, pluginName))

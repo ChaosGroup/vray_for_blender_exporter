@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -22,42 +22,38 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [ 'export' ]
+import bpy
 
 
-def register():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-    from . import menu
+TYPE = 'EFFECT'
+ID   = 'EnvFogMeshGizmo'
+NAME = 'Mesh Gizmo'
+DESC = ""
 
-    operators.register()
-
-    tree.register()
-    sockets.register()
-
-    specials.register()
-    nodes.register()
-
-    menu.register()
-
-
-def unregister():
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-    from . import menu
-
-    menu.unregister()
-
-    nodes.unregister()
-    specials.unregister()
-    
-    sockets.unregister()
-    tree.unregister()
-
-    operators.unregister()
+PluginParams = (
+    {
+        'attr' : 'transform',
+        'desc' : "",
+        'type' : 'TRANSFORM',
+        'default' : None,
+    },
+    {
+        'attr' : 'geometry',
+        'name' : "Object",
+        'desc' : "",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'lights',
+        'desc' : "",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'fade_out_radius',
+        'desc' : "fade out effect for the edges",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+)

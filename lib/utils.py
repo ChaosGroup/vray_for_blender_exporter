@@ -79,10 +79,10 @@ def AnimatedValue(scene, value):
 
 	if VRayExporter.camera_loop:
 		frame = VRayExporter.customFrame
-	
+
 	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
 		return FormatFalue(value)
-	
+
 	if not VRayExporter.animation and not VRayExporter.use_still_motion_blur:
 		return FormatFalue(value)
 

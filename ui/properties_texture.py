@@ -30,12 +30,6 @@ from vb25.ui import classes
 
 from bl_ui.properties_texture import context_tex_datablock
 
-from bl_ui import properties_texture
-for compatEngine in classes.VRayEngines:
-	properties_texture.TEXTURE_PT_image.COMPAT_ENGINES.add(compatEngine)
-	properties_texture.TEXTURE_PT_voxeldata.COMPAT_ENGINES.add(compatEngine)
-del properties_texture
-
 
 class VRAY_TP_context(classes.VRayTexturePanel):
 	bl_label = ""
@@ -100,111 +94,37 @@ class VRAY_TP_context(classes.VRayTexturePanel):
 					layout.prop(tex.vray, 'type', text="Type")
 
 
-class VRAY_TP_preview(classes.VRayTexturePanel):
-	bl_label = "Preview"
-
-	@classmethod
-	def poll(cls, context):
-		tex= context.texture
-
-		if not tex:
-			return False
-
-		if tex.type == 'VRAY' and context.scene.render.engine == 'VRAY_RENDER':
-			return False
-
-		return classes.VRayTexturePanel.poll(context)
-
-	def draw(self, context):
-		layout= self.layout
-
-		tex= context.texture
-		slot= getattr(context, "texture_slot", None)
-		idblock= context_tex_datablock(context)
-
-		if idblock:
-			layout.template_preview(tex, parent= idblock, slot= slot)
-		else:
-			layout.template_preview(tex, slot= slot)
-
-
-# class VRAY_TP_displacement(classes.VRayTexturePanel):
-# 	bl_label = "Displacement"
-
-# 	@classmethod
-# 	def poll(cls, context):
-# 		idblock= context_tex_datablock(context)
-# 		if not type(idblock) == bpy.types.Material:
-# 			return False
-
-# 		texture_slot= getattr(context,'texture_slot',None)
-# 		if not texture_slot:
-# 			return False
-
-# 		texture= texture_slot.texture
-# 		if not texture:
-# 			return False
-
-# 		VRaySlot= texture.vray_slot
-# 		return VRaySlot.map_displacement and engine_poll(cls, context)
-
-# 	def draw(self, context):
-# 		layout= self.layout
-# 		wide_ui= context.region.width > classes.narrowui
-
-# 		texture_slot= getattr(context,'texture_slot',None)
-# 		texture= texture_slot.texture if texture_slot else context.texture
-
-# 		if texture:
-# 			VRaySlot= texture.vray_slot
-
-# 			if VRaySlot:
-# 				GeomDisplacedMesh= VRaySlot.GeomDisplacedMesh
-
-# 				split= layout.split()
-# 				col= split.column()
-# 				col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
-# 				col.prop(GeomDisplacedMesh, 'water_level', slider=True)
-# 				col.prop(GeomDisplacedMesh, 'resolution')
-# 				col.prop(GeomDisplacedMesh, 'precision')
-# 				if wide_ui:
-# 					col= split.column()
-# 				col.prop(GeomDisplacedMesh, 'keep_continuity')
-# 				col.prop(GeomDisplacedMesh, 'filter_texture')
-# 				if GeomDisplacedMesh.filter_texture:
-# 					col.prop(GeomDisplacedMesh, 'filter_blur')
-# 				col.prop(GeomDisplacedMesh, 'use_bounds')
-# 				if GeomDisplacedMesh.use_bounds:
-# 					sub= col.column(align= True)
-# 					sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
-# 					sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
-
-# 				split= layout.split()
-# 				col= split.column()
-# 				col.prop(GeomDisplacedMesh, 'use_globals')
-# 				if not GeomDisplacedMesh.use_globals:
-# 					split= layout.split()
-# 					col= split.column()
-# 					col.prop(GeomDisplacedMesh, 'edge_length')
-# 					col.prop(GeomDisplacedMesh, 'max_subdivs')
-# 					if wide_ui:
-# 						col= split.column()
-# 					col.prop(GeomDisplacedMesh, 'view_dep')
-# 					col.prop(GeomDisplacedMesh, 'tight_bounds')
-
-
 def GetRegClasses():
 	return (
-		VRAY_TP_context,
-		VRAY_TP_preview,
+		# VRAY_TP_context,
 	)
 
 
 def register():
+	from bl_ui import properties_texture
+	for member in dir(properties_texture):
+		subclass = getattr(properties_texture, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.add(compatEngine)
+		except:
+			pass
+	del properties_texture
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
 
 def unregister():
+	from bl_ui import properties_texture
+	for member in dir(properties_texture):
+		subclass = getattr(properties_texture, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.remove(compatEngine)
+		except:
+			pass
+	del properties_texture
+
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)

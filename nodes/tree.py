@@ -172,6 +172,34 @@ class VRayLightNode:
         return node_tree.bl_idname == 'VRayNodeTreeLight'
 
 
+ ######   ######  ######## ##    ## ######## 
+##    ## ##    ## ##       ###   ## ##       
+##       ##       ##       ####  ## ##       
+ ######  ##       ######   ## ## ## ######   
+      ## ##       ##       ##  #### ##       
+##    ## ##    ## ##       ##   ### ##       
+ ######   ######  ######## ##    ## ######## 
+
+class VRayNodeTreeScene(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
+    bl_label  = "V-Ray Scene Node Tree"
+    bl_idname = 'VRayNodeTreeScene'
+    bl_icon   = 'SCENE_DATA'
+
+    socket_type = VRayTreeSockets
+
+    @classmethod
+    def get_from_context(cls, context):
+        if context.scene.vray.ntree:
+            return context.scene.vray.ntree, context.scene, context.scene
+        return (None, None, None)
+
+
+class VRaySceneNode:
+    @classmethod
+    def poll(cls, node_tree):
+        return node_tree.bl_idname == 'VRayNodeTreeScene'
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -186,6 +214,7 @@ def GetRegClasses():
         VRayNodeTreeObject,
         VRayNodeTreeLight,
         VRayNodeTreeWorld,
+        VRayNodeTreeScene,
     )
 
 

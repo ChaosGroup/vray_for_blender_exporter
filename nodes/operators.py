@@ -45,6 +45,15 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_scene"
+    bl_label       = "Add Scene Nodetree"
+    bl_description = ""
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+
 class VRAY_OT_add_nodetree_object(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_object"
     bl_label       = "Add Object Nodetree"
@@ -114,56 +123,6 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRAY_OT_node_add_brdf_layered_sockets(bpy.types.Operator):
-    bl_idname      = 'vray.node_add_brdf_layered_sockets'
-    bl_label       = "Add BRDFLayered Socket"
-    bl_description = "Adds BRDFLayered sockets"
-
-    def execute(self, context):
-        node = context.node
-
-        newIndex = int(len(node.inputs) / 2) + 1
-
-        # BRDFLayered sockets are always in pairs
-        #
-        brdfSockName   = "BRDF %i" % newIndex
-        weightSockName = "Weight %i" % newIndex
-
-        node.inputs.new('VRaySocketBRDF',  brdfSockName)
-        node.inputs.new('VRaySocketFloatColor', weightSockName)
-
-        node.inputs[weightSockName].value = 1.0
-
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
-    bl_idname      = 'vray.node_del_brdf_layered_sockets'
-    bl_label       = "Remove BRDFLayered Socket"
-    bl_description = "Removes BRDFLayered socket (only not linked sockets will be removed)"
-
-    def execute(self, context):
-        node = context.node
-
-        nSockets = len(node.inputs)
-
-        if not nSockets:
-            return {'FINISHED'}
-
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
-            if not s.is_linked:
-                index = re.findall(r'\d+', s.name)[0]
-
-                brdfSockName   = "BRDF %s" % index
-                weightSockName = "Weight %s" % index
-
-                if not node.inputs[brdfSockName].is_linked and not node.inputs[weightSockName].is_linked:
-                    node.inputs.remove(node.inputs[brdfSockName])
-                    node.inputs.remove(node.inputs[weightSockName])
-                    break
-
-        return {'FINISHED'}
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -178,9 +137,7 @@ def GetRegClasses():
     return (
         VRAY_OT_open_image,
 
-        VRAY_OT_node_add_brdf_layered_sockets,
-        VRAY_OT_node_del_brdf_layered_sockets,
-
+        VRAY_OT_add_nodetree_scene,
         VRAY_OT_add_nodetree_light,
         VRAY_OT_add_nodetree_object,
         VRAY_OT_add_material_nodetree,

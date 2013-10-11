@@ -29,7 +29,7 @@ from vb25.lib import ExportUtils, AttributeUtils
 
 TYPE = 'TEXTURE'
 ID   = 'TexFloatOp'
-NAME = 'FloatOp'
+NAME = 'Float Operations'
 DESC = "Float operations"
 
 PluginParams = (
@@ -104,16 +104,3 @@ PluginParams = (
         'default' : 1.0,
     },
 )
-
-
-def writeDatablock(bus, pluginName, PluginParams, FloatOp, mappedParams):
-    ofile = bus['files']['textures']
-    scene = bus['scene']
-
-    ofile.write("\n%s %s {" % (ID, pluginName))
-
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, FloatOp, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
-
-    return pluginName

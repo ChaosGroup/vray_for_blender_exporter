@@ -178,7 +178,7 @@ def WriteNode(bus, nodetree, node):
     if 'cache' in bus:
         if pluginName in bus['cache']['nodes']:
             return pluginName
-        bus['cache']['nodes'][pluginName] = None
+        bus['cache']['nodes'].add(pluginName)
 
     Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 

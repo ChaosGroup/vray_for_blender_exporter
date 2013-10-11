@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
@@ -97,8 +97,13 @@ PluginParams = (
     {
         'attr' : 'sky_model',
         'desc' : "Selects the procedural model used to simulate the TexSky texture",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Preetham et al.", ""),
+            ('1', "CIE Clear", ""),
+            ('2', "CIE Overcast", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'sun',
@@ -107,3 +112,28 @@ PluginParams = (
         'default' : "",
     },
 )
+
+
+def gui(context, layout, TexSky):
+    contextType = GetContextType(context)
+    regionWidth = GetRegionWidthFromContext(context)
+
+    wide_ui = regionWidth > narrowui
+
+    layout.prop(TexSky, 'sky_model')
+
+    split = layout.split()
+    col = split.column()
+    col.prop(TexSky, 'turbidity')
+    col.prop(TexSky, 'ozone')
+    col = split.column()
+    col.prop(TexSky, 'intensity_multiplier')
+    col.prop(TexSky, 'size_multiplier')
+
+    split = layout.split()
+    col = split.column()
+    col.prop(TexSky, 'horiz_illum')
+    col = split.column()
+    col.prop(TexSky, 'water_vapour')
+
+    layout.prop(TexSky, 'invisible')

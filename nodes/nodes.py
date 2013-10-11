@@ -39,91 +39,14 @@ from .        import tree
 from .sockets import AddInput, AddOutput
 
 
-##     ## ######## #### ##       #### ######## #### ########  ######
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##
-##     ##    ##     ##  ##        ##     ##     ##  ######    ######
-##     ##    ##     ##  ##        ##     ##     ##  ##             ##
-##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
- #######     ##    #### ######## ####    ##    #### ########  ######
-
-def GetActiveNode(nodetree):
-    if not nodetree:
-        return None
-    return nodetree.nodes[-1]
-
-
-######## ######## ##     ## ######## ##     ## ########  ########
-   ##    ##        ##   ##     ##    ##     ## ##     ## ##
-   ##    ##         ## ##      ##    ##     ## ##     ## ##
-   ##    ######      ###       ##    ##     ## ########  ######
-   ##    ##         ## ##      ##    ##     ## ##   ##   ##
-   ##    ##        ##   ##     ##    ##     ## ##    ##  ##
-   ##    ######## ##     ##    ##     #######  ##     ## ########
-
-class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeTexLayered'
-    bl_label  = 'Texture Layered'
-    bl_icon   = 'VRAY_LOGO'
-
-    def init(self, context):
-        for i in range(2):
-            humanIndex = i + 1
-
-            texSockName    = "Texture %i" % humanIndex
-            weightSockName = "Weight %i" % humanIndex
-
-            self.inputs.new('VRaySocketColor', texSockName)
-            self.inputs.new('VRaySocketFloatColor', weightSockName)
-
-            self.inputs[weightSockName].value = 1.0
-
-        self.outputs.new('VRaySocketColor', "Output")
-
-
-########  ########  ########  ########
-##     ## ##     ## ##     ## ##
-##     ## ##     ## ##     ## ##
-########  ########  ##     ## ######
-##     ## ##   ##   ##     ## ##
-##     ## ##    ##  ##     ## ##
-########  ##     ## ########  ##
-
-class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeBRDFLayered'
-    bl_label  = 'Layered'
-    bl_icon   = 'VRAY_LOGO'
-
-    vray_type   = 'BRDF'
-    vray_plugin = 'BRDFLayered'
-
-    additive_mode = bpy.props.BoolProperty(
-        name        = "Additive Mode",
-        description = "Additive mode",
-        default     = False
-    )
-
-    def init(self, context):
-        for i in range(2):
-            humanIndex = i + 1
-
-            brdfSockName   = "BRDF %i" % humanIndex
-            weightSockName = "Weight %i" % humanIndex
-
-            self.inputs.new('VRaySocketBRDF',  brdfSockName)
-            self.inputs.new('VRaySocketFloatColor', weightSockName)
-
-            self.inputs[weightSockName].value = 1.0
-
-        self.outputs.new('VRaySocketBRDF', "BRDF")
-
-    def draw_buttons(self, context, layout):
-        split = layout.split()
-        row = split.row(align=True)
-        row.operator('vray.node_add_brdf_layered_sockets', icon="ZOOMIN", text="Add")
-        row.operator('vray.node_del_brdf_layered_sockets', icon="ZOOMOUT", text="")
-
-        layout.prop(self, 'additive_mode')
+VRayNodeTypes = {
+    'TEXTURE'  : [],
+    'BRDF'     : [],
+    'MATERIAL' : [],
+    'GEOMETRY' : [],
+    'UVWGEN'   : [],
+    'EFFECT'   : [],
+}
 
 
 ##     ## ######## ##    ## ##     ##
@@ -134,17 +57,17 @@ class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
 ##     ## ##       ##   ### ##     ##
 ##     ## ######## ##    ##  #######
 
-VRayNodeTypes = {
-    'TEXTURE'  : [],
-    'BRDF'     : [],
-    'MATERIAL' : [],
-    'GEOMETRY' : [],
-    'UVWGEN'   : [],
-}
-
-
 def add_nodetype(layout, t):
     layout.operator("node.add_node", text=t.bl_label).type=t.bl_rna.identifier
+
+
+class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuEnvironment"
+    bl_label  = "Environment"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeEnvironment)
+        add_nodetype(self.layout, bpy.types.VRayNodeEffectsHolder)
 
 
 class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
@@ -228,6 +151,15 @@ class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
             add_nodetype(sub, vrayNodeType)
 
 
+class VRayNodesMenuEffects(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuEffects"
+    bl_label  = "Effects"
+
+    def draw(self, context):
+        for vrayNodeType in sorted(VRayNodeTypes['EFFECT'], key=lambda t: t.bl_label):
+            add_nodetype(self.layout, vrayNodeType)
+
+
 def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuBRDF")
     self.layout.menu("VRayNodesMenuTexture")
@@ -236,6 +168,8 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuOutput")
     self.layout.menu("VRayNodesMenuSelector")
     self.layout.menu("VRayNodesMenuGeom")
+    self.layout.menu("VRayNodesMenuEnvironment")
+    self.layout.menu("VRayNodesMenuEffects")
 
 
 #### ##    ## #### ########
@@ -300,6 +234,8 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketGeom', "Geomtery")
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
+    elif self.vray_type == 'EFFECT':
+        AddOutput(self, 'VRaySocketObject', "Output")
 
 
 ########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######
@@ -330,12 +266,12 @@ def LoadDynamicNodes():
         VRayNodeTypes[pluginType] = []
 
         for pluginName in sorted(PLUGINS[pluginType]):
-            # Skip manually created plugins
-            if pluginName in ['BRDFLayered']:
+            # Skip manually created nodes
+            if pluginName in ['BRDFLayered', 'TexLayered']:
                 continue
 
             # Plugin was not registered by the plugin manager,
-            # skit it then.
+            # skip it then.
             if not hasattr(bpy.types, pluginName):
                 continue
 
@@ -403,6 +339,7 @@ def LoadDynamicNodes():
 
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
+    VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexLayered)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -414,9 +351,6 @@ def LoadDynamicNodes():
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 StaticClasses = (
-    VRayNodeTexLayered,
-    VRayNodeBRDFLayered,
-
     VRayNodesMenuTexture,
     VRayNodesMenuBRDF,
     VRayNodesMenuMapping,
@@ -424,6 +358,8 @@ StaticClasses = (
     VRayNodesMenuOutput,
     VRayNodesMenuSelector,
     VRayNodesMenuGeom,
+    VRayNodesMenuEffects,
+    VRayNodesMenuEnvironment,
 )
 
 

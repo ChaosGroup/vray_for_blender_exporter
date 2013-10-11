@@ -28,58 +28,57 @@ from ..        import tree
 from ..sockets import AddInput, AddOutput
 
 
- #######  ########        ## ########  ######  ########
-##     ## ##     ##       ## ##       ##    ##    ##
-##     ## ##     ##       ## ##       ##          ##
-##     ## ########        ## ######   ##          ##
-##     ## ##     ## ##    ## ##       ##          ##
-##     ## ##     ## ##    ## ##       ##    ##    ##
- #######  ########   ######  ########  ######     ##
-
-class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
-    bl_idname = 'VRayNodeObjectOutput'
-    bl_label  = 'V-Ray Node'
+class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
+    bl_idname = 'VRayNodeWorldOutput'
+    bl_label  = 'World Output'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
     def init(self, context):
-        AddInput(self, 'VRaySocketMtl',  "Material")
-        AddInput(self, 'VRaySocketGeom', "Geometry")
+        AddInput(self, 'VRaySocketObject', "Environment")
+        AddInput(self, 'VRaySocketObject', "Effects")
 
 
-class VRayNodeBlenderOutput(bpy.types.Node, tree.VRayObjectNode):
-    bl_idname = 'VRayNodeBlenderOutput'
-    bl_label  = 'Blender Object'
+class VRayNodeEnvironment(bpy.types.Node, tree.VRayTreeNode):
+    bl_idname = 'VRayNodeEnvironment'
+    bl_label  = 'Environment'
     bl_icon   = 'VRAY_LOGO'
+
+    gi_tex = bpy.props.BoolProperty(
+        name        = "Override GI",
+        description = "Override environment for GI",
+        default     = False
+    )
+
+    reflect_tex = bpy.props.BoolProperty(
+        name        = "Override Reflect",
+        description = "Override environment for reflection",
+        default     = False
+    )
+
+    refract_tex = bpy.props.BoolProperty(
+        name        = "Override Refract",
+        description = "Override environment for refraction",
+        default     = False
+    )
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    def init(self, context):
-        AddOutput(self, 'VRaySocketMtl',  "Material")
-        AddOutput(self, 'VRaySocketGeom', "Geometry")
-
-
-##     ##    ###    ######## ######## ########  ####    ###    ##
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
-##     ## #########    ##    ##       ##   ##    ##  ######### ##
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
-
-class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeOutputMaterial'
-    bl_label  = 'Material Output'
-    bl_icon   = 'VRAY_LOGO'
-
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'gi_tex')
+        layout.prop(self, 'reflect_tex')
+        layout.prop(self, 'refract_tex')
 
     def init(self, context):
-        AddInput(self, 'VRaySocketMtl', "Material")
+        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex')
+        AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
+        AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
+        AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
+
+        AddOutput(self, 'VRaySocketObject', "Environment")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -92,10 +91,8 @@ class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
 
 def GetRegClasses():
     return (
-        VRayNodeBlenderOutput,
-
-        VRayNodeOutputMaterial,
-        VRayNodeObjectOutput,
+        VRayNodeWorldOutput,
+        VRayNodeEnvironment,
     )
 
 

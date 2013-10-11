@@ -24,8 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.lib import utils
 
 
 TYPE = 'TEXTURE'
@@ -53,6 +52,18 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0, 1.0),
     },
+
+    {
+        'attr' : 'data_select',
+        'desc' : "Use UV",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "UV", "Use UV channels"),
+            ('1', "Color", "Use Color channels"),
+        ),
+        'skip' : True,
+        'default' : '1',
+    },
 )
 
 
@@ -60,14 +71,30 @@ def nodeDraw(context, layout, TexMeshVertexColorChannel):
     ob = context.object
 
     layout.prop(TexMeshVertexColorChannel, 'channelIndex')
-    layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                       ob.data, 'uv_textures',
-                       text="")
+
+    layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
+
+    if TexMeshVertexColorChannel.data_select == '0':
+        layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                           ob.data, 'uv_textures',
+                           text="")
+    else:
+        layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                           ob.data, 'vertex_colors',
+                           text="")
 
 
-def gui(context, layout, TexMeshVertexColorChannel):
-    ob = context.object
+# def writeDatablock(bus, pluginName, PluginParams, TexMeshVertexColorChannel, mappedParams):
+#     ofile = bus['files']['nodetree']
+#     scene = bus['scene']
 
-    layout.prop(TexMeshVertexColorChannel, 'channelIndex')
-    layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                       ob.data, 'uv_textures')
+#     ofile.write("\n%s %s {" % (ID, pluginName))
+
+#     if TexMeshVertexColorChannel.channel_name:
+#         ofile.write('\n\tchannel_name="%s";' % TexMeshVertexColorChannel.channel_name)
+#     else:
+#         ofile.write("\n\tchannelIndex=%i;" % TexMeshVertexColorChannel.channelIndex)
+#     ofile.write("\n\tdefault_color=Color(%.3f,%.3f,%.3f);" % TexMeshVertexColorChannel.default_color)
+#     ofile.write("\n}\n")
+
+#     return pluginName

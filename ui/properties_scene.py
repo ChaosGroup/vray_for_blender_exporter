@@ -24,6 +24,8 @@
 
 import bpy
 
+from pynodes_framework import idref
+
 from vb25.ui      import classes
 from vb25.plugins import PLUGINS
 
@@ -50,6 +52,11 @@ class VRAY_RP_Layers(classes.VRayRenderLayersPanel):
 	def draw(self, context):
 		VRayScene = context.scene.vray
 		self.layout.prop(VRayScene, 'render_channels_use', text="Use Render Elements")
+
+		split = self.layout.split()
+		row = split.row(align=True)
+		idref.draw_idref(row, VRayScene, 'ntree', text="Node Tree")
+		row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
 
 		wide_ui = context.region.width > classes.narrowui
 		layout= self.layout

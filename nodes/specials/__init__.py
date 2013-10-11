@@ -28,14 +28,30 @@ __all__ = []
 def register():
     from . import outputs
     from . import selector
+    from . import environment
+    from . import brdf
+    from . import texture
+    from . import effects
 
     outputs.register()
     selector.register()
+    environment.register()
+    brdf.register()
+    texture.register()
+    effects.register()
 
 
 def unregister():
     from . import outputs
     from . import selector
+    from . import environment
+    from . import brdf
+    from . import texture
+    from . import effects
 
     outputs.unregister()
     selector.unregister()
+    environment.unregister()
+    brdf.unregister()
+    texture.unregister()
+    effects.unregister()

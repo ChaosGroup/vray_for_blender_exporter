@@ -24,16 +24,15 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from pynodes_framework import idref
 
 import TexCommonParams
 
 
 TYPE = 'TEXTURE'
 ID   = 'TexGradRamp'
-NAME = 'GradRamp'
-DESC = ""
+NAME = 'Gradient Ramp'
+DESC = "Gradient Ramp texture"
 
 PluginParams = list(TexCommonParams.PluginTextureCommonParams)
 
@@ -117,3 +116,24 @@ PluginParams.extend([
         'default' : 0,
     },
 ])
+
+
+PluginRefParams = (
+    {
+        'attr' : 'ramp',
+        'name' : "Ramp",
+        'desc' : "Ramp (texture pointer)",
+        'type' : 'TEXTURE',
+        'options' : {'NEVER_NULL'},
+        'default' : None,
+    },
+)
+
+
+def nodeDraw(context, layout, TexGradRamp):
+    # if not TexGradRamp.ramp:
+    #     TexGradRamp.ramp = bpy.data.textures.new("Ramp", 'NONE')
+    # tex = TexGradRamp.ramp
+
+    idref.draw_idref(layout, TexGradRamp, 'ramp', text="")
+    # layout.template_color_ramp(tex, 'color_ramp', expand=True)

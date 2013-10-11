@@ -28,58 +28,24 @@ from ..        import tree
 from ..sockets import AddInput, AddOutput
 
 
- #######  ########        ## ########  ######  ########
-##     ## ##     ##       ## ##       ##    ##    ##
-##     ## ##     ##       ## ##       ##          ##
-##     ## ########        ## ######   ##          ##
-##     ## ##     ## ##    ## ##       ##          ##
-##     ## ##     ## ##    ## ##       ##    ##    ##
- #######  ########   ######  ########  ######     ##
-
-class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
-    bl_idname = 'VRayNodeObjectOutput'
-    bl_label  = 'V-Ray Node'
+class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
+    bl_idname = 'VRayNodeTexLayered'
+    bl_label  = 'Layered'
     bl_icon   = 'VRAY_LOGO'
 
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
-
     def init(self, context):
-        AddInput(self, 'VRaySocketMtl',  "Material")
-        AddInput(self, 'VRaySocketGeom', "Geometry")
+        for i in range(2):
+            humanIndex = i + 1
 
+            texSockName    = "Texture %i" % humanIndex
+            weightSockName = "Weight %i" % humanIndex
 
-class VRayNodeBlenderOutput(bpy.types.Node, tree.VRayObjectNode):
-    bl_idname = 'VRayNodeBlenderOutput'
-    bl_label  = 'Blender Object'
-    bl_icon   = 'VRAY_LOGO'
+            self.inputs.new('VRaySocketColor', texSockName)
+            self.inputs.new('VRaySocketFloatColor', weightSockName)
 
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
+            self.inputs[weightSockName].value = 1.0
 
-    def init(self, context):
-        AddOutput(self, 'VRaySocketMtl',  "Material")
-        AddOutput(self, 'VRaySocketGeom', "Geometry")
-
-
-##     ##    ###    ######## ######## ########  ####    ###    ##
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##
-##     ## #########    ##    ##       ##   ##    ##  ######### ##
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
-
-class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
-    bl_idname = 'VRayNodeOutputMaterial'
-    bl_label  = 'Material Output'
-    bl_icon   = 'VRAY_LOGO'
-
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
-
-    def init(self, context):
-        AddInput(self, 'VRaySocketMtl', "Material")
+        self.outputs.new('VRaySocketColor', "Output")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -92,10 +58,7 @@ class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
 
 def GetRegClasses():
     return (
-        VRayNodeBlenderOutput,
-
-        VRayNodeOutputMaterial,
-        VRayNodeObjectOutput,
+        VRayNodeTexLayered,
     )
 
 
