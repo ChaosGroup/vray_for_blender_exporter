@@ -30,7 +30,7 @@ from vb25 import realtime
 
 class VRayRenderer(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER'
-    bl_label       = "V-Ray"
+    bl_label       = "V-Ray Standalone"
     bl_use_preview =  False
 
     def render(self, scene):
@@ -41,7 +41,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 class VRayRendererPreview(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER_PREVIEW'
-    bl_label       = "V-Ray (Material Preview)"
+    bl_label       = "V-Ray Standalone (Material Preview)"
     bl_use_preview = True
 
     def render(self, scene):
@@ -61,7 +61,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
 class VRayRendererRT(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER_RT'
-    bl_label       = "V-Ray (Realtime)"
+    bl_label       = "V-Ray Standalone (Realtime)"
     bl_use_preview =  False
 
     width  = None
