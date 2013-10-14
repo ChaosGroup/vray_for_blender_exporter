@@ -1,0 +1,19 @@
+// Fail-safe defaults begin
+UVWGenChannel DEFAULTUVWC {
+	uvw_channel=0;
+	uvw_transform=Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));
+}
+TexChecker TENOTEXTUREIESSET {
+	uvwgen=DEFAULTUVWC;
+}
+TexAColor TEDefaultBlend {
+	uvwgen=DEFAULTUVWC;
+	texture=AColor(1.0,1.0,1.0,1.0);
+}
+BRDFDiffuse BRDFNOBRDFISSET {
+	color=Color(0.5,0.5,0.5);
+}
+MtlSingleBRDF MANOMATERIALISSET {
+	brdf=BRDFNOBRDFISSET;
+}
+// Fail-safe defaults end
