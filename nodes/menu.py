@@ -50,7 +50,7 @@ def vray_node_templates_menu(self, context):
     layout = self.layout
     row = layout.row(align=True)
     row.scale_x = 1.3
-    row.menu('NODE_MT_vray_templates', icon='VRAY_LOGO')
+    row.menu('NODE_MT_vray_templates', icon='VRAY_LOGO_MONO')
 
 
 def GetRegClasses():

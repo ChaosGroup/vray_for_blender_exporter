@@ -38,264 +38,7 @@ import _vray_for_blender
 from vb25.plugins import PLUGINS
 from vb25.lib     import VRayProcess
 from vb25.nodes   import export as NodesExport
-
 from vb25.utils   import *
-
-
-LIGHT_PARAMS= { # TEMP! REMOVE!
-    'LightOmni': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        #'units',
-        'intensity',
-        #'intensity_tex',
-        'shadowRadius',
-        'areaSpeculars',
-        'shadowSubdivs',
-        'decay'
-    ),
-
-    'LightAmbient': (
-        'enabled',
-        #'color',
-        'shadowBias',
-        'decay',
-        'ambientShade',
-    ),
-
-    'LightSphere': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        #'units',
-        'intensity',
-        #'intensity_tex',
-        'subdivs',
-        'storeWithIrradianceMap',
-        'invisible',
-        'affectReflections',
-        'noDecay',
-        'radius',
-        'sphere_segments'
-    ),
-
-    'LightRectangle': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        #'units',
-        'intensity',
-        #'intensity_tex',
-        'subdivs',
-        'storeWithIrradianceMap',
-        'invisible',
-        'affectReflections',
-        'doubleSided',
-        'noDecay',
-    ),
-
-    'LightDirectMax': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        'intensity',
-        #'intensity_tex',
-        'shadowRadius',
-        'areaSpeculars',
-        'shadowSubdivs',
-        'fallsize',
-    ),
-
-    'SunLight': (
-        'turbidity',
-        'ozone',
-        'water_vapour',
-        'intensity_multiplier',
-        'size_multiplier',
-        #'up_vector',
-        'invisible',
-        'horiz_illum',
-        #'sky_model',
-        'shadows',
-        #'atmos_shadows',
-        'shadowBias',
-        'shadow_subdivs',
-        'shadow_color',
-        #'shadow_color_tex',
-        #'photon_radius',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'enabled'
-    ),
-
-    'LightIESMax': (
-        'enabled',
-        'intensity',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        'shadowSubdivs',
-        'ies_file',
-        #'filter_color',
-        'soft_shadows',
-        #'area_speculars'
-    ),
-
-    'LightDome': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        #'channels',
-        #'channels_raw',
-        #'channels_diffuse',
-        #'channels_specular',
-        #'units',
-        'intensity',
-        #'intensity_tex',
-        'subdivs',
-        #'storeWithIrradianceMap',
-        'invisible',
-        'affectReflections',
-        #'dome_tex',
-        #'use_dome_tex',
-        #'tex_resolution',
-        #'tex_adaptive',
-        'dome_targetRadius',
-        'dome_emitRadius',
-        'dome_spherical',
-        'dome_rayDistance',
-        'dome_rayDistanceMode',
-    ),
-
-    'LightSpot': (
-        'enabled',
-        #'color_tex',
-        'shadows',
-        'shadowColor',
-        #'shadowColor_tex',
-        'shadowBias',
-        #'photonSubdivs',
-        'causticSubdivs',
-        #'diffuseMult',
-        'causticMult',
-        'cutoffThreshold',
-        'affectDiffuse',
-        'affectSpecular',
-        'bumped_below_surface_check',
-        'nsamples',
-        'diffuse_contribution',
-        'specular_contribution',
-        #'units',
-        'intensity',
-        #'intensity_tex',
-        'shadowRadius',
-        'areaSpeculars',
-        'shadowSubdivs',
-        #'coneAngle',
-        #'penumbraAngle',
-        #'dropOff',
-        #'falloffType',
-        'decay',
-        #'barnDoor',
-        #'barnDoorLeft',
-        #'barnDoorRight',
-        #'barnDoorTop',
-        #'barnDoorBottom',
-        #'useDecayRegions',
-        #'startDistance1',
-        #'endDistance1',
-        #'startDistance2',
-        #'endDistance2',
-        #'startDistance3',
-        #'endDistance3'
-    ),
-}
 
 
  ######   ########  #######  ##     ## ######## ######## ########  ##    ##
@@ -313,7 +56,6 @@ def write_geometry(bus):
     VRayExporter = VRayScene.exporter
 
     def write_frame(bus):
-        bus['cache'] = {}
         bus['cache']['mesh'] = set()
 
         for ob in scene.objects:
@@ -389,23 +131,23 @@ def write_settings(bus):
     PLUGINS['CAMERA']['SettingsMotionBlur'].write(bus)
 
     for key in PLUGINS['SETTINGS']:
-        if key in ('BakeView', 'RenderView'):
-            # Skip some plugins
+        # Skip some plugins
+        if key in ('BakeView', 'RenderView', 'SettingsEnvironment'):
             continue
 
         plugin= PLUGINS['SETTINGS'][key]
         if hasattr(plugin, 'write'):
             plugin.write(bus)
 
-    if VRayScene.render_channels_use:
-        for render_channel in VRayScene.render_channels:
-            if render_channel.use:
-                plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
-                if plugin:
-                    try:
-                        plugin.write(bus, getattr(render_channel,plugin.PLUG), render_channel.name)
-                    except:
-                        plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
+    # if VRayScene.render_channels_use:
+    #     for render_channel in VRayScene.render_channels:
+    #         if render_channel.use:
+    #             plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
+    #             if plugin:
+    #                 try:
+    #                     plugin.write(bus, getattr(render_channel,plugin.PLUG), render_channel.name)
+    #                 except:
+    #                     plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
 
     # Preview settings are in different parts of the file,
     # because smth must be set before and smth after.
@@ -419,54 +161,41 @@ def write_settings(bus):
                 tex_name= clean_string("MAtextureMT00TE%s" % ob.material_slots[0].material.texture_slots[0].texture.name)
                 break
 
-        # For texture preview we need to set texture as Diffuse
-        # no matter how it's used in material.
+        # For texture preview we need to set texture as a color,
+        # no matter how it's used in material
         if mode == 'TEXTURE':
-            bus['files']['scene'].write("\n// Texture preview material")
             bus['files']['scene'].write("\nBRDFLight BRDFPreviewTexture {")
-            bus['files']['scene'].write("\n\tcolor= %s;" % tex_name)
-            bus['files']['scene'].write("\n\tcolorMultiplier= 4.0;")
+            bus['files']['scene'].write("\n\tcolor=%s;" % tex_name)
+            bus['files']['scene'].write("\n\tcolorMultiplier=4.0;")
             bus['files']['scene'].write("\n}\n")
             bus['files']['scene'].write("\nMtlSingleBRDF MAtexture {")
-            bus['files']['scene'].write("\n\tbrdf= BRDFPreviewTexture;")
+            bus['files']['scene'].write("\n\tbrdf=BRDFPreviewTexture;")
             bus['files']['scene'].write("\n}\n")
 
-        bus['files']['scene'].write("\n// Preview settings")
         bus['files']['scene'].write("\nSettingsDMCSampler {")
-        bus['files']['scene'].write("\n\tadaptive_amount= 0.99;")
-        bus['files']['scene'].write("\n\tadaptive_threshold= 0.2;")
-        bus['files']['scene'].write("\n\tsubdivs_mult= 0.01;")
+        bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
+        bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
+        bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
         bus['files']['scene'].write("\n}\n")
         bus['files']['scene'].write("\nSettingsOptions {")
-        bus['files']['scene'].write("\n\tmtl_limitDepth= 1;")
-        bus['files']['scene'].write("\n\tmtl_maxDepth= 1;")
-        bus['files']['scene'].write("\n\tmtl_transpMaxLevels= 10;")
-        bus['files']['scene'].write("\n\tmtl_transpCutoff= 0.1;")
-        bus['files']['scene'].write("\n\tmtl_glossy= 1;")
-        bus['files']['scene'].write("\n\tmisc_lowThreadPriority= 1;")
+        bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
+        bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
+        bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
+        bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
+        bus['files']['scene'].write("\n\tmtl_glossy=1;")
+        bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
         bus['files']['scene'].write("\n}\n")
         bus['files']['scene'].write("\nSettingsImageSampler {")
-        bus['files']['scene'].write("\n\ttype= 0;") # Fastest result, but no AA :(
-        bus['files']['scene'].write("\n\tfixed_subdivs= 1;")
-        bus['files']['scene'].write("\n}\n")
-
-        bus['files']['scene'].write("\nBRDFDiffuse BRDFVRayMtlMAcheckerdark {")
-        bus['files']['scene'].write("\n\tcolor=Color(0.1,0.1,0.1);")
-        bus['files']['scene'].write("\n}\n")
-        bus['files']['scene'].write("\nBRDFDiffuse BRDFVRayMtlMAcheckerlight {")
-        bus['files']['scene'].write("\n\tcolor=Color(0.95,0.95,0.95);")
+        bus['files']['scene'].write("\n\ttype=0;") # Fastest result, but no AA :(
+        bus['files']['scene'].write("\n\tfixed_subdivs=1;")
         bus['files']['scene'].write("\n}\n")
 
     if VRayExporter.draft:
-        bus['files']['scene'].write("\n// Draft settings")
-        bus['files']['scene'].write("\nSettingsDMCSampler {")
-        bus['files']['scene'].write("\n\tadaptive_amount= 0.85;")
-        bus['files']['scene'].write("\n\tadaptive_threshold= 0.1;")
-        bus['files']['scene'].write("\n\tsubdivs_mult= 0.1;")
-        bus['files']['scene'].write("\n}\n")
-        bus['files']['scene'].write("\nSettingsImageSampler {")
-        bus['files']['scene'].write("\n\ttype= 1;")
-        bus['files']['scene'].write("\n}\n")
+        bus['files']['scene'].write("\n")
+        bus['files']['scene'].write(get_vrscene_template("draft.vrscene"))
+    
+    bus['files']['scene'].write("\n")
+    bus['files']['scene'].write(get_vrscene_template("defaults.vrscene"))
 
     for key in bus['filenames']:
         if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
@@ -1114,20 +843,20 @@ def _write_object(bus):
  ######   ######  ######## ##    ## ########
 
 def write_scene(bus):
-    scene= bus['scene']
+    scene = bus['scene']
 
-    VRayScene=       scene.vray
+    VRayScene = scene.vray
 
-    VRayExporter=    VRayScene.exporter
-    SettingsOptions= VRayScene.SettingsOptions
+    VRayExporter = VRayScene.exporter
+    SettingsOptions = VRayScene.SettingsOptions
 
-    # Some failsafe defaults
-    bus['defaults']= {}
-    bus['defaults']['brdf']=     "BRDFNOBRDFISSET"
-    bus['defaults']['material']= "MANOMATERIALISSET"
-    bus['defaults']['texture']=  "TENOTEXTUREIESSET"
-    bus['defaults']['uvwgen']=   "DEFAULTUVWC"
-    bus['defaults']['blend']=    "TEDefaultBlend"
+    # Fail-safe defaults
+    bus['defaults'] = {}
+    bus['defaults']['brdf'] = "BRDFNOBRDFISSET"
+    bus['defaults']['material'] = "MANOMATERIALISSET"
+    bus['defaults']['texture'] = "TENOTEXTUREIESSET"
+    bus['defaults']['uvwgen'] = "DEFAULTUVWC"
+    bus['defaults']['blend'] = "TEDefaultBlend"
 
     for key in bus['files']:
         bus['files'][key].write("// V-Ray/Blender")
@@ -1142,166 +871,8 @@ def write_scene(bus):
     bus['files']['textures'].write("\n// Textures\n")
     bus['files']['materials'].write("\n// Materials\n")
 
-    bus['files']['textures'].write("\n// Useful defaults")
-    bus['files']['textures'].write("\nUVWGenChannel %s {" % bus['defaults']['uvwgen'])
-    bus['files']['textures'].write("\n\tuvw_channel= 1;")
-    bus['files']['textures'].write("\n\tuvw_transform= Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));")
-    bus['files']['textures'].write("\n}\n")
-    bus['files']['textures'].write("\nTexChecker %s {" % bus['defaults']['texture'])
-    bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
-    bus['files']['textures'].write("\n}\n")
-    bus['files']['textures'].write("\nTexAColor %s {" % bus['defaults']['blend'])
-    bus['files']['textures'].write("\n\tuvwgen= %s;" % bus['defaults']['uvwgen'])
-    bus['files']['textures'].write("\n\ttexture= AColor(1.0,1.0,1.0,1.0);")
-    bus['files']['textures'].write("\n}\n")
-
-    bus['files']['materials'].write("\n// Fail-safe material")
-    bus['files']['materials'].write("\nBRDFDiffuse %s {" % bus['defaults']['brdf'])
-    bus['files']['materials'].write("\n\tcolor=Color(0.5,0.5,0.5);")
-    bus['files']['materials'].write("\n}\n")
-    bus['files']['materials'].write("\nMtlSingleBRDF %s {" % bus['defaults']['material'])
-    bus['files']['materials'].write("\n\tbrdf= %s;" % bus['defaults']['brdf'])
-    bus['files']['materials'].write("\n}\n")
-
     if bus['preview']:
-        bus['files']['lights'].write("\nLightDirectMax LALamp_008 { // PREVIEW")
-        bus['files']['lights'].write("\n\tintensity= 1.000000;")
-        bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-        bus['files']['lights'].write("\n\tshadows= 0;")
-        bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
-        bus['files']['lights'].write("\n\taffectSpecular= 0;")
-        bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-        bus['files']['lights'].write("\n\tfallsize= 100.0;")
-        bus['files']['lights'].write("\n\ttransform= Transform(")
-        bus['files']['lights'].write("\n\t\tMatrix(")
-        bus['files']['lights'].write("\n\t\t\tVector(1.000000, 0.000000, -0.000000),")
-        bus['files']['lights'].write("\n\t\t\tVector(0.000000, 0.000000, 1.000000),")
-        bus['files']['lights'].write("\n\t\t\tVector(0.000000, -1.000000, 0.000000)")
-        bus['files']['lights'].write("\n\t\t),")
-        bus['files']['lights'].write("\n\t\tVector(1.471056, -14.735638, 3.274598));")
-        bus['files']['lights'].write("\n}\n")
-
-        bus['files']['lights'].write("\nLightSpot LALamp_002 { // PREVIEW")
-        bus['files']['lights'].write("\n\tintensity= 5.000000;")
-        bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-        bus['files']['lights'].write("\n\tconeAngle= 1.3;")
-        bus['files']['lights'].write("\n\tpenumbraAngle= -0.4;")
-        bus['files']['lights'].write("\n\tshadows= 1;")
-        bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
-        bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-        bus['files']['lights'].write("\n\taffectSpecular= 0;")
-        bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-        bus['files']['lights'].write("\n\tshadowRadius= 0.000000;")
-        bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
-        bus['files']['lights'].write("\n\tdecay= 1.0;")
-        bus['files']['lights'].write("\n\ttransform= Transform(")
-        bus['files']['lights'].write("\n\t\tMatrix(")
-        bus['files']['lights'].write("\n\t\t\tVector(-0.549843, 0.655945, 0.517116),")
-        bus['files']['lights'].write("\n\t\t\tVector(-0.733248, -0.082559, -0.674931),")
-        bus['files']['lights'].write("\n\t\t\tVector(-0.400025, -0.750280, 0.526365)")
-        bus['files']['lights'].write("\n\t\t),")
-        bus['files']['lights'].write("\n\t\tVector(-5.725639, -13.646054, 8.5));")
-        bus['files']['lights'].write("\n}\n")
-
-        bus['files']['lights'].write("\nLightOmni LALamp { // PREVIEW")
-        bus['files']['lights'].write("\n\tintensity= 50.000000;")
-        bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-        bus['files']['lights'].write("\n\tshadows= 0;")
-        bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
-        bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-        bus['files']['lights'].write("\n\taffectSpecular= 0;")
-        bus['files']['lights'].write("\n\tspecular_contribution= 0.000000;")
-        bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-        bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
-        bus['files']['lights'].write("\n\tdecay= 2.0;")
-        bus['files']['lights'].write("\n\ttransform= Transform(")
-        bus['files']['lights'].write("\n\t\tMatrix(")
-        bus['files']['lights'].write("\n\t\t\tVector(0.499935, 0.789660, 0.355671),")
-        bus['files']['lights'].write("\n\t\t\tVector(-0.672205, 0.094855, 0.734263),")
-        bus['files']['lights'].write("\n\t\t\tVector(0.546081, -0.606168, 0.578235)")
-        bus['files']['lights'].write("\n\t\t),")
-        bus['files']['lights'].write("\n\t\tVector(15.685226, -7.460007, 3.0));")
-        bus['files']['lights'].write("\n}\n")
-
-        bus['files']['lights'].write("\nLightOmni LALamp_001 { // PREVIEW")
-        bus['files']['lights'].write("\n\tintensity= 20.000000;")
-        bus['files']['lights'].write("\n\tcolor= Color(1.000000, 1.000000, 1.000000);")
-        bus['files']['lights'].write("\n\tshadows= 0;")
-        bus['files']['lights'].write("\n\tcutoffThreshold= 0.01;")
-        bus['files']['lights'].write("\n\taffectDiffuse= 1;")
-        bus['files']['lights'].write("\n\taffectSpecular= 0;")
-        bus['files']['lights'].write("\n\tareaSpeculars= 0;")
-        bus['files']['lights'].write("\n\tshadowSubdivs= 4;")
-        bus['files']['lights'].write("\n\tdecay= 2.0;")
-        bus['files']['lights'].write("\n\ttransform= Transform(")
-        bus['files']['lights'].write("\n\t\tMatrix(")
-        bus['files']['lights'].write("\n\t\t\tVector(0.499935, 0.789660, 0.355671),")
-        bus['files']['lights'].write("\n\t\t\tVector(-0.672205, 0.094855, 0.734263),")
-        bus['files']['lights'].write("\n\t\t\tVector(0.546081, -0.606168, 0.578235)")
-        bus['files']['lights'].write("\n\t\t),")
-        bus['files']['lights'].write("\n\t\tVector(-10.500286, -12.464991, 4.0));")
-        bus['files']['lights'].write("\n}\n")
-
-    # Processed objects
-    bus['objects']= []
-
-    # Effects from material / object settings
-    bus['effects']= {}
-    bus['effects']['fog']= {}
-
-    bus['effects']['toon']= {}
-    bus['effects']['toon']['effects']= []
-    bus['effects']['toon']['objects']= []
-
-    # Prepare exclude for effects
-    exclude_list= []
-    VRayEffects=  VRayScene.VRayEffects
-    if VRayEffects.use:
-        for effect in VRayEffects.effects:
-            if effect.use:
-                if effect.type == 'FOG':
-                    EnvironmentFog= effect.EnvironmentFog
-                    fog_objects= generate_object_list(EnvironmentFog.objects, EnvironmentFog.groups)
-                    for ob in fog_objects:
-                        if not object_visible(bus, ob):
-                            continue
-                        if ob in exclude_list:
-                            continue
-
-                        exclude_list.append(ob)
-
-                        if len(ob.modifiers):
-                            for md in ob.modifiers:
-                                if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
-                                    # Export smoke data
-                                    texVoxelData = clean_string("OB%sSMD%s" % (ob.name, md.name))
-
-                                    _vray_for_blender.exportSmoke(
-                                        bpy.context.as_pointer(), # Context
-                                        ob.as_pointer(),          # Object
-                                        md.as_pointer(),          # SmokeModifierData
-                                        texVoxelData,             # Result plugin name
-                                        bus['files']['geom']      # Output file
-                                    )
-
-                                    # Since object will be skipped, export smoke domain here
-                                    mesh_name = get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
-
-                                    _vray_for_blender.exportMesh(
-                                        bpy.context.as_pointer(), # Context
-                                        ob.as_pointer(),          # Object
-                                        mesh_name,                # Result plugin name
-                                        bus['files']['geom']      # Output file
-                                    )
-
-    for ob in scene.objects:
-        if ob.type in ('CAMERA','ARMATURE','LATTICE'):
-            continue
-
-        if ob not in exclude_list:
-            bus['objects'].append(ob)
-
-    del exclude_list
+        bus['files']['scene'].write(get_vrscene_template("preview.vrscene"))
 
     def write_frame(bus):
         timer = time.clock()
@@ -1313,10 +884,24 @@ def write_scene(bus):
         VRayExporter    = VRayScene.exporter
         SettingsOptions = VRayScene.SettingsOptions
 
-        # Cache stores already exported data
-        bus['cache'] = {}
+        # Prepare exclude for effects
+        bus['object_exclude'] = set()
+
+        # Caches to prevent multiple export
         bus['cache']['nodes'] = set()
         bus['cache']['mesh'] = set()
+        bus['cache']['plugins'] = set()
+
+        # Write environment and effects
+        PLUGINS['SETTINGS']['SettingsEnvironment'].write(bus)
+
+        # Prepare objects
+        bus['objects']= []
+        for ob in scene.objects:
+            if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+                continue
+            if ob.name not in bus['object_exclude']:
+                bus['objects'].append(ob)
 
         # Fake frame for "Camera loop"
         if VRayExporter.camera_loop:
@@ -1717,6 +1302,15 @@ def init_bus(engine, scene, preview=False):
     bus['preview'] = preview
     bus['files']     = {}
     bus['filenames'] = {}
+    bus['volumes'] = set()
+    
+    bus['context'] = {}
+
+    bus['cache'] = {
+        'plugins' : set(),
+        'mesh'    : set(),
+        'nodes'   : set(),
+    }
 
     init_files(bus)
 

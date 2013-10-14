@@ -24,10 +24,16 @@
 
 import bpy
 
+import _vray_for_blender
+
+from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
+from vb25     import utils
+
 
 TYPE = 'EFFECT'
 ID   = 'EnvFogMeshGizmo'
-NAME = 'Mesh Gizmo'
+NAME = 'Fog Mesh Gizmo'
 DESC = ""
 
 PluginParams = (
@@ -35,18 +41,21 @@ PluginParams = (
         'attr' : 'transform',
         'desc' : "",
         'type' : 'TRANSFORM',
+        'skip' : True,
         'default' : None,
     },
     {
         'attr' : 'geometry',
         'name' : "Object",
         'desc' : "",
+        'skip' : True,
         'type' : 'PLUGIN',
         'default' : "",
     },
     {
         'attr' : 'lights',
         'desc' : "",
+        'skip' : True,
         'type' : 'PLUGIN',
         'default' : "",
     },
@@ -57,3 +66,39 @@ PluginParams = (
         'default' : 0,
     },
 )
+
+
+def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams):
+    ofile = bus['files']['environment']
+    scene = bus['scene']
+
+    domainName = mappedParams.get('geometry', None)
+    if domainName is None:
+        return None
+
+    if not domainName or not domainName in scene.objects:
+        return None
+
+    domainObject = scene.objects[domainName]
+
+    # Write smoke domain
+    domainPluginName = utils.get_name(domainObject, prefix='MG')
+
+    _vray_for_blender.exportMesh(
+        bpy.context.as_pointer(),  # Context
+        domainObject.as_pointer(), # Object
+        domainPluginName,          # Result plugin name
+        ofile                      # Output file
+    )
+
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\tgeometry=%s;" % domainPluginName)
+    ofile.write("\n\ttransform=%s;" % LibUtils.AnimatedValue(scene, domainObject.matrix_world))
+    
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvFogMeshGizmo, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    bus['object_exclude'].add(domainName)
+
+    return pluginName

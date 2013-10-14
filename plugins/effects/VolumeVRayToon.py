@@ -31,23 +31,56 @@ NAME = 'Toon'
 DESC = ""
 
 PluginParams = (
+    # {
+    #     'attr' : 'lineColor',
+    #     'desc' : "The color of cartoon line",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
     {
-        'attr' : 'lineColor',
-        'desc' : "The color of cartoon line",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
+        'attr' : 'lineColor_tex',
+        'name' : "Color",
+        'desc' : "",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0, 1.0),
+    },
+    # {
+    #     'attr' : 'lineWidth',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1.5,
+    # },
+    {
+        'attr' : 'lineWidth_tex',
+        'name' : "Width",
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'opacity_tex',
+        'name' : "Opacity",
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'distortion_tex',
+        'name' : "Distortion",
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
     },
     {
         'attr' : 'widthType',
+        'name' : 'Width Type',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'lineWidth',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1.5,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Pixels", ""),
+            ('1', "World", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'opacity',
@@ -87,9 +120,14 @@ PluginParams = (
     },
     {
         'attr' : 'excludeType',
-        'desc' : "true : apply toon effect only to objects in excludeList; false : apply toon effect to all objects out of excludeList",
-        'type' : 'BOOL',
-        'default' : False,
+        'name' : 'List Type',
+        'desc' : "Exclude list behavior",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Exclude", ""),
+            ('1', "Include", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'compensateExposure',
@@ -99,32 +137,25 @@ PluginParams = (
     },
     {
         'attr' : 'excludeList',
+        'name' : "List",
         'desc' : "",
         'type' : 'PLUGIN',
         'default' : "",
     },
-    {
-        'attr' : 'lineColor_tex',
-        'desc' : "",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
-    },
-    {
-        'attr' : 'lineWidth_tex',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'opacity_tex',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'distortion_tex',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
 )
+
+
+def nodeDraw(context, layout, VolumeVRayToon):
+    layout.prop(VolumeVRayToon, 'widthType', text="Width")
+    layout.prop(VolumeVRayToon, 'excludeType', text="List")
+
+
+def gui(context, layout, VolumeVRayToon):
+    split = layout.split()
+    col = split.column()
+    col.prop(VolumeVRayToon, 'normalThreshold')
+    col.prop(VolumeVRayToon, 'overlapThreshold')
+    col.prop(VolumeVRayToon, 'hideInnerEdges')
+    col.prop(VolumeVRayToon, 'doSecondaryRays')
+    col.prop(VolumeVRayToon, 'compensateExposure')
+    col.prop(VolumeVRayToon, 'traceBias')

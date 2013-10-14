@@ -266,11 +266,11 @@ BRDF_TYPE = {
 }
 
 
-def writeDatablock(bus, dataPointer, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, BRDFGlossy, mappedParams):
     ofile = bus['files']['materials']
     scene = bus['scene']
 
-    brdf_type = BRDF_TYPE[dataPointer.brdf_type]
+    brdf_type = BRDF_TYPE[BRDFGlossy.brdf_type]
 
     ofile.write("\n%s %s {" % (brdf_type, pluginName))
     ofile.write("\n\tcolor=Color(0.0,0.0,0.0);")
@@ -282,7 +282,7 @@ def writeDatablock(bus, dataPointer, pluginName, mappedParams):
     ofile.write("\n\treflectionGlossiness=Color(0.0,0.0,0.0);")
     ofile.write("\n\treflectionGlossiness_tex_mult=1.0;")
 
-    ExportUtils.WritePluginParams(bus, ofile, dataPointer, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, BRDFGlossy, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 

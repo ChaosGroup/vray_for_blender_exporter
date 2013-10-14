@@ -29,7 +29,7 @@ import sys
 import bpy
 import mathutils
 
-from pynodes_framework import base, parameter
+from pynodes_framework import idref, base, parameter
 
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
@@ -190,7 +190,12 @@ def VRayNodeDraw(self, context, layout):
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
     if hasattr(vrayPlugin, 'nodeDraw'):
-        vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
+        # XXX: The only way to use images by now
+        # Remove after Blender fix
+        if self.vray_plugin == 'BitmapBuffer':
+            vrayPlugin.nodeDraw(context, layout, self)
+        else:
+            vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
 
 
 def VRayNodeDrawSide(self, context, layout):
@@ -225,7 +230,10 @@ def VRayNodeInit(self, context):
             AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
 
     if self.vray_type == 'TEXTURE':
-        AddOutput(self, 'VRaySocketColor', "Output")
+        # Some plugins have already properly defined outputs
+        #
+        if not self.vray_plugin in {'BitmapBuffer'}:
+            AddOutput(self, 'VRaySocketColor', "Output")
     elif self.vray_type == 'UVWGEN':
         AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
     elif self.vray_type == 'BRDF':
@@ -337,6 +345,19 @@ def LoadDynamicNodes():
 
             DynamicClasses.append(DynNodeClass)
 
+            # XXX: The only way to use images by now
+            # Remove after Blender fix
+            #
+            if pluginName == 'BitmapBuffer':
+                vrayNodeBitmapBuffer = getattr(bpy.types, DynNodeClassName)
+                
+                idref.bpy_register_idref(vrayNodeBitmapBuffer, 'image', idref.IDRefProperty(
+                    "Image",
+                    "Image file",
+                    idtype = 'IMAGE',
+                    options = {'FAKE_USER'},
+                ))
+
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
     VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexLayered)
@@ -374,6 +395,10 @@ def register():
 
 
 def unregister():
+    # XXX: Remove after Blender fix
+    idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image')
+    idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image_user')
+
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
 

@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'UVWGEN'
 ID   = 'UVWGenPlanarWorld'
-NAME = 'PlanarWorld'
+NAME = 'World'
 DESC = ""
 
 PluginParams = (

@@ -156,42 +156,32 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 	def poll(cls, context):
 		return classes.VRayObjectPanel.poll(context) and not context.object.vray.LightMesh.use
 
-	def draw_header(self, context):
-		ob= context.object
-		plugin= ob.vray.MtlRenderStats
-		self.layout.prop(plugin, 'use', text="")
-
 	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
+		layout = self.layout
+		wide_ui = context.region.width > classes.narrowui
 
-		ob= context.object
-		VRayObject= ob.vray
-		plugin= VRayObject.MtlRenderStats
-
-		layout= self.layout
-		layout.active= plugin.use
+		VRayObject     = context.object.vray
+		MtlRenderStats = VRayObject.MtlRenderStats
 
 		layout.prop(VRayObject, 'fade_radius')
 
-		split= layout.split()
-		col= split.column()
-		col.prop(plugin, 'visibility', text="Visible")
+		layout.prop(MtlRenderStats, 'use', text="Use Render Stats")
+
+		layout = layout.box()
+		layout.active = MtlRenderStats.use
+
+		layout.prop(MtlRenderStats, 'visibility', text="Visible")
+
+		layout.label(text="Visible to:")
 
 		split= layout.split()
-		col= split.column()
-		col.label(text="Visible to:")
-
-		split= layout.split()
-		sub= split.column()
-		sub.active= plugin.visibility
-		sub.prop(plugin, 'camera_visibility', text="Camera")
-		sub.prop(plugin, 'gi_visibility', text="GI")
-		sub.prop(plugin, 'shadows_visibility', text="Shadows")
-		if wide_ui:
-			sub= split.column()
-			sub.active= plugin.visibility
-		sub.prop(plugin, 'reflections_visibility', text="Reflections")
-		sub.prop(plugin, 'refractions_visibility', text="Refractions")
+		col = split.column()
+		col.prop(MtlRenderStats, 'camera_visibility', text="Camera")
+		col.prop(MtlRenderStats, 'gi_visibility', text="GI")
+		col.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
+		col = split.column()
+		col.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
+		col.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
 
 
 class VRAY_OBP_lightmesh(classes.VRayObjectPanel):

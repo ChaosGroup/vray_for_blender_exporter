@@ -25,21 +25,21 @@
 __all__ = [ 'classes' ]
 
 
-from vb25.ui import classes
-from vb25.ui import properties_data_geometry
-from vb25.ui import properties_data_camera
-from vb25.ui import properties_data_lamp
-from vb25.ui import properties_data_empty
-from vb25.ui import properties_material
-from vb25.ui import properties_object
-from vb25.ui import properties_particles
-from vb25.ui import properties_render
-from vb25.ui import properties_scene
-from vb25.ui import properties_texture
-from vb25.ui import properties_world
-
-
 def register():
+    from vb25.ui import classes
+    from vb25.ui import properties_data_geometry
+    from vb25.ui import properties_data_camera
+    from vb25.ui import properties_data_lamp
+    from vb25.ui import properties_data_empty
+    from vb25.ui import properties_material
+    from vb25.ui import properties_object
+    from vb25.ui import properties_particles
+    from vb25.ui import properties_render
+    from vb25.ui import properties_render_layers
+    from vb25.ui import properties_scene
+    from vb25.ui import properties_texture
+    from vb25.ui import properties_world
+
     classes.register()
 
     properties_data_geometry.register()
@@ -50,12 +50,27 @@ def register():
     properties_object.register()
     properties_particles.register()
     properties_render.register()
+    properties_render_layers.register()
     properties_scene.register()
     properties_texture.register()
     properties_world.register()
 
 
 def unregister():
+    from vb25.ui import classes
+    from vb25.ui import properties_data_geometry
+    from vb25.ui import properties_data_camera
+    from vb25.ui import properties_data_lamp
+    from vb25.ui import properties_data_empty
+    from vb25.ui import properties_material
+    from vb25.ui import properties_object
+    from vb25.ui import properties_particles
+    from vb25.ui import properties_render
+    from vb25.ui import properties_render_layers
+    from vb25.ui import properties_scene
+    from vb25.ui import properties_texture
+    from vb25.ui import properties_world
+    
     classes.unregister()
 
     properties_data_geometry.unregister()
@@ -66,6 +81,7 @@ def unregister():
     properties_object.unregister()
     properties_particles.unregister()
     properties_render.unregister()
+    properties_render_layers.unregister()
     properties_scene.unregister()
     properties_texture.unregister()
     properties_world.unregister()

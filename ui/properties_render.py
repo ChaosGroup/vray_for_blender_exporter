@@ -55,62 +55,47 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 	bl_label = "Dimensions"
 
 	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
+		layout = self.layout
+		wide_ui = context.region.width > classes.narrowui
 
-		scene= context.scene
-		rd=    scene.render
-		VRayScene= scene.vray
+		scene = context.scene
+		rd    = scene.render
 
-		# if VRayScene.image_aspect_lock:
-		# 	rd.resolution_y= rd.resolution_x / VRayScene.image_aspect
+		VRayScene = scene.vray
+		VRayExporter = VRayScene.exporter
 
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
 		row.operator("render.preset_add", text="", icon="ZOOMIN")
 		row.operator("render.preset_add", text="", icon="ZOOMOUT").remove_active= True
 
-		split= layout.split()
-		col= split.column()
+		split = layout.split()
+		col = split.column(align=True)
 		col.label(text="Resolution:")
-		sub= col.column(align=True)
-		sub.prop(rd, "resolution_x", text="X")
-		sub.prop(rd, "resolution_y", text="Y")
-		# sub_aspect= sub.column()
-		# sub_aspect.active= not VRayScene.image_aspect_lock
-		# sub_aspect.prop(rd, "resolution_y", text="Y")
-		sub.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
-		sub.prop(rd, "resolution_percentage", text="")
+		col.prop(rd, "resolution_x", text="X")
+		col.prop(rd, "resolution_y", text="Y")
+		col.operator("vray.flip_resolution", text="", icon="FILE_REFRESH")
+		col.prop(rd, "resolution_percentage", text="")
 
-		row= col.row()
+		row = col.row()
 		row.prop(rd, "use_border", text="Border")
-		sub= row.row()
-		sub.active = rd.use_border
-		sub.prop(rd, "use_crop_to_border", text="Crop")
+		row.prop(rd, "use_crop_to_border", text="Crop")
 
-		if wide_ui:
-			col= split.column()
+		# col.prop(VRayScene, "image_aspect_lock", text="Lock Image Aspect")
+		# col.prop(VRayScene, "image_aspect")
 
-		# sub = col.column(align=True)
-		# sub.prop(VRayScene, "image_aspect_lock", text="Image aspect")
-		# if VRayScene.image_aspect_lock:
-		# 	sub.prop(VRayScene, "image_aspect")
-		# sub.label(text="Pixel aspect:")
-		# sub.prop(rd, "pixel_aspect_x", text="X")
-		# sub.prop(rd, "pixel_aspect_y", text="Y")
+		col = split.column(align=True)
+		col.label(text="Pixel aspect:")
+		col.prop(rd, "pixel_aspect_x", text="X")
+		col.prop(rd, "pixel_aspect_y", text="Y")
 
-		# split= layout.split()
-		# col = split.column()
-		sub = col.column(align=True)
+		split = layout.split()
+		sub = split.column(align=True)
 		sub.label(text="Frame Range:")
 		sub.prop(scene, "frame_start", text="Start")
 		sub.prop(scene, "frame_end", text="End")
 		sub.prop(scene, "frame_step", text="Step")
-
-		# if wide_ui:
-		# 	col= split.column()
-
-		sub = col.column(align=True)
+		sub = split.column(align=True)
 		sub.label(text="Frame Rate:")
 		sub.prop(rd, "fps")
 		sub.prop(rd, "fps_base", text="/")

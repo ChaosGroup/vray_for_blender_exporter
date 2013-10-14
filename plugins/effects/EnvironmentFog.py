@@ -41,8 +41,10 @@ PluginParams = (
     },
     {
         'attr' : 'gizmos',
+        'name' : 'Gizmo',
         'desc' : "List of gizmos",
         'type' : 'PLUGIN',
+        'skip' : True,
         'default' : "",
     },
     # {
@@ -119,7 +121,7 @@ PluginParams = (
         'attr' : 'use_height',
         'desc' : "Whether or not the height should be taken into account",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'height',
@@ -299,7 +301,6 @@ PluginParams = (
 
 
 def gui(context, layout, EnvironmentFog):
-
     split = layout.split()
     col = split.column()
     col.prop(EnvironmentFog, 'use_height')
@@ -354,3 +355,19 @@ def gui(context, layout, EnvironmentFog):
 
     layout.separator()
     layout.prop(EnvironmentFog, 'use_shade_instance')
+
+
+def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
+    ofile = bus['files']['environment']
+    scene = bus['scene']
+    
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\tgizmos=List(%s);" % mappedParams['gizmos'])
+    
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvironmentFog, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    bus['volumes'].add(pluginName)
+    
+    return pluginName

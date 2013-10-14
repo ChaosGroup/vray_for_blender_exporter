@@ -45,7 +45,7 @@ def FormatHexVector(vector):
 
 
 # Return value in .vrscene format
-def FormatFalue(t, subtype=None):
+def FormatValue(t, subtype=None, quotes=False):
 	if type(t) is bool:
 		return "%i"%(t)
 	elif type(t) is int:
@@ -55,7 +55,7 @@ def FormatFalue(t, subtype=None):
 	elif type(t) is mathutils.Matrix:
 		return "Transform(Matrix(Vector(%.6f,%f,%f),Vector(%.6f,%.6f,%.6f),Vector(%.6f,%.6f,%.6f)),Vector(%.12f,%.12f,%.12f))" % (t[0][0], t[1][0], t[2][0], t[0][1], t[1][1], t[2][1], t[0][2], t[1][2], t[2][2], t[0][3], t[1][3], t[2][3])
 	elif type(t) is mathutils.Vector:
-		return "Vector(%.3f,%.3f,%.3f)"%(t.x,t.y,t.z)
+		return "Vector(%.3f,%.3f,%.3f)" % (t.x,t.y,t.z)
 	elif type(t) is mathutils.Color:
 		if subtype:
 			return "AColor(%.3f,%.3f,%.3f,1.0)" % (t.r,t.g,t.b)
@@ -65,25 +65,27 @@ def FormatFalue(t, subtype=None):
 			return "1"
 		if t == "False":
 			return "0"
-		return t
-	else:
-		return t
+	if quotes:
+		return '"%s"' % t
+	return t
 
 
 # Return animatable value in .vrscene format
-def AnimatedValue(scene, value):
+def AnimatedValue(scene, value, quotes=False):
 	VRayScene    = scene.vray
 	VRayExporter = VRayScene.exporter
 
 	frame = scene.frame_current
-
+	
 	if VRayExporter.camera_loop:
 		frame = VRayExporter.customFrame
 
+	val = FormatValue(value, quotes=quotes)
+
 	if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
-		return FormatFalue(value)
+		return val
 
 	if not VRayExporter.animation and not VRayExporter.use_still_motion_blur:
-		return FormatFalue(value)
+		return val
 
-	return "interpolate((%i,%s))" % (frame, FormatFalue(value))
+	return "interpolate((%i,%s))" % (frame, val)

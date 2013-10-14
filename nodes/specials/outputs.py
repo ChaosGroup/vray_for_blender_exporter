@@ -78,8 +78,17 @@ class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
+    dontOverride = bpy.props.BoolProperty(
+        name        = "Don't Override",
+        description = "Don't override material",
+        default     = False
+    )
+
     def init(self, context):
         AddInput(self, 'VRaySocketMtl', "Material")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'dontOverride')
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

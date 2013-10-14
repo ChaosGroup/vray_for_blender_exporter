@@ -28,12 +28,15 @@ from vb25.ui import classes
 
 
 class VRAY_PP_hair(classes.VRayParticlePanel):
-	bl_label       = "Fur"
-	bl_options     = {'DEFAULT_CLOSED'}
+	bl_label   = "Fur"
+	bl_options = {'DEFAULT_CLOSED'}
 
 	@classmethod
 	def poll(cls, context):
 		return super().poll(context) and context.particle_system.settings.type == 'HAIR'
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui

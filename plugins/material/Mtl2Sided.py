@@ -81,7 +81,11 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, Mtl2Sided, pluginName, mappedParams):
+def nodeDraw(context, layout, Mtl2Sided):
+    layout.prop(Mtl2Sided, 'force_1sided')
+
+
+def writeDatablock(bus, pluginName, PluginParams, Mtl2Sided, mappedParams):
     ofile = bus['files']['materials']
     scene = bus['scene']
 
@@ -94,7 +98,3 @@ def writeDatablock(bus, Mtl2Sided, pluginName, mappedParams):
     ofile.write("\n}\n")
 
     return pluginName
-
-
-def nodeDraw(context, layout, Mtl2Sided):
-    layout.prop(Mtl2Sided, 'force_1sided')

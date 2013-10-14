@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import DrawUtils
+
 
 ########  ######## ######## #### ##    ## ########  ######
 ##     ## ##       ##        ##  ###   ## ##       ##    ##
@@ -51,6 +53,14 @@ narrowui = 200
 ##     ##    ##     ##  ##       ##    ##
  #######     ##    #### ########  ######
 
+def TreeHasNodes(ntree):
+    if not ntree:
+        return False
+    if not len(ntree.nodes):
+        return False
+    return True
+
+
 def GetContextType(context):
 	if hasattr(context, 'node'):
 		return 'NODE'
@@ -72,6 +82,50 @@ def GetRegionWidthFromContext(context):
 def PollEngine(cls, context):
 	rd = context.scene.render
 	return rd.engine in cls.COMPAT_ENGINES
+
+
+########  ########     ###    ##      ## 
+##     ## ##     ##   ## ##   ##  ##  ## 
+##     ## ##     ##  ##   ##  ##  ##  ## 
+##     ## ########  ##     ## ##  ##  ## 
+##     ## ##   ##   ######### ##  ##  ## 
+##     ## ##    ##  ##     ## ##  ##  ## 
+########  ##     ## ##     ##  ###  ###  
+
+def DrawNodePanel(context, layout, node, PLUGINS):
+    vrayPlugin = None
+    toShow     = True
+
+    if not hasattr(node, 'vray_type'):
+        toShow = False
+    else:
+        if node.vray_type == 'NONE' or node.vray_plugin == 'NONE':
+            toShow = False
+        else:
+            if not hasattr(node, node.vray_plugin):
+                toShow = False
+            pluginTypes = PLUGINS[node.vray_type]
+
+            if node.vray_plugin in pluginTypes:
+                vrayPlugin = pluginTypes[node.vray_plugin]
+
+    if not toShow or not vrayPlugin:
+        layout.label(text="Selected node has no attibutes to show...")
+    else:
+        layout.label(text="Node: %s" % node.name)
+        layout.separator()
+
+        dataPointer = getattr(node, node.vray_plugin)
+
+        if hasattr(vrayPlugin, 'gui'):
+            # XXX: The only way to use images by now
+            # Remove after Blender fix
+            if node.vray_plugin == 'BitmapBuffer':
+                vrayPlugin.gui(context, layout, node)
+            else:
+                vrayPlugin.gui(context, layout, dataPointer)
+        else:
+            DrawUtils.Draw(context, layout, dataPointer, vrayPlugin.PluginParams)
 
 
 ########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
@@ -210,9 +264,9 @@ class VRayWorldPanel(VRayPanel):
 #   data is the RNA object containing the collection,
 #   item is the current drawn item of the collection,
 #   icon is the "computed" icon for the item (as an integer, because some objects like materials or textures
-#   have custom icons ID, which are not available as enum items).
+#     have custom icons ID, which are not available as enum items).
 #   active_data is the RNA object containing the active property for the collection (i.e. integer pointing to the
-#   active item of the collection).
+#     active item of the collection).
 #   active_propname is the name of the active property (use 'getattr(active_data, active_propname)').
 #   index is index of the current item in the collection.
 
@@ -242,6 +296,12 @@ class VRayListMaterialSlots(bpy.types.UIList):
             split.label(text="")
 
 
+class VRayListNodeTrees(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label(text="", icon=item.bl_icon)
+        layout.label(text=item.name, translate=False)
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -252,6 +312,7 @@ class VRayListMaterialSlots(bpy.types.UIList):
 
 def GetRegClasses():
 	return (
+		VRayListNodeTrees,
 		VRayListMaterialSlots,
 		VRayListUse,
 		VRayList,

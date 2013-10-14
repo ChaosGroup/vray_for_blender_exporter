@@ -136,7 +136,7 @@ def nodeDraw(context, layout, UVWGenChannel):
     layout.prop(UVWGenChannel, 'uvw_channel')
 
 
-def writeDatablock(bus, dataPointer, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, UVWGenChannel, mappedParams):
     ofile = bus['files']['nodetree']
     scene = bus['scene']
 
@@ -150,7 +150,7 @@ def writeDatablock(bus, dataPointer, pluginName, mappedParams):
     ofile.write("\n\t\tVector(0.0,0.0,0.0)")
     ofile.write("\n\t);")
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, dataPointer, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, UVWGenChannel, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 

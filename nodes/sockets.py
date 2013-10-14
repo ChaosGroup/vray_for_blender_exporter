@@ -159,7 +159,7 @@ class VRaySocketInt(bpy.types.NodeSocket, base.NodeSocket):
     )
 
     def draw(self, context, layout, node, text):
-        if self.is_linked:
+        if self.is_linked or self.is_output:
             layout.label(text)
         else:
             layout.prop(self, 'value', text=text)
@@ -198,7 +198,7 @@ class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
     )
 
     def draw(self, context, layout, node, text):
-        if self.is_linked:
+        if self.is_linked or self.is_output:
             layout.label(text)
         else:
             layout.prop(self, 'value', text=text)
@@ -237,7 +237,7 @@ class VRaySocketFloatColor(bpy.types.NodeSocket, base.NodeSocket):
     )
 
     def draw(self, context, layout, node, text):
-        if self.is_linked:
+        if self.is_linked or self.is_output:
             layout.label(text)
         else:
             layout.prop(self, 'value', text=text)
@@ -277,7 +277,7 @@ class VRaySocketColor(bpy.types.NodeSocket, base.NodeSocket):
     )
 
     def draw(self, context, layout, node, text):
-        if self.is_linked:
+        if self.is_linked or self.is_output:
             layout.label(text)
         else:
             split = layout.split(percentage=0.3)
@@ -319,7 +319,7 @@ class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
     )
 
     def draw(self, context, layout, node, text):
-        if self.is_linked:
+        if self.is_linked or self.is_output:
             layout.label(text)
         else:
             layout.label(text=text)

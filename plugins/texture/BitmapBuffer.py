@@ -26,10 +26,11 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25.lib   import ExportUtils, utils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.lib   import DrawUtils, ExportUtils, utils
 from vb25.utils import get_full_filepath
 
+
+# XXX: Rewrite after Blender fix for sub-idref props
 
 TYPE = 'TEXTURE'
 ID   = 'BitmapBuffer'
@@ -39,9 +40,15 @@ DESC = "Image File"
 PluginParams = (
     {
         'attr' : 'filter_type',
-        'desc' : "-1 - nearest; 0 - no filtering; 1 - mip-map filtering; 2 - summed area table filtering",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Filtering",
+        'type' : 'ENUM',
+        'items' : (
+            ('-1', "Nearest", "Nearest"),
+            ('0',  "None",    "None"),
+            ('1',  "Mip-Map", "Mip-map filtering"),
+            ('2',  "Area",    "Summed area filtering"),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'filter_blur',
@@ -51,15 +58,20 @@ PluginParams = (
     },
     {
         'attr' : 'color_space',
-        'desc' : "0 - linear, 1 - gamma corrected, 2 - sRGB",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Color space",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Linear",          ""),
+            ('1', "Gamma corrected", ""),
+            ('2', "sRGB",            "")
+        ),
+        'default' : '2',
     },
     {
         'attr' : 'gamma',
         'desc' : "",
         'type' : 'FLOAT',
-        'default' : 1,
+        'default' : 1.0,
     },
     {
         'attr' : 'maya_compatible',
@@ -71,13 +83,18 @@ PluginParams = (
         'attr' : 'allow_negative_colors',
         'desc' : "if false negative colors will be clamped",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'interpolation',
-        'desc' : "Interpolation method for the mip-map filtering (0 - bilinear, 1 - bicubic, 2 - biquadratic)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Interpolation method for the Mip-Map filtering",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Bilinear", ""),
+            ('1', "Bicubic", ""),
+            ('2', "iquadratic", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'load_file',
@@ -135,36 +152,40 @@ PluginParams = (
     },
     {
         'attr' : 'ifl_end_condition',
-        'desc' : "Image file list (IFL) end condition: 0 - Loop; 1 - Ping Pong; 2 - Hold;",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Image file list (IFL) end condition",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Loop", ""),
+            ('1', "Ping Pong",  ""),
+            ('2', "Hold", ""),
+        ),
+        'default' : '0',
     },
 
     {
-        'attr' : 'file',
-        'desc' : "The file name; can contain <UDIM> or <UVTILE> tags for Mari or Mudbox tiles respectively, or $nU and $nV for explicit tiles; lower-case tags consider the tiles as starting from 0 whereas upper-case tags start from 1",
-        'type' : 'STRING',
-        'subtype' : 'FILE_PATH',
+        'attr' : 'bitmap',
+        'desc' : "Output BitmapBuffer plugin",
+        'type' : 'OUTPUT_PLUGIN',
         'skip' : True,
         'default' : "",
     },
 )
 
 PluginRefParams = (
-    {
-        'attr' : 'image',
-        'name' : "Image",
-        'desc' : "Image pointer",
-        'type' : 'IMAGE',
-        'default' : None,
-    },
+    # {
+    #     'attr' : 'image',
+    #     'name' : "Image",
+    #     'desc' : "Image pointer",
+    #     'type' : 'IMAGE',
+    #     'default' : None,
+    # },
 )
 
 
-def nodeDraw(context, layout, BitmapBuffer):
+def nodeDraw(context, layout, node):
     split = layout.split()
     row = split.row(align=True)
-    idref.draw_idref(row, BitmapBuffer, 'image', text="")
+    idref.draw_idref(row, node, 'image', text="")
     row.operator("vray.open_image", icon='ZOOMIN', text="")
 
 
@@ -172,14 +193,28 @@ def writeDatablock(bus, pluginName, PluginParams, BitmapBuffer, mappedParams):
     ofile = bus['files']['textures']
     scene = bus['scene']
 
+    image = bus['context']['node'].image
+
     ofile.write("\n%s %s {" % (ID, pluginName))
 
-    if BitmapBuffer.image:
-        filepath = get_full_filepath(bus, BitmapBuffer.image, BitmapBuffer.image.filepath)
-        ofile.write('\n\tfile="%s";' % utils.AnimatedValue(scene, filepath))
+    if image:
+        filepath = get_full_filepath(bus, image, image.filepath)
+        ofile.write('\n\tfile=%s;' % utils.AnimatedValue(scene, filepath, quotes=True))
 
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, BitmapBuffer, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 
     return pluginName
+
+
+def gui(context, layout, node):
+    BitmapBuffer = node.BitmapBuffer
+
+    if node.image:
+        layout.prop(node.image, 'name')
+        layout.prop(node.image, 'filepath')
+
+    layout.separator()
+
+    DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)

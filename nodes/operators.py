@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
 import bpy
 
 
@@ -30,7 +32,29 @@ class VRAY_OT_open_image(bpy.types.Operator):
     bl_label       = "Open Image File"
     bl_description = "Open image file"
 
+    filepath = bpy.props.StringProperty(
+        subtype = 'FILE_PATH',
+    )
+
+    def invoke(self, context, event):
+        wm = context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
+        node = context.active_node
+
+        if not self.filepath:
+            return {'CANCELLED'}
+
+        if not os.path.exists(self.filepath):
+            return {'CANCELLED'}
+
+        filapath, filename = os.path.split(self.filepath)
+        fname, fext = os.path.splitext(filename)
+
+        node.image = bpy.data.images.load(self.filepath)
+        node.image.name = fname
+
         return {'FINISHED'}
 
 

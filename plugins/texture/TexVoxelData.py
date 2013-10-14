@@ -24,6 +24,8 @@
 
 import bpy
 
+import _vray_for_blender
+
 
 TYPE = 'TEXTURE'
 ID   = 'TexVoxelData'
@@ -44,18 +46,24 @@ PluginParams = (
         'default' : (1.0, 1.0, 1.0),
     },
     {
+        'attr' : 'out_flame',
+        'desc' : "Flame",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'out_fuel',
+        'desc' : "Fuel",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
         'attr' : 'out_density',
         'desc' : "Density",
         'type' : 'OUTPUT_FLOAT_TEXTURE',
         'default' : 1.0,
     },
-    {
-        'attr' : 'out_flame',
-        'desc' : "Flame intensity",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-
+    
     {
         'attr' : 'domain',
         'name' : "Domain",
@@ -65,3 +73,39 @@ PluginParams = (
         'default' : "",
     },
 )
+
+
+def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):  
+    ofile = bus['files']['environment']
+    scene = bus['scene']
+
+    domainName = mappedParams.get('domain', None)
+    if domainName is None:
+        return None
+
+    if not domainName or not domainName in scene.objects:
+        return None
+
+    domainObject = scene.objects[domainName]
+
+    # Write smoke data
+    smd = None
+    if len(domainObject.modifiers):
+        for md in domainObject.modifiers:
+            if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
+                smd = md
+                break
+
+    if not smd:
+        return None
+
+    _vray_for_blender.exportSmoke(
+        bpy.context.as_pointer(),   # Context
+        domainObject.as_pointer(),  # Object
+        smd.as_pointer(),           # SmokeModifierData
+        TexVoxelData.interpolation, 
+        pluginName,                 # Result plugin name
+        bus['files']['geom']        # Output file
+    )
+
+    return pluginName

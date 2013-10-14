@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'UVWGEN'
 ID   = 'UVWGenObjectBBox'
-NAME = 'ObjectBBox'
+NAME = 'Bounding Box'
 DESC = ""
 
 PluginParams = (

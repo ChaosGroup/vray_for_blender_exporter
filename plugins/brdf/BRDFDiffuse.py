@@ -87,9 +87,8 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, pluginName, PluginParams, dataPointer, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, BRDFDiffuse, mappedParams):
     ofile = bus['files']['nodetree']
-    scene = bus['scene']
 
     ofile.write("\n%s %s {" % (ID, pluginName))
     ofile.write("\n\tcolor=Color(0.0,0.0,0.0);")
@@ -97,7 +96,7 @@ def writeDatablock(bus, pluginName, PluginParams, dataPointer, mappedParams):
     ofile.write("\n\ttransparency=Color(0.0,0.0,0.0);")
     ofile.write("\n\ttransparency_tex_mult=1.0;")
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, dataPointer, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, BRDFDiffuse, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 

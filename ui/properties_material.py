@@ -31,167 +31,89 @@ from vb25.lib     import DrawUtils
 from vb25.plugins import PLUGINS
 
 
-class VRAY_MP_preview(classes.VRayMaterialPanel):
-	bl_label = "Preview"
-
-	COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
-
-	def draw(self, context):
-		self.layout.template_preview(context.material, show_buttons=False)
-
-
 class VRAY_MP_context_material(classes.VRayMaterialPanel):
-	bl_label = ""
-	bl_options = {'HIDE_HEADER'}
+    bl_label = ""
+    bl_options = {'HIDE_HEADER'}
 
-	@classmethod
-	def poll(cls, context):
-		engine = context.scene.render.engine
-		return (context.material or context.object) and classes.PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return (context.material or context.object) and classes.PollEngine(cls, context)
 
-	def draw(self, context):
-		layout = self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		mat = context.material
+        mat = context.material
 
-		ob = context.object
-		slot = context.material_slot
-		space = context.space_data
+        ob = context.object
+        slot = context.material_slot
+        space = context.space_data
 
-		if ob:
-			row = layout.row()
+        if ob:
+            row = layout.row()
 
-			row.template_list("VRayListMaterialSlots", "", ob, "material_slots", ob, "active_material_index", rows=4)
+            row.template_list("VRayListMaterialSlots", "", ob, "material_slots", ob, "active_material_index", rows=4)
 
-			col = row.column(align=True)
-			col.operator("object.material_slot_add", icon='ZOOMIN', text="")
-			col.operator("object.material_slot_remove", icon='ZOOMOUT', text="")
+            col = row.column(align=True)
+            col.operator("object.material_slot_add", icon='ZOOMIN', text="")
+            col.operator("object.material_slot_remove", icon='ZOOMOUT', text="")
 
-			col.menu("MATERIAL_MT_specials", icon='DOWNARROW_HLT', text="")
+            col.menu("MATERIAL_MT_specials", icon='DOWNARROW_HLT', text="")
 
-			if ob.mode == 'EDIT':
-				row = layout.row(align=True)
-				row.operator("object.material_slot_assign", text="Assign")
-				row.operator("object.material_slot_select", text="Select")
-				row.operator("object.material_slot_deselect", text="Deselect")
+            if ob.mode == 'EDIT':
+                row = layout.row(align=True)
+                row.operator("object.material_slot_assign", text="Assign")
+                row.operator("object.material_slot_select", text="Select")
+                row.operator("object.material_slot_deselect", text="Deselect")
 
-		split = layout.split()
+        if ob:
+            layout.template_ID(ob, "active_material", new="material.new")
+        elif mat:
+            layout.template_ID(space, "pin_id")
 
-		if ob:
-			layout.template_ID(ob, "active_material", new="material.new")
-		elif mat:
-			split.template_ID(space, "pin_id")
+        if mat:
+            VRayMaterial = mat.vray
 
-		if mat:
-			VRayMaterial = mat.vray
+            layout.separator()
+            layout.prop(mat, "diffuse_color", text="Viewport Color")
 
-			layout.separator()
-			layout.prop(mat, "diffuse_color", text="Viewport Color")
+            layout.separator()
 
-			layout.separator()
+            split = layout.split()
+            row = split.row(align=True)
+            idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
+            row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
 
-			split = layout.split()
-			row = split.row(align=True)
-			idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
-			row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
+            if not classes.TreeHasNodes(VRayMaterial.ntree):
+                return
 
+            activeNode = VRayMaterial.ntree.nodes[-1]
 
-class VRAY_MP_node(classes.VRayMaterialPanel):
-	bl_label = "Node"
-
-	@classmethod
-	def poll(cls, context):
-		material = context.material
-		if not material:
-			return False
-		if not material.vray.ntree:
-			return False
-		if not len(material.vray.ntree.nodes):
-			return False
-		return classes.VRayMaterialPanel.poll(context)
-
-	def draw(self, context):
-		ntree      = context.material.vray.ntree
-		activeNode = ntree.nodes[-1]
-
-		vrayPlugin = None
-		toShow     = True
-
-		if not hasattr(activeNode, 'vray_type'):
-			toShow = False
-		else:
-			if activeNode.vray_type == 'NONE' or activeNode.vray_plugin == 'NONE':
-				toShow = False
-			else:
-				if not hasattr(activeNode, activeNode.vray_plugin):
-					toShow = False
-				pluginTypes = PLUGINS[activeNode.vray_type]
-
-				if activeNode.vray_plugin in pluginTypes:
-					vrayPlugin = pluginTypes[activeNode.vray_plugin]
-
-		if not toShow or not vrayPlugin:
-			self.layout.label(text="Selected node has no attibutes to show...")
-		else:
-			self.layout.label(text="Node: %s" % activeNode.name)
-			self.layout.separator()
-
-			dataPointer = getattr(activeNode, activeNode.vray_plugin)
-
-			if hasattr(vrayPlugin, 'gui'):
-				vrayPlugin.gui(context, self.layout, dataPointer)
-			else:
-				DrawUtils.Draw(context, self.layout, dataPointer, vrayPlugin.PluginParams)
+            layout.separator()
+            classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
 
 
-# class VRAY_MP_outline(classes.VRayMaterialPanel):
-# 	bl_label   = "Outline"
-# 	bl_options = {'DEFAULT_CLOSED'}
+class VRAY_MP_preview(classes.VRayMaterialPanel):
+    bl_label = "Preview"
 
-# 	@classmethod
-# 	def poll(cls, context):
-# 		material = context.material
-# 		if material is None:
-# 			return False
-# 		VRayMaterial = material.vray
-# 		if VRayMaterial.nodetree:
-# 			return False
-# 		return engine_poll(__class__, context)
+    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
-# 	def draw_header(self, context):
-# 		ma= context.material
-# 		VRayMaterial= ma.vray
-# 		VolumeVRayToon= VRayMaterial.VolumeVRayToon
-# 		self.layout.prop(VolumeVRayToon, 'use', text="")
-
-# 	def draw(self, context):
-# 		wide_ui= context.region.width > classes.narrowui
-# 		layout= self.layout
-
-# 		ob= context.object
-# 		ma= context.material
-
-# 		VRayMaterial= ma.vray
-# 		VolumeVRayToon= VRayMaterial.VolumeVRayToon
-
-# 		layout.active= VolumeVRayToon.use
-
-# 		PLUGINS['SETTINGS']['SettingsEnvironment'].draw_VolumeVRayToon(context, layout, VRayMaterial)
+    def draw(self, context):
+        self.layout.template_preview(context.material, show_buttons=True)
 
 
 def GetRegClasses():
-	return (
-		VRAY_MP_preview,
-		VRAY_MP_context_material,
-		VRAY_MP_node,
-	)
+    return (
+        VRAY_MP_preview,
+        VRAY_MP_context_material,
+    )
 
 
 def register():
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

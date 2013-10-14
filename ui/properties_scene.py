@@ -30,101 +30,6 @@ from vb25.ui      import classes
 from vb25.plugins import PLUGINS
 
 
-from bl_ui import properties_scene
-for member in dir(properties_scene):
-	subclass = getattr(properties_scene, member)
-	try:
-		for compatEngine in classes.VRayEngines:
-			subclass.COMPAT_ENGINES.add(compatEngine)
-	except:
-		pass
-del properties_scene
-
-
-class VRAY_RP_Layers(classes.VRayRenderLayersPanel):
-	bl_label   = "Render Elements"
-	bl_options = {'HIDE_HEADER'}
-
-	def draw_header(self, context):
-		VRayScene = context.scene.vray
-		self.layout.prop(VRayScene, 'render_channels_use', text="")
-
-	def draw(self, context):
-		VRayScene = context.scene.vray
-		self.layout.prop(VRayScene, 'render_channels_use', text="Use Render Elements")
-
-		split = self.layout.split()
-		row = split.row(align=True)
-		idref.draw_idref(row, VRayScene, 'ntree', text="Node Tree")
-		row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
-
-		wide_ui = context.region.width > classes.narrowui
-		layout= self.layout
-
-		sce= context.scene
-		vsce= sce.vray
-		render_channels= vsce.render_channels
-
-		layout.active= vsce.render_channels_use
-
-		row= layout.row()
-		row.template_list("VRayListUse", "",
-						  vsce, 'render_channels',
-						  vsce, 'render_channels_index',
-						  rows= 4)
-		col= row.column()
-		sub= col.row()
-		subsub= sub.column(align=True)
-		subsub.operator('vray.render_channels_add',	   text="", icon="ZOOMIN")
-		subsub.operator('vray.render_channels_remove', text="", icon="ZOOMOUT")
-
-		if vsce.render_channels_index >= 0 and len(render_channels) > 0:
-			render_channel= render_channels[vsce.render_channels_index]
-
-			layout.separator()
-
-			if wide_ui:
-				split= layout.split(percentage=0.2)
-			else:
-				split= layout.split()
-			col= split.column()
-			col.label(text="Name:")
-			if wide_ui:
-				col= split.column()
-			row= col.row(align=True)
-			row.prop(render_channel, 'name', text="")
-
-			if wide_ui:
-				split= layout.split(percentage=0.2)
-			else:
-				split= layout.split()
-			col= split.column()
-			col.label(text="Type:")
-			if wide_ui:
-				col= split.column()
-			col.prop(render_channel, 'type', text="")
-
-			layout.separator()
-
-			if render_channel.type != 'NONE':
-				# Box border
-				layout= layout.box()
-
-				plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
-				if plugin is not None:
-					render_channel_data= getattr(render_channel,plugin.PLUG)
-
-					if render_channel.name == "" or render_channel.name == "RenderChannel":
-						def get_unique_name():
-							for chan in render_channels:
-								if render_channel_data.name == chan.name:
-									return render_channel_data.name + " (enter unique name)"
-							return render_channel_data.name
-						render_channel.name= get_unique_name()
-
-					plugin.draw(getattr(render_channel,plugin.PLUG), layout, wide_ui)
-
-
 class VRAY_SP_includer(classes.VRayScenePanel):
 	bl_label   = "Includes"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -189,28 +94,27 @@ class VRAY_SP_tools(classes.VRayScenePanel):
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 
+		VRayExporter = context.scene.vray.exporter
+
 		layout= self.layout
 
-		box= layout.box()
+		box = layout.box()
 		box.label(text="Scene:")
-		split= box.split()
-		col= split.column()
-		col.operator("vray.convert_materials", icon='MATERIAL')
-		if wide_ui:
-			col= split.column()
+		split = box.split()
+		col = split.column()
 		col.operator("vray.settings_to_text", icon='TEXT')
 
 		layout.separator()
 
-		box= layout.box()
+		box = layout.box()
 		box.label(text="Object:")
-		split= box.split()
-		col= split.column()
+		split = box.split()
+		col=  split.column()
 		col.operator("vray.copy_linked_materials", icon='MATERIAL')
 
-		# layout.separator()
-
-		# layout.operator("vray.update", icon='SCENE_DATA')
+		layout.separator()
+		layout.label(text="Scene Node Trees:")
+		layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows = 4)
 
 
 class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
@@ -244,7 +148,6 @@ class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 
 def GetRegClasses():
 	return (
-		VRAY_RP_Layers,
 		VRAY_SP_tools,
 		VRAY_SP_includer,
 		VRAY_SP_lights_tweaker,
@@ -252,10 +155,30 @@ def GetRegClasses():
 
 
 def register():
+	from bl_ui import properties_scene
+	for member in dir(properties_scene):
+		subclass = getattr(properties_scene, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.add(compatEngine)
+		except:
+			pass
+	del properties_scene
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
 
 def unregister():
+	from bl_ui import properties_scene
+	for member in dir(properties_scene):
+		subclass = getattr(properties_scene, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.remove(compatEngine)
+		except:
+			pass
+	del properties_scene
+
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)

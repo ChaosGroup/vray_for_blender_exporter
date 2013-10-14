@@ -27,20 +27,12 @@ import bpy
 from vb25.ui import classes
 
 
-from bl_ui import properties_data_mesh
-for member in dir(properties_data_mesh):
-	subclass = getattr(properties_data_mesh, member)
-	try:
-		for compatEngine in classes.VRayEngines:
-			subclass.COMPAT_ENGINES.add(compatEngine)
-	except:
-		pass
-del properties_data_mesh
-
-
 class VRAY_DP_override(classes.VRayGeomPanel):
 	bl_label   = "Options"
 	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 
 	def draw(self, context):
 		wide_ui = context.region.width > classes.narrowui
@@ -81,6 +73,9 @@ class VRAY_DP_override(classes.VRayGeomPanel):
 class VRAY_DP_tools(classes.VRayGeomPanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
@@ -130,10 +125,30 @@ def GetRegClasses():
 
 
 def register():
+	from bl_ui import properties_data_mesh
+	for member in dir(properties_data_mesh):
+		subclass = getattr(properties_data_mesh, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.add(compatEngine)
+		except:
+			pass
+	del properties_data_mesh
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
 
 def unregister():
+	from bl_ui import properties_data_mesh
+	for member in dir(properties_data_mesh):
+		subclass = getattr(properties_data_mesh, member)
+		try:
+			for compatEngine in classes.VRayEngines:
+				subclass.COMPAT_ENGINES.remove(compatEngine)
+		except:
+			pass
+	del properties_data_mesh
+
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)

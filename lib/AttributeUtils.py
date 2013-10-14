@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import re
+
 import bpy
 
 from pynodes_framework import idref
@@ -58,6 +60,7 @@ InputTypes = {
 }
 
 OutputTypes = {
+    'OUTPUT_PLUGIN',
     'OUTPUT_COLOR',
     'OUTPUT_FLOAT_TEXTURE',
     'OUTPUT_VECTOR_TEXTURE',
@@ -82,6 +85,7 @@ TypeToSocket = {
     'INT_TEXTURE'   : 'VRaySocketFloatColor',
 
     'OUTPUT_COLOR'             : 'VRaySocketColor',
+    'OUTPUT_PLUGIN'            : 'VRaySocketObject',
     'OUTPUT_FLOAT_TEXTURE'     : 'VRaySocketFloatColor',
     'OUTPUT_TEXTURE'           : 'VRaySocketColor',
     'OUTPUT_VECTOR_TEXTURE'    : 'VRaySocketFloatColor',
@@ -108,6 +112,7 @@ TypeToProp = {
     'TEXTURE'       : bpy.props.FloatVectorProperty,
 
     'OUTPUT_COLOR'             : bpy.props.FloatVectorProperty,
+    'OUTPUT_PLUGIN'            : bpy.props.StringProperty,
     'OUTPUT_FLOAT_TEXTURE'     : bpy.props.FloatProperty,
     'OUTPUT_TEXTURE'           : bpy.props.FloatVectorProperty,
     'OUTPUT_VECTOR_TEXTURE'    : bpy.props.FloatVectorProperty,
@@ -116,7 +121,10 @@ TypeToProp = {
 
 
 def GetNameFromAttr(attr):
-    return attr.replace("_", " ").title()
+    attr_name = attr.replace("_", " ")
+    attr_name = re.sub(r"\B([A-Z])", r" \1", attr_name)
+    
+    return attr_name.title()
 
 
 def GenerateAttribute(classMembers, attrDesc):

@@ -25,7 +25,7 @@
 import bpy
 import mathutils
 
-from vb25.lib     import ExportUtils
+from vb25.lib     import ExportUtils, utils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug
 from vb25.utils   import clean_string
@@ -92,8 +92,14 @@ def GetOutputName(ntree):
 ##       ##     ##    ##    ##       ##    ##  ##       ##     ##
 ######## ##     ##    ##    ######## ##     ## ######## ########
 
+def WriteVRayNodeSelectObject(bus, nodetree, node):
+    if not node.objectName:
+        return None
+    return node.objectName
+
+
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
-    ofile = bus['files']['materials']
+    ofile = bus['files']['nodetree']
     scene = bus['scene']
 
     pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
@@ -116,15 +122,19 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
             weights.append(WriteNode(bus, nodetree, weigthNode))
         else:
             weightParam = "%sW%sI%i"%(pluginName, brdfs[i], i)
+            
+            weightColor = mathutils.Color([node.inputs[weightSocket].value]*3)
+
             ofile.write("\nTexAColor %s {" % (weightParam))
-            ofile.write("\n\ttexture=%s;" % (a(scene, [node.inputs[weightSocket].value]*4)))
+            ofile.write("\n\ttexture=%s;" % (utils.AnimatedValue(scene, weightColor)))
             ofile.write("\n}\n")
+            
             weights.append(weightParam)
 
     ofile.write("\nBRDFLayered %s {" % pluginName)
     ofile.write("\n\tbrdfs=List(%s);" % ','.join(brdfs))
     ofile.write("\n\tweights=List(%s);" % ','.join(weights))
-    ofile.write("\n\tadditive_mode=%s;" % p(node.additive_mode))
+    ofile.write("\n\tadditive_mode=%s;" % utils.FormatValue(node.additive_mode))
     ofile.write("\n}\n")
 
     return pluginName
@@ -166,7 +176,9 @@ def WriteNode(bus, nodetree, node):
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
-
+    elif node.bl_idname == 'VRayNodeSelectObject':
+        return WriteVRayNodeSelectObject(bus, nodetree, node)
+    
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin
 
@@ -175,10 +187,9 @@ def WriteNode(bus, nodetree, node):
 
     pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
 
-    if 'cache' in bus:
-        if pluginName in bus['cache']['nodes']:
-            return pluginName
-        bus['cache']['nodes'].add(pluginName)
+    if pluginName in bus['cache']['plugins']:
+        return pluginName
+    bus['cache']['plugins'].add(pluginName)
 
     Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
@@ -193,6 +204,9 @@ def WriteNode(bus, nodetree, node):
 
     result     = None
     pluginDesc = PLUGINS[vrayType][vrayPlugin]
+
+    # XXX: Used only to access 'image' pointer for BitmapBuffer
+    bus['context']['node'] = node
 
     if hasattr(pluginDesc, 'writeDatablock'):
         result = pluginDesc.writeDatablock(bus, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)

@@ -1031,6 +1031,22 @@ def get_vray_standalone_path(sce):
 	return vray_bin
 
 
+def get_vrscene_template(filename):
+	templatesDir = os.path.join(get_vray_exporter_path(), "templates")
+	templateFilepath = os.path.join(templatesDir, filename)
+	templateFilepathUser = os.path.join(templatesDir, "%s.user" % filename)
+
+	if os.path.exists(templateFilepathUser):
+		templateFilepath = templateFilepathUser
+	
+	if not os.path.exists(templateFilepath):
+		return ""
+
+	tmpl = open(templateFilepath, 'r').read()
+
+	return tmpl
+
+
 # Inits directories / files
 def init_files(bus, skipGeom=False):
 	scene = bus['scene']

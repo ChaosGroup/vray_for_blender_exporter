@@ -76,7 +76,7 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
             ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
 
         if bus['mode'] == 'SOCKET' and vraySocket:
-            vraySocket.send("set %s.%s=%s" % (pluginName, attr, utils.FormatFalue(value)))
+            vraySocket.send("set %s.%s=%s" % (pluginName, attr, utils.FormatValue(value)))
 
     if vraySocket:
         vraySocket.send("render")

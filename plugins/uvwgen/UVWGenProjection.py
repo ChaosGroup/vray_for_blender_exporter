@@ -152,7 +152,7 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, UVWGenProjection, pluginName, mappedParams):
+def writeDatablock(bus, pluginName, PluginParams, UVWGenProjection, mappedParams):
     ofile = None
     scene = None
     ob    = None
