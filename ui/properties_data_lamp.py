@@ -26,340 +26,257 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25.ui import classes
+from vb25.ui      import classes
+from vb25.lib     import utils as LibUtils
+from vb25.lib     import DrawUtils
+from vb25.plugins import PLUGINS
 
+
+##     ## ######## #### ##        ######  
+##     ##    ##     ##  ##       ##    ## 
+##     ##    ##     ##  ##       ##       
+##     ##    ##     ##  ##        ######  
+##     ##    ##     ##  ##             ## 
+##     ##    ##     ##  ##       ##    ## 
+ #######     ##    #### ########  ######  
+
+def LightIsSun(lamp):
+    if lamp.type == 'SUN' and lamp.vray.direct_type == 'SUN':
+        return True
+    return False
+
+
+def LightIsPortal(lamp):
+    if lamp.type == 'AREA' and int(lamp.vray.LightRectangle.lightPortal):
+        return True
+    return False
+
+
+def LightIsAmbient(lamp):
+    if LibUtils.GetLightPluginName(lamp) in {'LightAmbientMax'}:
+        return True
+    return False
+
+
+ ######   #######  ##    ## ######## ######## ##     ## ######## 
+##    ## ##     ## ###   ##    ##    ##        ##   ##     ##    
+##       ##     ## ####  ##    ##    ##         ## ##      ##    
+##       ##     ## ## ## ##    ##    ######      ###       ##    
+##       ##     ## ##  ####    ##    ##         ## ##      ##    
+##    ## ##     ## ##   ###    ##    ##        ##   ##     ##    
+ ######   #######  ##    ##    ##    ######## ##     ##    ##    
 
 class VRAY_DP_context_lamp(classes.VRayLampPanel):
-	bl_label       = ""
-	bl_options     = {'HIDE_HEADER'}
+    bl_label   = ""
+    bl_options = {'HIDE_HEADER'}
 
-	def draw(self, context):
-		layout= self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		ob= context.object
-		lamp= context.lamp
-		space= context.space_data
-		wide_ui= context.region.width > classes.narrowui
+        ob    = context.object
+        lamp  = context.lamp
+        space = context.space_data
 
-		if wide_ui:
-			split= layout.split(percentage=0.65)
-			if ob:
-				split.template_ID(ob, 'data')
-				split.separator()
-			elif lamp:
-				split.template_ID(space, 'pin_id')
-				split.separator()
-		else:
-			if ob:
-				layout.template_ID(ob, 'data')
-			elif lamp:
-				layout.template_ID(space, 'pin_id')
+        if ob:
+            layout.template_ID(ob, 'data')
+        elif lamp:
+            layout.template_ID(space, 'pin_id')
 
-		layout.separator()
+        VRayLight = lamp.vray
 
-		if wide_ui:
-			layout.prop(lamp, 'type', expand=True)
-		else:
-			layout.prop(lamp, 'type')
+        layout.separator()      
+        layout.prop(lamp, 'type', expand=True)
 
-		layout.separator()
+        lightSubTypeAttr = LibUtils.LampSubType[lamp.type]
+        if lightSubTypeAttr is not None:
+            layout.prop(VRayLight, lightSubTypeAttr, expand=True)
 
-		VRayLight = lamp.vray
+        lightPluginName = LibUtils.GetLightPluginName(lamp)
 
-		split = self.layout.split()
-		row = split.row(align=True)
-		idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
-		row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="")
+        layout.separator()
+        split = self.layout.split()
+        row = split.row(align=True)
+        idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
+        row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
+        if not classes.TreeHasNodes(VRayLight.ntree):
+            return
+
+        activeNode = VRayLight.ntree.nodes[-1]
+
+        layout.separator()
+        classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
+
+
+ ######   ######## ##    ## ######## ########     ###    ##       
+##    ##  ##       ###   ## ##       ##     ##   ## ##   ##       
+##        ##       ####  ## ##       ##     ##  ##   ##  ##       
+##   #### ######   ## ## ## ######   ########  ##     ## ##       
+##    ##  ##       ##  #### ##       ##   ##   ######### ##       
+##    ##  ##       ##   ### ##       ##    ##  ##     ## ##       
+ ######   ######## ##    ## ######## ##     ## ##     ## ######## 
 
 class VRAY_DP_light(classes.VRayLampPanel):
-	bl_label       = "Lamp"
+    bl_label = "Lamp"
 
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		ob= context.object
-		lamp= context.lamp
-		VRayLamp= lamp.vray
+        lamp = context.lamp
+        VRayLamp = lamp.vray
 
-		split= layout.split()
-		col= split.column()
-		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
-			col.row().prop(VRayLamp, 'color_type', expand=True)
-			if wide_ui:
-				col= split.column()
-			if VRayLamp.color_type == 'RGB':
-				sub= col.row(align= True)
-				sub.prop(lamp, 'color', text="")
-				sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path= "object.data.color"
-			else:
-				col.prop(VRayLamp, 'temperature', text="K")
+        lightPluginName = LibUtils.GetLightPluginName(lamp)
 
-			layout.separator()
+        lightPropGroup = getattr(VRayLamp, lightPluginName)
 
-		split= layout.split()
-		col= split.column()
-		if lamp.type == 'AREA':
-			col.prop(VRayLamp,'lightPortal', text="Mode")
-		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
-			col.prop(VRayLamp,'units', text="Units")
-		if not ((lamp.type == 'SUN' and VRayLamp.direct_type == 'SUN') or (lamp.type == 'AREA' and VRayLamp.lightPortal != 'NORMAL')):
-			col.prop(VRayLamp,'intensity', text="Intensity")
-		col.prop(VRayLamp,'subdivs')
-		col.prop(VRayLamp,'causticSubdivs', text="Caustics")
+        layout.prop(lightPropGroup, 'enabled')
 
-		if wide_ui:
-			col= split.column()
+        # Color
+        #
+        if not (LightIsPortal(lamp) or LightIsSun(lamp)):
+            split = layout.split(percentage=0.4)
+            row = split.row()
+            row.prop(VRayLamp, 'color_type', expand=True)
 
-		col.prop(VRayLamp,'enabled', text="On")
-		col.prop(VRayLamp,'invisible')
-		col.prop(VRayLamp,'affectDiffuse')
-		col.prop(VRayLamp,'affectSpecular')
-		col.prop(VRayLamp,'affectReflections')
-		col.prop(VRayLamp,'noDecay')
+            if VRayLamp.color_type == 'RGB':
+                row = split.row()
+                row.prop(lightPropGroup, 'color_tex', text="")
+                row.operator('vray.set_kelvin_color', text="", icon='COLOR', emboss=False).data_path="object.data.vray.%s.color_tex" % lightPluginName
+            else:
+                row = split.row()
+                row.prop(VRayLamp, 'temperature', text="K")
 
-		if(lamp.type == 'AREA'):
-			col.prop(VRayLamp,'doubleSided')
+            DrawUtils.DrawAttr(layout, lightPropGroup, 'invisible')
 
-		if((lamp.type == 'AREA') or (lamp.type == 'POINT' and VRayLamp.radius > 0)):
-			col.prop(VRayLamp,'storeWithIrradianceMap')
+            layout.separator()
 
+        # Intensity
+        #
+        split = layout.split()
+        col = split.column()
+        DrawUtils.DrawAttr(col, lightPropGroup, 'lightPortal', text="Mode")
+        if not (LightIsPortal(lamp) or LightIsSun(lamp)):
+            DrawUtils.DrawAttr(col, lightPropGroup, 'units', text="Units")
+        
+        if LightIsSun(lamp):
+            DrawUtils.DrawAttr(col, lightPropGroup, 'intensity', text="Intensity")
+        else:
+            DrawUtils.DrawAttr(col, lightPropGroup, 'intensity_multiplier')
+
+        split = layout.split()
+        col = split.column()
+        DrawUtils.DrawAttr(col, lightPropGroup, 'subdivs')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'causticSubdivs')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'noDecay')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'doubleSided')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'storeWithIrradianceMap')
+
+        split = layout.split()
+        col = split.column()
+        DrawUtils.DrawAttr(col, lightPropGroup, 'affectDiffuse')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'affectSpecular')
+        DrawUtils.DrawAttr(col, lightPropGroup, 'affectReflections')
+
+        DrawUtils.DrawAttr(col, lightPropGroup, 'intensity_tex', text="Intensity")
+
+        DrawUtils.Draw(context, layout, lightPropGroup, PLUGINS['LIGHT'][lightPluginName].PluginParams)
+
+
+ ######  ##     ##    ###    ########  ######## 
+##    ## ##     ##   ## ##   ##     ## ##       
+##       ##     ##  ##   ##  ##     ## ##       
+ ######  ######### ##     ## ########  ######   
+      ## ##     ## ######### ##        ##       
+##    ## ##     ## ##     ## ##        ##       
+ ######  ##     ## ##     ## ##        ######## 
 
 class VRAY_DP_light_shape(classes.VRayLampPanel):
-	bl_label       = "Shape"
+    bl_label = "Shape"
 
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		ob        = context.object
-		lamp      = context.lamp
-		vl        = lamp.vray
-		VRayLight = lamp.vray
-		VRayScene = context.scene.vray
+        lamp      = context.lamp
+        VRayLight = lamp.vray
+        VRayScene = context.scene.vray
 
-		if lamp.type == 'AREA':
-			layout.prop(lamp,'shape', expand=True)
-			layout.separator()
-			#  use_rect_tex: bool = false
-			#  tex_resolution: integer = 512
-			#  tex_adaptive: float = 1
+        lightPluginName = LibUtils.GetLightPluginName(lamp)
 
-		elif lamp.type == 'SUN':
-			layout.prop(vl,'direct_type', expand=True)
-			layout.separator()
+        lightPropGroup = getattr(VRayLight, lightPluginName)
 
-		elif lamp.type == 'SPOT':
-			layout.prop(vl,'spot_type', expand=True)
-			layout.separator()
+        if lamp.type == 'AREA':
+            layout.prop(lamp, 'shape', expand=True)
+            split = layout.split()
+            if lamp.shape == 'SQUARE':
+                col = split.column()
+                col.prop(lamp, 'size')
+            else:
+                row = split.row(align=True)
+                row.prop(lamp, 'size', text="Size X")
+                row.prop(lamp, 'size_y')
 
-		split= layout.split()
-		col= split.column()
-		if lamp.type == 'AREA':
-			if lamp.shape == 'SQUARE':
-				col.prop(lamp,'size')
-			else:
-				col.prop(lamp,'size', text="Size X")
-				if wide_ui:
-					col= split.column()
-				col.prop(lamp,'size_y')
-
-		elif lamp.type == 'POINT':
-			col.row().prop(vl, 'omni_type', expand=True)
-			col.separator()
-			if vl.omni_type == 'OMNI':
-				col.prop(vl,'radius')
-				if vl.radius > 0:
-					col.prop(vl,'sphere_segments')
-			else:
-				col.prop(vl, 'decay')
-				col.prop(vl, 'ambientShade')
-
-		elif lamp.type == 'SUN':
-			if vl.direct_type == 'DIRECT':
-				col.prop(vl,'fallsize')
-			else:
-				split= layout.split()
-				col= split.column()
-				col.prop(vl,'sky_model')
-
-				split= layout.split()
-				col= split.column()
-				col.prop(vl,'turbidity')
-				col.prop(vl,'ozone')
-				col.prop(vl,'intensity_multiplier', text= "Intensity")
-				col.prop(vl,'size_multiplier', text= "Size")
-				if wide_ui:
-					col= split.column()
-				col.prop(vl,'horiz_illum')
-				col.prop(vl,'water_vapour')
-
-				split= layout.split()
-				col= split.column()
-				col.operator('vray.add_sky', icon='TEXTURE')
-
-		elif lamp.type == 'SPOT':
-			if vl.spot_type == 'SPOT':
-				col.prop(lamp,'distance')
-				col.prop(vl,'decay')
-				if wide_ui:
-					col= split.column()
-				col.prop(lamp,'spot_size', text="Size")
-				col.prop(lamp,'spot_blend', text="Blend")
-			else:
-				col.prop(vl,'ies_file', text="File")
-				layout.separator()
-
-			if vl.spot_type == 'IES':
-				split= layout.split()
-				col= split.column()
-				col.prop(vl,'ies_light_shape')
-				sub = col.column()
-				sub.active = vl.ies_light_shape
-				sub.prop(vl,'ies_light_shape_lock', text="Use width")
-				if wide_ui:
-					col= split.column()
-				sub = col.column()
-				sub.active = vl.ies_light_shape
-				sub.prop(vl,'ies_light_width')
-				if not vl.ies_light_shape_lock:
-					sub.prop(vl,'ies_light_length')
-					sub.prop(vl,'ies_light_height')
-				sub.prop(vl,'ies_light_diameter')
+        if lamp.type == 'SPOT':
+            split = layout.split()
+            col = split.column()
+            if VRayLight.spot_type == 'SPOT':
+                col.prop(lamp, 'spot_size', text="Size")
+                col.prop(lamp, 'spot_blend', text="Blend")
+            else:
+                col.prop(lightPropGroup, 'ies_file', text="File")
 
 
-		elif lamp.type == 'HEMI':
-			split = layout.split()
-			col   = split.column()
-			col.prop(VRayLight, 'dome_spherical')
-
-			split = layout.split()
-			col   = split.column()
-			col.prop(VRayLight, 'dome_rayDistanceMode')
-			if wide_ui:
-				col= split.column()
-			if VRayLight.dome_rayDistanceMode:
-				col.prop(VRayLight, 'dome_rayDistance')
-
-			layout.separator()
-
-			split = layout.split()
-			col   = split.column()
-			col.prop(VRayLight, 'tex_resolution')
-			if wide_ui:
-				col= split.column()
-			col.prop(VRayLight, 'tex_adaptive')
-
-			if VRayScene.SettingsCaustics.on:
-				split = layout.split()
-				col   = split.column()
-				col.prop(VRayLight, 'dome_targetRadius')
-				if wide_ui:
-					col= split.column()
-				col.prop(VRayLight, 'dome_emitRadius')
-
-
-class VRAY_DP_light_shadows(classes.VRayLampPanel):
-	bl_label   = "Shadows"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		vl= context.lamp.vray
-		self.layout.prop(vl,'shadows', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
-
-		ob= context.object
-		lamp= context.lamp
-		vl= lamp.vray
-
-		layout.active = vl.shadows
-
-		split= layout.split()
-		col= split.column()
-		col.prop(vl,'shadowColor', text="")
-		if wide_ui:
-			col= split.column()
-		col.prop(vl,'shadowBias', text="Bias")
-
-		if lamp.type == 'SPOT':
-			if vl.spot_type == 'IES':
-				col.prop(vl,'soft_shadows')
-			else:
-				col.prop(vl,'shadowRadius', text="Radius")
-		else:
-			if lamp.type in ('POINT','SUN'):
-				col.prop(vl,'shadowRadius', text="Radius")
-
-
-class VRAY_DP_light_advanced(classes.VRayLampPanel):
-	bl_label   = "Advanced"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
-
-		ob= context.object
-		lamp= context.lamp
-		vl= lamp.vray
-
-		split= layout.split()
-		col= split.column()
-		col.prop(vl,'diffuse_contribution', text="Diffuse cont.")
-		col.prop(vl,'specular_contribution', text="Specular cont.")
-		col.prop(vl,'cutoffThreshold', text="Cutoff")
-
-		if wide_ui:
-			col= split.column()
-		col.prop(vl,'nsamples')
-		col.prop(vl,'bumped_below_surface_check', text="Bumped surface check")
-		col.prop(vl,'ignoreLightNormals')
-		col.prop(vl,'areaSpeculars')
-
+######## ##     ##  ######  ##       ##     ## ########  ######## 
+##        ##   ##  ##    ## ##       ##     ## ##     ## ##       
+##         ## ##   ##       ##       ##     ## ##     ## ##       
+######      ###    ##       ##       ##     ## ##     ## ######   
+##         ## ##   ##       ##       ##     ## ##     ## ##       
+##        ##   ##  ##    ## ##       ##     ## ##     ## ##       
+######## ##     ##  ######  ########  #######  ########  ######## 
 
 class VRAY_DP_include_exclude(classes.VRayLampPanel):
-	bl_label   = "Include / Exclude"
-	bl_options = {'DEFAULT_CLOSED'}
+    bl_label   = "Include / Exclude"
+    bl_options = {'DEFAULT_CLOSED'}
 
-	def draw_header(self, context):
-		VRayLamp= context.lamp.vray
-		self.layout.prop(VRayLamp, 'use_include_exclude', text="")
+    def draw_header(self, context):
+        VRayLamp = context.lamp.vray
+        self.layout.prop(VRayLamp, 'use_include_exclude', text="")
 
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
+    def draw(self, context):
+        layout = self.layout
 
-		VRayLamp= context.lamp.vray
+        VRayLamp = context.lamp.vray
 
-		layout.active= VRayLamp.use_include_exclude
+        layout.active = VRayLamp.use_include_exclude
 
-		split= layout.split()
-		col= split.column()
-		col.prop(VRayLamp, 'include_exclude', text="")
-		col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="Objects")
-		col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="Groups")
+        split= layout.split()
+        col= split.column()
+        col.prop(VRayLamp, 'include_exclude', text="")
+        col.prop_search(VRayLamp, 'include_objects', context.scene, 'objects', text="Objects")
+        col.prop_search(VRayLamp, 'include_groups',  bpy.data,      'groups',  text="Groups")
 
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
-	return (
-		VRAY_DP_context_lamp,
-		VRAY_DP_light,
-		VRAY_DP_light_shape,
-		VRAY_DP_light_shadows,
-		VRAY_DP_light_advanced,
-		VRAY_DP_include_exclude,
-	)
+    return (
+        VRAY_DP_context_lamp,
+        # VRAY_DP_light,
+        # VRAY_DP_light_shape,
+        VRAY_DP_include_exclude,
+    )
 
 
 def register():
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

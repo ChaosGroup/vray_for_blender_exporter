@@ -39,7 +39,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeObjectOutput'
     bl_label  = 'V-Ray Node'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'VRAY_LOGO_MONO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
@@ -52,7 +52,7 @@ class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
 class VRayNodeBlenderOutput(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeBlenderOutput'
     bl_label  = 'Blender Object'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'OBJECT_DATA'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
@@ -73,22 +73,13 @@ class VRayNodeBlenderOutput(bpy.types.Node, tree.VRayObjectNode):
 class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeOutputMaterial'
     bl_label  = 'Material Output'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'VRAY_LOGO_MONO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    dontOverride = bpy.props.BoolProperty(
-        name        = "Don't Override",
-        description = "Don't override material",
-        default     = False
-    )
-
     def init(self, context):
         AddInput(self, 'VRaySocketMtl', "Material")
-
-    def draw_buttons(self, context, layout):
-        layout.prop(self, 'dontOverride')
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

@@ -71,13 +71,13 @@ PluginParams = (
         'attr' : 'color_mult',
         'desc' : "A multiplier for the texture color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color_offset',
         'desc' : "An additional offset for the texture color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'alpha_mult',
@@ -95,7 +95,7 @@ PluginParams = (
         'attr' : 'nouvw_color',
         'desc' : "The color when there are no valid uvw coordinates",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'color',
@@ -125,19 +125,19 @@ PluginParams = (
         'attr' : 'color1',
         'desc' : "First color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color2',
         'desc' : "Second color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'mix_map',
         'desc' : "Mix amount texture",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'mix_amount',

@@ -42,19 +42,19 @@ PluginParams.extend([
         'attr' : 'center_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'edge_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'bg_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'size',

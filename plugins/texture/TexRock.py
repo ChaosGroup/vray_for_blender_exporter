@@ -49,13 +49,13 @@ PluginParams.extend([
         'attr' : 'color1_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color2_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'grain_size',

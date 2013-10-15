@@ -61,6 +61,24 @@ PLUGINS = {
 ##       ##     ## ##     ## ##     ##  ##  ##   ### ##    ##
 ########  #######  ##     ## ########  #### ##    ##  ######
 
+def gen_menu_items(plugins, none_item=True):
+	plugs = [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID')]
+
+	# We need to sort plugins by PID so that adding new plugins
+	# won't mess enum indexes in existing scenes
+	plugs = sorted(plugs, key=lambda plug: plug.ID)
+
+	enum_items = []
+	if none_item:
+		enum_items.append(('NONE', "None", ""))
+	for plugin in plugs:
+		if not hasattr(plugin, 'ID'):
+			continue
+		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
+
+	return enum_items
+
+
 # Load settings to the bpy.props.PointerProperty
 def AddAttributes(plugin, pointerProp):
 	if hasattr(plugin, 'add_properties'):
@@ -128,12 +146,6 @@ class VRayCamera(bpy.types.PropertyGroup):
 ##     ## ##     ## ##    ## ##       ##    ##    ##
  #######  ########   ######  ########  ######     ##
 class VRayAsset(bpy.types.PropertyGroup):
-	overrideWithScene = bpy.props.BoolProperty(
-		name        = "Override With VRScene Asset",
-		description = "Override with *.vrscene asset",
-		default     = False
-	)
-
 	scenePrefix = bpy.props.StringProperty(
 		name        = "Prefix",
 		description = "Scene object name prefix"
@@ -195,6 +207,12 @@ class VRayAsset(bpy.types.PropertyGroup):
 
 
 class VRayObject(bpy.types.PropertyGroup):
+	overrideWithScene = bpy.props.BoolProperty(
+		name        = "Override With VRScene Asset",
+		description = "Override with *.vrscene asset",
+		default     = False
+	)
+	
 	fade_radius = bpy.props.FloatProperty(
 		name = "Sphere Fade Radius",
 		description = "Sphere fade gizmo radius",
@@ -258,19 +276,6 @@ class VRayMaterial(bpy.types.PropertyGroup):
 ######## ####  ######   ##     ##    ##
 
 class VRayLight(bpy.types.PropertyGroup):
-	units= bpy.props.EnumProperty(
-		name= "Intensity units",
-		description= "Units for the intensity",
-		items= (
-			('DEFAULT',"Default",""),
-			('LUMENS',"Lumens",""),
-			('LUMM',"Lm/m/m/sr",""),
-			('WATTSM',"Watts",""),
-			('WATM',"W/m/m/sr","")
-		),
-		default= 'DEFAULT'
-	)
-
 	color_type= bpy.props.EnumProperty(
 		name= "Color type",
 		description= "Color type",
@@ -296,76 +301,55 @@ class VRayLight(bpy.types.PropertyGroup):
 		default= False
 	)
 
-	include_exclude= bpy.props.EnumProperty(
-		name= "Type",
-		description= "Include or exclude object from lightning",
-		items= (
-			('EXCLUDE',"Exclude",""),
-			('INCLUDE',"Include",""),
+	include_exclude = bpy.props.EnumProperty(
+		name = "Type",
+		description = "Include or exclude object from lightning",
+		items = (
+			('EXCLUDE', "Exclude", ""),
+			('INCLUDE', "Include", ""),
 		),
-		default= 'EXCLUDE'
+		default = 'EXCLUDE'
 	)
 
-	include_objects= bpy.props.StringProperty(
-		name= "Include objects",
-		description= "Include objects: name{;name;etc}"
+	include_objects = bpy.props.StringProperty(
+		name = "Include objects",
+		description = "Include objects: name{;name;etc}"
 	)
 
-	include_groups= bpy.props.StringProperty(
-		name= "Include groups",
-		description= "Include groups: name{;name;etc}"
+	include_groups = bpy.props.StringProperty(
+		name = "Include groups",
+		description = "Include groups: name{;name;etc}"
 	)
 
-	omni_type= bpy.props.EnumProperty(
-		name= "Omni type",
-		description= "Omni light type",
-		items= (
+	omni_type = bpy.props.EnumProperty(
+		name = "Omni type",
+		description = "Omni light type",
+		items = (
 			('OMNI',    "Omni",    ""),
 			('AMBIENT', "Ambient", ""),
+			('SPHERE',  "Sphere",  ""),
 		),
-		default= 'OMNI'
+		default = 'OMNI'
 	)
 
-	direct_type= bpy.props.EnumProperty(
-		name= "Direct type",
-		description= "Direct light type",
-		items= (
+	direct_type = bpy.props.EnumProperty(
+		name = "Direct type",
+		description = "Direct light type",
+		items = (
 			('DIRECT', "Direct", ""),
 			('SUN',    "Sun",    ""),
 		),
-		default= 'DIRECT'
+		default = 'DIRECT'
 	)
 
-	spot_type= bpy.props.EnumProperty(
-		name= "Spot type",
-		description= "Spot light subtype",
-		items= (
+	spot_type = bpy.props.EnumProperty(
+		name = "Spot type",
+		description = "Spot light subtype",
+		items = (
 			('SPOT', "Spot", ""),
 			('IES',  "IES",  ""),
 		),
-		default= 'SPOT'
-	)
-
-	lightPortal= bpy.props.EnumProperty(
-		name= "Light portal mode",
-		description= "Specifies if the light is a portal light",
-		items= (
-			('NORMAL',"Normal light",""),
-			('PORTAL',"Portal",""),
-			('SPORTAL',"Simple portal","")
-		),
-		default= 'NORMAL'
-	)
-
-	sky_model= bpy.props.EnumProperty(
-		name= "Sky model",
-		description= "Allows you to specify the procedural model that will be used to generate the VRaySky texture",
-		items= (
-			('CIEOVER',"CIE Overcast",""),
-			('CIECLEAR',"CIE Clear",""),
-			('PREETH',"Preetham et al","")
-		),
-		default= 'PREETH'
+		default = 'SPOT'
 	)
 
 
@@ -407,24 +391,6 @@ class VRayTexture(bpy.types.PropertyGroup):
 ##   ##   ##       ##  #### ##     ## ##       ##   ##      ##       ##       ##       ##     ## ##       ##  ####    ##
 ##    ##  ##       ##   ### ##     ## ##       ##    ##     ##       ##       ##       ##     ## ##       ##   ###    ##
 ##     ## ######## ##    ## ########  ######## ##     ##    ######## ######## ######## ##     ## ######## ##    ##    ##
-
-def gen_menu_items(plugins, none_item= True):
-	plugs = [plugins[plug] for plug in plugins if hasattr(plugins[plug], 'ID')]
-
-	# We need to sort plugins by PID so that adding new plugins
-	# won't mess enum indexes in existing scenes
-	plugs = sorted(plugs, key=lambda plug: plug.PID)
-
-	enum_items = []
-	if none_item:
-		enum_items.append(('NONE', "None", ""))
-	for plugin in plugs:
-		if not hasattr(plugin, 'ID'):
-			continue
-		enum_items.append((plugin.ID, plugin.NAME, plugin.DESC))
-
-	return enum_items
-
 
 class VRayRenderChannel(bpy.types.PropertyGroup):
 	type= bpy.props.EnumProperty(

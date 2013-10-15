@@ -164,7 +164,7 @@ PluginParams = (
         'attr' : 'reflection_filter_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'trace_depth',

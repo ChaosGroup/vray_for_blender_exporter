@@ -26,6 +26,8 @@ import bpy
 
 from pynodes_framework import idref
 
+from vb25.lib import DrawUtils, ExportUtils, utils
+
 import TexCommonParams
 
 
@@ -37,35 +39,58 @@ DESC = "Gradient Ramp texture"
 PluginParams = list(TexCommonParams.PluginTextureCommonParams)
 
 PluginParams.extend([
-    {
-        'attr' : 'positions',
-        'desc' : "positions of the given colors",
-        'type' : 'FLOAT',
-        'default' : 0.5,
-    },
+    # {
+    #     'attr' : 'positions',
+    #     'desc' : "positions of the given colors",
+    #     'type' : 'FLOAT',
+    #     'default' : 0.5,
+    # },
     # {
     #     'attr' : 'colors',
     #     'desc' : "the given colors",
     #     'type' : 'TEXTURE',
-    #     'default' : "",
+    #     'default' : (0.0, 0.0, 0.0),
     # },
     {
         'attr' : 'texture_map',
         'desc' : "the texture used for mapped gradient ramp",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'gradient_type',
-        'desc' : "0:four corner, 1:box, 2:diagonal, 3:lighting, 4:linear, 5:mapped, 6:normal, 7:pong, 8:radial, 9:spiral, 10:sweep, 11:tartan",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Gradient type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0',  "Four corner", "Four corner"),
+            ('1',  "Box",         "Box"),
+            ('2',  "Diagonal",    "Diagonal"),
+            ('3',  "Lighting",    "Lighting"),
+            ('4',  "Linear",      "Linear"),
+            ('5',  "Mapped",      "Mapped"),
+            ('6',  "Normal",      "normal"),
+            ('7',  "Pong",        "Pong"),
+            ('8',  "Radial",      "Radial"),
+            ('9',  "Spiral",      "Spiral"),
+            ('10', "Sweep",       "Sweep"),
+            ('11', "Tartan",      "Tartan"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'interpolation',
-        'desc' : "0:none, 1:linear, 2:expUp, 3:expDown, 4:smooth, 5:bump, 6:spike",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Interpolation",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "None",          "None"),
+            ('1', "Linear",        "Linear"),
+            ('2', "Exponent Up",   "Exponent Up"),
+            ('3', "Exponent Down", "Exponent Down"),
+            ('4', "Smooth",        "Smooth"),
+            ('5', "Bump",          "Bump"),
+            ('6', "Spike",         "Spike"),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'noise_amount',
@@ -76,42 +101,47 @@ PluginParams.extend([
     {
         'attr' : 'noise_type',
         'desc' : "0:regular, 1:fractal, 2:turbulence",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Regular",    ""),
+            ('1', "Fractal",    ""),
+            ('2', "Turbulence", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'noise_size',
-        'desc' : "default = 1.0",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 1,
     },
     {
         'attr' : 'noise_phase',
-        'desc' : "default = 0.0",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'noise_levels',
-        'desc' : "default = 4.0",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 4,
     },
     {
         'attr' : 'noise_treshold_low',
-        'desc' : "default = 0.0f",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'noise_treshold_high',
-        'desc' : "default = 1.0f",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'noise_smooth',
-        'desc' : "default = 0.0f",
+        'desc' : "",
         'type' : 'FLOAT',
         'default' : 0,
     },
@@ -119,21 +149,64 @@ PluginParams.extend([
 
 
 PluginRefParams = (
-    {
-        'attr' : 'ramp',
-        'name' : "Ramp",
-        'desc' : "Ramp (texture pointer)",
-        'type' : 'TEXTURE',
-        'options' : {'NEVER_NULL'},
-        'default' : None,
-    },
+    # {
+    #     'attr' : 'ramp',
+    #     'name' : "Ramp",
+    #     'desc' : "Ramp (texture pointer)",
+    #     'type' : 'MTEX',
+    #     'options' : {'NEVER_NULL'},
+    #     'default' : (1.0, 1.0, 1.0),
+    # },
 )
 
 
-def nodeDraw(context, layout, TexGradRamp):
-    # if not TexGradRamp.ramp:
-    #     TexGradRamp.ramp = bpy.data.textures.new("Ramp", 'NONE')
-    # tex = TexGradRamp.ramp
+def nodeDraw(context, layout, node):
+    TexGradRamp = node.TexGradRamp
 
-    idref.draw_idref(layout, TexGradRamp, 'ramp', text="")
-    # layout.template_color_ramp(tex, 'color_ramp', expand=True)
+    layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
+
+
+def gui(context, layout, node):
+    TexGradRamp = node.TexGradRamp
+
+    layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
+
+    layout.separator()
+
+    DrawUtils.Draw(context, layout, TexGradRamp, PluginParams)
+
+
+def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):
+    ofile = bus['files']['nodetree']
+    scene = bus['scene']
+
+    texture = bus['context']['node'].texture
+
+    colValue = "List(Color(1.0,1.0,1.0),Color(0.0,0.0,0.0))"
+    posValue = "ListFloat(1.0,0.0)"
+
+    if texture.color_ramp:
+        ramp_col = []
+        for i,element in enumerate(texture.color_ramp.elements):
+            tex_acolor = "%sC%i" % (pluginName, i)
+            ofile.write("\nTexAColor %s {" % tex_acolor)
+            ofile.write("\n\ttexture= %s;" % "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
+            ofile.write("\n}\n")
+            ramp_col.append(tex_acolor)
+
+        ramp_pos = []
+        for element in texture.color_ramp.elements:
+            ramp_pos.append("%.3f" % element.position)
+
+        colValue = "List(%s)" % ",".join(ramp_col)
+        posValue = "ListFloat(%s)" % ",".join(ramp_pos)
+    
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\tcolors=%s;" % utils.AnimatedValue(scene, colValue))
+    ofile.write("\n\tpositions=%s;" % utils.AnimatedValue(scene, posValue))
+
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, TexGradRamp, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    return pluginName

@@ -153,7 +153,7 @@ class VRayObjectNode:
 class VRayNodeTreeLight(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Light Node Tree"
     bl_idname = 'VRayNodeTreeLight'
-    bl_icon   = 'LAMP_SUN'
+    bl_icon   = 'LAMP'
 
     socket_type = VRayTreeSockets
 

@@ -53,7 +53,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "A color texture that if present will override the color parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'shadows',
@@ -71,7 +71,7 @@ PluginParams = (
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'shadowBias',
@@ -191,6 +191,7 @@ PluginParams = (
         'attr' : 'ies_file',
         'desc' : "IES file with luminaire description",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {

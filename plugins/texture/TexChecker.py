@@ -41,13 +41,13 @@ PluginParams.extend([
         'attr' : 'white_color',
         'desc' : "The white checker color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'black_color',
         'desc' : "The black checker color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'contrast',

@@ -31,7 +31,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeSelectObject(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeSelectObject'
     bl_label  = 'Object Select'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'OBJECT_DATA'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
@@ -55,7 +55,7 @@ class VRayNodeSelectObject(bpy.types.Node, tree.VRayObjectNode):
 class VRayNodeSelectGroup(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeSelectGroup'
     bl_label  = 'Group Select'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'GROUP'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'

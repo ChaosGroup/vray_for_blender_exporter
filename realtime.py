@@ -37,6 +37,7 @@ from bpy.app.handlers import persistent
 
 from vb25         import process, utils, render
 from vb25.lib     import VRayProcess, VRaySocket
+from vb25.lib     import utils as LibUtils
 from vb25.debug   import Debug
 from vb25.plugins import PLUGINS
 from vb25.process import is_running
@@ -118,7 +119,7 @@ def scene_update_post(scene):
 					cmd_socket.send("set CameraView.transform=%s" % (utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
 			if ob.is_updated:
-				cmd_socket.send("set %s.transform=%s" % (utils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+				cmd_socket.send("set %s.transform=%s" % (LibUtils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
 		cmd_socket.send("render")
 		cmd_socket.disconnect()

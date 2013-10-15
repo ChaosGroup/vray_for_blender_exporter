@@ -31,7 +31,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeTexLayered'
     bl_label  = 'Layered'
-    bl_icon   = 'VRAY_LOGO'
+    bl_icon   = 'VRAY_LOGO_MONO'
 
     def init(self, context):
         for i in range(2):

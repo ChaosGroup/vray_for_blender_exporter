@@ -22,7 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import math
+
 import bpy
+
+from vb25.lib import DrawUtils, ExportUtils, utils
 
 
 TYPE = 'UVWGEN'
@@ -109,6 +113,7 @@ PluginParams = (
         'attr' : 'rotate_frame_tex',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
+        'skip' : True,
         'default' : 0,
     },
     {
@@ -263,3 +268,24 @@ def nodeDraw(context, layout, UVWGenMayaPlace2dTexture):
     col = split.column(align=True)
     col.prop(UVWGenMayaPlace2dTexture, 'mirror_u')
     col.prop(UVWGenMayaPlace2dTexture, 'mirror_v')
+
+
+def writeDatablock(bus, pluginName, PluginParams, UVWGenMayaPlace2dTexture, mappedParams):
+    ofile = bus['files']['nodetree']
+    scene = bus['scene']
+    
+    rotate_frame_tex = mappedParams['rotate_frame_tex']
+
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    
+    if type(rotate_frame_tex) is float:
+        rotate_frame_tex_value = math.radians(rotate_frame_tex)
+    else:
+        rotate_frame_tex_value = rotate_frame_tex
+    ofile.write("\n\trotate_frame_tex=%s;" % utils.AnimatedValue(scene, rotate_frame_tex_value))
+
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, UVWGenMayaPlace2dTexture, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    return pluginName

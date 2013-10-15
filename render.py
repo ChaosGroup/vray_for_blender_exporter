@@ -36,7 +36,8 @@ import mathutils
 import _vray_for_blender
 
 from vb25.plugins import PLUGINS
-from vb25.lib     import VRayProcess
+from vb25.lib     import VRayProcess, ExportUtils
+from vb25.lib     import utils as LibUtils
 from vb25.nodes   import export as NodesExport
 from vb25.utils   import *
 
@@ -308,24 +309,6 @@ def write_materials(bus):
 ######## ####  ######   ##     ##    ##     ######
 
 def write_lamp(bus):
-    LIGHT_PORTAL= {
-        'NORMAL':  0,
-        'PORTAL':  1,
-        'SPORTAL': 2,
-    }
-    SKY_MODEL= {
-        'CIEOVER'  : 2,
-        'CIECLEAR' : 1,
-        'PREETH'   : 0,
-    }
-    UNITS= {
-        'DEFAULT' : 0,
-        'LUMENS'  : 1,
-        'LUMM'    : 2,
-        'WATTSM'  : 3,
-        'WATM'    : 4,
-    }
-
     scene = bus['scene']
     ofile = bus['files']['lights']
     ob    = bus['node']['object']
@@ -333,168 +316,85 @@ def write_lamp(bus):
     lamp     = ob.data
     VRayLamp = lamp.vray
 
-    lamp_type   = None
     lamp_name   = get_name(ob, prefix='LA')
     lamp_matrix = ob.matrix_world
 
     if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
-        lamp_name+=  bus['node']['dupli']['name']
-        lamp_matrix= bus['node']['dupli']['matrix']
+        lamp_name  += bus['node']['dupli']['name']
+        lamp_matrix = bus['node']['dupli']['matrix']
 
     if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
-        lamp_name+=  bus['node']['particle']['name']
-        lamp_matrix= bus['node']['particle']['matrix']
+        lamp_name  += bus['node']['particle']['name']
+        lamp_matrix = bus['node']['particle']['matrix']
 
-    textures = {}
+    lightPluginName = LibUtils.GetLightPluginName(lamp)
 
-    if lamp.type == 'POINT':
-        if VRayLamp.omni_type == 'AMBIENT':
-            lamp_type= 'LightAmbient'
-        else:
-            if VRayLamp.radius > 0:
-                lamp_type= 'LightSphere'
-            else:
-                lamp_type= 'LightOmni'
-    elif lamp.type == 'SPOT':
-        if VRayLamp.spot_type == 'SPOT':
-            lamp_type= 'LightSpot'
-        else:
-            lamp_type= 'LightIESMax'
-    elif lamp.type == 'SUN':
-        if VRayLamp.direct_type == 'DIRECT':
-            lamp_type= 'LightDirectMax'
-        else:
-            lamp_type= 'SunLight'
-    elif lamp.type == 'AREA':
-        lamp_type= 'LightRectangle'
-    elif lamp.type == 'HEMI':
-        lamp_type= 'LightDome'
-    else:
-        return
+    lightPropGroup = getattr(VRayLamp, lightPluginName)
 
-    ofile.write("\n%s %s {"%(lamp_type,lamp_name))
-
-    if 'color' in textures:
-        if lamp.type == 'SUN' and VRayLamp.direct_type == 'DIRECT':
-            ofile.write("\n\tprojector_map= %s;" % textures['color'])
-
-        if lamp.type in {'AREA','HEMI'}:
-            ofile.write("\n\ttex_adaptive= %.2f;" % (1.0))
-            ofile.write("\n\ttex_resolution= %i;" % (512))
-
-            if lamp.type == 'AREA':
-                ofile.write("\n\tuse_rect_tex= 1;")
-                ofile.write("\n\trect_tex= %s;" % textures['color'])
-            elif lamp.type == 'HEMI':
-                ofile.write("\n\tuse_dome_tex= 1;")
-                ofile.write("\n\tdome_tex= %s;" % textures['color'])
-
-        if lamp.type not in {'HEMI'}:
-            ofile.write("\n\tcolor_tex= %s;" % textures['color'])
-
-    if 'intensity' in textures:
-        ofile.write("\n\tintensity_tex= %s;" % a(scene, "%s::out_intensity" % textures['intensity']))
-
-    if 'shadowColor' in textures:
-        if lamp.type == 'SUN' and VRayLamp.direct_type == 'DIRECT':
-            ofile.write("\n\tshadowColor_tex= %s;" % textures['shadowColor'])
-        else:
-            ofile.write("\n\tshadow_color_tex= %s;" % textures['shadowColor'])
-
-    if lamp_type == 'SunLight':
-        ofile.write("\n\tsky_model= %i;"%(SKY_MODEL[VRayLamp.sky_model]))
-    else:
-        if VRayLamp.color_type == 'RGB':
-            color= lamp.color
-        else:
-            color= kelvin_to_rgb(VRayLamp.temperature)
-        ofile.write("\n\tcolor= %s;" % a(scene, "Color(%.6f, %.6f, %.6f)"%(tuple(color))))
-
-        if lamp_type not in ('LightIESMax', 'LightAmbient'):
-            ofile.write("\n\tunits= %i;"%(UNITS[VRayLamp.units]))
-
-        if lamp_type == 'LightIESMax':
-            ofile.write("\n\ties_light_shape= %i;" % (VRayLamp.ies_light_shape if VRayLamp.ies_light_shape else -1))
-            ofile.write("\n\ties_light_width= %.3f;" %    (VRayLamp.ies_light_width))
-            ofile.write("\n\ties_light_length= %.3f;" %   (VRayLamp.ies_light_width if VRayLamp.ies_light_shape_lock else VRayLamp.ies_light_length))
-            ofile.write("\n\ties_light_height= %.3f;" %   (VRayLamp.ies_light_width if VRayLamp.ies_light_shape_lock else VRayLamp.ies_light_height))
-            ofile.write("\n\ties_light_diameter= %.3f;" % (VRayLamp.ies_light_diameter))
-
-    if lamp_type == 'LightSpot':
-        ofile.write("\n\tconeAngle= %s;" % a(scene,lamp.spot_size))
-        ofile.write("\n\tpenumbraAngle= %s;" % a(scene, - lamp.spot_size * lamp.spot_blend))
-
-        ofile.write("\n\tdecay=%s;" % a(scene, VRayLamp.decay))
-
-        ofile.write("\n\tuseDecayRegions=1;")
-        ofile.write("\n\tstartDistance1=%s;" % a(scene, 0.0))
-        ofile.write("\n\tendDistance1=%s;" % a(scene, lamp.distance-lamp.spot_blend))
-        ofile.write("\n\tstartDistance2=%s;" % a(scene, lamp.distance-lamp.spot_blend))
-        ofile.write("\n\tendDistance2=%s;" % a(scene, lamp.distance-lamp.spot_blend))
-        ofile.write("\n\tstartDistance3=%s;" % a(scene, lamp.distance-lamp.spot_blend))
-        ofile.write("\n\tendDistance3=%s;" % a(scene, lamp.distance))
-
-    if lamp_type == 'LightRectangle':
-        if lamp.shape == 'RECTANGLE':
-            ofile.write("\n\tu_size= %s;"%(a(scene,lamp.size/2)))
-            ofile.write("\n\tv_size= %s;"%(a(scene,lamp.size_y/2)))
-        else:
-            ofile.write("\n\tu_size= %s;"%(a(scene,lamp.size/2)))
-            ofile.write("\n\tv_size= %s;"%(a(scene,lamp.size/2)))
-        ofile.write("\n\tlightPortal= %i;"%(LIGHT_PORTAL[VRayLamp.lightPortal]))
-
-    for param in LIGHT_PARAMS[lamp_type]:
-        if param == 'shadow_subdivs':
-            ofile.write("\n\tshadow_subdivs= %s;"%(a(scene,VRayLamp.subdivs)))
-        elif param == 'shadowSubdivs':
-            ofile.write("\n\tshadowSubdivs= %s;"%(a(scene,VRayLamp.subdivs)))
-        elif param == 'shadowRadius' and lamp_type == 'LightDirectMax':
-            ofile.write("\n\t%s= %s;" % (param, a(scene,VRayLamp.shadowRadius)))
-            ofile.write("\n\tshadowRadius1= %s;" % a(scene,VRayLamp.shadowRadius))
-            ofile.write("\n\tshadowRadius2= %s;" % a(scene,VRayLamp.shadowRadius))
-        elif param == 'intensity' and lamp_type == 'LightIESMax':
-            ofile.write("\n\tpower= %s;"%(a(scene, "%i" % (int(VRayLamp.intensity)))))
-        elif param == 'shadow_color':
-            ofile.write("\n\tshadow_color= %s;"%(a(scene,VRayLamp.shadowColor)))
-        elif param == 'ies_file':
-            ofile.write("\n\t%s= \"%s\";"%(param, get_full_filepath(bus,lamp,VRayLamp.ies_file)))
-        else:
-            ofile.write("\n\t%s= %s;"%(param, a(scene,getattr(VRayLamp,param))))
-
-    ofile.write("\n\ttransform= %s;"%(a(scene,transform(lamp_matrix))))
-
-    # Render Elements
+    # Check if we have a node tree and export it
     #
-    listRenderElements = {
-        'channels_raw'      : [],
-        'channels_diffuse'  : [],
-        'channels_specular' : [],
+    socketParams = {
+        'transform' : lamp_matrix,
     }
 
-    for channel in scene.vray.render_channels:
-        if channel.type == 'LIGHTSELECT' and channel.use:
-            channelData = channel.RenderChannelLightSelect
-            channelName = "LightSelect_%s" % clean_string(channel.name)
+    if VRayLamp.ntree:
+        lightNode = NodesExport.GetNodeByType(VRayLamp.ntree, 'VRayNode%s' % lightPluginName)
+        if lightNode:
+            for nodeSocket in lightNode.inputs:
+                vrayAttr = nodeSocket.vray_attr
+                socketParams[vrayAttr] = NodesExport.WriteConnectedNode(bus, VRayLamp.ntree, nodeSocket)
 
-            lampList = generateDataList(channelData.lights, 'lamps')
+    if lightPluginName == 'LightRectangle':
+        if lamp.shape == 'RECTANGLE':
+            socketParams['u_size'] = lamp.size   / 2.0
+            socketParams['v_size'] = lamp.size_y / 2.0
+        else:
+            socketParams['u_size'] = lamp.size / 2.0
+            socketParams['v_size'] = lamp.size / 2.0
+    
+    # Check 'Render Elements' and add light to channels
+    #
+    # XXX: Resolve!
+    #
+    if False:
+        listRenderElements = {
+            'channels_raw'      : [],
+            'channels_diffuse'  : [],
+            'channels_specular' : [],
+        }
 
-            if lamp in lampList:
-                if channelData.type == 'RAW':
-                    listRenderElements['channels_raw'].append(channelName)
-                elif channelData.type == 'DIFFUSE':
-                    listRenderElements['channels_diffuse'].append(channelName)
-                elif channelData.type == 'SPECULAR':
-                    listRenderElements['channels_specular'].append(channelName)
+        for channel in scene.vray.render_channels:
+            if channel.type == 'LIGHTSELECT' and channel.use:
+                channelData = channel.RenderChannelLightSelect
+                channelName = "LightSelect_%s" % clean_string(channel.name)
 
-    for key in listRenderElements:
-        renderChannelArray = listRenderElements[key]
+                lampList = generateDataList(channelData.lights, 'lamps')
 
-        if not len(renderChannelArray):
-            continue
+                if lamp in lampList:
+                    if channelData.type == 'RAW':
+                        listRenderElements['channels_raw'].append(channelName)
+                    elif channelData.type == 'DIFFUSE':
+                        listRenderElements['channels_diffuse'].append(channelName)
+                    elif channelData.type == 'SPECULAR':
+                        listRenderElements['channels_specular'].append(channelName)
 
-        ofile.write("\n\t%s=List(%s);" % (key, ",".join(renderChannelArray)))
+        for key in listRenderElements:
+            renderChannelArray = listRenderElements[key]
 
-    ofile.write("\n}\n")
+            if not len(renderChannelArray):
+                continue
+
+            ofile.write("\n\t%s=List(%s);" % (key, ",".join(renderChannelArray)))
+
+    # Write light
+    ExportUtils.WriteDatablock(
+        bus,
+        lightPluginName,
+        lamp_name,
+        PLUGINS['LIGHT'][lightPluginName].PluginParams,
+        lightPropGroup,
+        socketParams
+    )
 
 
  #######  ########        ## ########  ######  ########  ######       ###    ##    ##  #######  ########  ########  ######     ###
@@ -1156,7 +1056,7 @@ def run(bus):
                 render_result_name = "VRay Render"
 
                 if render_result_name not in bpy.data.images:
-                    bpy.ops.image.new(name=render_result_name, width=resolution_x, height=resolution_y, color=(0.0, 0.0, 0.0, 1.0), alpha=True, generated_type='BLANK', float=False)
+                    bpy.ops.image.new(name=render_result_name, width=resolution_x, height=resolution_y, color=(0.0, 0.0, 0.0), alpha=True, generated_type='BLANK', float=False)
                     render_result_image.source   = 'FILE'
                     render_result_image.filepath = feedback_image
 

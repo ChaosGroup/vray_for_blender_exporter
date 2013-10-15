@@ -85,7 +85,7 @@ PluginTextureCommonParams = (
         'name' : 'No UV Color',
         'desc' : "The color when there are no valid uvw coordinates",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'color',

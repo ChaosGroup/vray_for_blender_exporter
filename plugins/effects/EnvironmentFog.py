@@ -64,7 +64,7 @@ PluginParams = (
         'name' : "Color",
         'desc' : "Fog texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     # {
     #     'attr' : 'emission',
@@ -77,7 +77,7 @@ PluginParams = (
         'name' : "Emission",
         'desc' : "Fog emission texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     # {
     #     'attr' : 'emission_mult',
@@ -362,7 +362,7 @@ def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
     scene = bus['scene']
     
     ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tgizmos=List(%s);" % mappedParams['gizmos'])
+    ofile.write("\n\tgizmos=List(%s);" % ",".join(mappedParams['gizmos']))
     
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvironmentFog, mappedParams, PluginParams)
 

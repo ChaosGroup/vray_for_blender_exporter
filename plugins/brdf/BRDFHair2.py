@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'diffuse_color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'refraction_index',
@@ -50,7 +50,7 @@ PluginParams = (
         'attr' : 'absorption',
         'desc' : "Absorption coeficient, controls the color of the hair",
         'type' : 'TEXTURE',
-        'default' : (0.2, 0.2, 0.2, 1),
+        'default' : (0.2, 0.2, 0.2),
     },
     {
         'attr' : 'r_long_shift',

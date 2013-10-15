@@ -43,17 +43,18 @@ PluginParams = (
         'type' : 'TRANSFORM',
         'default' : None,
     },
-    {
-        'attr' : 'color',
-        'desc' : "Color of the light",
-        'type' : 'COLOR',
-        'default' : (1, 1, 1),
-    },
+    # {
+    #     'attr' : 'color',
+    #     'desc' : "Color of the light",
+    #     'type' : 'COLOR',
+    #     'default' : (1, 1, 1),
+    # },
     {
         'attr' : 'color_tex',
+        'name' : 'Color',
         'desc' : "A color texture that if present will override the color parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (1.0, 1.0, 1.0),
     },
     {
         'attr' : 'shadows',
@@ -71,7 +72,7 @@ PluginParams = (
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'shadowBias',
@@ -178,19 +179,32 @@ PluginParams = (
     {
         'attr' : 'units',
         'desc' : "Units for the intensity (0 - default, 1 - lumens, 2 - lm/m/m/sr, 3 - watts, 4 - w/m/m/sr)",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Default", ""),
+            ('1', "Lumens", ""),
+            ('2', "Lm/m/m/sr", ""),
+            ('3', "Watts", ""),
+            ('4', "W/m/m/sr", ""),
+        ),
+        'default' : '0',
     },
-    {
-        'attr' : 'intensity',
-        'desc' : "Light intensity",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
+    # {
+    #     'attr' : 'intensity',
+    #     'desc' : "Light intensity",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
     {
         'attr' : 'intensity_tex',
+        'name' : 'Intensity',
         'desc' : "A float texture that if present will override the intensity parameter",
         'type' : 'FLOAT_TEXTURE',
+        'ui' : {
+            'min'      :  0.0,
+            'soft_min' :  0.0,
+            'soft_max' :  1024.0,
+        },
         'default' : 1.0,
     },
     {
@@ -231,9 +245,14 @@ PluginParams = (
     },
     {
         'attr' : 'lightPortal',
-        'desc' : "Specifies if the light is a portal light (0 - normal light, 1 - portal light, 2 - simple portal light)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies if the light is a portal light",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Normal Light", ""),
+            ('1', "Portal", ""),
+            ('2', "Simple Portal", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'objectID',
@@ -269,7 +288,7 @@ PluginParams = (
         'attr' : 'rect_tex',
         'desc' : "The light texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'use_rect_tex',

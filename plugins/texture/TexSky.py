@@ -90,7 +90,7 @@ PluginParams = (
     },
     {
         'attr' : 'horiz_illum',
-        'desc' : "Specifies the intensity (in lx) of the illumination on horizontal surfaces coming from the sky",
+        'desc' : "Specifies the intensity (in Lx) of the illumination on horizontal surfaces coming from the sky",
         'type' : 'FLOAT',
         'default' : 25000,
     },

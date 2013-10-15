@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'texture',
         'desc' : "The texture to be inverted",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'invert_alpha',

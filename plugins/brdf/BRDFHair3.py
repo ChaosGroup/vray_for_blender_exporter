@@ -38,19 +38,19 @@ PluginParams = (
         'attr' : 'overall_color',
         'desc' : "Overall color multiplier",
         'type' : 'TEXTURE',
-        'default' : (0.9, 0.9, 0.9, 1),
+        'default' : (0.9, 0.9, 0.9),
     },
     {
         'attr' : 'transparency',
         'desc' : "Transparency",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'diffuse_color',
         'desc' : "Diffuse hair color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'diffuse_amount',
@@ -62,7 +62,7 @@ PluginParams = (
         'attr' : 'primary_specular',
         'desc' : "Primary specular color",
         'type' : 'TEXTURE',
-        'default' : (0.2, 0.2, 0.2, 1),
+        'default' : (0.2, 0.2, 0.2),
     },
     {
         'attr' : 'primary_specular_amount',
@@ -80,7 +80,7 @@ PluginParams = (
         'attr' : 'secondary_specular',
         'desc' : "Secondary specular color",
         'type' : 'TEXTURE',
-        'default' : (0.2, 0.2, 0.2, 1),
+        'default' : (0.2, 0.2, 0.2),
     },
     {
         'attr' : 'secondary_specular_amount',
@@ -104,7 +104,7 @@ PluginParams = (
         'attr' : 'transmission',
         'desc' : "Transmission color",
         'type' : 'TEXTURE',
-        'default' : (0.2, 0.2, 0.2, 1),
+        'default' : (0.2, 0.2, 0.2),
     },
     {
         'attr' : 'transmission_amount',

@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color_tex_mult',
@@ -62,7 +62,7 @@ PluginParams = (
         'attr' : 'translucency_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'translucency_tex_mult',

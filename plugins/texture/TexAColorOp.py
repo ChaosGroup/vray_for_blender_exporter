@@ -35,13 +35,13 @@ PluginParams = (
         'attr' : 'color_a',
         'desc' : "The first color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color_b',
         'desc' : "The second color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'mult_a',

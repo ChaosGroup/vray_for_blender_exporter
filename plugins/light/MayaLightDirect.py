@@ -41,7 +41,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "A color texture that if present will override the color parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'intensity',
@@ -125,7 +125,7 @@ PluginParams = (
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'enabled',

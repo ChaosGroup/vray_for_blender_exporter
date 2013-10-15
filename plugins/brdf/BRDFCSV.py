@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'transparency_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'transparency_tex_mult',
@@ -86,7 +86,7 @@ PluginParams = (
         'attr' : 'reflect_exit_color',
         'desc' : "The color to use when the maximum depth is reached",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'reflect_dim_distance',

@@ -86,7 +86,7 @@ PluginParams = (
         'attr' : 'flake_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.3, 0.4, 0.8, 1),
+        'default' : (0.3, 0.4, 0.8),
     },
     {
         'attr' : 'flake_glossiness',

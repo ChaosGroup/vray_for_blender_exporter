@@ -52,8 +52,8 @@ PluginParams = (
     {
         'attr' : 'color',
         'desc' : "The ambient color",
-        'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'type' : 'COLOR',
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'compensate_exposure',

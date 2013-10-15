@@ -38,13 +38,13 @@ PluginParams = (
         'attr' : 'edges_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'bg_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'width_type',

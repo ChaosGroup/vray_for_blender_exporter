@@ -25,6 +25,7 @@
 import os
 
 import bpy
+from bl_operators import node as BlNode
 
 
 class VRAY_OT_open_image(bpy.types.Operator):
@@ -63,8 +64,22 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_label       = "Add Light Nodetree"
     bl_description = ""
 
+    lightType = bpy.props.StringProperty(
+        name = "Light Type",
+        description = "Light type",
+        default = ""
+    )
+
     def execute(self, context):
+        if not self.lightType:
+            return {'CANCELLED'}
+
         VRayLight = context.object.data.vray
+
+        ntree = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
+        ntree.nodes.new('VRayNode%s' % self.lightType)
+        
+        VRayLight.ntree = ntree
 
         return {'FINISHED'}
 
@@ -75,6 +90,12 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
     bl_description = ""
 
     def execute(self, context):
+        VRayScene = context.scene.vray
+
+        ntree = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeScene')
+       
+        VRayScene.ntree = ntree
+
         return {'FINISHED'}
 
 
@@ -147,6 +168,18 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRAY_OT_add_node(BlNode.NodeAddOperator, bpy.types.Operator):
+    bl_idname      = "vray.add_node"
+    bl_label       = "Add World Nodetree"
+    bl_description = ""
+
+    def create_node(self, context, node_type=None):
+        node = super(VRAY_OT_add_node, self).create_node(context, node_type)
+
+        if node.bl_idname == 'VRayNodeTexGradRamp':
+            if not node.texture:
+                node.texture = bpy.data.textures.new("Ramp_%s" % node.name, 'NONE')
+                node.texture.use_color_ramp = True
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -160,6 +193,8 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
 def GetRegClasses():
     return (
         VRAY_OT_open_image,
+
+        VRAY_OT_add_node,
 
         VRAY_OT_add_nodetree_scene,
         VRAY_OT_add_nodetree_light,

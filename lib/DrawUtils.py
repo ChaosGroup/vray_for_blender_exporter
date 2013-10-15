@@ -27,6 +27,16 @@ from . import AttributeUtils
 from pynodes_framework import idref
 
 
+def DrawAttr(layout, propGroup, attr, text=None):
+    if not hasattr(propGroup, attr):
+        return
+    
+    if text is not None:    
+        layout.prop(propGroup, attr, text=text)
+    else:
+        layout.prop(propGroup, attr)
+
+
 def Draw(context, layout, dataPointer, PluginParams):
     for attrDesc in PluginParams:
         if attrDesc['type'] in AttributeUtils.SkippedTypes:

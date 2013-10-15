@@ -62,13 +62,13 @@ PluginParams = (
         'attr' : 'overall_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'diffuse_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'diffuse_amount',
@@ -80,13 +80,13 @@ PluginParams = (
         'attr' : 'sub_surface_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'scatter_radius',
         'desc' : "This is measured in centimeters",
         'type' : 'TEXTURE',
-        'default' : (0.92, 0.52, 0.175, 1),
+        'default' : (0.92, 0.52, 0.175),
     },
     {
         'attr' : 'scatter_radius_mult',
@@ -110,7 +110,7 @@ PluginParams = (
         'attr' : 'specular_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'specular_amount',

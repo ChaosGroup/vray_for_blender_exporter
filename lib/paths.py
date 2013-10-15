@@ -22,37 +22,18 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
+import os
 
 
-TYPE = 'UVWGEN'
-ID   = 'UVWGenExplicit'
-NAME = 'Explicit'
-DESC = ""
+# Get full file name (name.ext)
+#
+def GetFullFilename(filepath):
+	return os.path.basename(bpy.path.abspath(filepath))
 
-PluginParams = (
-    {
-        'attr' : 'u',
-        'desc' : "the U input",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'v',
-        'desc' : "the V input",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'w',
-        'desc' : "the W input",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'uvw',
-        'desc' : "",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
-    },
-)
+
+# Get file name (without .ext)
+#
+def GetFilename(filepath):
+	fullFilename = GetFullFilename(filepath)
+	filename, fileext = os.path.splitext(fullFilename)
+	return filename

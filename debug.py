@@ -54,7 +54,7 @@ def Color(text, color=None):
 #
 def Debug(message, newline=True, cr=True, msgType='NORMAL'):
     if hasattr(bpy.context, 'scene'):
-        if not bpy.context.scene.vray.exporter.debug:
+        if not bpy.context.scene.vray.exporter.debug and msgType != 'ERROR':
             return
 
     sys.stdout.write("%s: %s%s" % (

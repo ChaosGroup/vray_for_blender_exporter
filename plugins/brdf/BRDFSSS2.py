@@ -62,13 +62,13 @@ PluginParams = (
         'attr' : 'diffuse_reflectance',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.81, 0.81, 0.69, 1),
+        'default' : (0.81, 0.81, 0.69),
     },
     {
         'attr' : 'scatter_radius',
         'desc' : "This is measured in centimeters",
         'type' : 'TEXTURE',
-        'default' : (0.92, 0.52, 0.175, 1),
+        'default' : (0.92, 0.52, 0.175),
     },
     {
         'attr' : 'scatter_radius_mult',

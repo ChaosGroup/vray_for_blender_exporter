@@ -100,8 +100,13 @@ PluginParams = (
     {
         'attr' : 'sky_model',
         'desc' : "Selects the procedural model used to simulate the TexSky texture",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Preetham et al.", ""),
+            ('1', "CIE Clear", ""),
+            ('2', "CIE Overcast", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'shadows',
@@ -137,7 +142,7 @@ PluginParams = (
         'attr' : 'shadow_color_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'photon_radius',

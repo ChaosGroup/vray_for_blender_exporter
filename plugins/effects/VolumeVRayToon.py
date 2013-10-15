@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'EFFECT'
 ID   = 'VolumeVRayToon'
@@ -42,7 +44,7 @@ PluginParams = (
         'name' : "Color",
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     # {
     #     'attr' : 'lineWidth',
@@ -57,6 +59,12 @@ PluginParams = (
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
+    # {
+    #     'attr' : 'opacity',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
     {
         'attr' : 'opacity_tex',
         'name' : "Opacity",
@@ -69,7 +77,7 @@ PluginParams = (
         'name' : "Distortion",
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.0,
     },
     {
         'attr' : 'widthType',
@@ -81,12 +89,6 @@ PluginParams = (
             ('1', "World", ""),
         ),
         'default' : '0',
-    },
-    {
-        'attr' : 'opacity',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
     },
     {
         'attr' : 'hideInnerEdges',
@@ -138,8 +140,9 @@ PluginParams = (
     {
         'attr' : 'excludeList',
         'name' : "List",
-        'desc' : "",
+        'desc' : "",        
         'type' : 'PLUGIN',
+        'skip' : True,
         'default' : "",
     },
 )
@@ -155,7 +158,23 @@ def gui(context, layout, VolumeVRayToon):
     col = split.column()
     col.prop(VolumeVRayToon, 'normalThreshold')
     col.prop(VolumeVRayToon, 'overlapThreshold')
+    col.prop(VolumeVRayToon, 'traceBias')
     col.prop(VolumeVRayToon, 'hideInnerEdges')
     col.prop(VolumeVRayToon, 'doSecondaryRays')
     col.prop(VolumeVRayToon, 'compensateExposure')
-    col.prop(VolumeVRayToon, 'traceBias')
+
+
+def writeDatablock(bus, pluginName, PluginParams, VolumeVRayToon, mappedParams):
+    ofile = bus['files']['environment']
+    scene = bus['scene']
+    
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\texcludeList=List(%s);" % ",".join(mappedParams['excludeList']))
+    
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, VolumeVRayToon, mappedParams, PluginParams)
+
+    ofile.write("\n}\n")
+
+    bus['volumes'].add(pluginName)
+    
+    return pluginName

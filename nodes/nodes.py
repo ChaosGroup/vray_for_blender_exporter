@@ -28,6 +28,7 @@ import sys
 
 import bpy
 import mathutils
+import nodeitems_utils
 
 from pynodes_framework import idref, base, parameter
 
@@ -40,12 +41,23 @@ from .sockets import AddInput, AddOutput
 
 
 VRayNodeTypes = {
-    'TEXTURE'  : [],
     'BRDF'     : [],
-    'MATERIAL' : [],
-    'GEOMETRY' : [],
-    'UVWGEN'   : [],
     'EFFECT'   : [],
+    'GEOMETRY' : [],
+    'LIGHT'    : [],
+    'MATERIAL' : [],
+    'TEXTURE'  : [],
+    'UVWGEN'   : [],
+}
+
+VRayNodeTypeIcon = {
+    'BRDF'     : 'TEXTURE_SHADED',
+    'EFFECT'   : 'GHOST_ENABLED',
+    'GEOMETRY' : 'MESH_DATA',
+    'LIGHT'    : 'LAMP',
+    'MATERIAL' : 'MATERIAL',
+    'TEXTURE'  : 'TEXTURE',
+    'UVWGEN'   : 'GROUP_UVS',
 }
 
 
@@ -58,7 +70,9 @@ VRayNodeTypes = {
 ##     ## ######## ##    ##  #######
 
 def add_nodetype(layout, t):
-    layout.operator("node.add_node", text=t.bl_label).type=t.bl_rna.identifier
+    op = layout.operator("vray.add_node", text=t.bl_label, icon=t.bl_icon)
+    op.type = t.bl_rna.identifier
+    op.use_transform = False
 
 
 class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
@@ -67,7 +81,6 @@ class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeEnvironment)
-        add_nodetype(self.layout, bpy.types.VRayNodeEffectsHolder)
 
 
 class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
@@ -75,10 +88,10 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
     bl_label  = "Output"
 
     def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutput)
         add_nodetype(self.layout, bpy.types.VRayNodeOutputMaterial)
         add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
         add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutput)
 
 
 class VRayNodesMenuGeom(bpy.types.Menu, tree.VRayData):
@@ -156,29 +169,41 @@ class VRayNodesMenuEffects(bpy.types.Menu, tree.VRayData):
     bl_label  = "Effects"
 
     def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeEffectsHolder)
+
         for vrayNodeType in sorted(VRayNodeTypes['EFFECT'], key=lambda t: t.bl_label):
             add_nodetype(self.layout, vrayNodeType)
 
 
+class VRayNodesMenuLights(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuLights"
+    bl_label  = "Lights"
+
+    def draw(self, context):
+        for vrayNodeType in sorted(VRayNodeTypes['LIGHT'], key=lambda t: t.bl_label):
+            add_nodetype(self.layout, vrayNodeType)
+
+
 def VRayNodesMenu(self, context):
-    self.layout.menu("VRayNodesMenuBRDF")
-    self.layout.menu("VRayNodesMenuTexture")
-    self.layout.menu("VRayNodesMenuMapping")
-    self.layout.menu("VRayNodesMenuMaterial")
-    self.layout.menu("VRayNodesMenuOutput")
-    self.layout.menu("VRayNodesMenuSelector")
-    self.layout.menu("VRayNodesMenuGeom")
-    self.layout.menu("VRayNodesMenuEnvironment")
-    self.layout.menu("VRayNodesMenuEffects")
+    self.layout.menu("VRayNodesMenuGeom", icon='MESH_DATA')
+    self.layout.menu("VRayNodesMenuLights", icon='LAMP')
+    self.layout.menu("VRayNodesMenuBRDF", icon='TEXTURE_SHADED')
+    self.layout.menu("VRayNodesMenuMaterial", icon='MATERIAL')
+    self.layout.menu("VRayNodesMenuTexture", icon='TEXTURE')
+    self.layout.menu("VRayNodesMenuMapping", icon='GROUP_UVS')
+    self.layout.menu("VRayNodesMenuSelector", icon='ZOOM_SELECTED')
+    self.layout.menu("VRayNodesMenuOutput", icon='OBJECT_DATA')
+    self.layout.menu("VRayNodesMenuEnvironment", icon='WORLD')
+    self.layout.menu("VRayNodesMenuEffects", icon='GHOST_ENABLED')
 
 
-#### ##    ## #### ########
- ##  ###   ##  ##     ##
- ##  ####  ##  ##     ##
- ##  ## ## ##  ##     ##
- ##  ##  ####  ##     ##
- ##  ##   ###  ##     ##
-#### ##    ## ####    ##
+ ######  ##          ###     ######   ######     ##     ## ######## ######## ##     ##  #######  ########   ######  
+##    ## ##         ## ##   ##    ## ##    ##    ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ## 
+##       ##        ##   ##  ##       ##          #### #### ##          ##    ##     ## ##     ## ##     ## ##       
+##       ##       ##     ##  ######   ######     ## ### ## ######      ##    ######### ##     ## ##     ##  ######  
+##       ##       #########       ##       ##    ##     ## ##          ##    ##     ## ##     ## ##     ##       ## 
+##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ## 
+ ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######  
 
 def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
@@ -192,7 +217,7 @@ def VRayNodeDraw(self, context, layout):
     if hasattr(vrayPlugin, 'nodeDraw'):
         # XXX: The only way to use images by now
         # Remove after Blender fix
-        if self.vray_plugin == 'BitmapBuffer':
+        if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
             vrayPlugin.nodeDraw(context, layout, self)
         else:
             vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
@@ -254,6 +279,11 @@ def VRayNodeInit(self, context):
 ##     ##    ##    ##   ### ##     ## ##     ##  ##  ##    ##    ##   ### ##     ## ##     ## ##       ##    ##
 ########     ##    ##    ## ##     ## ##     ## ####  ######     ##    ##  #######  ########  ########  ######
 
+usePynodesFramwork = False
+useCatergories     = False
+
+category_textures = tree.VRayNodeTree.add_category("Textures", "Textures")
+
 DynamicClasses = []
 
 
@@ -293,14 +323,11 @@ def LoadDynamicNodes():
             DynNodeClassAttrs = {
                 'bl_idname' : DynNodeClassName,
                 'bl_label'  : vrayPlugin.NAME,
-                'bl_icon'   : 'VRAY_LOGO',
+                'bl_icon'   : VRayNodeTypeIcon.get(pluginType, 'VRAY_LOGO_MONO'),
 
                 'vray_type'   : pluginType,
                 'vray_plugin' : pluginName,
             }
-
-            # XXX: Loads fine, but sockets are not drawn
-            usePynodesFramwork = False
 
             if usePynodesFramwork:
                 # !!! Associates nodes with a socket type
@@ -333,9 +360,13 @@ def LoadDynamicNodes():
 
                 DynNodeClass = type(
                     DynNodeClassName,  # Name
-                    (bpy.types.Node,), # Inheritance
+                    (bpy.types.Node, base.Node), # Inheritance
                     DynNodeClassAttrs  # Attributes
                 )
+
+            if useCatergories:
+                if pluginType == 'TEXTURE':
+                    category_textures()(DynNodeClass)
 
             bpy.utils.register_class(DynNodeClass)
 
@@ -348,14 +379,20 @@ def LoadDynamicNodes():
             # XXX: The only way to use images by now
             # Remove after Blender fix
             #
-            if pluginName == 'BitmapBuffer':
-                vrayNodeBitmapBuffer = getattr(bpy.types, DynNodeClassName)
-                
-                idref.bpy_register_idref(vrayNodeBitmapBuffer, 'image', idref.IDRefProperty(
+            if pluginName == 'BitmapBuffer':              
+                idref.bpy_register_idref(DynNodeClass, 'image', idref.IDRefProperty(
                     "Image",
                     "Image file",
                     idtype = 'IMAGE',
                     options = {'FAKE_USER'},
+                ))
+
+            elif pluginName == 'TexGradRamp':               
+                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
+                    "Texture",
+                    "Fake texture for Ramp widget",
+                    idtype = 'TEXTURE',
+                    options = {'FAKE_USER', 'NEVER_NULL'},
                 ))
 
     # Add manually defined classes
@@ -372,15 +409,16 @@ def LoadDynamicNodes():
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 StaticClasses = (
-    VRayNodesMenuTexture,
     VRayNodesMenuBRDF,
+    VRayNodesMenuEffects,
+    VRayNodesMenuEnvironment,
+    VRayNodesMenuGeom,
+    VRayNodesMenuLights,
     VRayNodesMenuMapping,
     VRayNodesMenuMaterial,
     VRayNodesMenuOutput,
     VRayNodesMenuSelector,
-    VRayNodesMenuGeom,
-    VRayNodesMenuEffects,
-    VRayNodesMenuEnvironment,
+    VRayNodesMenuTexture,
 )
 
 

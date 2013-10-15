@@ -700,20 +700,6 @@ def get_orco_object(scene, ob, VRayTexture):
 
 
 # Naming
-def GetObjectName(ob):
-	name = ob.name
-
-	if ob.type == 'LAMP':
-		name = 'LA' + name
-	else:
-		name = 'OB' + name
-
-	if ob.library:
-		name = 'LI' + get_filename(ob.library.filepath) + name
-
-	return clean_string(name)
-
-
 def get_name(ob, prefix= None):
 	if not ob:
 		return None

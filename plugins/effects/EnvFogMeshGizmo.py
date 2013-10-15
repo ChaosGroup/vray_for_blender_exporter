@@ -33,7 +33,7 @@ from vb25     import utils
 
 TYPE = 'EFFECT'
 ID   = 'EnvFogMeshGizmo'
-NAME = 'Fog Mesh Gizmo'
+NAME = 'Fog Gizmo'
 DESC = ""
 
 PluginParams = (

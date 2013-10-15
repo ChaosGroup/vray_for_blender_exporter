@@ -639,25 +639,17 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 		default= 5000
 	)
 
-	dialog_width= 150
+	dialog_width = 150
 
 	def draw(self, context):
-		layout= self.layout
+		layout = self.layout
 
-		if 0:
-			row= layout.split().row(align= True)
-			row.prop(self, 'use_temperature', text= "")
-			if self.use_temperature:
-				row.prop(self, 'temperature', text= "K")
-			else:
-				row.prop(self, 'd_color', text= "Type")
-		else:
-			split= layout.split()
-			col= split.column()
-			col.prop(self, 'd_color', text= "Type")
-			sub= col.row(align= True)
-			sub.prop(self, 'use_temperature', text= "")
-			sub.prop(self, 'temperature', text= "K")
+		split = layout.split()
+		col = split.column()
+		col.prop(self, 'd_color', text="Type")
+		sub = col.row(align=True)
+		sub.prop(self, 'use_temperature', text="")
+		sub.prop(self, 'temperature', text="K")
 
 	def invoke(self, context, event):
 		wm= context.window_manager

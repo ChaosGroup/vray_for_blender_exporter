@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'bump_tex_color',
         'desc' : "Bump texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'bump_tex_float',

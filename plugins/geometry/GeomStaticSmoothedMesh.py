@@ -39,7 +39,7 @@ PluginParams = (
         'attr' : 'displacement_tex_color',
         'desc' : "The displacement texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'displacement_tex_float',

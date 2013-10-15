@@ -71,13 +71,13 @@ PluginParams = (
         'attr' : 'color_mult',
         'desc' : "A multiplier for the texture color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color_offset',
         'desc' : "An additional offset for the texture color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'alpha_mult',
@@ -96,7 +96,7 @@ PluginParams = (
         'name' : 'No UV Color',
         'desc' : "The color when there are no valid uvw coordinates",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'color',
@@ -127,14 +127,14 @@ PluginParams = (
         'name' : 'Source A',
         'desc' : "Left hand side texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'sourceB',
         'name' : 'Source B',
         'desc' : "Right hand side texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'operator',

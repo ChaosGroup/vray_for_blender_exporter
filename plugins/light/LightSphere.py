@@ -53,7 +53,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "A color texture that if present will override the color parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'shadows',
@@ -71,7 +71,7 @@ PluginParams = (
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'shadowBias',
@@ -178,8 +178,15 @@ PluginParams = (
     {
         'attr' : 'units',
         'desc' : "Units for the intensity (0 - default, 1 - lumens, 2 - lm/m/m/sr, 3 - watts, 4 - w/m/m/sr)",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Default", ""),
+            ('1', "Lumens", ""),
+            ('2', "Lm/m/m/sr", ""),
+            ('3', "Watts", ""),
+            ('4', "W/m/m/sr", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'intensity',

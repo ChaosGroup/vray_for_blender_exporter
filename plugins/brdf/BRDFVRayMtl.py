@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'diffuse',
         'desc' : "The diffuse color of the material",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'roughness',
@@ -56,7 +56,7 @@ PluginParams = (
         'attr' : 'self_illumination',
         'desc' : "The self-illumination color of the material",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'self_illumination_gi',
@@ -79,7 +79,7 @@ PluginParams = (
         'attr' : 'reflect',
         'desc' : "The reflection color of the material",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'reflect_glossiness',
@@ -215,7 +215,7 @@ PluginParams = (
         'attr' : 'refract',
         'desc' : "The refraction color of the material",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'refract_ior',
@@ -335,7 +335,7 @@ PluginParams = (
         'attr' : 'translucency_color',
         'desc' : "Filter color for the translucency effect",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'translucency_light_mult',

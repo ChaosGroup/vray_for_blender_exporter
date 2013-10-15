@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'flake_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.3, 0.4, 0.8, 1),
+        'default' : (0.3, 0.4, 0.8),
     },
     {
         'attr' : 'flake_glossiness',
@@ -134,7 +134,7 @@ PluginParams = (
         'attr' : 'environment_override',
         'desc' : "Environment override texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'environment_priority',

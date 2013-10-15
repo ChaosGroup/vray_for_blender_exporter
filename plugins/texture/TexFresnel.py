@@ -50,13 +50,13 @@ PluginParams = (
         'attr' : 'white_color',
         'desc' : "Refraction (front) color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'black_color',
         'desc' : "Reflection (side) color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'fresnel_ior_tex',

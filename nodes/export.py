@@ -25,7 +25,8 @@
 import bpy
 import mathutils
 
-from vb25.lib     import ExportUtils, utils
+from vb25.lib     import ExportUtils
+from vb25.lib     import utils as LibUtils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug
 from vb25.utils   import clean_string
@@ -84,6 +85,32 @@ def GetOutputName(ntree):
     return GetNodeName(ntree, connectedNode)
 
 
+ ######  ######## ##       ########  ######  ########  #######  ########   ######  
+##    ## ##       ##       ##       ##    ##    ##    ##     ## ##     ## ##    ## 
+##       ##       ##       ##       ##          ##    ##     ## ##     ## ##       
+ ######  ######   ##       ######   ##          ##    ##     ## ########   ######  
+      ## ##       ##       ##       ##          ##    ##     ## ##   ##         ## 
+##    ## ##       ##       ##       ##    ##    ##    ##     ## ##    ##  ##    ## 
+ ######  ######## ######## ########  ######     ##     #######  ##     ##  ######  
+
+def WriteVRayNodeSelectObject(bus, nodetree, node):
+    scene = bus['scene']
+    if not node.objectName:
+        return []
+    if node.objectName not in scene.objects:
+        return []
+    objectName = LibUtils.GetObjectName(scene.objects[node.objectName])
+    return [objectName]
+
+
+def WriteVRayNodeSelectGroup(bus, nodetree, node):
+    if not node.groupName:
+        return []
+    if node.groupName not in bpy.data.groups:
+        return []
+    return LibUtils.GetGroupObjectsNames(node.groupName)
+
+
 ##          ###    ##    ## ######## ########  ######## ########
 ##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
 ##        ##   ##    ####   ##       ##     ## ##       ##     ##
@@ -91,12 +118,6 @@ def GetOutputName(ntree):
 ##       #########    ##    ##       ##   ##   ##       ##     ##
 ##       ##     ##    ##    ##       ##    ##  ##       ##     ##
 ######## ##     ##    ##    ######## ##     ## ######## ########
-
-def WriteVRayNodeSelectObject(bus, nodetree, node):
-    if not node.objectName:
-        return None
-    return node.objectName
-
 
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile = bus['files']['nodetree']
@@ -148,29 +169,34 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 ##        ##   ##  ##        ##     ## ##    ##     ##
 ######## ##     ## ##         #######  ##     ##    ##
 
-def WriteConnectedNode(bus, nodetree, nodeSocket):
+def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
     Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
 
-    if nodeSocket.is_linked:
-        connectedNode   = GetConnectedNode(nodetree, nodeSocket)
-        connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
-        if connectedNode:
-            vrayPlugin = WriteNode(bus, nodetree, connectedNode)
+    if not nodeSocket.is_linked:
+        if returnDefault:
+            return nodeSocket.value
+        else:
+            return None
+    
+    connectedNode   = GetConnectedNode(nodetree, nodeSocket)
+    connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
+    if connectedNode:
+        vrayPlugin = WriteNode(bus, nodetree, connectedNode, returnDefault=returnDefault)
 
-            if connectedSocket.vray_attr:
-                # XXX: use as a workaround
-                # TODO: get plugin desc and check if the attr is output,
-                # but skip uvwgen anyway.
-                #
-                if connectedSocket.vray_attr not in {'uvwgen'}:
-                    vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
+        if connectedSocket.vray_attr:
+            # XXX: use as a workaround
+            # TODO: get plugin desc and check if the attr is output,
+            # but skip uvwgen anyway.
+            #
+            if connectedSocket.vray_attr not in {'uvwgen'}:
+                vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
 
-            return vrayPlugin
+        return vrayPlugin
+    
+    return None
 
-    return nodeSocket.value
 
-
-def WriteNode(bus, nodetree, node):
+def WriteNode(bus, nodetree, node, returnDefault=False):
     Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
@@ -178,7 +204,9 @@ def WriteNode(bus, nodetree, node):
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeSelectObject':
         return WriteVRayNodeSelectObject(bus, nodetree, node)
-    
+    elif node.bl_idname == 'VRayNodeSelectGroup':
+        return WriteVRayNodeSelectGroup(bus, nodetree, node)
+
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin
 
@@ -200,12 +228,14 @@ def WriteNode(bus, nodetree, node):
     for nodeSocket in node.inputs:
         vrayAttr = nodeSocket.vray_attr
 
-        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket)
+        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=returnDefault)
 
     result     = None
     pluginDesc = PLUGINS[vrayType][vrayPlugin]
 
-    # XXX: Used only to access 'image' pointer for BitmapBuffer
+    # XXX: Used to access 'image' pointer for BitmapBuffer
+    # and 'texture' from TexGradRamp
+    #
     bus['context']['node'] = node
 
     if hasattr(pluginDesc, 'writeDatablock'):

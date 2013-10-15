@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'specular_color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'specular_power',
@@ -50,6 +50,6 @@ PluginParams = (
         'attr' : 'diffuse_color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
 )

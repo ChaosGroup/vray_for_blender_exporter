@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color_tex_mult',
@@ -62,7 +62,7 @@ PluginParams = (
         'attr' : 'transparency_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'transparency_tex_mult',
@@ -74,7 +74,7 @@ PluginParams = (
         'attr' : 'back_color',
         'desc' : "Color on the back sides of the material",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'roughness',

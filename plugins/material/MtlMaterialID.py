@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'material_id_color',
         'desc' : "The material id color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'material_id_number',

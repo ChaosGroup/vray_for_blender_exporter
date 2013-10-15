@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'color',
         'desc' : "The self-illumination color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'colorMultiplier',
@@ -50,7 +50,7 @@ PluginParams = (
         'attr' : 'transparency',
         'desc' : "Transparency of the BRDF",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'doubleSided',

@@ -138,7 +138,10 @@ def GenerateAttribute(classMembers, attrDesc):
         'default'     : attrDesc['default'],
     }
 
-    if attrDesc['type'] in {'IMAGE', 'NODETREE', 'TEXTURE'}:
+    if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
+        if attrDesc['type'] == 'MTEX':
+            attrDesc['type'] = 'TEXTURE'
+        
         options = {'FAKE_USER'}
         if 'options' in attrDesc:
             for opt in attrDesc['options']:
@@ -159,8 +162,9 @@ def GenerateAttribute(classMembers, attrDesc):
         pass
 
     elif attrDesc['type'] in {'COLOR', 'ACOLOR', 'TEXTURE'}:
+        c = attrDesc['default']
         attrArgs['subtype'] = 'COLOR'
-        attrArgs['size']    = len(attrDesc['default'])
+        attrArgs['default'] = (c[0], c[1], c[2])
 
     elif attrDesc['type'] in {'VECTOR'}:
         if 'subtype' not in attrDesc:

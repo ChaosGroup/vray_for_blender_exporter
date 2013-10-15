@@ -38,13 +38,13 @@ PluginParams = (
         'attr' : 'texture',
         'desc' : "The base texture",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'mask',
         'desc' : "The mask texture",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'invert_mask',

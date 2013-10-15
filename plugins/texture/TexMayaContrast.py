@@ -38,7 +38,7 @@ PluginParams = (
         'attr' : 'value',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'contrast',
@@ -50,6 +50,6 @@ PluginParams = (
         'attr' : 'bias',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5, 1),
+        'default' : (0.5, 0.5, 0.5),
     },
 )

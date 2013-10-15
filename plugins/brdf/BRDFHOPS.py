@@ -44,7 +44,7 @@ PluginParams = (
         'attr' : 'transparency_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 1),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'transparency_tex_mult',
@@ -86,7 +86,7 @@ PluginParams = (
         'attr' : 'reflect_exit_color',
         'desc' : "The color to use when the maximum depth is reached",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'reflect_dim_distance',
@@ -140,7 +140,7 @@ PluginParams = (
         'attr' : 'coat_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'coat_strength',
@@ -164,7 +164,7 @@ PluginParams = (
         'attr' : 'coat_bump_color',
         'desc' : "Bump texture for the coat layer (color version)",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'coat_bump_amount',
@@ -230,7 +230,7 @@ PluginParams = (
         'attr' : 'environment_override',
         'desc' : "Environment override texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'environment_priority',

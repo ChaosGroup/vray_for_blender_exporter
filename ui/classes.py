@@ -36,10 +36,10 @@ from vb25.lib import DrawUtils
 ########  ######## ##       #### ##    ## ########  ######
 
 VRayEngines = {
-	'VRAY_RENDER',
-	'VRAY_RENDER_PREVIEW',
-	'VRAY_RENDER_RT',
-	'VRAY_RENDERER'
+    'VRAY_RENDER',
+    'VRAY_RENDER_PREVIEW',
+    'VRAY_RENDER_RT',
+    'VRAY_RENDERER'
 }
 
 narrowui = 200
@@ -62,26 +62,26 @@ def TreeHasNodes(ntree):
 
 
 def GetContextType(context):
-	if hasattr(context, 'node'):
-		return 'NODE'
-	if hasattr(context, 'material'):
-		return 'MATERIAL'
-	return None
+    if hasattr(context, 'node'):
+        return 'NODE'
+    if hasattr(context, 'material'):
+        return 'MATERIAL'
+    return None
 
 
 def GetRegionWidthFromContext(context):
-	contextType = GetContextType(context)
-	if contextType == 'NODE':
-		return context.node.width
-	elif hasattr(context, 'region'):
-		return context.region.width
-	# Assume wide region width
-	return 1024
+    contextType = GetContextType(context)
+    if contextType == 'NODE':
+        return context.node.width
+    elif hasattr(context, 'region'):
+        return context.region.width
+    # Assume wide region width
+    return 1024
 
 
 def PollEngine(cls, context):
-	rd = context.scene.render
-	return rd.engine in cls.COMPAT_ENGINES
+    rd = context.scene.render
+    return rd.engine in cls.COMPAT_ENGINES
 
 
 ########  ########     ###    ##      ## 
@@ -120,7 +120,7 @@ def DrawNodePanel(context, layout, node, PLUGINS):
         if hasattr(vrayPlugin, 'gui'):
             # XXX: The only way to use images by now
             # Remove after Blender fix
-            if node.vray_plugin == 'BitmapBuffer':
+            if node.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
                 vrayPlugin.gui(context, layout, node)
             else:
                 vrayPlugin.gui(context, layout, dataPointer)
@@ -137,119 +137,119 @@ def DrawNodePanel(context, layout, node, PLUGINS):
 ########  ##     ##  ######  ########     ######  ######## ##     ##  ######   ######  ########  ######
 
 class VRayPanel(bpy.types.Panel):
-	COMPAT_ENGINES = VRayEngines
+    COMPAT_ENGINES = VRayEngines
 
 
 class VRayDataPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'data'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'data'
 
-	@classmethod
-	def poll(cls, context):
-		return PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return PollEngine(cls, context)
 
 
 class VRayGeomPanel(VRayDataPanel):
-	incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
 
-	@classmethod
-	def poll(cls, context):
-		return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
 
 
 class VRayCameraPanel(VRayDataPanel):
-	@classmethod
-	def poll(cls, context):
-		return context.camera and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.camera and PollEngine(cls, context)
 
 
 class VRayLampPanel(VRayDataPanel):
-	@classmethod
-	def poll(cls, context):
-		return context.lamp and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.lamp and PollEngine(cls, context)
 
 
 class VRayMaterialPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'material'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'material'
 
-	@classmethod
-	def poll(cls, context):
-		return context.material and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.material and PollEngine(cls, context)
 
 
 class VRayObjectPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'object'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'object'
 
-	incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
 
-	@classmethod
-	def poll(cls, context):
-		return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
 
 
 class VRayParticlePanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'particle'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'particle'
 
-	@classmethod
-	def poll(cls, context):
-		return context.particle_system and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.particle_system and PollEngine(cls, context)
 
 
 class VRayRenderPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'render'
 
-	@classmethod
-	def poll(cls, context):
-		return PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return PollEngine(cls, context)
 
 
 class VRayRenderLayersPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'render_layer'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'render_layer'
 
-	@classmethod
-	def poll(cls, context):
-		return PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return PollEngine(cls, context)
 
 
 class VRayScenePanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'scene'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'scene'
 
-	@classmethod
-	def poll(cls, context):
-		return PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return PollEngine(cls, context)
 
 
 class VRayTexturePanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'texture'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'texture'
 
-	@classmethod
-	def poll(cls, context):
-		return context.texture and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.texture and PollEngine(cls, context)
 
 
 class VRayWorldPanel(VRayPanel):
-	bl_space_type  = 'PROPERTIES'
-	bl_region_type = 'WINDOW'
-	bl_context     = 'world'
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'world'
 
-	@classmethod
-	def poll(cls, context):
-		return context.world and PollEngine(cls, context)
+    @classmethod
+    def poll(cls, context):
+        return context.world and PollEngine(cls, context)
 
 
 ##       ####  ######  ########
@@ -271,14 +271,14 @@ class VRayWorldPanel(VRayPanel):
 #   index is index of the current item in the collection.
 
 class VRayListUse(bpy.types.UIList):
-	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-		layout.label(item.name)
-		layout.prop(item, 'use')
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label(item.name)
+        layout.prop(item, 'use')
 
 
 class VRayList(bpy.types.UIList):
-	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-		layout.label(item.name)
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label(item.name)
 
 
 class VRayListMaterialSlots(bpy.types.UIList):
@@ -311,19 +311,19 @@ class VRayListNodeTrees(bpy.types.UIList):
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
-	return (
-		VRayListNodeTrees,
-		VRayListMaterialSlots,
-		VRayListUse,
-		VRayList,
-	)
+    return (
+        VRayListNodeTrees,
+        VRayListMaterialSlots,
+        VRayListUse,
+        VRayList,
+    )
 
 
 def register():
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

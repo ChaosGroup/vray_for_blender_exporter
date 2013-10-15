@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from pprint import pprint
+
 from vb25.debug import Debug
 
 from . import utils
@@ -39,14 +41,16 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
 
-    for attrDesc in PluginParams:
+    for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
+        # pprint(attrDesc)
+
         attr  = attrDesc['attr']
         skip  = attrDesc.get('skip', False)
 
         if skip:
             continue
 
-        if attrDesc['type'] in AttributeUtils.SkippedTypes:
+        if attrDesc['type'] in AttributeUtils.SkippedTypes and attrDesc['attr'] not in mappedParams:
             continue
 
         if attrDesc['type'] in AttributeUtils.OutputTypes:
@@ -56,7 +60,8 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
 
         if attr in mappedParams:
             value = mappedParams[attr]
-        else:
+
+        if value is None:
             value = getattr(dataPointer, attr)
 
         if value is None:

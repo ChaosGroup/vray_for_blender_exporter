@@ -121,13 +121,13 @@ PluginParams.extend([
         'attr' : 'color1_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color2_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'color1_tex_mult',
@@ -169,13 +169,13 @@ PluginParams.extend([
         'attr' : 'scale',
         'desc' : "Scale for the noise UVW coordinates",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'origin',
         'desc' : "Translation for the noise UVW coordinates",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'implode',
@@ -187,6 +187,6 @@ PluginParams.extend([
         'attr' : 'implode_center',
         'desc' : "The center of the implode effect",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0, 1.0),
+        'default' : (0.0, 0.0, 0.0),
     },
 ])

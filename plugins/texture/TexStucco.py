@@ -49,13 +49,13 @@ PluginParams.extend([
         'attr' : 'color1',
         'desc' : "First color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color2',
         'desc' : "Second color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'size',

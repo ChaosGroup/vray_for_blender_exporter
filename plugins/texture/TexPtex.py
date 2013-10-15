@@ -206,12 +206,12 @@ PluginParams = (
         'attr' : 'color_gain',
         'desc' : "A multiplier for the texture color",
         'type' : 'TEXTURE',
-        'default' : (1, 1, 1, 1),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color_offset',
         'desc' : "An additional offset for the texture color",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0, 0),
+        'default' : (0, 0, 0),
     },
 )
