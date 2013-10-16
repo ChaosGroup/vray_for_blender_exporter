@@ -43,12 +43,12 @@ PluginParams = (
         'type' : 'TRANSFORM',
         'default' : None,
     },
-    # {
-    #     'attr' : 'color',
-    #     'desc' : "Color of the light",
-    #     'type' : 'COLOR',
-    #     'default' : (1, 1, 1),
-    # },
+    {
+        'attr' : 'color',
+        'desc' : "Color of the light",
+        'type' : 'COLOR',
+        'default' : (1, 1, 1),
+    },
     {
         'attr' : 'color_tex',
         'name' : 'Color',
@@ -189,12 +189,12 @@ PluginParams = (
         ),
         'default' : '0',
     },
-    # {
-    #     'attr' : 'intensity',
-    #     'desc' : "Light intensity",
-    #     'type' : 'FLOAT',
-    #     'default' : 1,
-    # },
+    {
+        'attr' : 'intensity',
+        'desc' : "Light intensity",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
     {
         'attr' : 'intensity_tex',
         'name' : 'Intensity',

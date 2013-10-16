@@ -99,8 +99,7 @@ def WriteVRayNodeSelectObject(bus, nodetree, node):
         return []
     if node.objectName not in scene.objects:
         return []
-    objectName = LibUtils.GetObjectName(scene.objects[node.objectName])
-    return [objectName]
+    return [scene.objects[node.objectName]]
 
 
 def WriteVRayNodeSelectGroup(bus, nodetree, node):
@@ -108,7 +107,7 @@ def WriteVRayNodeSelectGroup(bus, nodetree, node):
         return []
     if node.groupName not in bpy.data.groups:
         return []
-    return LibUtils.GetGroupObjectsNames(node.groupName)
+    return bpy.data.groups[node.groupName].objects
 
 
 ##          ###    ##    ## ######## ########  ######## ########

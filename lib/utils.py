@@ -77,8 +77,10 @@ def CleanString(s, stripSigns=True):
 
 # Get data name
 #
-def GetObjectName(ob):
-    name = ObjectPrefix.get(ob.type, 'OB') + ob.name
+def GetObjectName(ob, prefix=None):
+    if prefix is None: 
+        prefix = ObjectPrefix.get(ob.type, 'OB')
+    name = prefix + ob.name
     if ob.library:
         name = 'LI' + paths.GetFilename(ob.library.filepath) + name
     return CleanString(name)

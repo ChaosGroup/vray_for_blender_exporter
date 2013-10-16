@@ -92,6 +92,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
             layout.prop(VRayLight, lightSubTypeAttr, expand=True)
 
         lightPluginName = LibUtils.GetLightPluginName(lamp)
+        lightPropGroup = getattr(VRayLight, lightPluginName)
 
         layout.separator()
         split = self.layout.split()
@@ -99,13 +100,13 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
         row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
-        if not classes.TreeHasNodes(VRayLight.ntree):
-            return
+        # if not classes.TreeHasNodes(VRayLight.ntree):
+        #     return
 
-        activeNode = VRayLight.ntree.nodes[-1]
+        # activeNode = VRayLight.ntree.nodes[-1]
 
-        layout.separator()
-        classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
+        # layout.separator()
+        # classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
 
 
  ######   ######## ##    ## ######## ########     ###    ##       
@@ -126,7 +127,6 @@ class VRAY_DP_light(classes.VRayLampPanel):
         VRayLamp = lamp.vray
 
         lightPluginName = LibUtils.GetLightPluginName(lamp)
-
         lightPropGroup = getattr(VRayLamp, lightPluginName)
 
         layout.prop(lightPropGroup, 'enabled')
@@ -266,7 +266,7 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 def GetRegClasses():
     return (
         VRAY_DP_context_lamp,
-        # VRAY_DP_light,
+        VRAY_DP_light,
         # VRAY_DP_light_shape,
         VRAY_DP_include_exclude,
     )

@@ -49,14 +49,13 @@ SkippedTypes = {
 
 InputTypes = {
     'BRDF',
-    'COLOR',
     'FLOAT_TEXTURE',
-    'MATERIAL',
     'GEOMETRY',
+    'MATERIAL',
     'PLUGIN',
     'TEXTURE',
-    'VECTOR',
     'UVWGEN',
+    'VECTOR',
 }
 
 OutputTypes = {
@@ -155,7 +154,13 @@ def GenerateAttribute(classMembers, attrDesc):
         )
         return
 
-    defUi    = None
+    defUi = {
+        'min'      : -1<<20,
+        'max'      :  1<<20,
+        'soft_min' : 0,
+        'soft_max' : 64,
+    }
+
     attrFunc = TypeToProp[attrDesc['type']]
 
     if attrDesc['type'] in {'STRING'}:
@@ -171,20 +176,10 @@ def GenerateAttribute(classMembers, attrDesc):
             attrArgs['subtype'] = 'TRANSLATION'
 
     elif attrDesc['type'] in {'FLOAT', 'FLOAT_TEXTURE'}:
-        defUi = {
-            'min' : -1024.0,
-            'max' :  1024.0,
-            'soft_min' : 0.0,
-            'soft_max' : 1.0,
-        }
+        pass
 
     elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
-        defUi = {
-            'min' : -1024,
-            'max' :  1024,
-            'soft_min' : 0,
-            'soft_max' : 8,
-        }
+        pass
 
     elif attrDesc['type'] in {'ENUM'}:
         attrArgs['items'] = attrDesc['items']

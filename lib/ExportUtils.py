@@ -41,19 +41,26 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
 
-    for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
-        # pprint(attrDesc)
+    if pluginType == 'LightOmniMax':
+        pprint(mappedParams)
 
+    for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
         attr  = attrDesc['attr']
         skip  = attrDesc.get('skip', False)
 
         if skip:
             continue
 
+        # Skip output attributes
+        if attrDesc['type'] in AttributeUtils.OutputTypes:
+            continue
+
+        # Type could be skipped, but mappedParams could contain a manually defined value for it
         if attrDesc['type'] in AttributeUtils.SkippedTypes and attrDesc['attr'] not in mappedParams:
             continue
 
-        if attrDesc['type'] in AttributeUtils.OutputTypes:
+        # Skip attibutes that should be mapped, but are not mapped, we will use parameter value then
+        if attrDesc['type'] in AttributeUtils.InputTypes and attrDesc['attr'] not in mappedParams:
             continue
 
         value = None

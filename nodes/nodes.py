@@ -231,7 +231,12 @@ def VRayNodeDrawSide(self, context, layout):
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
         if hasattr(vrayPlugin, 'gui'):
-            vrayPlugin.gui(context, layout, getattr(self, self.vray_plugin))
+            # XXX: The only way to use images by now
+            # Remove after Blender fix
+            if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
+                vrayPlugin.gui(context, layout, self)
+            else:
+                vrayPlugin.gui(context, layout, getattr(self, self.vray_plugin))
         else:
             DrawUtils.Draw(context, layout, getattr(self, self.vray_plugin), vrayPlugin.PluginParams)
 
@@ -282,7 +287,9 @@ def VRayNodeInit(self, context):
 usePynodesFramwork = False
 useCatergories     = False
 
-category_textures = tree.VRayNodeTree.add_category("Textures", "Textures")
+category_textures = None
+if useCatergories:
+    category_textures = tree.VRayNodeTree.add_category("Textures", "Textures")
 
 DynamicClasses = []
 

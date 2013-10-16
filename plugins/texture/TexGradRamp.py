@@ -74,6 +74,7 @@ PluginParams.extend([
             ('9',  "Spiral",      "Spiral"),
             ('10', "Sweep",       "Sweep"),
             ('11', "Tartan",      "Tartan"),
+            ('12', "Position",    "Return value in position"),
         ),
         'default' : '0',
     },
@@ -145,6 +146,12 @@ PluginParams.extend([
         'type' : 'FLOAT',
         'default' : 0,
     },
+    {
+        'attr' : 'gradient_position',
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0,
+    },    
 ])
 
 
@@ -190,7 +197,7 @@ def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):
         for i,element in enumerate(texture.color_ramp.elements):
             tex_acolor = "%sC%i" % (pluginName, i)
             ofile.write("\nTexAColor %s {" % tex_acolor)
-            ofile.write("\n\ttexture= %s;" % "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
+            ofile.write("\n\ttexture=%s;" % "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
             ofile.write("\n}\n")
             ramp_col.append(tex_acolor)
 

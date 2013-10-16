@@ -360,9 +360,16 @@ def gui(context, layout, EnvironmentFog):
 def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
     ofile = bus['files']['environment']
     scene = bus['scene']
+
+    gizmos = []
+
+    if type(mappedParams['gizmos']) is list:
+        gizmos.extend(mappedParams['gizmos'])
+    else:
+        gizmos.append(mappedParams['gizmos'])
     
     ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tgizmos=List(%s);" % ",".join(mappedParams['gizmos']))
+    ofile.write("\n\tgizmos=List(%s);" % ",".join(gizmos))
     
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvironmentFog, mappedParams, PluginParams)
 

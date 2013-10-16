@@ -33,9 +33,9 @@ DESC = "Procedural infinite plane"
 PluginParams = ()
 
 
-def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
+def write(bus, pluginName):
     ofile = bus['files']['nodes']
 
-    ofile.write("\nGeomPlane %s {}\n" % (ID, pluginName))
+    ofile.write("\nGeomPlane %s {}\n" % pluginName)
 
     return pluginName

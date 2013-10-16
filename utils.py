@@ -43,16 +43,10 @@ import mathutils
 from vb25.plugins import *
 
 
-PLATFORM= sys.platform
-HOSTNAME= socket.gethostname()
+PLATFORM = sys.platform
+HOSTNAME = socket.gethostname()
 
-PURE_PROCEDURAL= (
-	'TexDirt',
-	'TexEdges',
-	'TexFalloff',
-)
-
-COLOR_TABLE= {
+COLOR_TABLE = {
 	'22500': (0.3764,0.5432,1.0000),
 	'34800': (0.3361,0.5095,1.0000),
 	'8300': (0.7319,0.7938,1.0000),
@@ -447,11 +441,6 @@ COLOR_TABLE= {
 }
 
 ARCH= platform.architecture()[0]
-TEX_TYPES=  ('IMAGE', 'VRAY')
-GEOM_TYPES= ('MESH', 'CURVE', 'SURFACE', 'META', 'FONT')
-
-none_matrix= mathutils.Matrix(((0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0),(0.0,0.0,0.0,0.0)))
-
 
 def get_username():
 	if PLATFORM == 'win32':

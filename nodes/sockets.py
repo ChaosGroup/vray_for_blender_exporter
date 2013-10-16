@@ -183,8 +183,8 @@ class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
     value = bpy.props.FloatProperty(
         name = "Value",
         description = "Value",
-        min = -1024.0,
-        max =  1024.0,
+        min = -100000.0,
+        max =  100000.0,
         soft_min = -100.0,
         soft_max =  100.0,
         default = 0.5
@@ -222,8 +222,8 @@ class VRaySocketFloatColor(bpy.types.NodeSocket, base.NodeSocket):
     value = bpy.props.FloatProperty(
         name = "Value",
         description = "Value",
-        min = -1024.0,
-        max =  1024.0,
+        min = -100000.0,
+        max =  100000.0,
         soft_min = -100.0,
         soft_max =  100.0,
         default = 0.5

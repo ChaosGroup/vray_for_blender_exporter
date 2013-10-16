@@ -342,7 +342,9 @@ def write_lamp(bus):
         if lightNode:
             for nodeSocket in lightNode.inputs:
                 vrayAttr = nodeSocket.vray_attr
-                socketParams[vrayAttr] = NodesExport.WriteConnectedNode(bus, VRayLamp.ntree, nodeSocket)
+                value = NodesExport.WriteConnectedNode(bus, VRayLamp.ntree, nodeSocket, returnDefault=False)
+                if value is not None:
+                    socketParams[vrayAttr] = value
 
     if lightPluginName == 'LightRectangle':
         if lamp.shape == 'RECTANGLE':
@@ -526,23 +528,24 @@ def write_object(bus):
         if not export:
             return
 
-    if VRayExporter.auto_meshes:
-        if bus['node']['geometry'] not in bus['cache']['mesh']:
-            bus['cache']['mesh'].add(bus['node']['geometry'])
+    if VRayData.override:
+        if VRayData.override_type == 'VRAYPROXY':
+            PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
+        elif VRayData.override_type == 'VRAYPLANE':
+            bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
+            PLUGINS['GEOMETRY']['GeomPlane'].write(bus, bus['node']['geometry'])
+    else:
+        if VRayExporter.auto_meshes:
+            if bus['node']['geometry'] not in bus['cache']['mesh']:
+                bus['cache']['mesh'].add(bus['node']['geometry'])
 
-            _vray_for_blender.exportMesh(
-                bpy.context.as_pointer(), # Context
-                ob.as_pointer(),          # Object
-                bus['node']['geometry'],  # Result plugin name
-                bus['files']['geom']      # Output file
-            )
+                _vray_for_blender.exportMesh(
+                    bpy.context.as_pointer(), # Context
+                    ob.as_pointer(),          # Object
+                    bus['node']['geometry'],  # Result plugin name
+                    bus['files']['geom']      # Output file
+                )
 
-    # if VRayData.override:
-    #   if VRayData.override_type == 'VRAYPROXY':
-    #       PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
-    #   elif VRayData.override_type == 'VRAYPLANE':
-    #       bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
-    #       PLUGINS['GEOMETRY']['GeomPlane'].write(bus)
     # Displace or Subdivision
     # if ob.vray.GeomStaticSmoothedMesh.use:
     #   PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)

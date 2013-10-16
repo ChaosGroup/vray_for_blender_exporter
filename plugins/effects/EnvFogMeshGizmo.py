@@ -34,7 +34,7 @@ from vb25     import utils
 TYPE = 'EFFECT'
 ID   = 'EnvFogMeshGizmo'
 NAME = 'Fog Gizmo'
-DESC = ""
+DESC = "Simulation domain"
 
 PluginParams = (
     {
@@ -72,17 +72,17 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     ofile = bus['files']['environment']
     scene = bus['scene']
 
-    domainName = mappedParams.get('geometry', None)
-    if domainName is None:
+    domainObject = mappedParams.get('geometry', None)
+    if domainObject is None:
+        return None
+    
+    if type(domainObject) is list:
+        domainObject = domainObject[0]
+
+    if not domainObject:
         return None
 
-    if not domainName or not domainName in scene.objects:
-        return None
-
-    domainObject = scene.objects[domainName]
-
-    # Write smoke domain
-    domainPluginName = utils.get_name(domainObject, prefix='MG')
+    domainPluginName = LibUtils.GetObjectName(domainObject, prefix='MG')
 
     _vray_for_blender.exportMesh(
         bpy.context.as_pointer(),  # Context
@@ -99,6 +99,6 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
 
     ofile.write("\n}\n")
 
-    bus['object_exclude'].add(domainName)
+    bus['object_exclude'].add(domainObject.name)
 
     return pluginName

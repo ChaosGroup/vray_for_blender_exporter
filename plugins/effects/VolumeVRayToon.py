@@ -25,6 +25,7 @@
 import bpy
 
 from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
 
 
 TYPE = 'EFFECT'
@@ -167,9 +168,11 @@ def gui(context, layout, VolumeVRayToon):
 def writeDatablock(bus, pluginName, PluginParams, VolumeVRayToon, mappedParams):
     ofile = bus['files']['environment']
     scene = bus['scene']
+
+    excludeList = [ LibUtils.GetObjectName(ob) for ob in mappedParams['excludeList'] ]
     
     ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\texcludeList=List(%s);" % ",".join(mappedParams['excludeList']))
+    ofile.write("\n\texcludeList=List(%s);" % ",".join(excludeList))
     
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, VolumeVRayToon, mappedParams, PluginParams)
 

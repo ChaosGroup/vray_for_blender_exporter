@@ -23,16 +23,16 @@
 #
 
 bl_info = {
-    "name": "V-Ray For Blender",
-    "author": "",
-    "blender": (2, 67, 0),
-    "location": "Info header, render engine menu",
-    "description": "Exporter to the V-Ray Standalone file format",
-    "warning": "",
-    "wiki_url": "https://github.com/bdancer/vb25/wiki",
-    "tracker_url": "https://github.com/bdancer/vb25/issues",
-    "support": 'COMMUNITY',
-    "category": "Render"
+    "name" : "V-Ray For Blender",
+    "author" : "",
+    "blender" : (2, 67, 0),
+    "location" : "Info header, render engine menu",
+    "description" : "Exporter to the V-Ray Standalone file format",
+    "warning" : "",
+    "wiki_url" : "https://github.com/bdancer/vb25/wiki",
+    "tracker_url" : "https://github.com/bdancer/vb25/issues",
+    "support" : 'COMMUNITY',
+    "category" : "Render"
 }
 
 

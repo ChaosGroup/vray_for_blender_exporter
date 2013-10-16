@@ -40,12 +40,6 @@ PluginParams = (
         'default' : 0,
     },
     {
-        'attr' : 'out_color',
-        'desc' : "Color",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
         'attr' : 'out_flame',
         'desc' : "Flame",
         'type' : 'OUTPUT_FLOAT_TEXTURE',
@@ -79,16 +73,16 @@ def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):
     ofile = bus['files']['environment']
     scene = bus['scene']
 
-    domainName = mappedParams.get('domain', None)
-    if domainName is None:
+    domainObject = mappedParams.get('domain', None)
+    if domainObject is None:
+        return None
+    
+    if type(domainObject) is list:
+        domainObject = domainObject[0]
+
+    if not domainObject:
         return None
 
-    if not domainName or not domainName in scene.objects:
-        return None
-
-    domainObject = scene.objects[domainName]
-
-    # Write smoke data
     smd = None
     if len(domainObject.modifiers):
         for md in domainObject.modifiers:
@@ -103,7 +97,7 @@ def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):
         bpy.context.as_pointer(),   # Context
         domainObject.as_pointer(),  # Object
         smd.as_pointer(),           # SmokeModifierData
-        TexVoxelData.interpolation, 
+        TexVoxelData.interpolation, # Interpolation type
         pluginName,                 # Result plugin name
         bus['files']['geom']        # Output file
     )
