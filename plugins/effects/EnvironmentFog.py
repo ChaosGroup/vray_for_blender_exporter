@@ -264,7 +264,7 @@ PluginParams = (
         'attr' : 'affect_background',
         'desc' : "Affect background",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'affect_reflections',

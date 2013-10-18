@@ -85,7 +85,7 @@ def is_running():
 	else:		
 		isRunning = True
 
-	Debug("VRayProcess: is_running = %i" % isRunning)
+	Debug("VRayProcess: is_running =%i" % isRunning)
 	
 	return isRunning
 

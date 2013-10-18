@@ -266,7 +266,7 @@ class VRayProcess():
             # Get stream size in bytes
             jpeg_size = struct.unpack("<L", jpeg_size_bytes)[0]
 
-            # print("JPEG stream size = %i"%(jpeg_size))
+            # print("JPEG stream size =%i"%(jpeg_size))
 
             # Read JPEG stream
             jpeg_image = self.socket.recv(jpeg_size)

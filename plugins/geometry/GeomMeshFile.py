@@ -304,3 +304,7 @@ PluginParams = (
         'default' : 250
     },
 )
+
+
+def write(bus):
+    return None

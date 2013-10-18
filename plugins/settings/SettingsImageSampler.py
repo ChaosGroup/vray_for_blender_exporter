@@ -305,10 +305,10 @@ def write(bus):
 				value *= 4
 		else:
 			value= getattr(SettingsImageSampler, param)
-		ofile.write("\n\t%s= %s;" % (param, p(value)))
+		ofile.write("\n\t%s=%s;" % (param, p(value)))
 	ofile.write("\n}\n")
 
 	if SettingsImageSamplerFilter.filter_type != 'NONE':
 		ofile.write(FILTER_TYPE[SettingsImageSamplerFilter.filter_type])
-		ofile.write("\n\tsize= %.3f;" % SettingsImageSamplerFilter.filter_size)
+		ofile.write("\n\tsize=%.3f;" % SettingsImageSamplerFilter.filter_size)
 		ofile.write("\n}\n")

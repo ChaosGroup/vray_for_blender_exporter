@@ -166,7 +166,7 @@ def write_VolumeVRayToon_from_material(bus):
 			value= WIDTHTYPE[VolumeVRayToon.widthType]
 		else:
 			value= getattr(VolumeVRayToon, param)
-		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
 	return toon_name
@@ -177,7 +177,7 @@ def write_SphereFadeGizmo(bus, ob):
 	vray = ob.vray
 	name= "MG%s" % get_name(ob, prefix='EMPTY')
 	ofile.write("\nSphereFadeGizmo %s {" % name)
-	ofile.write("\n\ttransform= %s;" % a(scene, transform(ob.matrix_world)))
+	ofile.write("\n\ttransform=%s;" % a(scene, transform(ob.matrix_world)))
 	if ob.type == 'EMPTY':
 		ofile.write("\n\tradius=%s;" % ob.empty_draw_size)
 	elif vray.MtlRenderStats.use:
@@ -196,7 +196,7 @@ def write_SphereFade(bus, effect, gizmos):
 	ofile.write("\n\tgizmos= List(%s);" % ','.join(gizmos))
 	for param in PARAMS['SphereFade']:
 		value= getattr(effect.SphereFade, param)
-		ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+		ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 
 	ofile.write("\n}\n")
 
@@ -226,7 +226,7 @@ def write_VolumeVRayToon(bus, effect, objects):
 			value= "List(%s)" % ','.join(objects)
 		else:
 			value= getattr(VolumeVRayToon, param)
-		ofile.write("\n\t%s= %s;"%(param, a(scene, value)))
+		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
 	ofile.write("\n}\n")
 
 	return name

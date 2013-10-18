@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -25,5 +25,28 @@
 import bpy
 
 
-def UpdateWorldHorizonColor(self, context):
-	pass
+TYPE = 'TEXTURE'
+ID   = 'TexTemperatureToColor'
+NAME = 'Temperature To Color'
+DESC = "Temperature to color"
+
+PluginParams = (
+    {
+        'attr' : 'input',
+        'desc' : "",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0, 1.0),
+    },
+    {
+        'attr' : 'temperature',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'color',
+        'desc' : "",
+        'type' : 'OUTPUT_TEXTURE',
+        'default' : (1.0, 1.0, 1.0),
+    },
+)

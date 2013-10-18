@@ -181,5 +181,5 @@ def write(bus):
 			value= MODE[SettingsCaustics.mode]
 		else:
 			value= getattr(SettingsCaustics, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
 	ofile.write("\n}\n")

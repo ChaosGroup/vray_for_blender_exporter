@@ -41,9 +41,6 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
 
-    if pluginType == 'LightOmniMax':
-        pprint(mappedParams)
-
     for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
         attr  = attrDesc['attr']
         skip  = attrDesc.get('skip', False)

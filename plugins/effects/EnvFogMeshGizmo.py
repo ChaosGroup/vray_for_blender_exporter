@@ -23,6 +23,7 @@
 #
 
 import bpy
+import mathutils
 
 import _vray_for_blender
 
@@ -72,6 +73,8 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     ofile = bus['files']['environment']
     scene = bus['scene']
 
+    lights = mappedParams.get('lights', "")
+
     domainObject = mappedParams.get('geometry', None)
     if domainObject is None:
         return None
@@ -82,22 +85,20 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     if not domainObject:
         return None
 
-    domainPluginName = LibUtils.GetObjectName(domainObject, prefix='MG')
+    smd = LibUtils.GetSmokeModifier(domainObject)
+    if not smd:
+        return None
 
-    _vray_for_blender.exportMesh(
-        bpy.context.as_pointer(),  # Context
-        domainObject.as_pointer(), # Object
-        domainPluginName,          # Result plugin name
-        ofile                      # Output file
+    pluginName = LibUtils.GetObjectName(domainObject, prefix='MG')
+
+    _vray_for_blender.exportSmokeDomain(
+        bpy.context.as_pointer(),   # Context
+        domainObject.as_pointer(),  # Object
+        smd.as_pointer(),           # SmokeModifierData
+        pluginName,                 # Result plugin name
+        lights,                     # Lights (string)
+        ofile                       # Output file
     )
-
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tgeometry=%s;" % domainPluginName)
-    ofile.write("\n\ttransform=%s;" % LibUtils.AnimatedValue(scene, domainObject.matrix_world))
-    
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvFogMeshGizmo, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
 
     bus['object_exclude'].add(domainObject.name)
 

@@ -382,21 +382,21 @@ def write(bus):
 	if CameraPhysical.use:
 		ofile.write("\n// Camera: %s" % (camera.name))
 		ofile.write("\nCameraPhysical PhysicalCamera {")
-		ofile.write("\n\ttype= %d;" % TYPE[CameraPhysical.type])
+		ofile.write("\n\ttype=%d;" % TYPE[CameraPhysical.type])
 		ofile.write("\n\tspecify_focus= 1;")
-		ofile.write("\n\tfocus_distance= %s;" % a(scene,focus_distance))
-		ofile.write("\n\tspecify_fov= %i;" % CameraPhysical.specify_fov)
-		ofile.write("\n\tfov= %s;" % a(scene,fov))
-		ofile.write("\n\twhite_balance= %s;" % a(scene, CameraPhysical.white_balance))
+		ofile.write("\n\tfocus_distance=%s;" % a(scene,focus_distance))
+		ofile.write("\n\tspecify_fov=%i;" % CameraPhysical.specify_fov)
+		ofile.write("\n\tfov=%s;" % a(scene,fov))
+		ofile.write("\n\twhite_balance=%s;" % a(scene, CameraPhysical.white_balance))
 
 		for param in PARAMS:
 			if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
 				value= get_lens_shift(camera)
 			else:
 				value= getattr(CameraPhysical,param)
-			ofile.write("\n\t%s= %s;"%(param, a(scene,value)))
+			ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 
-		ofile.write("\n\thorizontal_offset= %s;" % a(scene, -camera.data.shift_x))
-		ofile.write("\n\tvertical_offset= %s;"   % a(scene, -camera.data.shift_y))
+		ofile.write("\n\thorizontal_offset=%s;" % a(scene, -camera.data.shift_x))
+		ofile.write("\n\tvertical_offset=%s;"   % a(scene, -camera.data.shift_y))
 		ofile.write("\n}\n")
 

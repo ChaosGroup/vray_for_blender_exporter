@@ -136,9 +136,9 @@ def write(ofile, render_channel, sce= None, name= None):
 	ofile.write("\nTexDirt %s {"%(ao_tex_name))
 	ofile.write("\n\twhite_color= AColor(1.0,1.0,1.0, 1.0);")
 	ofile.write("\n\tblack_color= AColor(0.0,0.0,0.0, 1.0);")
-	ofile.write("\n\tradius= %.3f;" % render_channel.radius)
-	ofile.write("\n\tsubdivs= %d;" % render_channel.subdivs)
-	ofile.write("\n\tfalloff= %d;" % render_channel.falloff)
+	ofile.write("\n\tradius=%.3f;" % render_channel.radius)
+	ofile.write("\n\tsubdivs=%d;" % render_channel.subdivs)
+	ofile.write("\n\tfalloff=%d;" % render_channel.falloff)
 	ofile.write("\n}\n")
 
 	ofile.write("\nRenderChannelExtraTex %s {"%(clean_string(channel_name)))
@@ -147,8 +147,8 @@ def write(ofile, render_channel, sce= None, name= None):
 			value= "\"%s\"" % channel_name
 		else:
 			value= getattr(render_channel, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
-	ofile.write("\n\ttexmap= %s;"%(ao_tex_name))
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
+	ofile.write("\n\ttexmap=%s;"%(ao_tex_name))
 	ofile.write("\n}\n")
 
 

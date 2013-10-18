@@ -78,7 +78,7 @@ class VRAY_PRESETS():
 					except:
 						pass
 
-					file_preset.write("%s = %r\n" % (rna_path, value))
+					file_preset.write("%s =%r\n" % (rna_path, value))
 
 				file_preset.close()
 
@@ -522,7 +522,7 @@ bpy.utils.register_class(VRAY_PRESET_gi)
 # 				for c in ps:
 # 					pss+= "%.3f,"%(float(c / 255.0))
 # 				ps= pss[:-1]
-# 			s= "bpy.context.active_object.active_material.vray.BRDFSSS2Complex.%s = %s\n"%("%s"%(param), ps)
+# 			s= "bpy.context.active_object.active_material.vray.BRDFSSS2Complex.%s =%s\n"%("%s"%(param), ps)
 # 			ofile.write(s.replace(')','').replace('(',''))
 # 		ofile.write("\n")
 # 		ofile.close()

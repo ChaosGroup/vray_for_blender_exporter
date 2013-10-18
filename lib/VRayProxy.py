@@ -139,16 +139,16 @@ class VoxelChannel(MeshFileReader):
 
     def printInfo(self):
         self.report("Channel")
-        self.report("  elementSize  = %i" % (self.elementSize))
-        self.report("  numElements  = %i" % (self.numElements))        
-        self.report("  channelID    = %s" % (ChannelID[self.channelID] if self.channelID in ChannelID else str(self.channelID)))
-        self.report("  depChannelID = %i" % (self.depChannelID))
+        self.report("  elementSize  =%i" % (self.elementSize))
+        self.report("  numElements  =%i" % (self.numElements))        
+        self.report("  channelID    =%s" % (ChannelID[self.channelID] if self.channelID in ChannelID else str(self.channelID)))
+        self.report("  depChannelID =%i" % (self.depChannelID))
 
         flagsList = []
         for key in sorted(ChannelFlags.keys()):
             if key & self.flags:
                 flagsList.append(ChannelFlags[key])
-        self.report("  flags        = %s" % (", ".join(flagsList)))
+        self.report("  flags        =%s" % (", ".join(flagsList)))
 
     def loadData(self):        
         self.report("Channel Data")
@@ -160,7 +160,7 @@ class VoxelChannel(MeshFileReader):
             self.report("  Data is compressed")
             dataSize = self.binRead("I", 4)[0]
 
-        self.report("  Data size = %i" % (dataSize))
+        self.report("  Data size =%i" % (dataSize))
 
         # Load only channels we need
         if self.channelID in [VERT_GEOM_CHANNEL, FACE_TOPO_CHANNEL]:
@@ -183,7 +183,7 @@ class VoxelChannel(MeshFileReader):
         for i in range(self.numElements):
             channelCRC  = self.binRead("I", 4)[0]
 
-            self.report("  %i: checksum = %i" % (i, channelCRC))
+            self.report("  %i: checksum =%i" % (i, channelCRC))
 
 
 
@@ -205,7 +205,7 @@ class VoxelChannels(MeshFileReader):
 
     def printInfo(self):
         self.report("Voxel")
-        self.report("  Channels count = %i" % (len(self.channels)))
+        self.report("  Channels count =%i" % (len(self.channels)))
         
         for channel in self.channels:
             channel.printInfo()
@@ -246,9 +246,9 @@ class MeshVoxel(MeshFileReader):
 
     def printInfo(self):
         self.report("Voxel")
-        self.report("  fileOffset = %i" % (self.fileOffset))
-        self.report("  bbox       = %s" % ("%.2f,%.2f,%.2f; %.2f,%.2f,%.2f" % (self.bbox)))
-        self.report("  flags      = %s" % (VoxelFlags[self.flags]))
+        self.report("  fileOffset =%i" % (self.fileOffset))
+        self.report("  bbox       =%s" % ("%.2f,%.2f,%.2f; %.2f,%.2f,%.2f" % (self.bbox)))
+        self.report("  flags      =%s" % (VoxelFlags[self.flags]))
 
     def loadData(self):
         self.meshFile.seek(self.fileOffset)
@@ -319,14 +319,14 @@ class MeshFile(MeshFileReader):
         self.lookupOffset = self.binRead("Q", 8)[0]
 
         self.report("MeshFile:", self.meshFilepath)
-        self.report("  fileID       = %s" % (self.vrayID))
+        self.report("  fileID       =%s" % (self.vrayID))
         self.report("  fileVersion  = 0x%X" % (self.fileVersion))
-        self.report("  lookupOffset = %i" % (self.lookupOffset))
+        self.report("  lookupOffset =%i" % (self.lookupOffset))
         
         self.meshFile.seek(self.lookupOffset)
         self.numVoxels = self.binRead("I", 4)[0]
 
-        self.report("  numVoxels    = %i" % (self.numVoxels))
+        self.report("  numVoxels    =%i" % (self.numVoxels))
         self.report("")
 
         for i in range(self.numVoxels):

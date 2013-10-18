@@ -26,6 +26,8 @@ import bpy
 
 import _vray_for_blender
 
+from vb25.lib import utils as LibUtils
+
 
 TYPE = 'TEXTURE'
 ID   = 'TexVoxelData'
@@ -83,13 +85,7 @@ def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):
     if not domainObject:
         return None
 
-    smd = None
-    if len(domainObject.modifiers):
-        for md in domainObject.modifiers:
-            if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
-                smd = md
-                break
-
+    smd = LibUtils.GetSmokeModifier(domainObject)
     if not smd:
         return None
 

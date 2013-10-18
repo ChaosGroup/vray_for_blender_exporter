@@ -62,9 +62,19 @@ def GetLightPluginName(lamp):
     return LampSubtypeToPlugin[getattr(lamp.vray, LampSubType[lamp.type])]
 
 
-# Strip string from deprecated chars
-#
+def IsAnimated(ob):
+    if ob.animation_data:
+        return True
+    if hasattr(ob, 'data') and ob.data:
+        if ob.data.animation_data:
+            return True
+    return False
+
+
 def CleanString(s, stripSigns=True):
+    """
+    Strip string from deprecated chars
+    """
     if stripSigns:
         s = s.replace("+", "p")
         s = s.replace("-", "m")
@@ -75,8 +85,6 @@ def CleanString(s, stripSigns=True):
     return s
 
 
-# Get data name
-#
 def GetObjectName(ob, prefix=None):
     if prefix is None: 
         prefix = ObjectPrefix.get(ob.type, 'OB')
@@ -86,8 +94,6 @@ def GetObjectName(ob, prefix=None):
     return CleanString(name)
 
 
-# Get group objects list
-#
 def GetGroupObjects(groupName):
     obList = []
     if groupName in bpy.data.groups:
@@ -95,11 +101,17 @@ def GetGroupObjects(groupName):
     return obList
 
 
-# Get group objects names list
-#
 def GetGroupObjectsNames(groupName):
     obList = [GetObjectName(ob) for ob in GetGroupObjects(groupName)]
     return obList
+
+
+def GetSmokeModifier(ob):
+    if len(ob.modifiers):
+        for md in ob.modifiers:
+            if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
+                return md
+    return None
 
 
 # Helper function to convert a value to

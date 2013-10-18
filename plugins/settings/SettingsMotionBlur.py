@@ -140,5 +140,5 @@ def write(bus):
 		ofile.write("\n%s %s {" % (ID,ID))
 		for param in PARAMS:
 			value = getattr(SettingsMotionBlur, param)
-			ofile.write("\n\t%s= %s;"%(param, p(value)))
+			ofile.write("\n\t%s=%s;"%(param, p(value)))
 		ofile.write("\n}\n")

@@ -127,7 +127,7 @@ def write(bus, render_channel, name= None):
 			value= texmap
 		else:
 			value= getattr(render_channel, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
 	ofile.write("\n}\n")
 
 

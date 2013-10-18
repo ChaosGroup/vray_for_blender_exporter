@@ -247,7 +247,7 @@ def write(bus):
 			continue
 		else:
 			value= getattr(SettingsOptions, param)
-		ofile.write("\n\t%s= %s;" % (param, p(value)))
+		ofile.write("\n\t%s=%s;" % (param, p(value)))
 	if VRayExporter.draft:
 		ofile.write("\n\tmtl_limitDepth= 1;")
 		ofile.write("\n\tmtl_maxDepth= 5;")

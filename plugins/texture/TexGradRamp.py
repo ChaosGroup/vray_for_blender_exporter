@@ -39,18 +39,6 @@ DESC = "Gradient Ramp texture"
 PluginParams = list(TexCommonParams.PluginTextureCommonParams)
 
 PluginParams.extend([
-    # {
-    #     'attr' : 'positions',
-    #     'desc' : "positions of the given colors",
-    #     'type' : 'FLOAT',
-    #     'default' : 0.5,
-    # },
-    # {
-    #     'attr' : 'colors',
-    #     'desc' : "the given colors",
-    #     'type' : 'TEXTURE',
-    #     'default' : (0.0, 0.0, 0.0),
-    # },
     {
         'attr' : 'texture_map',
         'desc' : "the texture used for mapped gradient ramp",

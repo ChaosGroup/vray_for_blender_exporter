@@ -73,7 +73,7 @@ def getColorMappingData(scene):
 			value = TYPE[SettingsColorMapping.type]
 		else:
 			value = getattr(SettingsColorMapping, param)
-		cmData += "\n\t%s= %s;" % (param, p(value))
+		cmData += "\n\t%s=%s;" % (param, p(value))
 	cmData += "\n}\n"
 
 	return cmData

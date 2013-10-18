@@ -104,5 +104,5 @@ def write(bus):
 	ofile.write("\n%s %s {" % (ID,ID))
 	for param in PARAMS:
 		value= getattr(rna_pointer, param)
-		ofile.write("\n\t%s= %s;"%(param, p(value)))
+		ofile.write("\n\t%s=%s;"%(param, p(value)))
 	ofile.write("\n}\n")

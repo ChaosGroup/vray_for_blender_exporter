@@ -125,12 +125,12 @@ def write(bus):
 	}
 
 	ofile.write("\nSettingsRegionsGenerator SettingsRegionsGenerator {")
-	ofile.write("\n\txc= %i;" % SettingsRegionsGenerator.xc)
+	ofile.write("\n\txc=%i;" % SettingsRegionsGenerator.xc)
 	if SettingsRegionsGenerator.lock_size:
-		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.xc)
+		ofile.write("\n\tyc=%i;" % SettingsRegionsGenerator.xc)
 	else:
-		ofile.write("\n\tyc= %i;" % SettingsRegionsGenerator.yc)
-	ofile.write("\n\treverse= %i;" % SettingsRegionsGenerator.reverse)
-	ofile.write("\n\tseqtype= %i;" % SEQTYPE[SettingsRegionsGenerator.seqtype])
-	ofile.write("\n\txymeans= %i;" % XYMEANS[SettingsRegionsGenerator.xymeans])
+		ofile.write("\n\tyc=%i;" % SettingsRegionsGenerator.yc)
+	ofile.write("\n\treverse=%i;" % SettingsRegionsGenerator.reverse)
+	ofile.write("\n\tseqtype=%i;" % SEQTYPE[SettingsRegionsGenerator.seqtype])
+	ofile.write("\n\txymeans=%i;" % XYMEANS[SettingsRegionsGenerator.xymeans])
 	ofile.write("\n}\n")

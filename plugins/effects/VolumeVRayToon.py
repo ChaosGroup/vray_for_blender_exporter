@@ -57,6 +57,7 @@ PluginParams = (
         'attr' : 'lineWidth_tex',
         'name' : "Width",
         'desc' : "",
+        'skip' : True,
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
@@ -173,6 +174,13 @@ def writeDatablock(bus, pluginName, PluginParams, VolumeVRayToon, mappedParams):
     
     ofile.write("\n%s %s {" % (ID, pluginName))
     ofile.write("\n\texcludeList=List(%s);" % ",".join(excludeList))
+
+    # XXX: When size is in pixels lineWidth_tex value is ignored
+    #
+    if type(mappedParams['lineWidth_tex']) is str:
+        ofile.write("\n\tlineWidth_tex=%s;" % mappedParams['lineWidth_tex'])
+    else:
+        ofile.write("\n\tlineWidth=%s;" % LibUtils.AnimatedValue(scene, mappedParams['lineWidth_tex']))
     
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, VolumeVRayToon, mappedParams, PluginParams)
 

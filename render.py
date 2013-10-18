@@ -471,22 +471,22 @@ def write_node(bus):
         material = "RS%s" % node_name
 
         ofile.write("\nMtlRenderStats %s {" % material)
-        ofile.write("\n\tbase_mtl= %s;" % base_mtl)
-        ofile.write("\n\tvisibility= %s;" %             a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
-        ofile.write("\n\tcamera_visibility= %s;" %      a(scene, (0 if ob in visibility['camera']  else 1)))
-        ofile.write("\n\tgi_visibility= %s;" %          a(scene, (0 if ob in visibility['gi']      else 1)))
-        ofile.write("\n\treflections_visibility= %s;" % a(scene, (0 if ob in visibility['reflect'] else 1)))
-        ofile.write("\n\trefractions_visibility= %s;" % a(scene, (0 if ob in visibility['refract'] else 1)))
-        ofile.write("\n\tshadows_visibility= %s;" %     a(scene, (0 if ob in visibility['shadows'] else 1)))
+        ofile.write("\n\tbase_mtl=%s;" % base_mtl)
+        ofile.write("\n\tvisibility=%s;" %             a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
+        ofile.write("\n\tcamera_visibility=%s;" %      a(scene, (0 if ob in visibility['camera']  else 1)))
+        ofile.write("\n\tgi_visibility=%s;" %          a(scene, (0 if ob in visibility['gi']      else 1)))
+        ofile.write("\n\treflections_visibility=%s;" % a(scene, (0 if ob in visibility['reflect'] else 1)))
+        ofile.write("\n\trefractions_visibility=%s;" % a(scene, (0 if ob in visibility['refract'] else 1)))
+        ofile.write("\n\tshadows_visibility=%s;" %     a(scene, (0 if ob in visibility['shadows'] else 1)))
         ofile.write("\n}\n")
 
     ofile.write("\nNode %s {" % node_name)
-    ofile.write("\n\tobjectID= %d;" % bus['node'].get('objectID', ob.pass_index))
-    ofile.write("\n\tgeometry= %s;" % bus['node']['geometry'])
-    ofile.write("\n\tmaterial= %s;" % material)
+    ofile.write("\n\tobjectID=%d;" % bus['node'].get('objectID', ob.pass_index))
+    ofile.write("\n\tgeometry=%s;" % bus['node']['geometry'])
+    ofile.write("\n\tmaterial=%s;" % material)
     if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
-        ofile.write("\n\tvisible= %s;" % a(scene, bus['node']['particle']['visible']))
-    ofile.write("\n\ttransform= %s;" % a(scene, transform(matrix)))
+        ofile.write("\n\tvisible=%s;" % a(scene, bus['node']['particle']['visible']))
+    ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix)))
 
     # TODO: check why this was needed.
     #if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
@@ -546,6 +546,12 @@ def write_object(bus):
                     bus['files']['geom']      # Output file
                 )
 
+    # Go to object nodes and check the mesh connection
+    # If its connected to Blender's output then export just mesh
+    # Check for all displacement and stuff otherwise
+    # Mesh-light could also be created here...
+    #
+
     # Displace or Subdivision
     # if ob.vray.GeomStaticSmoothedMesh.use:
     #   PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
@@ -574,38 +580,41 @@ def _write_object_particles_hair(bus):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.exporter
 
+    if not VRayExporter.use_hair:
+        return
+
     if not len(ob.particle_systems):
         return
 
     for ps in ob.particle_systems:
-        ps_material = bus['defaults']['material']
-        ps_material_idx = ps.settings.material
-        if len(ob.material_slots) >= ps_material_idx:
-            ps_material = NodesExport.GetOutputName(ob.material_slots[ps_material_idx - 1].material.vray.ntree)
-
         if not (ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH'):
             continue
 
-        if VRayExporter.use_hair:
-            hair_geom_name = clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
-            hair_node_name = "Node"+hair_geom_name
+        ps_material = bus['defaults']['material']
+        ps_material_idx = ps.settings.material
+        if len(ob.material_slots) >= ps_material_idx:
+            if ob.material_slots[ps_material_idx - 1].material:
+                ps_material = NodesExport.GetOutputName(ob.material_slots[ps_material_idx - 1].material.vray.ntree)
 
-            _vray_for_blender.exportHair(
-                bpy.context.as_pointer(), # Context
-                ob.as_pointer(),          # Object
-                ps.as_pointer(),          # ParticleSystem
-                hair_geom_name,           # Result plugin name
-                bus['files']['geom']      # Output file
-            )
+        hair_geom_name = clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
+        hair_node_name = "Node"+hair_geom_name
 
-            bus['node']['hair']     = True
-            bus['node']['name']     = hair_node_name
-            bus['node']['geometry'] = hair_geom_name
-            bus['node']['material'] = ps_material
+        _vray_for_blender.exportHair(
+            bpy.context.as_pointer(), # Context
+            ob.as_pointer(),          # Object
+            ps.as_pointer(),          # ParticleSystem
+            hair_geom_name,           # Result plugin name
+            bus['files']['geom']      # Output file
+        )
 
-            write_node(bus)
+        bus['node']['hair']     = True
+        bus['node']['name']     = hair_node_name
+        bus['node']['geometry'] = hair_geom_name
+        bus['node']['material'] = ps_material
 
-            bus['node']['hair'] = False
+        write_node(bus)
+
+        bus['node']['hair'] = False
 
 
 ########  ##     ## ########  ##       ####          ##    ######## ##     ## #### ######## ######## ######## ########
@@ -617,20 +626,32 @@ def _write_object_particles_hair(bus):
 ########   #######  ##        ######## ####    ##          ######## ##     ## ####    ##       ##    ######## ##     ##
 
 def _write_object_dupli(bus):
-    ob = bus['node']['object']
+    scene = bus['scene']
+    ob    = bus['node']['object']
+    ofile = bus['files']['nodes']
+
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.exporter
 
     dupli_from_particles = False
     if len(ob.particle_systems):
         for ps in ob.particle_systems:
             if ps.settings.render_type in {'OBJECT', 'GROUP'}:
                 dupli_from_particles = True
+                break
 
-    # This will fix "RuntimeError: Error: Object does not have duplis"
-    # when particle system is disabled for render
-    #
-    try:
-        if (ob.dupli_type in ('VERTS','FACES','GROUP')) or dupli_from_particles:
-            ob.dupli_list_create(bus['scene'])
+    if dupli_from_particles or ob.dupli_type in {'VERTS', 'FACES', 'GROUP'}:
+        # Export dupli with Python extension (geometry duplication only)
+        # TODO: Create an option
+        #
+        if VRayExporter.geomDupliPart:
+            _vray_for_blender.exportDupli(
+                bpy.context.as_pointer(), # Context
+                ob.as_pointer(),          # Object
+                ofile                     # Output file
+            )
+        else:
+            ob.dupli_list_create(scene)
 
             for dup_id,dup_ob in enumerate(ob.dupli_list):
                 parent_dupli= ""
@@ -662,8 +683,6 @@ def _write_object_dupli(bus):
                 bus['node']['dupli']['name']=   parent_dupli
 
             ob.dupli_list_clear()
-    except:
-        pass
 
 
 ##     ## ########     ###    ##    ##    ###     ######   ######  ######## ########
@@ -716,7 +735,7 @@ def writeSceneInclude(bus):
 def _write_object(bus):
     ob = bus['node']['object']
 
-    if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+    if ob.type in {'CAMERA', 'ARMATURE', 'LATTICE'}:
         return
 
     # Export LAMP
@@ -801,10 +820,12 @@ def write_scene(bus):
         # Prepare objects
         bus['objects']= []
         for ob in scene.objects:
-            if ob.type in ('CAMERA','ARMATURE','LATTICE'):
+            if ob.type in {'CAMERA', 'ARMATURE', 'LATTICE'}:
                 continue
             if ob.name not in bus['object_exclude']:
                 bus['objects'].append(ob)
+                # if LibUtils.IsAnimated(ob):
+                #     print("Object %s is animated!" % ob.name)
 
         # Fake frame for "Camera loop"
         if VRayExporter.camera_loop:

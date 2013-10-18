@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
@@ -25,5 +25,28 @@
 import bpy
 
 
-def UpdateWorldHorizonColor(self, context):
-	pass
+TYPE = 'TEXTURE'
+ID   = 'TexRemapFloat'
+NAME = 'Remap Float'
+DESC = "Remap float value"
+
+PluginParams = (
+    {
+        'attr' : 'value',
+        'desc' : "Value to remap",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0,
+    },
+    {
+        'attr' : 'low',
+        'desc' : "Low boundary",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'high',
+        'desc' : "High boundary",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+)

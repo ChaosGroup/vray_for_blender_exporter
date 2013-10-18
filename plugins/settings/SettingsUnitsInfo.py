@@ -87,9 +87,9 @@ def write(bus):
 	SettingsUnitsInfo= VRayScene.SettingsUnitsInfo
 	
 	ofile.write("\nSettingsUnitsInfo SettingsUnitsInfo {")
-	# ofile.write("\n\tmeters_scale= %i;" % SettingsUnitsInfo.meters_scale)
-	ofile.write("\n\tmeters_scale= %.4f;" % scene.unit_settings.scale_length)
-	# ofile.write("\n\tphotometric_scale= %.4f;" % SettingsUnitsInfo.photometric_scale)
+	# ofile.write("\n\tmeters_scale=%i;" % SettingsUnitsInfo.meters_scale)
+	ofile.write("\n\tmeters_scale=%.4f;" % scene.unit_settings.scale_length)
+	# ofile.write("\n\tphotometric_scale=%.4f;" % SettingsUnitsInfo.photometric_scale)
 	ofile.write("\n\tphotometric_scale= 0.01;")
 	ofile.write("\n}\n")
 

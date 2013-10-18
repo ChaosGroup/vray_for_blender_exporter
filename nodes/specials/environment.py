@@ -73,7 +73,7 @@ class VRayNodeEnvironment(bpy.types.Node, tree.VRayTreeNode):
         layout.prop(self, 'refract_tex')
 
     def init(self, context):
-        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex')
+        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex', (0.0, 0.0, 0.0))
         AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
         AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
         AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
