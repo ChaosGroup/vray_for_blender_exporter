@@ -271,21 +271,17 @@ def nodeDraw(context, layout, UVWGenMayaPlace2dTexture):
 
 
 def writeDatablock(bus, pluginName, PluginParams, UVWGenMayaPlace2dTexture, mappedParams):
-    ofile = bus['files']['nodetree']
     scene = bus['scene']
     
     rotate_frame_tex = mappedParams['rotate_frame_tex']
-
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    
     if type(rotate_frame_tex) is float:
         rotate_frame_tex_value = math.radians(rotate_frame_tex)
     else:
         rotate_frame_tex_value = rotate_frame_tex
-    ofile.write("\n\trotate_frame_tex=%s;" % utils.AnimatedValue(scene, rotate_frame_tex_value))
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, UVWGenMayaPlace2dTexture, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
+    ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName)) 
+    ExportUtils.WriteFile(bus, 'nodetree', "\n\trotate_frame_tex=%s;" % utils.AnimatedValue(scene, rotate_frame_tex_value))
+    ExportUtils.WritePluginParams(bus, None, ID, pluginName, UVWGenMayaPlace2dTexture, mappedParams, PluginParams)
+    ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
 
     return pluginName

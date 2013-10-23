@@ -44,6 +44,9 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
 
     if bus['mode'] == 'VRSCENE':
         scene = bus['scene']
+        if ofile is None:
+            if 'files' in bus:
+                ofile = bus['files']['nodetree']
 
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
@@ -88,7 +91,7 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
             else:
                 value = '"%s"' % value
 
-        if bus['mode'] == 'VRSCENE':
+        if bus['mode'] == 'VRSCENE' and ofile is not None:
             ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
 
         if bus['mode'] == 'SOCKET' and vraySocket:
@@ -101,7 +104,7 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
 
 def WriteDatablock(bus, pluginType, pluginName, PluginParams, dataPointer, mappedParams):
     WriteFile(bus, 'nodetree', "\n%s %s {" % (pluginType, pluginName))
-    WritePluginParams(bus, bus['files']['nodetree'], pluginType, pluginName, dataPointer, mappedParams, PluginParams)
+    WritePluginParams(bus, None, pluginType, pluginName, dataPointer, mappedParams, PluginParams)
     WriteFile(bus, 'nodetree', "\n}\n")
 
     return pluginName
