@@ -117,7 +117,9 @@ def DrawNodePanel(context, layout, node, PLUGINS):
 
         dataPointer = getattr(node, node.vray_plugin)
 
-        if hasattr(vrayPlugin, 'gui'):
+        if hasattr(vrayPlugin, 'GetUIDescription'):
+            DrawUtils.RenderTemplate(context, layout, dataPointer, vrayPlugin)
+        elif hasattr(vrayPlugin, 'gui'):
             # XXX: The only way to use images by now
             # Remove after Blender fix
             if node.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:

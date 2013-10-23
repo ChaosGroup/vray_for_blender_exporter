@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb25.lib        import ExportUtils, utils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
 
 
 TYPE = 'TEXTURE'
@@ -154,10 +154,10 @@ PluginParams = (
         'desc' : "Mode",
         'type' : 'ENUM',
         'items': (
-            ('0', "Ambient occlusion", ""),
-            ('1', "Phong reflection occlusion", ""),
-            ('2', "Blinn reflection occlusion", ""),
-            ('3', "Ward reflection occlusion", ""),
+            ('0', "Ambient Occlusion", ""),
+            ('1', "Phong Reflection Occlusion", ""),
+            ('2', "Blinn Reflection Occlusion", ""),
+            ('3', "Ward Reflection Occlusion", ""),
         ),
         'default' : '0',
     },
@@ -182,91 +182,111 @@ PluginParams = (
 )
 
 
-def gui(context, layout, TexDirt):
-    contextType = GetContextType(context)
-    regionWidth = GetRegionWidthFromContext(context)
+def GetUIDescription():
+    return """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "mode", "expand" : false }
+        ]
+    },
 
-    wide_ui = regionWidth > narrowui
+    {   "layout" : "SEPARATOR" },
 
-    layout.prop(TexDirt, 'mode')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "distribution" },
+                    { "name" : "glossiness" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "falloff" },
+                    { "name" : "subdivs" }
+                ]
+            }
+        ]
+    },
 
-    layout.separator()
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "bias_x", "label" : "X" },
+            { "name" : "bias_y", "label" : "Y" },
+            { "name" : "bias_z", "label" : "Z" }
+        ]
+    },
 
-    split = layout.split()
-    col = split.column()
-    sub_radius = col.column(align=True)
-    sub_radius.prop(TexDirt,'radius')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "invert_normal" },
+                    { "name" : "ignore_for_gi" },
+                    { "name" : "ignore_self_occlusion" },
+                    { "name" : "consider_same_object_only" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "affect_reflection_elements" },
+                    { "name" : "work_with_transparency" },
+                    { "name" : "environment_occlusion" },
+                    { "name" : "double_sided" }
+                ]
+            }
+        ]
+    },
 
-    col.prop(TexDirt,'distribution')
-    if TexDirt.mode != 'AO':
-        col.prop(TexDirt, 'glossiness')
-    if wide_ui:
-        col = split.column()
-    col.prop(TexDirt, 'falloff')
-    col.prop(TexDirt, 'subdivs')
-    if TexDirt.mode != 'AO':
-        col.prop(TexDirt, 'affect_reflection_elements')
+    {   "layout" : "SEPARATOR" },
 
-    layout.separator()
-
-    split = layout.split()
-    row = split.row(align=True)
-    row.prop(TexDirt, 'bias_x')
-    row.prop(TexDirt, 'bias_y')
-    row.prop(TexDirt, 'bias_z')
-
-    layout.separator()
-
-    split = layout.split()
-    col = split.column()
-    col.prop(TexDirt, 'invert_normal')
-    col.prop(TexDirt, 'ignore_for_gi')
-    col.prop(TexDirt, 'ignore_self_occlusion')
-    col.prop(TexDirt, 'consider_same_object_only')
-    if wide_ui:
-        col = split.column()
-    col.prop(TexDirt, 'work_with_transparency')
-    col.prop(TexDirt, 'environment_occlusion')
-    col.prop(TexDirt, 'double_sided')
-
-    layout.separator()
-
-    split = layout.split()
-    col = split.column()
-    col.prop_search(TexDirt,  'render_nodes',
-                    bpy.data, 'groups',
-                    text="Exclude")
-    col.prop(TexDirt, 'render_nodes_inclusive')
-
-    split = layout.split()
-    col = split.column()
-    col.prop_search(TexDirt,  'affect_result_nodes',
-                    bpy.data, 'groups',
-                    text="Result Affect")
-    col.prop(TexDirt, 'affect_result_nodes_inclusive')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "render_nodes_inclusive" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "affect_result_nodes_inclusive" }
+                ]
+            }
+        ]
+    }
+]}
+"""
 
 
 def writeDatablock(bus, pluginName, PluginParams, TexDirt, mappedParams):
     ofile = bus['files']['nodetree']
     scene = bus['scene']
 
-    radiusTexResult = None
+    radiusResult = TexDirt.radius
 
     if 'radius' in mappedParams:
-        radiusTexName = pluginName + "Radius"
-        radiusTexResult = radiusTexName + "::product"
+        if type(mappedParams['radius']) is float:
+            radiusResult = LibUtils.AnimatedValue(scene, mappedParams['radius'])
+        else:
+            radiusTexName = pluginName + "Radius"
+            radiusResult = radiusTexName + "::product"
 
-        ofile.write("\nTexFloatOp %s {" % radiusTexName)
-        ofile.write("\n\tfloat_a=%s;" % mappedParams['radius'])
-        ofile.write("\n\tfloat_b=%s;" % utils.AnimatedValue(scene, TexDirt.radius))
-        ofile.write("\n}\n")
+            ofile.write("\nTexFloatOp %s {" % radiusTexName)
+            ofile.write("\n\tfloat_a=%s;" % mappedParams['radius'])
+            ofile.write("\n\tfloat_b=%s;" % LibUtils.AnimatedValue(scene, TexDirt.radius))
+            ofile.write("\n}\n")
 
     ofile.write("\n%s %s {" % (ID, pluginName))
-
-    if radiusTexResult:
-        ofile.write("\n\tradius=%s;" % radiusTexResult)
-    else:
-        ofile.write("\n\tradius=%s;" % utils.AnimatedValue(scene, TexDirt.radius))
+    ofile.write("\n\tradius=%s;" % radiusResult)
 
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, TexDirt, mappedParams, PluginParams)
 
