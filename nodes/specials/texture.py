@@ -24,28 +24,132 @@
 
 import bpy
 
+from pynodes_framework import base
+
 from ..        import tree
 from ..sockets import AddInput, AddOutput
 
+
+ ######   #######   ######  ##    ## ######## ########  ######  
+##    ## ##     ## ##    ## ##   ##  ##          ##    ##    ## 
+##       ##     ## ##       ##  ##   ##          ##    ##       
+ ######  ##     ## ##       #####    ######      ##     ######  
+      ## ##     ## ##       ##  ##   ##          ##          ## 
+##    ## ##     ## ##    ## ##   ##  ##          ##    ##    ## 
+ ######   #######   ######  ##    ## ########    ##     ######  
+
+class VRaySocketTexLayered(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = 'VRaySocketTexLayered'
+    bl_label  = 'TexLayered Socket'
+
+    value = bpy.props.EnumProperty(
+        name = "Blend Mode",
+        description = "Blend mode",
+        items = (
+            ('0',  "None", ""),
+            ('1',  "Over", ""),
+            ('2',  "In", ""),
+            ('3',  "Out", ""),
+            ('4',  "Add", ""),
+            ('5',  "Subtract", ""),
+            ('6',  "Multiply", ""),
+            ('7',  "Difference", ""),
+            ('8',  "Lighten", ""),
+            ('9',  "Darken", ""),
+            ('10', "Saturate", ""),
+            ('11', "Desaturate", ""),
+            ('12', "Illuminate", "")
+        ),
+        default = '1'
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.prop(self, 'value', text="")
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
+ #######  ########  ######## ########     ###    ########  #######  ########   ######  
+##     ## ##     ## ##       ##     ##   ## ##      ##    ##     ## ##     ## ##    ## 
+##     ## ##     ## ##       ##     ##  ##   ##     ##    ##     ## ##     ## ##       
+##     ## ########  ######   ########  ##     ##    ##    ##     ## ########   ######  
+##     ## ##        ##       ##   ##   #########    ##    ##     ## ##   ##         ## 
+##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ## 
+ #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######  
+
+class VRAY_OT_node_add_texlayered_sockets(bpy.types.Operator):
+    bl_idname      = 'vray.node_add_texlayered_sockets'
+    bl_label       = "Add TexLayered Socket"
+    bl_description = "Adds TexLayered sockets"
+
+    def execute(self, context):
+        node = context.node
+
+        newIndex = len(node.inputs) + 1
+        sockName = "Texture %i" % newIndex
+
+        AddInput(node, 'VRaySocketTexLayered', sockName)
+
+        return {'FINISHED'}
+
+
+class VRAY_OT_node_del_texlayered_sockets(bpy.types.Operator):
+    bl_idname      = 'vray.node_del_texlayered_sockets'
+    bl_label       = "Remove TexLayered Socket"
+    bl_description = "Removes TexLayered socket (only not linked sockets will be removed)"
+
+    def execute(self, context):
+        node = context.node
+
+        nSockets = len(node.inputs)
+
+        if not nSockets:
+            return {'FINISHED'}
+
+        for i in range(nSockets-1, -1, -1):
+            s = node.inputs[i]
+            if not s.is_linked:
+                node.inputs.remove(s)
+                break
+
+        return {'FINISHED'}
+
+
+##    ##  #######  ########  ########  ######  
+###   ## ##     ## ##     ## ##       ##    ## 
+####  ## ##     ## ##     ## ##       ##       
+## ## ## ##     ## ##     ## ######    ######  
+##  #### ##     ## ##     ## ##             ## 
+##   ### ##     ## ##     ## ##       ##    ## 
+##    ##  #######  ########  ########  ######  
 
 class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeTexLayered'
     bl_label  = 'Layered'
     bl_icon   = 'VRAY_LOGO_MONO'
 
+    vray_type   = 'TEXTURE'
+    vray_plugin = 'TexLayered'
+
     def init(self, context):
         for i in range(2):
             humanIndex = i + 1
 
-            texSockName    = "Texture %i" % humanIndex
-            weightSockName = "Weight %i" % humanIndex
+            texSockName = "Texture %i" % humanIndex
 
-            self.inputs.new('VRaySocketColor', texSockName)
-            self.inputs.new('VRaySocketFloatColor', weightSockName)
+            AddInput(self, 'VRaySocketTexLayered', texSockName)
 
-            self.inputs[weightSockName].value = 1.0
+        AddOutput(self, 'VRaySocketColor', "Output")
+        AddOutput(self, 'VRaySocketColor', "Out Transparency", 'out_transparency')
+        AddOutput(self, 'VRaySocketColor', "Out Alpha",        'out_alpha')
+        AddOutput(self, 'VRaySocketColor', "Out Intensity",    'out_intensity')
 
-        self.outputs.new('VRaySocketColor', "Output")
+    def draw_buttons(self, context, layout):
+        split = layout.split()
+        row = split.row(align=True)
+        row.operator('vray.node_add_texlayered_sockets', icon="ZOOMIN", text="Add")
+        row.operator('vray.node_del_texlayered_sockets', icon="ZOOMOUT", text="")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -58,6 +162,10 @@ class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
 
 def GetRegClasses():
     return (
+        VRAY_OT_node_add_texlayered_sockets,
+        VRAY_OT_node_del_texlayered_sockets,
+
+        VRaySocketTexLayered,
         VRayNodeTexLayered,
     )
 

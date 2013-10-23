@@ -40,7 +40,7 @@ from vb25.lib     import VRayProcess, ExportUtils
 from vb25.lib     import utils as LibUtils
 from vb25.nodes   import export as NodesExport
 from vb25.utils   import *
-
+from vb25.debug   import Debug, PrintDict
 
  ######   ########  #######  ##     ## ######## ######## ########  ##    ##
 ##    ##  ##       ##     ## ###   ### ##          ##    ##     ##  ##  ##
@@ -60,7 +60,7 @@ def write_geometry(bus):
         bus['cache']['mesh'] = set()
 
         for ob in scene.objects:
-            if ob.type not in GEOM_TYPES:
+            if ob.type not in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}:
                 continue
 
             # Skip proxy meshes
@@ -237,69 +237,6 @@ def write_settings(bus):
                 ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
 
 
-##     ##    ###    ######## ######## ########  ####    ###    ##        ######
-###   ###   ## ##      ##    ##       ##     ##  ##    ## ##   ##       ##    ##
-#### ####  ##   ##     ##    ##       ##     ##  ##   ##   ##  ##       ##
-## ### ## ##     ##    ##    ######   ########   ##  ##     ## ##        ######
-##     ## #########    ##    ##       ##   ##    ##  ######### ##             ##
-##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##       ##    ##
-##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########  ######
-
-def write_materials(bus):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
-    ob    = bus['node']['object']
-
-    if not len(ob.material_slots):
-        bus['node']['material'] = bus['defaults']['material']
-
-    VRayScene = scene.vray
-    SettingsOptions = VRayScene.SettingsOptions
-
-    # Multi-material name
-    mtl_name = get_name(ob, prefix='OBMA')
-
-    # Collecting and exporting object materials
-    mtls_list = []
-    ids_list  = []
-    ma_id     = 0
-
-    for slot in ob.material_slots:
-        if not slot.material:
-            continue
-
-        ma = slot.material
-
-        if not ma.vray.dontOverride and SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-            ma = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
-
-        if not ma.vray.ntree:
-            continue
-
-        nodeMaterial = NodesExport.WriteVRayMaterialNodeTree(bus, ma.vray.ntree)
-
-        ma_id += 1
-        mtls_list.append(nodeMaterial)
-        ids_list.append(str(ma_id))
-
-    # No materials assigned - use default material
-    if len(mtls_list) == 0:
-        bus['node']['material'] = bus['defaults']['material']
-
-    # Only one material - no need for Multi-material
-    elif len(mtls_list) == 1:
-        bus['node']['material'] = mtls_list[0]
-
-    # Several materials assigned - use Mutli-material
-    else:
-        bus['node']['material'] = mtl_name
-
-        ofile.write("\nMtlMulti %s {" % mtl_name)
-        ofile.write("\n\tmtls_list=List(%s);" % ','.join(mtls_list))
-        ofile.write("\n\tids_list=ListInt(%s);" % ','.join(ids_list))
-        ofile.write("\n}\n")
-
-
 ##       ####  ######   ##     ## ########  ######
 ##        ##  ##    ##  ##     ##    ##    ##    ##
 ##        ##  ##        ##     ##    ##    ##
@@ -373,12 +310,8 @@ def write_lamp(bus):
                 lampList = generateDataList(channelData.lights, 'lamps')
 
                 if lamp in lampList:
-                    if channelData.type == 'RAW':
-                        listRenderElements['channels_raw'].append(channelName)
-                    elif channelData.type == 'DIFFUSE':
-                        listRenderElements['channels_diffuse'].append(channelName)
-                    elif channelData.type == 'SPECULAR':
-                        listRenderElements['channels_specular'].append(channelName)
+                    key = 'channels_%s' % channelData.lower()
+                    listRenderElements[key].append(channelName)
 
         for key in listRenderElements:
             renderChannelArray = listRenderElements[key]
@@ -408,35 +341,34 @@ def write_lamp(bus):
  #######  ########   ######  ########  ######     ##     ######       ###    ##    ##  #######  ########  ########  ######     ###
 
 def write_node(bus):
-    scene=      bus['scene']
-    ofile=      bus['files']['nodes']
-    ob=         bus['node']['object']
-    visibility= bus['visibility']
+    scene      = bus['scene']
+    ofile      = bus['files']['nodes']
+    ob         = bus['node']['object']
+    visibility = bus['visibility']
 
-    VRayScene= scene.vray
-    SettingsOptions= VRayScene.SettingsOptions
+    VRayScene = scene.vray
+    SettingsOptions = VRayScene.SettingsOptions
 
-    # Lights struct proposal for support Lamps inside duplis and particles:
-    #  [{'name': vray lamp name, 'lamp': lamp_pointer}
-    #   {...}]
-    lights= []
+    lights = []
     for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
         if lamp.data is None:
             continue
 
         if lamp.type == 'LAMP':
-            VRayLamp= lamp.data.vray
+            VRayLamp = lamp.data.vray
         else:
-            VRayLamp= lamp.vray.LightMesh
+            VRayLamp = lamp.vray.LightMesh
 
-        lamp_name= get_name(lamp, prefix='LA')
+        lamp_name = get_name(lamp, prefix='LA')
 
         if not object_on_visible_layers(scene, lamp) or lamp.hide_render:
-            if not scene.vray.SettingsOptions.light_doHiddenLights:
+            if not SettingsOptions.light_doHiddenLights:
                 continue
 
-        if VRayLamp.use_include_exclude:
-            object_list= generate_object_list(VRayLamp.include_objects, VRayLamp.include_groups)
+        if not VRayLamp.use_include_exclude:
+            append_unique(lights, lamp_name)
+        else:
+            object_list = generate_object_list(VRayLamp.include_objects, VRayLamp.include_groups)
             if VRayLamp.include_exclude == 'INCLUDE':
                 if ob in object_list:
                     append_unique(lights, lamp_name)
@@ -444,23 +376,20 @@ def write_node(bus):
                 if ob not in object_list:
                     append_unique(lights, lamp_name)
 
-        else:
-            append_unique(lights, lamp_name)
-
-    node_name= bus['node']['name']
-    matrix=    bus['node']['matrix']
-    base_mtl=  bus['node']['material']
+    node_name = bus['node']['name']
+    matrix    = bus['node']['matrix']
+    base_mtl  = bus['node']['material']
 
     if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
-        node_name= bus['node']['dupli']['name']
-        matrix=    bus['node']['dupli']['matrix']
+        node_name = bus['node']['dupli']['name']
+        matrix    = bus['node']['dupli']['matrix']
 
     if 'particle' in bus['node'] and 'name' in bus['node']['particle']:
-        node_name= bus['node']['particle']['name']
-        matrix=    bus['node']['particle']['matrix']
+        node_name = bus['node']['particle']['name']
+        matrix    = bus['node']['particle']['matrix']
 
     if 'hair' in bus['node'] and bus['node']['hair'] == True:
-        node_name+= 'HAIR'
+        node_name += 'HAIR'
 
     material = base_mtl
 
@@ -490,10 +419,10 @@ def write_node(bus):
 
     # TODO: check why this was needed.
     #if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
-    #   ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+    #   ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
 
     if not bus['preview']:
-        ofile.write("\n\tlights= List(%s);" % (','.join(lights)))
+        ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
     ofile.write("\n}\n")
 
 
@@ -515,52 +444,46 @@ def write_object(bus):
     bus['node']['geometry'] = get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
     bus['node']['matrix']   = ob.matrix_world
 
-    # Write object materials
-    write_materials(bus)
-
-    # Write particle emitter if needed
-    # Must be after material export
+    # Check if this is a particle holder and skip if needed
+    #
     if len(ob.particle_systems):
-        export = True
         for ps in ob.particle_systems:
             if not ps.settings.use_render_emitter:
-                export = False
-        if not export:
-            return
+                return
 
-    if VRayData.override:
-        if VRayData.override_type == 'VRAYPROXY':
-            PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
-        elif VRayData.override_type == 'VRAYPLANE':
-            bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
-            PLUGINS['GEOMETRY']['GeomPlane'].write(bus, bus['node']['geometry'])
-    else:
-        if VRayExporter.auto_meshes:
-            if bus['node']['geometry'] not in bus['cache']['mesh']:
-                bus['cache']['mesh'].add(bus['node']['geometry'])
-
-                _vray_for_blender.exportMesh(
-                    bpy.context.as_pointer(), # Context
-                    ob.as_pointer(),          # Object
-                    bus['node']['geometry'],  # Result plugin name
-                    bus['files']['geom']      # Output file
-                )
-
-    # Go to object nodes and check the mesh connection
-    # If its connected to Blender's output then export just mesh
-    # Check for all displacement and stuff otherwise
-    # Mesh-light could also be created here...
+    # Export nodetree
     #
+    socketParams = {}
 
-    # Displace or Subdivision
-    # if ob.vray.GeomStaticSmoothedMesh.use:
-    #   PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'].write(bus)
-    # else:
-    #   PLUGINS['GEOMETRY']['GeomDisplacedMesh'].write(bus)
-    # if PLUGINS['GEOMETRY']['LightMesh'].write(bus):
-    #   return
-    # if VRayExporter.experimental and VRayObject.GeomVRayPattern.use:
-    #   PLUGINS['OBJECT']['GeomVRayPattern'].write(bus)
+    if VRayObject.ntree:
+        vrayOuputNode = NodesExport.GetNodeByType(VRayObject.ntree, 'VRayNodeObjectOutput')
+        if vrayOuputNode:
+            for nodeSocket in vrayOuputNode.inputs:
+                vrayAttr = nodeSocket.vray_attr
+                value = NodesExport.WriteConnectedNode(bus, VRayObject.ntree, nodeSocket)
+                if value is not None:
+                    socketParams[vrayAttr] = value
+
+    PrintDict("Object socketParams", socketParams)
+    
+    # Params were not connected within the node tree or user just haven't used nodetree
+    #
+    if 'material' not in socketParams or not socketParams['material']:
+        socketParams['material'] = NodesExport.WriteVRayNodeBlenderOutputMaterial(bus, None, None)
+
+    if 'geometry' not in socketParams or not socketParams['geometry']:
+        if not VRayData.override:
+            socketParams['geometry'] = NodesExport.WriteVRayNodeBlenderOutputGeometry(bus, None, None)
+        else:
+            if VRayData.override_type == 'VRAYPROXY':
+                PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
+            elif VRayData.override_type == 'VRAYPLANE':
+                bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
+                PLUGINS['GEOMETRY']['GeomPlane'].write(bus, bus['node']['geometry'])
+
+    # XXX: A little ugly...
+    bus['node']['geometry'] = socketParams['geometry']
+    bus['node']['material'] = socketParams['material']
 
     write_node(bus)
 
@@ -641,46 +564,47 @@ def _write_object_dupli(bus):
                 break
 
     if dupli_from_particles or ob.dupli_type in {'VERTS', 'FACES', 'GROUP'}:
-        # Export dupli with Python extension (geometry duplication only)
-        # TODO: Create an option
-        #
         if VRayExporter.geomDupliPart:
+            # Export dupli with Python extension (geometry duplication only)
+            #
             _vray_for_blender.exportDupli(
                 bpy.context.as_pointer(), # Context
                 ob.as_pointer(),          # Object
                 ofile                     # Output file
             )
+
         else:
             ob.dupli_list_create(scene)
 
             for dup_id,dup_ob in enumerate(ob.dupli_list):
-                parent_dupli= ""
+                parent_dupli = ""
 
-                bus['node']['object']= dup_ob.object
-                bus['node']['base']=   ob
+                bus['node']['object'] = dup_ob.object
+                bus['node']['base']   = ob
 
                 # Currently processed dupli name
-                dup_node_name= clean_string("OB%sDO%sID%i" % (ob.name,
-                                                              dup_ob.object.name,
-                                                              dup_id))
-                dup_node_matrix= dup_ob.matrix
+                dup_node_name = clean_string("OB%sDO%sID%i" % (ob.name,
+                                                               dup_ob.object.name,
+                                                               dup_id))
+                dup_node_matrix = dup_ob.matrix
 
                 # For case when dupli is inside other dupli
                 if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
                     # Store parent dupli name
-                    parent_dupli=   bus['node']['dupli']['name']
-                    dup_node_name+= parent_dupli
+                    parent_dupli   = bus['node']['dupli']['name']
+                    dup_node_name += parent_dupli
 
-                bus['node']['dupli']=  {}
-                bus['node']['dupli']['name']=   dup_node_name
-                bus['node']['dupli']['matrix']= dup_node_matrix
+                bus['node']['dupli'] =  {}
+                bus['node']['dupli']['name']   = dup_node_name
+                bus['node']['dupli']['matrix'] = dup_node_matrix
 
                 _write_object(bus)
 
-                bus['node']['object']= ob
-                bus['node']['base']=   ob
-                bus['node']['dupli']=  {}
-                bus['node']['dupli']['name']=   parent_dupli
+                bus['node']['object'] = ob
+                bus['node']['base']   = ob
+
+                bus['node']['dupli'] = {}
+                bus['node']['dupli']['name'] = parent_dupli
 
             ob.dupli_list_clear()
 
@@ -719,7 +643,7 @@ def writeSceneInclude(bus):
                 vrsceneFilelist.append(os.path.join(dirname, filename))
 
     sceneFile.write("\nSceneInclude %s {" % get_name(ob, prefix='SI'))
-    sceneFile.write("\n\tfilepath=\"%s\";" % (";").join(vrsceneFilelist))
+    sceneFile.write("\n\tfilepath=\"%s\";" % ";".join(vrsceneFilelist))
     sceneFile.write("\n\tprefix=\"%s\";" % get_name(ob, prefix='SI'))
     sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
     sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
@@ -962,13 +886,13 @@ def run(bus):
 
     else:
         if RTEngine.enabled:
-            params.append('-rtTimeOut=%.3f' % (RTEngine.rtTimeOut))
-            params.append('-rtNoise=%.3f' % (RTEngine.rtNoise))
-            params.append('-rtSampleLevel=%i' % (RTEngine.rtSampleLevel))
+            params.append('-rtTimeOut=%.3f' % RTEngine.rtTimeOut)
+            params.append('-rtNoise=%.3f' % RTEngine.rtNoise)
+            params.append('-rtSampleLevel=%i' % RTEngine.rtSampleLevel)
             params.append('-cmdMode=1')
 
-        params.append('-display=%i' % (VRayExporter.display))
-        params.append('-verboseLevel=%s' % (VRayExporter.verboseLevel))
+        params.append('-display=%i' % VRayExporter.display)
+        params.append('-verboseLevel=%s' % VRayExporter.verboseLevel)
 
         if scene.render.use_border:
             x0= resolution_x * scene.render.border_min_x
@@ -985,9 +909,9 @@ def run(bus):
             if VRayExporter.animation:
                 params.append("-frames=")
                 if VRayExporter.animation_type == 'FRAMEBYFRAME':
-                    params.append("%d"%(scene.frame_current))
+                    params.append("%d" % scene.frame_current)
                 else:
-                    params.append("%d-%d,%d"%(scene.frame_start, scene.frame_end, int(scene.frame_step)))
+                    params.append("%d-%d,%d" % (scene.frame_start, scene.frame_end, int(scene.frame_step)))
             elif VRayExporter.camera_loop:
                 if bus['cameras']:
                     params.append("-frames=1-%d,1" % len(bus['cameras']))
@@ -997,7 +921,7 @@ def run(bus):
         if VRayDR.on:
             if len(VRayDR.nodes):
                 params.append('-distributed=1')
-                params.append('-portNumber=%i' % (VRayDR.port))
+                params.append('-portNumber=%i' % VRayDR.port)
                 params.append('-renderhost=%s' % Quotes(';'.join([n.address for n in VRayDR.nodes])))
                 params.append('-include=%s' % Quotes(bus['filenames']['DR']['shared_dir'] + os.sep))
 
@@ -1049,7 +973,7 @@ def run(bus):
     # and no VFB is required
     if bpy.app.background or VRayExporter.wait:
         if bpy.app.background:
-            params.append('-display=0')   # Disable VFB
+            params.append('-display=0')   # Disable VFB (TODO: add configuration option)
             params.append('-autoclose=1') # Exit on render end
         subprocess.call(params)
         return
@@ -1226,10 +1150,9 @@ def init_bus(engine, scene, preview=False):
     bus['preview'] = preview
     bus['files']     = {}
     bus['filenames'] = {}
-    bus['volumes'] = set()
-    
-    bus['context'] = {}
 
+    bus['volumes'] = set()
+    bus['context'] = {}
     bus['cache'] = {
         'plugins' : set(),
         'mesh'    : set(),

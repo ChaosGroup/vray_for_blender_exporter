@@ -31,6 +31,13 @@ from . import AttributeUtils
 from . import VRaySocket
 
 
+def WriteFile(bus, filetype, data):
+    if bus['mode'] == 'SOCKET':
+        return
+    ofile = bus['files'][filetype]
+    ofile.write(data)
+
+
 def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams):
     scene      = None
     vraySocket = None
@@ -93,16 +100,8 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
 
 
 def WriteDatablock(bus, pluginType, pluginName, PluginParams, dataPointer, mappedParams):
-    ofile = None
-
-    if bus['mode'] == 'VRSCENE':
-        ofile = bus['files']['nodetree']
-
-        ofile.write("\n%s %s {" % (pluginType, pluginName))
-
-    WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams)
-
-    if bus['mode'] == 'VRSCENE':
-        ofile.write("\n}\n")
+    WriteFile(bus, 'nodetree', "\n%s %s {" % (pluginType, pluginName))
+    WritePluginParams(bus, bus['files']['nodetree'], pluginType, pluginName, dataPointer, mappedParams, PluginParams)
+    WriteFile(bus, 'nodetree', "\n}\n")
 
     return pluginName

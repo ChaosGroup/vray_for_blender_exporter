@@ -42,112 +42,6 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 		row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 
 
-class VRAY_OBP_override(classes.VRayObjectPanel):
-	bl_label   = "Override"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		ob= context.object
-		plugin= ob.vray.MtlOverride
-		self.layout.prop(plugin, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		ob= context.object
-
-		MtlOverride= ob.vray.MtlOverride
-
-		layout= self.layout
-		layout.active= MtlOverride.use
-
-		split= layout.split()
-		col= split.column()
-		col.prop_search(MtlOverride, 'gi_mtl',      bpy.data, 'materials', text= "GI")
-		col.prop_search(MtlOverride, 'reflect_mtl', bpy.data, 'materials', text= "Reflection")
-		col.prop_search(MtlOverride, 'refract_mtl', bpy.data, 'materials', text= "Refraction")
-		col.prop_search(MtlOverride, 'shadow_mtl',  bpy.data, 'materials', text= "Shadow")
-
-		# layout.separator()
-		# split= layout.split()
-		# col= split.column()
-		# col.prop_search(MtlOverride, 'environment_override',  bpy.data, 'textures', text= "Environment")
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(MtlOverride, 'environment_priority')
-
-
-class VRAY_OBP_wrapper(classes.VRayObjectPanel):
-	bl_label = "Wrapper"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		ob= context.object
-		plugin= ob.vray.MtlWrapper
-		self.layout.prop(plugin, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		ob= context.object
-		plugin= ob.vray.MtlWrapper
-
-		layout= self.layout
-		layout.active= plugin.use
-
-		split= layout.split()
-		col= split.column()
-		col.prop(plugin, 'generate_gi')
-		col.prop(plugin, 'receive_gi')
-		if wide_ui:
-			col= split.column()
-		col.prop(plugin, 'generate_caustics')
-		col.prop(plugin, 'receive_caustics')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(plugin, 'gi_quality_multiplier')
-
-		split= layout.split()
-		col= split.column()
-		col.label(text="Matte properties")
-
-		split= layout.split()
-		colL= split.column()
-		colL.prop(plugin, 'matte_surface')
-		if wide_ui:
-			colR= split.column()
-		else:
-			colR= colL
-		colR.prop(plugin, 'alpha_contribution')
-		if plugin.matte_surface:
-			colR.prop(plugin, 'reflection_amount')
-			colR.prop(plugin, 'refraction_amount')
-			colR.prop(plugin, 'gi_amount')
-			colR.prop(plugin, 'no_gi_on_other_mattes')
-
-			colL.prop(plugin, 'affect_alpha')
-			colL.prop(plugin, 'shadows')
-			if plugin.shadows:
-				colL.prop(plugin, 'shadow_tint_color')
-				colL.prop(plugin, 'shadow_brightness')
-
-		split= layout.split()
-		col= split.column()
-		col.label(text="Miscellaneous")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(plugin, 'gi_surface_id')
-		col.prop(plugin, 'trace_depth')
-		if wide_ui:
-			col= split.column()
-		col.prop(plugin, 'matte_for_secondary_rays')
-
-
 class VRAY_OBP_render(classes.VRayObjectPanel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -155,6 +49,9 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 	@classmethod
 	def poll(cls, context):
 		return classes.VRayObjectPanel.poll(context) and not context.object.vray.LightMesh.use
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 
 	def draw(self, context):
 		layout = self.layout
@@ -165,24 +62,6 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 
 		layout.prop(VRayObject, 'fade_radius')
 
-		layout.prop(MtlRenderStats, 'use', text="Use Render Stats")
-
-		layout = layout.box()
-		layout.active = MtlRenderStats.use
-
-		layout.prop(MtlRenderStats, 'visibility', text="Visible")
-
-		layout.label(text="Visible to:")
-
-		split= layout.split()
-		col = split.column()
-		col.prop(MtlRenderStats, 'camera_visibility', text="Camera")
-		col.prop(MtlRenderStats, 'gi_visibility', text="GI")
-		col.prop(MtlRenderStats, 'shadows_visibility', text="Shadows")
-		col = split.column()
-		col.prop(MtlRenderStats, 'reflections_visibility', text="Reflections")
-		col.prop(MtlRenderStats, 'refractions_visibility', text="Refractions")
-
 
 class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
 	bl_label = "Light"
@@ -192,6 +71,7 @@ class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
 		ob= context.object
 		VRayObject= ob.vray
 		LightMesh= VRayObject.LightMesh
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 		self.layout.prop(LightMesh, 'use', text="")
 
 	def draw(self, context):
@@ -260,6 +140,7 @@ class VRAY_OBP_subdivision(classes.VRayObjectPanel):
 		ob= context.object
 		VRayObject= ob.vray
 		GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 		self.layout.prop(GeomStaticSmoothedMesh, 'use', text="")
 
 	def draw(self, context):
@@ -376,8 +257,6 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
-		VRAY_OBP_override,
-		VRAY_OBP_wrapper,
 		VRAY_OBP_render,
 		VRAY_OBP_lightmesh,
 		VRAY_OBP_subdivision,

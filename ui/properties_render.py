@@ -199,7 +199,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 			render_label= "Image"
 			render_icon= 'RENDER_STILL'
 
-		col.operator('render.render', text= render_label, icon= render_icon)
+		col.operator('render.render', text=render_label, icon=render_icon)
 
 		if not VRayExporter.auto_meshes:
 			if wide_ui:

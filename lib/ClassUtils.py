@@ -26,6 +26,8 @@ import bpy
 
 from pynodes_framework import idref
 
+from vb25.debug import Debug, PrintDict
+
 from . import AttributeUtils
 
 

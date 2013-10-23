@@ -55,134 +55,149 @@ SCE_FILE = ""
 
 @persistent
 def scene_update_post(scene):
-	if not (bpy.data.groups.is_updated or
-		    bpy.data.node_groups.is_updated or
-		    bpy.data.objects.is_updated or
-		    bpy.data.scenes.is_updated or
-		    bpy.data.actions.is_updated):
-		return
+    if not (bpy.data.groups.is_updated or
+            bpy.data.node_groups.is_updated or
+            bpy.data.objects.is_updated or
+            bpy.data.scenes.is_updated or
+            bpy.data.actions.is_updated):
+        return
 
-	global OB_COUNT
-	global SCE_FILE
-	global LOCKED
+    global OB_COUNT
+    global SCE_FILE
+    global LOCKED
 
-	if not scene.render.engine == 'VRAY_RENDER_RT':
-		return
+    if not scene.render.engine == 'VRAY_RENDER_RT':
+        return
 
-	if not scene.vray.RTEngine.realtimeUpdate:
-		return
+    if not scene.vray.RTEngine.realtimeUpdate:
+        return
 
-	Debug("scene_update_post()", msgType='INFO')
+    Debug("scene_update_post()", msgType='INFO')
 
-	bus = {}
-	bus['mode'] = 'SOCKET'
+    bus = {}
+    bus['mode'] = 'SOCKET'
+    bus['volumes'] = set()
+    bus['context'] = {}
+    bus['cache'] = {
+        'plugins' : set(),
+        'mesh'    : set(),
+        'nodes'   : set(),
+    }
 
-	tag_reload = False
-	ob_count   = len(bpy.data.objects)
+    tag_reload = False
+    ob_count   = len(bpy.data.objects)
 
-	if OB_COUNT != ob_count:
-		OB_COUNT   = ob_count
-		tag_reload = True
+    if OB_COUNT != ob_count:
+        OB_COUNT   = ob_count
+        tag_reload = True
 
-	if tag_reload and SCE_FILE:
-		Debug("Reloading scene from *.vrscene files...", msgType='INFO')
-		export_scene(scene, 'VRAY_UPDATE_CALL')
-		process.reload_scene(SCE_FILE)
-		return
+    if tag_reload and SCE_FILE:
+        Debug("Reloading scene from *.vrscene files...", msgType='INFO')
+        export_scene(scene, 'VRAY_UPDATE_CALL')
+        process.reload_scene(SCE_FILE)
+        return
 
-	if bpy.data.node_groups.is_updated:
-		for ntree in bpy.data.node_groups:
-			if not ntree.is_updated or not ntree.is_updated_data:
-				continue
+    if bpy.data.node_groups.is_updated:
+        for ntree in bpy.data.node_groups:
+            if not ntree.is_updated or not ntree.is_updated_data:
+                continue
 
-			if ntree.bl_idname in {'VRayShaderTreeType'}:
-				NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
+            if ntree.bl_idname in {'VRayShaderTreeType'}:
+                NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
 
-	if bpy.data.objects.is_updated:
-		cmd_socket = VRaySocket()
+    if bpy.data.objects.is_updated:
+        cmd_socket = VRaySocket()
 
-		for ob in bpy.data.objects:
-			if ob.type in {'EMPTY'}:
-				continue
+        for ob in bpy.data.objects:
+            if ob.type in {'EMPTY'}:
+                continue
 
-			if ob.is_updated or ob.data.is_updated:
-				if ob.type == 'CAMERA':
-					VRayCamera     = ob.data.vray
-					CameraPhysical = VRayCamera.CameraPhysical
+            if ob.is_updated or ob.data.is_updated:
+                if ob.type == 'CAMERA':
+                    VRayCamera     = ob.data.vray
+                    CameraPhysical = VRayCamera.CameraPhysical
 
-					if CameraPhysical.use:
-						cmd_socket.send("set PhysicalCamera.ISO=%.3f" % CameraPhysical.ISO)
-						cmd_socket.send("set PhysicalCamera.fov=%.3f" % ob.data.angle)
+                    if CameraPhysical.use:
+                        cmd_socket.send("set PhysicalCamera.ISO=%.3f" % CameraPhysical.ISO)
+                        cmd_socket.send("set PhysicalCamera.fov=%.3f" % ob.data.angle)
 
-					cmd_socket.send("set CameraView.use_scene_offset=0")
-					cmd_socket.send("set CameraView.fov=%.3f" % ob.data.angle)
-					cmd_socket.send("set CameraView.transform=%s" % (utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+                    cmd_socket.send("set CameraView.use_scene_offset=0")
+                    cmd_socket.send("set CameraView.fov=%.3f" % ob.data.angle)
+                    cmd_socket.send("set CameraView.transform=%s" % (utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
-			if ob.is_updated:
-				cmd_socket.send("set %s.transform=%s" % (LibUtils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+            if ob.is_updated:
+                cmd_socket.send("set %s.transform=%s" % (LibUtils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
 
-		cmd_socket.send("render")
-		cmd_socket.disconnect()
+        cmd_socket.send("render")
+        cmd_socket.disconnect()
 
 
 def export_scene(scene, renderEngine):
-	global SCE_FILE
+    global SCE_FILE
 
-	VRayScene    = scene.vray
-	VRayExporter = VRayScene.exporter
+    VRayScene    = scene.vray
+    VRayExporter = VRayScene.exporter
 
-	# Settings bus
-	bus= {}
-	bus['plugins']   = PLUGINS
-	bus['scene']     = scene
-	bus['preview']   = True if scene.name == "preview" else False
-	bus['uvs']       = {}
-	bus['files']     = {}
-	bus['filenames'] = {}
-	bus['cameras']   = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-	bus['engine']    = renderEngine
-	bus['mode']      = 'VRSCENE'
+    # Settings bus
+    bus= {}
+    bus['plugins']   = PLUGINS
+    bus['scene']     = scene
+    bus['preview']   = True if scene.name == "preview" else False
+    bus['uvs']       = {}
+    bus['files']     = {}
+    bus['filenames'] = {}
+    bus['cameras']   = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
+    bus['engine']    = renderEngine
+    bus['mode']      = 'VRSCENE'
 
-	utils.init_files(bus)
+    bus['volumes'] = set()
+    bus['context'] = {}
+    bus['cache'] = {
+        'plugins' : set(),
+        'mesh'    : set(),
+        'nodes'   : set(),
+    }
 
-	if VRayExporter.auto_meshes:
-		render.write_geometry(bus)
+    utils.init_files(bus)
 
-	render.write_scene(bus)
-	render.write_settings(bus)
+    if VRayExporter.auto_meshes:
+        render.write_geometry(bus)
 
-	for key in bus['files']:
-		bus['files'][key].close()
+    render.write_scene(bus)
+    render.write_settings(bus)
 
-	if renderEngine == 'VRAY_UPDATE_CALL':
-		if process.is_running():
-			process.reload_scene(SCE_FILE)
-		# This was the reload call, we don't need to start V-Ray
-		return
+    for key in bus['files']:
+        bus['files'][key].close()
 
-	vray_exporter   = utils.get_vray_exporter_path()
-	vray_standalone = utils.get_vray_standalone_path(scene)
+    if renderEngine == 'VRAY_UPDATE_CALL':
+        if process.is_running():
+            process.reload_scene(SCE_FILE)
+        # This was the reload call, we don't need to start V-Ray
+        return
 
-	# Update scene file path
-	SCE_FILE = bus['filenames']['scene']
+    vray_exporter   = utils.get_vray_exporter_path()
+    vray_standalone = utils.get_vray_standalone_path(scene)
 
-	params = []
-	params.append(vray_standalone)
-	params.append('-cmdMode=1')
-	params.append('-sceneFile=%s' % utils.Quotes(bus['filenames']['scene']))
-	params.append('-showProgress=0')
-	params.append('-display=1')
-	params.append('-autoclose=1')
-	params.append('-verboseLevel=0')
-	params.append('-setfocus=0')
+    # Update scene file path
+    SCE_FILE = bus['filenames']['scene']
 
-	if VRayExporter.autorun:
-		process.run(params)
+    params = []
+    params.append(vray_standalone)
+    params.append('-cmdMode=1')
+    params.append('-sceneFile=%s' % utils.Quotes(bus['filenames']['scene']))
+    params.append('-showProgress=0')
+    params.append('-display=1')
+    params.append('-autoclose=1')
+    params.append('-verboseLevel=0')
+    params.append('-setfocus=0')
+
+    if VRayExporter.autorun:
+        process.run(params)
 
 
 def register():
-	bpy.app.handlers.scene_update_post.append(scene_update_post)
+    bpy.app.handlers.scene_update_post.append(scene_update_post)
 
 
 def unregister():
-	bpy.app.handlers.scene_update_post.remove(scene_update_post)
+    bpy.app.handlers.scene_update_post.remove(scene_update_post)

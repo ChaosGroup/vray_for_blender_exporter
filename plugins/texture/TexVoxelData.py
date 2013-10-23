@@ -38,8 +38,12 @@ PluginParams = (
     {
         'attr' : 'interpolation',
         'desc' : "Interpolation type",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Linear",    "Linear interpolation"),
+            ('1', "Quadratic", "Quadratic interpolation"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'out_flame',
@@ -90,12 +94,12 @@ def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):
         return None
 
     _vray_for_blender.exportSmoke(
-        bpy.context.as_pointer(),   # Context
-        domainObject.as_pointer(),  # Object
-        smd.as_pointer(),           # SmokeModifierData
-        TexVoxelData.interpolation, # Interpolation type
-        pluginName,                 # Result plugin name
-        bus['files']['geom']        # Output file
+        bpy.context.as_pointer(),        # Context
+        domainObject.as_pointer(),       # Object
+        smd.as_pointer(),                # SmokeModifierData
+        int(TexVoxelData.interpolation), # Interpolation type
+        pluginName,                      # Result plugin name
+        bus['files']['geom']             # Output file
     )
 
     return pluginName

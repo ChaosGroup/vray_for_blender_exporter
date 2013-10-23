@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
@@ -206,3 +206,59 @@ PluginParams = (
         'default' : False,
     },
 )
+
+
+def gui(context, layout, MtlWrapper):
+    contextType = GetContextType(context)
+    regionWidth = GetRegionWidthFromContext(context)
+
+    wide_ui = regionWidth > narrowui
+
+    split= layout.split()
+    col= split.column()
+    col.prop(MtlWrapper, 'generate_gi')
+    col.prop(MtlWrapper, 'receive_gi')
+    if wide_ui:
+        col= split.column()
+    col.prop(MtlWrapper, 'generate_caustics')
+    col.prop(MtlWrapper, 'receive_caustics')
+
+    split= layout.split()
+    col= split.column()
+    col.prop(MtlWrapper, 'gi_quality_multiplier')
+
+    split= layout.split()
+    col= split.column()
+    col.label(text="Matte properties")
+
+    split= layout.split()
+    colL= split.column()
+    colL.prop(MtlWrapper, 'matte_surface')
+    if wide_ui:
+        colR= split.column()
+    else:
+        colR= colL
+    colR.prop(MtlWrapper, 'alpha_contribution')
+    if MtlWrapper.matte_surface:
+        colR.prop(MtlWrapper, 'reflection_amount')
+        colR.prop(MtlWrapper, 'refraction_amount')
+        colR.prop(MtlWrapper, 'gi_amount')
+        colR.prop(MtlWrapper, 'no_gi_on_other_mattes')
+
+        colL.prop(MtlWrapper, 'affect_alpha')
+        colL.prop(MtlWrapper, 'shadows')
+        if MtlWrapper.shadows:
+            colL.prop(MtlWrapper, 'shadow_tint_color')
+            colL.prop(MtlWrapper, 'shadow_brightness')
+
+    split= layout.split()
+    col= split.column()
+    col.label(text="Miscellaneous")
+
+    split= layout.split()
+    col= split.column()
+    col.prop(MtlWrapper, 'gi_surface_id')
+    col.prop(MtlWrapper, 'trace_depth')
+    if wide_ui:
+        col= split.column()
+    col.prop(MtlWrapper, 'matte_for_secondary_rays')

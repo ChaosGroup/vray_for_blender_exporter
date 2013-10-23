@@ -91,7 +91,8 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeOutputMaterial)
         add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
         add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
-        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutput)
+        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutputGeometry)
+        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutputMaterial)
 
 
 class VRayNodesMenuGeom(bpy.types.Menu, tree.VRayData):
@@ -276,6 +277,19 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketObject', "Output")
 
 
+def VRayNodeCopy(self, node):
+    if self.vray_plugin == 'TexGradRamp':
+        self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
+        self.texture.use_color_ramp = True
+
+
+def VRayNodeFree(self):
+    if self.vray_plugin == 'TexGradRamp':
+        if self.texture:
+            self.texture.use_fake_user = False
+            bpy.data.textures.remove(self.texture)
+
+
 ########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######
 ##     ##  ##  ##  ###   ##   ## ##   ###   ###  ##  ##    ##    ###   ## ##     ## ##     ## ##       ##    ##
 ##     ##   ####   ####  ##  ##   ##  #### ####  ##  ##          ####  ## ##     ## ##     ## ##       ##
@@ -362,6 +376,8 @@ def LoadDynamicNodes():
 
             else:
                 DynNodeClassAttrs['init']             = VRayNodeInit
+                DynNodeClassAttrs['copy']             = VRayNodeCopy
+                DynNodeClassAttrs['free']             = VRayNodeFree
                 DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
                 DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
 
@@ -383,7 +399,7 @@ def LoadDynamicNodes():
 
             DynamicClasses.append(DynNodeClass)
 
-            # XXX: The only way to use images by now
+            # XXX: The only way to use idrefs under nodes
             # Remove after Blender fix
             #
             if pluginName == 'BitmapBuffer':              

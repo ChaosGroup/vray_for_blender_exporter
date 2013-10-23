@@ -24,6 +24,7 @@
 
 import bpy
 
+from vb25.lib        import ExportUtils
 from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
 
 
@@ -38,21 +39,16 @@ PluginParams = (
         'attr' : 'mesh',
         'desc' : "The triangle mesh that will be displaced",
         'type' : 'GEOMETRY',
+        'skip' : True,
         'default' : "",
     },
     {
-        'attr' : 'displacement_tex_color',
-        'name' : "Vector Texture",
+        'attr' : 'displacement_tex',
+        'name' : "Texture",
         'desc' : "The displacement texture",
         'type' : 'TEXTURE',
+        'skip' : True,
         'default' : (0.0, 0.0, 0.0),
-    },
-    {
-        'attr' : 'displacement_tex_float',
-        'name' : "Float Texture",
-        'desc' : "The displacement texture",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
     },
     {
         'attr' : 'displacement_amount',
@@ -247,20 +243,28 @@ def gui(context, layout, GeomDisplacedMesh):
 
 
 def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
-    ofile = bus['files']['materials']
+    ofile = bus['files']['nodes']
     scene = bus['scene']
 
+    if 'mesh' not in mappedParams:
+        return None
+
     ofile.write("\n%s %s {" % (ID, pluginName))
+
+    ofile.write("\n\tmesh=%s;" % mappedParams['mesh'])
 
     if GeomDisplacedMesh.type == '2D':
         ofile.write("\n\tdisplace_2d=1;")
         ofile.write("\n\tvector_displacement=0;")
+        ofile.write("\n\tdisplacement_tex_float=%s;" % mappedParams['displacement_tex'])
     elif GeomDisplacedMesh.type == '3D':
         ofile.write("\n\tdisplace_2d=0;")
         ofile.write("\n\tvector_displacement=1;")
+        ofile.write("\n\tdisplacement_tex_color=%s;" % mappedParams['displacement_tex'])
     else:
         ofile.write("\n\tdisplace_2d=0;")
         ofile.write("\n\tvector_displacement=0;")
+        ofile.write("\n\tdisplacement_tex_float=%s;" % mappedParams['displacement_tex'])
 
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomDisplacedMesh, mappedParams, PluginParams)
 

@@ -83,7 +83,7 @@ def add_properties(rna_pointer):
 	RTEngine.realtimeUpdate = BoolProperty(
 		name        = "Realtime Interaction",
 		description = "Export scene changes in realtime",
-		default     = False
+		default     = True
 	)
 
 	# enabled

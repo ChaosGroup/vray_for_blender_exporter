@@ -25,10 +25,12 @@
 import bpy
 import mathutils
 
+import _vray_for_blender
+
 from vb25.lib     import ExportUtils
 from vb25.lib     import utils as LibUtils
 from vb25.plugins import PLUGINS
-from vb25.debug   import Debug
+from vb25.debug   import Debug, PrintDict
 from vb25.utils   import clean_string
 
 
@@ -110,6 +112,99 @@ def WriteVRayNodeSelectGroup(bus, nodetree, node):
     return bpy.data.groups[node.groupName].objects
 
 
+########  ##       ######## ##    ## ########  ######## ########      #######  ########        ## ########  ######  ######## 
+##     ## ##       ##       ###   ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##    ##    ##    
+##     ## ##       ##       ####  ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##          ##    
+########  ##       ######   ## ## ## ##     ## ######   ########     ##     ## ########        ## ######   ##          ##    
+##     ## ##       ##       ##  #### ##     ## ##       ##   ##      ##     ## ##     ## ##    ## ##       ##          ##    
+##     ## ##       ##       ##   ### ##     ## ##       ##    ##     ##     ## ##     ## ##    ## ##       ##    ##    ##    
+########  ######## ######## ##    ## ########  ######## ##     ##     #######  ########   ######  ########  ######     ##    
+
+def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
+    scene = bus['scene']
+    ob    = bus['node']['object']
+
+    VRayScene    = scene.vray
+    VRayExporter = VRayScene.exporter
+
+    # XXX: Resolve manual meshes export
+    #
+    if not VRayExporter.auto_meshes:
+        return bus['node']['geometry']
+
+    if bus['node']['geometry'] not in bus['cache']['mesh']:
+        bus['cache']['mesh'].add(bus['node']['geometry'])
+
+        _vray_for_blender.exportMesh(
+            bpy.context.as_pointer(), # Context
+            ob.as_pointer(),          # Object
+            bus['node']['geometry'],  # Result plugin name
+            bus['files']['geom']      # Output file
+        )
+
+    return bus['node']['geometry']
+
+
+def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
+    ofile = bus['files']['materials']
+    scene = bus['scene']
+    ob    = bus['node']['object']
+
+    if not len(ob.material_slots):
+        bus['node']['material'] = bus['defaults']['material']
+        return bus['node']['material']
+
+    VRayScene = scene.vray
+
+    VRayExporter    = VRayScene.exporter
+    SettingsOptions = VRayScene.SettingsOptions
+
+    # Multi-material name
+    mtl_name = LibUtils.GetObjectName(ob, prefix='OBMA')
+
+    # Collecting and exporting object materials
+    mtls_list = []
+    ids_list  = []
+    ma_id     = 0
+
+    for slot in ob.material_slots:
+        if not slot.material:
+            continue
+
+        ma = slot.material
+
+        if not ma.vray.dontOverride and SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
+            ma = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
+
+        if not ma.vray.ntree:
+            continue
+
+        nodeMaterial = WriteVRayMaterialNodeTree(bus, ma.vray.ntree)
+
+        ma_id += 1
+        mtls_list.append(nodeMaterial)
+        ids_list.append(str(ma_id))
+
+    # No materials assigned - use default material
+    if len(mtls_list) == 0:
+        bus['node']['material'] = bus['defaults']['material']
+
+    # Only one material - no need for Multi-material
+    elif len(mtls_list) == 1:
+        bus['node']['material'] = mtls_list[0]
+
+    # Several materials assigned - use Mutli-material
+    else:
+        bus['node']['material'] = mtl_name
+
+        ofile.write("\nMtlMulti %s {" % mtl_name)
+        ofile.write("\n\tmtls_list=List(%s);" % ','.join(mtls_list))
+        ofile.write("\n\tids_list=ListInt(%s);" % ','.join(ids_list))
+        ofile.write("\n}\n")
+
+    return bus['node']['material']
+
+
 ##          ###    ##    ## ######## ########  ######## ########
 ##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
 ##        ##   ##    ####   ##       ##     ## ##       ##     ##
@@ -117,6 +212,34 @@ def WriteVRayNodeSelectGroup(bus, nodetree, node):
 ##       #########    ##    ##       ##   ##   ##       ##     ##
 ##       ##     ##    ##    ##       ##    ##  ##       ##     ##
 ######## ##     ##    ##    ######## ##     ## ######## ########
+
+def WriteVRayNodeTexLayered(bus, nodetree, node):
+    ofile = bus['files']['nodetree']
+    scene = bus['scene']
+
+    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
+
+    textures    = []
+    blend_modes = []
+    
+    for inputSocket in node.inputs:
+        if not inputSocket.is_linked:
+            continue
+
+        texNode = GetConnectedNode(nodetree, inputSocket)
+        if not texNode:
+            continue
+
+        textures.append(WriteNode(bus, nodetree, texNode))
+        blend_modes.append(inputSocket.value)
+
+    ofile.write("\nTexLayered %s {" % pluginName)
+    ofile.write("\n\ttextures=List(%s);" % ','.join(reversed(textures)))
+    ofile.write("\n\tblend_modes=List(%s);" % ','.join(reversed(blend_modes)))
+    ofile.write("\n}\n")
+
+    return pluginName
+
 
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile = bus['files']['nodetree']
@@ -146,7 +269,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
             weightColor = mathutils.Color([node.inputs[weightSocket].value]*3)
 
             ofile.write("\nTexAColor %s {" % (weightParam))
-            ofile.write("\n\ttexture=%s;" % (utils.AnimatedValue(scene, weightColor)))
+            ofile.write("\n\ttexture=%s;" % LibUtils.AnimatedValue(scene, weightColor))
             ofile.write("\n}\n")
             
             weights.append(weightParam)
@@ -154,7 +277,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     ofile.write("\nBRDFLayered %s {" % pluginName)
     ofile.write("\n\tbrdfs=List(%s);" % ','.join(brdfs))
     ofile.write("\n\tweights=List(%s);" % ','.join(weights))
-    ofile.write("\n\tadditive_mode=%s;" % utils.FormatValue(node.additive_mode))
+    ofile.write("\n\tadditive_mode=%s;" % LibUtils.FormatValue(node.additive_mode))
     ofile.write("\n}\n")
 
     return pluginName
@@ -201,10 +324,16 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
+    elif node.bl_idname == 'VRayNodeTexLayered':
+        return WriteVRayNodeTexLayered(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeSelectObject':
         return WriteVRayNodeSelectObject(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeSelectGroup':
         return WriteVRayNodeSelectGroup(bus, nodetree, node)
+    elif node.bl_idname == 'VRayNodeBlenderOutputGeometry':
+        return WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node)
+    elif node.bl_idname == 'VRayNodeBlenderOutputMaterial':
+        return WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node)
 
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin
@@ -233,7 +362,7 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
     pluginDesc = PLUGINS[vrayType][vrayPlugin]
 
     # XXX: Used to access 'image' pointer for BitmapBuffer
-    # and 'texture' from TexGradRamp
+    # and 'texture' for TexGradRamp
     #
     bus['context']['node'] = node
 
