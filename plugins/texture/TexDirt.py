@@ -182,8 +182,7 @@ PluginParams = (
 )
 
 
-def GetUIDescription():
-    return """
+PluginWidget = """
 { "widgets": [
     {   "layout" : "COLUMN",
         "align" : false,

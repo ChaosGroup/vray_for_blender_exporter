@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -65,12 +62,14 @@ PluginParams.extend([
     },
     {
         'attr' : 'frequency1',
+        'name' : "Frequency",
         'desc' : "The starting frequency",
         'type' : 'FLOAT',
         'default' : 1,
     },
     {
         'attr' : 'amplitude1',
+        'name' : "Amplitude",
         'desc' : "The starting amplitude",
         'type' : 'FLOAT',
         'default' : 1,
@@ -83,9 +82,15 @@ PluginParams.extend([
     },
     {
         'attr' : 'noiseType',
-        'desc' : "0: just noise(), 1: Perlin noise, 2: inflected Perlin noise, 3: marble (with Perlin)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Noise type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Noise", ""),
+            ('1', "Perlin Noise", ""),
+            ('2', "Inflected Perlin Noise", ""),
+            ('3', "Marble (With Perlin)", "")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'frequency_mult',
@@ -101,22 +106,22 @@ PluginParams.extend([
     },
     {
         'attr' : 'inflection',
-        'desc' : "1: inflected, 0: not inflected",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Inflection",
+        'type' : 'BOOL',
+        'default' : False,
     },
-    {
-        'attr' : 'color1',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'color2',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (1, 1, 1),
-    },
+    # {
+    #     'attr' : 'color1',
+    #     'desc' : "",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
+    # {
+    #     'attr' : 'color2',
+    #     'desc' : "",
+    #     'type' : 'COLOR',
+    #     'default' : (1, 1, 1),
+    # },
     {
         'attr' : 'color1_tex',
         'desc' : "",
@@ -129,18 +134,18 @@ PluginParams.extend([
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    {
-        'attr' : 'color1_tex_mult',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'color2_tex_mult',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
+    # {
+    #     'attr' : 'color1_tex_mult',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
+    # {
+    #     'attr' : 'color2_tex_mult',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
     {
         'attr' : 'clamp',
         'desc' : "",
@@ -150,8 +155,12 @@ PluginParams.extend([
     {
         'attr' : 'dimensions',
         'desc' : "Two or Three dimensional noise",
-        'type' : 'INT',
-        'default' : 3,
+        'type' : 'ENUM',
+        'items' : (
+            ('2', "2D", ""),
+            ('3', "3D", ""),
+        ),
+        'default' : '2',
     },
     {
         'attr' : 'time',
@@ -190,3 +199,76 @@ PluginParams.extend([
         'default' : (0.0, 0.0, 0.0),
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "noiseType" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "dimensions", "expand" : true }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "clamp" },
+            { "name" : "time" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "frequency1" },
+                    { "name" : "frequency_ratio", "label" : "Ratio" },
+                    { "name" : "frequency_mult", "label" : "Mult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "amplitude1" },
+                    { "name" : "amplitude_ratio", "label" : "Ratio" },
+                    { "name" : "amplitude_mult", "label" : "Mult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "persistence" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "octaves" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "inflection" },
+            { "name" : "use_3d_mapping" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)

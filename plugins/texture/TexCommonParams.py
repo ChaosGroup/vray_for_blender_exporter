@@ -219,9 +219,14 @@ PluginTextureCommonParams = (
 
 
 PluginTextureCommonParamsWidget = """
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Common Properties:" },
+
     {   "layout" : "ROW",
         "attrs" : [
-            { "name" : "compatibility_with" }
+            { "name" : "compatibility_with", "label" : "Compatibility" }
         ]
     },
 

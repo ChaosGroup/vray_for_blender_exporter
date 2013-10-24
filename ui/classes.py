@@ -117,7 +117,7 @@ def DrawNodePanel(context, layout, node, PLUGINS):
 
         dataPointer = getattr(node, node.vray_plugin)
 
-        if hasattr(vrayPlugin, 'GetUIDescription'):
+        if hasattr(vrayPlugin, 'PluginWidget'):
             DrawUtils.RenderTemplate(context, layout, dataPointer, vrayPlugin)
         elif hasattr(vrayPlugin, 'gui'):
             # XXX: The only way to use images by now

@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -44,7 +41,6 @@ PluginParams.extend([
         'type' : 'BOOL',
         'default' : False,
     },
-
     {
         'attr' : 'color1_tex',
         'desc' : "",
@@ -76,3 +72,27 @@ PluginParams.extend([
         'default' : 0.5,
     },
 ])
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "grain_size", "label" : "Grain" },
+            { "name" : "diffusion" },
+            { "name" : "mix_ratio" }
+        ]
+    },
+    
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "use_3d_mapping" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)

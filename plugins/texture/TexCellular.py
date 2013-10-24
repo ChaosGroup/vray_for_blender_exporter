@@ -180,7 +180,3 @@ PluginWidget = """
 ]}
 """
 PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)
-
-
-def GetUIDescription():
-    return PluginWidget

@@ -88,8 +88,8 @@ def writeEnvFogMeshGizmo(bus, ob, lights, pluginName):
     ExportUtils.WriteFile(bus, 'environment', "\nEnvFogMeshGizmo %s {" % pluginName)
     ExportUtils.WriteFile(bus, 'environment', "\n\tgeometry=%s;" % geomName)
     ExportUtils.WriteFile(bus, 'environment', "\n\ttransform=%s;" % LibUtils.AnimatedValue(scene, ob.matrix_world));
-    if len(lights):
-        ExportUtils.WriteFile(bus, 'environment', "\n\tlights=List(%s);\n" % ",".join(lights))
+    if lights:
+        ExportUtils.WriteFile(bus, 'environment', "\n\tlights=List(%s);\n" % lights)
     ExportUtils.WriteFile(bus, 'environment', "\n}\n")
 
 
@@ -98,6 +98,7 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     scene = bus['scene']
 
     lights = mappedParams.get('lights', [])
+    lightsStr = ",".join(lights)
 
     domainObject = mappedParams.get('geometry', None)
     if domainObject is None:
@@ -118,11 +119,11 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
             domainObject.as_pointer(),  # Object
             smd.as_pointer(),           # SmokeModifierData
             pluginName,                 # Result plugin name
-            lights,                     # Lights (string)
+            lightsStr,                  # Lights (string)
             ofile                       # Output file
         )
     else:
-        writeEnvFogMeshGizmo(bus, domainObject, lights, pluginName)
+        writeEnvFogMeshGizmo(bus, domainObject, lightsStr, pluginName)
     
     # To exclude object from Node creation
     #

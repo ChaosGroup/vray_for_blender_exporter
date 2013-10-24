@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib        import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -90,7 +87,26 @@ PluginParams.extend([
     {
         'attr' : 'type',
         'desc' : "Type (0 - regular, 1 - fractal, 3 - turbulence)",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Regular", ""),
+            ('1', "Fractal", ""),
+            ('2', "Turbulence", ""),
+        ),
+        'default' : '0',
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "type" },
+            { "name" : "use_3d_mapping" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)

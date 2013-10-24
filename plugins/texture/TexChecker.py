@@ -24,8 +24,6 @@
 
 import bpy
 
-from vb25.lib import ExportUtils, AttributeUtils
-
 import TexCommonParams
 
 
@@ -56,3 +54,10 @@ PluginParams.extend([
         'default' : 1,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)

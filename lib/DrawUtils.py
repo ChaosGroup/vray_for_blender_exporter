@@ -138,7 +138,7 @@ def RenderWidget(context, dataPointer, layout, widget):
 
 
 def RenderTemplate(context, layout, dataPointer, pluginModule):
-    jsonTemplate = pluginModule.GetUIDescription()
+    jsonTemplate = pluginModule.PluginWidget
 
     widgetDesc = json.loads(jsonTemplate)
 

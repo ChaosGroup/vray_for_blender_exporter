@@ -137,3 +137,16 @@ def gui(context, layout, TexSky):
     col.prop(TexSky, 'water_vapour')
 
     layout.prop(TexSky, 'invisible')
+
+
+# def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
+#     # Find Sun lamp
+#     sun_light= None
+#     if TexSky.auto_sun:
+#             for ob in [ob for ob in scene.objects if ob.type == 'LAMP']:
+#                     if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
+#                             sun_light= get_name(ob,prefix='LA')
+#                             break
+#     else:
+#             if TexSky.sun:
+#                     sun_light= get_name(get_data_by_name(scene, 'objects', TexSky.sun), prefix='LA')
