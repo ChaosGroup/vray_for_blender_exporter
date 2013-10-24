@@ -310,7 +310,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
             # TODO: get plugin desc and check if the attr is output,
             # but skip uvwgen anyway.
             #
-            if connectedSocket.vray_attr not in {'uvwgen'}:
+            if connectedSocket.vray_attr not in {'uvwgen', 'bitmap'}:
                 vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
 
         return vrayPlugin
