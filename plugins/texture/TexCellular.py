@@ -42,7 +42,7 @@ PluginParams.extend([
         'attr' : 'center_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (1.0, 1.0, 1.0),
     },
     {
         'attr' : 'edge_color',
@@ -54,7 +54,7 @@ PluginParams.extend([
         'attr' : 'bg_color',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'size',
@@ -76,9 +76,16 @@ PluginParams.extend([
     },
     {
         'attr' : 'type',
-        'desc' : "0 = dots; 1 = chips; 2 = cells; 3 = chess cells; 4 = plasma",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Dots", ""),
+            ('1', "Chips", ""),
+            ('2', "Cells", ""),
+            ('3', "Chess Cells", ""),
+            ('4', "Plasma", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'low',
@@ -123,3 +130,57 @@ PluginParams.extend([
         'default' : (1.0, 1.0, 1.0),
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "type" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Cell Characteristics:" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "size" },
+                    { "name" : "spread" },
+                    { "name" : "density" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "fractal" },
+                    { "name" : "fractal_iterations", "label" : "Iterations" },
+                    { "name" : "fractal_roughness", "label" : "Roughness" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Thresholds:" },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "low" },
+            { "name" : "middle" },
+            { "name" : "high" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)
+
+
+def GetUIDescription():
+    return PluginWidget

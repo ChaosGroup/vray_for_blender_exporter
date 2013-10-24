@@ -23,39 +23,33 @@
 #
 
 PluginTextureCommonParams = (
+    # Outputs
     {
-        'attr' : 'compatibility_with',
-        'desc' : "This is used to differentiate between textures exported from different applications",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "3ds Max", ""),
-            ('1', "Maya",    ""),
-        ),
-        'default' : '0',
+        'attr' : 'color',
+        'desc' : "The resulting color",
+        'type' : 'OUTPUT_TEXTURE',
+        'default' : (0, 0, 0),
     },
     {
-        'attr' : 'alpha_from_intensity',
-        'desc' : "",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "Self",          "The alpha is taken from the alpha"),
-            ('1', "Сompatibility", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
-            ('2', "Force 1.0",     "The alpha is forced to 1.0f"),
-        ),
-        'default' : '0',
+        'attr' : 'out_transparency',
+        'desc' : "The resulting transparency",
+        'type' : 'OUTPUT_TEXTURE',
+        'default' : (0, 0, 0),
     },
     {
-        'attr' : 'invert',
-        'desc' : "If true, the resulting texture color will be inverted",
-        'type' : 'BOOL',
-        'default' : False,
+        'attr' : 'out_alpha',
+        'desc' : "The resulting alpha",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
     },
     {
-        'attr' : 'invert_alpha',
-        'desc' : "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
-        'type' : 'BOOL',
-        'default' : True,
+        'attr' : 'out_intensity',
+        'desc' : "The resulting intensity",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
     },
+
+    # Mappable params
     {
         'attr' : 'color_mult',
         'desc' : "A multiplier for the texture color",
@@ -87,36 +81,49 @@ PluginTextureCommonParams = (
         'type' : 'TEXTURE',
         'default' : (0.5, 0.5, 0.5),
     },
-    {
-        'attr' : 'color',
-        'desc' : "The resulting color",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'out_transparency',
-        'desc' : "The resulting transparency",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'out_alpha',
-        'desc' : "The resulting alpha",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'out_intensity',
-        'desc' : "The resulting intensity",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
+
+    # UV generator
     {
         'attr' : 'uvwgen',
         'name' : "Mapping",
         'desc' : "The uvw generator for the texture",
         'type' : 'UVWGEN',
         'default' : "",
+    },
+
+    # Non mappable params
+    {
+        'attr' : 'compatibility_with',
+        'desc' : "This is used to differentiate between textures exported from different applications",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "3ds Max", ""),
+            ('1', "Maya",    ""),
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'alpha_from_intensity',
+        'desc' : "",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Self",          "The alpha is taken from the alpha"),
+            ('1', "Сompatibility", "The resulting alpha is the color intensity (if \"Compatibility\" is \"3ds max\") or the color luminance (if \"Compatibility\" is \"Maya\")"),
+            ('2', "Force 1.0",     "The alpha is forced to 1.0f"),
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'invert',
+        'desc' : "If true, the resulting texture color will be inverted",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'invert_alpha',
+        'desc' : "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'placement_type',
@@ -209,3 +216,32 @@ PluginTextureCommonParams = (
         'default' : 0,
     },
 )
+
+
+PluginTextureCommonParamsWidget = """
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "compatibility_with" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Color:" },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "invert" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Alpha:" },
+
+    {   "layout" : "COLUMN",
+        "align" : true,
+        "attrs" : [
+            { "name" : "alpha_from_intensity", "label" : "Alpha From" },
+            { "name" : "invert_alpha" }
+        ]
+    }
+"""
