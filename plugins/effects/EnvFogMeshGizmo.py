@@ -69,11 +69,35 @@ PluginParams = (
 )
 
 
+def writeEnvFogMeshGizmo(bus, ob, lights, pluginName):
+    scene = bus['scene']
+
+    geomName = LibUtils.GetObjectName(ob, prefix='ME')    
+    if geomName in bus['cache']['mesh']:
+        return
+
+    bus['cache']['mesh'].add(geomName)
+
+    _vray_for_blender.exportMesh(
+        bpy.context.as_pointer(), # Context
+        ob.as_pointer(),          # Object
+        geomName,                 # Result plugin name
+        bus['files']['geom']      # Output file
+    )
+
+    ExportUtils.WriteFile(bus, 'environment', "\nEnvFogMeshGizmo %s {" % pluginName)
+    ExportUtils.WriteFile(bus, 'environment', "\n\tgeometry=%s;" % geomName)
+    ExportUtils.WriteFile(bus, 'environment', "\n\ttransform=%s;" % LibUtils.AnimatedValue(scene, ob.matrix_world));
+    if len(lights):
+        ExportUtils.WriteFile(bus, 'environment', "\n\tlights=List(%s);\n" % ",".join(lights))
+    ExportUtils.WriteFile(bus, 'environment', "\n}\n")
+
+
 def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams):
     ofile = bus['files']['environment']
     scene = bus['scene']
 
-    lights = mappedParams.get('lights', "")
+    lights = mappedParams.get('lights', [])
 
     domainObject = mappedParams.get('geometry', None)
     if domainObject is None:
@@ -85,21 +109,23 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     if not domainObject:
         return None
 
-    smd = LibUtils.GetSmokeModifier(domainObject)
-    if not smd:
-        return None
-
     pluginName = LibUtils.GetObjectName(domainObject, prefix='MG')
 
-    _vray_for_blender.exportSmokeDomain(
-        bpy.context.as_pointer(),   # Context
-        domainObject.as_pointer(),  # Object
-        smd.as_pointer(),           # SmokeModifierData
-        pluginName,                 # Result plugin name
-        lights,                     # Lights (string)
-        ofile                       # Output file
-    )
-
+    smd = LibUtils.GetSmokeModifier(domainObject)
+    if smd:
+        _vray_for_blender.exportSmokeDomain(
+            bpy.context.as_pointer(),   # Context
+            domainObject.as_pointer(),  # Object
+            smd.as_pointer(),           # SmokeModifierData
+            pluginName,                 # Result plugin name
+            lights,                     # Lights (string)
+            ofile                       # Output file
+        )
+    else:
+        writeEnvFogMeshGizmo(bus, domainObject, lights, pluginName)
+    
+    # To exclude object from Node creation
+    #
     bus['object_exclude'].add(domainObject.name)
 
     return pluginName

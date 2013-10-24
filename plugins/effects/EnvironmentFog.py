@@ -96,7 +96,7 @@ PluginParams = (
         'attr' : 'distance',
         'desc' : "Distance between fog particles",
         'type' : 'FLOAT',
-        'default' : 10,
+        'default' : 1.0,
     },
     {
         'attr' : 'density',
