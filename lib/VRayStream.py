@@ -37,8 +37,8 @@ PluginTypeToFile = {
     'GEOMETRY'      : 'geometry',
     'CAMERA'        : 'camera',
     'LIGHT'         : 'lights',
-    'TEXTURE'       : 'texture',
-    'UVWGEN'        : 'texture',
+    'TEXTURE'       : 'textures',
+    'UVWGEN'        : 'textures',
     'BRDF'          : 'materials',
     'MATERIAL'      : 'materials',
     'EFFECT'        : 'evnironment',
@@ -47,7 +47,7 @@ PluginTypeToFile = {
 
 
 class VRayStream:
-    # Dict with opened files
+    # Dict with the opened files
     files = None
 
     # Write particular plugin types to correspondent files  
@@ -62,5 +62,9 @@ class VRayStream:
     def writeFooter():
         pass
 
-    def write():
+    def write(pluginModule, datablock, mappedParams):
+        pass
+
+    # Will close files and write add "includes" to the main scene file
+    def close():
         pass
