@@ -87,15 +87,15 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, pluginName, PluginParams, BRDFDiffuse, mappedParams):
-    ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName))
-    ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor=Color(0.0,0.0,0.0);")
-    ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor_tex_mult=1.0;")
-    ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency=Color(0.0,0.0,0.0);")
-    ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency_tex_mult=1.0;")
+# def writeDatablock(bus, pluginName, PluginParams, BRDFDiffuse, mappedParams):
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName))
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor=Color(0.0,0.0,0.0);")
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor_tex_mult=1.0;")
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency=Color(0.0,0.0,0.0);")
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency_tex_mult=1.0;")
 
-    ExportUtils.WritePluginParams(bus, bus['files']['nodetree'], ID, pluginName, BRDFDiffuse, mappedParams, PluginParams)
+#     ExportUtils.WritePluginParams(bus, bus['files']['nodetree'], ID, pluginName, BRDFDiffuse, mappedParams, PluginParams)
 
-    ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
+#     ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
 
-    return pluginName
+#     return pluginName

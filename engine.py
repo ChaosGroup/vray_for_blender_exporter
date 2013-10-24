@@ -41,7 +41,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
 class VRayRendererPreview(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER_PREVIEW'
-    bl_label       = "V-Ray Standalone (Material Preview)"
+    bl_label       = "V-Ray Standalone (With Material Preview)"
     bl_use_preview = True
 
     def render(self, scene):

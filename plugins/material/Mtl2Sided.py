@@ -93,7 +93,7 @@ def writeDatablock(bus, pluginName, PluginParams, Mtl2Sided, mappedParams):
     ofile.write("\n\ttranslucency=Color(0.0,0.0,0.0);")
     ofile.write("\n\ttranslucency_tex_mult=1.0;")
 
-    ExportUtils.WritePluginParams(bus, ofile, Mtl2Sided, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, Mtl2Sided, mappedParams, PluginParams)
 
     ofile.write("\n}\n")
 
