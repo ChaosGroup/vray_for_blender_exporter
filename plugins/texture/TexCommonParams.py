@@ -243,5 +243,41 @@ PluginTextureCommonParamsWidget = """
             { "name" : "alpha_from_intensity", "label" : "Alpha From" },
             { "name" : "invert_alpha" }
         ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "UV:" },
+    
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "placement_type", "label" : "Placement" }
+        ]
+    },
+    
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "u" },
+                    { "name" : "v" },
+                    { "name" : "w" },
+                    { "name" : "h" },
+                    { "name" : "tile_u" },
+                    { "name" : "tile_v" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "uv_noise_on" },
+                    { "name" : "uv_noise_amount" },
+                    { "name" : "uv_noise_levels" },
+                    { "name" : "uv_noise_size" },
+                    { "name" : "un_noise_phase" },
+                    { "name" : "uv_noise_animate" }
+                ]
+            }
+        ]
     }
 """
