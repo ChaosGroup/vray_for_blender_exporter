@@ -85,15 +85,20 @@ def RenderItem(dataPointer, layout, attr, text=None, expand=False):
         layout.prop(dataPointer, attr, expand=expand)
 
 
-def RenderContainer(layout, item, align=False):
+def RenderContainer(context, layout, item, align=False, label=None):
     if item == 'SPLIT':
         return layout.split()
     elif item == 'COLUMN':
         return layout.column(align=align)
     elif item == 'ROW':
+        if not IsRegionWide(context):
+            return layout.column(align=align)
         return layout.row(align=align)
     elif item == 'SEPARATOR':
-        layout.separator()
+        if label is not None:
+            layout.label(text=label)
+        else:
+            layout.separator()
         return layout
     elif item == 'BOX':
         return layout.box()
@@ -107,16 +112,17 @@ def RenderWidget(context, dataPointer, layout, widget):
     if containerType == 'SPLIT':
         subLayout = layout
         
-        if IsRegionWide(context):            
-            subLayout = RenderContainer(layout, 'SPLIT')
+        if IsRegionWide(context):
+            subLayout = RenderContainer(context, layout, 'SPLIT')
 
         for w in widget['splits']:
             RenderWidget(context, dataPointer, subLayout, w)
-    
+
     # Optional stuff
     containerAlign = widget.get('align', False)
+    containerLabel = widget.get('label', None)
 
-    container = RenderContainer(layout, containerType, containerAlign)
+    container = RenderContainer(context, layout, containerType, containerAlign, containerLabel)
 
     widgetAttributes = widget.get('attrs', {})
 
@@ -136,5 +142,5 @@ def RenderTemplate(context, layout, dataPointer, pluginModule):
 
     widgetDesc = json.loads(jsonTemplate)
 
-    for widget in widgetDesc['widgets']:        
+    for widget in widgetDesc['widgets']:
         RenderWidget(context, dataPointer, layout, widget)
