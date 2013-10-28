@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 
 TYPE = 'TEXTURE'
 ID   = 'TexFresnel'
@@ -71,3 +68,14 @@ PluginParams = (
         'default' : 1.0,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "fresnel_ior" },
+            { "name" : "refract_ior" }
+        ]
+    }
+]}
+"""

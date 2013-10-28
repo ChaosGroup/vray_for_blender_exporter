@@ -58,16 +58,17 @@ PluginParams = (
     },
     {
         'attr' : 'pixel_width',
+        'name' : 'Width',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1,
     },
-    {
-        'attr' : 'world_width',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1,
-    },
+    # {
+    #     'attr' : 'world_width',
+    #     'desc' : "",
+    #     'type' : 'FLOAT_TEXTURE',
+    #     'default' : 0.01,
+    # },
     {
         'attr' : 'show_hidden_edges',
         'desc' : "",
@@ -81,3 +82,38 @@ PluginParams = (
         'default' : False,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "width_type" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "pixel_width", "label" : "Width" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "show_hidden_edges" },
+            { "name" : "show_subtriangles" }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginName, PluginParams, TexEdges, mappedParams):
+    # XXX: Fix world_width socket
+    mappedParams['world_width'] = mappedParams['pixel_width']
+
+    ExportUtils.WriteDatablock(bus, 'TexEdges', pluginName, PluginParams, TexEdges, mappedParams)
+
+    return pluginName
+

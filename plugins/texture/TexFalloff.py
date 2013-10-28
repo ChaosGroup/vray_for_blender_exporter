@@ -24,8 +24,7 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+import TexCommonParams3dsMax
 
 
 TYPE = 'TEXTURE'
@@ -33,95 +32,9 @@ ID   = 'TexFalloff'
 NAME = 'Falloff'
 DESC = ""
 
-PluginParams = (
-    {
-        'attr' : 'compatibility_with',
-        'desc' : "This is used to differentiate between textures exported from different applications",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "3ds Max", ""),
-            ('1', "Maya",    ""),
-        ),
-        'default' : '0',
-    },
-    {
-        'attr' : 'alpha_from_intensity',
-        'desc' : "",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "Self",          "The alpha is taken from the alpha"),
-            ('1', "Сompatibility", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
-            ('2', "Force 1.0",     "The alpha is forced to 1.0f"),
-        ),
-        'default' : '0',
-    },
-    {
-        'attr' : 'invert',
-        'desc' : "If true, the resulting texture color will be inverted",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'invert_alpha',
-        'desc' : "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
-        'type' : 'BOOL',
-        'default' : True,
-    },
-    {
-        'attr' : 'color_mult',
-        'desc' : "A multiplier for the texture color",
-        'type' : 'TEXTURE',
-        'default' : (1, 1, 1),
-    },
-    {
-        'attr' : 'color_offset',
-        'desc' : "An additional offset for the texture color",
-        'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'alpha_mult',
-        'desc' : "A multiplier for the texture alpha",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1,
-    },
-    {
-        'attr' : 'alpha_offset',
-        'desc' : "An additional offset for the texture alpha",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0,
-    },
-    {
-        'attr' : 'nouvw_color',
-        'desc' : "The color when there are no valid uvw coordinates",
-        'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5),
-    },
-    {
-        'attr' : 'color',
-        'desc' : "The resulting color",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
-        'attr' : 'out_transparency',
-        'desc' : "The resulting transparency",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
-        'attr' : 'out_alpha',
-        'desc' : "The resulting alpha",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'out_intensity',
-        'desc' : "The resulting intensity",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
+PluginParams = list(TexCommonParams3dsMax.PluginParams)
 
+PluginParams.extend([
     {
         'attr' : 'color1',
         'desc' : "First color",
@@ -134,17 +47,37 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0, 0, 0),
     },
+
     {
         'attr' : 'type',
-        'desc' : "Type (0 - towards/away, 1 - perpendicular/parallel, 2 - Fresnel, 3 - shadow/light, 4 - distance blend)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Towards / Away", ""),
+            ('1', "Perpendicular / Parallel", ""),
+            ('2', "Fresnel", ""),
+            ('3', "Shadow / Light", ""),
+            ('4', "Distance Blend", "")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'direction_type',
-        'desc' : "Direction type (0 - viewZ, 1 - viewX, 2 - viewY, 3 - explicit, 4 - localX, 5 - localY, 6 - localZ, 7 - worldX, 8 - worldY, 9 - worldZ)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Direction type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "View Z",   ""),
+            ('1', "View X",   ""),
+            ('2', "View Y",   ""),
+            ('3', "Explicit", ""),
+            ('4', "Local X",  ""),
+            ('5', "Local Y",  ""),
+            ('6', "Local Z",  ""),
+            ('7', "World X",  ""),
+            ('8', "World Y",  ""),
+            ('9', "World Z",  "")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'fresnel_ior',
@@ -176,22 +109,58 @@ PluginParams = (
         'type' : 'VECTOR',
         'default' : (0, 0, 1),
     },
+
+    {
+        'attr' : 'use_blend_input',
+        'desc' : "",
+        'type' : 'BOOL',
+        'default' : True,
+    },
+    {
+        'attr' : 'blend_input',
+        'desc' : "If specified and 'Use Blend Input' is true, the final blending amount will be taken from this texture",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0.5,
+    },
     {
         'attr' : 'blend_output',
         'desc' : "The blending amount, based on the parameters",
         'type' : 'OUTPUT_FLOAT_TEXTURE',
         'default' : 1.0,
     },
-    {
-        'attr' : 'use_blend_input',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
+])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "type" },
+            { "name" : "direction_type" }
+        ]
     },
-    {
-        'attr' : 'blend_input',
-        'desc' : "If specified and use_blend_input is true, the final blending amount will be taken from this texture",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0.5,
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "fresnel_ior" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "dist_near" },
+                    { "name" : "dist_far" },
+                    { "name" : "dist_extrapolate" }
+                ]
+            }
+        ]
     },
-)
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams3dsMax.PluginWidget)

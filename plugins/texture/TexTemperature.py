@@ -53,6 +53,12 @@ PluginParams = (
         },
     },
     {
+        'attr' : 'color',
+        'desc' : "Texture color",
+        'type' : 'COLOR',
+        'default' : (0.5, 0.5, 0.5),
+    },
+    {
         'attr' : 'rgb_multiplier',
         'desc' : "Color multiplier",
         'type' : 'FLOAT',
@@ -65,15 +71,28 @@ PluginParams = (
         'default' : 1,
     },
     {
-        'attr' : 'color',
-        'desc' : "Texture color",
-        'type' : 'COLOR',
-        'default' : (0.5, 0.5, 0.5),
-    },
-    {
         'attr' : 'gamma_correction',
         'desc' : "Gamma correction value",
         'type' : 'FLOAT',
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "color_mode" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "rgb_multiplier" },
+            { "name" : "gamma_correction" },
+            { "name" : "alpha" }
+        ]
+    }
+]}
+"""

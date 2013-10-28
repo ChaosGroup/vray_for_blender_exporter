@@ -32,12 +32,6 @@ DESC = "Remap values"
 
 PluginParams = (
     {
-        'attr' : 'type',
-        'desc' : "type of conversion: 0:RemapValue, 1:RemapColor, 2:RemapHSV",
-        'type' : 'INT',
-        'default' : 0,
-    },
-    {
         'attr' : 'input_value',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
@@ -48,6 +42,30 @@ PluginParams = (
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0, 1.0),
+    },
+    {
+        'attr' : 'out_value',
+        'desc' : "the output value, depending on input_value and color params",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'out_color',
+        'desc' : "the output color, depending on input_value/input_color and float params",
+        'type' : 'OUTPUT_TEXTURE',
+        'default' : (1.0, 1.0, 1.0),
+    },
+
+    {
+        'attr' : 'type',
+        'desc' : "type of conversion: 0:RemapValue, 1:RemapColor, 2:RemapHSV",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Value", ""),
+            ('1', "Color", ""),
+            ('2', "HSV", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'input_bias',
@@ -79,6 +97,7 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 1,
     },
+
     {
         'attr' : 'float_positions',
         'desc' : "positions of the given float values",
@@ -97,6 +116,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 1,
     },
+
     {
         'attr' : 'color_positions',
         'desc' : "the given float values",
@@ -115,6 +135,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'red_positions',
         'desc' : "positions of the given values for the red channel",
@@ -133,6 +154,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'green_positions',
         'desc' : "positions of the given values for the green channel",
@@ -151,6 +173,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'blue_positions',
         'desc' : "positions of the given values for the blue channel",
@@ -169,6 +192,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'hue_positions',
         'desc' : "positions of the given values for the hue channel",
@@ -187,6 +211,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'saturation_positions',
         'desc' : "positions of the given values for the saturation channel",
@@ -205,6 +230,7 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'value_positions',
         'desc' : "positions of the given values for the value channel",
@@ -223,22 +249,48 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
     {
         'attr' : 'alpha_from_intensity',
         'desc' : "If true, the resulting alpha is the color intensity; otherwise the alpha is taken from the colors",
         'type' : 'BOOL',
         'default' : False,
     },
-    {
-        'attr' : 'out_value',
-        'desc' : "the output value, depending on input_value and color params",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'out_color',
-        'desc' : "the output color, depending on input_value/input_color and float params",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
 )
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "type", "expand" : true }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "input_bias" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "input_min" },
+            { "name" : "input_max" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "output_min" },
+            { "name" : "output_max" }
+        ]
+    },
+    
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "alpha_from_intensity" }
+        ]
+    }
+]}
+"""

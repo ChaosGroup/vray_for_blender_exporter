@@ -24,8 +24,6 @@
 
 import bpy
 
-from vb25.lib import ExportUtils, AttributeUtils
-
 
 TYPE = 'TEXTURE'
 ID   = 'TexFloatOp'
@@ -52,7 +50,6 @@ PluginParams = (
         'name' : "Product",
         'desc' : "A * B",
         'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'options' : {'HIDDEN'},
         'default' : 1.0,
     },
     {

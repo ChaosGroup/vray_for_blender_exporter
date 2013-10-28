@@ -50,3 +50,15 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "low" },
+            { "name" : "high" }
+        ]
+    }
+]}
+"""

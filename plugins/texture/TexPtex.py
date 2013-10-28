@@ -38,13 +38,14 @@ PluginParams = (
         'attr' : 'ptex_file',
         'desc' : "The Ptex texture file",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {
         'attr' : 'use_image_sequence',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'image_number',
@@ -72,9 +73,14 @@ PluginParams = (
     },
     {
         'attr' : 'ifl_end_condition',
-        'desc' : "Image file list (IFL) end condition: 0 - Loop; 1 - Ping Pong; 2 - Hold;",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Image file list (IFL) end condition",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Loop", ""),
+            ('1', "Ping Pong",  ""),
+            ('2', "Hold", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'filter_type',
@@ -157,14 +163,24 @@ PluginParams = (
     {
         'attr' : 'alpha_type',
         'desc' : "Where to take the alpha from",
-        'type' : 'INT',
-        'default' : -1,
+        'type' : 'ENUM',
+        'items' : (
+            ('-1', "-1", ""),
+            ('0',  "0", ""),
+            ('1',  "1", ""),
+        ),
+        'default' : '-1',
     },
     {
         'attr' : 'color_space',
-        'desc' : "0 - linear, 1 - gamma corrected, 2 - sRGB",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Color space",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Linear", ""),
+            ('1', "Gamma Corrected", ""),
+            ('2', "sRGB", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'gamma',
@@ -197,12 +213,6 @@ PluginParams = (
     #     'default' : "",
     # },
     {
-        'attr' : 'color',
-        'desc' : "The final texture color",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
         'attr' : 'color_gain',
         'desc' : "A multiplier for the texture color",
         'type' : 'TEXTURE',
@@ -213,5 +223,12 @@ PluginParams = (
         'desc' : "An additional offset for the texture color",
         'type' : 'TEXTURE',
         'default' : (0, 0, 0),
+    },
+
+    {
+        'attr' : 'color',
+        'desc' : "The final texture color",
+        'type' : 'OUTPUT_TEXTURE',
+        'default' : (1.0, 1.0, 1.0),
     },
 )

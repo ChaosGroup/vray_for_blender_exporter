@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexBulge'
 NAME = 'Bulge'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -51,3 +48,25 @@ PluginParams.extend([
         'default' : 0.1,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "u_width" },
+            { "name" : "v_width" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)
+
+
+def nodeDraw(context, layout, TexBulge):
+    split = layout.split()
+    col = split.column(align=True)
+    col.prop(TexBulge, 'u_width')
+    col.prop(TexBulge, 'v_width')

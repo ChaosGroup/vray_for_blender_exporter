@@ -53,3 +53,17 @@ PluginParams = (
         'default' : (1.0, 1.0, 1.0),
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "invert_alpha" }
+        ]
+    }
+]}
+"""
+
+
+def nodeDraw(context, layout, TexInvert):
+    layout.prop(TexInvert, 'invert_alpha')

@@ -24,8 +24,6 @@
 
 import bpy
 
-from vb25.lib import utils
-
 
 TYPE = 'TEXTURE'
 ID   = 'TexMeshVertexColorChannel'
@@ -52,7 +50,6 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-
     {
         'attr' : 'data_select',
         'desc' : "Use UV",
@@ -66,12 +63,37 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "data_select" }
+        ]
+    },
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "channelIndex" },
+            { "name" : "channel_name" }
+        ]
+    },
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "default_color" }
+        ]
+    }
+]}
+"""
+
 
 def nodeDraw(context, layout, TexMeshVertexColorChannel):
     ob = context.object
 
-    layout.prop(TexMeshVertexColorChannel, 'channelIndex')
+    if ob.type not in {'MESH'}:
+        layout.label(text="Invalid Context!")
+        layout.label(text="Only Mesh data is supported!")
+        return
 
+    layout.prop(TexMeshVertexColorChannel, 'channelIndex')
     layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
 
     if TexMeshVertexColorChannel.data_select == '0':
@@ -82,19 +104,3 @@ def nodeDraw(context, layout, TexMeshVertexColorChannel):
         layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
                            ob.data, 'vertex_colors',
                            text="")
-
-
-# def writeDatablock(bus, pluginName, PluginParams, TexMeshVertexColorChannel, mappedParams):
-#     ofile = bus['files']['nodetree']
-#     scene = bus['scene']
-
-#     ofile.write("\n%s %s {" % (ID, pluginName))
-
-#     if TexMeshVertexColorChannel.channel_name:
-#         ofile.write('\n\tchannel_name="%s";' % TexMeshVertexColorChannel.channel_name)
-#     else:
-#         ofile.write("\n\tchannelIndex=%i;" % TexMeshVertexColorChannel.channelIndex)
-#     ofile.write("\n\tdefault_color=Color(%.3f,%.3f,%.3f);" % TexMeshVertexColorChannel.default_color)
-#     ofile.write("\n}\n")
-
-#     return pluginName

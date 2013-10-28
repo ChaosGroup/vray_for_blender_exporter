@@ -36,15 +36,22 @@ ID   = 'TexGradRamp'
 NAME = 'Gradient Ramp'
 DESC = "Gradient Ramp texture"
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
+        'attr' : 'gradient_position',
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0,
+    },
+    {
         'attr' : 'texture_map',
-        'desc' : "the texture used for mapped gradient ramp",
+        'desc' : "The texture used for mapped gradient ramp",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
+    
     {
         'attr' : 'gradient_type',
         'desc' : "Gradient type",
@@ -82,12 +89,6 @@ PluginParams.extend([
         'default' : '1',
     },
     {
-        'attr' : 'noise_amount',
-        'desc' : "Distortion noise amount",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
         'attr' : 'noise_type',
         'desc' : "0:regular, 1:fractal, 2:turbulence",
         'type' : 'ENUM',
@@ -97,6 +98,12 @@ PluginParams.extend([
             ('2', "Turbulence", ""),
         ),
         'default' : '0',
+    },
+    {
+        'attr' : 'noise_amount',
+        'desc' : "Distortion noise amount",
+        'type' : 'FLOAT',
+        'default' : 0,
     },
     {
         'attr' : 'noise_size',
@@ -133,15 +140,8 @@ PluginParams.extend([
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0,
-    },
-    {
-        'attr' : 'gradient_position',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0,
-    },    
+    },  
 ])
-
 
 PluginRefParams = (
     # {
@@ -154,21 +154,47 @@ PluginRefParams = (
     # },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "gradient_type" },
+            { "name" : "interpolation" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "noise_type" },
+                    { "name" : "noise_amount" },
+                    { "name" : "noise_size" },
+                    { "name" : "noise_levels" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "noise_phase" },
+                    { "name" : "noise_treshold_low" },
+                    { "name" : "noise_treshold_high" },
+                    { "name" : "noise_smooth" }
+                ]
+            }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)
+
 
 def nodeDraw(context, layout, node):
     TexGradRamp = node.TexGradRamp
-
     layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
-
-
-def gui(context, layout, node):
-    TexGradRamp = node.TexGradRamp
-
-    layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
-
-    layout.separator()
-
-    DrawUtils.Draw(context, layout, TexGradRamp, PluginParams)
 
 
 def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):

@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexGradient'
 NAME = 'Gradient'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -56,12 +53,12 @@ PluginParams.extend([
         'type' : 'TEXTURE',
         'default' : (1, 1, 1),
     },
-    {
-        'attr' : 'has_textures',
-        'desc' : "This affects bump mapping, following a peculiarity in the 3ds Max implementation",
-        'type' : 'BOOL',
-        'default' : False,
-    },
+    # {
+    #     'attr' : 'has_textures',
+    #     'desc' : "This affects bump mapping, following a peculiarity in the 3ds Max implementation",
+    #     'type' : 'BOOL',
+    #     'default' : False,
+    # },
     {
         'attr' : 'middle',
         'desc' : "Middle color position",
@@ -71,8 +68,23 @@ PluginParams.extend([
     {
         'attr' : 'type',
         'desc' : "Gradient type (0 - linear, 1 - radial)",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Linear", ""),
+            ('1', "Radial", "")
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'noise_type',
+        'desc' : "Noise type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Regular", ""),
+            ('1', "Fractal", ""),
+            ('2', "Turbulence", "")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'noise_amount',
@@ -85,12 +97,6 @@ PluginParams.extend([
         'desc' : "Noise size",
         'type' : 'FLOAT',
         'default' : 1,
-    },
-    {
-        'attr' : 'noise_type',
-        'desc' : "Noise type (0 - regular, 1 - fractal, 2 - turbulence)",
-        'type' : 'INT',
-        'default' : 0,
     },
     {
         'attr' : 'noise_iterations',
@@ -123,3 +129,40 @@ PluginParams.extend([
         'default' : 0,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "type" },
+            { "name" : "middle" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "noise_type" },
+                    { "name" : "noise_amount" },
+                    { "name" : "noise_size" },
+                    { "name" : "noise_iterations" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "noise_phase" },
+                    { "name" : "noise_low" },
+                    { "name" : "noise_high" },
+                    { "name" : "noise_smooth" }
+                ]
+            }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

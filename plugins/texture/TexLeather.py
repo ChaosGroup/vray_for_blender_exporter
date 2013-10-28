@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,50 +32,49 @@ ID   = 'TexLeather'
 NAME = 'Leather'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
-
+PluginParams = list(TexCommonParams.PluginParams)
 PluginParams.extend([
+    # {
+    #     'attr' : 'cell_color',
+    #     'desc' : "",
+    #     'type' : 'COLOR',
+    #     'default' : (1, 1, 1),
+    # },
     {
         'attr' : 'cell_color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.375, 0.157, 0.059),
     },
+    # {
+    #     'attr' : 'cell_color_tex_mult',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
+    # {
+    #     'attr' : 'crease_color',
+    #     'desc' : "",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
     {
         'attr' : 'crease_color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.235, 0.118, 0.0),
     },
-    {
-        'attr' : 'cell_color',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (1, 1, 1),
-    },
-    {
-        'attr' : 'crease_color',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'cell_color_tex_mult',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'crease_color_tex_mult',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
+    # {
+    #     'attr' : 'crease_color_tex_mult',
+    #     'desc' : "",
+    #     'type' : 'FLOAT',
+    #     'default' : 1,
+    # },
     {
         'attr' : 'size',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.5,
     },
     {
         'attr' : 'density',
@@ -90,19 +86,19 @@ PluginParams.extend([
         'attr' : 'spottyness',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.1,
     },
     {
         'attr' : 'randomness',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.5,
     },
     {
         'attr' : 'threshold',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.83,
     },
     {
         'attr' : 'creases',
@@ -110,4 +106,38 @@ PluginParams.extend([
         'type' : 'BOOL',
         'default' : True,
     },
+
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "size" },
+                    { "name" : "density" },
+                    { "name" : "spottyness" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "randomness" },
+                    { "name" : "threshold" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "creases" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

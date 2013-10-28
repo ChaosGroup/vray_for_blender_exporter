@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexGrid'
 NAME = 'Grid'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {

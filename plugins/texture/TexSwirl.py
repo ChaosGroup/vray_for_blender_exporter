@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexSwirl'
 NAME = 'Swirl'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -99,3 +96,50 @@ PluginParams.extend([
         'default' : 1,
     },
 ])
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "twist" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "swirl_intensity" },
+                    { "name" : "swirl_amount" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "color_contrast" },
+                    { "name" : "constant_detail" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "center_x" },
+            { "name" : "center_y" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "random_seed" },
+            { "name" : "use_3d_mapping" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

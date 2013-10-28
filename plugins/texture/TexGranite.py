@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,16 +32,9 @@ ID   = 'TexGranite'
 NAME = 'Granite'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
-    {
-        'attr' : 'use_3d_mapping',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-
     {
         'attr' : 'color1_tex',
         'desc' : "",
@@ -111,4 +101,25 @@ PluginParams.extend([
         'type' : 'BOOL',
         'default' : True,
     },
+
+    {
+        'attr' : 'use_3d_mapping',
+        'desc' : "",
+        'type' : 'BOOL',
+        'default' : False,
+    },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "creases" },
+            { "name" : "use_3d_mapping" },
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

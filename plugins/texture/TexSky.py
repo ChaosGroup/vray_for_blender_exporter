@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb25.lib        import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
 
 
 TYPE = 'TEXTURE'
@@ -105,48 +105,93 @@ PluginParams = (
         ),
         'default' : '0',
     },
+    # {
+    #     'attr' : 'sun_dir_only',
+    #     'desc' : "Use only direction of the specified sun (don't inherit all other parameters)",
+    #     'type' : 'BOOL',
+    #     'default' : False,
+    # },
+    {
+        'attr' : 'auto_sun',
+        'name' : "Find Sun Automatically",
+        'desc' : "Attach Sun automatically and take settings from it",
+        'type' : 'BOOL',
+        'default' : True,
+    },
     {
         'attr' : 'sun',
         'desc' : "If specified, all parameters are taken from the sun; otherwise, the sky parameters are used",
         'type' : 'PLUGIN',
+        'skip' : True,
         'default' : "",
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "auto_sun" },
+            { "name" : "invisible", "label" : "Sun Invisible" }
+        ]
+    },
 
-def gui(context, layout, TexSky):
-    contextType = GetContextType(context)
-    regionWidth = GetRegionWidthFromContext(context)
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "sky_model" }
+        ]
+    },
 
-    wide_ui = regionWidth > narrowui
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "turbidity" },
+                    { "name" : "ozone" },
+                    { "name" : "intensity_multiplier" },
+                    { "name" : "size_multiplier" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "horiz_illum" },
+                    { "name" : "water_vapour" }
+                ]
+            }
+        ]
+    }
+]}
+"""
 
-    layout.prop(TexSky, 'sky_model')
 
-    split = layout.split()
-    col = split.column()
-    col.prop(TexSky, 'turbidity')
-    col.prop(TexSky, 'ozone')
-    col = split.column()
-    col.prop(TexSky, 'intensity_multiplier')
-    col.prop(TexSky, 'size_multiplier')
-
-    split = layout.split()
-    col = split.column()
-    col.prop(TexSky, 'horiz_illum')
-    col = split.column()
-    col.prop(TexSky, 'water_vapour')
-
-    layout.prop(TexSky, 'invisible')
+def FindSun(scene):
+    for ob in [ob for ob in scene.objects if ob.type == 'LAMP']:
+        if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
+            return ob
+    return None
 
 
-# def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
-#     # Find Sun lamp
-#     sun_light= None
-#     if TexSky.auto_sun:
-#             for ob in [ob for ob in scene.objects if ob.type == 'LAMP']:
-#                     if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
-#                             sun_light= get_name(ob,prefix='LA')
-#                             break
-#     else:
-#             if TexSky.sun:
-#                     sun_light= get_name(get_data_by_name(scene, 'objects', TexSky.sun), prefix='LA')
+def writeDatablock(bus, pluginName, PluginParams, TexSky, mappedParams):
+    scene = bus['scene']
+
+    sunObject = mappedParams.get('sun', None)
+    if sunObject:      
+        if type(sunObject) is list:
+            sunObject = sunObject[0]
+    else:
+        if TexSky.auto_sun:
+            sunObject = FindSun(scene)
+
+    ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName))
+    if sunObject:
+        ExportUtils.WriteFile(bus, 'nodetree', "\n\tsun=%s;" % LibUtils.GetObjectName(sunObject))
+
+    ExportUtils.WritePluginParams(bus, bus['files']['nodetree'], ID, pluginName, TexSky, mappedParams, PluginParams)
+
+    ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
+
+    return pluginName

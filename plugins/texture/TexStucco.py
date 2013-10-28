@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexStucco'
 NAME = 'Stucco'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -76,3 +73,34 @@ PluginParams.extend([
         'default' : 0.2,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "size" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "thickness" },
+                    { "name" : "threshold" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_3d_mapping" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

@@ -165,3 +165,13 @@ PluginParams = (
         'default' : (1.0, 1.0, 1.0),
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "mode", "label" : "Default Mode"}
+        ]
+    }
+]}
+"""

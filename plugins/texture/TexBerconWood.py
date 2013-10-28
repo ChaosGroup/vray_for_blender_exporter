@@ -24,56 +24,54 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
 TYPE = 'TEXTURE'
 ID   = 'TexBerconWood'
-NAME = 'BerconWood'
+NAME = 'Bercon Wood'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
-    {
-        'attr' : 'noise_color1',
-        'desc' : "noise color 1",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'noise_color2',
-        'desc' : "noise color 2",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'noise_color3',
-        'desc' : "noise color 3",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
+    # {
+    #     'attr' : 'noise_color1',
+    #     'desc' : "noise color 1",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
+    # {
+    #     'attr' : 'noise_color2',
+    #     'desc' : "noise color 2",
+    #     'type' : 'COLOR',
+    #     'default' : (0.5, 0.5, 0.5),
+    # },
+    # {
+    #     'attr' : 'noise_color3',
+    #     'desc' : "noise color 3",
+    #     'type' : 'COLOR',
+    #     'default' : (1.0, 1.0, 1.0),
+    # },
     {
         'attr' : 'noise_map1',
         'desc' : "noise map 1",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
+        'default' : (0.768, 0.568, 0.25),
     },
     {
         'attr' : 'noise_map2',
         'desc' : "noise map 2",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
+        'default' : (0.392, 0.243, 0),
     },
     {
         'attr' : 'noise_map3',
         'desc' : "noise map 3",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
+        'default' : (0.549, 0.337, 0),
     },
+
     {
         'attr' : 'wood_size',
         'desc' : "wood size",
@@ -94,9 +92,15 @@ PluginParams.extend([
     },
     {
         'attr' : 'wood_type',
-        'desc' : "0:Radial wood, 1:Perlin wood, 2:Simplex wood, 3:Linear wood",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Wood type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Radial", ""),
+            ('1', "Perlin", ""),
+            ('2', "Simplex", ""),
+            ('3', "Linear", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'trunk_str',
@@ -314,22 +318,121 @@ PluginParams.extend([
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    {
-        'attr' : 'use_curve_input',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'curve_output',
-        'desc' : "Calculated blend amount to be tranformed by the bezier curve!",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'curve_input',
-        'desc' : "If curve is used the output value will be taken from this texture",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0.5,
-    },
+
+    # {
+    #     'attr' : 'use_curve_input',
+    #     'desc' : "",
+    #     'type' : 'BOOL',
+    #     'default' : False,
+    # },
+    # {
+    #     'attr' : 'curve_output',
+    #     'desc' : "Calculated blend amount to be tranformed by the bezier curve!",
+    #     'type' : 'OUTPUT_FLOAT_TEXTURE',
+    #     'default' : 1.0,
+    # },
+    # {
+    #     'attr' : 'curve_input',
+    #     'desc' : "If curve is used the output value will be taken from this texture",
+    #     'type' : 'FLOAT_TEXTURE',
+    #     'default' : 0.5,
+    # },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "wood_type" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "low_tresh" },
+            { "name" : "high_tresh" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "wood_size" },
+            { "name" : "wood_skew" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "trunk_str" },
+                    { "name" : "trunk_freq" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "radial_str" },
+                    { "name" : "radial_freq" },
+                    { "name" : "radial_z" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "angle_str" },
+                    { "name" : "angle_freq" },
+                    { "name" : "angle_rad" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "grain_str" },
+                    { "name" : "grain_freq" },
+                    { "name" : "grain_lock" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "use_dist" },
+            { "name" : "dist_str" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "samples" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "gain_var" },
+                    { "name" : "width_var" },
+                    { "name" : "rand_seed" }
+                ]
+            }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

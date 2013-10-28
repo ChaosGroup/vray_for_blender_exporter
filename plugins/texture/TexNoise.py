@@ -32,7 +32,7 @@ ID   = 'TexNoise'
 NAME = 'Noise (Maya)'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -271,4 +271,4 @@ PluginWidget = """
     {TEX_COMMON}
 ]}
 """
-PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

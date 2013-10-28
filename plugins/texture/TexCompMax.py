@@ -24,104 +24,17 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+import TexCommonParams3dsMax
 
 
 TYPE = 'TEXTURE'
 ID   = 'TexCompMax'
-NAME = 'CompMax'
+NAME = 'Comp Max'
 DESC = ""
 
-PluginParams = (
-    {
-        'attr' : 'compatibility_with',
-        'desc' : "This is used to differentiate between textures exported from different applications",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "3ds Max", ""),
-            ('1', "Maya",    ""),
-        ),
-        'default' : '0',
-    },
-    {
-        'attr' : 'alpha_from_intensity',
-        'desc' : "",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "Self",          "The alpha is taken from the alpha"),
-            ('1', "Сompatibility", "The resulting alpha is the color intensity (if compatibility_with is 0) or the color luminance (if compatibility_with is 1)"),
-            ('2', "Force 1.0",     "The alpha is forced to 1.0f"),
-        ),
-        'default' : '0',
-    },
-    {
-        'attr' : 'invert',
-        'desc' : "If true, the resulting texture color will be inverted",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'invert_alpha',
-        'desc' : "If true and invert is on, the resulting texture alpha will be inverted too. If false, just the color will be inverted",
-        'type' : 'BOOL',
-        'default' : True,
-    },
-    {
-        'attr' : 'color_mult',
-        'desc' : "A multiplier for the texture color",
-        'type' : 'TEXTURE',
-        'default' : (1, 1, 1),
-    },
-    {
-        'attr' : 'color_offset',
-        'desc' : "An additional offset for the texture color",
-        'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
-    },
-    {
-        'attr' : 'alpha_mult',
-        'desc' : "A multiplier for the texture alpha",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1,
-    },
-    {
-        'attr' : 'alpha_offset',
-        'desc' : "An additional offset for the texture alpha",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0,
-    },
-    {
-        'attr' : 'nouvw_color',
-        'name' : 'No UV Color',
-        'desc' : "The color when there are no valid uvw coordinates",
-        'type' : 'TEXTURE',
-        'default' : (0.5, 0.5, 0.5),
-    },
-    {
-        'attr' : 'color',
-        'desc' : "The resulting color",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
-        'attr' : 'out_transparency',
-        'desc' : "The resulting transparency",
-        'type' : 'OUTPUT_TEXTURE',
-        'default' : (1.0, 1.0, 1.0),
-    },
-    {
-        'attr' : 'out_alpha',
-        'desc' : "The resulting alpha",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
-    {
-        'attr' : 'out_intensity',
-        'desc' : "The resulting intensity",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
+PluginParams = list(TexCommonParams3dsMax.PluginParams)
+
+PluginParams.extend([
     {
         'attr' : 'sourceA',
         'name' : 'Source A',
@@ -151,4 +64,21 @@ PluginParams = (
         ),
         'default' : '0',
     },
-)
+])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "operator" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams3dsMax.PluginWidget)
+
+
+def nodeDraw(context, layout, TexCompMax):
+    layout.prop(TexCompMax, 'operator', text="")

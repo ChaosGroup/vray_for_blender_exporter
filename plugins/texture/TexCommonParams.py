@@ -22,7 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-PluginTextureCommonParams = (
+PluginParams = (
     # Outputs
     {
         'attr' : 'color',
@@ -217,12 +217,11 @@ PluginTextureCommonParams = (
     },
 )
 
-
-PluginTextureCommonParamsWidget = """
+PluginWidget = """
     {   "layout" : "SEPARATOR" },
 
     {   "layout" : "SEPARATOR",
-        "label" : "Common Properties:" },
+        "label" : "Common Properties" },
 
     {   "layout" : "ROW",
         "attrs" : [
@@ -231,7 +230,7 @@ PluginTextureCommonParamsWidget = """
     },
 
     {   "layout" : "SEPARATOR",
-        "label" : "Color:" },
+        "label" : "Color" },
 
     {   "layout" : "COLUMN",
         "attrs" : [
@@ -240,7 +239,7 @@ PluginTextureCommonParamsWidget = """
     },
 
     {   "layout" : "SEPARATOR",
-        "label" : "Alpha:" },
+        "label" : "Alpha" },
 
     {   "layout" : "COLUMN",
         "align" : true,
@@ -251,7 +250,7 @@ PluginTextureCommonParamsWidget = """
     },
 
     {   "layout" : "SEPARATOR",
-        "label" : "UV:" },
+        "label" : "UV" },
     
     {   "layout" : "COLUMN",
         "attrs" : [

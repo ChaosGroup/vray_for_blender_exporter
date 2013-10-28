@@ -32,7 +32,7 @@ ID   = 'TexChecker'
 NAME = 'Checker'
 DESC = "Checker texture"
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -60,4 +60,4 @@ PluginWidget = """
     {TEX_COMMON}
 ]}
 """
-PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexWood'
 NAME = 'Wood'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -57,6 +54,13 @@ PluginParams.extend([
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
+    {
+        'attr' : 'grain_color_tex',
+        'desc' : "",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0),
+    },
+
     {
         'attr' : 'vein_spread',
         'desc' : "",
@@ -80,12 +84,6 @@ PluginParams.extend([
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 20,
-    },
-    {
-        'attr' : 'grain_color_tex',
-        'desc' : "",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'grain_contr',
@@ -160,3 +158,86 @@ PluginParams.extend([
         'default' : 8,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SEPARATOR",
+        "label" : "Ripples" },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "ripples_x", "label" : "X" },
+            { "name" : "ripples_y", "label" : "Y" },
+            { "name" : "ripples_z", "label" : "Z" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "age" },
+                    { "name" : "vein_spread" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "grain_contr" },
+                    { "name" : "grain_spacing" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "center_u" },
+                    { "name" : "center_v" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "amplitude_x" },
+                    { "name" : "amplitude_y" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "layer_size" },
+                    { "name" : "ratio" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "depth_min" },
+                    { "name" : "depth_max" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "randomness" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

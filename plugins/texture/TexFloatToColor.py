@@ -24,6 +24,7 @@
 
 import bpy
 
+
 TYPE = 'TEXTURE'
 ID   = 'TexFloatToColor'
 NAME = 'Float To Color'

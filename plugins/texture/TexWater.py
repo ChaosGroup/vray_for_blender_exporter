@@ -24,10 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
-
 TYPE = 'TEXTURE'
 ID   = 'TexWater'
 NAME = 'Water'
@@ -40,17 +36,12 @@ PluginParams = (
         'type' : 'PLUGIN',
         'default' : "",
     },
+
     {
         'attr' : 'height_mult',
         'desc' : "multiplier for the height of the water",
         'type' : 'FLOAT',
         'default' : 1,
-    },
-    {
-        'attr' : 'use_3d_mapping',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : True,
     },
     {
         'attr' : 'wind_direction',
@@ -100,4 +91,58 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 128,
     },
+
+    {
+        'attr' : 'use_3d_mapping',
+        'desc' : "",
+        'type' : 'BOOL',
+        'default' : True,
+    },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "height_mult" },
+                    { "name" : "choppy_mult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                    "align" : true,
+                    "attrs" : [
+                        { "name" : "wind_direction" },
+                        { "name" : "wind_direction_mult" },
+                        { "name" : "wind_magnitude" }
+                    ]
+                }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "movement_rate" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "resolution" },
+            { "name" : "patch_size" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "seed" },
+            { "name" : "use_3d_mapping" }
+        ]
+    }
+]}
+"""

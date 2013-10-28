@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexTiles'
 NAME = 'Tiles'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -82,9 +79,19 @@ PluginParams.extend([
     },
     {
         'attr' : 'pattern_type',
-        'desc' : "Tiles pattern: 0-Custom Tiles, 1-Running Bond, 2-Common Flemish Bond, 3-English Bond, 4-1/2 Running Bond, 5-Stack Bond, 6-Fine Running Bond, 7-Fine Stack Bond",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Tiles pattern",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Custom Tiles",        "Custom Tiles."),
+            ('1', "Running Bond",        "Running Bond."),
+            ('2', "Common Flemish Bond", "Common Flemish Bond."),
+            ('3', "English Bond",        "English Bond."),
+            ('4', "1/2 Running Bond",    "1/2 Running Bond."),
+            ('5', "Stack Bond",          "Stack Bond."),
+            ('6', "Fine Running Bond",   "Fine Running Bond."),
+            ('7', "Fine Stack Bond",     "Fine Stack Bond.")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'line_shift',
@@ -159,3 +166,99 @@ PluginParams.extend([
         'default' : 1,
     },
 ])
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "pattern_type" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Tiles Setup" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "horizontal_count" },
+                    { "name" : "vertical_count" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "color_variance" },
+                    { "name" : "fade_variance" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Grout Setup" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "horizontal_gap", "label" : "H. Gap" },
+                    { "name" : "vertical_gap", "label" : "V. Gap" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "holes" },
+                    { "name" : "edge_roughness", "label" : "Edge rough." }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Custom Setup" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "column_modify" },
+                    { "name" : "per_column" },
+                    { "name" : "column_change" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "row_modify" },
+                    { "name" : "per_row" },
+                    { "name" : "row_change" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "line_shift" },
+            { "name" : "random_shift" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "random_seed" }
+        ]
+    },
+
+    {TEX_COMMON}
+]}
+"""
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)

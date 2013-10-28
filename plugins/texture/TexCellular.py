@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib   import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 import TexCommonParams
 
 
@@ -35,7 +32,7 @@ ID   = 'TexCellular'
 NAME = 'Cellular'
 DESC = ""
 
-PluginParams = list(TexCommonParams.PluginTextureCommonParams)
+PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
@@ -141,7 +138,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SEPARATOR",
-        "label" : "Cell Characteristics:" },
+        "label" : "Cell Characteristics" },
 
     {   "layout" : "SPLIT",
         "splits" : [
@@ -165,7 +162,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SEPARATOR",
-        "label" : "Thresholds:" },
+        "label" : "Thresholds" },
 
     {   "layout" : "ROW",
         "align" : true,
@@ -179,4 +176,4 @@ PluginWidget = """
     {TEX_COMMON}
 ]}
 """
-PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginTextureCommonParamsWidget)
+PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams.PluginWidget)
