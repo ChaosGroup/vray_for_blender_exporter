@@ -25,7 +25,7 @@
 import bpy
 from bpy.props import *
 
-from vb25.utils import p, a
+from vb25.utils import p, a, clean_string, path_sep_to_unix
 from vb25.ui    import classes
 
 

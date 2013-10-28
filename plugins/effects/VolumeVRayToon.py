@@ -137,7 +137,7 @@ PluginParams = (
         'attr' : 'compensateExposure',
         'desc' : "Compensate VRay physical camera exposure",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'excludeList',

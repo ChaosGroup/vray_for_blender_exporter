@@ -362,7 +362,7 @@ class VRayLight(bpy.types.PropertyGroup):
  ###  ###   #######  ##     ## ######## ########
 
 class VRayWorld(bpy.types.PropertyGroup):
-	global_light_level= bpy.props.FloatProperty(
+	global_light_level = bpy.props.FloatProperty(
 		name = "Global Light Level",
 		description = "A global light level multiplier for all lights",
 		min = 0.0,

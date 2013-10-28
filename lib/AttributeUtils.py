@@ -56,6 +56,7 @@ InputTypes = {
     'TEXTURE',
     'UVWGEN',
     'VECTOR',
+    # 'TRANSFORM',
 }
 
 OutputTypes = {
@@ -72,6 +73,9 @@ TypeToSocket = {
     'VECTOR' : 'VRaySocketVector',
     'FLOAT'  : 'VRaySocketFloat',
     'INT'    : 'VRaySocketInt',
+
+    'TRANSFORM' : 'VRaySocketTransform',
+    'MATRIX'    : 'VRaySocketMatrix',
 
     'BRDF'     : 'VRaySocketBRDF',
     'GEOMETRY' : 'VRaySocketGeom',
@@ -100,6 +104,9 @@ TypeToProp = {
     'INT'    : bpy.props.IntProperty,
     'STRING' : bpy.props.StringProperty,
 
+    'TRANSFORM' : bpy.props.FloatVectorProperty,
+    'MATRIX'    : bpy.props.FloatVectorProperty,
+
     'BRDF'     : bpy.props.StringProperty,
     'GEOMETRY' : bpy.props.StringProperty,
     'MATERIAL' : bpy.props.StringProperty,
@@ -119,6 +126,9 @@ TypeToProp = {
 }
 
 
+# When there is no name specified for the attribute we could "guess" the name
+# from the attribute like: 'dist_near' will become "Dist Near"
+#
 def GetNameFromAttr(attr):
     attr_name = attr.replace("_", " ")
     attr_name = re.sub(r"\B([A-Z])", r" \1", attr_name)
@@ -126,6 +136,9 @@ def GetNameFromAttr(attr):
     return attr_name.title()
 
 
+# This will generate Blender's Property based on attribute description
+# and add it to 'classMembers' dict.
+#
 def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in SkippedTypes:
         return

@@ -96,7 +96,7 @@ def RenderContainer(context, layout, item, align=False, label=None):
         return layout.row(align=align)
     elif item == 'SEPARATOR':
         if label is not None:
-            layout.label(text=label)
+            layout.label(text="%s:" % label)
         else:
             layout.separator()
         return layout

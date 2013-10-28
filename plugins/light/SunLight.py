@@ -229,3 +229,26 @@ PluginParams = (
         'default' : "",
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "diffuse_contribution" },
+                    { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "affectSpecular" },
+                    { "name" : "affectDiffuse" }
+                ]
+            }
+        ]
+    }
+]}
+"""

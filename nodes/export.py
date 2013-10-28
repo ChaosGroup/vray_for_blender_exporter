@@ -31,7 +31,7 @@ from vb25.lib     import ExportUtils
 from vb25.lib     import utils as LibUtils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
-from vb25.utils   import clean_string
+from vb25.utils   import clean_string, get_data_by_name
 
 
 ##     ## ######## #### ##       #### ######## #### ########  ######
