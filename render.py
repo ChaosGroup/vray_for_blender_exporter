@@ -464,7 +464,7 @@ def write_object(bus):
                 if value is not None:
                     socketParams[vrayAttr] = value
 
-    PrintDict("Object socketParams", socketParams)
+    PrintDict("Object \"%s\"" % ob.name, socketParams)
     
     # Params were not connected within the node tree or user just haven't used nodetree
     #
@@ -482,8 +482,8 @@ def write_object(bus):
                 PLUGINS['GEOMETRY']['GeomPlane'].write(bus, bus['node']['geometry'])
 
     # XXX: A little ugly...
-    bus['node']['geometry'] = socketParams['geometry']
-    bus['node']['material'] = socketParams['material']
+    bus['node']['geometry'] = socketParams.get('geometry', None)
+    bus['node']['material'] = socketParams.get('material', None)
 
     write_node(bus)
 
@@ -564,49 +564,39 @@ def _write_object_dupli(bus):
                 break
 
     if dupli_from_particles or ob.dupli_type in {'VERTS', 'FACES', 'GROUP'}:
-        if VRayExporter.geomDupliPart:
-            # Export dupli with Python extension (geometry duplication only)
-            #
-            _vray_for_blender.exportDupli(
-                bpy.context.as_pointer(), # Context
-                ob.as_pointer(),          # Object
-                ofile                     # Output file
-            )
+        ob.dupli_list_create(scene)
 
-        else:
-            ob.dupli_list_create(scene)
+        for dup_id,dup_ob in enumerate(ob.dupli_list):
+            parent_dupli = ""
 
-            for dup_id,dup_ob in enumerate(ob.dupli_list):
-                parent_dupli = ""
+            bus['node']['object'] = dup_ob.object
+            bus['node']['base']   = ob
 
-                bus['node']['object'] = dup_ob.object
-                bus['node']['base']   = ob
+            # Currently processed dupli name
+            dup_node_name = clean_string("OB%sDO%sID%i" % (ob.name,
+                                                           dup_ob.object.name,
+                                                           dup_id))
+            dup_node_matrix = dup_ob.matrix
 
-                # Currently processed dupli name
-                dup_node_name = clean_string("OB%sDO%sID%i" % (ob.name,
-                                                               dup_ob.object.name,
-                                                               dup_id))
-                dup_node_matrix = dup_ob.matrix
+            # For case when dupli is inside other dupli
+            if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+                # Store parent dupli name
+                parent_dupli   = bus['node']['dupli']['name']
+                dup_node_name += parent_dupli
 
-                # For case when dupli is inside other dupli
-                if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
-                    # Store parent dupli name
-                    parent_dupli   = bus['node']['dupli']['name']
-                    dup_node_name += parent_dupli
+            bus['node']['dupli'] =  {}
+            bus['node']['dupli']['name']   = dup_node_name
+            bus['node']['dupli']['matrix'] = dup_node_matrix
 
-                bus['node']['dupli'] =  {}
-                bus['node']['dupli']['name']   = dup_node_name
-                bus['node']['dupli']['matrix'] = dup_node_matrix
+            _write_object(bus)
 
-                _write_object(bus)
+            bus['node']['object'] = ob
+            bus['node']['base']   = ob
 
-                bus['node']['object'] = ob
-                bus['node']['base']   = ob
+            bus['node']['dupli'] = {}
+            bus['node']['dupli']['name'] = parent_dupli
 
-                bus['node']['dupli'] = {}
-                bus['node']['dupli']['name'] = parent_dupli
-
-            ob.dupli_list_clear()
+        ob.dupli_list_clear()
 
 
 ##     ## ########     ###    ##    ##    ###     ######   ######  ######## ########
@@ -895,10 +885,10 @@ def run(bus):
         params.append('-verboseLevel=%s' % VRayExporter.verboseLevel)
 
         if scene.render.use_border:
-            x0= resolution_x * scene.render.border_min_x
-            y0= resolution_y * (1.0 - scene.render.border_max_y)
-            x1= resolution_x * scene.render.border_max_x
-            y1= resolution_y * (1.0 - scene.render.border_min_y)
+            x0 = resolution_x * scene.render.border_min_x
+            y0 = resolution_y * (1.0 - scene.render.border_max_y)
+            x1 = resolution_x * scene.render.border_max_x
+            y1 = resolution_y * (1.0 - scene.render.border_min_y)
 
             region = 'crop' if scene.render.use_crop_to_border else 'region'
             params.append("-%s=%i;%i;%i;%i" % (region, x0, y0, x1, y1))
