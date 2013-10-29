@@ -127,22 +127,24 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.exporter
 
+    meshName = bus['node']['geometry']
+
     # XXX: Resolve manual meshes export
     #
     if not VRayExporter.auto_meshes:
-        return bus['node']['geometry']
+        return meshName
 
-    if bus['node']['geometry'] not in bus['cache']['mesh']:
-        bus['cache']['mesh'].add(bus['node']['geometry'])
+    if meshName not in bus['cache']['mesh']:
+        bus['cache']['mesh'].add(meshName)
 
         _vray_for_blender.exportMesh(
             bpy.context.as_pointer(), # Context
             ob.as_pointer(),          # Object
-            bus['node']['geometry'],  # Result plugin name
+            meshName,                 # Result plugin name
             bus['files']['geom']      # Output file
         )
 
-    return bus['node']['geometry']
+    return meshName
 
 
 def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
