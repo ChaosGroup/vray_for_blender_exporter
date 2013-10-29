@@ -32,6 +32,7 @@ def register():
     from . import brdf
     from . import texture
     from . import effects
+    from . import renderchannels
 
     outputs.register()
     selector.register()
@@ -39,7 +40,7 @@ def register():
     brdf.register()
     texture.register()
     effects.register()
-
+    renderchannels.register()
 
 def unregister():
     from . import outputs
@@ -48,6 +49,7 @@ def unregister():
     from . import brdf
     from . import texture
     from . import effects
+    from . import renderchannels
 
     outputs.unregister()
     selector.unregister()
@@ -55,3 +57,4 @@ def unregister():
     brdf.unregister()
     texture.unregister()
     effects.unregister()
+    renderchannels.unregister()
