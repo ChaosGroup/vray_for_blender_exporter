@@ -189,9 +189,7 @@ def nodeDraw(context, layout, node):
     row.operator("vray.open_image", icon='ZOOMIN', text="")
 
 
-def gui(context, layout, node):
-    BitmapBuffer = node.BitmapBuffer
-
+def gui(context, layout, BitmapBuffer, node):
     if node.image:
         layout.prop(node.image, 'name')
         layout.prop(node.image, 'filepath')
