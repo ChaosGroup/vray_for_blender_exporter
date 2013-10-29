@@ -40,8 +40,13 @@ PluginParams = (
     {
         'attr' : 'mode',
         'desc' : "light mode",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Color", ""),
+            ('1', "Direct", ""),
+            ('2', "Indirect", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'gi_min_distance',
@@ -62,3 +67,28 @@ PluginParams = (
         'default' : True,
     },
 )
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" }
+        ]
+    },
+    
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "color", "label" : "" },
+            { "name" : "mode" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "gi_min_distance" },
+            { "name" : "compensate_exposure" }
+        ]
+    }
+]}
+"""
