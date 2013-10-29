@@ -54,7 +54,7 @@ class VRayTreeSockets(bpy.types.NodeSocket, base.NodeSocket):
 class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayShaderTreeType'
-    bl_icon   = 'MATERIAL'
+    bl_icon   = 'VRAY_MATERIAL'
 
     socket_type = VRayTreeSockets
 
@@ -87,7 +87,7 @@ class VRayTreeNode:
 class VRayNodeTreeWorld(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray World Node Tree"
     bl_idname = 'VRayNodeTreeWorld'
-    bl_icon   = 'WORLD'
+    bl_icon   = 'VRAY_WORLD'
 
     socket_type = VRayTreeSockets
 
@@ -123,7 +123,7 @@ class VRayWorldNode:
 class VRayNodeTreeObject(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Object Node Tree"
     bl_idname = 'VRayNodeTreeObject'
-    bl_icon   = 'OBJECT_DATA'
+    bl_icon   = 'VRAY_OBJECT'
 
     socket_type = VRayTreeSockets
 
@@ -153,7 +153,7 @@ class VRayObjectNode:
 class VRayNodeTreeLight(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Light Node Tree"
     bl_idname = 'VRayNodeTreeLight'
-    bl_icon   = 'LAMP'
+    bl_icon   = 'VRAY_LIGHT'
 
     socket_type = VRayTreeSockets
 
@@ -183,7 +183,7 @@ class VRayLightNode:
 class VRayNodeTreeScene(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Scene Node Tree"
     bl_idname = 'VRayNodeTreeScene'
-    bl_icon   = 'SCENE_DATA'
+    bl_icon   = 'VRAY_RENDER_LAYERS'
 
     socket_type = VRayTreeSockets
 
