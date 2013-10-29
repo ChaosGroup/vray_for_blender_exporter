@@ -65,6 +65,14 @@ def AddOutput(node, socketType, socketName, attrName=None):
         createdSocket.vray_attr = attrName
 
 
+class VRaySocketUse():
+    use = bpy.props.BoolProperty(
+        name        = "Use",
+        description = "Usr socket",
+        default     = True
+    )
+
+
  ######   ########  #######  ##     ## ######## ######## ########  ##    ##
 ##    ##  ##       ##     ## ###   ### ##          ##    ##     ##  ##  ##
 ##        ##       ##     ## #### #### ##          ##    ##     ##   ####
@@ -395,7 +403,7 @@ class VRaySocketBRDF(bpy.types.NodeSocket, base.NodeSocket):
 
 class VRaySocketMtl(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketMtl'
-    bl_label  = 'Material socket'
+    bl_label  = 'Material Socket'
 
     value = bpy.props.StringProperty(
         name        = "Defautl Material",
@@ -415,6 +423,42 @@ class VRaySocketMtl(bpy.types.NodeSocket, base.NodeSocket):
 
     def draw_color(self, context, node):
         return (1.000, 0.468, 0.087, 1.000)
+
+
+########  ######## ##    ## ########  ######## ########      ######  ##     ##    ###    ##    ## ##    ## ######## ##       
+##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##     ##   ## ##   ###   ## ###   ## ##       ##       
+##     ## ##       ####  ## ##     ## ##       ##     ##    ##       ##     ##  ##   ##  ####  ## ####  ## ##       ##       
+########  ######   ## ## ## ##     ## ######   ########     ##       ######### ##     ## ## ## ## ## ## ## ######   ##       
+##   ##   ##       ##  #### ##     ## ##       ##   ##      ##       ##     ## ######### ##  #### ##  #### ##       ##       
+##    ##  ##       ##   ### ##     ## ##       ##    ##     ##    ## ##     ## ##     ## ##   ### ##   ### ##       ##       
+##     ## ######## ##    ## ########  ######## ##     ##     ######  ##     ## ##     ## ##    ## ##    ## ######## ######## 
+
+class VRaySocketRenderChannel(bpy.types.NodeSocket, base.NodeSocket, VRaySocketUse):
+    bl_idname = 'VRaySocketRenderChannel'
+    bl_label  = 'Render Channel Socket'
+
+    value = bpy.props.StringProperty(
+        name        = "Defautl Material",
+        description = "Defautl material",
+        default     = "MANOMATERIALISSET"
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.active = self.use
+        split = layout.split()
+        row = split.row(align=True)
+        row.label(text)
+        row.prop(self, 'use', text="")
+
+    def draw_color(self, context, node):
+        return (0.500, 0.468, 0.087, 1.000)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -437,6 +481,7 @@ def GetRegClasses():
         VRaySocketCoords,
         VRaySocketBRDF,
         VRaySocketMtl,
+        VRaySocketRenderChannel,
     )
 
 
