@@ -62,12 +62,12 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : True,
     },
-    {
-        'attr' : 'shadowColor',
-        'desc' : "The shadow color. Anything but black is not physically accurate",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
+    # {
+    #     'attr' : 'shadowColor',
+    #     'desc' : "The shadow color. Anything but black is not physically accurate",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
     {
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
@@ -294,7 +294,7 @@ PluginParams = (
         'attr' : 'use_rect_tex',
         'desc' : "true if the texture should be used",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'tex_resolution',
@@ -309,3 +309,126 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" },
+            { "name" : "invisible" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "lightPortal", "label" : "Mode" },
+                    { "name" : "units" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "intensity" },
+                    { "name" : "color", "label" : "" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" },
+                    { "name" : "subdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "doubleSided" },
+                    { "name" : "noDecay" },
+                    { "name" : "directional" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "diffuseMult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticSubdivs" },
+                    { "name" : "causticMult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" },
+                    { "name" : "bumped_below_surface_check" },
+                    { "name" : "ignoreLightNormals" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cutoffThreshold" },
+                    { "name" : "nsamples" },
+                    { "name" : "use_global_light_level" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                { "name" : "diffuse_contribution" },
+                { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "affectSpecular" },
+                    { "name" : "affectReflections" },
+                    { "name" : "affectDiffuse" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "tex_resolution" },
+            { "name" : "tex_adaptive" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "objectID" }
+        ]
+    }
+]}
+"""

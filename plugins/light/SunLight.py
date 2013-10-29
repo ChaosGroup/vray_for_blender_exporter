@@ -43,6 +43,7 @@ PluginParams = (
         'type' : 'TRANSFORM',
         'default' : None,
     },
+    
     {
         'attr' : 'turbidity',
         'desc' : "Determines the amount of dust in the air and affects the color of the sun and sky. Smaller values produce a clear/blue sky, larger values yellow and orange",
@@ -132,12 +133,12 @@ PluginParams = (
         'type' : 'INT',
         'default' : 8,
     },
-    {
-        'attr' : 'shadow_color',
-        'desc' : "The shadow color. Anything but black is not physically accurate",
-        'type' : 'COLOR',
-        'default' : (0, 0, 0),
-    },
+    # {
+    #     'attr' : 'shadow_color',
+    #     'desc' : "The shadow color. Anything but black is not physically accurate",
+    #     'type' : 'COLOR',
+    #     'default' : (0, 0, 0),
+    # },
     {
         'attr' : 'shadow_color_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
@@ -232,6 +233,71 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" },
+            { "name" : "invisible" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "turbidity" },
+                    { "name" : "ozone" },
+                    { "name" : "water_vapour" },
+                    { "name" : "intensity_multiplier" },
+                    { "name" : "size_multiplier" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "atmos_shadows" },
+                    { "name" : "shadowBias" },
+                    { "name" : "shadow_subdivs" },
+                    { "name" : "shadow_color_tex", "label" : "" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : false,
+        "attrs" : [
+            { "name" : "sky_model", "label" : "Model" },
+            { "name" : "horiz_illum" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photon_radius" },
+                    { "name" : "photonSubdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticMult" },
+                    { "name" : "causticSubdivs" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "diffuseMult" }
+        ]
+    },
+
     {   "layout" : "SPLIT",
         "splits" : [
             {   "layout" : "COLUMN",
