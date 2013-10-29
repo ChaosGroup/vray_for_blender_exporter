@@ -62,12 +62,12 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : True,
     },
-    # {
-    #     'attr' : 'shadowColor',
-    #     'desc' : "The shadow color. Anything but black is not physically accurate",
-    #     'type' : 'COLOR',
-    #     'default' : (0, 0, 0),
-    # },
+    {
+        'attr' : 'shadowColor',
+        'desc' : "The shadow color. Anything but black is not physically accurate",
+        'type' : 'COLOR',
+        'default' : (0, 0, 0),
+    },
     {
         'attr' : 'shadowColor_tex',
         'desc' : "A color texture that if present will override the shadowColor parameter",
@@ -276,6 +276,10 @@ PluginParams = (
         'attr' : 'directional',
         'desc' : "Narrow the spread of the lighting and make the light directional",
         'type' : 'FLOAT',
+        'ui' : {
+            'min' : 0.0,
+            'max' : 1.0,
+        },
         'default' : 0,
     },
     {
@@ -324,13 +328,14 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "attrs" : [
                     { "name" : "lightPortal", "label" : "Mode" },
-                    { "name" : "units" }
+                    { "name" : "units" },
+                    { "name" : "color", "label" : "" }
                 ]
             },
             {   "layout" : "COLUMN",
                 "attrs" : [
                     { "name" : "intensity" },
-                    { "name" : "color", "label" : "" }
+                    { "name" : "subdivs" }
                 ]
             }
         ]
@@ -343,7 +348,7 @@ PluginWidget = """
                 "attrs" : [
                     { "name" : "shadows" },
                     { "name" : "shadowBias" },
-                    { "name" : "subdivs" }
+                    { "name" : "shadowColor", "label" : "" }
                 ]
             },
             {   "layout" : "COLUMN",
