@@ -92,7 +92,8 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
     def execute(self, context):
         VRayScene = context.scene.vray
 
-        ntree = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeScene')
+        ntree = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
+        ntree.nodes.new('VRayNodeRenderChannels')
        
         VRayScene.ntree = ntree
 
@@ -114,11 +115,11 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
         blenderGeometry = nt.nodes.new('VRayNodeBlenderOutputGeometry')
         blenderMaterial = nt.nodes.new('VRayNodeBlenderOutputMaterial')
 
-        blenderGeometry.location.x  = outputNode.location.x - 200
-        blenderGeometry.location.y  = outputNode.location.y - 50
+        blenderGeometry.location.x = outputNode.location.x - 200
+        blenderGeometry.location.y = outputNode.location.y - 50
 
-        blenderMaterial.location.x  = outputNode.location.x - 200
-        blenderMaterial.location.y  = outputNode.location.y + 50
+        blenderMaterial.location.x = outputNode.location.x - 200
+        blenderMaterial.location.y = outputNode.location.y + 50
 
         nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
         nt.links.new(blenderGeometry.outputs['Geometry'], outputNode.inputs['Geometry'])
@@ -139,6 +140,12 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
 
         outputNode = nt.nodes.new('VRayNodeWorldOutput')
+        envNode = nt.nodes.new('VRayNodeEnvironment')
+
+        envNode.location.x = outputNode.location.x - 200
+        envNode.location.y = outputNode.location.y + 200
+
+        nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])        
 
         VRayWorld.ntree = nt
 
