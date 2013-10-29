@@ -62,3 +62,9 @@ PluginWidget = """
     }
 ]}
 """
+
+def nodeDraw(context, layout, TexRemapFloat):
+    split = layout.split()
+    col = split.column(align=True)
+    col.prop(TexRemapFloat, 'low')
+    col.prop(TexRemapFloat, 'high')

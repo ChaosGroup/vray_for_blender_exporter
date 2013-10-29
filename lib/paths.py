@@ -24,6 +24,8 @@
 
 import os
 
+import bpy
+
 
 # Get full file name (name.ext)
 #

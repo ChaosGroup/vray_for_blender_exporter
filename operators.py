@@ -526,6 +526,7 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 		bus['preview'] = False
 		bus['files']     = {}
 		bus['filenames'] = {}
+		bus['cache'] = {}
 
 		init_files(bus, skipGeom=True)
 

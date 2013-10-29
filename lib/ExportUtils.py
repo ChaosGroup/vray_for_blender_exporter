@@ -24,7 +24,7 @@
 
 from pprint import pprint
 
-from vb25.debug import Debug
+from vb25.debug import Debug, PrintDict
 
 from . import utils
 from . import AttributeUtils
@@ -51,6 +51,8 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
     if bus['mode'] == 'SOCKET':
         vraySocket = VRaySocket.VRaySocket()
 
+    PrintDict("%s::mappedParams" % pluginName, mappedParams)
+
     for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
         attr  = attrDesc['attr']
         skip  = attrDesc.get('skip', False)
@@ -66,7 +68,8 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
         if attrDesc['type'] in AttributeUtils.SkippedTypes and attrDesc['attr'] not in mappedParams:
             continue
 
-        # Skip attibutes that should be mapped, but are not mapped, we will use parameter value then
+        # Skip attibutes that should be mapped, but are not mapped,
+        # we will use parameter value then
         if attrDesc['type'] in AttributeUtils.InputTypes and attrDesc['attr'] not in mappedParams:
             continue
 

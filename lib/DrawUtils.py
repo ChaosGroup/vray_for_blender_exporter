@@ -30,7 +30,7 @@ from pynodes_framework import idref
 
 
 def GetContextType(context):
-    if hasattr(context, 'node'):
+    if hasattr(context, 'node') and context.node:
         return 'NODE'
     if hasattr(context, 'material'):
         return 'MATERIAL'

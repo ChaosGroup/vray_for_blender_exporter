@@ -100,86 +100,8 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
         row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
-        # if not classes.TreeHasNodes(VRayLight.ntree):
-        #     return
-
-        # activeNode = VRayLight.ntree.nodes[-1]
-
-        # layout.separator()
-        # classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
-
-
- ######   ######## ##    ## ######## ########     ###    ##       
-##    ##  ##       ###   ## ##       ##     ##   ## ##   ##       
-##        ##       ####  ## ##       ##     ##  ##   ##  ##       
-##   #### ######   ## ## ## ######   ########  ##     ## ##       
-##    ##  ##       ##  #### ##       ##   ##   ######### ##       
-##    ##  ##       ##   ### ##       ##    ##  ##     ## ##       
- ######   ######## ##    ## ######## ##     ## ##     ## ######## 
-
-class VRAY_DP_light(classes.VRayLampPanel):
-    bl_label = "Lamp"
-
-    def draw(self, context):
-        layout = self.layout
-
-        lamp = context.lamp
-        VRayLamp = lamp.vray
-
-        lightPluginName = LibUtils.GetLightPluginName(lamp)
-        lightPropGroup = getattr(VRayLamp, lightPluginName)
-
-        layout.prop(lightPropGroup, 'enabled')
-
-        # Color
-        #
-        if not (LightIsPortal(lamp) or LightIsSun(lamp)):
-            split = layout.split(percentage=0.4)
-            row = split.row()
-            row.prop(VRayLamp, 'color_type', expand=True)
-
-            if VRayLamp.color_type == 'RGB':
-                row = split.row()
-                row.prop(lightPropGroup, 'color_tex', text="")
-                row.operator('vray.set_kelvin_color', text="", icon='COLOR', emboss=False).data_path="object.data.vray.%s.color_tex" % lightPluginName
-            else:
-                row = split.row()
-                row.prop(VRayLamp, 'temperature', text="K")
-
-            DrawUtils.DrawAttr(layout, lightPropGroup, 'invisible')
-
-            layout.separator()
-
-        # Intensity
-        #
-        split = layout.split()
-        col = split.column()
-        DrawUtils.DrawAttr(col, lightPropGroup, 'lightPortal', text="Mode")
-        if not (LightIsPortal(lamp) or LightIsSun(lamp)):
-            DrawUtils.DrawAttr(col, lightPropGroup, 'units', text="Units")
-        
-        if LightIsSun(lamp):
-            DrawUtils.DrawAttr(col, lightPropGroup, 'intensity', text="Intensity")
-        else:
-            DrawUtils.DrawAttr(col, lightPropGroup, 'intensity_multiplier')
-
-        split = layout.split()
-        col = split.column()
-        DrawUtils.DrawAttr(col, lightPropGroup, 'subdivs')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'causticSubdivs')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'noDecay')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'doubleSided')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'storeWithIrradianceMap')
-
-        split = layout.split()
-        col = split.column()
-        DrawUtils.DrawAttr(col, lightPropGroup, 'affectDiffuse')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'affectSpecular')
-        DrawUtils.DrawAttr(col, lightPropGroup, 'affectReflections')
-
-        DrawUtils.DrawAttr(col, lightPropGroup, 'intensity_tex', text="Intensity")
-
-        DrawUtils.Draw(context, layout, lightPropGroup, PLUGINS['LIGHT'][lightPluginName].PluginParams)
+        layout.separator()
+        classes.DrawPluginUI(context, layout, VRayLight, lightPropGroup, lightPluginName, PLUGINS['LIGHT'][lightPluginName])
 
 
  ######  ##     ##    ###    ########  ######## 
@@ -212,8 +134,8 @@ class VRAY_DP_light_shape(classes.VRayLampPanel):
                 col.prop(lamp, 'size')
             else:
                 row = split.row(align=True)
-                row.prop(lamp, 'size', text="Size X")
-                row.prop(lamp, 'size_y')
+                row.prop(lamp, 'size',   text="X")
+                row.prop(lamp, 'size_y', text="Y")
 
         if lamp.type == 'SPOT':
             split = layout.split()
@@ -248,11 +170,11 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 
         layout.active = VRayLamp.use_include_exclude
 
-        split= layout.split()
-        col= split.column()
-        col.prop(VRayLamp, 'include_exclude', text="")
-        col.prop_search(VRayLamp, 'include_objects', context.scene, 'objects', text="Objects")
-        col.prop_search(VRayLamp, 'include_groups',  bpy.data,      'groups',  text="Groups")
+        split = layout.split()
+        col = split.column()
+        col.prop(VRayLamp, 'include_exclude', text="Type")
+        col.prop_search(VRayLamp, 'include_objects', context.scene, 'objects', text="Object")
+        col.prop_search(VRayLamp, 'include_groups',  bpy.data,      'groups',  text="Group")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -266,8 +188,7 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 def GetRegClasses():
     return (
         VRAY_DP_context_lamp,
-        VRAY_DP_light,
-        # VRAY_DP_light_shape,
+        VRAY_DP_light_shape,
         VRAY_DP_include_exclude,
     )
 

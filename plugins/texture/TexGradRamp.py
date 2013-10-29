@@ -168,7 +168,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "noise_type" },
+                    { "name" : "noise_type", "label" : "" },
                     { "name" : "noise_amount" },
                     { "name" : "noise_size" },
                     { "name" : "noise_levels" }

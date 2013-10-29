@@ -98,6 +98,9 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
     scene = bus['scene']
 
     lights = mappedParams.get('lights', [])
+    
+    LibUtils.FilterObjectListByType(lights, 'LAMP')
+
     lightsStr = ",".join(lights)
 
     domainObject = mappedParams.get('geometry', None)

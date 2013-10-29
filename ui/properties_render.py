@@ -436,7 +436,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(ve, 'use_instances')
 		# col.prop(SettingsOptions, 'geom_displacement')
 		col.prop(ve, 'mesh_debug')
-		col.prop(ve, 'geomDupliPart')
 
 		layout.separator()
 

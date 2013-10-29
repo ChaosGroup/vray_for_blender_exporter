@@ -56,15 +56,29 @@ class VRayStream:
     # Don't overwrite geometry (used for manual mesh export)
     dontOverwriteGeometry = None
 
-    def writeHeader():
+    # Work mode: 'VRSCENE', 'SOCKET', 'ZMQ'
+    mode = None
+
+    def __init__(self):
+        init()
+
+    def __del__(self):
+        close()
+
+    def init(self, separateFiles=True, overwriteGeometry=True):
         pass
 
-    def writeFooter():
+    def writeHeader(self):
         pass
 
+    def writeFooter(self):
+        pass
+
+    # Write data to a respective file or transfer data
+    #
     def write(pluginModule, datablock, mappedParams):
         pass
 
-    # Will close files and write add "includes" to the main scene file
-    def close():
+    # Will close files and write "includes" to the main scene file
+    def close(self):
         pass

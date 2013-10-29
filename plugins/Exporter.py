@@ -47,12 +47,6 @@ def add_properties(rna_pointer):
 			description = "Draw properties in node's side panel",
 			default     = False
 		)
-		
-		geomDupliPart = BoolProperty(
-			name        = "Geom Dupli / Particles",
-			description = "Assume dupli or particle system produces only geometry objects (much faster export)",
-			default     =  True
-		)
 
 		draft= BoolProperty(
 			name= "Draft render",

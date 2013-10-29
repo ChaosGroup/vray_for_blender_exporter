@@ -92,6 +92,20 @@ def PollEngine(cls, context):
 ##     ## ##    ##  ##     ## ##  ##  ## 
 ########  ##     ## ##     ##  ###  ###  
 
+def DrawPluginUI(context, layout, propGroupHolder, propGroup, pluginType, vrayPlugin):
+    if hasattr(vrayPlugin, 'PluginWidget'):
+        DrawUtils.RenderTemplate(context, layout, propGroup, vrayPlugin)
+    elif hasattr(vrayPlugin, 'gui'):
+        # XXX: The only way to use images by now
+        # Remove after Blender fix
+        if pluginType in {'BitmapBuffer', 'TexGradRamp'}:
+            vrayPlugin.gui(context, layout, propGroup, propGroupHolder)
+        else:
+            vrayPlugin.gui(context, layout, propGroup)
+    else:
+        DrawUtils.Draw(context, layout, propGroup, vrayPlugin.PluginParams)
+
+
 def DrawNodePanel(context, layout, node, PLUGINS):
     vrayPlugin = None
     toShow     = True
@@ -115,19 +129,9 @@ def DrawNodePanel(context, layout, node, PLUGINS):
         layout.label(text="Node: %s" % node.name)
         layout.separator()
 
-        dataPointer = getattr(node, node.vray_plugin)
+        propGroup = getattr(node, node.vray_plugin)
 
-        if hasattr(vrayPlugin, 'PluginWidget'):
-            DrawUtils.RenderTemplate(context, layout, dataPointer, vrayPlugin)
-        elif hasattr(vrayPlugin, 'gui'):
-            # XXX: The only way to use images by now
-            # Remove after Blender fix
-            if node.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
-                vrayPlugin.gui(context, layout, node)
-            else:
-                vrayPlugin.gui(context, layout, dataPointer)
-        else:
-            DrawUtils.Draw(context, layout, dataPointer, vrayPlugin.PluginParams)
+        DrawPluginUI(context, layout, node, propGroup, node.vray_plugin, vrayPlugin)
 
 
 ########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
