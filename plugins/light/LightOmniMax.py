@@ -238,9 +238,14 @@ PluginParams = (
     },
     {
         'attr' : 'decay_type',
-        'desc' : "Decay type (0 - no decay, 1 - linear, 2 - square)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Decay type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Decay", ""),
+            ('1', "Linear", ""),
+            ('2', "Square", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'decay_start',
@@ -286,9 +291,13 @@ PluginParams = (
     },
     {
         'attr' : 'shadowShape',
-        'desc' : "Shape for soft shadows (0 - box, 1 - sphere)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Shape for soft shadows",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Box", ""),
+            ('1', "Sphere", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'shadowRadius1',
@@ -303,3 +312,133 @@ PluginParams = (
         'default' : 0,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "units" },
+                    { "name" : "color", "label" : "" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "intensity" },
+                    { "name" : "shadowSubdivs" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" },
+                    { "name" : "shadowColor", "label" : "" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadowShape", "label" : "" },
+                    { "name" : "shadowRadius1" },
+                    { "name" : "shadowRadius2" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "decay_type", "label" : "" },
+                    { "name" : "decay_start" },
+                    { "name" : "near_attenuation" },
+                    { "name" : "far_attenuation" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "near_attenuation_start", "label" : "Near Att. Start" },
+                    { "name" : "near_attenuation_end", "label" : "Near Att. End" },
+                    { "name" : "far_attenuation_start" , "label" : "Far Att. Start"},
+                    { "name" : "far_attenuation_end", "label" : "Far Att. End" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "diffuseMult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticSubdivs" },
+                    { "name" : "causticMult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" },
+                    { "name" : "bumped_below_surface_check" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cutoffThreshold" },
+                    { "name" : "nsamples" },
+                    { "name" : "use_global_light_level" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                { "name" : "diffuse_contribution" },
+                { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "areaSpeculars" },                
+                    { "name" : "affectSpecular" },
+                    { "name" : "affectDiffuse" }
+                ]
+            }
+        ]
+    }
+]}
+"""
