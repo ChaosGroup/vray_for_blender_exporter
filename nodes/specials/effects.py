@@ -88,7 +88,7 @@ class VRayEffectsHolderDelSockets(bpy.types.Operator):
 class VRayNodeEffectsHolder(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeEffectsHolder'
     bl_label  = 'Effects Container'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'GHOST_ENABLED'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'

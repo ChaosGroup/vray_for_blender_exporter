@@ -99,7 +99,7 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
 class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeBRDFLayered'
     bl_label  = 'Layered'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'TEXTURE_SHADED'
 
     vray_type   = 'BRDF'
     vray_plugin = 'BRDFLayered'

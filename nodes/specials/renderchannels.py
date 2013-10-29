@@ -85,7 +85,7 @@ class VRAY_OT_node_del_render_channel_sockets(bpy.types.Operator):
 class VRayNodeRenderChannels(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeRenderChannels'
     bl_label  = 'Render Channles Container'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'SCENE_DATA'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'

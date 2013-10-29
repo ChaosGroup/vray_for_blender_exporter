@@ -127,7 +127,7 @@ class VRAY_OT_node_del_texlayered_sockets(bpy.types.Operator):
 class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeTexLayered'
     bl_label  = 'Layered'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'TEXTURE'
 
     vray_type   = 'TEXTURE'
     vray_plugin = 'TexLayered'

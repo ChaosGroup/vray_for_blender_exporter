@@ -39,7 +39,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeObjectOutput'
     bl_label  = 'V-Ray Node'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
@@ -84,7 +84,7 @@ class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
 class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeOutputMaterial'
     bl_label  = 'Material Output'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'

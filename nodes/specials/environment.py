@@ -31,7 +31,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeWorldOutput'
     bl_label  = 'World Output'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'WORLD'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
@@ -44,7 +44,7 @@ class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
 class VRayNodeEnvironment(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeEnvironment'
     bl_label  = 'Environment'
-    bl_icon   = 'VRAY_LOGO_MONO'
+    bl_icon   = 'WORLD'
 
     gi_tex = bpy.props.BoolProperty(
         name        = "Override GI",
