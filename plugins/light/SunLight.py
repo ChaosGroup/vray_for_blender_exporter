@@ -310,8 +310,8 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "affectSpecular" },
-                    { "name" : "affectDiffuse" }
+                    { "name" : "affectDiffuse" },
+                    { "name" : "affectSpecular" }
                 ]
             }
         ]
