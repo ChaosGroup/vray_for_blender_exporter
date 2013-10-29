@@ -35,6 +35,7 @@ from pynodes_framework import idref, base, parameter
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
 from vb25.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
+from vb25.ui      import classes
 
 from .        import tree
 from .sockets import AddInput, AddOutput
@@ -73,6 +74,14 @@ def add_nodetype(layout, t):
     op = layout.operator("vray.add_node", text=t.bl_label, icon=t.bl_icon)
     op.type = t.bl_rna.identifier
     op.use_transform = False
+
+
+class VRayNodesMenuRenderChannels(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuRenderChannels"
+    bl_label  = "Render Channels"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeRenderChannels)
 
 
 class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
@@ -150,6 +159,7 @@ class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeSelectObject)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
+        add_nodetype(self.layout, bpy.types.VRayNodeSelectNodeTree)
 
 
 class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
@@ -196,6 +206,7 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuOutput", icon='OBJECT_DATA')
     self.layout.menu("VRayNodesMenuEnvironment", icon='WORLD')
     self.layout.menu("VRayNodesMenuEffects", icon='GHOST_ENABLED')
+    self.layout.menu("VRayNodesMenuRenderChannels", icon='SCENE_DATA')
 
 
  ######  ##          ###     ######   ######     ##     ## ######## ######## ##     ##  #######  ########   ######  
@@ -215,6 +226,9 @@ def VRayNodeDraw(self, context, layout):
         layout.label(text="Plugin: %s" % self.vray_plugin)
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+
+    # Draw node properties using 'nodeDraw'
+    #
     if hasattr(vrayPlugin, 'nodeDraw'):
         # XXX: The only way to use images by now
         # Remove after Blender fix
@@ -231,15 +245,14 @@ def VRayNodeDrawSide(self, context, layout):
     if context.scene.vray.exporter.nodesUseSidePanel:
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
-        if hasattr(vrayPlugin, 'gui'):
-            # XXX: The only way to use images by now
-            # Remove after Blender fix
-            if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
-                vrayPlugin.gui(context, layout, self)
-            else:
-                vrayPlugin.gui(context, layout, getattr(self, self.vray_plugin))
-        else:
-            DrawUtils.Draw(context, layout, getattr(self, self.vray_plugin), vrayPlugin.PluginParams)
+        classes.DrawPluginUI(
+            context,
+            layout,
+            self,                            # PropertyGroup holder
+            getattr(self, self.vray_plugin), # PropertyGroup
+            self.vray_plugin,                # Plugin name
+            vrayPlugin                       # Plugin module
+        )
 
 
 def VRayNodeInit(self, context):
@@ -261,7 +274,7 @@ def VRayNodeInit(self, context):
             AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
 
     if self.vray_type == 'TEXTURE':
-        # Some plugins have already properly defined outputs
+        # Some plugins already have properly defined outputs
         #
         if not self.vray_plugin in {'BitmapBuffer'}:
             AddOutput(self, 'VRaySocketColor', "Output")
@@ -442,6 +455,7 @@ StaticClasses = (
     VRayNodesMenuOutput,
     VRayNodesMenuSelector,
     VRayNodesMenuTexture,
+    VRayNodesMenuRenderChannels,
 )
 
 
