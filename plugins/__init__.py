@@ -234,21 +234,7 @@ class VRayObject(bpy.types.PropertyGroup):
 ##     ## ########  ######  ##     ##
 
 class VRayMesh(bpy.types.PropertyGroup):
-	override = bpy.props.BoolProperty(
-		name        = "Override",
-		description = "Override mesh",
-		default     = False
-	)
-
-	override_type = bpy.props.EnumProperty(
-		name        = "Override",
-		description = "Override geometry type",
-		items = (
-			('VRAYPROXY', "VRayProxy", ""),
-			('VRAYPLANE', "VRayPlane", ""),
-		),
-		default = 'VRAYPROXY'
-	)
+	pass
 
 
 ##     ##    ###    ######## ######## ########  ####    ###    ##
@@ -260,11 +246,7 @@ class VRayMesh(bpy.types.PropertyGroup):
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
 class VRayMaterial(bpy.types.PropertyGroup):
-	dontOverride = bpy.props.BoolProperty(
-		name        = "Don't Override",
-		description = "Don't override material",
-		default     = False
-	)
+	pass
 
 
 ##       ####  ######   ##     ## ########
@@ -645,8 +627,6 @@ def register():
 	AddAttributes(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
 	AddAttributes(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
 
-	AddAttributes(PLUGINS['GEOMETRY']['LightMesh'], VRayObject)
-	AddAttributes(PLUGINS['GEOMETRY']['LightMesh'], VRayMaterial)
 	AddAttributes(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRayObject)
 	AddAttributes(PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'], VRayObject)
 
