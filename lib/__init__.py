@@ -33,6 +33,7 @@ from vb25.lib.AttributeUtils import *
 from vb25.lib.ExportUtils    import *
 from vb25.lib.DrawUtils      import *
 
+from vb25.lib.VRayStream     import VRayStream
 from vb25.lib.VRaySocket     import VRaySocket
 from vb25.lib.VRayProcess    import VRayProcess
 from vb25.lib.VRayProxy      import MeshFile

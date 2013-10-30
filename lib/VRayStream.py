@@ -27,10 +27,11 @@
 import os
 import sys
 
-import VRaySocket
+from . import VRaySocket
 
 
 PluginTypeToFile = {
+    'MAIN'          : 'scene',
     'RENDERCHANNEL' : 'scene',
     'SETTINGS'      : 'scene',
     'OBJECT'        : 'nodes',
@@ -47,6 +48,12 @@ PluginTypeToFile = {
 
 
 class VRayStream:
+    # Paths
+    exportDir = None
+
+    # Filename prefix
+    baseName = None
+
     # Dict with the opened files
     files = None
 
@@ -56,29 +63,53 @@ class VRayStream:
     # Don't overwrite geometry (used for manual mesh export)
     dontOverwriteGeometry = None
 
-    # Work mode: 'VRSCENE', 'SOCKET', 'ZMQ'
+    # Currently processes plugin
+    pluginType = None
+    pluginName = None
+
+    # Work mode: 'VRSCENE', 'SOCKET', 'NETWORK'
     mode = None
 
-    def __init__(self):
-        init()
+    def __init__(self, workMode='VRSCENE'):
+        self.init(workMode)
 
     def __del__(self):
-        close()
+        self.close()
 
-    def init(self, separateFiles=True, overwriteGeometry=True):
-        pass
+    def init(self, workMode=None, exportDir=None, baseName=None, separateFiles=True, overwriteGeometry=True):
+        self.mode = workMode
 
-    def writeHeader(self):
-        pass
+    def set(self, pluginType, pluginName):
+        self.pluginType = pluginType
+        self.pluginName = pluginName
+
+    def writeHeader(self, pluginInstanceName):
+        if self.mode not in {'VRSCENE'}:
+            return
+        output = self.getOutputFile()
+        output.write("\n%s %s {" % (self.pluginName, pluginInstanceName))
 
     def writeFooter(self):
-        pass
+        if self.mode not in {'VRSCENE'}:
+            return
+        output = self.getOutputFile()
+        output.write("\n}\n")
 
     # Write data to a respective file or transfer data
     #
-    def write(pluginModule, datablock, mappedParams):
+    def write(self, pluginModule, datablock, mappedParams):
         pass
 
     # Will close files and write "includes" to the main scene file
     def close(self):
         pass
+
+    def getOutputFile(self):        
+        if self.mode not in {'VRSCENE'}:
+            return None
+        if not self.useSeparateFiles:
+            return self.files['SETTINGS']
+        if not self.pluginType:
+            Debug("Plugin type is not specified!", msgType='ERROR')
+            return self.files['SETTINGS']
+        return self.files[self.pluginType]
