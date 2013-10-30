@@ -40,6 +40,7 @@ import getpass
 import bpy
 import mathutils
 
+from vb25.lib     import VRayStream
 from vb25.plugins import *
 
 
@@ -608,11 +609,6 @@ def clean_string(s):
 	return s
 
 
-# The most powerfull unique name generator =)
-def get_random_string():
-	return ''.join([random.choice(string.ascii_letters) for x in range(16)])
-
-
 # Append to list only if item not already in list
 def append_unique(array, item):
 	if item in array:
@@ -698,32 +694,6 @@ def get_name(ob, prefix= None):
 	if ob.library:
 		name+= "%s%s" % ('LI', get_filename(ob.library.filepath).replace('.blend',''))
 	return clean_string(name)
-
-
-# Get node name
-def get_node_name(node_tree, node):
-	return "%s%s" % (get_name(node_tree, prefix='NT'),
-					 clean_string(node.name))
-
-
-# Find node connected to socket
-def connected_node(node_tree, node_socket):
-	for node in node_tree.links:
-		if node.to_socket == node_socket:
-			return node.from_node
-	return None
-
-
-# Get node_tree Output
-def get_output_node(node_tree, output_node_name=None):
-	for node in node_tree.nodes:
-		if node.type == 'OUTPUT':
-			if output_node_name is not None:
-				if output_node_name == node.filepath:
-					return node
-			else:
-				return node
-	return None
 
 
 # Get data by name
@@ -1138,6 +1108,14 @@ def init_files(bus, skipGeom=False):
 
 	# Lightmaps path
 	# bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
+
+	bus['output'] = VRayStream()
+	bus['output'].init(
+		workMode='VRSCENE',
+		exportDir=export_directory,
+		baseName=blendfile_name,
+		separateFiles=True
+	)
 
 	if VRayExporter.debug:
 		debug(scene, "Files:")
