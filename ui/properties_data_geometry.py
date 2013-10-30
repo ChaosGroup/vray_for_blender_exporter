@@ -27,49 +27,6 @@ import bpy
 from vb25.ui import classes
 
 
-class VRAY_DP_override(classes.VRayGeomPanel):
-	bl_label   = "Options"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		self.layout.label(text="", icon='VRAY_LOGO_MONO')
-
-	def draw(self, context):
-		wide_ui = context.region.width > classes.narrowui
-		layout  = self.layout
-
-		VRayMesh = context.mesh.vray
-		GeomStaticMesh = VRayMesh.GeomStaticMesh
-
-		layout.prop(VRayMesh, 'override')
-
-		if VRayMesh.override:
-			split = layout.split()
-			row = split.row()
-			row.prop(VRayMesh, 'override_type', expand=True)
-
-			if VRayMesh.override_type == 'VRAYPROXY':
-				GeomMeshFile = VRayMesh.GeomMeshFile
-
-				split = layout.split()
-				col = split.column()
-				col.prop(GeomMeshFile, 'file')
-				col.prop(GeomMeshFile, 'anim_type')
-
-				split = layout.split()
-				col = split.column(align=True)
-				col.prop(GeomMeshFile, 'anim_speed')
-				if wide_ui:
-					col = split.column()
-				col.prop(GeomMeshFile, 'anim_offset')
-
-				layout.separator()
-				layout.operator('vray.proxy_load_preview', icon='OUTLINER_OB_MESH', text="Load Preview Mesh")
-
-		else:
-			layout.prop(GeomStaticMesh, 'dynamic_geometry')
-
-
 class VRAY_DP_tools(classes.VRayGeomPanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -119,8 +76,7 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 
 def GetRegClasses():
 	return (
-		VRAY_DP_override,
-		VRAY_DP_tools
+		VRAY_DP_tools,
 	)
 
 

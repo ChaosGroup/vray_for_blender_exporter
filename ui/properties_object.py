@@ -46,10 +46,6 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
 
-	@classmethod
-	def poll(cls, context):
-		return classes.VRayObjectPanel.poll(context) and not context.object.vray.LightMesh.use
-
 	def draw_header(self, context):
 		self.layout.label(text="", icon='VRAY_LOGO_MONO')
 
@@ -61,115 +57,6 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 		MtlRenderStats = VRayObject.MtlRenderStats
 
 		layout.prop(VRayObject, 'fade_radius')
-
-
-class VRAY_OBP_lightmesh(classes.VRayObjectPanel):
-	bl_label = "Light"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		ob= context.object
-		VRayObject= ob.vray
-		LightMesh= VRayObject.LightMesh
-		self.layout.label(text="", icon='VRAY_LOGO_MONO')
-		self.layout.prop(LightMesh, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		ob= context.object
-		VRayObject= ob.vray
-		LightMesh= VRayObject.LightMesh
-
-		layout= self.layout
-		layout.active= LightMesh.use
-
-		split= layout.split()
-		col= split.column()
-		col.row().prop(LightMesh, 'color_type', expand=True)
-		if wide_ui:
-			col= split.column()
-		if LightMesh.color_type == 'RGB':
-			sub= col.row(align= True)
-			sub.prop(LightMesh, 'color', text="")
-			sub.operator('vray.set_kelvin_color', text="", icon= 'COLOR', emboss= False).data_path="object.vray.LightMesh.color"
-		else:
-			col.prop(LightMesh, 'temperature', text="K")
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(LightMesh, 'lightPortal', text="Mode")
-		if LightMesh.lightPortal == 'NORMAL':
-			col.prop(LightMesh, 'units', text="Units")
-			col.prop(LightMesh, 'intensity', text="Intensity")
-		col.prop(LightMesh, 'subdivs')
-		col.prop(LightMesh, 'causticSubdivs', text="Caustics")
-		if wide_ui:
-			col= split.column()
-		col.prop(LightMesh, 'enabled', text="On")
-		col.prop(LightMesh, 'invisible')
-		col.prop(LightMesh, 'affectDiffuse')
-		col.prop(LightMesh, 'affectSpecular')
-		col.prop(LightMesh, 'affectReflections')
-		col.prop(LightMesh, 'noDecay')
-		col.prop(LightMesh, 'doubleSided')
-		col.prop(LightMesh, 'storeWithIrradianceMap')
-
-		layout.separator()
-		layout.prop(LightMesh, 'use_include_exclude')
-
-		if LightMesh.use_include_exclude:
-			split= layout.split()
-			col= split.column()
-			col.prop(LightMesh, 'include_exclude')
-			col.prop_search(LightMesh,     'include_objects',
-							context.scene, 'objects',
-							text="Objects")
-			col.prop_search(LightMesh, 'include_groups',
-							bpy.data,  'groups',
-							text="Groups")
-
-
-class VRAY_OBP_subdivision(classes.VRayObjectPanel):
-	bl_label   = "Subdivision"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		ob= context.object
-		VRayObject= ob.vray
-		GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
-		self.layout.label(text="", icon='VRAY_LOGO_MONO')
-		self.layout.prop(GeomStaticSmoothedMesh, 'use', text="")
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		ob= context.object
-		VRayObject= ob.vray
-		GeomStaticSmoothedMesh= VRayObject.GeomStaticSmoothedMesh
-
-		layout= self.layout
-		layout.active= GeomStaticSmoothedMesh.use
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomStaticSmoothedMesh, 'static_subdiv')
-		if wide_ui:
-			col= split.column()
-		col.prop(GeomStaticSmoothedMesh, 'use_globals')
-
-		if not GeomStaticSmoothedMesh.use_globals:
-			layout.separator()
-			split= layout.split()
-			col= split.column()
-			col.prop(GeomStaticSmoothedMesh, 'edge_length')
-			col.prop(GeomStaticSmoothedMesh, 'max_subdivs')
-			if wide_ui:
-				col= split.column()
-			col.prop(GeomStaticSmoothedMesh, 'view_dep')
-
 
 
 class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
@@ -258,8 +145,6 @@ def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
 		VRAY_OBP_render,
-		VRAY_OBP_lightmesh,
-		VRAY_OBP_subdivision,
 		VRAY_OBP_VRayPattern,
 	)
 
