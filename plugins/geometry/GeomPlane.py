@@ -31,11 +31,3 @@ NAME = 'Infinite Plane'
 DESC = "Procedural infinite plane"
 
 PluginParams = ()
-
-
-def write(bus, pluginName):
-    ofile = bus['files']['nodes']
-
-    ofile.write("\nGeomPlane %s {}\n" % pluginName)
-
-    return pluginName
