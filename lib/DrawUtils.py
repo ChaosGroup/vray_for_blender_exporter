@@ -63,7 +63,7 @@ def DrawAttr(layout, propGroup, attr, text=None):
         layout.prop(propGroup, attr)
 
 
-def Draw(context, layout, dataPointer, PluginParams):
+def Draw(context, layout, propGroup, PluginParams):
     for attrDesc in PluginParams:
         if attrDesc['type'] in AttributeUtils.SkippedTypes:
             continue
@@ -73,56 +73,99 @@ def Draw(context, layout, dataPointer, PluginParams):
             continue
 
         if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
-            idref.draw_idref(layout, dataPointer, attrDesc['attr'])
+            idref.draw_idref(layout, propGroup, attrDesc['attr'])
         else:
-            DrawAttr(layout, dataPointer, attrDesc['attr'])
+            DrawAttr(layout, propGroup, attrDesc['attr'])
 
 
-def RenderItem(dataPointer, layout, attr, text=None, expand=False):
+def SetActive(layout, active, propGroup):
+    if active is not None:
+        prop      = active['prop']
+        condition = active.get('condition', True)
+
+        layout.active = getattr(propGroup, prop) == condition
+
+
+def RenderItem(propGroup, layout, attr, text=None, expand=False, active=None):
+    container = layout
+
+    if active is not None:
+        prop      = active['prop']
+        condition = active.get('condition', True)
+        
+        container = layout.row()
+        container.active = getattr(propGroup, prop) == condition
+
     if text is not None:
-        layout.prop(dataPointer, attr, expand=expand, text=text)
+        container.prop(propGroup, attr, expand=expand, text=text)
     else:
-        layout.prop(dataPointer, attr, expand=expand)
+        container.prop(propGroup, attr, expand=expand)
 
 
-def RenderContainer(context, layout, item, align=False, label=None):
+def RenderContainer(context, layout, item, align=False, label=None, propGroup=None, active=None):
+    container = layout
+
     if item == 'SPLIT':
-        return layout.split()
+        container = layout.split()
     elif item == 'COLUMN':
-        return layout.column(align=align)
+        container = layout.column(align=align)
     elif item == 'ROW':
         if not IsRegionWide(context):
-            return layout.column(align=align)
-        return layout.row(align=align)
+            container = layout.column(align=align)
+        else:
+            container = layout.row(align=align)
     elif item == 'SEPARATOR':
         if label is not None:
             layout.label(text="%s:" % label)
         else:
             layout.separator()
-        return layout
+        container = layout
     elif item == 'BOX':
-        return layout.box()
-    return layout
+        container = layout.box()
+    
+    SetActive(container, active, propGroup)
+
+    return container
 
 
-def RenderWidget(context, dataPointer, layout, widget):
+def RenderWidget(context, propGroup, layout, widget):
     # Layout
-    containerType = widget['layout']
+    containerType   = widget.get('layout', 'COLUMN')
+    containerActive = widget.get('active', None)
 
     if containerType == 'SPLIT':
         subLayout = layout
         
         if IsRegionWide(context):
-            subLayout = RenderContainer(context, layout, 'SPLIT')
+            subLayout = RenderContainer(
+                context,
+                layout,
+                'SPLIT',
+                propGroup=propGroup,
+                active=containerActive
+            )
+        else:
+            if containerActive is not None:
+                subLayout = layout.split()
+                SetActive(subLayout, containerActive, propGroup)
 
         for w in widget['splits']:
-            RenderWidget(context, dataPointer, subLayout, w)
+            RenderWidget(context, propGroup, subLayout, w)
 
     # Optional stuff
-    containerAlign = widget.get('align', False)
-    containerLabel = widget.get('label', None)
+    containerAlign  = widget.get('align', False)
+    containerLabel  = widget.get('label', None)
+    containerActive = widget.get('active', None)
 
-    container = RenderContainer(context, layout, containerType, containerAlign, containerLabel)
+    container = RenderContainer(
+        context,
+        layout,
+        containerType,
+        containerAlign,
+        containerLabel,
+        propGroup=propGroup,
+        active=containerActive
+    )
 
     widgetAttributes = widget.get('attrs', {})
 
@@ -131,16 +174,17 @@ def RenderWidget(context, dataPointer, layout, widget):
         attr = item['name']
 
         # Optional stuff
-        label        = item.get('label', None)
-        drawExpanded = IsRegionWide(context) and item.get('expand', False)
+        label  = item.get('label', None)
+        active = item.get('active', None)
+        expand = IsRegionWide(context) and item.get('expand', False)
 
-        RenderItem(dataPointer, container, attr, text=label, expand=drawExpanded)
+        RenderItem(propGroup, container, attr, text=label, expand=expand, active=active)
 
 
-def RenderTemplate(context, layout, dataPointer, pluginModule):
+def RenderTemplate(context, layout, propGroup, pluginModule):
     jsonTemplate = pluginModule.PluginWidget
 
     widgetDesc = json.loads(jsonTemplate)
 
     for widget in widgetDesc['widgets']:
-        RenderWidget(context, dataPointer, layout, widget)
+        RenderWidget(context, propGroup, layout, widget)
