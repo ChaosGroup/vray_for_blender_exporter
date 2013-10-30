@@ -464,9 +464,13 @@ def write_object(bus):
     
     PrintDict("Object \"%s\"" % ob.name, socketParams)
 
-    # XXX: A little ugly...
     bus['node']['geometry'] = socketParams.get('geometry', None)
     bus['node']['material'] = socketParams.get('material', None)
+
+    # If 'geometry' is None, we need to check if LightMesh node was used
+    # and export as Light
+    #
+    # TODO
 
     write_node(bus)
 
