@@ -1,5 +1,5 @@
-V-Ray/Blender
-=============
+V-Ray For Blender
+=================
 
 > Blender exporter to V-Ray Standalone
 
