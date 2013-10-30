@@ -42,23 +42,25 @@ from .sockets import AddInput, AddOutput
 
 
 VRayNodeTypes = {
-    'BRDF'     : [],
-    'EFFECT'   : [],
-    'GEOMETRY' : [],
-    'LIGHT'    : [],
-    'MATERIAL' : [],
-    'TEXTURE'  : [],
-    'UVWGEN'   : [],
+    'BRDF'          : [],
+    'EFFECT'        : [],
+    'GEOMETRY'      : [],
+    'LIGHT'         : [],
+    'MATERIAL'      : [],
+    'TEXTURE'       : [],
+    'UVWGEN'        : [],
+    'RENDERCHANNEL' : [],
 }
 
 VRayNodeTypeIcon = {
-    'BRDF'     : 'TEXTURE_SHADED',
-    'EFFECT'   : 'GHOST_ENABLED',
-    'GEOMETRY' : 'MESH_DATA',
-    'LIGHT'    : 'LAMP',
-    'MATERIAL' : 'MATERIAL',
-    'TEXTURE'  : 'TEXTURE',
-    'UVWGEN'   : 'GROUP_UVS',
+    'BRDF'          : 'TEXTURE_SHADED',
+    'EFFECT'        : 'GHOST_ENABLED',
+    'GEOMETRY'      : 'MESH_DATA',
+    'LIGHT'         : 'LAMP',
+    'MATERIAL'      : 'MATERIAL',
+    'TEXTURE'       : 'TEXTURE',
+    'UVWGEN'        : 'GROUP_UVS',
+    'RENDERCHANNEL' : 'SCENE_DATA',
 }
 
 
@@ -82,6 +84,13 @@ class VRayNodesMenuRenderChannels(bpy.types.Menu, tree.VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeRenderChannels)
+
+        row = self.layout.row()
+        sub = row.column()
+        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['RENDERCHANNEL'], key=lambda t: t.bl_label)):
+            if i and i % 15 == 0:
+                sub = row.column()
+            add_nodetype(sub, vrayNodeType)
 
 
 class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
