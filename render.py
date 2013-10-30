@@ -37,10 +37,11 @@ import _vray_for_blender
 
 from vb25.plugins import PLUGINS
 from vb25.lib     import VRayProcess, ExportUtils
-from vb25.lib     import utils as LibUtils
+from vb25.lib     import utils  as LibUtils
 from vb25.nodes   import export as NodesExport
 from vb25.utils   import *
 from vb25.debug   import Debug, PrintDict
+
 
  ######   ########  #######  ##     ## ######## ######## ########  ##    ##
 ##    ##  ##       ##     ## ###   ### ##          ##    ##     ##  ##  ##
@@ -346,18 +347,18 @@ def write_node(bus):
     ob         = bus['node']['object']
     visibility = bus['visibility']
 
+    if not bus['node']['material'] or not bus['node']['geometry']:
+        return
+
     VRayScene = scene.vray
     SettingsOptions = VRayScene.SettingsOptions
 
     lights = []
-    for lamp in [o for o in scene.objects if o.type == 'LAMP' or o.vray.LightMesh.use]:
+    for lamp in [o for o in scene.objects if o.type == 'LAMP']:
         if lamp.data is None:
             continue
 
-        if lamp.type == 'LAMP':
-            VRayLamp = lamp.data.vray
-        else:
-            VRayLamp = lamp.vray.LightMesh
+        VRayLamp = lamp.data.vray
 
         lamp_name = get_name(lamp, prefix='LA')
 
@@ -392,9 +393,6 @@ def write_node(bus):
         node_name += 'HAIR'
 
     material = base_mtl
-
-    if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-        material = get_name(bpy.data.materials[SettingsOptions.mtl_override], prefix='MA')
 
     if not VRayScene.RTEngine.enabled:
         material = "RS%s" % node_name
@@ -445,16 +443,13 @@ def write_object(bus):
     bus['node']['matrix']   = ob.matrix_world
 
     # Check if this is a particle holder and skip if needed
-    #
     if len(ob.particle_systems):
         for ps in ob.particle_systems:
             if not ps.settings.use_render_emitter:
                 return
 
     # Export nodetree
-    #
     socketParams = {}
-
     if VRayObject.ntree:
         vrayOuputNode = NodesExport.GetNodeByType(VRayObject.ntree, 'VRayNodeObjectOutput')
         if vrayOuputNode:
@@ -463,23 +458,11 @@ def write_object(bus):
                 value = NodesExport.WriteConnectedNode(bus, VRayObject.ntree, nodeSocket)
                 if value is not None:
                     socketParams[vrayAttr] = value
-
-    PrintDict("Object \"%s\"" % ob.name, socketParams)
-    
-    # Params were not connected within the node tree or user just haven't used nodetree
-    #
-    if 'material' not in socketParams or not socketParams['material']:
+    else:
         socketParams['material'] = NodesExport.WriteVRayNodeBlenderOutputMaterial(bus, None, None)
-
-    if 'geometry' not in socketParams or not socketParams['geometry']:
-        if not VRayData.override:
-            socketParams['geometry'] = NodesExport.WriteVRayNodeBlenderOutputGeometry(bus, None, None)
-        else:
-            if VRayData.override_type == 'VRAYPROXY':
-                PLUGINS['GEOMETRY']['GeomMeshFile'].write(bus)
-            elif VRayData.override_type == 'VRAYPLANE':
-                bus['node']['geometry'] = get_name(ob, prefix='VRayPlane')
-                PLUGINS['GEOMETRY']['GeomPlane'].write(bus, bus['node']['geometry'])
+        socketParams['geometry'] = NodesExport.WriteVRayNodeBlenderOutputGeometry(bus, None, None)
+    
+    PrintDict("Object \"%s\"" % ob.name, socketParams)
 
     # XXX: A little ugly...
     bus['node']['geometry'] = socketParams.get('geometry', None)
@@ -686,6 +669,8 @@ def write_scene(bus):
     VRayExporter = VRayScene.exporter
     SettingsOptions = VRayScene.SettingsOptions
 
+    bus['material_override'] = None
+
     # Fail-safe defaults
     bus['defaults'] = {}
     bus['defaults']['brdf'] = "BRDFNOBRDFISSET"
@@ -710,6 +695,13 @@ def write_scene(bus):
     if bus['preview']:
         bus['files']['scene'].write(get_vrscene_template("preview.vrscene"))
 
+    # Write override material     
+    if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
+        overrideMaterial = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
+        overrideNtree = overrideMaterial.vray.ntree
+        if overrideNtree:
+            bus['material_override'] = NodesExport.WriteVRayMaterialNodeTree(bus, overrideNtree, force=True)
+
     def write_frame(bus):
         timer = time.clock()
         scene = bus['scene']
@@ -723,7 +715,7 @@ def write_scene(bus):
         # Prepare exclude for effects
         bus['object_exclude'] = set()
 
-        # Caches to prevent multiple export
+        # Cache names to prevent multiple export
         bus['cache']['nodes'] = set()
         bus['cache']['mesh'] = set()
         bus['cache']['plugins'] = set()

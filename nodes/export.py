@@ -31,7 +31,7 @@ from vb25.lib     import ExportUtils
 from vb25.lib     import utils as LibUtils
 from vb25.plugins import PLUGINS
 from vb25.debug   import Debug, PrintDict
-from vb25.utils   import clean_string, get_data_by_name
+from vb25.utils   import get_name, clean_string, get_data_by_name
 
 
 ##     ## ######## #### ##       #### ######## #### ########  ######
@@ -174,9 +174,6 @@ def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
             continue
 
         ma = slot.material
-
-        if not ma.vray.dontOverride and SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
-            ma = get_data_by_name(scene, 'materials', SettingsOptions.mtl_override)
 
         if not ma.vray.ntree:
             continue
@@ -384,17 +381,29 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-def WriteVRayMaterialNodeTree(bus, nodetree):
-    outputNode = GetNodeByType(nodetree, 'VRayNodeOutputMaterial')
+def WriteVRayMaterialNodeTree(bus, ntree, force=False):
+    scene = bus['scene']
+
+    VRayScene = scene.vray
+    SettingsOptions = VRayScene.SettingsOptions
+
+    outputNode = GetNodeByType(ntree, 'VRayNodeOutputMaterial')
     if not outputNode:
         Debug("Output node not found!", msgType='ERROR')
         return bus['defaults']['material']
 
+    # Check global material override
+    #
+    if bus['material_override'] is not None and outputNode.dontOverride == False:
+        return bus['material_override']
+    
+    # Check connection
+    #
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
-        Debug("NodeTree: %s" % nodetree.name, msgType='ERROR')
+        Debug("NodeTree: %s" % ntree.name, msgType='ERROR')
         Debug("  Node: %s" % outputNode.name, msgType='ERROR')
         Debug("  Error: Material socket is not connected!", msgType='ERROR')
         return bus['defaults']['material']
 
-    return WriteConnectedNode(bus, nodetree, materialSocket)
+    return WriteConnectedNode(bus, ntree, materialSocket)
