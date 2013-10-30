@@ -486,7 +486,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "areaSpeculars" },                
+                    { "name" : "areaSpeculars" },
                     { "name" : "affectSpecular" },
                     { "name" : "affectDiffuse" }
                 ]

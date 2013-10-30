@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'LIGHT'
 ID   = 'LightMesh'
-NAME = 'Mesh'
+NAME = 'Mesh Light'
 DESC = ""
 
 PluginParams = (
@@ -238,9 +238,14 @@ PluginParams = (
     },
     {
         'attr' : 'lightPortal',
-        'desc' : "Specifies if the light is a portal light (0 - normal light, 1 - portal light, 2 - simple portal light)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies if the light is a portal light",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Normal Light", ""),
+            ('1', "Portal", ""),
+            ('2', "Simple Portal", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'objectID',
@@ -251,7 +256,7 @@ PluginParams = (
     {
         'attr' : 'geometry',
         'desc' : "",
-        'type' : 'PLUGIN',
+        'type' : 'GEOMETRY',
         'default' : "",
     },
     {
@@ -285,3 +290,137 @@ PluginParams = (
         'default' : True,
     },
 )
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" },
+            { "name" : "invisible" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "lightPortal", "label" : "Mode" },
+                    { "name" : "units" },
+                    { "name" : "color", "label" : "" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "intensity" },
+                    { "name" : "subdivs" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" },
+                    { "name" : "shadowColor", "label" : "" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "doubleSided" },
+                    { "name" : "noDecay" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "diffuseMult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticSubdivs" },
+                    { "name" : "causticMult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" },
+                    { "name" : "bumped_below_surface_check" },
+                    { "name" : "ignoreLightNormals" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cutoffThreshold" },
+                    { "name" : "nsamples" },
+                    { "name" : "use_global_light_level" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                { "name" : "diffuse_contribution" },
+                { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "affectSpecular" },
+                    { "name" : "affectReflections" },
+                    { "name" : "affectDiffuse" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                { "name" : "tex_resolution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cache_tex" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "objectID" }
+        ]
+    }
+]}
+"""
+

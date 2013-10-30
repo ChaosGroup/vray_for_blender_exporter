@@ -220,32 +220,166 @@ PluginParams = (
     },
     {
         'attr' : 'ies_light_shape',
-        'desc' : "IES light shape; if -1 the default light shape from IES profile is used",
-        'type' : 'INT',
-        'default' : -1,
+        'desc' : "IES light shape",
+        'type' : 'ENUM',
+        'items' : (
+            ('-1', "From File", ""),
+            ('0',  "Custom", "")
+        ),
+        'default' : '-1',
     },
     {
         'attr' : 'ies_light_width',
-        'desc' : "Light shape width (in metres); if ies_light_shape is -1 the default light width from IES profile is used",
+        'desc' : "Light shape width (in metres)",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'ies_light_length',
-        'desc' : "Light shape length (in metres); if ies_light_shape is -1 the default light length from IES profile is used",
+        'desc' : "Light shape length (in metres)",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'ies_light_height',
-        'desc' : "Light shape height (in metres); if ies_light_shape is -1 the default light height from IES profile is used",
+        'desc' : "Light shape height (in metres)",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'ies_light_diameter',
-        'desc' : "Light shape diameter (in metres); if ies_light_shape is -1 the default light diameter from IES profile is used",
+        'desc' : "Light shape diameter (in metres)",
         'type' : 'FLOAT',
         'default' : 0,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "ies_file" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "color", "label" : "" }                   
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "power" },
+                    { "name" : "shadowSubdivs" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : false,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" },
+                    { "name" : "shadowColor", "label" : "" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "soft_shadows" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "ies_light_shape", "label" : "Shape" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "ies_light_width" },
+                    { "name" : "ies_light_length" },
+                    { "name" : "ies_light_height"  },
+                    { "name" : "ies_light_diameter" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "diffuseMult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticSubdivs" },
+                    { "name" : "causticMult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" },
+                    { "name" : "bumped_below_surface_check" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cutoffThreshold" },
+                    { "name" : "nsamples" },
+                    { "name" : "use_global_light_level" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                { "name" : "diffuse_contribution" },
+                { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "area_speculars" },
+                    { "name" : "affectSpecular" },
+                    { "name" : "affectDiffuse" }
+                ]
+            }
+        ]
+    }
+]}
+"""

@@ -375,7 +375,7 @@ PluginWidget = """
                 "attrs" : [
                     { "name" : "near_attenuation_start", "label" : "Near Att. Start" },
                     { "name" : "near_attenuation_end", "label" : "Near Att. End" },
-                    { "name" : "far_attenuation_start" , "label" : "Far Att. Start"},
+                    { "name" : "far_attenuation_start" , "label" : "Far Att. Start" },
                     { "name" : "far_attenuation_end", "label" : "Far Att. End" }
                 ]
             }
@@ -433,7 +433,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "areaSpeculars" },                
+                    { "name" : "areaSpeculars" },
                     { "name" : "affectSpecular" },
                     { "name" : "affectDiffuse" }
                 ]
