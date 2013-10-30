@@ -22,11 +22,17 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+import mathutils
+
+from vb25.lib   import ExportUtils
+from vb25.debug import Debug
+
+
 TYPE = 'GEOMETRY'
 ID   = 'GeomStaticSmoothedMesh'
 NAME = "Subdivision"
 DESC = "Subdivision surface settings"
-
 
 PluginParams = (
     {
@@ -37,24 +43,28 @@ PluginParams = (
     },
     {
         'attr' : 'displacement_tex_color',
+        'name' : "Color",
         'desc' : "The displacement texture",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'displacement_tex_float',
+        'name' : "Float",
         'desc' : "The displacement texture",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
     {
         'attr' : 'displacement_amount',
+        'name' : "Amount",
         'desc' : "Determines the displacement amount for white areas in the displacement map; if use_globals is true this is multiplied by the global displacement amount option",
         'type' : 'FLOAT',
-        'default' : 1,
+        'default' : 0.25,
     },
     {
         'attr' : 'displacement_shift',
+        'name' : "Shift",
         'desc' : "This constant value is added to the displacement map",
         'type' : 'FLOAT',
         'default' : 0,
@@ -72,12 +82,6 @@ PluginParams = (
         'default' : -1e+30,
     },
     {
-        'attr' : 'vector_displacement',
-        'desc' : "When this is 1, the red, green and blue channels of displacement_tex_color will be used to perform vector displacement with base 0.5; if this is 2, then the map matches the Mudbox displacement maps in absolute tangent space; 3 - vector displacement in object space",
-        'type' : 'INT',
-        'default' : 0,
-    },
-    {
         'attr' : 'map_channel',
         'desc' : "The mapping channel to use for vector displacement",
         'type' : 'INT',
@@ -92,7 +96,7 @@ PluginParams = (
     {
         'attr' : 'cache_normals',
         'desc' : "If this option is equal to 1 then the normals of the generated triangles are cached. It has effect only if the surface is displaced",
-        'type' : 'INT',
+        'type' : 'BOOL',
         'default' : 0,
     },
     {
@@ -145,22 +149,128 @@ PluginParams = (
     },
     {
         'attr' : 'preserve_map_borders',
-        'desc' : "The valid values are: -1 - not set; 0 - none; 1 - internal; 2 - all",
-        'type' : 'INT',
-        'default' : -1,
+        'desc' : "The valid values",
+        'type' : 'ENUM',
+        'items' : (
+            ('-1', "Not Set", ""),
+            ('0', "None", ""),
+            ('1', "Internal", ""),
+            ('2', "All", ""),
+        ),
+        'default' : '-1',
     },
     {
         'attr' : 'classic_catmark',
         'desc' : "If equal to 1 then the classical Catmull-Clark masks will be used for meshes which contain only quadrangles",
-        'type' : 'INT',
-        'default' : 0,
-    },
-
-    {
-        'attr' : 'use',
-        'desc' : "",
         'type' : 'BOOL',
-        'skip' : True,
         'default' : False,
     },
+    {
+        'attr' : 'vector_displacement',
+        'name' : "Mode",
+        'desc' : "Mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Normal", "Normal displacement"),
+            ('1', "Vector", "The red, green and blue channels of \"Texture (Color)\" will be used to perform vector displacement with base 0.5"),
+            ('2', "Absolute Tangent", "Mudbox displacement maps in absolute tangent space"),
+            ('3', "Vector (Object Space)", "Vector displacement in object space"),
+        ),
+        'default' : '0',
+    },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "vector_displacement" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "displacement_amount" },
+                    { "name" : "displacement_shift" },
+                    { "name" : "water_level" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "keep_continuity" },
+                    { "name" : "cache_normals" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_globals" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "use_globals" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "edge_length" },
+                    { "name" : "max_subdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "view_dep" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_bounds" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "use_bounds" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "min_bound" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "max_bound" }
+                ]
+            }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginName, PluginParams, GeomStaticSmoothedMesh, mappedParams):
+    ofile = bus['files']['nodes']
+    scene = bus['scene']
+    ob    = bus['node']['object']
+
+    mesh = mappedParams.get('mesh', None)
+
+    if not mesh:
+        Debug("Object \"%s\" Displacement: 'mesh' is not connected!" % ob.name, msgType='ERROR')
+        return None
+
+    ofile.write("\n%s %s {" % (ID, pluginName))
+    ofile.write("\n\tmesh=%s;" % mesh)
+    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomStaticSmoothedMesh, mappedParams, PluginParams)
+    ofile.write("\n}\n")
+
+    return pluginName

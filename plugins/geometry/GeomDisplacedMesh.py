@@ -23,16 +23,16 @@
 #
 
 import bpy
+import mathutils
 
-from vb25.lib        import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
+from vb25.lib   import ExportUtils
+from vb25.debug import Debug
 
 
 TYPE = 'GEOMETRY'
 ID   = 'GeomDisplacedMesh'
 NAME = "Displacement"
 DESC = "Displacement settings"
-
 
 PluginParams = (
     {
@@ -43,21 +43,29 @@ PluginParams = (
         'default' : "",
     },
     {
-        'attr' : 'displacement_tex',
-        'name' : "Texture",
+        'attr' : 'displacement_tex_color',
+        'name' : "Color",
         'desc' : "The displacement texture",
         'type' : 'TEXTURE',
-        'skip' : True,
         'default' : (0.0, 0.0, 0.0),
     },
     {
+        'attr' : 'displacement_tex_float',
+        'name' : "Float",
+        'desc' : "The displacement texture",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 0.0,
+    },
+    {
         'attr' : 'displacement_amount',
+        'name' : "Amount",
         'desc' : "Determines the displacement amount for white areas in the displacement map; if use_globals is true this is multiplied by the global displacement amount option",
         'type' : 'FLOAT',
         'default' : 0.25,
     },
     {
         'attr' : 'displacement_shift',
+        'name' : "Shift",
         'desc' : "This constant value is added to the displacement map",
         'type' : 'FLOAT',
         'default' : 0,
@@ -170,7 +178,6 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 0.001,
     },
-
     # {
     #     'attr' : 'displace_2d',
     #     'desc' : "Use to enable 2d displacement. Overrides the vector_displacement flag",
@@ -185,6 +192,7 @@ PluginParams = (
     # },
     {
         'attr' : 'type',
+        'name' : "Mode",
         'desc' : "Displacement type",
         'type' : 'ENUM',
         'items' : (
@@ -197,74 +205,138 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "type" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "displacement_amount" },
+                    { "name" : "displacement_shift" },
+                    { "name" : "water_level" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "resolution" },
+                    { "name" : "precision" },
+                    { "name" : "keep_continuity" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_globals" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "use_globals" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "edge_length" },
+                    { "name" : "max_subdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "view_dep" },
+                    { "name" : "tight_bounds" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_bounds" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "use_bounds" },
+                "attrs" : [
+                    { "name" : "min_bound" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "use_bounds" },
+                "attrs" : [
+                    { "name" : "max_bound" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "static_displacement" },
+            { "name" : "cache_normals" },
+            { "name" : "filter_texture" },
+            { "name" : "filter_blur", "active" : { "prop" : "filter_texture" } }
+        ]
+    }
+]}
+"""
+
 
 def nodeDraw(context, layout, GeomDisplacedMesh):
     layout.prop(GeomDisplacedMesh, 'type')
     layout.prop(GeomDisplacedMesh, 'displacement_amount', text="Amount")
 
 
-def gui(context, layout, GeomDisplacedMesh):
-    contextType = GetContextType(context)
-    regionWidth = GetRegionWidthFromContext(context)
-
-    wide_ui = regionWidth > narrowui
-
-    split = layout.split()
-    col = split.column()
-    col.prop(GeomDisplacedMesh, 'displacement_shift', slider=True)
-    col.prop(GeomDisplacedMesh, 'water_level', slider=True)
-    col.prop(GeomDisplacedMesh, 'resolution')
-    col.prop(GeomDisplacedMesh, 'precision')
-    if wide_ui:
-        col = split.column()
-    col.prop(GeomDisplacedMesh, 'type')
-    col.prop(GeomDisplacedMesh, 'keep_continuity')
-    col.prop(GeomDisplacedMesh, 'filter_texture')
-    if GeomDisplacedMesh.filter_texture:
-        col.prop(GeomDisplacedMesh, 'filter_blur')
-    col.prop(GeomDisplacedMesh, 'use_bounds')
-    if GeomDisplacedMesh.use_bounds:
-        sub = col.column(align= True)
-        sub.prop(GeomDisplacedMesh, 'min_bound', text="Min", slider= True)
-        sub.prop(GeomDisplacedMesh, 'max_bound', text="Max", slider= True)
-
-    split = layout.split()
-    col = split.column()
-    col.prop(GeomDisplacedMesh, 'use_globals')
-    if not GeomDisplacedMesh.use_globals:
-        split = layout.split()
-        col = split.column()
-        col.prop(GeomDisplacedMesh, 'edge_length')
-        col.prop(GeomDisplacedMesh, 'max_subdivs')
-        if wide_ui:
-            col = split.column()
-        col.prop(GeomDisplacedMesh, 'view_dep')
-        col.prop(GeomDisplacedMesh, 'tight_bounds')
-
-
 def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
     ofile = bus['files']['nodes']
     scene = bus['scene']
+    ob    = bus['node']['object']
 
-    if 'mesh' not in mappedParams:
+    mesh = mappedParams.get('mesh', None)
+
+    texture_float = mappedParams.get('displacement_tex_float', None)
+    texture_color = mappedParams.get('displacement_tex_color', None)
+
+    if not mesh:
+        Debug("Object \"%s\" Displacement: 'mesh' is not connected!" % ob.name, msgType='ERROR')
         return None
+
+    if GeomDisplacedMesh.type == '3D':
+        if not texture_color or type(texture_color) == mathutils.Color:
+            Debug("Object \"%s\" Displacement: 'Color' texture is not connected!" % ob.name, msgType='ERROR')
+            return mesh
+    else:
+        if not texture_float or type(texture_float) == mathutils.Color:
+            Debug("Object \"%s\" Displacement: 'Float' texture is not connected!" % ob.name, msgType='ERROR')
+            return mesh
 
     ofile.write("\n%s %s {" % (ID, pluginName))
 
-    ofile.write("\n\tmesh=%s;" % mappedParams['mesh'])
-
+    ofile.write("\n\tmesh=%s;" % mesh)
     if GeomDisplacedMesh.type == '2D':
         ofile.write("\n\tdisplace_2d=1;")
         ofile.write("\n\tvector_displacement=0;")
-        ofile.write("\n\tdisplacement_tex_float=%s;" % mappedParams['displacement_tex'])
+        ofile.write("\n\tdisplacement_tex_float=%s;" % texture_float)
     elif GeomDisplacedMesh.type == '3D':
         ofile.write("\n\tdisplace_2d=0;")
         ofile.write("\n\tvector_displacement=1;")
-        ofile.write("\n\tdisplacement_tex_color=%s;" % mappedParams['displacement_tex'])
+        ofile.write("\n\tdisplacement_tex_color=%s;" % texture_color)
     else:
         ofile.write("\n\tdisplace_2d=0;")
         ofile.write("\n\tvector_displacement=0;")
-        ofile.write("\n\tdisplacement_tex_float=%s;" % mappedParams['displacement_tex'])
+        ofile.write("\n\tdisplacement_tex_float=%s;" % texture_float)
 
     ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomDisplacedMesh, mappedParams, PluginParams)
 
