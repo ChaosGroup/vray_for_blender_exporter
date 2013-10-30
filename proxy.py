@@ -125,14 +125,10 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 	bl_idname      = "vray.proxy_load_preview"
 	bl_label       = "Load Preview"
-	bl_description = "Load VRayProxy mesh preview from file"
+	bl_description = "Loads mesh preview from vrmesh file"
 
 	def execute(self, context):
-		originalMesh = context.object.data
-		GeomMeshFile = originalMesh.vray.GeomMeshFile
-
-		proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
-		proxyFilename = os.path.basename(proxyFilepath)
+		proxyFilepath = bpy.path.abspath(context.node.GeomMeshFile.file)
 
 		if not proxyFilepath:
 			self.report({'ERROR'}, "Proxy filepath is not set!")
