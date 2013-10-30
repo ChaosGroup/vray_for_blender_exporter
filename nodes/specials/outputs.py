@@ -57,6 +57,15 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
+    dynamicGeometry = bpy.props.BoolProperty(
+        name        = "Dynamic geometry",
+        description = "Instead of copying the mesh many times in the BSP tree, only the bounding box will be present many times and ray intersections will occur in a separate object space BSP tree",
+        default     =  False
+    )
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'dynamicGeometry', text="Dynamic")
+
     def init(self, context):
         AddOutput(self, 'VRaySocketGeom', "Geometry")
 
@@ -88,6 +97,15 @@ class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
+
+    dontOverride = bpy.props.BoolProperty(
+        name        = "Don't Override",
+        description = "Don't override material",
+        default     = False
+    )
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'dontOverride')
 
     def init(self, context):
         AddInput(self, 'VRaySocketMtl', "Material")
