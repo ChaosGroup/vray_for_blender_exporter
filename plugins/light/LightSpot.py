@@ -250,9 +250,13 @@ PluginParams = (
     },
     {
         'attr' : 'falloffType',
-        'desc' : "The type of transition in the penumbra region; 0 - linear; 1 - smooth cubic",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "The type of transition in the penumbra region",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Linear", ""),
+            ('1', "Smooth Cubic", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'decay',
@@ -333,3 +337,133 @@ PluginParams = (
         'default' : 10,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "units" },
+                    { "name" : "intensity" },
+                    { "name" : "falloffType" },
+                    { "name" : "decay" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "color", "label" : "" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadowColor", "label" : "" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "diffuseMult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "causticSubdivs" },
+                    { "name" : "causticMult" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" },
+                    { "name" : "bumped_below_surface_check" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "cutoffThreshold" },
+                    { "name" : "nsamples" },
+                    { "name" : "use_global_light_level" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "useDecayRegions" },
+                    { "name" : "startDistance1" },
+                    { "name" : "endDistance1" },
+                    { "name" : "startDistance2" },
+                    { "name" : "endDistance2" },
+                    { "name" : "startDistance3" },
+                    { "name" : "endDistance3" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "barnDoor" },
+                    { "name" : "barnDoorLeft" },
+                    { "name" : "barnDoorRight" },
+                    { "name" : "barnDoorTop" },
+                    { "name" : "barnDoorBottom" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "specular_contribution" },
+                    { "name" : "diffuse_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "areaSpeculars" }
+                ]
+            }
+        ]
+    }
+]}
+"""

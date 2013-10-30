@@ -93,9 +93,13 @@ PluginParams = (
     },
     {
         'attr' : 'shadowRadiusMode',
-        'desc' : "The units for the shadow radius (0 - radians; 1 - degrees)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "The units for the shadow radius",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Radians", ""),
+            ('1', "Degrees", "")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'shadowRadius_tex',
@@ -188,3 +192,83 @@ PluginParams = (
         'default' : "",
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "intensity" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "color", "label" : "" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadows" },
+                    { "name" : "shadowBias" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "shadowColor", "label" : "" },
+                    { "name" : "shadowRadius"},
+                    { "name" : "shadowRadiusMode"}
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "storeWithIrradianceMap" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "photonSubdivs" },
+                    { "name" : "nsamples" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "specular_contribution" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "diffuse_contribution" }
+                ]
+            }
+        ]
+    }
+]}
+"""
