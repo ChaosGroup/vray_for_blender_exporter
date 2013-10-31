@@ -320,6 +320,11 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
 def WriteNode(bus, nodetree, node, returnDefault=False):
     Debug("Processing node: %s..." % node.name)
 
+    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
+    if pluginName in bus['cache']['plugins']:
+        return pluginName
+    bus['cache']['plugins'].add(pluginName)
+
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
@@ -340,15 +345,9 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
     if vrayType == 'NONE' or vrayPlugin == 'NONE':
         return None
 
-    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
-
-    if pluginName in bus['cache']['plugins']:
-        return pluginName
-    bus['cache']['plugins'].add(pluginName)
-
     Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
-    dataPointer = getattr(node, vrayPlugin)
+    propGroup = getattr(node, vrayPlugin)
 
     socketParams = {}
 
@@ -357,18 +356,20 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
 
         socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=returnDefault)
 
-    result     = None
-    pluginDesc = PLUGINS[vrayType][vrayPlugin]
+    pluginModule = PLUGINS[vrayType][vrayPlugin]
 
     # XXX: Used to access 'image' pointer for BitmapBuffer
     # and 'texture' for TexGradRamp
     #
     bus['context']['node'] = node
 
-    if hasattr(pluginDesc, 'writeDatablock'):
-        result = pluginDesc.writeDatablock(bus, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)
-    else:
-        result = ExportUtils.WriteDatablock(bus, vrayPlugin, pluginName, PLUGINS[vrayType][vrayPlugin].PluginParams, dataPointer, socketParams)
+    result = ExportUtils.WritePlugin(
+        bus,
+        pluginModule,
+        pluginName,
+        propGroup,
+        socketParams
+    )
 
     return result
 
