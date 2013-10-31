@@ -27,7 +27,8 @@
 import os
 import sys
 
-from . import VRaySocket
+from .VRaySocket import VRaySocket
+from vb25.debug import Debug
 
 
 PluginTypeToFile = {
@@ -54,40 +55,78 @@ class VRayStream:
     # Filename prefix
     baseName = None
 
-    # Dict with the opened files
+    # Destination
     files = None
+    socket = None
 
     # Write particular plugin types to correspondent files  
-    useSeparateFiles = None
+    separateFiles = None
 
-    # Don't overwrite geometry (used for manual mesh export)
-    dontOverwriteGeometry = None
+    # If overwrite geometry (used for manual mesh export)
+    overwriteGeometry = None
+    drSettings = None
 
     # Currently processes plugin
     pluginType = None
+    pluginID   = None
     pluginName = None
 
     # Work mode: 'VRSCENE', 'SOCKET', 'NETWORK'
     mode = None
 
-    def __init__(self, workMode='VRSCENE'):
-        self.init(workMode)
+    def __init__(self):
+        pass
 
     def __del__(self):
         self.close()
 
-    def init(self, workMode=None, exportDir=None, baseName=None, separateFiles=True, overwriteGeometry=True):
-        self.mode = workMode
+    def init(self, mode=None, exportDir=None, baseName=None, separateFiles=True, overwriteGeometry=True, drSettings=None):
+        self.mode = mode
+        self.exportDir = exportDir
+        self.baseName = baseName
+        self.separateFiles = separateFiles
+        self.overwriteGeometry = overwriteGeometry
+        self.drSettings = drSettings
 
-    def set(self, pluginType, pluginName):
+        self.files = dict()
+
+        if self.mode in {'VRSCENE'}:
+            if not self.separateFiles:
+                filename = "%s.vrscene" % self.baseName
+                filepath = os.path.join(self.exportDir, filename)
+
+                self.files['scene'] = open(filepath, 'w')
+
+            else:
+                for pluginType in PluginTypeToFile:
+                    fileType = PluginTypeToFile[pluginType]
+                    if fileType in self.files:
+                        continue
+
+                    filename = "%s_%s.vrscene" % (self.baseName, fileType)
+                    filepath = os.path.join(self.exportDir, filename)
+
+                    if fileType == 'geometry' and not self.overwriteGeometry:
+                        continue
+
+                    self.files[fileType] = open(filepath, 'w')
+
+        elif self.mode in {'SOCKET'}:
+            self.socket = VRaySocket()
+
+    def set(self, pluginType, pluginID, pluginName):
         self.pluginType = pluginType
+        self.pluginID   = pluginID
         self.pluginName = pluginName
 
-    def writeHeader(self, pluginInstanceName):
+        if self.mode in {'SOCKET', 'NETWORK'}:
+            self.socket.connect()
+
+    def writeHeader(self):
         if self.mode not in {'VRSCENE'}:
             return
-        output = self.getOutputFile()
-        output.write("\n%s %s {" % (self.pluginName, pluginInstanceName))
+        o = self.getOutputFile()
+        o.write("\n%s %s {" % (self.pluginID, self.pluginName))
 
     def writeFooter(self):
         if self.mode not in {'VRSCENE'}:
@@ -96,20 +135,54 @@ class VRayStream:
         output.write("\n}\n")
 
     # Write data to a respective file or transfer data
-    #
-    def write(self, pluginModule, datablock, mappedParams):
-        pass
+    def writeAttibute(self, attibute, value):
+        if self.mode in {'SOCKET', 'NETWORK'}:
+            self.socket.send("set %s.%s=%s" % (self.pluginName, attibute, value))
+        else:
+            o = self.getOutputFile()
+            o.write("\n\t%s=%s;" % (attibute, value))
+
+    # Write arbitary data
+    def write(self, fileType, data):
+        if self.mode not in {'VRSCENE'}:
+            return
+        if not fileType in self.files:
+            return
+        o = self.files[fileType]
+        o.write(data)
+
+    def commit(self):
+        if self.mode not in {'SOCKET', 'NETWORK'}:
+            return
+        self.socket.send("render")
+        self.socket.disconnect()
 
     # Will close files and write "includes" to the main scene file
     def close(self):
-        pass
+        if self.mode in {'SOCKET', 'NETWORK'}:
+            self.commit()
+        else:
+            mainFile = self.files['scene']
 
-    def getOutputFile(self):        
+            if self.separateFiles:
+                for fileType in self.files:
+                    f = self.files[fileType]
+                    mainFile.write('\n#include "%s"' % os.path.basename(f.name))
+                mainFile.write('\n')
+
+            for fileType in self.files:
+                self.files[fileType].close()
+
+    def getFileByType(self, pluginType):
+        fileType = PluginTypeToFile[pluginType]
+        return self.files[fileType]
+
+    def getOutputFile(self):
         if self.mode not in {'VRSCENE'}:
             return None
-        if not self.useSeparateFiles:
-            return self.files['SETTINGS']
+        if not self.separateFiles:
+            return self.files['scene']
         if not self.pluginType:
             Debug("Plugin type is not specified!", msgType='ERROR')
-            return self.files['SETTINGS']
-        return self.files[self.pluginType]
+            return self.files['scene']
+        return self.getFileByType(self.pluginType)
