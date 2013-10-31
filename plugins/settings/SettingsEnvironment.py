@@ -120,7 +120,7 @@ def write(bus):
 	if not outputNode:
 		return
 
-	# Effects must always be exported before Environment
+	# Effects must be always exported before Environment
 	#
 	effectsSocket = outputNode.inputs['Effects']
 	if effectsSocket.is_linked:
@@ -135,42 +135,6 @@ def write(bus):
 			WriteEnvironment(bus, ntree, environmentNode)
 	else:
 		WriteEnvironment(bus, ntree, None)
-
-
-def write_VolumeVRayToon_from_material(bus):
-	WIDTHTYPE= {
-		'PIXEL': 0,
-		'WORLD': 1,
-	}
-
-	ofile= bus['files']['environment']
-	scene= bus['scene']
-
-	ob= bus['node']['object']
-	ma= bus['material']['material']
-
-	VRayMaterial= ma.vray
-
-	VolumeVRayToon= VRayMaterial.VolumeVRayToon
-
-	toon_name= clean_string("MT%s%s" % (ob.name, ma.name))
-
-	ofile.write("\nVolumeVRayToon %s {" % toon_name)
-	ofile.write("\n\tcompensateExposure= 1;")
-	for param in PARAMS['VolumeVRayToon']:
-		if param == 'excludeType':
-			value= 1
-		elif param == 'excludeList':
-			value= "List(%s)" % get_name(ob, prefix='OB')
-		elif param == 'widthType':
-			value= WIDTHTYPE[VolumeVRayToon.widthType]
-		else:
-			value= getattr(VolumeVRayToon, param)
-		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
-	ofile.write("\n}\n")
-
-	return toon_name
-
 
 
 def write_SphereFadeGizmo(bus, ob):
@@ -199,34 +163,3 @@ def write_SphereFade(bus, effect, gizmos):
 		ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 
 	ofile.write("\n}\n")
-
-
-def write_VolumeVRayToon(bus, effect, objects):
-	EXCLUDETYPE= {
-		'EXCLUDE': 0,
-		'INCLUDE': 1,
-	}
-	WIDTHTYPE= {
-		'PIXEL': 0,
-		'WORLD': 1,
-	}
-
-	VolumeVRayToon= effect.VolumeVRayToon
-
-	name= "EVT%s" % clean_string(effect.name)
-
-	ofile.write("\nVolumeVRayToon %s {" % name)
-	ofile.write("\n\tcompensateExposure= 1;")
-	for param in PARAMS['VolumeVRayToon']:
-		if param == 'excludeType':
-			value= EXCLUDETYPE[VolumeVRayToon.excludeType]
-		elif param == 'widthType':
-			value= WIDTHTYPE[VolumeVRayToon.widthType]
-		elif param == 'excludeList':
-			value= "List(%s)" % ','.join(objects)
-		else:
-			value= getattr(VolumeVRayToon, param)
-		ofile.write("\n\t%s=%s;"%(param, a(scene, value)))
-	ofile.write("\n}\n")
-
-	return name

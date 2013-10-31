@@ -23,46 +23,28 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsDMCSampler'
-NAME = 'DMC Sampler'
+ID   = 'FilterMitNet'
+NAME = 'Mitchell-Netravali'
 DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'time_dependent',
-        'desc' : "This make the samping pattern change with time",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'adaptive_amount',
-        'desc' : "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation",
+        'attr' : 'size',
+        'desc' : "Filter width",
         'type' : 'FLOAT',
-        'default' : 0.85,
+        'default' : 4,
     },
     {
-        'attr' : 'adaptive_threshold',
-        'desc' : "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used",
-        'type' : 'FLOAT',
-        'default' : 0.01,
-    },
-    {
-        'attr' : 'adaptive_min_samples',
-        'desc' : "The minimum number of samples that must be made before the early termination algorithm is used",
-        'type' : 'INT',
-        'default' : 8,
-    },
-    {
-        'attr' : 'subdivs_mult',
-        'desc' : "This will multiply all subdivs values everywhere during rendering",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'path_sampler_type',
+        'attr' : 'blur',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 2,
+        'type' : 'FLOAT',
+        'default' : 0.333333,
+    },
+    {
+        'attr' : 'ringing',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.333333,
     },
 )
 

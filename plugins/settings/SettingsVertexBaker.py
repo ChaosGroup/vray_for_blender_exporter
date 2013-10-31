@@ -23,46 +23,34 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsDMCSampler'
-NAME = 'DMC Sampler'
+ID   = 'SettingsVertexBaker'
+NAME = 'SettingsVertexBaker'
 DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'time_dependent',
-        'desc' : "This make the samping pattern change with time",
-        'type' : 'BOOL',
-        'default' : False,
+        'attr' : 'objects',
+        'desc' : "",
+        'type' : 'PLUGIN',
+        'default' : "",
     },
     {
-        'attr' : 'adaptive_amount',
-        'desc' : "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation",
-        'type' : 'FLOAT',
-        'default' : 0.85,
+        'attr' : 'color_set_name',
+        'desc' : "",
+        'type' : 'STRING',
+        'default' : "(null)",
     },
     {
-        'attr' : 'adaptive_threshold',
-        'desc' : "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used",
-        'type' : 'FLOAT',
-        'default' : 0.01,
-    },
-    {
-        'attr' : 'adaptive_min_samples',
-        'desc' : "The minimum number of samples that must be made before the early termination algorithm is used",
+        'attr' : 'bake_rgb_color',
+        'desc' : "",
         'type' : 'INT',
-        'default' : 8,
-    },
-    {
-        'attr' : 'subdivs_mult',
-        'desc' : "This will multiply all subdivs values everywhere during rendering",
-        'type' : 'FLOAT',
         'default' : 1,
     },
     {
-        'attr' : 'path_sampler_type',
+        'attr' : 'bake_alpha',
         'desc' : "",
         'type' : 'INT',
-        'default' : 2,
+        'default' : 1,
     },
 )
 

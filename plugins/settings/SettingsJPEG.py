@@ -23,33 +23,24 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsJPEG'
+NAME = 'SettingsJPEG'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
+        'attr' : 'quality',
+        'desc' : "JPEG quality (1-100)",
         'type' : 'INT',
-        'default' : 60,
-    },
-    {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
+        'ui' : {
+            'min' : 1,
+            'max' : 100,
+        },
+        'default' : 85,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

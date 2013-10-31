@@ -23,33 +23,24 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsSGI'
+NAME = 'SettingsSGI'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
-        'type' : 'INT',
-        'default' : 60,
-    },
-    {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
+        'attr' : 'bits_per_channel',
+        'desc' : "Bits per channel (8 or 16)",
+        'type' : 'ENUM',
+        'items' : (
+            ('8',  "8", ""),
+            ('16', "16", ""),
+        ),
+        'default' : '16',
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

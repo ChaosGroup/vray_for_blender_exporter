@@ -23,33 +23,38 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsDMCGI'
+NAME = 'Brute Force'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
+        'attr' : 'subdivs',
+        'desc' : "The number of samples used to approximate GI",
         'type' : 'INT',
-        'default' : 60,
+        'ui' : {
+            'min' : 1,
+        },
+        'default' : 8,
     },
     {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
+        'attr' : 'depth',
+        'desc' : "The number of light bounces that will be computed",
         'type' : 'INT',
-        'default' : 4000,
+        'ui' : {
+            'min' : 1,
+        },
+        'default' : 3,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "subdivs" },
+            { "name" : "depth" }
+        ]
+    }
+]}
+"""

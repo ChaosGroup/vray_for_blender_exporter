@@ -23,33 +23,20 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsTGA'
+NAME = 'SettingsTGA'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
+        'attr' : 'compression',
+        'desc' : "Compression type for TGA output",
         'type' : 'INT',
-        'default' : 60,
-    },
-    {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
         'default' : 2,
     },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
-    },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

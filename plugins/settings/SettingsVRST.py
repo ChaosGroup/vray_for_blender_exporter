@@ -23,33 +23,34 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsVRST'
+NAME = 'SettingsVRST'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
-        'type' : 'INT',
-        'default' : 60,
+        'attr' : 'compression',
+        'desc' : "Compression for VRST/VRSM output",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Default", ""),
+            ('1', "ZIP",     ""),
+        ),
+        'default' : '1',
     },
     {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
+        'attr' : 'bits_per_channel',
+        'desc' : "Bits per channel",
+        'type' : 'ENUM',
+        'items' : (
+            ('16', "16", ""),
+            ('32', "32", ""),
+        ),
+        'default' : '16',
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

@@ -23,33 +23,31 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsTIFF'
+NAME = 'SettingsTIFF'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
-        'type' : 'INT',
-        'default' : 60,
+        'attr' : 'bits_per_channel',
+        'desc' : "Bits per channel",
+        'type' : 'ENUM',
+        'items' : (
+            ('8',  "8",  ""),
+            ('16', "16", ""),
+            ('32', "32", ""),
+        ),
+        'default' : '16',
     },
     {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
+        'attr' : 'interleaved',
+        'desc' : "If true, the TIFF color channels will be written interleaved (RGBRGB instead of RRGGBB)",
+        'type' : 'BOOL',
+        'default' : False,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

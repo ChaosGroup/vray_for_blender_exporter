@@ -23,33 +23,26 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsRaycaster'
-NAME = 'Raycaster'
-DESC = "Raycaster options"
+ID   = 'SettingsLightLinker'
+NAME = 'Settings Light Linker'
+DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'maxLevels',
-        'desc' : "Max. tree depth",
-        'type' : 'INT',
-        'default' : 60,
+        'attr' : 'ignored_lights',
+        'desc' : "List containing lists of plugins. Every sub list contains a light plugin (always the first element) and some node plugins the light is not illuminating",
+        'type' : 'LIST',
+        'default' : "",
     },
     {
-        'attr' : 'minLeafSize',
-        'desc' : "Min. voxel size",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'faceLevelCoef',
-        'desc' : "Balance coefficient between depth and faces per voxel",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'dynMemLimit',
-        'desc' : "Limit for dynamic geometry, in megabytes",
-        'type' : 'INT',
-        'default' : 4000,
+        'attr' : 'ignored_shadow_lights',
+        'desc' : "List containing list of plugins. Every sub list contains a light plugin (always the first element) and some node plugins, which do not cast shadows from this light",
+        'type' : 'LIST',
+        'default' : "",
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+]}
+"""

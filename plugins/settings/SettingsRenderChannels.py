@@ -23,46 +23,28 @@
 #
 
 TYPE = 'SETTINGS'
-ID   = 'SettingsDMCSampler'
-NAME = 'DMC Sampler'
+ID   = 'SettingsRenderChannels'
+NAME = 'SettingsRenderChannels'
 DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'time_dependent',
-        'desc' : "This make the samping pattern change with time",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'adaptive_amount',
-        'desc' : "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation",
-        'type' : 'FLOAT',
-        'default' : 0.85,
-    },
-    {
-        'attr' : 'adaptive_threshold',
-        'desc' : "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used",
-        'type' : 'FLOAT',
-        'default' : 0.01,
-    },
-    {
-        'attr' : 'adaptive_min_samples',
-        'desc' : "The minimum number of samples that must be made before the early termination algorithm is used",
+        'attr' : 'unfiltered_fragment_method',
+        'desc' : "Determines which fragment to use for unfiltered render elements (0 - best coverage; 1 - closest to camera)",
         'type' : 'INT',
-        'default' : 8,
+        'default' : 0,
     },
     {
-        'attr' : 'subdivs_mult',
-        'desc' : "This will multiply all subdivs values everywhere during rendering",
+        'attr' : 'deep_merge_mode',
+        'desc' : "Determines how to blend fragments within a pixel (0 - by render ID; 1 - by Z-Depth)",
+        'type' : 'INT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'deep_merge_coeff',
+        'desc' : "Determines the z-depth blending sensitivity when deep_merge_mode is 1",
         'type' : 'FLOAT',
         'default' : 1,
-    },
-    {
-        'attr' : 'path_sampler_type',
-        'desc' : "",
-        'type' : 'INT',
-        'default' : 2,
     },
 )
 
