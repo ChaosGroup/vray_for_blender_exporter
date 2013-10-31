@@ -22,40 +22,19 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from pprint import pprint
-
 from vb25.debug import Debug, PrintDict
 
 from . import utils
 from . import AttributeUtils
-from . import VRaySocket
 
 
-def WriteFile(bus, filetype, data):
-    if bus['mode'] == 'SOCKET':
-        return
-    ofile = bus['files'][filetype]
-    ofile.write(data)
+def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
+    scene = bus['scene']
+    o     = bus['output']
 
-
-def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedParams, PluginParams):
-    scene      = None
-    vraySocket = None
-
-    if bus['mode'] == 'VRSCENE':
-        scene = bus['scene']
-        if ofile is None:
-            if 'files' in bus:
-                ofile = bus['files']['nodetree']
-
-    if bus['mode'] == 'SOCKET':
-        vraySocket = VRaySocket.VRaySocket()
-
-    PrintDict("%s::mappedParams" % pluginName, mappedParams)
-
-    for attrDesc in sorted(PluginParams, key=lambda t: t['attr']):
-        attr  = attrDesc['attr']
-        skip  = attrDesc.get('skip', False)
+    for attrDesc in sorted(pluginModule.PluginParams, key=lambda t: t['attr']):
+        attrName = attrDesc['attr']
+        skip     = attrDesc.get('skip', False)
 
         if skip:
             continue
@@ -75,14 +54,14 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
 
         value = None
 
-        if attr in mappedParams:
-            value = mappedParams[attr]
+        if attrName in mappedParams:
+            value = mappedParams[attrName]
 
         if value is None:
-            value = getattr(dataPointer, attr)
+            value = getattr(propGroup, attrName)
 
         if value is None:
-            Debug("%s.%s value is None!" % (pluginName, attr), msgType='ERROR')
+            Debug("%s.%s value is None!" % (pluginName, attrName), msgType='ERROR')
             continue
 
         if attrDesc['type'] in AttributeUtils.PluginTypes and not value:
@@ -94,20 +73,36 @@ def WritePluginParams(bus, ofile, pluginType, pluginName, dataPointer, mappedPar
             else:
                 value = '"%s"' % value
 
-        if bus['mode'] == 'VRSCENE' and ofile is not None:
-            ofile.write("\n\t%s=%s;" % (attr, utils.AnimatedValue(scene, value)))
+        # TODO: If subtype is filepath then check if we need to copy it to the DR directory
+
+        if bus['mode'] == 'VRSCENE':
+            attrValue = utils.AnimatedValue(scene, value)
 
         if bus['mode'] == 'SOCKET' and vraySocket:
-            vraySocket.send("set %s.%s=%s" % (pluginName, attr, utils.FormatValue(value)))
+            attrValue = utils.FormatValue(value)
+        
+        o.writeAttibute(attrName, attrValue)
 
-    if vraySocket:
-        vraySocket.send("render")
-        vraySocket.disconnect()
+    # This will commmit RT changes
+    o.commit()
 
 
-def WriteDatablock(bus, pluginType, pluginName, PluginParams, dataPointer, mappedParams):
-    WriteFile(bus, 'nodetree', "\n%s %s {" % (pluginType, pluginName))
-    WritePluginParams(bus, None, pluginType, pluginName, dataPointer, mappedParams, PluginParams)
-    WriteFile(bus, 'nodetree', "\n}\n")
+# Use this function from inside the module's 'writeDatablock'
+def WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams):
+    o = bus['output']
+
+    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+    o.writeHeader()
+    
+    WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
+
+    o.writeFooter()
+
+
+def WritePlugin(bus, pluginModule, pluginName, propGroup, mappedParams):
+    if hasattr(pluginModule, 'writeDatablock'):
+        pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams)
+
+    WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams)
 
     return pluginName
