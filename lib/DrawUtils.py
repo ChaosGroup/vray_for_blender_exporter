@@ -132,6 +132,14 @@ def RenderWidget(context, propGroup, layout, widget):
     # Layout
     containerType   = widget.get('layout', 'COLUMN')
     containerActive = widget.get('active', None)
+    containerShow   = widget.get('show', None)
+
+    if containerShow is not None:
+        showProp      = containerShow['prop']
+        showCondition = containerShow.get('condition', True)
+        
+        if not getattr(propGroup, showProp) == showCondition:
+            return
 
     if containerType == 'SPLIT':
         subLayout = layout
