@@ -24,9 +24,6 @@
 
 import bpy
 
-from vb25.lib        import ExportUtils
-from vb25.ui.classes import GetContextType, GetRegionWidthFromContext, narrowui
-
 
 TYPE = 'BRDF'
 ID   = 'BRDFVRayMtl'
@@ -107,12 +104,14 @@ PluginParams = (
     },
     {
         'attr' : 'fresnel_ior',
+        'name' : 'Fresnel IOR',
         'desc' : "The ior for calculating the Fresnel term",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.6,
     },
     {
         'attr' : 'fresnel_ior_lock',
+        'name' : 'Fresnel IOR Lock',
         'desc' : "true to use the refraction ior also for the Fresnel term (fresnel_ior is ignored)",
         'type' : 'BOOL',
         'default' : True,
@@ -498,103 +497,155 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SEPARATOR",
+        "label" : "Reflections" },
 
-def gui(context, layout, BRDFVRayMtl):
-    contextType = GetContextType(context)
-    regionWidth = GetRegionWidthFromContext(context)
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "brdf_type" }
+        ]
+    },
 
-    wide_ui = regionWidth > narrowui
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "reflect_subdivs", "label" : "Subdivs" },
+            { "name" : "reflect_depth", "label" : "Depth" }
+        ]
+    },
 
-    layout.label(text="Reflections:")
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "fresnel" },
+            { "name" : "fresnel_ior" }
+        ]
+    },
 
-    layout.prop(BRDFVRayMtl, 'brdf_type', expand=True)
-    layout.separator()
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "reflect_affect_alpha", "label" : "Affect Channels" },
+            { "name" : "anisotropy_derivation" }
+        ]
+    },
 
-    split = layout.split()
-    row = split.row(align=True)
-    row.prop(BRDFVRayMtl, 'reflect_subdivs', text="Subdivs")
-    row.prop(BRDFVRayMtl, 'reflect_depth', text="Depth")
+    {   "layout" : "SEPARATOR",
+        "label" : "Refractions" },
 
-    split = layout.split()
-    row = split.row()
-    row.prop(BRDFVRayMtl, 'fresnel')
-    row.prop(BRDFVRayMtl, 'fresnel_ior')
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "refract_subdivs", "label" : "Subdivs" },
+            { "name" : "refract_depth", "label" : "Depth" }
+        ]
+    },
 
-    layout.prop(BRDFVRayMtl, 'reflect_affect_alpha', text="Affect Channels")
-    layout.prop(BRDFVRayMtl, 'anisotropy_derivation')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "dispersion_on" },
+                    { "name" : "dispersion", "active" : { "prop" : "dispersion_on" } }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "fog_mult" },
+                    { "name" : "fog_bias" }
+                ]
+            }
+        ]
+    },
 
-    layout.separator()
-    layout.label(text="Refractions:")
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "refract_affect_alpha", "label" : "Affect Channels"  },
+            { "name" : "refract_affect_shadows" }
+        ]
+    },
 
-    split = layout.split()
-    row = split.row(align=True)
-    row.prop(BRDFVRayMtl, 'refract_subdivs', text="Subdivs")
-    row.prop(BRDFVRayMtl, 'refract_depth', text="Depth")
+    {   "layout" : "SEPARATOR",
+        "label" : "Translucency" },
 
-    split = layout.split()
-    col = split.column(align=True)
-    col.prop(BRDFVRayMtl, 'dispersion_on')
-    col.prop(BRDFVRayMtl, 'dispersion')
-    col = split.column(align=True)
-    col.prop(BRDFVRayMtl, 'fog_mult',)
-    col.prop(BRDFVRayMtl, 'fog_bias', slider=True)
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "translucency" }
+        ]
+    },
 
-    layout.prop(BRDFVRayMtl, 'refract_affect_shadows')
-    layout.prop(BRDFVRayMtl, 'refract_affect_alpha', text="Affect Channels")
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "translucency_color", "label" : "" },
+                    { "name" : "translucency_thickness", "label" : "Thickness" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "translucency_scatter_coeff", "label" : "Scatter Coeff" },
+                    { "name" : "translucency_scatter_dir", "label" : "Fwd/Bck Coeff" },
+                    { "name" : "translucency_light_mult", "label" : "Light Multiplier" }
+                ]
+            }
+        ]
+    },
 
-    layout.separator()
-    layout.prop(BRDFVRayMtl, 'translucency')
-    if BRDFVRayMtl.translucency != '0':
-        split = layout.split()
-        col = split.column()
-        col.prop(BRDFVRayMtl, 'translucency_color', text="")
-        col.prop(BRDFVRayMtl, 'translucency_thickness', text="Thickness")
-        if wide_ui:
-            col = split.column()
-        col.prop(BRDFVRayMtl, 'translucency_scatter_coeff', text="Scatter coeff")
-        col.prop(BRDFVRayMtl, 'translucency_scatter_dir', text="Fwd/Bck coeff")
-        col.prop(BRDFVRayMtl, 'translucency_light_mult', text="Light multiplier")
+    {   "layout" : "SEPARATOR" },
 
-    layout.separator()
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "reflect_trace" },
+                    { "name" : "refract_trace" },
+                    { "name" : "option_cutoff" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "option_double_sided" },
+                    { "name" : "option_reflect_on_back" },
+                    { "name" : "option_use_irradiance_map" }
+                ]
+            }
+        ]
+    },
 
-    split = layout.split()
-    col = split.column()
-    col.prop(BRDFVRayMtl, 'reflect_trace')
-    col.prop(BRDFVRayMtl, 'refract_trace')
-    col.prop(BRDFVRayMtl, 'option_cutoff')
-    if wide_ui:
-        col = split.column()
-    col.prop(BRDFVRayMtl, 'option_double_sided')
-    col.prop(BRDFVRayMtl, 'option_reflect_on_back')
-    col.prop(BRDFVRayMtl, 'option_use_irradiance_map')
+    {   "layout" : "SEPARATOR" },
 
-    split= layout.split()
-    if wide_ui:
-        sub = split.column(align=True)
-        sub.prop(BRDFVRayMtl, 'reflect_dim_distance_on', text="Dim reflect ray distance")
-        sub_r = sub.row()
-        sub_r.active = BRDFVRayMtl.reflect_dim_distance_on
-        sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance', text="Distance")
-        sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance_falloff', text="Falloff")
-    else:
-        sub = split.column(align=True)
-        sub.prop(BRDFVRayMtl, 'reflect_dim_distance_on')
-        sub_r = sub.column()
-        sub_r.active = BRDFVRayMtl.reflect_dim_distance_on
-        sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance', text="Distance")
-        sub_r.prop(BRDFVRayMtl, 'reflect_dim_distance_falloff', text="Falloff")
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "reflect_dim_distance_on", "label" : "Dim Reflect Ray Distance" },
+            { "name" : "reflect_dim_distance", "label" : "Distance" },
+            { "name" : "reflect_dim_distance_falloff", "label" : "Falloff"}
+        ]
+    },
 
-    layout.separator()
-    split = layout.split()
-    col = split.column()
-    col.prop(BRDFVRayMtl, 'reflect_exit_color')
-    if wide_ui:
-        col = split.column()
-    col.prop(BRDFVRayMtl, 'refract_exit_color')
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "reflect_exit_color" },
+            { "name" : "refract_exit_color" }
+        ]
+    },
 
-    layout.separator()
-    layout.prop(BRDFVRayMtl, 'option_glossy_rays_as_gi')
-    layout.prop(BRDFVRayMtl, 'option_energy_mode')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "option_glossy_rays_as_gi" },
+            { "name" : "option_energy_mode" }
+        ]
+    },
 
-    layout.separator()
-    layout.prop(BRDFVRayMtl, 'environment_priority')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "environment_priority" }
+        ]
+    }
+]}
+"""

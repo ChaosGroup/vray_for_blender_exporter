@@ -105,17 +105,18 @@ PluginParams = (
         ),
         'default' : '0',
     },
-    # {
-    #     'attr' : 'sun_dir_only',
-    #     'desc' : "Use only direction of the specified sun (don't inherit all other parameters)",
-    #     'type' : 'BOOL',
-    #     'default' : False,
-    # },
+    {
+        'attr' : 'sun_dir_only',
+        'desc' : "Use only direction of the specified sun (don't inherit all other parameters)",
+        'type' : 'BOOL',
+        'default' : False,
+    },
     {
         'attr' : 'auto_sun',
         'name' : "Find Sun Automatically",
         'desc' : "Attach Sun automatically and take settings from it",
         'type' : 'BOOL',
+        'skip' : True,
         'default' : True,
     },
     {
@@ -175,23 +176,27 @@ def FindSun(scene):
     return None
 
 
-def writeDatablock(bus, pluginName, PluginParams, TexSky, mappedParams):
+def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
-
+    o     = bus['output']
+    
     sunObject = mappedParams.get('sun', None)
     if sunObject:      
         if type(sunObject) is list:
             sunObject = sunObject[0]
     else:
-        if TexSky.auto_sun:
+        if propGroup.auto_sun:
             sunObject = FindSun(scene)
 
-    ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName))
+    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+
+    o.writeHeader()
+
     if sunObject:
-        ExportUtils.WriteFile(bus, 'nodetree', "\n\tsun=%s;" % LibUtils.GetObjectName(sunObject))
+        o.writeAttibute("sun", LibUtils.GetObjectName(sunObject))
 
-    ExportUtils.WritePluginParams(bus, bus['files']['nodetree'], ID, pluginName, TexSky, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
 
-    ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
+    o.writeFooter()
 
     return pluginName

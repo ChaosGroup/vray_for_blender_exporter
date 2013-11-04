@@ -102,7 +102,7 @@ def scene_update_post(scene):
             if not ntree.is_updated or not ntree.is_updated_data:
                 continue
 
-            if ntree.bl_idname in {'VRayShaderTreeType'}:
+            if ntree.bl_idname in {'VRayNodeTreeMaterial'}:
                 NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
 
     if bpy.data.objects.is_updated:
@@ -136,7 +136,7 @@ def export_scene(scene, renderEngine):
     global SCE_FILE
 
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     # Settings bus
     bus= {}

@@ -24,22 +24,10 @@
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsRTEngine'
-NAME = 'SettingsRTEngine'
-DESC = ""
+NAME = 'Realtime Engine Settings'
+DESC = "Realtime Engine settings"
 
 PluginParams = (
-    {
-        'attr' : 'trace_depth',
-        'desc' : "Maximum trace depth for reflections/refractions etc",
-        'type' : 'INT',
-        'default' : 5,
-    },
-    {
-        'attr' : 'gi_depth',
-        'desc' : "Maximum trace depth for GI",
-        'type' : 'INT',
-        'default' : 3,
-    },
     {
         'attr' : 'cpu_bundle_size',
         'desc' : "Number of samples to transfer over the network for RT-CPU",
@@ -65,6 +53,18 @@ PluginParams = (
         'default' : 16,
     },
     {
+        'attr' : 'trace_depth',
+        'desc' : "Maximum trace depth for reflections/refractions etc",
+        'type' : 'INT',
+        'default' : 5,
+    },
+    {
+        'attr' : 'gi_depth',
+        'desc' : "Maximum trace depth for GI",
+        'type' : 'INT',
+        'default' : 3,
+    },
+    {
         'attr' : 'coherent_tracing',
         'desc' : "true to enable coherent tracing of gi/reflections/refractions etc",
         'type' : 'BOOL',
@@ -72,9 +72,9 @@ PluginParams = (
     },
     {
         'attr' : 'stereo_mode',
-        'desc' : "Non-zero to enable side-by-side stereo rendering",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Enable side-by-side stereo rendering",
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'stereo_eye_distance',
@@ -84,9 +84,14 @@ PluginParams = (
     },
     {
         'attr' : 'stereo_focus',
-        'desc' : "Focus mode (0 - none, 1 - rotation, 2 - shear)",
-        'type' : 'INT',
-        'default' : 2,
+        'desc' : "Focus mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "None", ""),
+            ('1', "Rotation", ""),
+            ('2', "Shear", ""),
+        ),
+        'default' : '2',
     },
     {
         'attr' : 'opencl_texsize',
@@ -102,9 +107,13 @@ PluginParams = (
     },
     {
         'attr' : 'opencl_textureFormat',
-        'desc' : "Format for the textures on the GPU (0 - 32-bit float; 1 - 16-bit half float)",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Format for the textures on the GPU",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "32-Bit Float", ""),
+            ('1', "16-Bit Half Float", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'progressive_samples_per_pixel',
@@ -114,15 +123,15 @@ PluginParams = (
     },
     {
         'attr' : 'undersampling',
-        'desc' : "1 to use undersampling, 0 otherwise. Default is 1",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Use undersampling",
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'disable_render_elements',
-        'desc' : "if 1, RT will produce only RGBA. Default is 0",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Produce only RGBA",
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'max_render_time',
@@ -144,13 +153,86 @@ PluginParams = (
     },
     {
         'attr' : 'enable_mask',
-        'desc' : "Show aa mask",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Show AA mask",
+        'type' : 'BOOL',
+        'default' : False,
     },
 )
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "trace_depth" },
+            { "name" : "gi_depth" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "cpu_bundle_size" },
+            { "name" : "cpu_samples_per_pixel" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "opencl_texsize" },
+                    { "name" : "opencl_textureFormat", "label" : "" },
+                    { "name" : "opencl_resizeTextures" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "gpu_bundle_size" },
+                    { "name" : "gpu_samples_per_pixel" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : true,
+        "attrs" : [
+            { "name" : "max_render_time" },
+            { "name" : "max_sample_level" },
+            { "name" : "noise_threshold" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "progressive_samples_per_pixel" },
+            { "name" : "coherent_tracing" },
+            { "name" : "undersampling" },
+            { "name" : "disable_render_elements" },
+            { "name" : "enable_mask" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : true,
+        "attrs" : [
+            { "name" : "stereo_mode" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "active" : { "prop" : "stereo_mode" },
+        "attrs" : [
+            { "name" : "stereo_focus" },
+            { "name" : "stereo_eye_distance" }
+        ]
+    }
 ]}
 """

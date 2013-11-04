@@ -53,7 +53,7 @@ class VRayTreeSockets(bpy.types.NodeSocket, base.NodeSocket):
 
 class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Node Tree"
-    bl_idname = 'VRayShaderTreeType'
+    bl_idname = 'VRayNodeTreeMaterial'
     bl_icon   = 'VRAY_MATERIAL'
 
     socket_type = VRayTreeSockets
@@ -73,7 +73,7 @@ class VRayNodeTree(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree,
 class VRayTreeNode:
     @classmethod
     def poll(cls, node_tree):
-        return node_tree.bl_idname == 'VRayShaderTreeType'
+        return node_tree.bl_idname == 'VRayNodeTreeMaterial'
 
 
 ##      ##  #######  ########  ##       ########

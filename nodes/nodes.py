@@ -230,7 +230,7 @@ def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
-    if context.scene.vray.exporter.debug:
+    if context.scene.vray.Exporter.debug:
         layout.label(text="Type: %s"   % self.vray_type)
         layout.label(text="Plugin: %s" % self.vray_plugin)
 
@@ -251,7 +251,7 @@ def VRayNodeDrawSide(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
-    if context.scene.vray.exporter.nodesUseSidePanel:
+    if context.scene.vray.Exporter.nodesUseSidePanel:
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
         classes.DrawPluginUI(
@@ -304,9 +304,13 @@ def VRayNodeCopy(self, node):
         self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
         self.texture.use_color_ramp = True
 
+    elif self.vray_plugin == 'BitmapBuffer':
+        self.texture = bpy.data.textures.new("Bitmap_%s" % self.name, 'NONE')
+        self.texture.use_color_ramp = True
+
 
 def VRayNodeFree(self):
-    if self.vray_plugin == 'TexGradRamp':
+    if self.vray_plugin in {'TexGradRamp', 'BitmapBuffer'}:
         if self.texture:
             self.texture.use_fake_user = False
             bpy.data.textures.remove(self.texture)
@@ -424,15 +428,15 @@ def LoadDynamicNodes():
             # XXX: The only way to use idrefs under nodes
             # Remove after Blender fix
             #
-            if pluginName == 'BitmapBuffer':              
-                idref.bpy_register_idref(DynNodeClass, 'image', idref.IDRefProperty(
-                    "Image",
-                    "Image file",
-                    idtype = 'IMAGE',
-                    options = {'FAKE_USER'},
+            if pluginName == 'BitmapBuffer':
+                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
+                    "Texture",
+                    "Fake texture for image texure",
+                    idtype = 'TEXTURE',
+                    options = {'FAKE_USER', 'NEVER_NULL'},
                 ))
 
-            elif pluginName == 'TexGradRamp':               
+            elif pluginName == 'TexGradRamp':
                 idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
                     "Texture",
                     "Fake texture for Ramp widget",

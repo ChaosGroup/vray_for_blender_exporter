@@ -266,11 +266,11 @@ PluginWidget = """
 """
 
 
-def writeDatablock(bus, pluginName, PluginParams, TexDirt, mappedParams):
-    ofile = bus['files']['nodetree']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
+    o     = bus['output']
 
-    radiusResult = TexDirt.radius
+    radiusResult = propGroup.radius
 
     if 'radius' in mappedParams:
         if type(mappedParams['radius']) is float:
@@ -279,16 +279,18 @@ def writeDatablock(bus, pluginName, PluginParams, TexDirt, mappedParams):
             radiusTexName = pluginName + "Radius"
             radiusResult = radiusTexName + "::product"
 
-            ofile.write("\nTexFloatOp %s {" % radiusTexName)
-            ofile.write("\n\tfloat_a=%s;" % mappedParams['radius'])
-            ofile.write("\n\tfloat_b=%s;" % LibUtils.AnimatedValue(scene, TexDirt.radius))
-            ofile.write("\n}\n")
+            o.set('TEXTURE', 'TexFloatOp', radiusTexName)
+            o.writeHeader()
+            o.writeAttibute("float_a", mappedParams['radius'])
+            o.writeAttibute("float_b", LibUtils.AnimatedValue(scene, propGroup.radius))
+            o.writeFooter()
 
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tradius=%s;" % radiusResult)
+    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+    o.writeHeader()
+    o.writeAttibute("radius", radiusResult)
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, TexDirt, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
 
-    ofile.write("\n}\n")
+    o.writeFooter()
 
     return pluginName

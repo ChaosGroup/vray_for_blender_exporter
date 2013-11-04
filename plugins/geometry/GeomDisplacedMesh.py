@@ -299,10 +299,10 @@ def nodeDraw(context, layout, GeomDisplacedMesh):
     layout.prop(GeomDisplacedMesh, 'displacement_amount', text="Amount")
 
 
-def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParams):
-    ofile = bus['files']['nodes']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
     ob    = bus['node']['object']
+    o     = bus['output']
 
     mesh = mappedParams.get('mesh', None)
 
@@ -313,7 +313,7 @@ def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParam
         Debug("Object \"%s\" Displacement: 'mesh' is not connected!" % ob.name, msgType='ERROR')
         return None
 
-    if GeomDisplacedMesh.type == '3D':
+    if propGroup.type == '3D':
         if not texture_color or type(texture_color) == mathutils.Color:
             Debug("Object \"%s\" Displacement: 'Color' texture is not connected!" % ob.name, msgType='ERROR')
             return mesh
@@ -322,24 +322,25 @@ def writeDatablock(bus, pluginName, PluginParams, GeomDisplacedMesh, mappedParam
             Debug("Object \"%s\" Displacement: 'Float' texture is not connected!" % ob.name, msgType='ERROR')
             return mesh
 
-    ofile.write("\n%s %s {" % (ID, pluginName))
+    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+    o.writeHeader()
 
-    ofile.write("\n\tmesh=%s;" % mesh)
-    if GeomDisplacedMesh.type == '2D':
-        ofile.write("\n\tdisplace_2d=1;")
-        ofile.write("\n\tvector_displacement=0;")
-        ofile.write("\n\tdisplacement_tex_float=%s;" % texture_float)
-    elif GeomDisplacedMesh.type == '3D':
-        ofile.write("\n\tdisplace_2d=0;")
-        ofile.write("\n\tvector_displacement=1;")
-        ofile.write("\n\tdisplacement_tex_color=%s;" % texture_color)
+    o.writeAttibute("mesh", mesh)
+    if propGroup.type == '2D':
+        o.writeAttibute("displace_2d", "1")
+        o.writeAttibute("vector_displacement", "0")
+        o.writeAttibute("displacement_tex_float", texture_float)
+    elif propGroup.type == '3D':
+        o.writeAttibute("displace_2d", "0")
+        o.writeAttibute("vector_displacement", "1")
+        o.writeAttibute("displacement_tex_color", texture_color)
     else:
-        ofile.write("\n\tdisplace_2d=0;")
-        ofile.write("\n\tvector_displacement=0;")
-        ofile.write("\n\tdisplacement_tex_float=%s;" % texture_float)
+        o.writeAttibute("displace_2d", "0")
+        o.writeAttibute("vector_displacement", "0")
+        o.writeAttibute("displacement_tex_float", texture_float)
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomDisplacedMesh, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
 
-    ofile.write("\n}\n")
+    o.writeFooter()
 
     return pluginName

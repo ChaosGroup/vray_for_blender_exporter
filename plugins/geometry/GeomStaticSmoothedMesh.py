@@ -258,7 +258,6 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginName, PluginParams, GeomStaticSmoothedMesh, mappedParams):
-    ofile = bus['files']['nodes']
     scene = bus['scene']
     ob    = bus['node']['object']
 

@@ -24,7 +24,7 @@
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsDefaultDisplacement'
-NAME = 'SettingsDefaultDisplacement'
+NAME = 'Default Displacement'
 DESC = ""
 
 PluginParams = (
@@ -32,7 +32,7 @@ PluginParams = (
         'attr' : 'override_on',
         'desc' : "Override settings globally",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'edgeLength',

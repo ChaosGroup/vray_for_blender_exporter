@@ -25,6 +25,7 @@
 import bpy
 
 from vb25.lib import DrawUtils
+from vb25     import plugins
 
 
 ########  ######## ######## #### ##    ## ########  ######
@@ -91,6 +92,19 @@ def PollEngine(cls, context):
 ##     ## ##   ##   ######### ##  ##  ## 
 ##     ## ##    ##  ##     ## ##  ##  ## 
 ########  ##     ## ##     ##  ###  ###  
+
+def DrawPluginUIAuto(context, layout, propGroup, pluginID):
+    pluginModule = plugins.GetPluginByName(pluginID)
+
+    if not pluginModule:
+        Debug("Plugin \"%s\" module not found!" % pluginID)
+        return
+
+    if not hasattr(pluginModule, 'PluginWidget'):
+        return
+
+    DrawUtils.RenderTemplate(context, layout, propGroup, pluginModule)
+
 
 def DrawPluginUI(context, layout, propGroupHolder, propGroup, pluginType, vrayPlugin):
     if hasattr(vrayPlugin, 'PluginWidget'):

@@ -542,7 +542,7 @@ def p(t):
 # Animated property
 def a(scene, t):
 	VRayScene    = scene.vray
-	VRayExporter = VRayScene.exporter
+	VRayExporter = VRayScene.Exporter
 
 	frame = scene.frame_current
 
@@ -828,7 +828,7 @@ def get_full_filepath(bus, ob, filepath):
 # True if object on active layer
 def object_on_visible_layers(scene, ob):
 	VRayScene    = scene.vray
-	VRayExporter = VRayScene.exporter
+	VRayExporter = VRayScene.Exporter
 
 	activeLayers = scene.layers
 
@@ -848,7 +848,7 @@ def object_visible(bus, ob):
 	scene= bus['scene']
 
 	VRayScene=       scene.vray
-	VRayExporter=    VRayScene.exporter
+	VRayExporter=    VRayScene.Exporter
 	SettingsOptions= VRayScene.SettingsOptions
 
 	if not object_on_visible_layers(scene,ob):
@@ -927,7 +927,7 @@ def getColorMappingFilepath():
 
 # Detects V-Ray Standalone installation
 def get_vray_standalone_path(sce):
-	VRayExporter= sce.vray.exporter
+	VRayExporter= sce.vray.Exporter
 
 	vray_bin= "vray"
 	if PLATFORM == 'win32':
@@ -997,7 +997,7 @@ def init_files(bus, skipGeom=False):
 	scene = bus['scene']
 
 	VRayScene      = scene.vray
-	VRayExporter   = VRayScene.exporter
+	VRayExporter   = VRayScene.Exporter
 	VRayDR         = VRayScene.VRayDR
 	SettingsOutput = VRayScene.SettingsOutput
 
@@ -1060,20 +1060,27 @@ def init_files(bus, skipGeom=False):
 
 	export_directory = create_dir(export_filepath)
 
-	fileTypes = ['lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment', 'nodetree', 'geom']
+	bus['output'] = VRayStream()
+	bus['output'].init(
+		mode='VRSCENE',
+		exportDir=export_directory,
+		baseName=blendfile_name,
+		separateFiles=True,
+		overwriteGeometry=True
+	)
 
-	for key in fileTypes:
-		if key == 'scene' and VRayDR.on:
-			# Scene file MUST be on top of scene directory
-			filepath = os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
-		else:
-			filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
-
-		bus['filenames'][key] = filepath
-		# Do no reset geometry file
-		if key == 'geom' and skipGeom:
-			continue
-		bus['files'][key] = open(filepath, 'w', encoding='ascii')
+	# fileTypes = ['lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment', 'nodetree', 'geom']
+	# for key in fileTypes:
+	# 	if key == 'scene' and VRayDR.on:
+	# 		# Scene file MUST be on top of scene directory
+	# 		filepath = os.path.normpath(os.path.join(export_directory, "..", "%s.vrscene" % (export_filename)))
+	# 	else:
+	# 		filepath = os.path.normpath(os.path.join(export_directory, "%s_%s.vrscene" % (export_filename, key)))
+	# 	bus['filenames'][key] = filepath
+	# 	# Do no reset geometry file
+	# 	if key == 'geom' and skipGeom:
+	# 		continue
+	# 	bus['files'][key] = open(filepath, 'w', encoding='ascii')
 
 	# Duplicate "Color mapping" setting to a separate file for correct preview
 	#
@@ -1108,14 +1115,6 @@ def init_files(bus, skipGeom=False):
 
 	# Lightmaps path
 	# bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
-
-	bus['output'] = VRayStream()
-	bus['output'].init(
-		workMode='VRSCENE',
-		exportDir=export_directory,
-		baseName=blendfile_name,
-		separateFiles=True
-	)
 
 	if VRayExporter.debug:
 		debug(scene, "Files:")

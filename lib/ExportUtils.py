@@ -32,6 +32,10 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
     o     = bus['output']
 
+    if not hasattr(pluginModule, 'PluginParams'):
+        Debug("Module %s doesn't have PluginParams!" % pluginModule.ID, msgType='ERROR')
+        return
+
     for attrDesc in sorted(pluginModule.PluginParams, key=lambda t: t['attr']):
         attrName = attrDesc['attr']
         skip     = attrDesc.get('skip', False)
@@ -98,10 +102,12 @@ def WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams):
 
     o.writeFooter()
 
+    return pluginName
+
 
 def WritePlugin(bus, pluginModule, pluginName, propGroup, mappedParams):
     if hasattr(pluginModule, 'writeDatablock'):
-        pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams)
+        return pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams)
 
     WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams)
 

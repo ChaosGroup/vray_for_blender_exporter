@@ -28,6 +28,7 @@ import sys
 import bpy
 
 from vb25.ui import classes
+from vb25    import plugins
 
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
@@ -62,7 +63,7 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		rd    = scene.render
 
 		VRayScene = scene.vray
-		VRayExporter = VRayScene.exporter
+		VRayExporter = VRayScene.Exporter
 
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
@@ -108,7 +109,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 	bl_label = "Output"
 
 	def draw_header(self, context):
-		VRayExporter= context.scene.vray.exporter
+		VRayExporter= context.scene.vray.Exporter
 		self.layout.prop(VRayExporter, 'auto_save_render', text="")
 
 	def draw(self, context):
@@ -119,7 +120,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		rd    = scene.render.image_settings
 
 		VRayScene      = scene.vray
-		VRayExporter   = VRayScene.exporter
+		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.active= VRayExporter.auto_save_render
@@ -140,22 +141,13 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 
 		split= layout.split()
 		col= split.column()
-		col.prop(SettingsOutput, 'img_format', text= "Format")
+		col.prop(SettingsOutput, 'img_format', text="Format")
 
-		img_format = SettingsOutput.img_format
+		imgFormat = SettingsOutput.img_format
 
-		split= layout.split()
-		col= split.column()
+		imgFormatPropGroup = getattr(VRayScene, imgFormat)
 
-		if img_format not in ('JPG', 'VRIMG'):
-			col.prop(SettingsOutput, 'color_depth')
-		if img_format == 'JPG':
-			col.prop(rd, 'quality', slider= True)
-		elif img_format == 'PNG':
-			col.prop(rd, 'quality', slider= True, text= "Compression")
-		elif img_format == 'EXR':
-			row= col.row()
-			row.prop(rd, 'exr_codec')
+		classes.DrawPluginUIAuto(context, layout, imgFormatPropGroup, imgFormat)
 
 		layout.separator()
 
@@ -169,9 +161,6 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
 		col.prop(VRayExporter,   'image_to_blender')
 
-		# sub= col.column()
-		# sub.active= False
-		# sub.prop(rd, "use_overwrite")
 
 
 class VRAY_RP_render(classes.VRayRenderPanel):
@@ -184,7 +173,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		rd= context.scene.render
 
 		VRayScene=       context.scene.vray
-		VRayExporter=    VRayScene.exporter
+		VRayExporter=    VRayScene.Exporter
 		SettingsOptions= VRayScene.SettingsOptions
 
 		split= layout.split()
@@ -217,8 +206,8 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.VRayDR, 'on')
 		col.prop(VRayScene.VRayBake, 'use')
-		col.prop(VRayScene.RTEngine, 'enabled')
-		col.prop(VRayScene.VRayStereoscopicSettings, 'use')
+		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
+		# col.prop(VRayScene.VRayStereoscopicSettings, 'use')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
@@ -251,60 +240,13 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 		return useRTEgine and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
+		VRayScene = context.scene.vray
 
-		VRayScene= context.scene.vray
+		classes.DrawPluginUIAuto(context, self.layout, VRayScene.RTEngine,         'RTEngine')
+		classes.DrawPluginUIAuto(context, self.layout, VRayScene.SettingsRTEngine, 'SettingsRTEngine')
 
-		RTEngine= VRayScene.RTEngine
-
-		layout.prop(RTEngine, 'realtimeUpdate')
-
-		split= layout.split()
-		col= split.column()
-		col.prop(RTEngine, 'use_gi')
-		if RTEngine.use_gi:
-			col.prop(RTEngine, 'gi_depth', text="Depth")
-			col.prop(RTEngine, 'gi_reflective_caustics', text="Reflective caustics")
-			col.prop(RTEngine, 'gi_refractive_caustics', text="Refractive caustics")
-		if wide_ui:
-			col= split.column()
-		col.prop(RTEngine, 'coherent_tracing')
-		col.prop(RTEngine, 'trace_depth')
-		col.prop(RTEngine, 'bundle_size')
-		col.prop(RTEngine, 'samples_per_pixel')
-		col.prop(RTEngine, 'opencl_texsize')
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(RTEngine, 'stereo_mode')
-		if RTEngine.stereo_mode != 'NONE':
-			split= layout.split()
-			col= split.column()
-			col.prop(RTEngine, 'stereo_focus', text="Focus")
-			if wide_ui:
-				col= split.column()
-			col.prop(RTEngine, 'stereo_eye_distance', text="Eye distance")
-
-		layout.separator()
-
-		split = layout.split()
-		col = split.column()
-		col.prop(RTEngine, 'rtSampleLevel')
-		split = layout.split()
-		col = split.column()
-		col.prop(RTEngine, 'rtNoise')
-		if wide_ui:
-			col= split.column()
-		col.prop(RTEngine, 'rtTimeOut')
-
-		layout.separator()
-		layout.prop(RTEngine, 'use_opencl')
-
-		layout.separator()
-		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+		self.layout.separator()
+		self.layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
 
 
 class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
@@ -357,7 +299,7 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene= context.scene.vray
-		VRayExporter=    VRayScene.exporter
+		VRayExporter=    VRayScene.Exporter
 		SettingsOptions= VRayScene.SettingsOptions
 
 		split= layout.split()
@@ -411,7 +353,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		wide_ui= context.region.width > classes.narrowui
 
 		rd= context.scene.render
-		ve= context.scene.vray.exporter
+		ve= context.scene.vray.Exporter
 
 		row= layout.row(align=True)
 		row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
@@ -431,7 +373,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Mesh export:")
-		col.prop(ve, 'mesh_active_layers', text= "Active layers")
 		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
 		# col.prop(SettingsOptions, 'geom_displacement')
@@ -550,72 +491,23 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 
 
 class VRAY_RP_aa(classes.VRayRenderPanel):
-	bl_label = "Image sampler"
+	bl_label = "Image Sampler"
 
 	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
+		VRayScene = context.scene.vray
+		SettingsImageSampler = VRayScene.SettingsImageSampler
 
-		vs= context.scene.vray
-		module= vs.SettingsImageSampler
+		classes.DrawPluginUIAuto(context, self.layout, SettingsImageSampler, 'SettingsImageSampler')
 
-		split= layout.split()
-		col= split.column()
-		col.prop(module, "type")
+		if SettingsImageSampler.type not in {'3'}:
+			self.layout.separator()
+			self.layout.prop(SettingsImageSampler, "filter_type")
 
-		split= layout.split()
-		col= split.column()
-		col.label(text="Parameters:")
+			if SettingsImageSampler.filter_type not in {'NONE'}:
+				filterPluginName = SettingsImageSampler.filter_type
+				filterPropGroup  = getattr(VRayScene, filterPluginName)
 
-		split= layout.split()
-		col= split.column()
-		if module.type == 'FXD':
-			col.prop(module, "fixed_subdivs")
-		elif module.type == 'DMC':
-			col.prop(module, "dmc_minSubdivs")
-			col.prop(module, "dmc_maxSubdivs")
-
-			if wide_ui:
-				col= split.column()
-			col.prop(module, "dmc_treshhold_use_dmc", text= "Use DMC sampler thresh.")
-			if not module.dmc_treshhold_use_dmc:
-				col.prop(module, "dmc_threshold")
-			col.prop(module, "dmc_show_samples")
-		elif module.type == 'DMC':
-			col.prop(module, "subdivision_minRate")
-			col.prop(module, "subdivision_maxRate")
-			col.prop(module, "subdivision_threshold")
-
-			if wide_ui:
-				col= split.column()
-			col= split.column()
-			col.prop(module, "subdivision_edges")
-			col.prop(module, "subdivision_normals")
-			if module.subdivision_normals:
-				col.prop(module, "subdivision_normals_threshold")
-			col.prop(module, "subdivision_jitter")
-			col.prop(module, "subdivision_show_samples")
-		else:
-			col.prop(module, 'progressive_minSubdivs')
-			col.prop(module, 'progressive_maxSubdivs')
-			col.prop(module, 'progressive_showMask')
-			if wide_ui:
-				col = split.column()
-			col.prop(module, 'progressive_threshold')
-			col.prop(module, 'progressive_maxTime')
-			col.prop(module, 'progressive_bundleSize')
-
-		if module.type != 'PRG':
-			layout.separator()
-
-			split= layout.split()
-			col= split.column()
-			col.label(text="Filter type:")
-			if wide_ui:
-				col= split.column()
-			col.prop(module, "filter_type", text="")
-			if not module.filter_type == 'NONE':
-				col.prop(module, "filter_size")
+				classes.DrawPluginUIAuto(context, self.layout, filterPropGroup, filterPluginName)
 
 
 class VRAY_RP_dmc(classes.VRayRenderPanel):
@@ -1053,7 +945,7 @@ class VRAY_RP_displace(classes.VRayRenderPanel):
 
 	@classmethod
 	def poll(cls, context):
-		VRayExporter = context.scene.vray.exporter
+		VRayExporter = context.scene.vray.Exporter
 		return VRayExporter.use_displace and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
@@ -1217,7 +1109,7 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		SettingsUnitsInfo=        VRayScene.SettingsUnitsInfo
 		SettingsRegionsGenerator= VRayScene.SettingsRegionsGenerator
 		SettingsOptions=          VRayScene.SettingsOptions
-		VRayExporter=             VRayScene.exporter
+		VRayExporter=             VRayScene.Exporter
 
 		layout.label(text="Threads:")
 		split= layout.split()
@@ -1228,7 +1120,6 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		sub= col.column()
 		sub.enabled= rd.threads_mode == 'FIXED'
 		sub.prop(rd, 'threads', text="Count")
-		layout.prop(VRayExporter, 'meshExportThreads')
 
 		layout.separator()
 

@@ -24,6 +24,7 @@
 
 # Wrapper for files and socket communication
 
+import datetime
 import os
 import sys
 
@@ -110,6 +111,8 @@ class VRayStream:
                         continue
 
                     self.files[fileType] = open(filepath, 'w')
+                    self.files[fileType].write("// V-Ray For Blender\n")
+                    self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
 
         elif self.mode in {'SOCKET'}:
             self.socket = VRaySocket()
@@ -143,12 +146,10 @@ class VRayStream:
             o.write("\n\t%s=%s;" % (attibute, value))
 
     # Write arbitary data
-    def write(self, fileType, data):
+    def write(self, pluginType, data):
         if self.mode not in {'VRSCENE'}:
             return
-        if not fileType in self.files:
-            return
-        o = self.files[fileType]
+        o = self.getFileByType(self, pluginType)
         o.write(data)
 
     def commit(self):
@@ -186,3 +187,7 @@ class VRayStream:
             Debug("Plugin type is not specified!", msgType='ERROR')
             return self.files['scene']
         return self.getFileByType(self.pluginType)
+
+    def getSceneFilepath(self):
+        sceneFile = self.getFileByType('MAIN')
+        return sceneFile.name

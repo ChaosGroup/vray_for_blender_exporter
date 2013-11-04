@@ -163,7 +163,7 @@ def FormatValue(t, subtype=None, quotes=False):
 # Return animatable value in .vrscene format
 def AnimatedValue(scene, value, quotes=False):
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     frame = scene.frame_current
     

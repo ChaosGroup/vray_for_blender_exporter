@@ -42,5 +42,10 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "bits_per_channel"}
+        ]
+    }
 ]}
 """

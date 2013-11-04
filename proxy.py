@@ -181,7 +181,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		sce = context.scene
 
 		VRayScene    = sce.vray
-		VRayExporter = VRayScene.exporter
+		VRayExporter = VRayScene.Exporter
 
 		def _create_proxy(ob):
 			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):

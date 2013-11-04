@@ -46,7 +46,7 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
     def render(self, scene):
         VRayScene    = scene.vray
-        VRayExporter = VRayScene.exporter
+        VRayExporter = VRayScene.Exporter
 
         if scene.name == "preview":
             if scene.render.resolution_x < 64:

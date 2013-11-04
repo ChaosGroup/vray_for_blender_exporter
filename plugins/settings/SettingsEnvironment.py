@@ -23,12 +23,9 @@
 #
 
 import bpy
-from bpy.props import *
 
-from vb25.ui      import classes
-from vb25.plugins import *
-from vb25.utils   import *
-from vb25.nodes   import export as NodesExport
+from vb25.utils import *
+from vb25.nodes import export as NodesExport
 
 
 TYPE = 'SETTINGS'
@@ -46,11 +43,8 @@ DESC = "Environment and effects"
 ######## ##       ##       ########  ######     ##     ######  
 
 def WriteEffects(bus, ntree, node):
-	scene = bus['scene']
-	ofile = bus['files']['environment']
-
-	for nodeSocket in node.inputs:
-		NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
+    for nodeSocket in node.inputs:
+        NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
 
 
 ######## ##    ## ##     ## #### ########   #######  ##    ## ##     ## ######## ##    ## ######## 
@@ -62,104 +56,106 @@ def WriteEffects(bus, ntree, node):
 ######## ##    ##    ###    #### ##     ##  #######  ##    ## ##     ## ######## ##    ##    ##    
 
 def WriteEnvironment(bus, ntree, node):
-	scene = bus['scene']
-	ofile = bus['files']['environment']
+    scene = bus['scene']
+    o     = bus['output']
 
-	volumes = bus.get('volumes', ())
+    volumes = bus.get('volumes', ())
 
-	VRayWorld = scene.world.vray
+    VRayWorld = scene.world.vray
 
-	if node is None:
-		ofile.write("\nSettingsEnvironment settingsEnvironment {")
-		ofile.write("\n\tglobal_light_level=%s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
-		ofile.write("\n\tenvironment_volume=List(%s);" % (','.join(volumes)))
-		ofile.write("\n}\n")
-		return
+    if node is None:
+        o.set(TYPE, ID, 'SettingsEnvironment')
+        o.writeHeader()
+        o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
+        o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
+        o.writeFooter()
+        return
 
-	socketParams = {}
-	for nodeSocket in node.inputs:
-		vrayAttr = nodeSocket.vray_attr
-		socketParams[vrayAttr] = NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
+    socketParams = {}
+    for nodeSocket in node.inputs:
+        vrayAttr = nodeSocket.vray_attr
+        socketParams[vrayAttr] = NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
 
-	ofile.write("\nSettingsEnvironment settingsEnvironment {")
-	ofile.write("\n\tglobal_light_level=%s;" % a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
-	ofile.write("\n\tenvironment_volume=List(%s);" % (','.join(volumes)))
-	ofile.write("\n\tbg_color=Color(0.0,0.0,0.0);")
-	ofile.write("\n\tbg_tex_mult=1.0;")
-	ofile.write("\n\tgi_color=Color(0.0,0.0,0.0);")
-	ofile.write("\n\tgi_tex_mult=1.0;")
-	ofile.write("\n\treflect_color=Color(0.0,0.0,0.0);")
-	ofile.write("\n\treflect_tex_mult=1.0;")
-	ofile.write("\n\trefract_color=Color(0.0,0.0,0.0);")
-	ofile.write("\n\trefract_tex_mult=1.0;")
+    o.set(TYPE, ID, 'SettingsEnvironment')
+    o.writeHeader()
+    o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
+    o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
+    o.writeAttibute('bg_color', "Color(0.0,0.0,0.0)")
+    o.writeAttibute('bg_tex_mult', 1.0)
+    o.writeAttibute('gi_color', "Color(0.0,0.0,0.0)")
+    o.writeAttibute('gi_tex_mult', 1.0)
+    o.writeAttibute('reflect_color', "Color(0.0,0.0,0.0)")
+    o.writeAttibute('reflect_tex_mult', 1.0)
+    o.writeAttibute('refract_color', "Color(0.0,0.0,0.0)")
+    o.writeAttibute('refract_tex_mult', 1.0)
 
-	ofile.write("\n\tbg_tex=%s;" % a(scene, socketParams.get('bg_tex', node.inputs['Background'].value)))
+    o.writeAttibute('bg_tex', a(scene, socketParams.get('bg_tex', node.inputs['Background'].value)))
 
-	for override in {'gi_tex', 'reflect_tex', 'refract_tex'}:
-		value = None
+    for override in {'gi_tex', 'reflect_tex', 'refract_tex'}:
+        value = None
 
-		if override in socketParams and getattr(node, override):
-			value = socketParams[override]
-		else:
-			value = socketParams.get('bg_tex', None)
+        if override in socketParams and getattr(node, override):
+            value = socketParams[override]
+        else:
+            value = socketParams.get('bg_tex', None)
 
-		if value:
-			ofile.write("\n\t%s=%s;" % (override, a(scene, value)))
+        if value:
+            o.writeAttibute(override, a(scene, value))
 
-	ofile.write("\n}\n")
+    o.writeFooter()
 
 
 def write(bus):
-	scene = bus['scene']
+    scene = bus['scene']
 
-	ntree = scene.world.vray.ntree
-	if not ntree:
-		return 
+    ntree = scene.world.vray.ntree
+    if not ntree:
+        return 
 
-	outputNode = NodesExport.GetNodeByType(ntree, 'VRayNodeWorldOutput')
-	if not outputNode:
-		return
+    outputNode = NodesExport.GetNodeByType(ntree, 'VRayNodeWorldOutput')
+    if not outputNode:
+        return
 
-	# Effects must be always exported before Environment
-	#
-	effectsSocket = outputNode.inputs['Effects']
-	if effectsSocket.is_linked:
-		effectsNode = NodesExport.GetConnectedNode(ntree, effectsSocket)
-		if effectsNode:
-			WriteEffects(bus, ntree, effectsNode)
+    # Effects must be always exported before Environment
+    #
+    effectsSocket = outputNode.inputs['Effects']
+    if effectsSocket.is_linked:
+        effectsNode = NodesExport.GetConnectedNode(ntree, effectsSocket)
+        if effectsNode:
+            WriteEffects(bus, ntree, effectsNode)
 
-	environmentSocket = outputNode.inputs['Environment']
-	if environmentSocket.is_linked:
-		environmentNode = NodesExport.GetConnectedNode(ntree, environmentSocket)
-		if environmentNode:
-			WriteEnvironment(bus, ntree, environmentNode)
-	else:
-		WriteEnvironment(bus, ntree, None)
-
-
-def write_SphereFadeGizmo(bus, ob):
-	vray = ob.vray
-	name= "MG%s" % get_name(ob, prefix='EMPTY')
-	ofile.write("\nSphereFadeGizmo %s {" % name)
-	ofile.write("\n\ttransform=%s;" % a(scene, transform(ob.matrix_world)))
-	if ob.type == 'EMPTY':
-		ofile.write("\n\tradius=%s;" % ob.empty_draw_size)
-	elif vray.MtlRenderStats.use:
-		ofile.write("\n\tradius=%s;" % vray.fade_radius)
-	ofile.write("\n\tinvert=0;")
-	ofile.write("\n}\n")
-	return name
+    environmentSocket = outputNode.inputs['Environment']
+    if environmentSocket.is_linked:
+        environmentNode = NodesExport.GetConnectedNode(ntree, environmentSocket)
+        if environmentNode:
+            WriteEnvironment(bus, ntree, environmentNode)
+    else:
+        WriteEnvironment(bus, ntree, None)
 
 
-def write_SphereFade(bus, effect, gizmos):
-	scene= bus['scene']
-	name= "ESF%s" % clean_string(effect.name)
+# def write_SphereFadeGizmo(bus, ob):
+#     vray = ob.vray
+#     name= "MG%s" % get_name(ob, prefix='EMPTY')
+#     o.writeAttibute('\nSphereFadeGizmo %s {" % name)
+#     o.writeAttibute('transform=%s;" % a(scene, transform(ob.matrix_world)))
+#     if ob.type == 'EMPTY':
+#         o.writeAttibute('radius=%s;" % ob.empty_draw_size)
+#     elif vray.MtlRenderStats.use:
+#         o.writeAttibute('radius=%s;" % vray.fade_radius)
+#     o.writeAttibute('invert=0;")
+#     o.writeAttibute('\n}\n")
+#     return name
 
-	ofile.write("\nSphereFade %s {" % name)
-	print(gizmos)
-	ofile.write("\n\tgizmos= List(%s);" % ','.join(gizmos))
-	for param in PARAMS['SphereFade']:
-		value= getattr(effect.SphereFade, param)
-		ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 
-	ofile.write("\n}\n")
+# def write_SphereFade(bus, effect, gizmos):
+#     scene= bus['scene']
+#     name= "ESF%s" % clean_string(effect.name)
+
+#     o.writeAttibute('\nSphereFade %s {" % name)
+#     print(gizmos)
+#     o.writeAttibute('gizmos= List(%s);" % ','.join(gizmos))
+#     for param in PARAMS['SphereFade']:
+#         value= getattr(effect.SphereFade, param)
+#         o.writeAttibute('%s=%s;"%(param, a(scene,value)))
+
+#     o.writeAttibute('\n}\n")

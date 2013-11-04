@@ -51,10 +51,8 @@ class VRAY_OBP_render(classes.VRayObjectPanel):
 
 	def draw(self, context):
 		layout = self.layout
-		wide_ui = context.region.width > classes.narrowui
 
-		VRayObject     = context.object.vray
-		MtlRenderStats = VRayObject.MtlRenderStats
+		VRayObject = context.object.vray
 
 		layout.prop(VRayObject, 'fade_radius')
 
@@ -65,7 +63,7 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 
 	@classmethod
 	def poll(cls, context):
-		return classes.VRayObjectPanel.poll(context) and context.scene.vray.exporter.experimental
+		return classes.VRayObjectPanel.poll(context) and context.scene.vray.Exporter.experimental
 
 	def draw_header(self, context):
 		ob = context.object
@@ -93,7 +91,6 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 
 		layout.prop(GeomVRayPattern, 'crop_size')
 		layout.operator('vray.pattern_fit', icon='MOD_MESHDEFORM')
-		# layout.prop(GeomVRayPattern, 'geometry_bias')
 		layout.separator()
 
 		split = layout.split()

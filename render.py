@@ -52,59 +52,60 @@ from vb25.debug   import Debug, PrintDict
  ######   ########  #######  ##     ## ########    ##    ##     ##    ##
 
 def write_geometry(bus):
-    scene = bus['scene']
+    pass
+    # scene = bus['scene']
 
-    VRayScene = scene.vray
-    VRayExporter = VRayScene.exporter
+    # VRayScene = scene.vray
+    # VRayExporter = VRayScene.Exporter
 
-    def write_frame(bus):
-        bus['cache']['mesh'] = set()
+    # def write_frame(bus):
+    #     bus['cache']['mesh'] = set()
 
-        for ob in scene.objects:
-            if ob.type not in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}:
-                continue
+    #     for ob in scene.objects:
+    #         if ob.type not in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}:
+    #             continue
 
-            # Skip proxy meshes
-            if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
-                continue
+    #         # Skip proxy meshes
+    #         if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
+    #             continue
 
-            if VRayExporter.mesh_active_layers or bus['preview']:
-                if not object_on_visible_layers(scene, ob):
-                    continue
+    #         if VRayExporter.mesh_active_layers or bus['preview']:
+    #             if not object_on_visible_layers(scene, ob):
+    #                 continue
 
-            mesh_name = None
-            if VRayExporter.use_instances:
-                mesh_name = get_name(ob, prefix='ME')
-            else:
-                mesh_name = get_name(ob.data, prefix='ME')
+    #         mesh_name = None
+    #         if VRayExporter.use_instances:
+    #             mesh_name = get_name(ob, prefix='ME')
+    #         else:
+    #             mesh_name = get_name(ob.data, prefix='ME')
 
-            if mesh_name in bus['cache']['mesh']:
-                continue
-            bus['cache']['mesh'].add(mesh_name)
+    #         if mesh_name in bus['cache']['mesh']:
+    #             continue
+    #         bus['cache']['mesh'].add(mesh_name)
 
-            _vray_for_blender.exportMesh(
-                bpy.context.as_pointer(), # Context
-                ob.as_pointer(),          # Object
-                mesh_name,                # Result plugin name
-                bus['files']['geom']      # Output file
-            )
+    #         _vray_for_blender.exportMesh(
+    #             bpy.context.as_pointer(), # Context
+    #             ob.as_pointer(),          # Object
+    #             mesh_name,                # Result plugin name
+    #             bus['files']['geom']      # Output file
+    #         )
 
-    timer = time.clock()
-    debug(scene, "Writing meshes...")
+    # timer = time.clock()
+    # debug(scene, "Writing meshes...")
 
-    if VRayExporter.animation and VRayExporter.animation_type == 'FULL' and not VRayExporter.camera_loop:
-        cur_frame = scene.frame_current
-        scene.frame_set(scene.frame_start)
-        f = scene.frame_start
-        while(f <= scene.frame_end):
-            scene.frame_set(f)
-            write_frame(bus)
-            f += scene.frame_step
-        scene.frame_set(cur_frame)
-    else:
-        write_frame(bus)
+    # if VRayExporter.animation and VRayExporter.animation_type == 'FULL' and not VRayExporter.camera_loop:
+    #     cur_frame = scene.frame_current
+    #     scene.frame_set(scene.frame_start)
+    #     f = scene.frame_start
+    #     while(f <= scene.frame_end):
+    #         scene.frame_set(f)
+    #         write_frame(bus)
+    #         f += scene.frame_step
+    #     scene.frame_set(cur_frame)
+    # else:
+    #     write_frame(bus)
 
-    debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+    # debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
 
 
  ######  ######## ######## ######## #### ##    ##  ######    ######
@@ -115,127 +116,167 @@ def write_geometry(bus):
 ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
  ######  ########    ##       ##    #### ##    ##  ######    ######
 
-def write_settings(bus):
-    ofile = bus['files']['scene']
-    scene = bus['scene']
+def WritePreviewOverrides(bus):
+    if not bus['preview']:
+        return
 
-    VRayScene      = scene.vray
-    VRayExporter   = VRayScene.exporter
-    VRayDR         = VRayScene.VRayDR
-    SettingsOutput = VRayScene.SettingsOutput
-    Includer       = VRayScene.Includer
-
-    threadCount = scene.render.threads
-    if VRayExporter.meshExportThreads:
-        threadCount = VRayExporter.meshExportThreads
-
-    PLUGINS['CAMERA']['SettingsCamera'].write(bus)
-    PLUGINS['CAMERA']['SettingsMotionBlur'].write(bus)
-
-    for key in PLUGINS['SETTINGS']:
-        # Skip some plugins
-        if key in ('BakeView', 'RenderView', 'SettingsEnvironment'):
-            continue
-
-        plugin= PLUGINS['SETTINGS'][key]
-        if hasattr(plugin, 'write'):
-            plugin.write(bus)
-
-    # if VRayScene.render_channels_use:
-    #     for render_channel in VRayScene.render_channels:
-    #         if render_channel.use:
-    #             plugin= PLUGINS['RENDERCHANNEL'].get(render_channel.type)
-    #             if plugin:
-    #                 try:
-    #                     plugin.write(bus, getattr(render_channel,plugin.PLUG), render_channel.name)
-    #                 except:
-    #                     plugin.write(ofile, getattr(render_channel,plugin.PLUG), scene, render_channel.name)
-
-    # Preview settings are in different parts of the file,
-    # because smth must be set before and smth after.
-    if bus['preview']:
-        # Material / texture preview settings
-        mode= 'MATERIAL'
-        tex_name= "Color(0.5,0.5,0.5)"
-        for ob in scene.objects:
-            if ob.name == 'texture' and ob.is_visible(scene):
-                mode= 'TEXTURE'
-                tex_name= clean_string("MAtextureMT00TE%s" % ob.material_slots[0].material.texture_slots[0].texture.name)
-                break
-
-        # For texture preview we need to set texture as a color,
-        # no matter how it's used in material
-        if mode == 'TEXTURE':
-            bus['files']['scene'].write("\nBRDFLight BRDFPreviewTexture {")
-            bus['files']['scene'].write("\n\tcolor=%s;" % tex_name)
-            bus['files']['scene'].write("\n\tcolorMultiplier=4.0;")
-            bus['files']['scene'].write("\n}\n")
-            bus['files']['scene'].write("\nMtlSingleBRDF MAtexture {")
-            bus['files']['scene'].write("\n\tbrdf=BRDFPreviewTexture;")
-            bus['files']['scene'].write("\n}\n")
-
-        bus['files']['scene'].write("\nSettingsDMCSampler {")
-        bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
-        bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
-        bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
-        bus['files']['scene'].write("\n}\n")
-        bus['files']['scene'].write("\nSettingsOptions {")
-        bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
-        bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
-        bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
-        bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
-        bus['files']['scene'].write("\n\tmtl_glossy=1;")
-        bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
-        bus['files']['scene'].write("\n}\n")
-        bus['files']['scene'].write("\nSettingsImageSampler {")
-        bus['files']['scene'].write("\n\ttype=0;") # Fastest result, but no AA :(
-        bus['files']['scene'].write("\n\tfixed_subdivs=1;")
-        bus['files']['scene'].write("\n}\n")
-
-    if VRayExporter.draft:
-        bus['files']['scene'].write("\n")
-        bus['files']['scene'].write(get_vrscene_template("draft.vrscene"))
+    bus['files']['scene'].write("\nSettingsDMCSampler {")
+    bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
+    bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
+    bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
+    bus['files']['scene'].write("\n}\n")
+    bus['files']['scene'].write("\nSettingsOptions {")
+    bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
+    bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
+    bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
+    bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
+    bus['files']['scene'].write("\n\tmtl_glossy=1;")
+    bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
+    bus['files']['scene'].write("\n}\n")
     
-    bus['files']['scene'].write("\n")
-    bus['files']['scene'].write(get_vrscene_template("defaults.vrscene"))
+    # TODO: Try using progressive sampler here and restrict render time
+    #
+    bus['files']['scene'].write("\nSettingsImageSampler {")
+    bus['files']['scene'].write("\n\ttype=0;")
+    bus['files']['scene'].write("\n\tfixed_subdivs=1;")
+    bus['files']['scene'].write("\n}\n")
 
-    for key in bus['filenames']:
-        if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
-            # Skip some files
-            continue
 
-        if VRayDR.on:
-            if key == 'geometry':
-                for t in range(threadCount):
-                    if VRayDR.type == 'WW':
-                        ofile.write("\n#include \"//%s/%s/%s/%s_%.2i.vrscene\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames']['geometry'][:-11]), t))
-                    else:
-                        ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
+def write_settings(bus):
+    scene = bus['scene']
+    ca    = bus['camera']
+
+    VRayCamera = ca.data.vray
+    VRayScene  = scene.vray
+
+    Includer       = VRayScene.Includer
+    VRayExporter   = VRayScene.Exporter
+    VRayDR         = VRayScene.VRayDR
+
+    SettingsOutput = VRayScene.SettingsOutput
+    SettingsGI     = VRayScene.SettingsGI
+
+    for pluginType in {'SETTINGS', 'CAMERA'}:
+        for pluginName in PLUGINS[pluginType]:
+            if pluginName in {'BakeView',
+                              'SettingsLightLinker',
+                              'VRayStereoscopicSettings',
+                              'SettingsPtexBaker',
+                              'SettingsVertexBaker',
+                              'SettingsCurrentFrame',
+                              'SettingsLightTree',
+                              'SettingsOutput',
+                              'SettingsVRST',
+                              'CameraStereoscopic',
+                              'SettingsEnvironment'}:
+                continue
+
+            if pluginName in {'SettingsEXR',
+                              'SettingsVFB'}:
+                continue
+
+
+            pluginModule = PLUGINS[pluginType][pluginName]
+
+            propGroup      = None
+            overrideParams = {}
+            
+            if pluginName == 'SettingsRegionsGenerator':
+                propGroup = getattr(VRayScene, pluginName)
+
+                overrideParams = {
+                    'xc' : propGroup.xc,
+                    'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
+                }
+
+            elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
+                propGroup = getattr(VRayScene, pluginName)
+                
+                if SettingsGI.primary_engine != '4':
+                    continue
+
+                if VRayExporter.spherical_harmonics == 'BAKE':
+                    if pluginName == 'SphericalHarmonicsRenderer':
+                        continue
+                else:
+                    if pluginName == 'SphericalHarmonicsExporter':
+                        continue
+            
+            elif pluginName == 'SettingsCamera':
+                propGroup = getattr(VRayCamera, pluginName)
+
+            elif pluginName == 'CameraPhysical':
+                propGroup = getattr(VRayCamera, pluginName)
+            
+            elif pluginName == 'RenderView':
+                propGroup = getattr(VRayCamera, pluginName)
+
+                aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
+
+                fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
+                if aspect < 1.0:
+                    fov = fov * aspect
+
+                overrideParams = {
+                    'fov' : fov,
+                    'orthographic' : ca.data.type == 'ORTHO',
+                    'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
+                    'clipping_near' : ca.data.clip_start,
+                    'clipping_far' : ca.data.clip_end,
+                    'transform' : ca.matrix_world,
+                }
+
             else:
-                if VRayDR.type == 'WW':
-                    ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames'][key])))
-                else:
-                    ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
-        else:
-            if key == 'geometry':
-                if bus['preview']:
-                    ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
-                else:
-                    for t in range(threadCount):
-                        ofile.write("\n#include \"%s_%.2i.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
-            else:
-                if bus['preview'] and key == 'colorMapping':
-                    if os.path.exists(bus['filenames'][key]):
-                        ofile.write("\n#include \"%s\"" % bus['filenames'][key])
-                else:
-                    ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
-    ofile.write("\n")
+                propGroup = getattr(VRayScene, pluginName)
+            
+            if not propGroup:
+                continue
 
-    if Includer.use:
-        ofile.write("\n// Include additional *.vrscene files")
-        for includeNode in Includer.nodes:
-            if includeNode.use == True:
-                ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
+            ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+
+    # if VRayExporter.draft:
+    #     bus['files']['scene'].write("\n")
+    #     bus['files']['scene'].write(get_vrscene_template("draft.vrscene"))
+    
+    # bus['files']['scene'].write("\n")
+    # bus['files']['scene'].write(get_vrscene_template("defaults.vrscene"))
+
+    # for key in bus['filenames']:
+    #     if key in ('output', 'output_filename', 'output_loadfile', 'lightmaps', 'scene', 'DR'):
+    #         # Skip some files
+    #         continue
+
+    #     if VRayDR.on:
+    #         if key == 'geometry':
+    #             for t in range(threadCount):
+    #                 if VRayDR.type == 'WW':
+    #                     ofile.write("\n#include \"//%s/%s/%s/%s_%.2i.vrscene\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames']['geometry'][:-11]), t))
+    #                 else:
+    #                     ofile.write("\n#include \"%s_%.2i.vrscene\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames']['geometry'][:-11]), t))
+    #         else:
+    #             if VRayDR.type == 'WW':
+    #                 ofile.write("\n#include \"//%s/%s/%s/%s\"" % (HOSTNAME, VRayDR.share_name, bus['filenames']['DR']['sub_dir'], os.path.basename(bus['filenames'][key])))
+    #             else:
+    #                 ofile.write("\n#include \"%s\"" % (bus['filenames']['DR']['prefix'] + os.sep + os.path.basename(bus['filenames'][key])))
+    #     else:
+    #         if key == 'geometry':
+    #             if bus['preview']:
+    #                 ofile.write("\n#include \"%s\"" % os.path.join(get_vray_exporter_path(), "preview", "preview_geometry.vrscene"))
+    #             else:
+    #                 ofile.write("\n#include \"%s.vrscene\"" % (os.path.basename(bus['filenames']['geometry'][:-11]), t))
+    #         else:
+    #             if bus['preview'] and key == 'colorMapping':
+    #                 if os.path.exists(bus['filenames'][key]):
+    #                     ofile.write("\n#include \"%s\"" % bus['filenames'][key])
+    #             else:
+    #                 ofile.write("\n#include \"%s\"" % os.path.basename(bus['filenames'][key]))
+    # ofile.write("\n")
+
+    # if Includer.use:
+    #     ofile.write("\n// Include additional *.vrscene files")
+    #     for includeNode in Includer.nodes:
+    #         if includeNode.use == True:
+    #             ofile.write("\n#include \"" + bpy.path.abspath(includeNode.scene) + "\"\t\t // " + includeNode.name)
 
 
 ##       ####  ######   ##     ## ########  ######
@@ -248,7 +289,6 @@ def write_settings(bus):
 
 def write_lamp(bus):
     scene = bus['scene']
-    ofile = bus['files']['lights']
     ob    = bus['node']['object']
 
     lamp     = ob.data
@@ -323,11 +363,10 @@ def write_lamp(bus):
             ofile.write("\n\t%s=List(%s);" % (key, ",".join(renderChannelArray)))
 
     # Write light
-    ExportUtils.WriteDatablock(
+    ExportUtils.WritePlugin(
         bus,
-        lightPluginName,
+        PLUGINS['LIGHT'][lightPluginName],
         lamp_name,
-        PLUGINS['LIGHT'][lightPluginName].PluginParams,
         lightPropGroup,
         socketParams
     )
@@ -342,8 +381,9 @@ def write_lamp(bus):
  #######  ########   ######  ########  ######     ##     ######       ###    ##    ##  #######  ########  ########  ######     ###
 
 def write_node(bus):
-    scene      = bus['scene']
-    ofile      = bus['files']['nodes']
+    scene = bus['scene']
+    o     = bus['output']
+
     ob         = bus['node']['object']
     visibility = bus['visibility']
 
@@ -353,6 +393,8 @@ def write_node(bus):
     VRayScene = scene.vray
     SettingsOptions = VRayScene.SettingsOptions
 
+    # TODO: Use LightLinker instead of Node's 'lights' attribute
+    #
     lights = []
     for lamp in [o for o in scene.objects if o.type == 'LAMP']:
         if lamp.data is None:
@@ -397,31 +439,35 @@ def write_node(bus):
     if not VRayScene.RTEngine.enabled:
         material = "RS%s" % node_name
 
-        ofile.write("\nMtlRenderStats %s {" % material)
-        ofile.write("\n\tbase_mtl=%s;" % base_mtl)
-        ofile.write("\n\tvisibility=%s;" %             a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
-        ofile.write("\n\tcamera_visibility=%s;" %      a(scene, (0 if ob in visibility['camera']  else 1)))
-        ofile.write("\n\tgi_visibility=%s;" %          a(scene, (0 if ob in visibility['gi']      else 1)))
-        ofile.write("\n\treflections_visibility=%s;" % a(scene, (0 if ob in visibility['reflect'] else 1)))
-        ofile.write("\n\trefractions_visibility=%s;" % a(scene, (0 if ob in visibility['refract'] else 1)))
-        ofile.write("\n\tshadows_visibility=%s;" %     a(scene, (0 if ob in visibility['shadows'] else 1)))
-        ofile.write("\n}\n")
+        o.set('MATERIAL', 'MtlRenderStats', material)
+        o.writeHeader()
+        o.writeAttibute('base_mtl', base_mtl)
+        o.writeAttibute('visibility', a(scene, (0 if ob in visibility['all'] or bus['node']['visible'] == False else 1)))
+        o.writeAttibute('camera_visibility', a(scene, (0 if ob in visibility['camera']  else 1)))
+        o.writeAttibute('gi_visibility', a(scene, (0 if ob in visibility['gi']      else 1)))
+        o.writeAttibute('reflections_visibility', a(scene, (0 if ob in visibility['reflect'] else 1)))
+        o.writeAttibute('refractions_visibility', a(scene, (0 if ob in visibility['refract'] else 1)))
+        o.writeAttibute('shadows_visibility', a(scene, (0 if ob in visibility['shadows'] else 1)))
+        o.writeFooter()
 
-    ofile.write("\nNode %s {" % node_name)
-    ofile.write("\n\tobjectID=%d;" % bus['node'].get('objectID', ob.pass_index))
-    ofile.write("\n\tgeometry=%s;" % bus['node']['geometry'])
-    ofile.write("\n\tmaterial=%s;" % material)
+    o.set('OBJECT', 'Node', node_name)
+    o.writeHeader()
+    o.writeAttibute('objectID', bus['node'].get('objectID', ob.pass_index))
+    o.writeAttibute('geometry', bus['node']['geometry'])
+    o.writeAttibute('material', material)
     if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
-        ofile.write("\n\tvisible=%s;" % a(scene, bus['node']['particle']['visible']))
-    ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix)))
+        o.writeAttibute('visible', a(scene, bus['node']['particle']['visible']))
+    o.writeAttibute('transform', a(scene, transform(matrix)))
 
     # TODO: check why this was needed.
     #if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
     #   ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
 
-    if not bus['preview']:
-        ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
-    ofile.write("\n}\n")
+    # TODO: Use Light Linker
+    # if not bus['preview']:
+    #     ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
+
+    o.writeFooter()
 
 
 def write_object(bus):
@@ -433,7 +479,7 @@ def write_object(bus):
         return
 
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     VRayObject   = ob.vray
     VRayData     = ob.data.vray
@@ -488,7 +534,7 @@ def _write_object_particles_hair(bus):
     ob    = bus['node']['object']
 
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     if not VRayExporter.use_hair:
         return
@@ -538,10 +584,9 @@ def _write_object_particles_hair(bus):
 def _write_object_dupli(bus):
     scene = bus['scene']
     ob    = bus['node']['object']
-    ofile = bus['files']['nodes']
 
     VRayScene = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     dupli_from_particles = False
     if len(ob.particle_systems):
@@ -595,8 +640,8 @@ def _write_object_dupli(bus):
    ###    ##     ## ##     ##    ##    ##     ##  ######   ######  ########    ##
 
 def writeSceneInclude(bus):
-    sceneFile = bus['files']['scene']
-    ob        = bus['node']['object']
+    o   = bus['output']
+    ob  = bus['node']['object']
 
     VRayObject = ob.vray
 
@@ -619,18 +664,18 @@ def writeSceneInclude(bus):
                     continue
                 vrsceneFilelist.append(os.path.join(dirname, filename))
 
-    sceneFile.write("\nSceneInclude %s {" % get_name(ob, prefix='SI'))
-    sceneFile.write("\n\tfilepath=\"%s\";" % ";".join(vrsceneFilelist))
-    sceneFile.write("\n\tprefix=\"%s\";" % get_name(ob, prefix='SI'))
-    sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
-    sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
-    sceneFile.write("\n\treplace=%s;" % p(VRayObject.sceneReplace))
-    sceneFile.write("\n\tadd_nodes=%s;" % p(VRayObject.sceneAddNodes))
-    sceneFile.write("\n\tadd_materials=%s;" % p(VRayObject.sceneAddMaterials))
-    sceneFile.write("\n\tadd_lights=%s;" % p(VRayObject.sceneAddLights))
-    sceneFile.write("\n\tadd_cameras=%s;" % p(VRayObject.sceneAddCameras))
-    sceneFile.write("\n\tadd_environment=%s;" % p(VRayObject.sceneAddEnvironment))
-    sceneFile.write("\n}\n")
+    # sceneFile.write("\nSceneInclude %s {" % get_name(ob, prefix='SI'))
+    # sceneFile.write("\n\tfilepath=\"%s\";" % ";".join(vrsceneFilelist))
+    # sceneFile.write("\n\tprefix=\"%s\";" % get_name(ob, prefix='SI'))
+    # sceneFile.write("\n\ttransform=%s;" % transform(ob.matrix_world))
+    # sceneFile.write("\n\tuse_transform=%s;" % p(VRayObject.sceneUseTransform))
+    # sceneFile.write("\n\treplace=%s;" % p(VRayObject.sceneReplace))
+    # sceneFile.write("\n\tadd_nodes=%s;" % p(VRayObject.sceneAddNodes))
+    # sceneFile.write("\n\tadd_materials=%s;" % p(VRayObject.sceneAddMaterials))
+    # sceneFile.write("\n\tadd_lights=%s;" % p(VRayObject.sceneAddLights))
+    # sceneFile.write("\n\tadd_cameras=%s;" % p(VRayObject.sceneAddCameras))
+    # sceneFile.write("\n\tadd_environment=%s;" % p(VRayObject.sceneAddEnvironment))
+    # sceneFile.write("\n}\n")
 
 
 def _write_object(bus):
@@ -670,7 +715,7 @@ def write_scene(bus):
 
     VRayScene = scene.vray
 
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
     SettingsOptions = VRayScene.SettingsOptions
 
     bus['material_override'] = None
@@ -683,21 +728,8 @@ def write_scene(bus):
     bus['defaults']['uvwgen'] = "DEFAULTUVWC"
     bus['defaults']['blend'] = "TEDefaultBlend"
 
-    for key in bus['files']:
-        bus['files'][key].write("// V-Ray/Blender")
-
-    bus['files']['geom'].write("\n// Geometry\n")
-    bus['files']['scene'].write("\n// Settings\n")
-    bus['files']['nodetree'].write("\n// Shading Nodes\n")
-    bus['files']['nodes'].write("\n// Nodes\n")
-    bus['files']['lights'].write("\n// Lights\n")
-    bus['files']['camera'].write("\n// Camera\n")
-    bus['files']['environment'].write("\n// Environment\n")
-    bus['files']['textures'].write("\n// Textures\n")
-    bus['files']['materials'].write("\n// Materials\n")
-
-    if bus['preview']:
-        bus['files']['scene'].write(get_vrscene_template("preview.vrscene"))
+    # if bus['preview']:
+    #     bus['files']['scene'].write(get_vrscene_template("preview.vrscene"))
 
     # Write override material     
     if SettingsOptions.mtl_override_on and SettingsOptions.mtl_override:
@@ -713,7 +745,7 @@ def write_scene(bus):
         debug(scene, "Writing frame %i..." % scene.frame_current)
 
         VRayScene       = scene.vray
-        VRayExporter    = VRayScene.exporter
+        VRayExporter    = VRayScene.Exporter
         SettingsOptions = VRayScene.SettingsOptions
 
         # Prepare exclude for effects
@@ -784,11 +816,11 @@ def write_scene(bus):
 
             _write_object(bus)
 
-        PLUGINS['SETTINGS']['BakeView'].write(bus)
-        PLUGINS['SETTINGS']['RenderView'].write(bus)
+        # PLUGINS['SETTINGS']['BakeView'].write(bus)
+        # PLUGINS['SETTINGS']['RenderView'].write(bus)
 
-        PLUGINS['CAMERA']['CameraPhysical'].write(bus)
-        PLUGINS['CAMERA']['CameraStereoscopic'].write(bus)
+        # PLUGINS['CAMERA']['CameraPhysical'].write(bus)
+        # PLUGINS['CAMERA']['CameraStereoscopic'].write(bus)
 
         debug(scene, "Writing frame {0}... done {1:<64}".format(scene.frame_current, "[%.2f]"%(time.clock() - timer)))
 
@@ -841,7 +873,7 @@ def run(bus):
 
     VRayScene = scene.vray
 
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
     VRayDR       = VRayScene.VRayDR
     RTEngine     = VRayScene.RTEngine
 
@@ -853,7 +885,7 @@ def run(bus):
 
     params = []
     params.append(vray_standalone)
-    params.append('-sceneFile=%s' % Quotes(bus['filenames']['scene']))
+    params.append('-sceneFile=%s' % Quotes(bus['output'].getSceneFilepath()))
 
     preview_file     = os.path.join(tempfile.gettempdir(), "preview.jpg")
     preview_loadfile = os.path.join(tempfile.gettempdir(), "preview.0000.jpg")
@@ -872,9 +904,6 @@ def run(bus):
 
     else:
         if RTEngine.enabled:
-            params.append('-rtTimeOut=%.3f' % RTEngine.rtTimeOut)
-            params.append('-rtNoise=%.3f' % RTEngine.rtNoise)
-            params.append('-rtSampleLevel=%i' % RTEngine.rtSampleLevel)
             params.append('-cmdMode=1')
 
         params.append('-display=%i' % VRayExporter.display)
@@ -1127,7 +1156,7 @@ def export_and_run(bus):
 
 def init_bus(engine, scene, preview=False):
     VRayScene = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     bus = {}
     bus['mode'] = 'VRSCENE'
@@ -1168,7 +1197,7 @@ def init_bus(engine, scene, preview=False):
 
 def render(engine, scene, preview= None):
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     if preview:
         export_and_run(init_bus(engine, scene, True))

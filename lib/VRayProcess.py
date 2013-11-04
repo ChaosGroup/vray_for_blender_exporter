@@ -80,7 +80,7 @@ class VRayProcess():
 
     def set_params(self, params=None):
         self.VRayScene    = self.scene.vray
-        self.VRayExporter = self.VRayScene.exporter
+        self.VRayExporter = self.VRayScene.Exporter
         self.VRayDR       = self.VRayScene.VRayDR
 
         self.params = []

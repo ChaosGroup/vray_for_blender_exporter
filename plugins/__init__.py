@@ -36,6 +36,7 @@ from vb25.debug import Debug
 from vb25.lib   import ClassUtils
 
 
+PLUGINS_ID = {}
 PLUGINS = {
 	'BRDF':          {},
 	'CAMERA':        {},
@@ -49,6 +50,7 @@ PLUGINS = {
 	'TEXTURE':       {},
 	'WORLD':         {},
 	'UVWGEN':        {},
+	'SYSTEM':        {},
 	'EFFECT':        {},
 }
 
@@ -92,7 +94,7 @@ def LoadPluginAttributes(plugins, pointerProp):
 		AddAttributes(plugins[plugin], pointerProp)
 
 
-def LoadPlugins(PluginDict):
+def LoadPlugins(PluginDict, PluginIDDict):
 	pluginsDir = os.path.join(utils.get_vray_exporter_path(), "plugins")
 
 	if not pluginsDir or not os.path.exists(pluginsDir):
@@ -121,9 +123,18 @@ def LoadPlugins(PluginDict):
 		if not hasattr(plugin, 'ID'):
 			continue
 		PluginDict[plugin.TYPE][plugin.ID] = plugin
+		PluginIDDict[plugin.ID] = plugin
 
 
-LoadPlugins(PLUGINS)
+def GetPluginByName(pluginID):
+	for pluginName in PLUGINS_ID:
+		plugin = PLUGINS_ID[pluginName]
+		if pluginID == plugin.ID:
+			return plugin
+	return None
+
+
+LoadPlugins(PLUGINS, PLUGINS_ID)
 
 
  ######     ###    ##     ## ######## ########     ###
@@ -135,7 +146,87 @@ LoadPlugins(PLUGINS)
  ######  ##     ## ##     ## ######## ##     ## ##     ##
 
 class VRayCamera(bpy.types.PropertyGroup):
-	pass
+	use_camera_loop = bpy.props.BoolProperty(
+		name= "Use in \"Camera loop\"",
+		description= "Use camera in \"Camera loop\"",
+		default= False
+	)
+
+	override_fov = bpy.props.BoolProperty(
+		name= "Override FOV",
+		description= "Override FOV (if you need FOV > 180)",
+		default= False
+	)
+
+	fov = bpy.props.FloatProperty(
+		name= "FOV",
+		description= "Field of vision",
+		min= 0.0,
+		max= math.pi * 2,
+		soft_min= 0.0,
+		soft_max= math.pi * 2,
+		subtype= 'ANGLE',
+		precision= 2,
+		default= math.pi / 4
+	)
+
+	#
+	# Hide From View
+	#
+	hide_from_view= bpy.props.BoolProperty(
+		name= "Hide From View",
+		description= "Hide objects from current view",
+		default= False
+	)
+
+	hf_all= bpy.props.BoolProperty(
+		name= "Hide from everything",
+		description= "Hide objects completely",
+		default= False
+	)
+
+	hf_all_auto= bpy.props.BoolProperty(
+		name= "Hide from everything (automatic)",
+		description= "Create group with name \"hf_<camera-name>\"",
+		default= False
+	)
+
+	hf_all_objects= bpy.props.StringProperty(
+		name= "Objects",
+		description= "Objects to hide completely: name{;name;etc}",
+		default= ""
+	)
+
+	hf_all_groups= bpy.props.StringProperty(
+		name= "Groups",
+		description= "Groups to hide completely: name{;name;etc}",
+		default= ""
+	)
+
+for key in {'camera', 'gi', 'reflect', 'refract', 'shadows'}:
+	setattr(VRayCamera, 'hf_%s' % key, bpy.props.BoolProperty(
+		name= "Hide from %s" % key,
+		description= "Hide objects from %s" % key,
+		default= False)
+	)
+
+	setattr(VRayCamera, 'hf_%s_auto' % key, bpy.props.BoolProperty(
+		name= "Auto",
+		description= "Hide objects automaically from %s" % key,
+		default= False)
+	)
+
+	setattr(VRayCamera, 'hf_%s_objects' % key, bpy.props.StringProperty(
+		name= "Objects",
+		description= "Objects to hide from %s" % key,
+		default= "")
+	)
+
+	setattr(VRayCamera, 'hf_%s_groups' % key, bpy.props.StringProperty(
+		name= "Groups",
+		description= "Groups to hide from %s" % key,
+		default= "")
+	)
 
 
  #######  ########        ## ########  ######  ########
@@ -418,6 +509,95 @@ class VRayScene(bpy.types.PropertyGroup):
 	)
 
 
+class IncluderList(bpy.types.PropertyGroup):
+	scene= bpy.props.StringProperty(
+		name= "Filepath",
+		subtype= 'FILE_PATH',
+		description= "Path to a *.vrscene file"
+	)
+
+	use= bpy.props.BoolProperty(
+		name= "",
+		description= "Use scene",
+		default= True
+	)
+
+
+class Includer(bpy.types.PropertyGroup):
+	use = bpy.props.BoolProperty(
+		name        = "Use Includer",
+		description = "Add additional *.vrscene files",
+		default     = False
+	)
+
+	setting= bpy.props.BoolProperty(
+		name= "",
+		description= "Use scene Settings",
+		default= True
+	)
+
+	camera= bpy.props.BoolProperty(
+		name= "",
+		description= "Use camera",
+		default= True
+	)
+
+	materials= bpy.props.BoolProperty(
+		name= "",
+		description= "Use materials",
+		default= True
+	)
+
+	environment= bpy.props.BoolProperty(
+		name= "",
+		description= "Use environment",
+		default= True
+	)
+
+	lights= bpy.props.BoolProperty(
+		name= "",
+		description= "Use lights",
+		default= True
+	)
+
+	textures= bpy.props.BoolProperty(
+		name= "",
+		description= "Use textures",
+		default= True
+	)
+
+	colorMapping_standalone= bpy.props.BoolProperty(
+		name= "",
+		description= "Use Color Mapping standalone",
+		default= True
+	)
+
+	geometry= bpy.props.BoolProperty(
+		name= "",
+		description= "Use scene geometry",
+		default= True
+	)
+
+	scene_nodes= bpy.props.BoolProperty(
+		name= "",
+		description= "Use Vray nodes",
+		default= True
+	)
+	
+	nodes= bpy.props.CollectionProperty(
+		name= "Scene Name",
+		type=  IncluderList,
+		description= "Custom name scene"
+	)
+
+	nodes_selected= bpy.props.IntProperty(
+		name= "Scene Index",
+		default= -1,
+		min= -1,
+		max= 100
+	)
+
+
 ######## ##     ## ########
 ##       ##     ## ##     ##
 ##       ##     ## ##     ##
@@ -468,6 +648,74 @@ class VRayParticleSettings(bpy.types.PropertyGroup):
 	pass
 
 
+########  ####  ######  ######## ########  #### ########  ##     ## ######## ######## ########  
+##     ##  ##  ##    ##    ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ## 
+##     ##  ##  ##          ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ## 
+##     ##  ##   ######     ##    ########   ##  ########  ##     ##    ##    ######   ##     ## 
+##     ##  ##        ##    ##    ##   ##    ##  ##     ## ##     ##    ##    ##       ##     ## 
+##     ##  ##  ##    ##    ##    ##    ##   ##  ##     ## ##     ##    ##    ##       ##     ## 
+########  ####  ######     ##    ##     ## #### ########   #######     ##    ######## ########  
+
+class VRayRenderNode(bpy.types.PropertyGroup):
+	address= bpy.props.StringProperty(
+		name= "IP/Hostname",
+		description= "Render node IP or hostname"
+	)
+
+
+class VRayDR(bpy.types.PropertyGroup):
+	on = bpy.props.BoolProperty(
+		name= "Distributed rendering",
+		description= "Distributed rendering",
+		default= False
+	)
+
+	port = bpy.props.IntProperty(
+		name= "Distributed rendering port",
+		description= "Distributed rendering port",
+		min= 0,
+		max= 65535,
+		default= 20204
+	)
+
+	shared_dir = bpy.props.StringProperty(
+		name= "Shared directory",
+		subtype= 'DIR_PATH',
+		description= "Distributed rendering shader directory"
+	)
+
+	share_name = bpy.props.StringProperty(
+		name= "Share name",
+		default= "VRAYDR",
+		description= "Share name"
+	)
+
+	type = bpy.props.EnumProperty(
+		name= "Type",
+		description= "Distributed rendering network type",
+		items= (
+			('WW', "Windows - Windows", "Window master & Windows nodes"),
+			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes"),
+			('UU', "Unix - Unix",       "Unix master & Unix nodes"),
+			('UW', "Unix - Windows (TODO)", "Unix master & Windows nodes"),
+		),
+		default= 'WW'
+	)
+
+	nodes= bpy.props.CollectionProperty(
+		name= "Render Nodes",
+		type=  VRayRenderNode,
+		description= "V-Ray render nodes"
+	)
+
+	nodes_selected= bpy.props.IntProperty(
+		name= "Render Node Index",
+		default= -1,
+		min= -1,
+		max= 100
+	)
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -478,6 +726,12 @@ class VRayParticleSettings(bpy.types.PropertyGroup):
 
 def GetRegClasses():
 	return (
+		IncluderList,
+		Includer,
+
+		VRayRenderNode,
+		VRayDR,
+
 		VRayCamera,
 		VRayFur,
 		VRayLight,
@@ -516,7 +770,7 @@ def register():
 		"Node Tree",
 		"V-Ray material node tree",
 		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayShaderTreeType',
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeMaterial',
 		options = {'FAKE_USER'},
 	))
 
@@ -602,11 +856,22 @@ def register():
 		description= "V-Ray world settings"
 	)
 
-	for pluginType in PLUGINS:
-		for pluginID in PLUGINS[pluginType]:
-			plugin = PLUGINS[pluginType][pluginID]
-			if hasattr(plugin, 'register'):
-				plugin.register()
+	VRayScene.VRayDR = bpy.props.PointerProperty(
+		name = "Distributed rendering",
+		type =  VRayDR,
+		description = "Distributed rendering settings"
+	)
+
+	VRayScene.Includer = bpy.props.PointerProperty(
+		name = "Includes",
+		type =  Includer,
+		description = "Include additional *.vrscene files"
+	)
+
+	for pluginName in PLUGINS_ID:
+		plugin = PLUGINS_ID[pluginName]
+		if hasattr(plugin, 'register'):
+			plugin.register()
 
 	LoadPluginAttributes(PLUGINS['BRDF'],          VRayMaterial)
 	LoadPluginAttributes(PLUGINS['CAMERA'],        VRayCamera)
@@ -620,18 +885,36 @@ def register():
 	LoadPluginAttributes(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPluginAttributes(PLUGINS['UVWGEN'],        VRayTexture)
 
+	LoadPluginAttributes(PLUGINS['SYSTEM'], VRayScene)
+
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
 
-	AddAttributes(PLUGINS['MATERIAL']['MtlOverride'], VRayObject)
-	AddAttributes(PLUGINS['MATERIAL']['MtlRenderStats'], VRayObject)
-	AddAttributes(PLUGINS['MATERIAL']['MtlWrapper'], VRayObject)
+	AddAttributes(PLUGINS['SETTINGS']['SettingsCamera'],      VRayCamera)
+	AddAttributes(PLUGINS['SETTINGS']['SettingsCameraDof'],   VRayCamera)
+	AddAttributes(PLUGINS['SETTINGS']['SettingsMotionBlur'],  VRayCamera)
 
-	AddAttributes(PLUGINS['GEOMETRY']['GeomDisplacedMesh'], VRayObject)
-	AddAttributes(PLUGINS['GEOMETRY']['GeomStaticSmoothedMesh'], VRayObject)
-
+	VRayScene.Exporter = bpy.props.PointerProperty(
+		name = "Exporter",
+		type =  bpy.types.VRayExporter,
+		description = "Include additional *.vrscene files"
+	)
 
 def unregister():
+	for regClass in GetRegClasses():
+		bpy.utils.unregister_class(regClass)
+
+	idref.bpy_unregister_idref(VRayLight,    'ntree')
+	idref.bpy_unregister_idref(VRayMaterial, 'ntree')
+	idref.bpy_unregister_idref(VRayObject,   'ntree')
+	idref.bpy_unregister_idref(VRayScene,    'ntree')
+	idref.bpy_unregister_idref(VRayWorld,    'ntree')
+
+	for pluginName in PLUGINS_ID:
+		plugin = PLUGINS_ID[pluginName]
+		if hasattr(plugin, 'unregister'):
+			plugin.unregister()
+
 	del bpy.types.Camera.vray
 	del bpy.types.Lamp.vray
 	del bpy.types.Material.vray
@@ -640,17 +923,3 @@ def unregister():
 	del bpy.types.Scene.vray
 	del bpy.types.Texture.vray
 	del bpy.types.World.vray
-
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
-
-	idref.bpy_unregister_idref(VRayLight, 'ntree')
-	idref.bpy_unregister_idref(VRayMaterial, 'ntree')
-	idref.bpy_unregister_idref(VRayObject, 'ntree')
-	idref.bpy_unregister_idref(VRayScene, 'ntree')
-	idref.bpy_unregister_idref(VRayWorld, 'ntree')
-
-	for pluginType in PLUGINS:
-		for plugin in PLUGINS[pluginType]:
-			if 'unregister' in dir(PLUGINS[pluginType][plugin]):
-				PLUGINS[pluginType][plugin].unregister()

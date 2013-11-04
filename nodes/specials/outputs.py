@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.ui import classes
+
 from ..        import tree
 from ..sockets import AddInput, AddOutput
 
@@ -38,11 +40,24 @@ from ..sockets import AddInput, AddOutput
 
 class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeObjectOutput'
-    bl_label  = 'V-Ray Node'
+    bl_label  = 'Object Output'
     bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
+
+    nsamples = bpy.props.IntProperty(
+        name        = "Samples",
+        description = "Number of transform samples",
+        default     =  0
+    )
+
+    def draw_buttons(self, context, layout):
+        ob = context.active_object
+
+        layout.prop(ob, 'hide_render', text="Visible")
+        layout.prop(ob, 'pass_index', text="Object ID")
+        layout.prop(self, 'nsamples')
 
     def init(self, context):
         AddInput(self, 'VRaySocketMtl',  "Material", 'material')
@@ -52,19 +67,19 @@ class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
 class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeBlenderOutputGeometry'
     bl_label  = 'Blender Object Geometry'
-    bl_icon   = 'OBJECT_DATA'
+    bl_icon   = 'MESH_DATA'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    dynamicGeometry = bpy.props.BoolProperty(
-        name        = "Dynamic geometry",
-        description = "Instead of copying the mesh many times in the BSP tree, only the bounding box will be present many times and ray intersections will occur in a separate object space BSP tree",
-        default     =  False
+    GeomStaticMesh = bpy.props.PointerProperty(
+        name = "GeomStaticMesh",
+        type =  bpy.types.GeomStaticMesh,
+        description = "GeomStaticMesh settings"
     )
 
     def draw_buttons(self, context, layout):
-        layout.prop(self, 'dynamicGeometry', text="Dynamic")
+        classes.DrawPluginUIAuto(context, layout, self.GeomStaticMesh, 'GeomStaticMesh')
 
     def init(self, context):
         AddOutput(self, 'VRaySocketGeom', "Geometry")
@@ -78,7 +93,18 @@ class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
+    wrap_id = bpy.props.BoolProperty(
+        name        = "Wrap ID",
+        description = "Wrap the material ID's to the largest specified ID for the material",
+        default     =  False
+    )
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'wrap_id')
+
     def init(self, context):
+        AddInput(self, 'VRaySocketFloatNoValue', "ID Generator")
+
         AddOutput(self, 'VRaySocketMtl', "Material")
 
 

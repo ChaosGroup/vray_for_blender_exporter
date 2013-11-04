@@ -94,7 +94,7 @@ class VRAY_SP_tools(classes.VRayScenePanel):
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 
-		VRayExporter = context.scene.vray.exporter
+		VRayExporter = context.scene.vray.Exporter
 
 		layout= self.layout
 

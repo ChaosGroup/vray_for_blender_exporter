@@ -24,12 +24,9 @@
 
 import bpy
 
-from vb25.lib import ExportUtils
-
 
 TYPE = 'MATERIAL'
-PLUG = 'MtlVRmat'
-ID   =  PLUG
+ID   = 'MtlVRmat'
 NAME = "VisMat"
 DESC = "VisMat material"
 

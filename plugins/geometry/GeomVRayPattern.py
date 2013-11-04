@@ -249,7 +249,7 @@ def write(bus):
 	me      = bus['node']['geometry']
 
 	VRayScene    = scene.vray
-	VRayExporter = VRayScene.exporter
+	VRayExporter = VRayScene.Exporter
 
 	VRayObject = ob.vray
 	GeomVRayPattern = VRayObject.GeomVRayPattern

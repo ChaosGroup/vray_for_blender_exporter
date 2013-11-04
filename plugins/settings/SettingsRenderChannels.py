@@ -30,19 +30,27 @@ DESC = ""
 PluginParams = (
     {
         'attr' : 'unfiltered_fragment_method',
-        'desc' : "Determines which fragment to use for unfiltered render elements (0 - best coverage; 1 - closest to camera)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Determines which fragment to use for unfiltered render elements",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Best Coverage", ""),
+            ('1', "Closest To Camera", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'deep_merge_mode',
-        'desc' : "Determines how to blend fragments within a pixel (0 - by render ID; 1 - by Z-Depth)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Determines how to blend fragments within a pixel",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "By Render ID", ""),
+            ('1', "By Z-Depth", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'deep_merge_coeff',
-        'desc' : "Determines the z-depth blending sensitivity when deep_merge_mode is 1",
+        'desc' : "Determines the z-depth blending sensitivity when deep_merge_mode is '1'",
         'type' : 'FLOAT',
         'default' : 1,
     },

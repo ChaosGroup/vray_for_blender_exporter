@@ -27,16 +27,4 @@ ID   = 'FilterCatmullRom'
 NAME = 'Catmull-Rom'
 DESC = ""
 
-PluginParams = (
-    {
-        'attr' : 'size',
-        'desc' : "Filter width",
-        'type' : 'FLOAT',
-        'default' : 3,
-    },
-)
-
-PluginWidget = """
-{ "widgets": [
-]}
-"""
+PluginParams = ()

@@ -38,5 +38,10 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "size"}
+        ]
+    }
 ]}
 """

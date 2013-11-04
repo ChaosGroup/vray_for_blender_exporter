@@ -511,7 +511,7 @@ class VRAY_OT_write_geometry(bpy.types.Operator):
 		scene = context.scene
 
 		VRayScene    = scene.vray
-		VRayExporter = VRayScene.exporter
+		VRayExporter = VRayScene.Exporter
 
 		if not bpy.app.background:
 			if VRayExporter.animation and VRayExporter.animation_type == 'FULL':
@@ -552,7 +552,7 @@ class VRAY_OT_render(bpy.types.Operator):
 		scene = context.scene
 
 		VRayScene    = scene.vray
-		VRayExporter = VRayScene.exporter
+		VRayExporter = VRayScene.Exporter
 
 		vb25.render.render(None, scene)
 

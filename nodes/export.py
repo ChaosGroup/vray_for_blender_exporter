@@ -123,9 +123,10 @@ def WriteVRayNodeSelectGroup(bus, nodetree, node):
 def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
     scene = bus['scene']
     ob    = bus['node']['object']
+    o     = bus['output']
 
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.exporter
+    VRayExporter = VRayScene.Exporter
 
     meshName = bus['node']['geometry']
 
@@ -138,19 +139,20 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
         bus['cache']['mesh'].add(meshName)
 
         _vray_for_blender.exportMesh(
-            bpy.context.as_pointer(), # Context
-            ob.as_pointer(),          # Object
-            meshName,                 # Result plugin name
-            bus['files']['geom']      # Output file
+            bpy.context.as_pointer(),   # Context
+            ob.as_pointer(),            # Object
+            meshName,                   # Result plugin name
+            node.GeomStaticMesh,        # PropertyGroup
+            o.getFileByType('GEOMETRY') # Output file
         )
 
     return meshName
 
 
 def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
-    ofile = bus['files']['materials']
     scene = bus['scene']
     ob    = bus['node']['object']
+    o     = bus['output']
 
     if not len(ob.material_slots):
         bus['node']['material'] = bus['defaults']['material']
@@ -158,7 +160,7 @@ def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
 
     VRayScene = scene.vray
 
-    VRayExporter    = VRayScene.exporter
+    VRayExporter    = VRayScene.Exporter
     SettingsOptions = VRayScene.SettingsOptions
 
     # Multi-material name
@@ -196,10 +198,11 @@ def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
     else:
         bus['node']['material'] = mtl_name
 
-        ofile.write("\nMtlMulti %s {" % mtl_name)
-        ofile.write("\n\tmtls_list=List(%s);" % ','.join(mtls_list))
-        ofile.write("\n\tids_list=ListInt(%s);" % ','.join(ids_list))
-        ofile.write("\n}\n")
+        o.set('MATERIAL', 'MtlMulti', mtl_name)
+        o.writeHeader()
+        o.writeAttibute('mtls_list', "List(%s)" % ','.join(mtls_list))
+        o.writeAttibute('ids_list', "ListInt(%s)" % ','.join(ids_list))
+        o.writeFooter()
 
     return bus['node']['material']
 
@@ -213,8 +216,8 @@ def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
 ######## ##     ##    ##    ######## ##     ## ######## ########
 
 def WriteVRayNodeTexLayered(bus, nodetree, node):
-    ofile = bus['files']['nodetree']
     scene = bus['scene']
+    o     = bus['output']
 
     pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
 
@@ -232,17 +235,18 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
         textures.append(WriteNode(bus, nodetree, texNode))
         blend_modes.append(inputSocket.value)
 
-    ofile.write("\nTexLayered %s {" % pluginName)
-    ofile.write("\n\ttextures=List(%s);" % ','.join(reversed(textures)))
-    ofile.write("\n\tblend_modes=List(%s);" % ','.join(reversed(blend_modes)))
-    ofile.write("\n}\n")
+    o.set('TEXTURE', 'TexLayered', pluginName)
+    o.writeHeader()
+    o.writeAttibute('textures', "List(%s)" % ','.join(reversed(textures)))
+    o.writeAttibute('blend_modes', "List(%s)" % ','.join(reversed(blend_modes)))
+    o.writeFooter()
 
     return pluginName
 
 
 def WriteVRayNodeBRDFLayered(bus, nodetree, node):
-    ofile = bus['files']['nodetree']
     scene = bus['scene']
+    o     = bus['output']
 
     pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
 
@@ -267,17 +271,21 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
             
             weightColor = mathutils.Color([node.inputs[weightSocket].value]*3)
 
-            ofile.write("\nTexAColor %s {" % (weightParam))
-            ofile.write("\n\ttexture=%s;" % LibUtils.AnimatedValue(scene, weightColor))
-            ofile.write("\n}\n")
+            o.set('TEXTURE', 'TexAColor', weightParam)
+            o.writeHeader()
+            o.writeAttibute('texture', LibUtils.AnimatedValue(scene, weightColor))
+            o.writeFooter()
             
             weights.append(weightParam)
 
-    ofile.write("\nBRDFLayered %s {" % pluginName)
-    ofile.write("\n\tbrdfs=List(%s);" % ','.join(brdfs))
-    ofile.write("\n\tweights=List(%s);" % ','.join(weights))
-    ofile.write("\n\tadditive_mode=%s;" % LibUtils.FormatValue(node.additive_mode))
-    ofile.write("\n}\n")
+    o.set('BRDF', 'BRDFLayered', pluginName)
+    o.writeHeader()
+    o.writeAttibute('textures', "List(%s)" % ','.join(reversed(textures)))
+    o.writeAttibute('blend_modes', "List(%s)" % ','.join(reversed(blend_modes)))
+    o.writeAttibute('brdfs', "List(%s)" % ','.join(brdfs))
+    o.writeAttibute('weights', "List(%s)" % ','.join(weights))
+    o.writeAttibute('additive_mode', LibUtils.FormatValue(node.additive_mode))
+    o.writeFooter()
 
     return pluginName
 

@@ -75,51 +75,24 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "compression"},
+            { "name" : "bits_per_channel"}
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "extra_attributes"}
+        ]
+    },
+    
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "auto_data_window"},
+            { "name" : "write_integer_ids"}
+        ]
+    }
 ]}
 """
-
-
-# wx= int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
-# wy= int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
-
-# ofile.write("\nSettingsOutput SettingsOutput {")
-# if VRayExporter.auto_save_render:
-#   ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
-#   ofile.write("\n\timg_dir= \"%s/\";" % bus['filenames']['output'])
-# ofile.write("\n\timg_noAlpha=%d;" % SettingsOutput.img_noAlpha)
-# ofile.write("\n\timg_separateAlpha=%d;" % SettingsOutput.img_separateAlpha)
-# ofile.write("\n\timg_width=%s;" % wx)
-# ofile.write("\n\timg_height=%s;" % (wx if VRayScene.VRayBake.use else wy))
-# ofile.write("\n\timg_file_needFrameNumber=%d;" % SettingsOutput.img_file_needFrameNumber)
-# ofile.write("\n\tanim_start=%d;" % scene.frame_start)
-# ofile.write("\n\tanim_end=%d;" % scene.frame_end)
-# ofile.write("\n\tframe_start=%d;" % scene.frame_start)
-# ofile.write("\n\tframes_per_second=%.3f;" % 1.0)
-# ofile.write("\n\tframes=%d-%d;" % (scene.frame_start, scene.frame_end))
-# ofile.write("\n\tframe_stamp_enabled=%d;" % 0)
-# ofile.write("\n\tframe_stamp_text= \"%s\";" % ("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
-# ofile.write("\n\trelements_separateFolders=%d;" % SettingsOutput.relements_separateFolders)
-# ofile.write("\n\trelements_divider= \".\";")
-# ofile.write("\n}\n")
-
-# ofile.write("\nSettingsEXR SettingsEXR {")
-# ofile.write("\n\tcompression=%i;" % COMPRESSION[scene.render.image_settings.exr_codec])
-# ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
-# ofile.write("\n}\n")
-
-# ofile.write("\nSettingsTIFF SettingsTIFF {")
-# ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
-# ofile.write("\n}\n")
-
-# ofile.write("\nSettingsSGI SettingsSGI {")
-# ofile.write("\n\tbits_per_channel=%s;" % SettingsOutput.color_depth)
-# ofile.write("\n}\n")
-
-# ofile.write("\nSettingsJPEG SettingsJPEG {")
-# ofile.write("\n\tquality=%d;" % scene.render.image_settings.quality)
-# ofile.write("\n}\n")
-
-# ofile.write("\nSettingsPNG SettingsPNG {")
-# ofile.write("\n\tcompression=%d;" % (int(scene.render.image_settings.quality / 10) if scene.render.image_settings.quality < 90 else 9))
-# ofile.write("\n\tbits_per_channel=%s;" % (SettingsOutput.color_depth if SettingsOutput.color_depth in ['8','16'] else '16'))
-# ofile.write("\n}\n")

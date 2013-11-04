@@ -161,6 +161,12 @@ PluginParams = (
         ),
         'default' : '0',
     },
+    {
+        'attr' : 'file',
+        'desc' : "The file name; can contain <UDIM> or <UVTILE> tags for Mari or Mudbox tiles respectively,or $nU and $nV for explicit tiles; lower-case tags consider the tiles as starting from 0 whereas upper-case tags start from 1",
+        'type' : 'STRING',
+        'default' : "",
+    },
 
     {
         'attr' : 'bitmap',
@@ -171,48 +177,33 @@ PluginParams = (
     },
 )
 
-PluginRefParams = (
-    # {
-    #     'attr' : 'image',
-    #     'name' : "Image",
-    #     'desc' : "Image pointer",
-    #     'type' : 'IMAGE',
-    #     'default' : None,
-    # },
-)
-
 
 def nodeDraw(context, layout, node):
     split = layout.split()
     row = split.row(align=True)
-    idref.draw_idref(row, node, 'image', text="")
-    row.operator("vray.open_image", icon='ZOOMIN', text="")
+    layout.template_preview(node.texture)
+    layout.template_ID(node.texture, 'image', open='image.open')
 
 
 def gui(context, layout, BitmapBuffer, node):
-    if node.image:
-        layout.prop(node.image, 'name')
-        layout.prop(node.image, 'filepath')
-
-    layout.separator()
+    if node.texture:
+        layout.template_preview(node.texture)
+        layout.template_ID(node.texture, 'image', open='image.open')
+        layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
 
-def writeDatablock(bus, pluginName, PluginParams, BitmapBuffer, mappedParams):
-    ofile = bus['files']['textures']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
+    
+    image = bus['context']['node'].texture.image
+    if not image:
+        Debug("Image is not set!", msgType='ERROR')
+        return None
 
-    image = bus['context']['node'].image
+    # TODO: Add file existance check
 
-    ofile.write("\n%s %s {" % (ID, pluginName))
+    mappedParams['file'] = get_full_filepath(bus, image, image.filepath)
 
-    if image:
-        filepath = get_full_filepath(bus, image, image.filepath)
-        ofile.write('\n\tfile=%s;' % utils.AnimatedValue(scene, filepath, quotes=True))
-
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, BitmapBuffer, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
-
-    return pluginName
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams)

@@ -50,5 +50,16 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "size"}
+        ]
+    },
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "blur"},
+            { "name" : "ringing"}
+        ]
+    }
 ]}
 """

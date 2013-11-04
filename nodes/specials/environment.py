@@ -31,7 +31,7 @@ from ..sockets import AddInput, AddOutput
 class VRayNodeWorldOutput(bpy.types.Node, tree.VRayTreeNode):
     bl_idname = 'VRayNodeWorldOutput'
     bl_label  = 'World Output'
-    bl_icon   = 'WORLD'
+    bl_icon   = 'VRAY_LOGO'
 
     vray_type   = 'NONE'
     vray_plugin = 'NONE'

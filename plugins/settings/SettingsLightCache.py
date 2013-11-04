@@ -132,7 +132,7 @@ PluginParams = (
         'attr' : 'auto_save',
         'desc' : "Auto save Light Cache",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'auto_save_file',

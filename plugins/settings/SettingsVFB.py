@@ -224,7 +224,7 @@ PluginParams = (
         'attr' : 'interactive',
         'desc' : "",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
 )
 

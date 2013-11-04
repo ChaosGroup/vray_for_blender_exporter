@@ -215,6 +215,17 @@ class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
         return (0.1, 0.4, 0.4, 1.00)
 
 
+class VRaySocketFloatNoValue(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = 'VRaySocketFloatNoValue'
+    bl_label  = 'Float socket'
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (0.4, 0.4, 0.4, 1.00)
+
+
 ######## ##        #######     ###    ########     ######   #######  ##        #######  ########
 ##       ##       ##     ##   ## ##      ##       ##    ## ##     ## ##       ##     ## ##     ##
 ##       ##       ##     ##  ##   ##     ##       ##       ##     ## ##       ##     ## ##     ##
@@ -476,6 +487,7 @@ def GetRegClasses():
         VRaySocketInt,
         VRaySocketFloat,
         VRaySocketFloatColor,
+        VRaySocketFloatNoValue,
         VRaySocketColor,
         VRaySocketVector,
         VRaySocketCoords,

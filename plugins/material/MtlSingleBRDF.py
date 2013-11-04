@@ -24,12 +24,9 @@
 
 import bpy
 
-from vb25.lib import ExportUtils
-
 
 TYPE = 'MATERIAL'
-PLUG = 'MtlSingleBRDF'
-ID   =  PLUG
+ID   = 'MtlSingleBRDF'
 NAME = 'Single'
 DESC = "MtlSingleBRDF settings"
 

@@ -24,7 +24,7 @@
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsImageSampler'
-NAME = 'SettingsImageSampler'
+NAME = 'Image Sampler'
 DESC = ""
 
 PluginParams = (
@@ -42,129 +42,150 @@ PluginParams = (
     },
     {
         'attr' : 'fixed_subdivs',
+        'name' : "Subdivs",
         'desc' : "Subdivs value for the fixed sampler",
         'type' : 'INT',
         'default' : 1,
     },
     {
         'attr' : 'fixed_per_pixel_filtering',
+        'name' : "Per Pixel Filtering",
         'desc' : "true to enable per-pixel filtering for the fixed sampler",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'dmc_minSubdivs',
+        'name' : "Min. Subdivs",
         'desc' : "Min. subdivs value for the adaptive DMC image sampler",
         'type' : 'INT',
         'default' : 1,
     },
     {
         'attr' : 'dmc_maxSubdivs',
+        'name' : "Max. Subdivs",
         'desc' : "Max. subdivs value for the adaptive DMC image sampler",
         'type' : 'INT',
         'default' : 4,
     },
     {
         'attr' : 'dmc_threshold',
+        'name' : "Threshold",
         'desc' : "Color threshold for the adaptive DMC image sampler",
         'type' : 'FLOAT',
         'default' : 0.01,
     },
     {
         'attr' : 'dmc_show_samples',
+        'name' : "Show Samples",
         'desc' : "true to show the samples for the adaptive DMC image sampler",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'dmc_per_pixel_filtering',
+        'name' : "Per Pixel Filtering",
         'desc' : "true to enable per-pixel filtering for the adaptive DMC image sampler",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'subdivision_minRate',
+        'name' : "Min. Rate",
         'desc' : "",
         'type' : 'INT',
         'default' : -1,
     },
     {
         'attr' : 'subdivision_maxRate',
+        'name' : "Max. Rate",
         'desc' : "",
         'type' : 'INT',
         'default' : 2,
     },
     {
         'attr' : 'subdivision_jitter',
+        'name' : "Jitter",
         'desc' : "",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'subdivision_threshold',
+        'name' : "Threshold",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0.15,
     },
     {
         'attr' : 'subdivision_edges',
+        'name' : "Edges",
         'desc' : "",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'subdivision_normals',
+        'name' : "Normals",
         'desc' : "",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'subdivision_normals_threshold',
+        'name' : "Normals Threshold",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0.1,
     },
     {
         'attr' : 'subdivision_show_samples',
+        'name' : "Show Samples",
         'desc' : "",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'progressive_minSubdivs',
+        'name' : "Min. Subdivs",
         'desc' : "Min. subdivs value for the progressive image sampler",
         'type' : 'INT',
         'default' : 1,
     },
     {
         'attr' : 'progressive_maxSubdivs',
+        'name' : "Max. Subdivs",
         'desc' : "Max. subdivs value for the progressive image sampler",
         'type' : 'INT',
         'default' : 4,
     },
     {
         'attr' : 'progressive_threshold',
+        'name' : "Threshold",
         'desc' : "Noise threshold for the progressive image sampler",
         'type' : 'FLOAT',
         'default' : 0.01,
     },
     {
         'attr' : 'progressive_maxTime',
+        'name' : "Max. Time",
         'desc' : "Max. render time for the progressive image sampler",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'progressive_bundleSize',
+        'name' : "Bundle Size",
         'desc' : "Bundle size for the progressive image sampler",
         'type' : 'INT',
         'default' : 64,
     },
     {
         'attr' : 'progressive_showMask',
+        'name' : "Show Mask",
         'desc' : "If true, the AA mask will be rendered",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
 
     {
@@ -198,6 +219,89 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "type" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "COLUMN",
+        "show" : { "prop" : "type", "condition" : "0" },
+        "attrs" : [
+            { "name" : "fixed_subdivs" },
+            { "name" : "fixed_per_pixel_filtering" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "show" : { "prop" : "type", "condition" : "1" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "dmc_minSubdivs" },
+                    { "name" : "dmc_maxSubdivs" },
+                    { "name" : "dmc_threshold" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "dmc_show_samples" },
+                    { "name" : "dmc_per_pixel_filtering" },
+                    { "name" : "use_dmc_treshhold" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "show" : { "prop" : "type", "condition" : "2" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "subdivision_minRate" },
+                    { "name" : "subdivision_maxRate" },
+                    { "name" : "subdivision_threshold" },
+                    { "name" : "subdivision_normals_threshold" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "subdivision_show_samples" },
+                    { "name" : "subdivision_jitter" },
+                    { "name" : "subdivision_edges" },
+                    { "name" : "subdivision_normals" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "show" : { "prop" : "type", "condition" : "3" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "progressive_minSubdivs" },
+                    { "name" : "progressive_maxSubdivs" },
+                    { "name" : "progressive_threshold" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "progressive_maxTime" },
+                    { "name" : "progressive_bundleSize" },
+                    { "name" : "progressive_showMask" }
+                ]
+            }
+        ]
+    }
 ]}
 """
 

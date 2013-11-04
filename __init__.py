@@ -50,10 +50,10 @@ if "bpy" in locals():
     imp.reload(operators)
     imp.reload(proxy)
     imp.reload(nodes)
-    imp.reload(ui)
     imp.reload(engine)
     imp.reload(realtime)
     imp.reload(keymap)
+    imp.reload(ui)
 else:
     import bpy
     from vb25 import plugins
@@ -61,10 +61,10 @@ else:
     from vb25 import operators
     from vb25 import proxy
     from vb25 import nodes
-    from vb25 import ui
     from vb25 import engine
     from vb25 import realtime
     from vb25 import keymap
+    from vb25 import ui
 
 
 def register():

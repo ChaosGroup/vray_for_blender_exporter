@@ -24,12 +24,9 @@
 
 import bpy
 
-from vb25.lib import ExportUtils
-
 
 TYPE = 'MATERIAL'
-PLUG = 'MtlOverride'
-ID   =  PLUG
+ID   = 'MtlOverride'
 NAME = 'Override'
 DESC = "MtlOverride settings"
 

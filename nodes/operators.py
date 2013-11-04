@@ -145,7 +145,7 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         envNode.location.x = outputNode.location.x - 200
         envNode.location.y = outputNode.location.y + 200
 
-        nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])        
+        nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])
 
         VRayWorld.ntree = nt
 
@@ -160,7 +160,7 @@ class VRAY_OT_add_material_nodetree(bpy.types.Operator):
     def execute(self, context):
         VRayMaterial = context.material.vray
 
-        nt = bpy.data.node_groups.new(context.material.name, type='VRayShaderTreeType')
+        nt = bpy.data.node_groups.new(context.material.name, type='VRayNodeTreeMaterial')
 
         outputNode = nt.nodes.new('VRayNodeOutputMaterial')
 
@@ -193,6 +193,9 @@ class VRAY_OT_add_node(BlNode.NodeAddOperator, bpy.types.Operator):
             if not node.texture:
                 node.texture = bpy.data.textures.new("Ramp_%s" % node.name, 'NONE')
                 node.texture.use_color_ramp = True
+        elif node.bl_idname == 'VRayNodeBitmapBuffer':
+            if not node.texture:
+                node.texture = bpy.data.textures.new("Bitmap_%s" % node.name, 'IMAGE')
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

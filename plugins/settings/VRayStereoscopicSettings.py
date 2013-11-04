@@ -48,21 +48,36 @@ PluginParams = (
     },
     {
         'attr' : 'focus_method',
-        'desc' : "Specifies the focus method for the two views (0 - none/parallel; 1 - rotation; 2 - shear)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies the focus method for the two views",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "None",     "Both cameras have their focus points directly in front of them"),
+            ('1', "Rotation", "The stereoscopy is achieved by rotating the left and right views so that their focus points coincide at the distance from the eyes where the lines of sight for each eye converge called fusion distance"),
+            ('2', "Shear",    "The orientation of both views remain the same but each eyes view is sheared along Z so that the two frustums converge at the fusion distance"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'interocular_method',
-        'desc' : "Specifies how the two virtual cameras will be placed in relation to the real camera in the scene (0 - symmetric/shift both; 1 - shift left; 2 - shift right)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies how the two virtual cameras will be placed in relation to the real camera in the scene",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Shift Both",  "Both virtual cameras will be shifted in opposite directions at a distance equal to half of the eye distance"),
+            ('1', "Shift Left",  "The virtual cameras are shifted to the left so that the right camera takes the position of the original camera. The left camera is shifted to the left at a distance equal to the 'Eye Distance'"),
+            ('2', "Shift Right", "The virtual cameras are shifted to the right so that the left camera takes the position of the original camera. The right camera is shifted to the right at a distance equal to the 'Eye Distance'")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'view',
-        'desc' : "Specifies which of the stereoscopic views will be rendered (0 - both; 1 - left; 2 - right)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies which of the stereoscopic views will be rendered",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Both",  "Both views will be rendered side by side"),
+            ('1', "Left",  "Only the left view will be rendered"),
+            ('2', "Right", "Only the right view will be rendered")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'adjust_resolution',
@@ -72,9 +87,14 @@ PluginParams = (
     },
     {
         'attr' : 'sm_mode',
-        'desc' : "Allows us to specify the mode of operation for the shade map (0 - disabled; 1 - render shade map; 2 - use shade map)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Allows us to specify the mode of operation for the shade map",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Disabled",         "No shade map will be used during rendering"),
+            ('1', "Render shade map", "In this mode a shade map will be created and saved in the file specified in the Shademap file field"),
+            ('2', "Use shade map",    "In this mode V-Ray will render the image using information from the file specified in the Shademap file field")
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'reuse_threshold',
@@ -96,15 +116,24 @@ PluginParams = (
     },
     {
         'attr' : 'vrst_compression',
-        'desc' : "Compression type for the .vrst files (0 - no compression, 1 - ZLIB compression)",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Compression type for the .vrst files",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Compression",  ""),
+            ('1', "ZLIB Compression", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'exr_compression',
-        'desc' : "Compression type for the .exr files (0 - no compression, 1 - RLE compression, 2 - ZIPS compression)",
-        'type' : 'INT',
-        'default' : 2,
+        'desc' : "Compression type for the .exr files",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Compression",  ""),
+            ('1', "RLE Compression", ""),
+            ('2', "ZIPS Compression", ""),
+        ),
+        'default' : '2',
     },
     {
         'attr' : 'exclude_list',
