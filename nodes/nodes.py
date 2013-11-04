@@ -298,6 +298,15 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'EFFECT':
         AddOutput(self, 'VRaySocketObject', "Output")
 
+    if self.vray_plugin == 'TexGradRamp':
+        if not self.texture:
+            self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
+            self.texture.use_color_ramp = True
+
+    elif self.bl_idname == 'VRayNodeBitmapBuffer':
+        if not self.texture:
+            self.texture = bpy.data.textures.new("Bitmap_%s" % self.name, 'IMAGE')
+
 
 def VRayNodeCopy(self, node):
     if self.vray_plugin == 'TexGradRamp':
@@ -312,7 +321,7 @@ def VRayNodeCopy(self, node):
 def VRayNodeFree(self):
     if self.vray_plugin in {'TexGradRamp', 'BitmapBuffer'}:
         if self.texture:
-            self.texture.use_fake_user = False
+            self.texture.user_clear()
             bpy.data.textures.remove(self.texture)
 
 

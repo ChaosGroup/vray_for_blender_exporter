@@ -175,7 +175,6 @@ def write_settings(bus):
                               'SettingsVFB'}:
                 continue
 
-
             pluginModule = PLUGINS[pluginType][pluginName]
 
             propGroup      = None

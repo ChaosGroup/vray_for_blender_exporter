@@ -78,6 +78,16 @@ def Draw(context, layout, propGroup, PluginParams):
             DrawAttr(layout, propGroup, attrDesc['attr'])
 
 
+def ShowContainer(layout, show, propGroup):
+    if show is not None:
+        showProp      = show['prop']
+        showCondition = show.get('condition', True)
+        
+        if not getattr(propGroup, showProp) == showCondition:
+            return False
+    return True
+
+
 def SetActive(layout, active, propGroup):
     if active is not None:
         prop      = active['prop']
@@ -134,12 +144,8 @@ def RenderWidget(context, propGroup, layout, widget):
     containerActive = widget.get('active', None)
     containerShow   = widget.get('show', None)
 
-    if containerShow is not None:
-        showProp      = containerShow['prop']
-        showCondition = containerShow.get('condition', True)
-        
-        if not getattr(propGroup, showProp) == showCondition:
-            return
+    if not ShowContainer(layout, containerShow, propGroup):
+        return
 
     if containerType == 'SPLIT':
         subLayout = layout

@@ -39,6 +39,7 @@ PluginParams = (
     },
     {
         'attr' : 'color_tex',
+        'name' : "Color",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
@@ -57,6 +58,7 @@ PluginParams = (
     },
     {
         'attr' : 'translucency_tex',
+        'name' : "Translucency",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
@@ -110,3 +112,36 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "thickness" },
+                    { "name" : "subdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "scatter_coeff", "label" : "Coeff" },
+                    { "name" : "scatter_direction", "label" : "Direction" }
+                ]
+            }
+        ]
+    }
+]}
+"""
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'color' : (0.0, 0.0, 0.0),
+        'color_tex_mult' : 1.0,
+        'translucency' : (0.0, 0.0, 0.0),
+        'translucency_tex_mult' : 1.0,
+        'glossiness' : (0.0, 0.0, 0.0),
+        'glossiness_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -189,14 +189,6 @@ class VRAY_OT_add_node(BlNode.NodeAddOperator, bpy.types.Operator):
     def create_node(self, context, node_type=None):
         node = super(VRAY_OT_add_node, self).create_node(context, node_type)
 
-        if node.bl_idname == 'VRayNodeTexGradRamp':
-            if not node.texture:
-                node.texture = bpy.data.textures.new("Ramp_%s" % node.name, 'NONE')
-                node.texture.use_color_ramp = True
-        elif node.bl_idname == 'VRayNodeBitmapBuffer':
-            if not node.texture:
-                node.texture = bpy.data.textures.new("Bitmap_%s" % node.name, 'IMAGE')
-
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##

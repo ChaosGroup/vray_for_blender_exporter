@@ -39,6 +39,7 @@ PluginParams = (
     },
     {
         'attr' : 'transparency_tex',
+        'name' : 'Transparency',
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0, 0, 0),
@@ -75,9 +76,14 @@ PluginParams = (
     },
     {
         'attr' : 'affect_alpha',
-        'desc' : "Specifies how render channels are propagated through the BRDF (0 - only the color channel; 1 - color and alpha; 2 - all channels",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies how render channels are propagated through the BRDF",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Color Only",   "The transperency will affect only the RGB channel of the final render"),
+            ('1', "Color+Alpha",  "This will cause the material to transmit the alpha of the reflected objects, instead of displaying an opaque alpha"),
+            ('2', "All Channels", "All channels and render elements will be affected by the transperency of the material"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'reflect_exit_color',
@@ -105,9 +111,15 @@ PluginParams = (
     },
     {
         'attr' : 'glossyAsGI',
-        'desc' : "Determines if the glossy rays are treated by V-Ray as GI rays: 0 - never; 1 - only for rays that are already marked as GI rays; 2 - always",
-        'type' : 'INT',
-        'default' : 1,
+        'name' : "Glossy As GI",
+        'desc' : "Determines if the glossy rays are treated by V-Ray as GI rays",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Never",  "Never"),
+            ('1', "GI" ,    "Only for rays that are already marked as GI"),
+            ('2', "Always", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'subdivs',
@@ -195,3 +207,113 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "mtsc_file_path" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "saturation" },
+                    { "name" : "gamma_correction" },
+                    { "name" : "exposure_correction" },
+                    { "name" : "disable_wmap" },
+                    { "name" : "coarse_indirect" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "mult_depth" },
+                    { "name" : "mult_gi" },
+                    { "name" : "mult_direct" },
+                    { "name" : "mult_reflections" }
+                ]
+            }
+        ]
+    },
+    
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "map_channel" },
+            { "name" : "tiling_factor" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "subdivs" },
+            { "name" : "cutoff" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "trace_reflections" },
+            { "name" : "trace_depth", "active" : { "prop" : "trace_reflections" } }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "trace_reflections" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "reflect_dim_distance_on", "label" : "Dim Distance" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "active" : { "prop" : "reflect_dim_distance_on" },
+                "attrs" : [
+                    { "name" : "reflect_dim_distance", "label" : "Distance" },
+                    { "name" : "reflect_dim_distance_falloff", "label" : "Falloff" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "material_color_filter" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "reflect_exit_color" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "affect_alpha" },
+            { "name" : "glossyAsGI" },
+            { "name" : "back_side" }
+        ]
+    }
+]}
+"""
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -86,3 +86,25 @@ PluginParams = (
         'default' : True,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "use_irradiance_map" }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'color' : (0.0, 0.0, 0.0),
+        'color_tex_mult' : 1.0,
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

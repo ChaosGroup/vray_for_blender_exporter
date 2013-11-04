@@ -22,7 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
+from vb25.lib import ExportUtils
 
 
 TYPE = 'BRDF'
@@ -39,6 +39,7 @@ PluginParams = (
     },
     {
         'attr' : 'color_tex',
+        'name' : "Color",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
@@ -53,10 +54,11 @@ PluginParams = (
         'attr' : 'transparency',
         'desc' : "",
         'type' : 'COLOR',
-        'default' : (0.5, 0.5, 0.5),
+        'default' : (0, 0, 0),
     },
     {
         'attr' : 'transparency_tex',
+        'name' : "Transparency",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
@@ -105,26 +107,86 @@ PluginParams = (
     },
     {
         'attr' : 'brdf_importance_sampling_on',
+        'name' : "Importance Sampling",
         'desc' : "true to use importance sampling for the reflections",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'brdf_importance_sampling_resolution',
+        'name' : "Resolution",
         'desc' : "Resolution for the resampling of the BRDF used for importance sampling of reflections",
         'type' : 'INT',
         'default' : 32,
     },
     {
         'attr' : 'brdf_importance_sampling_view_terms',
+        'name' : "View Terms",
         'desc' : "Number of terms to decompose the view-dependent portion of the resampling matrix",
         'type' : 'INT',
         'default' : 4,
     },
     {
         'attr' : 'brdf_importance_sampling_half_terms',
+        'name' : "Half Terms",
         'desc' : "Number of terms to decompose the half-angle portion of the resampling matrix",
         'type' : 'INT',
         'default' : 2,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "subdivs" },
+            { "name" : "cutoff" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "align" : true,
+        "attrs" : [
+            { "name" : "brdf_nsamples_d_theta", "label" : "Θ Samples" },
+            { "name" : "brdf_nsamples_d_phi", "label" : "Φ Samples" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "brdf_importance_sampling_on" },
+                    { "name" : "brdf_importance_sampling_resolution", "active" : { "prop" : "brdf_importance_sampling_on" } }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "active" : { "prop" : "brdf_importance_sampling_on" },
+                "attrs" : [
+                    { "name" : "brdf_importance_sampling_view_terms" },
+                    { "name" : "brdf_importance_sampling_half_terms" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "back_side" }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'color' : (0.0, 0.0, 0.0),
+        'color_tex_mult' : 1.0,
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

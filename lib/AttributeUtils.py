@@ -145,7 +145,7 @@ def GenerateAttribute(classMembers, attrDesc):
 
     attrArgs = {
         'attr'        : attrDesc['attr'],
-        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])).title(),
+        'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
     }

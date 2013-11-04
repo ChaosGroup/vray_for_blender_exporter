@@ -31,44 +31,44 @@ NAME = 'Diffuse'
 DESC = ""
 
 PluginParams = (
-    # {
-    #     'attr' : 'color',
-    #     'desc' : "",
-    #     'type' : 'COLOR',
-    #     'default' : (1, 1, 1),
-    # },
+    {
+        'attr' : 'color',
+        'desc' : "",
+        'type' : 'COLOR',
+        'default' : (1, 1, 1),
+    },
     {
         'attr' : 'color_tex',
+        'name' : "Color",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    # {
-    #     'attr' : 'color_tex_mult',
-    #     'desc' : "",
-    #     'type' : 'FLOAT',
-    #     'default' : 1,
-    # },
-
-    # {
-    #     'attr' : 'transparency',
-    #     'desc' : "",
-    #     'type' : 'COLOR',
-    #     'default' : (0, 0, 0),
-    # },
+    {
+        'attr' : 'color_tex_mult',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'transparency',
+        'desc' : "",
+        'type' : 'COLOR',
+        'default' : (0, 0, 0),
+    },
     {
         'attr' : 'transparency_tex',
+        'name' : "Transparency",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    # {
-    #     'attr' : 'transparency_tex_mult',
-    #     'desc' : "",
-    #     'type' : 'FLOAT',
-    #     'default' : 1,
-    # },
-
+    {
+        'attr' : 'transparency_tex_mult',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
     {
         'attr' : 'roughness',
         'desc' : "",
@@ -83,16 +83,24 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
 
-# def writeDatablock(bus, pluginName, PluginParams, BRDFDiffuse, mappedParams):
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n%s %s {" % (ID, pluginName))
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor=Color(0.0,0.0,0.0);")
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n\tcolor_tex_mult=1.0;")
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency=Color(0.0,0.0,0.0);")
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n\ttransparency_tex_mult=1.0;")
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "use_irradiance_map" }
+        ]
+    }
+]}
+"""
 
-#     ExportUtils.WritePluginParams(bus, bus['files']['nodetree'], ID, pluginName, BRDFDiffuse, mappedParams, PluginParams)
 
-#     ExportUtils.WriteFile(bus, 'nodetree', "\n}\n")
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'color' : (0.0, 0.0, 0.0),
+        'color_tex_mult' : 1.0,
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
 
-#     return pluginName
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

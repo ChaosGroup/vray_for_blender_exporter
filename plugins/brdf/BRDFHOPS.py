@@ -75,9 +75,14 @@ PluginParams = (
     },
     {
         'attr' : 'affect_alpha',
-        'desc' : "Specifies how render channels are propagated through the BRDF (0 - only the color channel; 1 - color and alpha; 2 - all channels",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Specifies how render channels are propagated through the BRDF",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Color Only",   "The transperency will affect only the RGB channel of the final render"),
+            ('1', "Color+Alpha",  "This will cause the material to transmit the alpha of the reflected objects, instead of displaying an opaque alpha"),
+            ('2', "All Channels", "All channels and render elements will be affected by the transperency of the material"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'reflect_exit_color',
@@ -105,9 +110,15 @@ PluginParams = (
     },
     {
         'attr' : 'glossyAsGI',
-        'desc' : "Determines if the glossy rays are treated by V-Ray as GI rays: 0 - never; 1 - only for rays that are already marked as GI rays; 2 - always",
-        'type' : 'INT',
-        'default' : 1,
+        'name' : "Glossy As GI",
+        'desc' : "Determines if the glossy rays are treated by V-Ray as GI rays",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Never",  "Never"),
+            ('1', "GI" ,    "Only for rays that are already marked as GI"),
+            ('2', "Always", ""),
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'subdivs',
@@ -119,6 +130,7 @@ PluginParams = (
         'attr' : 'csv_path',
         'desc' : "",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {
@@ -131,6 +143,7 @@ PluginParams = (
         'attr' : 'flakes_csv_path',
         'desc' : "",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {
@@ -171,27 +184,30 @@ PluginParams = (
     },
     {
         'attr' : 'coat_bump_type',
-        'desc' : "The type of bump mapping (see BRDFBump for more details)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "The type of bump mapping",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Bump",              ""),
+            ('1', "Normal (Tangent)" , ""),
+            ('2', "Normal (Object)",   ""),
+            ('3', "Normal (Camera)",   ""),
+            ('4', "Normal (World)",    ""),
+            ('5', "From Bump Output",  ""),
+            ('6', "Explicit Normal",   ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'coat_traceReflections',
         'desc' : "Toggle reflections for coat layer",
-        'type' : 'INT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'coat_subdivs',
         'desc' : "",
         'type' : 'INT',
         'default' : 8,
-    },
-    {
-        'attr' : 'enabled_layers',
-        'desc' : "Enabled layers ORmask (1 - base, 2 - flakes, 4 - coat)",
-        'type' : 'INT',
-        'default' : 7,
     },
     {
         'attr' : 'flake_scale',
@@ -208,8 +224,8 @@ PluginParams = (
     {
         'attr' : 'flake_traceReflections',
         'desc' : "Toggle reflections for flake layer",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'doubleSided',
@@ -235,4 +251,170 @@ PluginParams = (
         'type' : 'INT',
         'default' : 0,
     },
+
+    {
+        'attr' : 'enabled_layers',
+        'desc' : "Enabled layers OR mask (1 - base, 2 - flakes, 4 - coat)",
+        'type' : 'INT',
+        'skip' : True,
+        'default' : 7,
+    },
+    {
+        'attr' : 'enabled_layers_base',
+        'name' : "Base",
+        'desc' : "Enabled Base layer",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
+    {
+        'attr' : 'enabled_layers_flakes',
+        'name' : "Flakes",
+        'desc' : "Enabled Flakes layer",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
+    {
+        'attr' : 'enabled_layers_coat',
+        'name' : "Coat",
+        'desc' : "Enabled Coat layer",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "csv_path" },
+            { "name" : "flakes_csv_path" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "enabled_layers_base" },
+            { "name" : "enabled_layers_flakes" },
+            { "name" : "enabled_layers_coat" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Coat Layer" },
+
+    {   "layout" : "ROW",
+        "active" : { "prop" : "enabled_layers_base" },
+        "attrs" : [
+            { "name" : "coat_bump_type", "label" : "Bump Type" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "active" : { "prop" : "enabled_layers_base" },
+        "attrs" : [
+            { "name" : "coat_subdivs", "label" : "Subdivs" },
+            { "name" : "coat_traceReflections", "label" : "Trace Reflections" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Flake Layer" },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "enabled_layers_flakes" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_scale", "label" : "Scale" },
+                    { "name" : "flake_size", "label" : "Size" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_glossiness", "label" : "Glossiness" },
+                    { "name" : "flake_traceReflections", "label" : "Trace Reflections" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "subdivs" },
+            { "name" : "cutoff" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "trace_reflections" },
+            { "name" : "trace_depth", "active" : { "prop" : "trace_reflections" } }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "trace_reflections" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "reflect_dim_distance_on", "label" : "Dim Distance" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "active" : { "prop" : "reflect_dim_distance_on" },
+                "attrs" : [
+                    { "name" : "reflect_dim_distance", "label" : "Distance" },
+                    { "name" : "reflect_dim_distance_falloff", "label" : "Falloff" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "reflect_exit_color" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "csv_color_filter" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "affect_alpha" },
+            { "name" : "glossyAsGI" },
+            { "name" : "back_side" }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

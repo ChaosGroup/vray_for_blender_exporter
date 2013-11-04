@@ -75,8 +75,29 @@ PluginParams = (
     },
     {
         'attr' : 'multiplyByOpacity',
-        'desc' : "When enabled the color of the light brdf is multiplied by the brdf's opacity ( inverse of the brdf's transparency )",
+        'desc' : "When enabled the color of the light brdf is multiplied by the brdf's opacity (inverse of the brdf's transparency)",
         'type' : 'BOOL',
         'default' : False,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "doubleSided" },
+                    { "name" : "emitOnBackSide" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "compensateExposure" },
+                    { "name" : "multiplyByOpacity" }
+                ]
+            }
+        ]
+    }
+]}
+"""

@@ -33,60 +33,75 @@ DESC = ""
 PluginParams = (
     {
         'attr' : 'flake_color',
+        'name' : "Color",
         'desc' : "",
         'type' : 'TEXTURE',
         'default' : (0.3, 0.4, 0.8),
     },
     {
         'attr' : 'flake_glossiness',
+        'name' : "Glossiness",
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
         'default' : 0.8,
     },
     {
         'attr' : 'flake_orientation',
+        'name' : "Orientation",
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
         'default' : 0.3,
     },
     {
         'attr' : 'flake_density',
+        'name' : "Density",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0.5,
     },
     {
         'attr' : 'flake_scale',
+        'name' : "Scale",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0.01,
     },
     {
         'attr' : 'flake_size',
+        'name' : "Size",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 0.5,
     },
     {
         'attr' : 'flake_map_size',
+        'name' : "Map Size",
         'desc' : "The size of the internal flakes map",
         'type' : 'INT',
         'default' : 1024,
     },
     {
         'attr' : 'flake_filtering_mode',
-        'desc' : "Flake filtering mode (0 - simple; 1 - directional)",
-        'type' : 'INT',
-        'default' : 1,
+        'name' : 'Filtering Mode',
+        'desc' : "Flake filtering mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Simple", ""),
+            ('1', "Directional", ""),
+
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'flake_seed',
+        'name' : 'Seed',
         'desc' : "The random seed for the flakes",
         'type' : 'INT',
         'default' : 1,
     },
     {
         'attr' : 'flake_uvwgen',
+        'name' : 'Uvwgen',
         'desc' : "",
         'type' : 'PLUGIN',
         'default' : "",
@@ -117,9 +132,13 @@ PluginParams = (
     },
     {
         'attr' : 'mapping_type',
-        'desc' : "The mapping method for the flakes (0 - explicit mapping channel, 1 - triplanar projection in object space)",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "The mapping method for the flakes",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Explicit",  "Explicit mapping channel"),
+            ('1', "Triplanar", "Triplanar projection in object space"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'mapping_channel',
@@ -140,3 +159,58 @@ PluginParams = (
         'default' : 0,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_density" },
+                    { "name" : "flake_scale" },
+                    { "name" : "flake_size" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_filtering_mode" },
+                    { "name" : "flake_map_size" },
+                    { "name" : "flake_seed" },
+                    { "name" : "traceReflections" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Options" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "subdivs" },
+                    { "name" : "cutoff_threshold", "label" : "Cutoff" },
+                    { "name" : "doubleSided" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "mapping_type", "label" : "" },
+                    { "name" : "mapping_channel" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "environment_priority" }
+        ]
+    }
+]}
+"""

@@ -88,8 +88,8 @@ PluginParams = (
     {
         'attr' : 'single_scatter',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'front_scatter',
@@ -142,8 +142,8 @@ PluginParams = (
     {
         'attr' : 'geometry_based_sampling',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'samples_per_unit_area',
@@ -182,3 +182,82 @@ PluginParams = (
         'default' : (1, 1, 1),
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "subdivs" },
+                    { "name" : "phase_function" },
+                    { "name" : "max_distance" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "scale" },
+                    { "name" : "ior" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Prepass" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "prepass_rate", "label" : "Rate" },
+                    { "name" : "prepass_lod_threshold", "label" : "LOD Thresh." }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "prepass_blur", "label" : "Blur" },
+                    { "name" : "prepass_id", "label" : "ID" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "geometry_based_sampling" },
+                    { "name" : "preview_samples" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "samples_per_unit_area" },
+                    { "name" : "surface_offset" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "scatter_gi" },
+                    { "name" : "single_scatter" },
+                    { "name" : "back_scatter" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "linear_workflow" },
+                    { "name" : "legacy_mode" }
+                ]
+            }
+        ]
+    }
+]}
+"""

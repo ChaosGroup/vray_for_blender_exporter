@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'BRDF'
 ID   = 'BRDFHair3'
-NAME = 'Hair3'
+NAME = 'Hair 3'
 DESC = ""
 
 PluginParams = (
@@ -146,3 +146,17 @@ PluginParams = (
         'default' : True,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "secondary_lock_to_transmission" },
+            { "name" : "opaque_for_shadows" },
+            { "name" : "opaque_for_gi" },
+            { "name" : "simplify_for_gi" },
+            { "name" : "use_cached_gi" }
+        ]
+    }
+]}
+"""

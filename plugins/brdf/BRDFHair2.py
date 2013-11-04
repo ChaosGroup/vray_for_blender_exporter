@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'BRDF'
 ID   = 'BRDFHair2'
-NAME = 'Hair2'
+NAME = 'Hair 2'
 DESC = ""
 
 PluginParams = (
@@ -101,6 +101,10 @@ PluginParams = (
         'attr' : 'fade_range',
         'desc' : "Fade range for caustic merge (0.2 to 0.4)",
         'type' : 'FLOAT',
+        'ui' : {
+            'min' : 0.2,
+            'max' : 0.4,
+        },
         'default' : 0.2,
     },
     {
@@ -134,3 +138,59 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "refraction_index" },
+            { "name" : "absorption" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "r_long_shift" },
+                    { "name" : "tt_long_shift" },
+                    { "name" : "trt_long_shift" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "r_long_width" },
+                    { "name" : "tt_long_width" },
+                    { "name" : "trt_long_width" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "glint_scale" },
+                    { "name" : "azimuthal_width" },
+                    { "name" : "fade_range" },
+                    { "name" : "caustic_limit" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "r_mult" },
+                    { "name" : "tt_mult" },
+                    { "name" : "trt_mult" },
+                    { "name" : "diffuse_mult" }
+                ]
+            }
+        ]
+    }
+]}
+"""

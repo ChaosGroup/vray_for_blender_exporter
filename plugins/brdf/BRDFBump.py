@@ -38,25 +38,29 @@ PluginParams = (
         'default' : "",
     },
     {
-        'attr' : 'bump_tex_color',
-        'desc' : "Bump texture",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
-    },
-    {
         'attr' : 'bump_tex_float',
+        'name' : "Bump Texture",
         'desc' : "Bump texture",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
     {
+        'attr' : 'bump_tex_color',
+        'name' : "Normal Texture",
+        'desc' : "Bump texture",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0),
+    },
+    {
         'attr' : 'bump_tex_mult',
+        'name' : "Bump Amount",
         'desc' : "Bump amount",
         'type' : 'FLOAT',
         'default' : 1,
     },
     {
         'attr' : 'bump_tex_mult_tex',
+        'name' : "Bump Amount Texture",
         'desc' : "Bump amount texture",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
@@ -75,13 +79,23 @@ PluginParams = (
     },
     {
         'attr' : 'map_type',
-        'desc' : "The type of the map (0 - from regular texture output, 1 - normal map in tangent space, 2 - normal map in object space, 3 - normal map in camera space, 4 - normal map in world space, 5 - from texture bump output, 6 - explicit normal)",
-        'type' : 'INT',
-        'default' : 0,
+        'name' : "Type",
+        'desc' : "The type of the map",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Bump",              ""),
+            ('1', "Normal (Tangent)" , ""),
+            ('2', "Normal (Object)",   ""),
+            ('3', "Normal (Camera)",   ""),
+            ('4', "Normal (World)",    ""),
+            ('5', "From Bump",         ""),
+            ('6', "Explicit Normal",   ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'normal_uvwgen',
-        'desc' : "The uvw generator for the normal map texture when map_type is 1",
+        'desc' : "The uvw generator for the normal map texture when \"Type\" is \"Normal (Tangent)\"",
         'type' : 'PLUGIN',
         'default' : "",
     },
@@ -104,3 +118,20 @@ PluginParams = (
         'default' : 1,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "bump_delta_scale" },
+            { "name" : "bump_shadows" },
+            { "name" : "compute_bump_for_shadows" },
+            { "name" : "maya_compatible" }
+        ]
+    }
+]}
+"""
+
+
+def nodeDraw(context, layout, BRDFBump):
+    layout.prop(BRDFBump, 'map_type')

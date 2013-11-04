@@ -63,7 +63,7 @@ PluginParams = (
     },
     {
         'attr' : 'brdf_type',
-        'desc' : "The BRDF type (0 - Phong, 1 - Blinn, 2 - Ward)",
+        'desc' : "The BRDF type",
         'type' : 'ENUM',
         'items' : (
             ('0', "Phong", "Phong"),
@@ -288,12 +288,12 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 50,
     },
-    # {
-    #     'attr' : 'fog_color',
-    #     'desc' : "The absorption (fog) color",
-    #     'type' : 'COLOR',
-    #     'default' : (1, 1, 1),
-    # },
+    {
+        'attr' : 'fog_color',
+        'desc' : "The absorption (fog) color",
+        'type' : 'COLOR',
+        'default' : (1, 1, 1),
+    },
     {
         'attr' : 'fog_color_tex',
         'desc' : "The absorption (fog) color texture",
@@ -426,8 +426,8 @@ PluginParams = (
     {
         'attr' : 'refl_interpolation_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'refl_imap_min_rate',
@@ -462,8 +462,8 @@ PluginParams = (
     {
         'attr' : 'refr_interpolation_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'refr_imap_min_rate',
@@ -622,9 +622,76 @@ PluginWidget = """
 
     {   "layout" : "COLUMN",
         "attrs" : [
-            { "name" : "reflect_dim_distance_on", "label" : "Dim Reflect Ray Distance" },
+            { "name" : "reflect_dim_distance_on", "label" : "Dim Reflect Ray Distance" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "active" : { "prop" : "reflect_dim_distance_on" },
+        "attrs" : [
             { "name" : "reflect_dim_distance", "label" : "Distance" },
             { "name" : "reflect_dim_distance_falloff", "label" : "Falloff"}
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "refl_interpolation_on", "label" : "Reflect Interp." }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "refl_interpolation_on" },
+                "align" : true,
+                "attrs" : [
+                    { "name" : "refl_imap_min_rate", "label" : "Min Rate" },
+                    { "name" : "refl_imap_max_rate", "label" : "Max Rate" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "refl_interpolation_on" },
+                "align" : true,
+                "attrs" : [
+                    { "name" : "refl_imap_samples", "label" : "Samples" },
+                    { "name" : "refl_imap_color_thresh", "label" : "Color Thresh." },
+                    { "name" : "refl_imap_norm_thresh", "label" : "Normal Thresh." }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "refr_interpolation_on", "label" : "Refract Interp." }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "refr_interpolation_on" },
+                "align" : true,
+                "attrs" : [
+                    { "name" : "refr_imap_min_rate", "label" : "Min Rate" },
+                    { "name" : "refr_imap_max_rate", "label" : "Max Rate" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "active" : { "prop" : "refr_interpolation_on" },
+                "align" : true,
+                "attrs" : [
+                    { "name" : "refr_imap_samples", "label" : "Samples" },
+                    { "name" : "refr_imap_color_thresh", "label" : "Color Thresh." },
+                    { "name" : "refr_imap_norm_thresh", "label" : "Normal Thresh." }
+                ]
+            }
         ]
     },
 
@@ -649,3 +716,11 @@ PluginWidget = """
     }
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'fog_color' : (1.0, 1.0, 1.0),
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

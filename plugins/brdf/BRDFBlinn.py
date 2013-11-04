@@ -24,11 +24,13 @@
 
 import bpy
 
+import BRDFWard
+
 
 TYPE = 'BRDF'
-ID   = 'BRDFMirror'
-NAME = 'Mirror'
-DESC = ""
+ID   = 'BRDFBlinn'
+NAME = 'Blinn'
+DESC = "Blinn reflection shader"
 
 PluginParams = (
     {
@@ -41,7 +43,7 @@ PluginParams = (
         'attr' : 'color_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.0, 0.0, 0.0, 1.0),
     },
     {
         'attr' : 'color_tex_mult',
@@ -59,7 +61,7 @@ PluginParams = (
         'attr' : 'transparency_tex',
         'desc' : "",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.0, 0.0, 0.0, 1.0),
     },
     {
         'attr' : 'transparency_tex_mult',
@@ -106,7 +108,7 @@ PluginParams = (
         'attr' : 'reflect_exit_color',
         'desc' : "The color to use when the maximum depth is reached",
         'type' : 'TEXTURE',
-        'default' : (0, 0, 0),
+        'default' : (0, 0, 0, 0),
     },
     {
         'attr' : 'reflect_dim_distance',
@@ -126,57 +128,129 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 0,
     },
+    {
+        'attr' : 'hilightGlossiness',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.8,
+    },
+    {
+        'attr' : 'hilightGlossiness_tex',
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'hilightGlossiness_tex_mult',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'reflectionGlossiness',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.8,
+    },
+    {
+        'attr' : 'reflectionGlossiness_tex',
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'reflectionGlossiness_tex_mult',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'subdivs',
+        'desc' : "",
+        'type' : 'INT',
+        'default' : 8,
+    },
+    {
+        'attr' : 'glossyAsGI',
+        'name' : "Glossy As GI",
+        'desc' : "Determines if the glossy rays are treated by V-Ray as GI rays",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Never",  "Never"),
+            ('1', "GI" ,    "Only for rays that are already marked as GI"),
+            ('2', "Always", ""),
+        ),
+        'default' : '1',
+    },
+    {
+        'attr' : 'soften_edge',
+        'desc' : "Soften edge of the BRDF at light/shadow transition",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'interpolation_on',
+        'desc' : "",
+        'type' : 'INT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'imap_min_rate',
+        'desc' : "",
+        'type' : 'INT',
+        'default' : -1,
+    },
+    {
+        'attr' : 'imap_max_rate',
+        'desc' : "",
+        'type' : 'INT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'imap_color_thresh',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.25,
+    },
+    {
+        'attr' : 'imap_norm_thresh',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.4,
+    },
+    {
+        'attr' : 'imap_samples',
+        'desc' : "",
+        'type' : 'INT',
+        'default' : 20,
+    },
+    {
+        'attr' : 'anisotropy',
+        'desc' : "Reflection anisotropy in the range (-1, 1)",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'anisotropy_uvwgen',
+        'desc' : "",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'anisotropy_rotation',
+        'desc' : "Anisotropy rotation in the range [0, 1]",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
+        'attr' : 'fix_dark_edges',
+        'desc' : "true to fix dark edges with glossy reflections; only set this to false for compatibility with older versions",
+        'type' : 'BOOL',
+        'default' : True,
+    },
 )
 
-PluginWidget = """
-{ "widgets": [
-    {   "layout" : "ROW",
-        "attrs" : [
-            { "name" : "cutoff" }
-        ]
-    },
-
-    {   "layout" : "ROW",
-        "attrs" : [
-            { "name" : "trace_reflections" },
-            { "name" : "trace_depth", "active" : { "prop" : "trace_reflections" } }
-        ]
-    },
-
-    {   "layout" : "SPLIT",
-        "active" : { "prop" : "trace_reflections" },
-        "splits" : [
-            {   "layout" : "COLUMN",
-                "align" : true,
-                "attrs" : [
-                    { "name" : "reflect_dim_distance_on", "label" : "Dim Distance" }
-                ]
-            },
-            {   "layout" : "COLUMN",
-                "align" : true,
-                "active" : { "prop" : "reflect_dim_distance_on" },
-                "attrs" : [
-                    { "name" : "reflect_dim_distance", "label" : "Distance" },
-                    { "name" : "reflect_dim_distance_falloff", "label" : "Falloff" }
-                ]
-            }
-        ]
-    },
-
-    {   "layout" : "ROW",
-        "attrs" : [
-            { "name" : "reflect_exit_color" }
-        ]
-    },
-
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "affect_alpha" },
-            { "name" : "back_side" }
-        ]
-    }
-]}
-"""
+PluginWidget = BRDFWard.PluginWidget
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
@@ -185,6 +259,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         'color_tex_mult' : 1.0,
         'transparency' : (0.0, 0.0, 0.0),
         'transparency_tex_mult' : 1.0,
+        'hilightGlossiness' : (0.0, 0.0, 0.0),
+        'hilightGlossiness_tex_mult' : 1.0,
+        'reflectionGlossiness' : (0.0, 0.0, 0.0),
+        'reflectionGlossiness_tex_mult' : 1.0,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

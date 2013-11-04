@@ -74,6 +74,12 @@ PluginParams = (
         'default' : 1.55,
     },
     {
+        'attr' : 'ior_tex',
+        'desc' : "",
+        'type' : 'FLOAT_TEXTURE',
+        'default' : 1.0,
+    },
+    {
         'attr' : 'cutoff',
         'desc' : "",
         'type' : 'FLOAT',
@@ -87,9 +93,14 @@ PluginParams = (
     },
     {
         'attr' : 'affect_alpha',
-        'desc' : "Specifies how render channels are propagated through the glass (0 - only the color channel; 1 - color and alpha; 2 - all channels",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Determines how refractions affect the alpha channel",
+        'type' : 'ENUM',
+        'items' : (
+            ('0',  "Color Only",   "The transperency will affect only the RGB channel of the final render"),
+            ('1',  "Color+Alpha",  "This will cause the material to transmit the alpha of the reflected objects, instead of displaying an opaque alpha"),
+            ('2',  "All Channels", "All channels and render elements will be affected by the transperency of the material"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'trace_refractions',
@@ -127,10 +138,60 @@ PluginParams = (
         'type' : 'PLUGIN',
         'default' : "",
     },
-    {
-        'attr' : 'ior_tex',
-        'desc' : "",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "trace_refractions" },
+                    { "name" : "trace_depth" },
+                    { "name" : "cutoff" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "affect_alpha" },
+                    { "name" : "affect_shadows" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "exit_color_on" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "exit_color_on" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "reflect_exit_color"}
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "refract_exit_color" }
+                ]
+            }
+        ]
+    }
+]}
+"""
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'ior' : 1.0,
+        'color' : (0.0, 0.0, 0.0),
+        'color_tex_mult' : 1.0,
+        'transparency' : (0.0, 0.0, 0.0),
+        'transparency_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

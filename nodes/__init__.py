@@ -31,7 +31,7 @@ def register():
     from . import nodes
     from . import operators
     from . import tree
-    from . import menu
+    from . import templates
 
     operators.register()
 
@@ -41,7 +41,7 @@ def register():
     specials.register()
     nodes.register()
 
-    menu.register()
+    templates.register()
 
 
 def unregister():
@@ -50,9 +50,9 @@ def unregister():
     from . import nodes
     from . import operators
     from . import tree
-    from . import menu
+    from . import templates
 
-    menu.unregister()
+    templates.unregister()
 
     nodes.unregister()
     specials.unregister()

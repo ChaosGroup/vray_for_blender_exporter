@@ -24,13 +24,9 @@
 
 import bpy
 
-from pynodes_framework import idref
-
-from vb25.lib   import DrawUtils, ExportUtils, utils
+from vb25.lib   import DrawUtils, ExportUtils
 from vb25.utils import get_full_filepath
 
-
-# XXX: Rewrite after Blender fix for sub-idref props
 
 TYPE = 'TEXTURE'
 ID   = 'BitmapBuffer'

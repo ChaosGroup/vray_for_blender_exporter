@@ -70,14 +70,23 @@ PluginParams = (
     {
         'attr' : 'base_bump_type',
         'desc' : "The type of bump mapping (see BRDFBump for more details)",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Bump",              ""),
+            ('1', "Normal (Tangent)" , ""),
+            ('2', "Normal (Object)",   ""),
+            ('3', "Normal (Camera)",   ""),
+            ('4', "Normal (World)",    ""),
+            ('5', "From Bump Output",  ""),
+            ('6', "Explicit Normal",   ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'base_traceReflections',
         'desc' : "Toggle reflections for base layer",
-        'type' : 'INT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'flake_color',
@@ -123,9 +132,14 @@ PluginParams = (
     },
     {
         'attr' : 'flake_filtering_mode',
-        'desc' : "Flake filtering mode (0 - simple; 1 - directional)",
-        'type' : 'INT',
-        'default' : 1,
+        'desc' : "Flake filtering mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Simple", ""),
+            ('1', "Directional", ""),
+
+        ),
+        'default' : '1',
     },
     {
         'attr' : 'flake_seed',
@@ -142,8 +156,8 @@ PluginParams = (
     {
         'attr' : 'flake_traceReflections',
         'desc' : "Toggle reflections for flake layer",
-        'type' : 'INT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'coat_color',
@@ -257,40 +271,80 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "SEPARATOR",
+        "label" : "Coat Layer" },
 
-# def gui(context, layout, BRDFCarPaint):
-#     contextType = GetContextType(context)
-#     regionWidth = GetRegionWidthFromContext(context)
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "coat_bump_type", "label" : "Bump Type" },
+            { "name" : "coat_traceReflections", "label" : "Trace Reflections" }
+        ]
+    },
 
-#     wide_ui = regionWidth > narrowui
+    {   "layout" : "SEPARATOR",
+        "label" : "Flake Layer" },
 
-#     layout.label(text="Flakes:")
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_density", "label" : "Density" },
+                    { "name" : "flake_scale", "label" : "Scale" },
+                    { "name" : "flake_size", "label" : "Size" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "flake_filtering_mode", "label" : "" },
+                    { "name" : "flake_map_size", "label" : "Map Size" },
+                    { "name" : "flake_seed", "label" : "Seed" },
+                    { "name" : "flake_traceReflections", "label" : "Trace Reflections" }
+                ]
+            }
+        ]
+    },
 
-#     split = layout.split()
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'flake_density', text="Density")
-#     col.prop(BRDFCarPaint, 'flake_seed', text="Seed")
-#     col.prop(BRDFCarPaint, 'flake_scale', text="Scale")
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'flake_size', text="Size")
-#     col.prop(BRDFCarPaint, 'flake_map_size', text="Map size")
-#     col.prop(BRDFCarPaint, 'flake_filtering_mode', text="Filtering")
+    {   "layout" : "SEPARATOR",
+        "label" : "Base Layer" },
 
-#     split = layout.split()
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'mapping_type', text="Type")
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'mapping_channel', text="Channel")
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "base_bump_type", "label" : "Bump Type" },
+            { "name" : "base_traceReflections", "label" : "Trace Reflections" }
+        ]
+    },
 
-#     layout.separator()
-#     layout.label(text="Options:")
+    {   "layout" : "SEPARATOR",
+        "label" : "Options" },
 
-#     split = layout.split()
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'subdivs')
-#     col.prop(BRDFCarPaint, 'cutoff_threshold')
-#     col = split.column()
-#     col.prop(BRDFCarPaint, 'doubleSided')
-#     col.prop(BRDFCarPaint, 'traceReflections')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "subdivs" },
+                    { "name" : "cutoff_threshold", "label" : "Cutoff" },
+                    { "name" : "doubleSided" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "mapping_type", "label" : "" },
+                    { "name" : "mapping_channel" }
+                ]
+            }
+        ]
+    },
 
-#     layout.prop(BRDFCarPaint, 'environment_priority')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "environment_priority" }
+        ]
+    }
+]}
+"""

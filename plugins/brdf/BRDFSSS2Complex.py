@@ -148,7 +148,7 @@ PluginParams = (
     {
         'attr' : 'single_scatter',
         'desc' : "",
-        'type' : 'INT',
+        'type' : 'BOOL',
         'default' : 1,
     },
     {
@@ -207,21 +207,29 @@ PluginParams = (
     },
     {
         'attr' : 'prepass_mode',
-        'desc' : "Prepass mode: 0 - calculate new irradiance map for each frame (meaningless in RT); 1 - calculate and save map for each frame (meaningless in RT); 2 - load saved irradiance map for each frame; 3 - calculate and save map only for the first rendered frame; 4 - load saved irradiance map on the first rendered frame only",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Prepass mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "New", "Calculate new irradiance map for each frame (meaningless in RT)"),
+            ('1', "Save (Per-Frame)", "Calculate and save map for each frame (meaningless in RT)"),
+            ('2', "Load (Per-Frame)", "Load saved irradiance map for each frame"),
+            ('3', "Save (First Frame)", "Calculate and save map only for the first rendered frame"),
+            ('4', "Load (First Frame)", "Load saved irradiance map on the first rendered frame only"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'prepass_fileName',
-        'desc' : "File path template for saved irradiance map files, frame number is appended for modes 1 and 2",
+        'desc' : "File path template for saved irradiance map files, frame number is appended for modes \"Save / Load (Per-Frame)\"",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {
         'attr' : 'geometry_based_sampling',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'samples_per_unit_area',
@@ -232,8 +240,8 @@ PluginParams = (
     {
         'attr' : 'auto_density',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'surface_offset',
@@ -244,8 +252,8 @@ PluginParams = (
     {
         'attr' : 'preview_samples',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'max_distance',
@@ -266,3 +274,131 @@ PluginParams = (
         'default' : (1, 1, 1),
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "prepass_mode", "label" : "Mode" },
+            { "name" : "prepass_fileName", "label" : "Filepath" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "phase_function" },
+                    { "name" : "max_distance" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "scale" },
+                    { "name" : "ior" }
+                ]
+            }
+        ]
+    },
+
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "subdivs" },
+                    { "name" : "specular_subdivs" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "refraction_depth" },
+                    { "name" : "reflection_depth" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR",
+        "label" : "Prepass" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "prepass_rate", "label" : "Rate" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "prepass_blur", "label" : "Blur" },
+                    { "name" : "prepass_id", "label" : "ID" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "geometry_based_sampling" },
+                    { "name" : "auto_density" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "samples_per_unit_area" },
+                    { "name" : "surface_offset" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "scatter_gi" },
+                    { "name" : "single_scatter" },
+                    { "name" : "back_scatter" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "linear_workflow" },
+                    { "name" : "legacy_mode" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "preview_samples" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "preview_samples" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "background_color" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "samples_color" }
+                ]
+            }
+        ]
+    }
+]}
+"""
