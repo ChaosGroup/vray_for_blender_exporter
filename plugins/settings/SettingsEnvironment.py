@@ -125,12 +125,8 @@ def write(bus):
             WriteEffects(bus, ntree, effectsNode)
 
     environmentSocket = outputNode.inputs['Environment']
-    if environmentSocket.is_linked:
-        environmentNode = NodesExport.GetConnectedNode(ntree, environmentSocket)
-        if environmentNode:
-            WriteEnvironment(bus, ntree, environmentNode)
-    else:
-        WriteEnvironment(bus, ntree, None)
+    environmentNode = NodesExport.GetConnectedNode(ntree, environmentSocket)
+    WriteEnvironment(bus, ntree, environmentNode)
 
 
 # def write_SphereFadeGizmo(bus, ob):

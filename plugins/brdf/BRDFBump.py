@@ -23,6 +23,9 @@
 #
 
 import bpy
+import mathutils
+
+from vb25.lib import ExportUtils
 
 
 TYPE = 'BRDF'
@@ -64,12 +67,6 @@ PluginParams = (
         'desc' : "Bump amount texture",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
-    },
-    {
-        'attr' : 'bump_tex',
-        'desc' : "Bump texture; this is deprecated, use bump_tex_color or bump_tex_float",
-        'type' : 'PLUGIN',
-        'default' : "",
     },
     {
         'attr' : 'bump_shadows',
@@ -133,5 +130,13 @@ PluginWidget = """
 """
 
 
-def nodeDraw(context, layout, BRDFBump):
-    layout.prop(BRDFBump, 'map_type')
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'map_type')
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'bump_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

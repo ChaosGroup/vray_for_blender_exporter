@@ -26,6 +26,7 @@ import bpy
 
 import _vray_for_blender
 
+from vb25.lib import ExportUtils
 from vb25.lib import utils as LibUtils
 
 
@@ -68,18 +69,18 @@ PluginParams = (
         'attr' : 'domain',
         'name' : "Domain",
         'desc' : "Simulation domain",
-        'type' : 'PLUGIN',
+        'type' : 'GEOMETRY',
         'skip' : True,
         'default' : "",
     },
 )
 
 
-def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):  
-    ofile = bus['files']['environment']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
+    o     = bus['output']
 
-    domainObject = mappedParams.get('domain', None)
+    domainObject = overrideParams.get('domain', None)
     if domainObject is None:
         return None
     
@@ -97,9 +98,9 @@ def writeDatablock(bus, pluginName, PluginParams, TexVoxelData, mappedParams):
         bpy.context.as_pointer(),        # Context
         domainObject.as_pointer(),       # Object
         smd.as_pointer(),                # SmokeModifierData
-        int(TexVoxelData.interpolation), # Interpolation type
+        int(propGroup.interpolation), # Interpolation type
         pluginName,                      # Result plugin name
-        bus['files']['geom']             # Output file
+        o.getFileByType('GEOMETRY')      # Output file
     )
 
     return pluginName

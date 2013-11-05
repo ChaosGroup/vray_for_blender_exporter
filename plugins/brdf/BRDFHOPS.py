@@ -23,6 +23,9 @@
 #
 
 import bpy
+import mathutils
+
+from vb25.lib import ExportUtils
 
 
 TYPE = 'BRDF'
@@ -413,7 +416,7 @@ PluginWidget = """
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     overrideParams.update({
-        'transparency' : (0.0, 0.0, 0.0),
+        'transparency' : mathutils.Color((0.0, 0.0, 0.0)),
         'transparency_tex_mult' : 1.0,
     })
 

@@ -26,7 +26,7 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25.lib import DrawUtils, ExportUtils, utils
+from vb25.lib import ExportUtils, utils
 
 import TexCommonParams
 
@@ -197,9 +197,9 @@ def nodeDraw(context, layout, node):
     layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
 
 
-def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):
-    ofile = bus['files']['nodetree']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
+    o     = bus['output']
 
     texture = bus['context']['node'].texture
 
@@ -210,9 +210,12 @@ def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):
         ramp_col = []
         for i,element in enumerate(texture.color_ramp.elements):
             tex_acolor = "%sC%i" % (pluginName, i)
-            ofile.write("\nTexAColor %s {" % tex_acolor)
-            ofile.write("\n\ttexture=%s;" % "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color))
-            ofile.write("\n}\n")
+           
+            o.set('TEXTURE', 'TexAColor', tex_acolor)
+            o.writeHeader()
+            o.writeAttibute('texture', "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color));
+            o.writeFooter()
+
             ramp_col.append(tex_acolor)
 
         ramp_pos = []
@@ -221,13 +224,10 @@ def writeDatablock(bus, pluginName, PluginParams, TexGradRamp, mappedParams):
 
         colValue = "List(%s)" % ",".join(ramp_col)
         posValue = "ListFloat(%s)" % ",".join(ramp_pos)
-    
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tcolors=%s;" % utils.AnimatedValue(scene, colValue))
-    ofile.write("\n\tpositions=%s;" % utils.AnimatedValue(scene, posValue))
 
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, TexGradRamp, mappedParams, PluginParams)
+    overrideParams.update({
+        'colors'    : utils.AnimatedValue(scene, colValue),
+        'positions' : utils.AnimatedValue(scene, posValue),
+    })
 
-    ofile.write("\n}\n")
-
-    return pluginName
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

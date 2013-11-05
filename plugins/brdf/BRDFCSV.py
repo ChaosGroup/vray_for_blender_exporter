@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'BRDF'
 ID   = 'BRDFCSV'

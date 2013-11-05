@@ -62,12 +62,6 @@ PluginParams = (
         'default' : 1.0,
     },
     {
-        'attr' : 'bump_tex',
-        'desc' : "Bump texture; this is deprecated, use bump_tex_color or bump_tex_float instead",
-        'type' : 'PLUGIN',
-        'default' : "",
-    },
-    {
         'attr' : 'bump_shadows',
         'desc' : "true to offset the surface shading point, in addition to the normal",
         'type' : 'BOOL',
@@ -87,13 +81,23 @@ PluginParams = (
     },
     {
         'attr' : 'map_type',
-        'desc' : "The type of the map (0 - from regular texture output, 1 - normal map in tangent space, 2 - normal map in object space, 3 - normal map in camera space, 4 - normal map in world space, 5 - from texture bump output, 6 - explicit normal)",
-        'type' : 'INT',
-        'default' : 0,
+        'name' : "Type",
+        'desc' : "The type of the map",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Bump",              ""),
+            ('1', "Normal (Tangent)" , ""),
+            ('2', "Normal (Object)",   ""),
+            ('3', "Normal (Camera)",   ""),
+            ('4', "Normal (World)",    ""),
+            ('5', "From Bump",         ""),
+            ('6', "Explicit Normal",   ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'normal_uvwgen',
-        'desc' : "The uvw generator for the normal map texture when map_type is 1",
+        'desc' : "The uvw generator for the normal map texture when \"Type\" is \"Normal (Tangent)\"",
         'type' : 'PLUGIN',
         'default' : "",
     },
@@ -104,3 +108,29 @@ PluginParams = (
         'default' : True,
     },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "" },
+            { "name" : "bump_delta_scale" },
+            { "name" : "bump_shadows" },
+            { "name" : "compute_bump_for_shadows" },
+            { "name" : "maya_compatible" }
+        ]
+    }
+]}
+"""
+
+
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'map_type')
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'bump_tex_mult' : 1.0,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

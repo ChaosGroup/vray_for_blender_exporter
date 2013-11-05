@@ -203,10 +203,10 @@ class VRAY_DP_physical_camera(classes.VRayCameraPanel):
 
 		sub= col.column(align=True)
 		sub.prop(CameraPhysical, 'distortion')
-		if not CameraPhysical.guess_lens_shift:
+		if not CameraPhysical.auto_lens_shift:
 			sub.prop(CameraPhysical, 'lens_shift')
 			sub.operator('vray.lens_shift')
-		sub.prop(CameraPhysical, 'guess_lens_shift')
+		sub.prop(CameraPhysical, 'auto_lens_shift')
 
 		if wide_ui:
 			col= split.column(align=True)

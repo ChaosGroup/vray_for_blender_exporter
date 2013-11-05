@@ -187,7 +187,8 @@ def write_settings(bus):
                     'xc' : propGroup.xc,
                     'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
                 }
-
+            elif pluginName.startswith('Filter'):
+                continue
             elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
                 propGroup = getattr(VRayScene, pluginName)
                 

@@ -85,16 +85,10 @@ def nodeDraw(context, layout, Mtl2Sided):
     layout.prop(Mtl2Sided, 'force_1sided')
 
 
-def writeDatablock(bus, pluginName, PluginParams, Mtl2Sided, mappedParams):
-    ofile = bus['files']['materials']
-    scene = bus['scene']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'translucency' : (0.0, 0.0, 0.0),
+        'translucency_tex_mult' : 1.0,
+    })
 
-    ofile.write("\nMtl2Sided %s {" % pluginName)
-    ofile.write("\n\ttranslucency=Color(0.0,0.0,0.0);")
-    ofile.write("\n\ttranslucency_tex_mult=1.0;")
-
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, Mtl2Sided, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
-
-    return pluginName
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

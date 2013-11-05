@@ -92,23 +92,23 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
 
 
 # Use this function from inside the module's 'writeDatablock'
-def WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams):
+def WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams):
     o = bus['output']
 
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
     o.writeHeader()
     
-    WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
+    WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
 
     o.writeFooter()
 
     return pluginName
 
 
-def WritePlugin(bus, pluginModule, pluginName, propGroup, mappedParams):
+def WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams):
     if hasattr(pluginModule, 'writeDatablock'):
-        return pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams)
+        return pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-    WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams)
+    WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
 
     return pluginName

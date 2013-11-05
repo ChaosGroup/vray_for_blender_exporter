@@ -153,6 +153,14 @@ PluginParams = (
         'type' : 'PLUGIN',
         'default' : "",
     },
+
+    {
+        'attr' : 'use',
+        'desc' : "Use Stereoscopic",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
 )
 
 PluginWidget = """

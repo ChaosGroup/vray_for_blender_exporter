@@ -357,24 +357,18 @@ def gui(context, layout, EnvironmentFog):
     layout.prop(EnvironmentFog, 'use_shade_instance')
 
 
-def writeDatablock(bus, pluginName, PluginParams, EnvironmentFog, mappedParams):
-    ofile = bus['files']['environment']
-    scene = bus['scene']
-
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     gizmos = []
 
-    if type(mappedParams['gizmos']) is list:
-        gizmos.extend(mappedParams['gizmos'])
+    if type(overrideParams['gizmos']) is list:
+        gizmos.extend(overrideParams['gizmos'])
     else:
-        gizmos.append(mappedParams['gizmos'])
+        gizmos.append(overrideParams['gizmos'])
     
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tgizmos=List(%s);" % ",".join(gizmos))
-    
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, EnvironmentFog, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
-
     bus['volumes'].add(pluginName)
-    
-    return pluginName
+
+    overrideParams.update({
+        'gizmos' : "List(%s)" % ",".join(gizmos),
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

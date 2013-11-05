@@ -106,11 +106,9 @@ PluginWidget = """
 """
 
 
-def writeDatablock(bus, pluginName, PluginParams, TexEdges, mappedParams):
-    # XXX: Fix world_width socket
-    mappedParams['world_width'] = mappedParams['pixel_width']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.upate({
+        'world_width' : mappedParams['pixel_width'],
+    })
 
-    ExportUtils.WriteDatablock(bus, 'TexEdges', pluginName, PluginParams, TexEdges, mappedParams)
-
-    return pluginName
-
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

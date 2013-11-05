@@ -138,11 +138,13 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
     if meshName not in bus['cache']['mesh']:
         bus['cache']['mesh'].add(meshName)
 
+        propGroup = node.GeomStaticMesh if node else None
+
         _vray_for_blender.exportMesh(
             bpy.context.as_pointer(),   # Context
             ob.as_pointer(),            # Object
             meshName,                   # Result plugin name
-            node.GeomStaticMesh,        # PropertyGroup
+            propGroup,                  # PropertyGroup
             o.getFileByType('GEOMETRY') # Output file
         )
 
@@ -312,7 +314,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
     if connectedNode:
         vrayPlugin = WriteNode(bus, nodetree, connectedNode, returnDefault=returnDefault)
 
-        if connectedSocket.vray_attr:
+        if connectedSocket.vray_attr and connectedSocket.vray_attr not in {'NONE'}:
             # XXX: use as a workaround
             # TODO: get plugin desc and check if the attr is output,
             # but skip uvwgen anyway.
@@ -328,11 +330,6 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
 def WriteNode(bus, nodetree, node, returnDefault=False):
     Debug("Processing node: %s..." % node.name)
 
-    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
-    if pluginName in bus['cache']['plugins']:
-        return pluginName
-    bus['cache']['plugins'].add(pluginName)
-
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
         return WriteVRayNodeBRDFLayered(bus, nodetree, node)
@@ -346,6 +343,11 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
         return WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeBlenderOutputMaterial':
         return WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node)
+
+    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
+    if pluginName in bus['cache']['plugins']:
+        return pluginName
+    bus['cache']['plugins'].add(pluginName)
 
     vrayType   = node.vray_type
     vrayPlugin = node.vray_plugin

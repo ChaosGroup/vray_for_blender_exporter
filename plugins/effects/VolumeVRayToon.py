@@ -166,26 +166,28 @@ def gui(context, layout, VolumeVRayToon):
     col.prop(VolumeVRayToon, 'compensateExposure')
 
 
-def writeDatablock(bus, pluginName, PluginParams, VolumeVRayToon, mappedParams):
-    ofile = bus['files']['environment']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
+    o     = bus['output']
 
-    excludeList = [ LibUtils.GetObjectName(ob) for ob in mappedParams['excludeList'] ]
+    bus['volumes'].add(pluginName)
+
+    excludeList = [ LibUtils.GetObjectName(ob) for ob in overrideParams['excludeList'] ]
+
+    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+    o.writeHeader()
     
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\texcludeList=List(%s);" % ",".join(excludeList))
+    o.writeAttibute('excludeList', "List(%s)" % ",".join(excludeList))
 
     # XXX: When size is in pixels lineWidth_tex value is ignored
     #
-    if type(mappedParams['lineWidth_tex']) is str:
-        ofile.write("\n\tlineWidth_tex=%s;" % mappedParams['lineWidth_tex'])
+    if type(overrideParams['lineWidth_tex']) is str:
+        o.writeAttibute('lineWidth_tex', overrideParams['lineWidth_tex'])
     else:
-        ofile.write("\n\tlineWidth=%s;" % LibUtils.AnimatedValue(scene, mappedParams['lineWidth_tex']))
+        o.writeAttibute('lineWidth', LibUtils.AnimatedValue(scene, overrideParams['lineWidth_tex']))
     
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, VolumeVRayToon, mappedParams, PluginParams)
+    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-    ofile.write("\n}\n")
+    o.writeFooter()
 
-    bus['volumes'].add(pluginName)
-    
     return pluginName

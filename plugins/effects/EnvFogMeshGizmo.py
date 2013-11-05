@@ -50,7 +50,7 @@ PluginParams = (
         'name' : "Object",
         'desc' : "",
         'skip' : True,
-        'type' : 'PLUGIN',
+        'type' : 'GEOMETRY',
         'default' : "",
     },
     {
@@ -71,39 +71,42 @@ PluginParams = (
 
 def writeEnvFogMeshGizmo(bus, ob, lights, pluginName):
     scene = bus['scene']
+    o     = bus['output']
 
-    geomName = LibUtils.GetObjectName(ob, prefix='ME')    
+    geomName = LibUtils.GetObjectName(ob, prefix='ME')
     if geomName in bus['cache']['mesh']:
         return
 
     bus['cache']['mesh'].add(geomName)
 
     _vray_for_blender.exportMesh(
-        bpy.context.as_pointer(), # Context
-        ob.as_pointer(),          # Object
-        geomName,                 # Result plugin name
-        bus['files']['geom']      # Output file
+        bpy.context.as_pointer(),   # Context
+        ob.as_pointer(),            # Object
+        geomName,                   # Result plugin name
+        None,                       # propGroup
+        o.getFileByType('GEOMETRY') # Output file
     )
 
-    ExportUtils.WriteFile(bus, 'environment', "\nEnvFogMeshGizmo %s {" % pluginName)
-    ExportUtils.WriteFile(bus, 'environment', "\n\tgeometry=%s;" % geomName)
-    ExportUtils.WriteFile(bus, 'environment', "\n\ttransform=%s;" % LibUtils.AnimatedValue(scene, ob.matrix_world));
+    o.set(TYPE, ID, pluginName)
+    o.writeHeader()
+    o.writeAttibute('geometry', geomName)
+    o.writeAttibute('transform', LibUtils.AnimatedValue(scene, ob.matrix_world));
     if lights:
-        ExportUtils.WriteFile(bus, 'environment', "\n\tlights=List(%s);\n" % lights)
-    ExportUtils.WriteFile(bus, 'environment', "\n}\n")
+        o.writeAttibute('lights', "List(%s)" % lights)
+    o.writeFooter()
 
 
-def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams):
-    ofile = bus['files']['environment']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
+    o     = bus['output']
 
-    lights = mappedParams.get('lights', [])
+    lights = overrideParams.get('lights', [])
     
     LibUtils.FilterObjectListByType(lights, 'LAMP')
 
     lightsStr = ",".join(lights)
 
-    domainObject = mappedParams.get('geometry', None)
+    domainObject = overrideParams.get('geometry', None)
     if domainObject is None:
         return None
     
@@ -123,7 +126,7 @@ def writeDatablock(bus, pluginName, PluginParams, EnvFogMeshGizmo, mappedParams)
             smd.as_pointer(),           # SmokeModifierData
             pluginName,                 # Result plugin name
             lightsStr,                  # Lights (string)
-            ofile                       # Output file
+            o.getFileByType('GEOMETRY') # Output file
         )
     else:
         writeEnvFogMeshGizmo(bus, domainObject, lightsStr, pluginName)

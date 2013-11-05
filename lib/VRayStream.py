@@ -111,8 +111,10 @@ class VRayStream:
                         continue
 
                     self.files[fileType] = open(filepath, 'w')
-                    self.files[fileType].write("// V-Ray For Blender\n")
-                    self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
+
+            for fileType in self.files:
+                self.files[fileType].write("// V-Ray For Blender\n")
+                self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
 
         elif self.mode in {'SOCKET'}:
             self.socket = VRaySocket()
@@ -167,6 +169,8 @@ class VRayStream:
 
             if self.separateFiles:
                 for fileType in self.files:
+                    if fileType == 'scene':
+                        continue
                     f = self.files[fileType]
                     mainFile.write('\n#include "%s"' % os.path.basename(f.name))
                 mainFile.write('\n')

@@ -372,22 +372,12 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(ve, 'debug')
 		if wide_ui:
 			col= split.column()
-		col.label(text="Mesh export:")
+		col.label(text="Geometry Export:")
 		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_instances')
-		# col.prop(SettingsOptions, 'geom_displacement')
-		col.prop(ve, 'mesh_debug')
-
-		layout.separator()
-
-		layout.label(text="Rendering:")
-		split = layout.split()
-		col = split.column()
 		col.prop(ve, 'use_smoke')
-		col.prop(ve, 'use_smoke_hires', text = "Smoke HR")
-		if wide_ui:
-			col= split.column()
 		col.prop(ve, 'use_hair')
+		col.prop(ve, 'mesh_debug')
 
 		layout.separator()
 		layout.label(text="Nodes:")

@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'BRDF'
 ID   = 'BRDFVRayMtl'
@@ -716,11 +718,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.update({
-        'fog_color' : (1.0, 1.0, 1.0),
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

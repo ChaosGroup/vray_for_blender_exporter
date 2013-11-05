@@ -1,6 +1,8 @@
 import bpy
 import math
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'CAMERA'
 ID   = 'CameraPhysical'
@@ -10,25 +12,28 @@ DESC = "V-Ray physical camera settings"
 
 def get_lens_shift(ob):
     shift= 0.0
-    constraint= None
+    constraint = None
+
     if len(ob.constraints) > 0:
         for co in ob.constraints:
             if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
-                constraint= co
+                constraint = co
                 break
+
     if constraint:
-        constraint_ob= constraint.target
+        constraint_ob = constraint.target
         if constraint_ob:
-            z_shift= ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
-            l= get_distance(ob, constraint_ob)
-            shift= -1.0 * z_shift / l
+            z_shift = ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
+            l = get_distance(ob, constraint_ob)
+            shift = -1.0 * z_shift / l
     else:
-        rx= ob.rotation_euler[0]
-        lsx= rx - math.pi / 2
+        rx = ob.rotation_euler[0]
+        lsx = rx - math.pi / 2
         if math.fabs(lsx) > 0.0001:
-            shift= math.tan(lsx)
+            shift = math.tan(lsx)
         if math.fabs(shift) > math.pi:
-            shift= 0.0
+            shift = 0.0
+
     return shift
 
 
@@ -279,35 +284,52 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 0,
     },
+
+    {
+        'attr' : 'auto_lens_shift',
+        'desc' : "Calculate lens shift automatically",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
+    {
+        'attr' : 'use',
+        'desc' : "Use Physical Camera",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
 )
 
-# PARAMS= (
-#     'film_width',
-#     'focal_length',
-#     'zoom_factor',
-#     'distortion',
-#     'distortion_type',
-#     'f_number',
-#     'lens_shift',
-#     'shutter_speed',
-#     'shutter_angle',
-#     'shutter_offset',
-#     'latency',
-#     'ISO',
-#     'dof_display_threshold',
-#     'exposure',
-#     'vignetting',
-#     'blades_enable',
-#     'blades_num',
-#     'blades_rotation',
-#     'center_bias',
-#     'anisotropy',
-#     'use_dof',
-#     'use_moblur',
-#     'subdivs'
-#     #'lens_file',
-#     #'horizontal_shift'
-# )
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    if not propGroup.use:
+        return
+
+    scene  = bus['scene']
+    camera = bus['camera']
+
+    VRayCamera = camera.data.vray
+
+    fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+
+    aspect = scene.render.resolution_x / scene.render.resolution_y
+    if aspect < 1.0:
+        fov = fov * aspect
+
+    focus_distance = camera.data.dof_distance
+    if camera.data.dof_object:
+        focus_distance = get_distance(camera, camera.data.dof_object)
+    if focus_distance < 0.001:
+        focus_distance = 200.0 # XXX: Check this, 'focus_distance' was always buggy...
+
+    overrideParams.update({
+        'fov'            : fov,
+        'focus_distance' : focus_distance,
+        'lens_shift'     : get_lens_shift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
 
 
 # def add_properties(rna_pointer):
