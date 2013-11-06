@@ -177,7 +177,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "flake_filtering_mode" },
+                    { "name" : "flake_filtering_mode", "label" : "" },
                     { "name" : "flake_map_size" },
                     { "name" : "flake_seed" },
                     { "name" : "traceReflections" }

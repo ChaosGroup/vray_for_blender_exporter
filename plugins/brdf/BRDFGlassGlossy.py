@@ -168,8 +168,8 @@ PluginParams = (
     {
         'attr' : 'dispersion_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'dispersion',

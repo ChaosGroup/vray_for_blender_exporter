@@ -68,6 +68,16 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "fade_out_radius" }
+        ]
+    }
+]}
+"""
+
 
 def writeEnvFogMeshGizmo(bus, ob, lights, pluginName):
     scene = bus['scene']

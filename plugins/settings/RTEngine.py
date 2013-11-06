@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb25.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'RTEngine'
 NAME = 'Realtime Engine'
@@ -53,14 +56,31 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : False,
     },
+
+    {
+        'attr' : 'interactive',
+        'desc' : "Show scene changes in real time",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    }
 )
 
 PluginWidget = """
 { "widgets": [
     {   "layout" : "COLUMN",
         "attrs" : [
+            { "name" : "interactive" },
             { "name" : "use_opencl" }
         ]
     }
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'enabled' : True if bus['scene'].render.engine == 'VRAY_RENDER_RT' else propGroup.enabled,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

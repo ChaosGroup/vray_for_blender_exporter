@@ -24,6 +24,9 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
+
 TYPE = 'CAMERA'
 ID   = 'RenderView'
 NAME = 'Render view'
@@ -128,36 +131,33 @@ PluginParams = (
     },
 )
 
-# ofile  = bus['files']['camera']
-# scene  = bus['scene']
-# camera = bus['camera']
 
-# VRayScene = scene.vray
-# VRayBake  = VRayScene.VRayBake
-# RTEngine  = VRayScene.RTEngine
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    ca    = bus['camera']
 
-# VRayCamera     = camera.data.vray
-# SettingsCamera = VRayCamera.SettingsCamera
+    VRayScene = scene.vray
+    VRayBake  = VRayScene.BakeView
 
-# if not VRayBake.use:
-# 	fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+    if VRayBake.use:
+        return
 
-# 	aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
+    VRayCamera = ca.data.vray
 
-# 	if aspect < 1.0:
-# 		fov = fov * aspect
+    fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
+    
+    aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
 
-# 	ofile.write("\n// Camera: %s" % camera.name)
-# 	ofile.write("\nRenderView CameraView {")
-# 	ofile.write("\n\ttransform=%s;" % a(scene, transform(camera.matrix_world)))
-# 	ofile.write("\n\tfov=%s;" % a(scene, fov))
-# 	if SettingsCamera.type not in ('SPHERIFICAL','BOX'):
-# 		ofile.write("\n\tclipping=1;")
-# 		ofile.write("\n\tclipping_near=%s;" % a(scene, camera.data.clip_start))
-# 		ofile.write("\n\tclipping_far=%s;" % a(scene, camera.data.clip_end))
-# 	if camera.data.type == 'ORTHO':
-# 		ofile.write("\n\torthographic=1;")
-# 		ofile.write("\n\torthographicWidth=%s;" % a(scene, camera.data.ortho_scale))
-# 	if bus["engine"] == 'VRAY_RENDER_RT':
-# 		ofile.write("\n\tuse_scene_offset=0;")
-# 	ofile.write("\n}\n")
+    if aspect < 1.0:
+        fov = fov * aspect
+
+    overrideParams = {
+        'fov' : fov,
+        'orthographic' : ca.data.type == 'ORTHO',
+        'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
+        'clipping_near' : ca.data.clip_start,
+        'clipping_far' : ca.data.clip_end,
+        'transform' : ca.matrix_world,
+    }
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

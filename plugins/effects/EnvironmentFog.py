@@ -23,6 +23,7 @@
 #
 
 import bpy
+import mathutils
 
 from vb25.lib import ExportUtils
 
@@ -44,21 +45,20 @@ PluginParams = (
         'name' : 'Gizmo',
         'desc' : "List of gizmos",
         'type' : 'PLUGIN',
-        'skip' : True,
         'default' : "",
     },
-    # {
-    #     'attr' : 'color',
-    #     'desc' : "Fog color",
-    #     'type' : 'COLOR',
-    #     'default' : (0, 0, 0),
-    # },
-    # {
-    #     'attr' : 'color_mult',
-    #     'desc' : "Fog color multiplier",
-    #     'type' : 'FLOAT',
-    #     'default' : 1,
-    # },
+    {
+        'attr' : 'color',
+        'desc' : "Fog color",
+        'type' : 'COLOR',
+        'default' : (0, 0, 0),
+    },
+    {
+        'attr' : 'color_mult',
+        'desc' : "Fog color multiplier",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
     {
         'attr' : 'color_tex',
         'name' : "Color",
@@ -66,12 +66,12 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    # {
-    #     'attr' : 'emission',
-    #     'desc' : "Fog emission color",
-    #     'type' : 'COLOR',
-    #     'default' : (0, 0, 0),
-    # },
+    {
+        'attr' : 'emission',
+        'desc' : "Fog emission color",
+        'type' : 'COLOR',
+        'default' : (0, 0, 0),
+    },
     {
         'attr' : 'emission_tex',
         'name' : "Emission",
@@ -79,12 +79,12 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    # {
-    #     'attr' : 'emission_mult',
-    #     'desc' : "Fog emission multiplier",
-    #     'type' : 'FLOAT',
-    #     'default' : 1,
-    # },
+    {
+        'attr' : 'emission_mult',
+        'desc' : "Fog emission multiplier",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
     {
         'attr' : 'emission_mult_tex',
         'name' : "Emission Mult",
@@ -299,76 +299,120 @@ PluginParams = (
     },
 )
 
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "use_height" },
+            { "name" : "height", "active" : { "prop" : "use_height" } }
+        ]
+    },
 
-def gui(context, layout, EnvironmentFog):
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'use_height')
-    col = split.column()
-    col.prop(EnvironmentFog, 'height')
+    {   "layout" : "SEPARATOR" },
 
-    layout.separator()
-    layout.prop(EnvironmentFog, 'subdivs')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "subdivs" }
+        ]
+    },
 
-    layout.separator()
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'distance')
-    col = split.column()
-    col.prop(EnvironmentFog, 'density')
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "distance" },
+            { "name" : "density" }
+        ]
+    },
+   
+    {   "layout" : "SEPARATOR" },
 
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'simplify_gi')
-    col = split.column()
-    col.prop(EnvironmentFog, 'scatter_gi')
-    layout.prop(EnvironmentFog, 'scatter_bounces')
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "simplify_gi" },
+            { "name" : "scatter_gi" }
+        ]
+    },
 
-    layout.separator()
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'fade_out_mode')
-    col.prop(EnvironmentFog, 'fade_out_radius')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "scatter_bounces", "active" : { "prop" : "scatter_gi" } }
+        ]
+    },
+    
+    {   "layout" : "SEPARATOR" },
 
-    layout.separator()
-    layout.prop(EnvironmentFog, 'light_mode')
 
-    layout.separator()
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'step_size')
-    col.prop(EnvironmentFog, 'max_steps')
-    col = split.column()
-    col.prop(EnvironmentFog, 'tex_samples')
-    col.prop(EnvironmentFog, 'cutoff_threshold')
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "light_mode" },
+            { "name" : "fade_out_mode" },
+            { "name" : "fade_out_radius" }
+        ]
+    },
 
-    layout.separator()
-    split = layout.split()
-    col = split.column()
-    col.prop(EnvironmentFog, 'affect_background')
-    col.prop(EnvironmentFog, 'affect_camera')
-    col.prop(EnvironmentFog, 'affect_gi')
-    col = split.column()
-    col.prop(EnvironmentFog, 'affect_reflections')
-    col.prop(EnvironmentFog, 'affect_refractions')
-    col.prop(EnvironmentFog, 'affect_shadows')
+    {   "layout" : "SEPARATOR" },
 
-    layout.separator()
-    layout.prop(EnvironmentFog, 'use_shade_instance')
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "step_size" },
+                    { "name" : "max_steps" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "tex_samples" },
+                    { "name" : "cutoff_threshold" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "affect_background" },
+                    { "name" : "affect_camera" },
+                    { "name" : "affect_gi" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "affect_reflections" },
+                    { "name" : "affect_refractions" },
+                    { "name" : "affect_shadows" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "use_shade_instance" }
+        ]
+    }
+]}
+"""
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    gizmos = []
-
-    if type(overrideParams['gizmos']) is list:
-        gizmos.extend(overrideParams['gizmos'])
-    else:
-        gizmos.append(overrideParams['gizmos'])
-    
     bus['volumes'].add(pluginName)
 
+    gizmos = overrideParams['gizmos']
+    gizmosList = []
+
+    if type(gizmos) is list:
+        gizmosList.extend(gizmos)
+    else:
+        gizmosList.append(gizmos)
+
     overrideParams.update({
-        'gizmos' : "List(%s)" % ",".join(gizmos),
+        'color' : mathutils.Color((0.0,0.0,0.0)),
+        'color_mult' : 1.0,
+        'emission' : mathutils.Color((0.0,0.0,0.0)),
+        'emission_mult' : 1.0,
+        'gizmos' : "List(%s)" % ",".join(gizmosList),
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -36,76 +36,14 @@ import mathutils
 import _vray_for_blender
 
 from vb25.plugins import PLUGINS
-from vb25.lib     import VRayProcess, ExportUtils
+
+from vb25.debug   import Debug, PrintDict
 from vb25.lib     import utils  as LibUtils
+from vb25.lib     import ExportUtils
 from vb25.nodes   import export as NodesExport
 from vb25.utils   import *
-from vb25.debug   import Debug, PrintDict
 
-
- ######   ########  #######  ##     ## ######## ######## ########  ##    ##
-##    ##  ##       ##     ## ###   ### ##          ##    ##     ##  ##  ##
-##        ##       ##     ## #### #### ##          ##    ##     ##   ####
-##   #### ######   ##     ## ## ### ## ######      ##    ########     ##
-##    ##  ##       ##     ## ##     ## ##          ##    ##   ##      ##
-##    ##  ##       ##     ## ##     ## ##          ##    ##    ##     ##
- ######   ########  #######  ##     ## ########    ##    ##     ##    ##
-
-def write_geometry(bus):
-    pass
-    # scene = bus['scene']
-
-    # VRayScene = scene.vray
-    # VRayExporter = VRayScene.Exporter
-
-    # def write_frame(bus):
-    #     bus['cache']['mesh'] = set()
-
-    #     for ob in scene.objects:
-    #         if ob.type not in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}:
-    #             continue
-
-    #         # Skip proxy meshes
-    #         if hasattr(ob.data, 'GeomMeshFile') and ob.data.vray.GeomMeshFile.use:
-    #             continue
-
-    #         if VRayExporter.mesh_active_layers or bus['preview']:
-    #             if not object_on_visible_layers(scene, ob):
-    #                 continue
-
-    #         mesh_name = None
-    #         if VRayExporter.use_instances:
-    #             mesh_name = get_name(ob, prefix='ME')
-    #         else:
-    #             mesh_name = get_name(ob.data, prefix='ME')
-
-    #         if mesh_name in bus['cache']['mesh']:
-    #             continue
-    #         bus['cache']['mesh'].add(mesh_name)
-
-    #         _vray_for_blender.exportMesh(
-    #             bpy.context.as_pointer(), # Context
-    #             ob.as_pointer(),          # Object
-    #             mesh_name,                # Result plugin name
-    #             bus['files']['geom']      # Output file
-    #         )
-
-    # timer = time.clock()
-    # debug(scene, "Writing meshes...")
-
-    # if VRayExporter.animation and VRayExporter.animation_type == 'FULL' and not VRayExporter.camera_loop:
-    #     cur_frame = scene.frame_current
-    #     scene.frame_set(scene.frame_start)
-    #     f = scene.frame_start
-    #     while(f <= scene.frame_end):
-    #         scene.frame_set(f)
-    #         write_frame(bus)
-    #         f += scene.frame_step
-    #     scene.frame_set(cur_frame)
-    # else:
-    #     write_frame(bus)
-
-    # debug(scene, "Writing meshes... done {0:<64}".format("[%.2f]"%(time.clock() - timer)))
+from vb25.lib.VRayProcess import MyProcess
 
 
  ######  ######## ######## ######## #### ##    ##  ######    ######
@@ -116,30 +54,28 @@ def write_geometry(bus):
 ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
  ######  ########    ##       ##    #### ##    ##  ######    ######
 
-def WritePreviewOverrides(bus):
-    if not bus['preview']:
-        return
+# TODO: Export preview / draft settings trough plugin parameter override
+#
+# bus['files']['scene'].write("\nSettingsDMCSampler {")
+# bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
+# bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
+# bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
+# bus['files']['scene'].write("\n}\n")
+# bus['files']['scene'].write("\nSettingsOptions {")
+# bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
+# bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
+# bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
+# bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
+# bus['files']['scene'].write("\n\tmtl_glossy=1;")
+# bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
+# bus['files']['scene'].write("\n}\n")
 
-    bus['files']['scene'].write("\nSettingsDMCSampler {")
-    bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
-    bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
-    bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
-    bus['files']['scene'].write("\n}\n")
-    bus['files']['scene'].write("\nSettingsOptions {")
-    bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
-    bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
-    bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
-    bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
-    bus['files']['scene'].write("\n\tmtl_glossy=1;")
-    bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
-    bus['files']['scene'].write("\n}\n")
-    
-    # TODO: Try using progressive sampler here and restrict render time
-    #
-    bus['files']['scene'].write("\nSettingsImageSampler {")
-    bus['files']['scene'].write("\n\ttype=0;")
-    bus['files']['scene'].write("\n\tfixed_subdivs=1;")
-    bus['files']['scene'].write("\n}\n")
+# # TODO: Try using progressive sampler here and restrict render time
+# #
+# bus['files']['scene'].write("\nSettingsImageSampler {")
+# bus['files']['scene'].write("\n\ttype=0;")
+# bus['files']['scene'].write("\n\tfixed_subdivs=1;")
+# bus['files']['scene'].write("\n}\n")
 
 
 def write_settings(bus):
@@ -201,31 +137,12 @@ def write_settings(bus):
                 else:
                     if pluginName == 'SphericalHarmonicsExporter':
                         continue
-            
             elif pluginName == 'SettingsCamera':
                 propGroup = getattr(VRayCamera, pluginName)
-
             elif pluginName == 'CameraPhysical':
                 propGroup = getattr(VRayCamera, pluginName)
-            
             elif pluginName == 'RenderView':
                 propGroup = getattr(VRayCamera, pluginName)
-
-                aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
-
-                fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
-                if aspect < 1.0:
-                    fov = fov * aspect
-
-                overrideParams = {
-                    'fov' : fov,
-                    'orthographic' : ca.data.type == 'ORTHO',
-                    'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
-                    'clipping_near' : ca.data.clip_start,
-                    'clipping_far' : ca.data.clip_end,
-                    'transform' : ca.matrix_world,
-                }
-
             else:
                 propGroup = getattr(VRayScene, pluginName)
             
@@ -324,7 +241,7 @@ def write_lamp(bus):
                 if value is not None:
                     socketParams[vrayAttr] = value
 
-    if lightPluginName == 'LightRectangle':
+    if lamp.type == 'AREA':
         if lamp.shape == 'RECTANGLE':
             socketParams['u_size'] = lamp.size   / 2.0
             socketParams['v_size'] = lamp.size_y / 2.0
@@ -458,6 +375,7 @@ def write_node(bus):
     if 'particle' in bus['node'] and 'visible' in bus['node']['particle']:
         o.writeAttibute('visible', a(scene, bus['node']['particle']['visible']))
     o.writeAttibute('transform', a(scene, transform(matrix)))
+    o.writeFooter()
 
     # TODO: check why this was needed.
     #if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
@@ -466,8 +384,6 @@ def write_node(bus):
     # TODO: Use Light Linker
     # if not bus['preview']:
     #     ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
-
-    o.writeFooter()
 
 
 def write_object(bus):
@@ -769,15 +685,8 @@ def write_scene(bus):
                 # if LibUtils.IsAnimated(ob):
                 #     print("Object %s is animated!" % ob.name)
 
-        # Fake frame for "Camera loop"
-        if VRayExporter.camera_loop:
-            for key in bus['files']:
-                if key in ('nodes','camera'):
-                    # bus['files'][key].write("\n#time %.1f // %s\n" % (bus['camera_index'] + 1, bus['camera'].name))
-                    pass
-        else:
-            # Camera
-            bus['camera']= scene.camera
+        # Camera
+        bus['camera']= scene.camera
 
         # Visibility list for "Hide from view" and "Camera loop" features
         bus['visibility']= get_visibility_lists(bus['camera'])
@@ -892,8 +801,8 @@ def run(bus):
     image_file = os.path.join(bus['filenames']['output'], bus['filenames']['output_filename'])
     load_file  = preview_loadfile if bus['preview'] else os.path.join(bus['filenames']['output'], bus['filenames']['output_loadfile'])
 
-    if not scene.render.threads_mode == 'AUTO':
-        params.append('-numThreads=%i' % (scene.render.threads))
+    if scene.render.threads_mode == 'FIXED':
+        params.append('-numThreads=%i' % scene.render.threads)
 
     if bus['preview']:
         params.append('-imgFile=%s' % Quotes(preview_file))
@@ -903,12 +812,22 @@ def run(bus):
         params.append('-verboseLevel=0')
 
     else:
-        if RTEngine.enabled:
+        if RTEngine.enabled or scene.render.engine == 'VRAY_RENDER_RT':
             params.append('-cmdMode=1')
 
-        params.append('-display=%i' % VRayExporter.display)
-        params.append('-verboseLevel=%s' % VRayExporter.verboseLevel)
+        if scene.render.engine == 'VRAY_RENDER_RT':
+            params.append('-autoclose=1')
+            params.append('-display=1')
+            params.append('-setfocus=0')
+            params.append('-showProgress=0')
+            params.append('-verboseLevel=0')
+        else:
+            params.append('-display=%i' % VRayExporter.display)
+            params.append('-verboseLevel=%s' % VRayExporter.verboseLevel)
 
+            if VRayExporter.image_to_blender and VRayExporter.auto_save_render:
+                params.append('-autoclose=1')
+        
         if scene.render.use_border:
             x0 = resolution_x * scene.render.border_min_x
             y0 = resolution_y * (1.0 - scene.render.border_max_y)
@@ -942,9 +861,6 @@ def run(bus):
 
         if VRayExporter.auto_save_render or VRayExporter.image_to_blender:
             params.append('-imgFile=%s' % Quotes(image_file))
-
-        if VRayExporter.auto_save_render and VRayExporter.image_to_blender:
-            params.append('-autoclose=1')
 
     if PLATFORM == "linux":
         if VRayExporter.log_window:
@@ -1130,17 +1046,10 @@ def run(bus):
                 time.sleep(0.1)
 
 
-def close_files(bus):
-    for key in bus['files']:
-        bus['files'][key].write("\n")
-        bus['files'][key].close()
-
-
 def export_and_run(bus):
     err = write_scene(bus)
 
     write_settings(bus)
-    close_files(bus)
 
     if not err:
         run(bus)
@@ -1177,7 +1086,7 @@ def init_bus(engine, scene, preview=False):
     init_files(bus)
 
     # Camera loop
-    bus['cameras'] = []
+    bus['cameras'] = None
     if VRayExporter.camera_loop:
         bus['cameras'] = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
 

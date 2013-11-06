@@ -1,133 +1,205 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
-
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-
-'''
-
-
-''' Blender modules '''
 import bpy
-from bpy.props import *
+import mathutils
 
-''' vb modules '''
-from vb25.utils import *
+from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
+from vb25.debug import Debug
 
 
-TYPE= 'SETTINGS'
-ID=   'BakeView'
+TYPE = 'SETTINGS'
+ID   = 'BakeView'
+NAME = 'Bake'
+DESC = "Bake settings"
 
-NAME= 'Bake'
-DESC= "Bake settings"
+PluginParams = (
+    {
+        'attr' : 'bake_node',
+        'desc' : "The node to bake",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'target_nodes',
+        'desc' : "The target objects for projection baking",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'bake_uvwgen',
+        'desc' : "The uvw generator",
+        'type' : 'PLUGIN',
+        'default' : "",
+    },
+    {
+        'attr' : 'dilation',
+        'desc' : "Number of pixels to expand around geometry",
+        'type' : 'FLOAT',
+        'default' : 2,
+    },
+    {
+        'attr' : 'flip_derivs',
+        'desc' : "true to flip the texture direction derivatives (reverses bump mapping)",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'u_min',
+        'desc' : "The minimum u value to bake",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'v_min',
+        'desc' : "The minimum v value to bake",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'u_max',
+        'desc' : "The maximum u value to bake",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'v_max',
+        'desc' : "The maximum v value to bake",
+        'type' : 'FLOAT',
+        'default' : 1,
+    },
+    {
+        'attr' : 'transform',
+        'desc' : "",
+        'type' : 'TRANSFORM',
+        'default' : None,
+    },
+    {
+        'attr' : 'fov',
+        'desc' : "",
+        'type' : 'FLOAT',
+        'default' : 0.785398,
+    },
+    {
+        'attr' : 'projection_baking',
+        'desc' : "Projection baking",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Normal", ""),
+            ('1', "Projection", ""),
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'mode',
+        'desc' : "Bake mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Outside", ""),
+            ('1', "Inside", ""),
+            ('2', "Outside - Inside", ""),
+            ('3', "Inside - Outside", ""),
+            ('4', "Closest", ""),
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'normal',
+        'desc' : "Normal mode",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Smooth", ""),
+            ('1', "Geometry", ""),
+        ),
+        'default' : '0',
+    },
+    {
+        'attr' : 'max_depth',
+        'desc' : "Geometry that is intersected further than this value along the ray will be ignored. If the value is zero then no geometry will be ignored",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
+    {
+        'attr' : 'ray_offset',
+        'desc' : "The ray's beginning will be offseted this much along the normal",
+        'type' : 'FLOAT',
+        'default' : 0,
+    },
 
-PARAMS= (
+    {
+        'attr' : 'use',
+        'desc' : "Use texture baking",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
+    {
+        'attr' : 'uv_channel',
+        'desc' : "UV channel to use",
+        'type' : 'INT',
+        'ui' : {
+            'min' : 0,
+        },
+        'skip' : True,
+        'default' : False,
+    },
+    {
+        'attr' : 'bake_material',
+        'desc' : "Material for \"Bake By Material\"",
+        'type' : 'STRING',
+        'skip' : True,
+        'default' : "",
+    },
 )
 
 
-def add_properties(rna_pointer):
-	class VRayBake(bpy.types.PropertyGroup):
-		pass
-	bpy.utils.register_class(VRayBake)
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    o     = bus['output']
 
-	rna_pointer.VRayBake= PointerProperty(
-		name= "Bake",
-		type=  VRayBake,
-		description= "Texture baking settings"
-	)
+    if not propGroup.use:
+        return
 
-	VRayBake.use= BoolProperty(
-		name= "Bake",
-		description= "Bake to texture",
-		default= False
-	)
+    if not propGroup.bake_node:
+        Debug("Bake object is not set!", msgType='ERROR')
+        return
 
-	VRayBake.bake_node= StringProperty(
-		name= "Object",
-		subtype= 'NONE',
-		description= "Object to bake"
-	)
+    bakeObject = LibUtils.GetSceneObject(scene, propGroup.bake_node)
+    if not bakeObject:
+        Debug("Bake object \"%s\" not found!" % propGroup.bake_node, msgType='ERROR')
+        return
 
-	VRayBake.dilation= IntProperty(
-		name= "Dilation",
-		description= "Number of pixels to expand around geometry",
-		min= 0,
-		max= 1000,
-		soft_min= 0,
-		soft_max= 100,
-		default= 2,
-	)
+    o.set('SETTINGS', 'UVWGenChannel', 'UVWbakeView')
+    o.writeHeader()
+    o.writeAttribute('uvw_channel', propGroup.uv_channel)
+    o.writeAttribute('uvw_transform', mathutils.Matrix.Identity(4))
+    o.writeFooter()
 
-	VRayBake.uvChannel = IntProperty(
-		name        = "UV Channel",
-		description = "UV channel to use",
-		min         = 0,
-		max         = 256,
-		soft_min    = 0,
-		soft_max    = 8,
-		default     = 0,
-	)
+    overrideParams.update({
+        'bake_node' : LibUtils.GetObjectName(bakeObject),
+        'bake_uvwgen' : "UVWbakeView",
+    })
 
-	VRayBake.flip_derivs= BoolProperty(
-		name= "Flip derivatives",
-		description= "Flip the texture direction derivatives (reverses bump mapping)",
-		default= False
-	)
-
-	# Bake Tools
-	VRayBake.bake_material = StringProperty(
-		name = "Material",
-		subtype = 'NONE'
-	)
-
-
-
-def write(bus):
-	ofile=  bus['files']['camera']
-	scene=  bus['scene']
-	camera= bus['camera']
-
-	VRayScene= scene.vray
-	VRayBake=  VRayScene.VRayBake
-
-	if VRayBake.use and VRayBake.bake_node:
-		bake_node = get_data_by_name(scene, 'objects', VRayBake.bake_node)
-		if bake_node:
-			ofile.write("\nUVWGenChannel bakeViewUVW {")
-			ofile.write("\n\tuvw_transform=Transform(")
-			ofile.write("\n\t\tMatrix(")
-			ofile.write("\n\t\tVector(1.0,0.0,0.0),")
-			ofile.write("\n\t\tVector(0.0,1.0,0.0),")
-			ofile.write("\n\t\tVector(0.0,0.0,1.0)")
-			ofile.write("\n\t\t),")
-			ofile.write("\n\t\tVector(0.0,0.0,0.0)")
-			ofile.write("\n\t);")
-			ofile.write("\n\tuvw_channel=%i;" % VRayBake.uvChannel)
-			ofile.write("\n}\n")
-
-			ofile.write("\nBakeView bakeView {")
-			ofile.write("\n\tbake_node=%s;" % get_name(bake_node, prefix='OB'))
-			ofile.write("\n\tbake_uvwgen=bakeViewUVW;")
-			ofile.write("\n\tdilation=%i;" % VRayBake.dilation)
-			ofile.write("\n\tflip_derivs=%i;" % VRayBake.flip_derivs)
-			ofile.write("\n}\n")
-		else:
-			debug(scene, "Bake object not found", error=True)
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

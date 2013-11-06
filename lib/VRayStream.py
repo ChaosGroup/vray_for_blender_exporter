@@ -49,7 +49,7 @@ PluginTypeToFile = {
 }
 
 
-class VRayStream:
+class VRayExporter():
     # Paths
     exportDir = None
 
@@ -154,6 +154,11 @@ class VRayStream:
         o = self.getFileByType(self, pluginType)
         o.write(data)
 
+    def load(self):
+        if self.mode not in {'SOCKET', 'NETWORK'}:
+            return
+        self.socket.send("load %s" % self.getSceneFilepath())
+
     def commit(self):
         if self.mode not in {'SOCKET', 'NETWORK'}:
             return
@@ -163,6 +168,7 @@ class VRayStream:
     # Will close files and write "includes" to the main scene file
     def close(self):
         if self.mode in {'SOCKET', 'NETWORK'}:
+            self.load()
             self.commit()
         else:
             mainFile = self.files['scene']
@@ -195,3 +201,6 @@ class VRayStream:
     def getSceneFilepath(self):
         sceneFile = self.getFileByType('MAIN')
         return sceneFile.name
+
+
+VRayStream = VRayExporter()

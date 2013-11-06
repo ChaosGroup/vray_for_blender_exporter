@@ -118,6 +118,12 @@ def GetSmokeModifier(ob):
     return None
 
 
+def GetSceneObject(scene, objectName):
+    if objectName not in scene.objects:
+        return None
+    return scene.objects[objectName]
+
+
 # Helper function to convert a value to
 # hex in vrscene format
 def FormatHexValue(value):

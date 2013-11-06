@@ -64,7 +64,7 @@ def WriteEnvironment(bus, ntree, node):
     VRayWorld = scene.world.vray
 
     if node is None:
-        o.set(TYPE, ID, 'SettingsEnvironment')
+        o.set('WORLD', ID, 'SettingsEnvironment')
         o.writeHeader()
         o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
         o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
@@ -76,7 +76,7 @@ def WriteEnvironment(bus, ntree, node):
         vrayAttr = nodeSocket.vray_attr
         socketParams[vrayAttr] = NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
 
-    o.set(TYPE, ID, 'SettingsEnvironment')
+    o.set('WORLD', ID, 'SettingsEnvironment')
     o.writeHeader()
     o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
     o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))

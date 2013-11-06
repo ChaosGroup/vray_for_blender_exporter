@@ -205,7 +205,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
 		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.VRayDR, 'on')
-		col.prop(VRayScene.VRayBake, 'use')
+		col.prop(VRayScene.BakeView, 'use')
 		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
 		# col.prop(VRayScene.VRayStereoscopicSettings, 'use')
 		if wide_ui:
@@ -1016,14 +1016,14 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 
 	@classmethod
 	def poll(cls, context):
-		VRayBake = context.scene.vray.VRayBake
+		VRayBake = context.scene.vray.BakeView
 		return VRayBake.use and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 
 		VRayScene= context.scene.vray
-		VRayBake= VRayScene.VRayBake
+		VRayBake= VRayScene.BakeView
 
 		layout= self.layout
 

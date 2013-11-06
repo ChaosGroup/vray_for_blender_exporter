@@ -55,6 +55,9 @@ SCE_FILE = ""
 
 @persistent
 def scene_update_post(scene):
+    global OB_COUNT
+    global SCE_FILE
+
     if not (bpy.data.groups.is_updated or
             bpy.data.node_groups.is_updated or
             bpy.data.objects.is_updated or
@@ -62,17 +65,13 @@ def scene_update_post(scene):
             bpy.data.actions.is_updated):
         return
 
-    global OB_COUNT
-    global SCE_FILE
-    global LOCKED
-
     if not scene.render.engine == 'VRAY_RENDER_RT':
         return
 
-    if not scene.vray.RTEngine.realtimeUpdate:
+    if not scene.vray.RTEngine.interactive:
         return
 
-    Debug("scene_update_post()", msgType='INFO')
+    Debug("scene_update_post()", msgType='ERROR')
 
     bus = {}
     bus['mode'] = 'SOCKET'
@@ -130,69 +129,6 @@ def scene_update_post(scene):
 
         cmd_socket.send("render")
         cmd_socket.disconnect()
-
-
-def export_scene(scene, renderEngine):
-    global SCE_FILE
-
-    VRayScene    = scene.vray
-    VRayExporter = VRayScene.Exporter
-
-    # Settings bus
-    bus= {}
-    bus['plugins']   = PLUGINS
-    bus['scene']     = scene
-    bus['preview']   = True if scene.name == "preview" else False
-    bus['uvs']       = {}
-    bus['files']     = {}
-    bus['filenames'] = {}
-    bus['cameras']   = [ob for ob in scene.objects if ob.type == 'CAMERA' and ob.data.vray.use_camera_loop]
-    bus['engine']    = renderEngine
-    bus['mode']      = 'VRSCENE'
-
-    bus['volumes'] = set()
-    bus['context'] = {}
-    bus['cache'] = {
-        'plugins' : set(),
-        'mesh'    : set(),
-        'nodes'   : set(),
-    }
-
-    utils.init_files(bus)
-
-    if VRayExporter.auto_meshes:
-        render.write_geometry(bus)
-
-    render.write_scene(bus)
-    render.write_settings(bus)
-
-    for key in bus['files']:
-        bus['files'][key].close()
-
-    if renderEngine == 'VRAY_UPDATE_CALL':
-        if process.is_running():
-            process.reload_scene(SCE_FILE)
-        # This was the reload call, we don't need to start V-Ray
-        return
-
-    vray_exporter   = utils.get_vray_exporter_path()
-    vray_standalone = utils.get_vray_standalone_path(scene)
-
-    # Update scene file path
-    SCE_FILE = bus['filenames']['scene']
-
-    params = []
-    params.append(vray_standalone)
-    params.append('-cmdMode=1')
-    params.append('-sceneFile=%s' % utils.Quotes(bus['filenames']['scene']))
-    params.append('-showProgress=0')
-    params.append('-display=1')
-    params.append('-autoclose=1')
-    params.append('-verboseLevel=0')
-    params.append('-setfocus=0')
-
-    if VRayExporter.autorun:
-        process.run(params)
 
 
 def register():

@@ -262,14 +262,6 @@ PluginWidget = """
 { "widgets": [
     {   "layout" : "ROW",
         "attrs" : [
-            { "name" : "csv_path" }
-        ]
-    },
-
-    {   "layout" : "SEPARATOR" },
-
-    {   "layout" : "ROW",
-        "attrs" : [
             { "name" : "subdivs" },
             { "name" : "cutoff" }
         ]
@@ -306,22 +298,16 @@ PluginWidget = """
         "splits" : [
             {   "layout" : "COLUMN",
                 "attrs" : [
-                    { "name" : "csv_color_filter" }
+                    { "name" : "reflect_exit_color" }
                 ]
             },
             {   "layout" : "COLUMN",
                 "attrs" : [
-                    { "name" : "reflect_exit_color" }
+                    { "name" : "affect_alpha" },
+                    { "name" : "glossyAsGI" },
+                    { "name" : "back_side" }
                 ]
             }
-        ]
-    },
-
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "affect_alpha" },
-            { "name" : "glossyAsGI" },
-            { "name" : "back_side" }
         ]
     }
 ]}

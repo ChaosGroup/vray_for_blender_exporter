@@ -175,6 +175,9 @@ PluginParams = (
 
 
 def nodeDraw(context, layout, node):
+    if not node.texture:
+        return
+
     split = layout.split()
     row = split.row(align=True)
     layout.template_preview(node.texture)
@@ -182,24 +185,25 @@ def nodeDraw(context, layout, node):
 
 
 def gui(context, layout, BitmapBuffer, node):
-    if node.texture:
-        layout.template_preview(node.texture)
-        layout.template_ID(node.texture, 'image', open='image.open')
-        layout.separator()
+    if not node.texture:
+        return
+
+    layout.template_preview(node.texture)
+    layout.template_ID(node.texture, 'image', open='image.open')
+    layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
 
-def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    scene = bus['scene']
-    
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     image = bus['context']['node'].texture.image
     if not image:
-        Debug("Image is not set!", msgType='ERROR')
+        Debug("Node \"%s\": Image is not set!" % bus['context']['node'].name, msgType='ERROR')
         return None
 
     # TODO: Add file existance check
+    overrideParams.update({
+        'file' : get_full_filepath(bus, image, image.filepath),
+    })
 
-    mappedParams['file'] = get_full_filepath(bus, image, image.filepath)
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, mappedParams)
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

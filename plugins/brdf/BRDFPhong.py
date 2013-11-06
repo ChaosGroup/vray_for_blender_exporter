@@ -194,8 +194,8 @@ PluginParams = (
     {
         'attr' : 'interpolation_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'imap_min_rate',

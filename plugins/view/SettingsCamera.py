@@ -22,9 +22,13 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsCamera'
-NAME = 'SettingsCamera'
+NAME = 'Camera'
 DESC = ""
 
 PluginParams = (
@@ -95,32 +99,24 @@ PluginWidget = """
 """
 
 
-def write(bus):
-    ofile  = bus['files']['scene']
-    scene  = bus['scene']
-    camera = bus['camera']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    ca    = bus['camera']
 
-    VRayCamera     = camera.data.vray
-    SettingsCamera = VRayCamera.SettingsCamera
-    CameraPhysical = VRayCamera.CameraPhysical
-
-    fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
-
-    aspect = scene.render.resolution_x / scene.render.resolution_y
-
-    if aspect < 1.0:
-        fov = fov * aspect
-
-    ofile.write("\n// Camera: %s" % (camera.name))
-    ofile.write("\nSettingsCamera CA%s {" % clean_string(camera.name))
-    if camera.data.type == 'ORTHO':
-        ofile.write("\n\ttype=7;")
-        ofile.write("\n\theight=%s;" % a(scene, camera.data.ortho_scale))
-    # We must use 8 if we want to change the fov from RenderView. If we use 0, we must change it from the physical camera
-    # We must set the camera type to "pinhole" to make the physical camera match the other fov
-    # elif CameraPhysical.use:
-    #   ofile.write("\n\ttype=8;")
+    VRayCamera = ca.data.vray
+    
+    cameraType = propGroup.type
+    if ca.data.type == 'ORTHO':
+        cameraType = 7
     else:
-        ofile.write("\n\ttype=%i;" % SettingsCamera.type)
-    ofile.write("\n\tfov=-1;")
-    ofile.write("\n}\n")
+        # We must set camera type to "pinhole" to make the physical camera match the fov
+        if VRayCamera.CameraPhysical:
+            cameraType = 8
+
+    overrideParams.update({
+        'fov' : -1,
+        'type' : cameraType,
+        'height' : LibUtils.AnimatedValue(scene, ca.data.ortho_scale),
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

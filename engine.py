@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25 import render
+from vb25 import export
 from vb25 import realtime
 
 
@@ -45,16 +45,12 @@ class VRayRendererPreview(bpy.types.RenderEngine):
     bl_use_preview = True
 
     def render(self, scene):
-        VRayScene    = scene.vray
-        VRayExporter = VRayScene.Exporter
-
         if scene.name == "preview":
             if scene.render.resolution_x < 64:
                 return
             render.render(self, scene, preview=True)
         else:
             err = render.render(self, scene)
-
             if err is not None:
                 self.report({'ERROR'}, err)
 
@@ -64,11 +60,10 @@ class VRayRendererRT(bpy.types.RenderEngine):
     bl_label       = "V-Ray Realtime"
     bl_use_preview =  False
 
-    width  = None
-    height = None
-
     def render(self, scene):
-        realtime.export_scene(scene, self.bl_idname)
+        err = render.render(self, scene)
+        if err is not None:
+            self.report({'ERROR'}, err)
 
 
 def GetRegClasses():

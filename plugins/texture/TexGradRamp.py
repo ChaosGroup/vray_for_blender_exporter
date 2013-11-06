@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb25.lib import ExportUtils, utils
 
 import TexCommonParams
@@ -40,6 +38,18 @@ PluginParams = list(TexCommonParams.PluginParams)
 
 PluginParams.extend([
     {
+        'attr' : 'positions',
+        'desc' : "positions of the given colors",
+        'type' : 'FLOAT',
+        'default' : 0.0,
+    },
+    {
+        'attr' : 'colors',
+        'desc' : "the given colors",
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0),
+    },
+    {
         'attr' : 'gradient_position',
         'desc' : "",
         'type' : 'FLOAT_TEXTURE',
@@ -51,7 +61,6 @@ PluginParams.extend([
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-    
     {
         'attr' : 'gradient_type',
         'desc' : "Gradient type",
@@ -142,17 +151,6 @@ PluginParams.extend([
         'default' : 0,
     },  
 ])
-
-PluginRefParams = (
-    # {
-    #     'attr' : 'ramp',
-    #     'name' : "Ramp",
-    #     'desc' : "Ramp (texture pointer)",
-    #     'type' : 'MTEX',
-    #     'options' : {'NEVER_NULL'},
-    #     'default' : (1.0, 1.0, 1.0),
-    # },
-)
 
 PluginWidget = """
 { "widgets": [

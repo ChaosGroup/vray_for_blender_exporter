@@ -192,8 +192,8 @@ PluginParams = (
     {
         'attr' : 'interpolation_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'imap_min_rate',
@@ -315,16 +315,16 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "imap_min_rate" },
-                    { "name" : "imap_max_rate" }
+                    { "name" : "imap_min_rate", "label" : "Min Rate" },
+                    { "name" : "imap_max_rate", "label" : "Max Rate" }
                 ]
             },
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "imap_samples" },
-                    { "name" : "imap_color_thresh" },
-                    { "name" : "imap_norm_thresh" }
+                    { "name" : "imap_samples", "label" : "Samples" },
+                    { "name" : "imap_color_thresh", "label" : "Color Thresh." },
+                    { "name" : "imap_norm_thresh", "label" : "Normal Thresh." }
                 ]
             }
         ]

@@ -1,10 +1,10 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://vray.cgdo.ru
 #
-# Author: Andrey M. Izrantsev (aka bdancer)
-# E-Mail: izrantsev@cgdo.ru
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,8 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-
-# Python modules
 import os
 import re
 import struct
@@ -34,8 +32,8 @@ import sys
 import tempfile
 import time
 
-# V-Ray/Blender modules
 import vb25
+
 from vb25.lib import VRaySocket
 
 if sys.platform != 'win32':
@@ -43,7 +41,7 @@ if sys.platform != 'win32':
 
 
 class VRayProcess():
-    # V-Ray process
+    # Process management
     process    = None
     exit_ready = None
     params     = None
@@ -51,7 +49,7 @@ class VRayProcess():
     # V-Ray command socket
     socket = None
 
-    # Executable parameters
+    # Command line arguments
     sceneFile     = None
     imgFile       = None
     showProgress  = None
@@ -64,6 +62,7 @@ class VRayProcess():
     VRayExporter = None
     VRayDR       = None
 
+    name = None
 
     def __init__(self):
         self.socket = VRaySocket()
@@ -73,10 +72,8 @@ class VRayProcess():
         self.verboseLevel = '1'
         self.showProgress = '2'
 
-
     def __del__(self):
-        pass
-
+        self.kill()
 
     def set_params(self, params=None):
         self.VRayScene    = self.scene.vray
@@ -277,3 +274,6 @@ class VRayProcess():
             return 'JPEG stream recieve fail'
 
         return None
+
+
+MyProcess = VRayProcess()

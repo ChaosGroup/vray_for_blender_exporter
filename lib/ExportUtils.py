@@ -88,6 +88,8 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
         o.writeAttibute(attrName, attrValue)
 
     # This will commmit RT changes
+    # NOTE: May be its better to commit everything at once not every plugin?
+    #
     o.commit()
 
 

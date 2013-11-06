@@ -1,3 +1,27 @@
+#
+# V-Ray For Blender
+#
+# http://vray.cgdo.ru
+#
+# Author: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
+
 import bpy
 import math
 
@@ -9,40 +33,17 @@ ID   = 'CameraPhysical'
 NAME = 'Physical Camera'
 DESC = "V-Ray physical camera settings"
 
-
-def get_lens_shift(ob):
-    shift= 0.0
-    constraint = None
-
-    if len(ob.constraints) > 0:
-        for co in ob.constraints:
-            if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
-                constraint = co
-                break
-
-    if constraint:
-        constraint_ob = constraint.target
-        if constraint_ob:
-            z_shift = ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
-            l = get_distance(ob, constraint_ob)
-            shift = -1.0 * z_shift / l
-    else:
-        rx = ob.rotation_euler[0]
-        lsx = rx - math.pi / 2
-        if math.fabs(lsx) > 0.0001:
-            shift = math.tan(lsx)
-        if math.fabs(shift) > math.pi:
-            shift = 0.0
-
-    return shift
-
-
 PluginParams = (
     {
         'attr' : 'type',
-        'desc' : "0-still camera; 1-movie camera; 2- video camera",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Camera type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Still",     ""),
+            ('1', "Cinematic", ""),
+            ('2', "Video",     ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'film_width',
@@ -70,9 +71,15 @@ PluginParams = (
     },
     {
         'attr' : 'distortion_type',
-        'desc' : "0-quadratic; 1-cubic; 2-lens file; 3-texture",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Distortion type",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Quadratic", ""),
+            ('1', "Cubic", ""),
+            ('2', "Lens File", ""),
+            # ('3', "Texture", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'f_number',
@@ -166,14 +173,17 @@ PluginParams = (
     },
     {
         'attr' : 'blades_enable',
-        'desc' : "1- enable Bokeh effects; 0- disable Bokeh effects",
+        'desc' : "Enable Bokeh effects",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'blades_num',
-        'desc' : "number of blades - 0 means its disabled",
+        'desc' : "Number of blades (0 means its disabled)",
         'type' : 'INT',
+        'ui' : {
+            'min' : 0,
+        },
         'default' : 5,
     },
     {
@@ -280,7 +290,7 @@ PluginParams = (
     },
     {
         'attr' : 'optical_vignetting',
-        'desc' : "optical vignetting (\"cat's eye bokeh\") amount",
+        'desc' : "Optical vignetting (\"Cat's Eye Bokeh\") amount",
         'type' : 'FLOAT',
         'default' : 0,
     },
@@ -291,7 +301,7 @@ PluginParams = (
         'type' : 'BOOL',
         'skip' : True,
         'default' : False,
-    },
+    },    
     {
         'attr' : 'use',
         'desc' : "Use Physical Camera",
@@ -300,6 +310,33 @@ PluginParams = (
         'default' : False,
     },
 )
+
+
+def get_lens_shift(ob):
+    shift = 0.0
+    constraint = None
+
+    if len(ob.constraints) > 0:
+        for co in ob.constraints:
+            if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
+                constraint = co
+                break
+
+    if constraint:
+        constraint_ob = constraint.target
+        if constraint_ob:
+            z_shift = ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
+            l = get_distance(ob, constraint_ob)
+            shift = -1.0 * z_shift / l
+    else:
+        rx = ob.rotation_euler[0]
+        lsx = rx - math.pi / 2
+        if math.fabs(lsx) > 0.0001:
+            shift = math.tan(lsx)
+        if math.fabs(shift) > math.pi:
+            shift = 0.0
+
+    return shift
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
@@ -327,27 +364,13 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         'fov'            : fov,
         'focus_distance' : focus_distance,
         'lens_shift'     : get_lens_shift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
+
+        'horizontal_offset' : -ca.data.shift_x,
+        'vertical_offset'   : -ca.data.shift_y,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-
-# def add_properties(rna_pointer):
-#     class CameraPhysical(bpy.types.PropertyGroup):
-#         pass
-#     bpy.utils.register_class(CameraPhysical)
-
-#     rna_pointer.CameraPhysical= PointerProperty(
-#         name= "CameraPhysical",
-#         type=  CameraPhysical,
-#         description= "Physical Camera settings"
-#     )
-
-#     CameraPhysical.use= BoolProperty(
-#         name= "Enable physical camera",
-#         description= "Enable physical camera",
-#         default= False
-#     )
 
 #     CameraPhysical.specify_fov= BoolProperty(
 #         name= "Use FOV",
@@ -636,6 +659,4 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 #                 value= getattr(CameraPhysical,param)
 #             ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
 
-#         ofile.write("\n\thorizontal_offset=%s;" % a(scene, -camera.data.shift_x))
-#         ofile.write("\n\tvertical_offset=%s;"   % a(scene, -camera.data.shift_y))
 #         ofile.write("\n}\n")

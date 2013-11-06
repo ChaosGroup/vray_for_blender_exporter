@@ -697,17 +697,25 @@ PluginWidget = """
         ]
     },
 
-    {   "layout" : "ROW",
-        "attrs" : [
-            { "name" : "reflect_exit_color" },
-            { "name" : "refract_exit_color" }
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "reflect_exit_color" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "refract_exit_color" }
+                ]
+            }
         ]
     },
 
     {   "layout" : "COLUMN",
         "attrs" : [
-            { "name" : "option_glossy_rays_as_gi" },
-            { "name" : "option_energy_mode" }
+            { "name" : "option_glossy_rays_as_gi", "label" : "Glossy Rays As GI" },
+            { "name" : "option_energy_mode", "label" : "Energy Mode" }
         ]
     },
 
