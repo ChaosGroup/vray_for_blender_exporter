@@ -240,7 +240,7 @@ PluginParams = (
         'attr' : 'radius',
         'desc' : "",
         'type' : 'FLOAT',
-        'default' : 1,
+        'default' : 0.1,
     },
     {
         'attr' : 'sphere_segments',
@@ -257,6 +257,13 @@ PluginWidget = """
         "attrs" : [
             { "name" : "enabled" },
             { "name" : "invisible" }
+        ]
+    },
+
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "radius" },
+            { "name" : "sphere_segments" }
         ]
     },
 

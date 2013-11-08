@@ -42,6 +42,8 @@ from vb25.lib     import VRaySocket, VRayProxy
 from vb25.utils   import *
 from vb25.plugins import PLUGINS
 
+from vb25.lib.VRayStream import VRayStream
+
 
 ##     ## ########  ########     ###    ######## ########
 ##     ## ##     ## ##     ##   ## ##      ##    ##
@@ -414,7 +416,6 @@ class VRAY_OT_settings_to_text(bpy.types.Operator):
 		bus['files'] = {}
 		bus['files']['scene'] = text
 		bus['filenames'] = {}
-		bus['plugins'] = PLUGINS
 		bus['effects'] = {}
 		bus['effects']['fog']  = {}
 		bus['effects']['toon'] = {}
@@ -584,11 +585,7 @@ class VRAY_OT_terminate(bpy.types.Operator):
 	bl_description = "Terminates running VRayRT instance"
 
 	def execute(self, context):
-		s = VRaySocket()
-		s.connect()
-		s.send("stop", result=False)
-		s.send("quit", result=False)
-		s.disconnect()
+		VRayStream.stopProcess()
 
 		return {'FINISHED'}
 

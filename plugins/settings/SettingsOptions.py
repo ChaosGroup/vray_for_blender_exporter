@@ -255,7 +255,9 @@ PluginWidget = """
 ]}
 """
 
-# TODO: Resolve draft
+
+# TODO: Resolve draft / preview
+#
 # ofile.write("\n\tmtl_limitDepth= 1;")
 # ofile.write("\n\tmtl_maxDepth= 5;")
 # ofile.write("\n\tmtl_transpMaxLevels= 10;")

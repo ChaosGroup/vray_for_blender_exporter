@@ -50,6 +50,9 @@ PluginParams = (
         'attr' : 'turbidity',
         'desc' : "Determines the amount of dust in the air and affects the color of the sun and sky. Smaller values produce a clear/blue sky, larger values yellow and orange",
         'type' : 'FLOAT',
+        'ui' : {
+            'min' : 2.0,
+        },
         'default' : 3,
     },
     {

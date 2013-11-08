@@ -40,7 +40,6 @@ import getpass
 import bpy
 import mathutils
 
-from vb25.lib     import VRayStream
 from vb25.plugins import *
 
 
@@ -1037,19 +1036,19 @@ def init_files(bus, skipGeom=False):
 	if VRayDR.on:
 		export_filename = blendfile_name
 
-	# Distributed rendering
-	# filepath is relative = blend-file-name/filename
-	if VRayDR.on:
-		abs_shared_dir  = os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
-		export_filepath = os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
+	# # Distributed rendering
+	# # filepath is relative = blend-file-name/filename
+	# if VRayDR.on:
+	# 	abs_shared_dir  = os.path.normpath(bpy.path.abspath(VRayDR.shared_dir))
+	# 	export_filepath = os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
 
-		bus['filenames']['DR']               = {}
-		bus['filenames']['DR']['shared_dir'] = abs_shared_dir
-		bus['filenames']['DR']['sub_dir']    = blendfile_name
-		bus['filenames']['DR']['dest_dir']   = export_filepath
-		bus['filenames']['DR']['prefix']     = bus['filenames']['DR']['dest_dir']
-		bus['filenames']['DR']['tex_dir']    = os.path.join(export_filepath, "textures")
-		bus['filenames']['DR']['ies_dir']    = os.path.join(export_filepath, "IES")
+	# 	bus['filenames']['DR']               = {}
+	# 	bus['filenames']['DR']['shared_dir'] = abs_shared_dir
+	# 	bus['filenames']['DR']['sub_dir']    = blendfile_name
+	# 	bus['filenames']['DR']['dest_dir']   = export_filepath
+	# 	bus['filenames']['DR']['prefix']     = bus['filenames']['DR']['dest_dir']
+	# 	bus['filenames']['DR']['tex_dir']    = os.path.join(export_filepath, "textures")
+	# 	bus['filenames']['DR']['ies_dir']    = os.path.join(export_filepath, "IES")
 
 	if bus['preview']:
 		export_filename= "preview"
@@ -1060,9 +1059,7 @@ def init_files(bus, skipGeom=False):
 
 	export_directory = create_dir(export_filepath)
 
-	bus['output'] = VRayStream()
-	bus['output'].init(
-		mode='VRSCENE',
+	bus['output'].initFiles(
 		exportDir=export_directory,
 		baseName=blendfile_name,
 		separateFiles=True,
@@ -1084,42 +1081,42 @@ def init_files(bus, skipGeom=False):
 
 	# Duplicate "Color mapping" setting to a separate file for correct preview
 	#
-	cmFilepath = getColorMappingFilepath()
-	bus['filenames']['colorMapping'] = cmFilepath
-	if not bus['preview']:
-		bus['files']['colorMapping'] = open(cmFilepath, 'w', encoding='ascii')
+	# cmFilepath = getColorMappingFilepath()
+	# bus['filenames']['colorMapping'] = cmFilepath
+	# if not bus['preview']:
+	# 	bus['files']['colorMapping'] = open(cmFilepath, 'w', encoding='ascii')
 
-	# Render output dir
-	bus['filenames']['output'] = create_dir(output_filepath)
+	# # Render output dir
+	# bus['filenames']['output'] = create_dir(output_filepath)
 
 	# Render output file name
-	ext = SettingsOutput.img_format.lower()
+	# ext = SettingsOutput.img_format.lower()
 
-	file_name = "render"
-	if SettingsOutput.img_file:
-		file_name = SettingsOutput.img_file
-		if file_name.find("%C") != -1:
-			file_name = file_name.replace("%C", scene.camera.name)
-		if file_name.find("%S") != -1:
-			file_name = file_name.replace("%S", scene.name)
-		if file_name.find("%F") != -1:
-			file_name = file_name.replace("%F", blendfile_name)
-		file_name = clean_string(file_name)
-		load_file_name = file_name
-	bus['filenames']['output_filename'] = "%s.%s" % (file_name, ext)
+	# file_name = "render"
+	# if SettingsOutput.img_file:
+	# 	file_name = SettingsOutput.img_file
+	# 	if file_name.find("%C") != -1:
+	# 		file_name = file_name.replace("%C", scene.camera.name)
+	# 	if file_name.find("%S") != -1:
+	# 		file_name = file_name.replace("%S", scene.name)
+	# 	if file_name.find("%F") != -1:
+	# 		file_name = file_name.replace("%F", blendfile_name)
+	# 	file_name = clean_string(file_name)
+	# 	load_file_name = file_name
+	# bus['filenames']['output_filename'] = "%s.%s" % (file_name, ext)
 
-	# Render output - load file name
-	if SettingsOutput.img_file_needFrameNumber:
-		load_file_name = "%s.%.4i" % (load_file_name, scene.frame_current)
-	bus['filenames']['output_loadfile'] = "%s.%s" % (load_file_name, ext)
+	# # Render output - load file name
+	# if SettingsOutput.img_file_needFrameNumber:
+	# 	load_file_name = "%s.%.4i" % (load_file_name, scene.frame_current)
+	# bus['filenames']['output_loadfile'] = "%s.%s" % (load_file_name, ext)
 
-	# Lightmaps path
-	# bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
+	# # Lightmaps path
+	# # bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
 
-	if VRayExporter.debug:
-		debug(scene, "Files:")
-		for key in sorted(bus['filenames'].keys()):
-			debug(scene, "  {0:16}: {1}".format(key.capitalize(), bus['filenames'][key]))
+	# if VRayExporter.debug:
+	# 	debug(scene, "Files:")
+	# 	for key in sorted(bus['filenames'].keys()):
+	# 		debug(scene, "  {0:16}: {1}".format(key.capitalize(), bus['filenames'][key]))
 
 
 # Converts kelvin temperature to color

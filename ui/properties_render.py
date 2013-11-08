@@ -443,6 +443,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col = split.column()
 		col.operator('vray.render', text=render_label, icon=render_icon)
 		col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
+		col.separator()
+		col.operator('vray.terminate', text="Terminate", icon='CANCEL')
 
 
 class VRAY_RP_cm(classes.VRayRenderPanel):

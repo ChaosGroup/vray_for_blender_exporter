@@ -56,21 +56,12 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : False,
     },
-
-    {
-        'attr' : 'interactive',
-        'desc' : "Show scene changes in real time",
-        'type' : 'BOOL',
-        'skip' : True,
-        'default' : False,
-    }
 )
 
 PluginWidget = """
 { "widgets": [
     {   "layout" : "COLUMN",
         "attrs" : [
-            { "name" : "interactive" },
             { "name" : "use_opencl" }
         ]
     }

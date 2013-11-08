@@ -24,27 +24,22 @@
 
 # VRay Standalone communication socket
 
-# Python modules
 import socket
 
 
-class VRaySocket():
+class MySocket():
     socket  = None
     address = "localhost"
     port    = 4368
 
-
     def __init__(self, address):
         self.address = address
-
 
     def __init__(self):
         pass
 
-
     def __del__(self):
         self.disconnect()
-
 
     def connect(self):
         try:
@@ -58,19 +53,16 @@ class VRaySocket():
 
         return None
 
-
     def isconnected(self):
         if self.socket is not None:
             return True
         return False
-
 
     def disconnect(self):
         if self.socket is None:
             return
         self.socket.close()
         self.socket = None
-
 
     def send(self, cmd, result=True):
         if self.socket is None:
@@ -81,7 +73,6 @@ class VRaySocket():
         self.socket.send(bytes(cmd+'\0', 'ascii'))
 
         return None
-
 
     def recv(self, size):
         if self.socket is None:
@@ -95,3 +86,6 @@ class VRaySocket():
         except:
             pass
         return b
+
+
+VRaySocket = MySocket()

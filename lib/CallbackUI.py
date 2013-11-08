@@ -24,6 +24,25 @@
 
 import bpy
 
+from .VRayStream import VRayStream
+from .           import utils as LibUtils
+
 
 def UpdateWorldHorizonColor(self, context):
-	pass
+    pass
+
+
+def UpdateRT(self, context):
+    if not context.active_object:
+        return
+
+    pluginName = LibUtils.GetObjectName(context.active_object)
+
+    for prop in self.bl_rna.properties:
+        attrName = prop.identifier
+
+        value = LibUtils.FormatValue(getattr(self, attrName))
+
+        VRayStream.sendAttribute(pluginName, attrName, value, value)
+
+    VRayStream.commit()

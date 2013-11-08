@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb25.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsRTEngine'
 NAME = 'Realtime Engine Settings'
@@ -80,7 +83,8 @@ PluginParams = (
         'attr' : 'stereo_eye_distance',
         'desc' : "Distance between the two cameras for stereo mode",
         'type' : 'FLOAT',
-        'default' : 6.5,
+        'precision' : 4,
+        'default' : 0.065,
     },
     {
         'attr' : 'stereo_focus',
@@ -236,3 +240,13 @@ PluginWidget = """
     }
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+
+    overrideParams.update({
+        'noise_threshold' : 0.0 if scene.render.engine == 'VRAY_RENDER_RT' else propGroup.noise_threshold,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

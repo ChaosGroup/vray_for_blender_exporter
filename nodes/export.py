@@ -405,8 +405,9 @@ def WriteVRayMaterialNodeTree(bus, ntree, force=False):
 
     # Check global material override
     #
-    if bus['material_override'] is not None and outputNode.dontOverride == False:
-        return bus['material_override']
+    if 'material_override' in bus:
+        if bus['material_override'] is not None and outputNode.dontOverride == False:
+            return bus['material_override']
     
     # Check connection
     #

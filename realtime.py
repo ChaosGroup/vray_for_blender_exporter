@@ -22,79 +22,94 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import math
-import os
-import string
-import socket
-import sys
-import tempfile
-import time
-
 import bpy
-import mathutils
 
 from bpy.app.handlers import persistent
 
-from vb25         import process, utils, render
-from vb25.lib     import VRayProcess, VRaySocket
-from vb25.lib     import utils as LibUtils
-from vb25.debug   import Debug
-from vb25.plugins import PLUGINS
-from vb25.process import is_running
-from vb25.nodes   import export as NodeExport
+from vb25.plugins import PLUGINS_ID
 
+from vb25.nodes import export as NodeExport
+from vb25.debug import Debug
 
-# Objects count
-# Used to detect if object was added or removed
-# and call full scene reload
-OB_COUNT = 0
+from vb25.lib.VRayStream import VRayStream
+from vb25.lib import utils as LibUtils
+from vb25.lib import ExportUtils
 
-# Scene file path
-SCE_FILE = ""
+from vb25 import utils
+from vb25 import export
 
 
 @persistent
-def scene_update_post(scene):
-    global OB_COUNT
-    global SCE_FILE
-
-    if not (bpy.data.groups.is_updated or
-            bpy.data.node_groups.is_updated or
-            bpy.data.objects.is_updated or
+def scene_update_post(scene, context=None, is_viewport=True):
+    if not (bpy.data.node_groups.is_updated or
+            bpy.data.lamps.is_updated or
+            bpy.data.cameras.is_updated or
             bpy.data.scenes.is_updated or
-            bpy.data.actions.is_updated):
+            bpy.data.objects.is_updated):
         return
 
     if not scene.render.engine == 'VRAY_RENDER_RT':
         return
 
-    if not scene.vray.RTEngine.interactive:
+    if not VRayStream.process.is_running():
         return
 
     Debug("scene_update_post()", msgType='ERROR')
 
-    bus = {}
-    bus['mode'] = 'SOCKET'
-    bus['volumes'] = set()
-    bus['context'] = {}
-    bus['cache'] = {
-        'plugins' : set(),
-        'mesh'    : set(),
-        'nodes'   : set(),
+    VRayStream.setMode('SOCKET')
+
+    bus = {
+        # Data exporter
+        # Refactor this if needed
+        'output' : VRayStream,
+
+        # We always need to access scene data
+        'scene' : scene,
+
+        # Current frame
+        'frame' : scene.frame_current,
+
+        # Active camera
+        'camera' : scene.camera,
+
+        # We will override some params in case of preview
+        'preview' : False,
+
+        # Set of environment effects objects
+        'volumes' : set(),
+
+        # Set of fog gizmos, to exclude from 'Node' creation
+        'gizmos' : set(),
+
+        # Prevents export data duplication
+        'cache' : {
+            'plugins' : set(),
+            'mesh'    : set(),
+            'nodes'   : set(),
+        },
+
+        # We need to know render engine type
+        'engine' : 'VRAY_RENDER_RT',
+
+        # Some storage
+        'context' : {},
+
+        # Fail safe defaults
+        'defaults' : {
+            'brdf' : "BRDFNOBRDFISSET",
+            'material' : "MANOMATERIALISSET",
+            'texture' : "TENOTEXTUREIESSET",
+            'uvwgen' : "DEFAULTUVWC",
+            'blend' : "TEDefaultBlend",
+        },
+
+        'node' : {},
+
+        'is_viewport' : is_viewport,
+        'bContext' : context,
     }
 
-    tag_reload = False
-    ob_count   = len(bpy.data.objects)
-
-    if OB_COUNT != ob_count:
-        OB_COUNT   = ob_count
-        tag_reload = True
-
-    if tag_reload and SCE_FILE:
-        Debug("Reloading scene from *.vrscene files...", msgType='INFO')
-        export_scene(scene, 'VRAY_UPDATE_CALL')
-        process.reload_scene(SCE_FILE)
-        return
+    VRayScene = scene.vray
 
     if bpy.data.node_groups.is_updated:
         for ntree in bpy.data.node_groups:
@@ -104,31 +119,51 @@ def scene_update_post(scene):
             if ntree.bl_idname in {'VRayNodeTreeMaterial'}:
                 NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
 
+        VRayStream.commit()
+
     if bpy.data.objects.is_updated:
-        cmd_socket = VRaySocket()
+        for ob in export.GetObjects(bus, checkUpdated=True):
+            bus['node'] = {
+                'object' : ob,
+                'visible' : ob,
+                'base' : ob,
+                'dupli' : {},
+                'particle' : {},
+            }
 
-        for ob in bpy.data.objects:
-            if ob.type in {'EMPTY'}:
-                continue
+            if ob.type == 'LAMP':
+                export.write_lamp(bus)
+            elif ob.type == 'EMPTY':
+                pass
+            elif ob.type == 'CAMERA':
+                VRayCamera = ob.data.vray
 
-            if ob.is_updated or ob.data.is_updated:
-                if ob.type == 'CAMERA':
-                    VRayCamera     = ob.data.vray
-                    CameraPhysical = VRayCamera.CameraPhysical
+                for pluginName in {'RenderView', 'SettingsCamera', 'CameraPhysical'}:
+                    pluginModule = PLUGINS_ID[pluginName]
+                    propGroup = getattr(VRayCamera, pluginName)
 
-                    if CameraPhysical.use:
-                        cmd_socket.send("set PhysicalCamera.ISO=%.3f" % CameraPhysical.ISO)
-                        cmd_socket.send("set PhysicalCamera.fov=%.3f" % ob.data.angle)
+                    overrideParams = {}
 
-                    cmd_socket.send("set CameraView.use_scene_offset=0")
-                    cmd_socket.send("set CameraView.fov=%.3f" % ob.data.angle)
-                    cmd_socket.send("set CameraView.transform=%s" % (utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+                    ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+            else:
+                pluginName = utils.get_name(ob, prefix='OB')
 
-            if ob.is_updated:
-                cmd_socket.send("set %s.transform=%s" % (LibUtils.GetObjectName(ob), utils.transform(ob.matrix_world).replace(" ","").replace("\n","").replace("\t","")))
+                VRayStream.set('OBJECT', 'Node', pluginName)
+                VRayStream.writeAttibute('transform', LibUtils.FormatValue(ob.matrix_world))
 
-        cmd_socket.send("render")
-        cmd_socket.disconnect()
+        VRayStream.commit()
+
+    for pluginName in {'SettingsRTEngine'}:
+        pluginModule = PLUGINS_ID[pluginName]
+        propGroup = getattr(VRayScene, pluginName)
+
+        overrideParams = {}
+
+        ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+
+    PLUGINS_ID['SettingsEnvironment'].write(bus)
+
+    VRayStream.commit()
 
 
 def register():

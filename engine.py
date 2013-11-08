@@ -23,9 +23,12 @@
 #
 
 import bpy
+import bgl
 
-from vb25 import export
-from vb25 import realtime
+from . import export
+from . import debug
+
+from realtime import scene_update_post
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -33,10 +36,15 @@ class VRayRenderer(bpy.types.RenderEngine):
     bl_label       = "V-Ray"
     bl_use_preview =  False
 
+    def update(self, data, scene):
+        debug.Debug("VRayRenderer::update()")
+
+        export.Export(data, scene, self.bl_idname)
+
     def render(self, scene):
-        err = render.render(self, scene)
-        if err is not None:
-            self.report({'ERROR'}, err)
+        debug.Debug("VRayRenderer::render()")
+
+        export.Run(scene, self.bl_idname)
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):
@@ -44,15 +52,25 @@ class VRayRendererPreview(bpy.types.RenderEngine):
     bl_label       = "V-Ray (With Material Preview)"
     bl_use_preview = True
 
-    def render(self, scene):
-        if scene.name == "preview":
+    def update(self, data, scene):
+        debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
+
+        if self.is_preview:
             if scene.render.resolution_x < 64:
+                # Don't render icons
                 return
-            render.render(self, scene, preview=True)
-        else:
-            err = render.render(self, scene)
-            if err is not None:
-                self.report({'ERROR'}, err)
+
+        export.Export(data, scene, self.bl_idname, self.is_preview)
+
+    def render(self, scene):
+        debug.Debug("VRayRendererPreview::render(is_preview=%i)" % self.is_preview)
+
+        if self.is_preview:
+            if scene.render.resolution_x < 64:
+                # Don't render icons
+                return
+
+        export.Run(scene, self.bl_idname)
 
 
 class VRayRendererRT(bpy.types.RenderEngine):
@@ -60,10 +78,26 @@ class VRayRendererRT(bpy.types.RenderEngine):
     bl_label       = "V-Ray Realtime"
     bl_use_preview =  False
 
+    def view_update(self, context):
+        # debug.Debug("VRayRendererRT::view_update()", msgType='ERROR')
+        # scene_update_post(context.scene, context=context, is_viewport=True)
+        pass
+
+    def view_draw(self, context):
+        pass
+
+    def update(self, data, scene):
+        debug.Debug("VRayRendererRT::update()")
+
+        # Export scene to the vrscene files
+        # Realime update will be done in 'scene_update_post'
+        #
+        export.Export(data, scene, self.bl_idname)
+
     def render(self, scene):
-        err = render.render(self, scene)
-        if err is not None:
-            self.report({'ERROR'}, err)
+        debug.Debug("VRayRendererRT::render()")
+
+        export.Run(scene, self.bl_idname)
 
 
 def GetRegClasses():

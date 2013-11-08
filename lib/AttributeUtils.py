@@ -30,6 +30,8 @@ from pynodes_framework import idref
 
 from vb25.debug import Debug, PrintDict
 
+from . import CallbackUI
+
 
 PluginTypes = {
     'BRDF',
@@ -148,6 +150,7 @@ def GenerateAttribute(classMembers, attrDesc):
         'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
+        # 'update'      : CallbackUI.UpdateRT,
     }
 
     if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
@@ -189,7 +192,7 @@ def GenerateAttribute(classMembers, attrDesc):
             attrArgs['subtype'] = 'TRANSLATION'
 
     elif attrDesc['type'] in {'FLOAT', 'FLOAT_TEXTURE'}:
-        pass
+        attrArgs['precision'] = attrDesc.get('precision', 3)
 
     elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
         pass

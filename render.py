@@ -43,8 +43,6 @@ from vb25.lib     import ExportUtils
 from vb25.nodes   import export as NodesExport
 from vb25.utils   import *
 
-from vb25.lib.VRayProcess import MyProcess
-
 
  ######  ######## ######## ######## #### ##    ##  ######    ######
 ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ##
@@ -53,30 +51,6 @@ from vb25.lib.VRayProcess import MyProcess
       ## ##          ##       ##     ##  ##  #### ##    ##        ##
 ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
  ######  ########    ##       ##    #### ##    ##  ######    ######
-
-# TODO: Export preview / draft settings trough plugin parameter override
-#
-# bus['files']['scene'].write("\nSettingsDMCSampler {")
-# bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
-# bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
-# bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
-# bus['files']['scene'].write("\n}\n")
-# bus['files']['scene'].write("\nSettingsOptions {")
-# bus['files']['scene'].write("\n\tmtl_limitDepth=1;")
-# bus['files']['scene'].write("\n\tmtl_maxDepth=1;")
-# bus['files']['scene'].write("\n\tmtl_transpMaxLevels=10;")
-# bus['files']['scene'].write("\n\tmtl_transpCutoff=0.1;")
-# bus['files']['scene'].write("\n\tmtl_glossy=1;")
-# bus['files']['scene'].write("\n\tmisc_lowThreadPriority=1;")
-# bus['files']['scene'].write("\n}\n")
-
-# # TODO: Try using progressive sampler here and restrict render time
-# #
-# bus['files']['scene'].write("\nSettingsImageSampler {")
-# bus['files']['scene'].write("\n\ttype=0;")
-# bus['files']['scene'].write("\n\tfixed_subdivs=1;")
-# bus['files']['scene'].write("\n}\n")
-
 
 def write_settings(bus):
     scene = bus['scene']
@@ -150,7 +124,7 @@ def write_settings(bus):
                 continue
 
             ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
-
+    
     # if VRayExporter.draft:
     #     bus['files']['scene'].write("\n")
     #     bus['files']['scene'].write(get_vrscene_template("draft.vrscene"))
@@ -1069,7 +1043,6 @@ def init_bus(engine, scene, preview=False):
 
     bus = {}
     bus['mode'] = 'VRSCENE'
-    bus['plugins'] = PLUGINS
     bus['scene']   = scene
     bus['preview'] = preview
     bus['files']     = {}

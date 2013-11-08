@@ -143,6 +143,6 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     
     # To exclude object from Node creation
     #
-    bus['object_exclude'].add(domainObject.name)
+    bus['gizmos'].add(domainObject.name)
 
     return pluginName

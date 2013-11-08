@@ -166,6 +166,12 @@ def FormatValue(t, subtype=None, quotes=False):
     return t
 
 
+def AnimValue(frame, value, quotes=False):
+    val = FormatValue(value, quotes=quotes)
+    
+    return "interpolate((%i,%s))" % (frame, val)
+
+
 # Return animatable value in .vrscene format
 def AnimatedValue(scene, value, quotes=False):
     VRayScene    = scene.vray

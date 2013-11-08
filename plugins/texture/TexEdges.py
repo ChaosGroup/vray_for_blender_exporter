@@ -22,7 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
+from vb25.lib import ExportUtils
 
 
 TYPE = 'TEXTURE'
@@ -107,8 +107,8 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.upate({
-        'world_width' : mappedParams['pixel_width'],
+    overrideParams.update({
+        'world_width' : overrideParams['pixel_width'],
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

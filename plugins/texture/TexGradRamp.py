@@ -161,6 +161,8 @@ PluginWidget = """
         ]
     },
 
+    {   "layout" : "SEPARATOR" },
+
     {   "layout" : "SPLIT",
         "splits" : [
             {   "layout" : "COLUMN",

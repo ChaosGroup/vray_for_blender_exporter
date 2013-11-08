@@ -365,8 +365,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         'focus_distance' : focus_distance,
         'lens_shift'     : get_lens_shift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 
-        'horizontal_offset' : -ca.data.shift_x,
-        'vertical_offset'   : -ca.data.shift_y,
+        'horizontal_offset' : -camera.data.shift_x,
+        'vertical_offset'   : -camera.data.shift_y,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb25.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsOutput'
 NAME = 'Output'
@@ -288,8 +291,34 @@ PluginWidget = """
 ]}
 """
 
-# wx= int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
-# wy= int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene  = bus['scene']
+
+    VRayScene = scene.vray
+
+    img_width = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
+    img_height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
+    
+    if VRayScene.RTEngine.enabled or scene.render.engine == 'VRAY_RENDER_RT':
+        if VRayScene.SettingsRTEngine.stereo_mode:
+            img_width *= 2.0
+
+    overrideParams.update({
+        'img_width'  : img_width,
+        'img_height' : img_height,
+        'bmp_width'  : img_width,
+        'bmp_height' : img_height,
+        'rgn_width'  : img_width,
+        'rgn_height' : img_height,
+        'r_width'    : img_width,
+        'r_height'   : img_height,
+
+        'img_file' : "",
+        'img_dir' : "",
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
 
 # ofile.write("\nSettingsOutput SettingsOutput {")
 # if VRayExporter.auto_save_render:

@@ -23,13 +23,17 @@
 #
 
 # Wrapper for files and socket communication
+import mathutils
 
 import datetime
 import os
 import sys
 
-from .VRaySocket import VRaySocket
 from vb25.debug import Debug
+from vb25       import utils
+
+from .            import utils as LibUtils
+from .VRayProcess import VRayProcess
 
 
 PluginTypeToFile = {
@@ -50,41 +54,73 @@ PluginTypeToFile = {
 
 
 class VRayExporter():
-    # Paths
+    # Export directory
     exportDir = None
+
+    # *.vrscene files dict
+    files = None
 
     # Filename prefix
     baseName = None
 
-    # Destination
-    files = None
-    socket = None
+    # Whether to use unique prefix
+    useBaseName = None
 
-    # Write particular plugin types to correspondent files  
+    # Write particular plugin types to the correspondent file
     separateFiles = None
 
-    # If overwrite geometry (used for manual mesh export)
+    # If to overwrite geometry
     overwriteGeometry = None
     drSettings = None
 
-    # Currently processes plugin
+    # Currently processed plugin
     pluginType = None
     pluginID   = None
     pluginName = None
 
     # Work mode: 'VRSCENE', 'SOCKET', 'NETWORK'
     mode = None
+    animation = False
+    frame = None
+
+    # V-Ray Standalone process
+    autorun = None
+    process = None
+
+    paramCache = None
 
     def __init__(self):
-        pass
+        self.baseName = "scene"
+        self.useBaseName = False
+        self.separateFiles = False
+        self.overwriteGeometry = True
+
+        self.mode = 'VRSCENE'
+        self.animation = False
+        self.frame = 1.0
+
+        self.autorun = True
+        self.process = VRayProcess
+
+        self.paramCache = {}
 
     def __del__(self):
-        self.close()
+        self.closeFiles()
 
-    def init(self, mode=None, exportDir=None, baseName=None, separateFiles=True, overwriteGeometry=True, drSettings=None):
-        self.mode = mode
+        if self.process is not None:
+            self.process.kill()
+
+    ######## #### ##       ########  ######  
+    ##        ##  ##       ##       ##    ## 
+    ##        ##  ##       ##       ##       
+    ######    ##  ##       ######    ######  
+    ##        ##  ##       ##             ## 
+    ##        ##  ##       ##       ##    ## 
+    ##       #### ######## ########  ######  
+
+    def initFiles(self, exportDir=None, baseName=None, separateFiles=True, overwriteGeometry=True, drSettings=None):
         self.exportDir = exportDir
-        self.baseName = baseName
+        self.baseName = baseName if self.useBaseName else "scene"
         self.separateFiles = separateFiles
         self.overwriteGeometry = overwriteGeometry
         self.drSettings = drSettings
@@ -116,16 +152,43 @@ class VRayExporter():
                 self.files[fileType].write("// V-Ray For Blender\n")
                 self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
 
-        elif self.mode in {'SOCKET'}:
-            self.socket = VRaySocket()
+    def writeIncludes(self):
+        if self.files is None:
+            return
+
+        mainFile = self.files['scene']
+
+        if self.separateFiles:
+            for fileType in self.files:
+                if fileType == 'scene':
+                    continue
+                f = self.files[fileType]
+                mainFile.write('\n#include "%s"' % os.path.basename(f.name))
+            mainFile.write('\n')
+
+    def closeFiles(self):
+        # Could be if exporter wasn't used
+        if self.files is None:
+            return
+
+        self.writeIncludes()
+
+        for fileType in self.files:
+            self.files[fileType].close()
+
+
+    ######## ##     ## ########   #######  ########  ######## 
+    ##        ##   ##  ##     ## ##     ## ##     ##    ##    
+    ##         ## ##   ##     ## ##     ## ##     ##    ##    
+    ######      ###    ########  ##     ## ########     ##    
+    ##         ## ##   ##        ##     ## ##   ##      ##    
+    ##        ##   ##  ##        ##     ## ##    ##     ##    
+    ######## ##     ## ##         #######  ##     ##    ##    
 
     def set(self, pluginType, pluginID, pluginName):
         self.pluginType = pluginType
         self.pluginID   = pluginID
         self.pluginName = pluginName
-
-        if self.mode in {'SOCKET', 'NETWORK'}:
-            self.socket.connect()
 
     def writeHeader(self):
         if self.mode not in {'VRSCENE'}:
@@ -139,50 +202,81 @@ class VRayExporter():
         output = self.getOutputFile()
         output.write("\n}\n")
 
-    # Write data to a respective file or transfer data
+    def getCacheValue(self, pluginName, attribute):
+        if pluginName not in self.paramCache:
+            return None
+        if attribute not in self.paramCache[pluginName]:
+            return None
+        return self.paramCache[pluginName][attribute]
+
+    def setCacheValue(self, pluginName, attribute, value):
+        if pluginName not in self.paramCache:
+            self.paramCache[pluginName] = {}
+        self.paramCache[pluginName][attribute] = value
+
+    def isCachedValue(self, pluginName, attribute, value):
+        if value == self.getCacheValue(pluginName, attribute):
+            return True
+        return False
+
+    def sendAttribute(self, pluginName, attibute, cValue, value):
+        if not self.isCachedValue(pluginName, attibute, cValue):
+            # Update cache
+            self.setCacheValue(pluginName, attibute, cValue)
+            # Send value
+            self.process.socket.send("set %s.%s=%s" % (pluginName, attibute, value))
+
     def writeAttibute(self, attibute, value):
+        """
+        Writes data to a respective file or sends over socket
+        """
+        formatValue = None
+        if self.animation:
+            formatValue = LibUtils.AnimValue(self.frame, value)
+        else:
+            formatValue = LibUtils.FormatValue(value)
+        valueToCache = LibUtils.FormatValue(value)
+
         if self.mode in {'SOCKET', 'NETWORK'}:
-            self.socket.send("set %s.%s=%s" % (self.pluginName, attibute, value))
+            self.sendAttribute(self.pluginName, attibute, valueToCache, formatValue)
         else:
             o = self.getOutputFile()
-            o.write("\n\t%s=%s;" % (attibute, value))
+            o.write("\n\t%s=%s;" % (attibute, formatValue))
 
-    # Write arbitary data
+            # Store param cache for RT
+            if self.pluginName not in self.paramCache:
+                self.paramCache[self.pluginName] = {}
+            self.paramCache[self.pluginName][attibute] = valueToCache
+
     def write(self, pluginType, data):
+        """
+        Writes arbitary data to file
+        """
         if self.mode not in {'VRSCENE'}:
             return
-        o = self.getFileByType(self, pluginType)
+        o = self.getFileByType(pluginType)
         o.write(data)
 
-    def load(self):
-        if self.mode not in {'SOCKET', 'NETWORK'}:
+
+     ######   #######  ##     ## ##     ##    ###    ##    ## ########   ######  
+    ##    ## ##     ## ###   ### ###   ###   ## ##   ###   ## ##     ## ##    ## 
+    ##       ##     ## #### #### #### ####  ##   ##  ####  ## ##     ## ##       
+    ##       ##     ## ## ### ## ## ### ## ##     ## ## ## ## ##     ##  ######  
+    ##       ##     ## ##     ## ##     ## ######### ##  #### ##     ##       ## 
+    ##    ## ##     ## ##     ## ##     ## ##     ## ##   ### ##     ## ##    ## 
+     ######   #######  ##     ## ##     ## ##     ## ##    ## ########   ######  
+
+    # Load / reload scene from file
+    def load(self, filepath=None):
+        print("VRayExporter::load")
+        if self.process.mode in {'NORMAL'}:
             return
-        self.socket.send("load %s" % self.getSceneFilepath())
+        self.process.load_scene()
 
     def commit(self):
-        if self.mode not in {'SOCKET', 'NETWORK'}:
-            return
-        self.socket.send("render")
-        self.socket.disconnect()
+        print("VRayExporter::commit")
 
-    # Will close files and write "includes" to the main scene file
-    def close(self):
-        if self.mode in {'SOCKET', 'NETWORK'}:
-            self.load()
-            self.commit()
-        else:
-            mainFile = self.files['scene']
-
-            if self.separateFiles:
-                for fileType in self.files:
-                    if fileType == 'scene':
-                        continue
-                    f = self.files[fileType]
-                    mainFile.write('\n#include "%s"' % os.path.basename(f.name))
-                mainFile.write('\n')
-
-            for fileType in self.files:
-                self.files[fileType].close()
+        self.process.render()
 
     def getFileByType(self, pluginType):
         fileType = PluginTypeToFile[pluginType]
@@ -201,6 +295,50 @@ class VRayExporter():
     def getSceneFilepath(self):
         sceneFile = self.getFileByType('MAIN')
         return sceneFile.name
+
+
+     ######  ######## ######## ##     ## ########  
+    ##    ## ##          ##    ##     ## ##     ## 
+    ##       ##          ##    ##     ## ##     ## 
+     ######  ######      ##    ##     ## ########  
+          ## ##          ##    ##     ## ##        
+    ##    ## ##          ##    ##     ## ##        
+     ######  ########    ##     #######  ##        
+
+    def setMode(self, mode):
+        print("VRayExporter::setMode")
+        self.mode = mode
+
+    def setProcessMode(self, mode='NORMAL'):
+        self.process.setMode(mode)
+
+
+    ########  ########   #######   ######  ########  ######   ######  
+    ##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ## 
+    ##     ## ##     ## ##     ## ##       ##       ##       ##       
+    ########  ########  ##     ## ##       ######    ######   ######  
+    ##        ##   ##   ##     ## ##       ##             ##       ## 
+    ##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ## 
+    ##        ##     ##  #######   ######  ########  ######   ######  
+
+    def initProcess(self, vrayExe):
+        print("VRayExporter::initProcess")
+
+        self.process.init(vrayExe)
+
+    def startProcess(self):
+        print("VRayExporter::startProcess")
+
+        self.process.setSceneFile(self.getSceneFilepath())
+        self.process.run()
+
+    def stopProcess(self):
+        print("VRayExporter::stopProcess")
+
+        self.process.kill()
+
+    def getPixels(self, bufSize):
+        return self.process.recieve_raw_image(bufSize)
 
 
 VRayStream = VRayExporter()

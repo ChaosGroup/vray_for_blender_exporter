@@ -184,6 +184,13 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = True
     )
 
+    checkAnimated = bpy.props.BoolProperty(
+        name        = "Check Animated",
+        description = "Check 'is_animated' attribute when exporting animation",
+        default     = False
+    )
+
+
     ########  ######## ##    ## ########  ######## ########      ######  ######## ######## ######## #### ##    ##  ######    ######  
     ##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ## 
     ##     ## ##       ####  ## ##     ## ##       ##     ##    ##       ##          ##       ##     ##  ####  ## ##        ##       

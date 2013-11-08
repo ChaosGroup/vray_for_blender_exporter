@@ -34,122 +34,126 @@ import time
 
 import vb25
 
-from vb25.lib import VRaySocket
+from .VRaySocket import VRaySocket
 
-if sys.platform != 'win32':
+if sys.platform not in {'win32'}:
     import fcntl
 
 
-class VRayProcess():
+class MyProcess():
     # Process management
-    process    = None
-    exit_ready = None
-    params     = None
-
-    # V-Ray command socket
-    socket = None
+    vrayExe = None
+    process = None
+    procExitReady = None
 
     # Command line arguments
-    sceneFile     = None
-    imgFile       = None
+    # Render Input
+    sceneFile = None
+    include = None
+
+    # Render Output
+    imgFile = None
+    noFrameNumbers = None
+
+    # VFB Display Options
+    display = None
+    autoclose = None
+    setfocus = None
+    displaySRGB = None
+    displayLUT = None
+    displayAspect = None
+
+    # Console Output
     showProgress  = None
     progressUseCR = None
     verboseLevel  = None
-    cmdMode       = None
 
-    scene = None
-    VRayScene    = None
-    VRayExporter = None
-    VRayDR       = None
+    # Woring mode: 'NORMAL', 'CMD', 'SPAWN'
+    mode = None
 
-    name = None
+    # Distributed Rendering
+    transferAssets = None
+
+    # Command socket
+    socket = None
+
+    # Misc
+    debug = None
 
     def __init__(self):
-        self.socket = VRaySocket()
+        self.debug = True
+        self.socket = VRaySocket
 
-        self.params = []
-
-        self.verboseLevel = '1'
-        self.showProgress = '2'
+        self.vrayExe = "vray"
+        self.verboseLevel = 1
+        self.showProgress = 1
+        self.cmdMode = 1
+        self.display = 1
 
     def __del__(self):
         self.kill()
 
-    def set_params(self, params=None):
-        self.VRayScene    = self.scene.vray
-        self.VRayExporter = self.VRayScene.Exporter
-        self.VRayDR       = self.VRayScene.VRayDR
+    def init(self, vrayExe):
+        self.vrayExe = vrayExe
 
-        self.params = []
-        self.params.append(vb25.utils.get_vray_standalone_path(self.scene))
+    def setSceneFile(self, sceneFile):
+        self.sceneFile = sceneFile
 
-        self.params.append('-sceneFile=')
-        self.params.append(self.sceneFile)
-        self.params.append('-imgFile=')
-        self.params.append(self.imgFile)
+    def setMode(self, mode):
+        if self.mode:
+            if self.mode != mode:
+                self.mode = mode
+                self.restart()
+        self.mode = mode
 
-        if self.VRayExporter.use_progress:
-            # We need only progress info
-            self.params.append('-verboseLevel=')
-            self.params.append('3')
+    def getCommandLine(self):
+        procArgs = [self.vrayExe]
+        procArgs.append('-verboseLevel=%i' % self.verboseLevel)
+        procArgs.append('-showProgress=%i' % self.showProgress)
+        procArgs.append('-display=%i' % self.display)
 
-            # Always show progress
-            self.params.append('-showProgress=')
-            self.params.append('2')
-
-            # Use log line breaks
-            self.params.append('-progressUseCR=')
-            self.params.append('0')
-
+        if self.mode in {'CMD', 'SPAWN'}:
+            procArgs.append('-cmdMode=1')
         else:
-            self.params.append('-verboseLevel=')
-            self.params.append(self.verboseLevel)
-            self.params.append('-showProgress=')
-            self.params.append(self.showProgress)
+            procArgs.append('-sceneFile=%s' % self.sceneFile)
+        
+        print("Command line: %s" % " ".join(procArgs))
 
-        # Setup command mode
-        # Disable VFB
-        self.params.append('-display=')
-        self.params.append('0')
-
-        # Enable command socket
-        self.params.append('-cmdMode=')
-        self.params.append('1')
-
-        if not self.VRayExporter.autorun:
-            vb25.utils.debug(self.scene, "Enable \"Autorun\" option to start V-Ray automatically after export.")
-            vb25.utils.debug(self.scene, "Command: %s" % ' '.join(self.params))
-
+        return procArgs
 
     def run(self):
-        if not self.VRayExporter.autorun:
+        print("VRayProcess::run")
+
+        if self.is_running():
             return
 
-        if self.VRayExporter.use_progress:
-            self.process = subprocess.Popen(self.params, bufsize=256, stdout=subprocess.PIPE)
+        procArgs = self.getCommandLine()
 
-            if vb25.utils.PLATFORM != 'win32':
+        if self.mode in {'SPAWN'}:
+            self.process = subprocess.Popen(procArgs, bufsize=256, stdout=subprocess.PIPE)
+
+            if sys.platform not in {'win32'}:
                 fd = self.process.stdout.fileno()
                 fl = fcntl.fcntl(fd, fcntl.F_GETFL)
                 fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
         else:
-            self.process = subprocess.Popen(self.params)
+            self.process = subprocess.Popen(procArgs)
 
-        self.exit_ready = False
+        time.sleep(1.0)
 
-        time.sleep(0.25)
         self.socket.connect()
 
 
-    def is_running(self):
-        if self.process is None:
-            return False
-        if self.process.poll() is None:
-            return True
-        return False
+    def restart(self):
+        print("VRayProcess::restart")
+
+        self.kill()
+        self.run()
 
 
     def kill(self):
+        print("VRayProcess::kill")
+
         self.quit()
 
         if self.is_running():
@@ -158,84 +162,88 @@ class VRayProcess():
         self.process = None
 
 
-    def get_progress(self):
-        msg  = None
-        prog = None
-
-        if not self.exit_ready:
-            if self.process and self.is_running():
-                stdout_lines = None
-                try:
-                    self.process.stdout.flush()
-                    stdout_lines = self.process.stdout.readlines(256)
-                except:
-                    pass
-
-                if stdout_lines:
-                    for stdout_line in stdout_lines:
-                        line = stdout_line.decode('ascii').strip()
-
-                        if self.VRayExporter.debug:
-                            print(line)
-
-                        if line.find("Building light cache") != -1:
-                            msg = "Light cache"
-                        elif line.find("Prepass") != -1:
-                            prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
-                            msg = "Irradiance map (prepass %s)" % (prepass_num)
-                        elif line.find("Rendering image") != -1:
-                            msg = "Rendering"
-                        elif line.find("Building caustics") != -1:
-                            msg = "Caustics"
-                        elif line.find("Frame took") != -1:
-                            self.exit_ready = True
-
-                        if msg is None:
-                            continue
-
-                        p_start = line.find("...: ") + 5
-                        p_end   = line.find("%")
-
-                        if p_start != -1 and p_end != -1 and p_end > p_start:
-                            p_str = line[p_start:p_end].strip()
-                            if len(p_str):
-                                prog = float(p_str) / 100.0
-                                break
-
-        return msg, prog
+    def is_running(self):
+        if self.mode in {'CMD', 'SPAWN'}:
+            if self.process is None:
+                return False
+            if self.process.poll() is None:
+                return True
+        return False
 
 
     def load_scene(self):
         if not self.sceneFile:
             vb25.utils.vb25.utils.debug(None, "Scene file is not set", error=True)
-            return 'Scene file is not set'
+            return
 
+        if self.mode not in {'CMD', 'SPAWN'}:
+            return
+
+        self.socket.send("stop")
+        self.socket.send("unload")
         self.socket.send("load %s" % self.sceneFile)
-
-        return None
 
 
     def unload_scene(self):
+        print("VRayProcess::unload_scene")
         self.socket.send("unload")
-        return None
+
+
+    def append_scene(self, filepath=None):
+        print("VRayProcess::append_scene")
+
+        scenePath = filepath
+        if scenePath is None:
+            scenePath = self.sceneFile
+        if not scenePath:
+            return
+
+        self.socket.send("append %s" % scenePath)
 
 
     def reload_scene(self):
+        """
+        Reload scene
+        """
+        print("VRayProcess::reload_scene")
+
         self.unload_scene()
         self.load_scene()
-        return None
 
 
     def render(self):
-        self.socket.send("render", result=False)
-        return None
+        """
+        Start rendering
+        """
+        print("VRayProcess::render")
+
+        if self.mode in {'CMD', 'SPAWN'}:
+            self.socket.send("render", result=False)
 
 
     def quit(self):
-        self.socket.send("stop")
-        self.socket.send("quit")
-        self.socket.disconnect()
-        return None
+        """
+        Close V-Ray
+        """
+        print("VRayProcess::quit")
+
+        if self.mode in {'CMD', 'SPAWN'}:
+            self.socket.send("stop")
+            self.socket.send("quit")
+            self.socket.disconnect()
+
+    def recieve_raw_image(self, bufSize):
+        self.socket.send("getRawImage", result=False)
+        
+        pixels = None
+
+        try:
+            pixels = self.socket.recv(bufSize)
+            print("Get %i bytes stream" % len(pixels))
+        except:
+            pass
+
+        return pixels
 
 
     def recieve_image(self, progressFile):
@@ -244,7 +252,7 @@ class VRayProcess():
         buff  = []
 
         if not self.is_running():
-            self.exit_ready = True
+            self.procRenderFinished = True
             return 'V-Ray is not running'
 
         # Request image
@@ -256,7 +264,7 @@ class VRayProcess():
         # Check if 'fail' recieved
         if jpeg_size_bytes == b'fail':
             self.socket.recv(3) # Read 'e', 'd', '\0'
-            self.exit_ready = True
+            self.procRenderFinished = True
             return 'getImage failed'
 
         try:
@@ -276,4 +284,55 @@ class VRayProcess():
         return None
 
 
-MyProcess = VRayProcess()
+    def get_progress(self):
+        msg  = None
+        prog = None
+
+        if self.mode not in {'SPAWN'}:
+            return {None, None}
+
+        if not self.is_running():
+            return {None, None}
+
+        stdout_lines = None
+        try:
+            self.process.stdout.flush()
+            stdout_lines = self.process.stdout.readlines(256)
+        except:
+            pass
+
+        if stdout_lines:
+            for stdout_line in stdout_lines:
+                line = stdout_line.decode('ascii').strip()
+
+                if self.debug:
+                    print(line)
+
+                if line.find("Building light cache") != -1:
+                    msg = "Light cache"
+                elif line.find("Prepass") != -1:
+                    prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
+                    msg = "Irradiance map (prepass %s)" % (prepass_num)
+                elif line.find("Rendering image") != -1:
+                    msg = "Rendering"
+                elif line.find("Building caustics") != -1:
+                    msg = "Caustics"
+                elif line.find("Frame took") != -1:
+                    self.procRenderFinished = True
+
+                if msg is None:
+                    continue
+
+                p_start = line.find("...: ") + 5
+                p_end   = line.find("%")
+
+                if p_start != -1 and p_end != -1 and p_end > p_start:
+                    p_str = line[p_start:p_end].strip()
+                    if len(p_str):
+                        prog = float(p_str) / 100.0
+                        break
+
+        return msg, prog
+
+
+VRayProcess = MyProcess()

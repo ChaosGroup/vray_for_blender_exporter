@@ -70,3 +70,12 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+# TODO: Resolve draft / preview
+#
+# bus['files']['scene'].write("\nSettingsDMCSampler {")
+# bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
+# bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
+# bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
+# bus['files']['scene'].write("\n}\n")

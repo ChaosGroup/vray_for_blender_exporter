@@ -147,7 +147,7 @@ LoadPlugins(PLUGINS, PLUGINS_ID)
 
 class VRayCamera(bpy.types.PropertyGroup):
 	use_camera_loop = bpy.props.BoolProperty(
-		name= "Use in \"Camera loop\"",
+		name= "Use In \"Camera loop\"",
 		description= "Use camera in \"Camera loop\"",
 		default= False
 	)
@@ -303,7 +303,13 @@ class VRayObject(bpy.types.PropertyGroup):
 		description = "Override with *.vrscene asset",
 		default     = False
 	)
-	
+
+	is_animated = bpy.props.BoolProperty(
+		name        = "Animated",
+		description = "Defines object as animated",
+		default     =  True
+	)
+
 	fade_radius = bpy.props.FloatProperty(
 		name = "Sphere Fade Radius",
 		description = "Sphere fade gizmo radius",

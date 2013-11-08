@@ -77,20 +77,10 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
             else:
                 value = '"%s"' % value
 
-        # TODO: If subtype is filepath then check if we need to copy it to the DR directory
+        # TODO: If 'subtype' is 'FILE_PATH' check if we need to copy it to the DR directory
+        # And check if we should do it here...
 
-        if bus['mode'] == 'VRSCENE':
-            attrValue = utils.AnimatedValue(scene, value)
-
-        if bus['mode'] == 'SOCKET' and vraySocket:
-            attrValue = utils.FormatValue(value)
-        
-        o.writeAttibute(attrName, attrValue)
-
-    # This will commmit RT changes
-    # NOTE: May be its better to commit everything at once not every plugin?
-    #
-    o.commit()
+        o.writeAttibute(attrName, value)
 
 
 # Use this function from inside the module's 'writeDatablock'

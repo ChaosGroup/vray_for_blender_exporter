@@ -27,8 +27,8 @@ import bpy
 
 TYPE = 'MATERIAL'
 ID   = 'MtlVRmat'
-NAME = "VisMat"
-DESC = "VisMat material"
+NAME = "VRmat"
+DESC = "VRmat material"
 
 PluginParams = (
     {
