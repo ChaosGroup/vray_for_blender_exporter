@@ -47,25 +47,25 @@ PluginParams = (
     },
     {
         'attr' : 'film_width',
-        'desc' : "film gate in mm",
+        'desc' : "Specifies the horizontal size of the film gate in milimeters",
         'type' : 'FLOAT',
         'default' : 36,
     },
     {
         'attr' : 'focal_length',
-        'desc' : "focal length in mm",
+        'desc' : "Specifies the equivalen focal length of the camera lens",
         'type' : 'FLOAT',
         'default' : 40,
     },
     {
         'attr' : 'zoom_factor',
-        'desc' : "zoom factor",
+        'desc' : "Zoom factor",
         'type' : 'FLOAT',
         'default' : 1,
     },
     {
         'attr' : 'distortion',
-        'desc' : "distortion",
+        'desc' : "Specifies the distortion coefficient for the camera lens",
         'type' : 'FLOAT',
         'default' : 0,
     },
@@ -83,44 +83,45 @@ PluginParams = (
     },
     {
         'attr' : 'f_number',
-        'desc' : "f-stop",
+        'name' : "F-Number",
+        'desc' : "Determines the width of the camera aperture and, indirectly, exposure",
         'type' : 'FLOAT',
         'default' : 8,
     },
     {
         'attr' : 'lens_shift',
-        'desc' : "lens shift",
+        'desc' : "Shift lenses for 2-point perspective",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'shutter_speed',
-        'desc' : "the shutter speed",
+        'desc' : "The shutter speed, in inverse seconds",
         'type' : 'FLOAT',
         'default' : 300,
     },
     {
         'attr' : 'shutter_angle',
-        'desc' : "shutter angle in degrees",
+        'desc' : "Shutter angle (in degrees)",
         'type' : 'FLOAT',
         'default' : 180,
     },
     {
         'attr' : 'shutter_offset',
-        'desc' : "shutter offset in degrees",
+        'desc' : "Shutter offset (in degress)",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'latency',
-        'desc' : "",
+        'desc' : "CCD matrix latency, in seconds",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'ISO',
         'name' : "ISO",
-        'desc' : "",
+        'desc' : "The film power (i.e. sensitivity)",
         'type' : 'FLOAT',
         'default' : 200,
     },
@@ -150,19 +151,19 @@ PluginParams = (
     },
     {
         'attr' : 'dof_display_threshold',
-        'desc' : "display threshold for depth-of-field",
+        'desc' : "Display threshold for depth-of-field",
         'type' : 'FLOAT',
         'default' : 0.001,
     },
     {
         'attr' : 'exposure',
-        'desc' : "1- exposure color correction; 0-disable exposure color correction",
+        'desc' : "When this option is on, the F-Number, Shutter Speed and ISO settings will affect the image brightness",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'white_balance',
-        'desc' : "",
+        'desc' : "White balance",
         'type' : 'COLOR',
         'default' : (1, 1, 1),
     },
@@ -189,37 +190,39 @@ PluginParams = (
     },
     {
         'attr' : 'blades_rotation',
-        'desc' : "blade rotation in radians",
+        'desc' : "Defines the rotation of the blades (in radians)",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'center_bias',
-        'desc' : "center bias",
+        'desc' : "Defines a bias shape for the bokeh effects",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'anisotropy',
-        'desc' : "Bokeh anisotropy",
+        'desc' : "Allows stretching of the bokeh effect horizontally or vertically to simulate anamorphic lenses",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'use_dof',
-        'desc' : "",
+        'name' : "Use DOF",
+        'desc' : "Turns on depth of field sampling",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'use_moblur',
-        'desc' : "",
+        'name' : "Use Motion Blur",
+        'desc' : "Turns on motion blur sampling",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'subdivs',
-        'desc' : "",
+        'desc' : "The number of samples for calculating depth of field and/or motion blur",
         'type' : 'INT',
         'default' : 6,
     },
@@ -237,7 +240,7 @@ PluginParams = (
     },
     {
         'attr' : 'specify_fov',
-        'desc' : "true to use explicit field of view and false to use the focal length",
+        'desc' : "Use field of view instead of use the focal length, film width, scale etc",
         'type' : 'BOOL',
         'default' : False,
     },
@@ -362,7 +365,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         focus_distance = 200.0 # XXX: Check this, 'focus_distance' was always buggy...
 
     overrideParams.update({
-        # FOV is setted up view 'RenderView' plugin
+        # Setup FOV in 'RenderView' plugin
         # 'fov' : fov,
         
         'focus_distance' : focus_distance,
@@ -374,248 +377,6 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-
-#     CameraPhysical.specify_fov= BoolProperty(
-#         name= "Use FOV",
-#         description= "Use field of view instead of use the focal length, film width, scale etc",
-#         default= True
-#     )
-
-#     CameraPhysical.f_number= FloatProperty(
-#         name= "F-number",
-#         description= "Determines the width of the camera aperture and, indirectly, exposure",
-#         min=0.0, max=1000.0,
-#         soft_min=0.0, soft_max=10.0,
-#         default= 8.0
-#     )
-
-#     CameraPhysical.white_balance= FloatVectorProperty(
-#         name= "White balance",
-#         description= "White balance",
-#         default= (1.0, 1.0, 1.0),
-#         min= 0.0,
-#         max= 1.0,
-#         soft_min= 0.0,
-#         soft_max= 1.0,
-#         step= 3,
-#         precision= 3,
-#         options= {'ANIMATABLE'},
-#         subtype= 'COLOR',
-#         size= 3
-#     )
-
-#     CameraPhysical.latency= FloatProperty(
-#         name="Latency",
-#         description="CCD matrix latency, in seconds",  # for video camera
-#         min=0.0, max=100.0,
-#         soft_min=0.0, soft_max=10.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.lens_shift= FloatProperty(
-#         name="Lens shift",
-#         description="Shift lenses for 2-point perspective",
-#         min=-1.0,
-#         max=1.0,
-#         soft_min=-1.0,
-#         soft_max=1.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.ISO= FloatProperty(
-#         name="ISO",
-#         description="The film power (i.e. sensitivity)",
-#         min=0.0,
-#         max=10000.0,
-#         soft_min=0.0,
-#         soft_max=100.0,
-#         default=200.0
-#     )
-
-#     CameraPhysical.shutter_speed= FloatProperty(
-#         name="Shutter speed",
-#         description="The shutter speed, in inverse seconds", # for still camera
-#         min= 1.0,
-#         max= 10000.0,
-#         soft_min=0.0,
-#         soft_max=1000.0,
-#         default=300.0
-#     )
-
-#     CameraPhysical.focal_length= FloatProperty(
-#         name="Focal length",
-#         description="Specifies the equivalen focal length of the camera lens",
-#         min=0.0,
-#         max=200.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=40.0
-#     )
-
-#     CameraPhysical.dof_display_threshold= FloatProperty(
-#         name="DOF threshold",
-#         description="Display threshold for depth-of-field",
-#         min=0.0,
-#         max=1.0,
-#         soft_min=0.0,
-#         soft_max=1.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.distortion= FloatProperty(
-#         name="Distortion",
-#         description="Specifies the distortion coefficient for the camera lens",
-#         min=-1.0,
-#         max=1.0,
-#         soft_min=0.0,
-#         soft_max=1.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.distortion_type= IntProperty(
-#         name="Distortion type",
-#         description="",
-#         min=0,
-#         max=2,
-#         default=0
-#     )
-
-#     CameraPhysical.zoom_factor= FloatProperty(
-#         name="Zoom factor",
-#         description="Zoom factor",
-#         min=0.0,
-#         max=10.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=1.0
-#     )
-
-#     CameraPhysical.film_width= FloatProperty(
-#         name="Film width",
-#         description="Specifies the horizontal size of the film gate in milimeters",
-#         min=0.0,
-#         max=200.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=36.0
-#     )
-
-#     CameraPhysical.vignetting= FloatProperty(
-#         name="Vignetting",
-#         description="The optical vignetting effect of real-world cameras",
-#         min=0.0,
-#         max=100.0,
-#         soft_min=0.0,
-#         soft_max=2.0,
-#         default=1.0
-#     )
-
-#     CameraPhysical.shutter_angle= FloatProperty(
-#         name="Shutter angle",
-#         description="Shutter angle (in degrees)", # for cinema camera
-#         min=0.0,
-#         max=1000.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=180.0
-#     )
-
-#     CameraPhysical.shutter_offset= FloatProperty(
-#         name="Shutter offset",
-#         description="Shutter offset (in degress)", # for cinema camera
-#         min=0.0,
-#         max=1000.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.exposure= BoolProperty(
-#         name="Exposure",
-#         description="When this option is on, the f-number, Shutter speed and ISO settings will affect the image brightness",
-#         default= True
-#     )
-
-#     CameraPhysical.guess_lens_shift= BoolProperty(
-#         name= "Auto lens shift",
-#         description= "Calculate lens shift automatically",
-#         default= False
-#     )
-
-#     CameraPhysical.type= EnumProperty(
-#         name="Type",
-#         description="The type of the physical camera",
-#         items=(
-#             ('STILL',     "Still",     ""),
-#             ('CINEMATIC', "Cinematic", ""),
-#             ('VIDEO',     "Video",     "")
-#         ),
-#         default= 'STILL'
-#     )
-
-#     CameraPhysical.blades_enable= BoolProperty(
-#         name="Bokeh effects",
-#         description="Defines the shape of the camera aperture",
-#         default= False
-#     )
-
-#     CameraPhysical.blades_num= IntProperty(
-#         name="Blades number",
-#         description="Number of blades",
-#         min=1,
-#         max=100,
-#         default=5
-#     )
-
-#     CameraPhysical.blades_rotation= FloatProperty(
-#         name="Blades rotation",
-#         description="Defines the rotation of the blades",
-#         min=0.0,
-#         max=360.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.center_bias= FloatProperty(
-#         name="Center bias",
-#         description="Defines a bias shape for the bokeh effects",
-#         min=0.0,
-#         max=100.0,
-#         soft_min=0.0,
-#         soft_max=10.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.anisotropy= FloatProperty(
-#         name="Anisotropy",
-#         description="Allows stretching of the bokeh effect horizontally or vertically to simulate anamorphic lenses",
-#         min=0.0,
-#         max=1.0,
-#         soft_min=0.0,
-#         soft_max=1.0,
-#         default=0.0
-#     )
-
-#     CameraPhysical.use_dof= BoolProperty(
-#         name="Depth of field",
-#         description="Turns on depth of field sampling",
-#         default= False
-#     )
-
-#     CameraPhysical.use_moblur= BoolProperty(
-#         name="Motion blur",
-#         description="Turns on motion blur sampling",
-#         default= False
-#     )
-
-#     CameraPhysical.subdivs= IntProperty(
-#         name="Subdivs",
-#         description="The number of samples for calculating depth of field and/or motion blur",
-#         min=1,
-#         max=100,
-#         default=6
-#     )
 
 # def write(bus):
 #     TYPE= {
