@@ -63,6 +63,7 @@ PluginParams = (
     },
     {
         'attr' : 'gi_depth',
+        'name' : "GI Depth",
         'desc' : "Maximum trace depth for GI",
         'type' : 'INT',
         'default' : 3,
@@ -99,6 +100,7 @@ PluginParams = (
     },
     {
         'attr' : 'opencl_texsize',
+        'name' : "OpenCL Tex Size",
         'desc' : "OpenCL Single Kernel maximum texture size - bigger textures are scaled to fit this size",
         'type' : 'INT',
         'default' : 512,
@@ -123,7 +125,10 @@ PluginParams = (
         'attr' : 'progressive_samples_per_pixel',
         'desc' : "Progressive increase for samples_per_pixel (from 1 to real value). Use this for faster feadback",
         'type' : 'INT',
-        'default' : 0,
+        'ui' : {
+            'min' : 1,
+        },
+        'default' : 1,
     },
     {
         'attr' : 'undersampling',

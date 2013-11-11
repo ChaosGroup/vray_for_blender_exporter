@@ -166,6 +166,8 @@ def gui(context, layout, VolumeVRayToon):
     col.prop(VolumeVRayToon, 'compensateExposure')
 
 
+# XXX: exclude lights
+#
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
     o     = bus['output']

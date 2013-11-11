@@ -22,17 +22,18 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# Wrapper for files and socket communication
 import mathutils
 
+import time
 import datetime
 import os
 import sys
 
-from vb25.debug import Debug
 from vb25       import utils
+from vb25.debug import Debug
 
 from .            import utils as LibUtils
+from .VRaySocket  import VRaySocket
 from .VRayProcess import VRayProcess
 
 
@@ -86,8 +87,13 @@ class VRayExporter():
     # V-Ray Standalone process
     autorun = None
     process = None
+    socket  = None
 
+    # Param cache
+    # Used to send only changed attributes
+    #
     paramCache = None
+    ntreeCache = None
 
     def __init__(self):
         self.baseName = "scene"
@@ -100,9 +106,11 @@ class VRayExporter():
         self.frame = 1.0
 
         self.autorun = True
-        self.process = VRayProcess
+        self.process = VRayProcess()
+        self.socket  = VRaySocket()
 
         self.paramCache = {}
+        self.ntreeCache = {}
 
     def __del__(self):
         self.closeFiles()
@@ -192,6 +200,9 @@ class VRayExporter():
 
     def writeHeader(self):
         if self.mode not in {'VRSCENE'}:
+            if self.pluginName not in self.paramCache:
+                self.newPlugin(self.pluginID, self.pluginName)
+                self.paramCache[self.pluginName] = {}
             return
         o = self.getOutputFile()
         o.write("\n%s %s {" % (self.pluginID, self.pluginName))
@@ -223,8 +234,9 @@ class VRayExporter():
         if not self.isCachedValue(pluginName, attibute, cValue):
             # Update cache
             self.setCacheValue(pluginName, attibute, cValue)
+
             # Send value
-            self.process.socket.send("set %s.%s=%s" % (pluginName, attibute, value))
+            self.socket.send("set %s.%s=%s" % (pluginName, attibute, value))
 
     def writeAttibute(self, attibute, value):
         """
@@ -257,27 +269,6 @@ class VRayExporter():
         o = self.getFileByType(pluginType)
         o.write(data)
 
-
-     ######   #######  ##     ## ##     ##    ###    ##    ## ########   ######  
-    ##    ## ##     ## ###   ### ###   ###   ## ##   ###   ## ##     ## ##    ## 
-    ##       ##     ## #### #### #### ####  ##   ##  ####  ## ##     ## ##       
-    ##       ##     ## ## ### ## ## ### ## ##     ## ## ## ## ##     ##  ######  
-    ##       ##     ## ##     ## ##     ## ######### ##  #### ##     ##       ## 
-    ##    ## ##     ## ##     ## ##     ## ##     ## ##   ### ##     ## ##    ## 
-     ######   #######  ##     ## ##     ## ##     ## ##    ## ########   ######  
-
-    # Load / reload scene from file
-    def load(self, filepath=None):
-        print("VRayExporter::load")
-        if self.process.mode in {'NORMAL'}:
-            return
-        self.process.load_scene()
-
-    def commit(self):
-        print("VRayExporter::commit")
-
-        self.process.render()
-
     def getFileByType(self, pluginType):
         fileType = PluginTypeToFile[pluginType]
         return self.files[fileType]
@@ -306,7 +297,7 @@ class VRayExporter():
      ######  ########    ##     #######  ##        
 
     def setMode(self, mode):
-        print("VRayExporter::setMode")
+        Debug("VRayExporter::setMode")
         self.mode = mode
 
     def setProcessMode(self, mode='NORMAL'):
@@ -322,23 +313,175 @@ class VRayExporter():
     ##        ##     ##  #######   ######  ########  ######   ######  
 
     def initProcess(self, vrayExe):
-        print("VRayExporter::initProcess")
+        Debug("VRayExporter::initProcess")
 
         self.process.init(vrayExe)
 
     def startProcess(self):
-        print("VRayExporter::startProcess")
+        Debug("VRayExporter::startProcess")
 
         self.process.setSceneFile(self.getSceneFilepath())
-        self.process.run()
+
+        # Check if some instance is already running
+        if self.socket.connect() is None:
+            self.reload_scene()
+            self.render()
+        else:
+            self.process.run()
+
+        self.socket.connect(force=True)
 
     def stopProcess(self):
-        print("VRayExporter::stopProcess")
+        Debug("VRayExporter::stopProcess")
 
+        self.quit()
         self.process.kill()
 
     def getPixels(self, bufSize):
-        return self.process.recieve_raw_image(bufSize)
+        return self.recieve_raw_image(bufSize)
+
+
+     ######   #######  ##     ## ##     ##    ###    ##    ## ########   ######  
+    ##    ## ##     ## ###   ### ###   ###   ## ##   ###   ## ##     ## ##    ## 
+    ##       ##     ## #### #### #### ####  ##   ##  ####  ## ##     ## ##       
+    ##       ##     ## ## ### ## ## ### ## ##     ## ## ## ## ##     ##  ######  
+    ##       ##     ## ##     ## ##     ## ######### ##  #### ##     ##       ## 
+    ##    ## ##     ## ##     ## ##     ## ##     ## ##   ### ##     ## ##    ## 
+     ######   #######  ##     ## ##     ## ##     ## ##    ## ########   ######  
+
+    # Load / reload scene from file
+    def load_scene(self):
+        """
+        Load new scene
+        """
+        if self.socket is None:
+            return
+        Debug("VRayExporter::load")
+
+        sceneFile = self.getSceneFilepath()
+        if not sceneFile:
+            Debug("Scene file is not set!", msgType=True)
+            return
+
+        self.socket.send("stop")
+        self.socket.send("unload")
+        self.socket.send("load %s" % sceneFile)
+
+    def unload_scene(self):
+        if self.socket is None:
+            return
+        Debug("VRayExporter::unload_scene")
+
+        self.socket.send("unload")
+
+    def reload_scene(self):
+        """
+        Reload scene
+        """
+        if self.socket is None:
+            return
+        Debug("VRayExporter::reload_scene")
+
+        self.unload_scene()
+        self.load_scene()
+
+    def append_scene(self, filepath=None):
+        if self.socket is None:
+            return
+        Debug("VRayExporter::append_scene")
+
+        scenePath = filepath
+        if scenePath is None:
+            scenePath = self.getSceneFilepath()
+        if not scenePath:
+            return
+
+        self.socket.send("append %s" % scenePath)
+
+    def render(self):
+        if self.socket is None:
+            return
+
+        Debug("VRayExporter::render")
+
+        self.socket.send("render", result=False)
+
+    def commit(self):
+        if self.socket is None:
+            return
+
+        Debug("VRayExporter::commit")
+
+        self.socket.send("commit", result=False)
+
+    def quit(self):
+        """
+        Close V-Ray
+        """
+        # NOTE: Do not check for socket existance here!
+        # This could be used to close running V-Ray instance
+        #
+        Debug("VRayExporter::quit")
+
+        self.socket.send("stop")
+        self.socket.send("unload")
+        self.socket.send("quit")
+        self.socket.send("quit")
+        self.socket.disconnect()
+
+    def newPlugin(self, pluginID, pluginName):
+        cmd = "new %s %s" % (pluginID, pluginName)
+        self.socket.send(cmd)
+
+    def recieve_raw_image(self, bufSize):
+        self.socket.send("getRawImage", result=False)
+        
+        pixels = None
+
+        try:
+            pixels = self.socket.recv(bufSize)
+            print("Get %i bytes stream" % len(pixels))
+        except:
+            pass
+
+        return pixels
+
+    def recieve_image(self, progressFile):
+        jpeg_image = None
+        jpeg_size  = 0
+        buff  = []
+
+        if not self.is_running():
+            self.procRenderFinished = True
+            return 'V-Ray is not running'
+
+        # Request image
+        self.socket.send("getImage 90 1", result=False)
+
+        # Read image stream size
+        jpeg_size_bytes = self.socket.recv(4)
+
+        # Check if 'fail' recieved
+        if jpeg_size_bytes == b'fail':
+            self.socket.recv(3) # Read 'e', 'd', '\0'
+            self.procRenderFinished = True
+            return 'getImage failed'
+
+        try:
+            # Get stream size in bytes
+            jpeg_size = struct.unpack("<L", jpeg_size_bytes)[0]
+
+            # print("JPEG stream size =%i"%(jpeg_size))
+
+            # Read JPEG stream
+            jpeg_image = self.socket.recv(jpeg_size)
+
+            # Write stream to file
+            open(progressFile, 'wb').write(jpeg_image)
+        except:
+            return 'JPEG stream recieve fail'
+
+        return None
 
 
 VRayStream = VRayExporter()

@@ -39,26 +39,38 @@ from vb25 import utils
 from vb25 import export
 
 
-@persistent
-def scene_update_post(scene, context=None, is_viewport=True):
-    if not (bpy.data.node_groups.is_updated or
-            bpy.data.lamps.is_updated or
-            bpy.data.cameras.is_updated or
-            bpy.data.scenes.is_updated or
-            bpy.data.objects.is_updated):
-        return
+def HashNodeTreeLinks(ntree):
+    addrSum = 0
+    for l in ntree.links:
+        addrSum += l.from_socket.as_pointer()
+        addrSum += l.to_socket.as_pointer()
+    return addrSum
 
-    if not scene.render.engine == 'VRAY_RENDER_RT':
-        return
 
-    if not VRayStream.process.is_running():
-        return
+def IsNtreeLinksUpdated(ntree, update=True):
+    cacheLinks = VRayStream.ntreeCache.get(ntree.name, 0)
+    newLinks   = HashNodeTreeLinks(ntree)
+    if cacheLinks != newLinks:
+        if update:
+            VRayStream.ntreeCache[ntree.name] = newLinks
+        return True
+    return False
 
-    Debug("scene_update_post()", msgType='ERROR')
 
-    VRayStream.setMode('SOCKET')
+def AreNtreesLinksUpdated():
+    # NOTE: Disable this by now...
+    return False
 
-    bus = {
+    for ntree in bpy.data.node_groups:
+        if IsNtreeLinksUpdated(ntree, update=False):
+            return True
+    return False
+
+
+def GetBus():
+    scene = bpy.context.scene
+
+    return {
         # Data exporter
         # Refactor this if needed
         'output' : VRayStream,
@@ -101,74 +113,166 @@ def scene_update_post(scene, context=None, is_viewport=True):
             'texture' : "TENOTEXTUREIESSET",
             'uvwgen' : "DEFAULTUVWC",
             'blend' : "TEDefaultBlend",
-        },
-
-        'node' : {},
-
-        'is_viewport' : is_viewport,
-        'bContext' : context,
+        }
     }
+
+
+@persistent
+def rt_scene_update_post(scene, context=None, is_viewport=True):
+    if not scene.render.engine == 'VRAY_RENDER_RT':
+        return
+
+    if not VRayStream.process.is_running():
+        return
+
+    nodeGroupsUpdated = (bpy.data.node_groups.is_updated or AreNtreesLinksUpdated())
+
+    if not (nodeGroupsUpdated or bpy.data.scenes.is_updated):
+        return
+
+    Debug("rt_scene_update_post()")
+
+    VRayStream.setMode('SOCKET')
+
+    bus = GetBus()
+
+    bus.update({
+        'bContext' : context,
+        'is_viewport' : is_viewport,
+    })
 
     VRayScene = scene.vray
 
-    if bpy.data.node_groups.is_updated:
+    if nodeGroupsUpdated:
         for ntree in bpy.data.node_groups:
-            if not ntree.is_updated or not ntree.is_updated_data:
-                continue
-
-            if ntree.bl_idname in {'VRayNodeTreeMaterial'}:
-                NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
+            if ntree.is_updated or IsNtreeLinksUpdated(ntree, True):
+                if ntree.bl_idname in {'VRayNodeTreeMaterial'}:
+                    NodeExport.WriteVRayMaterialNodeTree(bus, ntree)
 
         VRayStream.commit()
 
-    if bpy.data.objects.is_updated:
-        for ob in export.GetObjects(bus, checkUpdated=True):
-            bus['node'] = {
-                'object' : ob,
-                'visible' : ob,
-                'base' : ob,
-                'dupli' : {},
-                'particle' : {},
-            }
+    if bpy.data.scenes.is_updated:
+        for pluginName in {'SettingsRTEngine'}:
+            pluginModule = PLUGINS_ID[pluginName]
+            propGroup = getattr(VRayScene, pluginName)
 
-            if ob.type == 'LAMP':
-                export.write_lamp(bus)
-            elif ob.type == 'EMPTY':
-                pass
-            elif ob.type == 'CAMERA':
-                VRayCamera = ob.data.vray
+            overrideParams = {}
 
-                for pluginName in {'RenderView', 'SettingsCamera', 'CameraPhysical'}:
-                    pluginModule = PLUGINS_ID[pluginName]
-                    propGroup = getattr(VRayCamera, pluginName)
+            ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-                    overrideParams = {}
-
-                    ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
-            else:
-                pluginName = utils.get_name(ob, prefix='OB')
-
-                VRayStream.set('OBJECT', 'Node', pluginName)
-                VRayStream.writeAttibute('transform', LibUtils.FormatValue(ob.matrix_world))
+        PLUGINS_ID['SettingsEnvironment'].write(bus)
 
         VRayStream.commit()
 
-    for pluginName in {'SettingsRTEngine'}:
-        pluginModule = PLUGINS_ID[pluginName]
-        propGroup = getattr(VRayScene, pluginName)
 
-        overrideParams = {}
+@persistent
+def rt_object_update(ob):
+    if not VRayStream.process.is_running():
+        return
 
-        ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+    Debug("rt_object_update(%s)" % ob.name)
 
-    PLUGINS_ID['SettingsEnvironment'].write(bus)
+    VRayStream.setMode('SOCKET')
+
+    scene = bpy.context.scene
+
+    bus = GetBus()
+
+    bus.update({
+        'node' : {
+            'object' : ob,
+            'visible' : ob,
+            'base' : ob,
+            'dupli' : {},
+            'particle' : {},
+        },
+    })
+
+    if ob.type == 'EMPTY':
+        pass
+    elif ob.type == 'CAMERA':
+        VRayCamera = ob.data.vray
+
+        for pluginName in {'RenderView'}:
+            pluginModule = PLUGINS_ID[pluginName]
+            propGroup = getattr(VRayCamera, pluginName)
+
+            overrideParams = {}
+
+            ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+    else:
+        pluginName = LibUtils.GetObjectName(ob)
+
+        VRayStream.set('OBJECT', 'Node', pluginName)
+        VRayStream.writeAttibute('transform', LibUtils.FormatValue(ob.matrix_world))
 
     VRayStream.commit()
 
 
+@persistent
+def rt_object_data_update(ob):
+    if not VRayStream.process.is_running():
+        return
+
+    # TODO: update new mesh using 'append'
+    #
+    # if ob.type in GEOMETRY_TYPES:
+
+    if ob.type not in {'LAMP', 'CAMERA'}:
+        return
+
+    Debug("rt_object_data_update(%s)" % ob.name)
+
+    VRayStream.setMode('SOCKET')
+
+    bus = GetBus()
+
+    bus.update({
+        'node' : {
+            'object' : ob,
+            'visible' : ob,
+            'base' : ob,
+            'dupli' : {},
+            'particle' : {},
+        },
+    })
+
+    if ob.type == 'LAMP':
+        export.write_lamp(bus)
+    elif ob.type == 'CAMERA':
+        VRayCamera = ob.data.vray
+
+        for pluginName in {'RenderView', 'SettingsCamera', 'CameraPhysical'}:
+            pluginModule = PLUGINS_ID[pluginName]
+            propGroup = getattr(VRayCamera, pluginName)
+
+            overrideParams = {}
+
+            ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+
+    VRayStream.commit()
+
+
+def AddRTCallbacks():
+    # Transforms and general attributes
+    bpy.app.handlers.object_update.append(rt_object_update)
+
+    # Camera, Lamp settings are stored on data level
+    bpy.app.handlers.object_data_update.append(rt_object_data_update)
+
+    # Node trees, environment
+    bpy.app.handlers.scene_update_post.append(rt_scene_update_post)
+
+
+def RemoveRTCallbacks():
+    bpy.app.handlers.object_update.remove(rt_object_update)
+    bpy.app.handlers.object_data_update.remove(rt_object_data_update)
+    bpy.app.handlers.scene_update_post.remove(rt_scene_update_post)
+
+
 def register():
-    bpy.app.handlers.scene_update_post.append(scene_update_post)
+    pass
 
 
 def unregister():
-    bpy.app.handlers.scene_update_post.remove(scene_update_post)
+    RemoveRTCallbacks()

@@ -25,9 +25,12 @@
 # VRay Standalone communication socket
 
 import socket
+import time
+
+from vb25.debug import Debug
 
 
-class MySocket():
+class VRaySocket():
     socket  = None
     address = "localhost"
     port    = 4368
@@ -41,12 +44,22 @@ class MySocket():
     def __del__(self):
         self.disconnect()
 
-    def connect(self):
+    def connect(self, force=False):
+        if self.socket is not None:
+            return None
+
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.address, self.port))
         except socket.error:
             self.socket = None
+
+        if force and self.socket is None:
+            for i in range(100):
+                if self.socket is not None:
+                    break
+                self.connect()
+                time.sleep(0.02)
 
         if self.socket is None:
             return False
@@ -70,9 +83,10 @@ class MySocket():
             if res is not None:
                 return
 
-        self.socket.send(bytes(cmd+'\0', 'ascii'))
-
-        return None
+        try:
+            self.socket.send(bytes(cmd+'\0', 'ascii'))
+        except socket.error:
+            pass
 
     def recv(self, size):
         if self.socket is None:
@@ -86,6 +100,3 @@ class MySocket():
         except:
             pass
         return b
-
-
-VRaySocket = MySocket()

@@ -185,8 +185,7 @@ def ExportCamera(scene, camera):
  #######  ########   ######  ########  ######     ##     ######  
 
 def write_lamp(bus):
-    scene = bus['scene']
-    ob    = bus['node']['object']
+    ob = bus['node']['object']
 
     lamp     = ob.data
     VRayLamp = lamp.vray
@@ -676,18 +675,22 @@ def Run(scene, engine):
     VRayExporter = VRayScene.Exporter
 
     if not VRayExporter.autorun:
-        pass
+        return
+
+    reloadScene = VRayStream.process.is_running()
+
+    VRayStream.initProcess(utils.get_vray_standalone_path(scene))
+
+    if engine == 'VRAY_RENDER_RT':
+        VRayStream.setProcessMode('CMD')
     else:
-        VRayStream.initProcess(utils.get_vray_standalone_path(scene))
+        VRayStream.setProcessMode('NORMAL')
 
-        if engine == 'VRAY_RENDER_RT':
-            VRayStream.setProcessMode('CMD')
-        else:
-            VRayStream.setProcessMode('NORMAL')
-
-        VRayStream.startProcess()
-        VRayStream.load()
-        VRayStream.commit()
+    VRayStream.process.verboseLevel = int(VRayExporter.verboseLevel)
+    VRayStream.startProcess()
+    if reloadScene:
+        VRayStream.reload_scene()
+        VRayStream.render()
 
 
 def Stop():

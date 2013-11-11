@@ -151,13 +151,17 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if aspect < 1.0:
         fov = fov * aspect
 
-    overrideParams = {
-        'fov' : fov,
-        'orthographic' : ca.data.type == 'ORTHO',
+    overrideParams.update({
         'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
         'clipping_near' : ca.data.clip_start,
         'clipping_far' : ca.data.clip_end,
-        'transform' : ca.matrix_world,
-    }
+    })
+
+    if 'fov' not in overrideParams:
+        overrideParams['fov'] = fov
+    if 'transform' not in overrideParams:
+        overrideParams['transform'] = ca.matrix_world
+    if 'orthographic' not in overrideParams:
+        overrideParams['orthographic'] = ca.data.type == 'ORTHO'
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

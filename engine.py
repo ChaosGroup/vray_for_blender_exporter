@@ -24,11 +24,16 @@
 
 import bpy
 import bgl
+import math
+
+from .lib.VRayStream import VRayStream
+from .lib import ExportUtils
+from .plugins import PLUGINS_ID
 
 from . import export
 from . import debug
 
-from realtime import scene_update_post
+from . import realtime
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -38,6 +43,8 @@ class VRayRenderer(bpy.types.RenderEngine):
 
     def update(self, data, scene):
         debug.Debug("VRayRenderer::update()")
+
+        realtime.RemoveRTCallbacks()
 
         export.Export(data, scene, self.bl_idname)
 
@@ -54,6 +61,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
 
     def update(self, data, scene):
         debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
+
+        realtime.RemoveRTCallbacks()
 
         if self.is_preview:
             if scene.render.resolution_x < 64:
@@ -78,21 +87,48 @@ class VRayRendererRT(bpy.types.RenderEngine):
     bl_label       = "V-Ray Realtime"
     bl_use_preview =  False
 
+    def viewRealtime(self, context):
+        VRayStream.setMode('SOCKET')
+
+        bus = realtime.GetBus()
+
+        VRayScene = context.scene.vray
+
+        fov = None
+        if context.space_data.camera:
+            fov = context.space_data.camera.data.angle
+        else:
+            fov = 2.0 * math.atan((32.0 / 2.0) / context.space_data.lens)
+
+        tm  = context.region_data.view_matrix.inverted()
+
+        pluginModule = PLUGINS_ID['RenderView']
+        propGroup = context.scene.camera.data.vray.RenderView
+
+        overrideParams = {
+            'fov' : fov,
+            'transform' : tm,
+            'orthographic' : not context.region_data.is_perspective,
+        }
+
+        ExportUtils.WritePlugin(bus, pluginModule, 'RenderView', propGroup, overrideParams)
+
+        VRayStream.commit()
+
     def view_update(self, context):
-        # debug.Debug("VRayRendererRT::view_update()", msgType='ERROR')
-        # scene_update_post(context.scene, context=context, is_viewport=True)
-        pass
+        print("VRayRendererRT::view_update()")
+        self.viewRealtime(context)
 
     def view_draw(self, context):
-        pass
+        print("VRayRendererRT::view_draw()")
+        self.viewRealtime(context)
 
     def update(self, data, scene):
         debug.Debug("VRayRendererRT::update()")
 
-        # Export scene to the vrscene files
-        # Realime update will be done in 'scene_update_post'
-        #
         export.Export(data, scene, self.bl_idname)
+
+        realtime.AddRTCallbacks()
 
     def render(self, scene):
         debug.Debug("VRayRendererRT::render()")

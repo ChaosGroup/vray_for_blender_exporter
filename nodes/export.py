@@ -138,7 +138,11 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
     if meshName not in bus['cache']['mesh']:
         bus['cache']['mesh'].add(meshName)
 
-        propGroup = node.GeomStaticMesh if node else None
+        propGroup = node.GeomStaticMesh if node else ob.data.vray.GeomStaticMesh
+        dynamic_geometry = propGroup.dynamic_geometry
+
+        if bus['engine'] == 'VRAY_RENDER_RT' and VRayScene.RTEngine.use_opencl == '4':
+            setattr(propGroup, 'dynamic_geometry', True)
 
         _vray_for_blender.exportMesh(
             bpy.context.as_pointer(),   # Context
@@ -147,6 +151,9 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
             propGroup,                  # PropertyGroup
             o.getFileByType('GEOMETRY') # Output file
         )
+
+        if bus['engine'] == 'VRAY_RENDER_RT' and VRayScene.RTEngine.use_opencl == '4':
+            setattr(propGroup, 'dynamic_geometry', dynamic_geometry)
 
     return meshName
 

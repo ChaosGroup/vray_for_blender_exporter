@@ -119,6 +119,7 @@ PluginParams = (
     },
     {
         'attr' : 'ISO',
+        'name' : "ISO",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 200,
@@ -240,12 +241,12 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : False,
     },
-    {
-        'attr' : 'fov',
-        'desc' : "the FOV value (in radians) to use when specify_fov is true",
-        'type' : 'FLOAT',
-        'default' : 1.5708,
-    },
+    # {
+    #     'attr' : 'fov',
+    #     'desc' : "the FOV value (in radians) to use when specify_fov is true",
+    #     'type' : 'FLOAT',
+    #     'default' : 1.5708,
+    # },
     {
         'attr' : 'horizontal_shift',
         'desc' : "the horizontal lens shift",
@@ -361,7 +362,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         focus_distance = 200.0 # XXX: Check this, 'focus_distance' was always buggy...
 
     overrideParams.update({
-        'fov'            : fov,
+        # FOV is setted up view 'RenderView' plugin
+        # 'fov' : fov,
+        
         'focus_distance' : focus_distance,
         'lens_shift'     : get_lens_shift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 

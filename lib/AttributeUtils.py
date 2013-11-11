@@ -150,7 +150,6 @@ def GenerateAttribute(classMembers, attrDesc):
         'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
         'description' : attrDesc['desc'],
         'default'     : attrDesc['default'],
-        # 'update'      : CallbackUI.UpdateRT,
     }
 
     if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
