@@ -189,7 +189,6 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 			render_icon= 'RENDER_STILL'
 
 		col.operator('render.render', text=render_label, icon=render_icon)
-
 		if not VRayExporter.auto_meshes:
 			if wide_ui:
 				col= split.column()
@@ -226,6 +225,9 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.separator()
 		layout.prop(rd, "display_mode", text="Display")
 
+		layout.separator()
+		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 	bl_label = "Realtime Engine"
@@ -242,11 +244,11 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 	def draw(self, context):
 		VRayScene = context.scene.vray
 
-		classes.DrawPluginUIAuto(context, self.layout, VRayScene.RTEngine,         'RTEngine')
-		classes.DrawPluginUIAuto(context, self.layout, VRayScene.SettingsRTEngine, 'SettingsRTEngine')
-
+		classes.DrawPluginUIAuto(context, self.layout, VRayScene.RTEngine, 'RTEngine')
+		
 		self.layout.separator()
-		self.layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+
+		classes.DrawPluginUIAuto(context, self.layout, VRayScene.SettingsRTEngine, 'SettingsRTEngine')
 
 
 class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
@@ -442,9 +444,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = box.split()
 		col = split.column()
 		col.operator('vray.render', text=render_label, icon=render_icon)
-		col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
-		col.separator()
-		col.operator('vray.terminate', text="Terminate", icon='CANCEL')
 
 
 class VRAY_RP_cm(classes.VRayRenderPanel):
