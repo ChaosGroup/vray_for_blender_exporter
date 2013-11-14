@@ -1,4 +1,0 @@
-[submodule "pynodes_framework"]
-	path = pynodes_framework
-    url = git://gitorious.org/blender-trunk/pynodes_framework.git
-    ignore = all
