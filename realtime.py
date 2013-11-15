@@ -265,9 +265,14 @@ def AddRTCallbacks():
 
 
 def RemoveRTCallbacks():
-    bpy.app.handlers.object_update.remove(rt_object_update)
-    bpy.app.handlers.object_data_update.remove(rt_object_data_update)
-    bpy.app.handlers.scene_update_post.remove(rt_scene_update_post)
+    if rt_object_update in bpy.app.handlers.object_update:
+        bpy.app.handlers.object_update.remove(rt_object_update)
+
+    if rt_object_data_update in bpy.app.handlers.object_data_update:
+        bpy.app.handlers.object_data_update.remove(rt_object_data_update)
+
+    if rt_scene_update_post in bpy.app.handlers.scene_update_post:
+        bpy.app.handlers.scene_update_post.remove(rt_scene_update_post)
 
 
 def register():
