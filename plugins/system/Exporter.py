@@ -38,6 +38,17 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
+
+    backend = bpy.props.EnumProperty(
+        name        = "Renderer",
+        description = "V-Ray type",
+        items = (
+                ('STD', "V-Ray Standalone", ""),
+                ('VB',  "V-Ray For Blender", ""),
+        ),
+        default = 'STD'
+    )
+
     spherical_harmonics = bpy.props.EnumProperty(
         name = "Spherical Harmonics Mode",
         description = "Bake or render spherical harmonics",
