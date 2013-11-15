@@ -35,35 +35,32 @@ class VRaySocket():
     address = "localhost"
     port    = 4368
 
-    def __init__(self, address):
-        self.address = address
-
     def __init__(self):
         pass
 
     def __del__(self):
         self.disconnect()
 
+    def init(self, address, port):
+        self.address = address
+        self.port = port
+
     def connect(self, force=False):
         if self.socket is not None:
             return None
-
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.address, self.port))
         except socket.error:
             self.socket = None
-
         if force and self.socket is None:
             for i in range(100):
                 if self.socket is not None:
                     break
                 self.connect()
                 time.sleep(0.02)
-
         if self.socket is None:
             return False
-
         return None
 
     def isconnected(self):
@@ -82,7 +79,6 @@ class VRaySocket():
             res = self.connect()
             if res is not None:
                 return
-
         try:
             self.socket.send(bytes(cmd+'\0', 'ascii'))
         except socket.error:
@@ -93,7 +89,6 @@ class VRaySocket():
             res = self.connect()
             if res is not None:
                 return None
-
         b = None
         try:
             b = self.socket.recv(size)
