@@ -73,6 +73,7 @@ PluginParams = (
         'attr' : 'file',
         'desc' : "",
         'type' : 'STRING',
+        'subtype' : 'FILE_PATH',
         'default' : "",
     },
     {
