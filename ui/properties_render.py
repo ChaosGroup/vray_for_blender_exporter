@@ -176,23 +176,17 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		VRayExporter=    VRayScene.Exporter
 		SettingsOptions= VRayScene.SettingsOptions
 
+		render_icon = 'RENDER_STILL'
+		if VRayExporter.animation:
+			render_icon = 'RENDER_ANIMATION'
+		elif VRayExporter.camera_loop:
+			render_icon = 'CAMERA_DATA'
+
 		split= layout.split()
 		col= split.column()
-		if VRayExporter.animation:
-			render_label= "Animation"
-			render_icon= 'RENDER_ANIMATION'
-		elif VRayExporter.camera_loop:
-			render_label= "Cameras"
-			render_icon= 'RENDER_ANIMATION'
-		else:
-			render_label= "Image"
-			render_icon= 'RENDER_STILL'
-
-		col.operator('render.render', text=render_label, icon=render_icon)
-		if not VRayExporter.auto_meshes:
-			if wide_ui:
-				col= split.column()
-			col.operator('vray.write_geometry', icon='OUTLINER_OB_MESH')
+		col.operator('render.render', text="Render", icon=render_icon)
+		col = split.column()
+		col.operator('vray.stop', text="Stop", icon='CANCEL')
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
@@ -226,7 +220,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.prop(rd, "display_mode", text="Display")
 
 		layout.separator()
-		layout.operator('vray.terminate', text="Terminate", icon='CANCEL')
+		layout.operator('vray.terminate', text="Terminate", icon='RADIO')
 
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
@@ -397,6 +391,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.separator()
 
 		layout.label(text="Advanced:")
+		layout.prop(ve, 'backend')
 		split= layout.split()
 		col= split.column()
 		col.prop(ve, 'detect_vray')
