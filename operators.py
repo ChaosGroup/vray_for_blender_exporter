@@ -590,6 +590,17 @@ class VRAY_OT_terminate(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class VRAY_OT_stop(bpy.types.Operator):
+	bl_idname      = "vray.stop"
+	bl_label       = "Stop Rendering"
+	bl_description = "Stop the rendering"
+
+	def execute(self, context):
+		VRayStream.stop()
+
+		return {'FINISHED'}
+
+
  ######   #######  ##        #######  ########
 ##    ## ##     ## ##       ##     ## ##     ##
 ##       ##     ## ##       ##     ## ##     ##
@@ -785,6 +796,7 @@ def GetRegClasses():
 		VRAY_OT_write_geometry,
 		VRAY_OT_render,
 		VRAY_OT_run,
+		VRAY_OT_stop,
 		VRAY_OT_terminate,
 		VRAY_OT_set_kelvin_color,
 		VRAY_OT_add_sky,
