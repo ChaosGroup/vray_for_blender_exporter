@@ -406,6 +406,14 @@ class VRayExporter():
 
         self.socket.send("render", result=False)
 
+    def stop(self):
+        if self.socket is None:
+            return
+
+        Debug("VRayExporter::stop")
+
+        self.socket.send("stop", result=False)
+
     def commit(self):
         if self.socket is None:
             return
