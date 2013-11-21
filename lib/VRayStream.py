@@ -420,7 +420,8 @@ class VRayExporter():
 
         Debug("VRayExporter::commit")
 
-        self.socket.send("commit", result=False)
+        # self.socket.send("commit", result=False)
+        self.socket.send("render", result=False)
 
     def quit(self):
         """
