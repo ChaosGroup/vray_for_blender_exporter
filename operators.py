@@ -455,8 +455,8 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 
 		VRayScene = scene.vray
 
-		if VRayScene.image_aspect_lock:
-			VRayScene.image_aspect = 1.0 / VRayScene.image_aspect
+		# if VRayScene.image_aspect_lock:
+		# 	VRayScene.image_aspect = 1.0 / VRayScene.image_aspect
 
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
