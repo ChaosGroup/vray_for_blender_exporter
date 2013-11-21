@@ -635,6 +635,13 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
         },
     }
 
+    # If running upload scene before export
+    # to free files
+    #
+    if VRayStream.process.is_running():
+        VRayStream.socket.send("stop")
+        VRayStream.socket.send("unload")
+
     # Set 'VRSCENE' mode to export to files
     VRayStream.setMode('VRSCENE')
 
