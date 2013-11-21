@@ -248,6 +248,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
+                    { "name" : "filter_color", "label" : "" },
                     { "name" : "turbidity" },
                     { "name" : "ozone" },
                     { "name" : "water_vapour" },
