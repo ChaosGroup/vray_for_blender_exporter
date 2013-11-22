@@ -38,7 +38,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
-
     backend = bpy.props.EnumProperty(
         name        = "Renderer",
         description = "V-Ray type",
@@ -66,6 +65,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     ##  #### ##     ## ##     ## ##             ## 
     ##   ### ##     ## ##     ## ##       ##    ## 
     ##    ##  #######  ########  ########  ######  
+    
     nodesUseSidePanel = bpy.props.BoolProperty(
         name = "Side Panel",
         description = "Draw node properties in editors's side panel",
@@ -79,6 +79,13 @@ class VRayExporter(bpy.types.PropertyGroup):
     ##         ## ##   ##        ##     ## ##   ##      ##    
     ##        ##   ##  ##        ##     ## ##    ##     ##    
     ######## ##     ## ##         #######  ##     ##    ##    
+    
+    use_fast_dupli_export = bpy.props.BoolProperty(
+        name = "Fast Dupli / Particles Export",
+        description = "Use fast dupli export",
+        default = False
+    )
+
     activeLayers = bpy.props.EnumProperty(
         name        = "Active layers",
         description = "Render objects from layers",
@@ -151,7 +158,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "Render views from all cameras",
         default = False
     )
-
 
     auto_meshes = bpy.props.BoolProperty(
         name = "Auto export meshes",

@@ -370,6 +370,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			col= split.column()
 		col.label(text="Geometry Export:")
 		# col.prop(ve, 'check_animated')
+		col.prop(ve, 'use_fast_dupli_export')
 		col.prop(ve, 'use_instances')
 		col.prop(ve, 'use_smoke')
 		col.prop(ve, 'use_hair')
