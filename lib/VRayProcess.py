@@ -92,11 +92,20 @@ class VRayProcess():
         self.sceneFile = sceneFile
 
     def setMode(self, mode):
+        needRestart = False
         if self.mode is not None:
             if self.mode != mode:
-                self.mode = mode
-                self.restart()
+                needRestart = True
+
         self.mode = mode
+        
+        if self.mode == 'NORMAL':
+            self.cmdMode = 0
+        else:
+            self.cmdMode = 1
+        
+        if needRestart:
+            self.restart()
 
     def getCommandLine(self):
         procArgs = [self.vrayExe]
@@ -104,7 +113,7 @@ class VRayProcess():
         procArgs.append('-showProgress=%i' % self.showProgress)
         procArgs.append('-display=%i' % self.display)
         procArgs.append('-sceneFile=%s' % self.sceneFile)
-        procArgs.append('-cmdMode=1')
+        procArgs.append('-cmdMode=%s' % self.cmdMode)
 
         return procArgs
 

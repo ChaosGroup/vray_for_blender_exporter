@@ -1059,12 +1059,15 @@ def init_files(bus, skipGeom=False):
 
 	export_directory = create_dir(export_filepath)
 
-	bus['output'].initFiles(
+	err = bus['output'].initFiles(
 		exportDir=export_directory,
 		baseName=blendfile_name,
 		separateFiles=True,
 		overwriteGeometry=True
 	)
+
+	if err:
+		return err
 
 	# fileTypes = ['lights', 'materials', 'textures', 'nodes', 'camera', 'scene', 'environment', 'nodetree', 'geom']
 	# for key in fileTypes:

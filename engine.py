@@ -36,20 +36,35 @@ from . import debug
 from . import realtime
 
 
+def ErrorReport(engine, err):
+    if not err:
+        return
+    if err == 1:
+        engine.report({'ERROR'}, "Files are busy! Looks like V-Ray is still running!")
+    else:
+        engine.report({'ERROR'}, "Error: %s" % err)
+
+
 class VRayRenderer(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER'
     bl_label       = "V-Ray"
     bl_use_preview =  False
+
+    err = None
 
     def update(self, data, scene):
         debug.Debug("VRayRenderer::update()")
 
         realtime.RemoveRTCallbacks()
 
-        export.Export(data, scene, self.bl_idname)
+        self.err = export.Export(data, scene, self.bl_idname)
+        ErrorReport(self, self.err)
 
     def render(self, scene):
         debug.Debug("VRayRenderer::render()")
+        
+        if self.err:
+            return
 
         export.Run(scene, self.bl_idname)
 
@@ -58,6 +73,8 @@ class VRayRendererPreview(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER_PREVIEW'
     bl_label       = "V-Ray (With Material Preview)"
     bl_use_preview = True
+
+    err = None
 
     def update(self, data, scene):
         debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
@@ -69,10 +86,13 @@ class VRayRendererPreview(bpy.types.RenderEngine):
                 # Don't render icons
                 return
 
-        export.Export(data, scene, self.bl_idname, self.is_preview)
+        self.err = export.Export(data, scene, self.bl_idname, self.is_preview)
+        ErrorReport(self, err)
 
     def render(self, scene):
         debug.Debug("VRayRendererPreview::render(is_preview=%i)" % self.is_preview)
+        if self.err:
+            return
 
         if self.is_preview:
             if scene.render.resolution_x < 64:
@@ -86,6 +106,8 @@ class VRayRendererRT(bpy.types.RenderEngine):
     bl_idname      = 'VRAY_RENDER_RT'
     bl_label       = "V-Ray Realtime"
     bl_use_preview =  False
+
+    err = None
 
     def viewRealtime(self, context):
         VRayStream.setMode('SOCKET')
@@ -126,12 +148,16 @@ class VRayRendererRT(bpy.types.RenderEngine):
     def update(self, data, scene):
         debug.Debug("VRayRendererRT::update()")
 
-        export.Export(data, scene, self.bl_idname)
+        self.err = export.Export(data, scene, self.bl_idname)
+        ErrorReport(self, self.err)
 
         realtime.AddRTCallbacks()
 
     def render(self, scene):
         debug.Debug("VRayRendererRT::render()")
+
+        if self.err:
+            return
 
         export.Run(scene, self.bl_idname)
 

@@ -140,8 +140,12 @@ class VRayExporter():
                 filename = "%s.vrscene" % self.baseName
                 filepath = os.path.join(self.exportDir, filename)
 
-                self.files['scene'] = open(filepath, 'w')
-
+                try:
+                    self.files['scene'] = open(filepath, 'w')
+                except IOError:
+                    Debug("File is busy! Looks like V-Ray is still running!", msgType='ERROR')
+                    return 1
+            
             else:
                 for pluginType in PluginTypeToFile:
                     fileType = PluginTypeToFile[pluginType]
@@ -154,7 +158,11 @@ class VRayExporter():
                     if fileType == 'geometry' and not self.overwriteGeometry:
                         continue
 
-                    self.files[fileType] = open(filepath, 'w')
+                    try:
+                        self.files[fileType] = open(filepath, 'w')
+                    except IOError:
+                        Debug("File is busy! Looks like V-Ray is still running!", msgType='ERROR')
+                        return 1
 
             for fileType in self.files:
                 self.files[fileType].write("// V-Ray For Blender\n")

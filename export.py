@@ -242,7 +242,7 @@ def write_lamp(bus):
         for channel in scene.vray.render_channels:
             if channel.type == 'LIGHTSELECT' and channel.use:
                 channelData = channel.RenderChannelLightSelect
-                channelName = "LightSelect_%s" % clean_string(channel.name)
+                channelName = "LightSelect_%s" % LibUtils.CleanString(channel.name)
 
                 lampList = generateDataList(channelData.lights, 'lamps')
 
@@ -348,10 +348,6 @@ def write_node(bus):
     o.writeAttibute('transform', LibUtils.AnimatedValue(scene, matrix))
     o.writeFooter()
 
-    # TODO: check why this was needed.
-    #if not (('dupli' in bus['node'] and 'name' in bus['node']['dupli']) or ('particle' in bus['node'] and 'name' in bus['node']['particle'])):
-    #   ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
-
     # TODO: Use Light Linker
     # if not bus['preview']:
     #     ofile.write("\n\tlights=List(%s);" % (','.join(lights)))
@@ -431,7 +427,7 @@ def _write_object_particles_hair(bus):
             if ob.material_slots[ps_material_idx - 1].material:
                 ps_material = NodesExport.GetOutputName(ob.material_slots[ps_material_idx - 1].material.vray.ntree)
 
-        hair_geom_name = clean_string("HAIR%s%s" % (ps.name, ps.settings.name))
+        hair_geom_name = LibUtils.CleanString("HAIR%s%s" % (ps.name, ps.settings.name))
         hair_node_name = "Node"+hair_geom_name
 
         _vray_for_blender.exportHair(
@@ -454,6 +450,7 @@ def _write_object_particles_hair(bus):
 
 def _write_object_dupli(bus):
     scene = bus['scene']
+    o     = bus['output']
     ob    = bus['node']['object']
 
     VRayScene = scene.vray
@@ -467,39 +464,47 @@ def _write_object_dupli(bus):
                 break
 
     if dupli_from_particles or ob.dupli_type in {'VERTS', 'FACES', 'GROUP'}:
-        ob.dupli_list_create(scene)
+        if VRayExporter.use_fast_dupli_export:
+            _vray_for_blender.exportDupli(
+                bpy.context.as_pointer(),    # Context
+                ob.as_pointer(),             # Object
+                o.getFileByType('OBJECT'),   # Nodes file
+                o.getFileByType('GEOMETRY'), # Geometry file
+            )
+        else:
+            ob.dupli_list_create(scene)
 
-        for dup_id,dup_ob in enumerate(ob.dupli_list):
-            parent_dupli = ""
+            for dup_id,dup_ob in enumerate(ob.dupli_list):
+                parent_dupli = ""
 
-            bus['node']['object'] = dup_ob.object
-            bus['node']['base']   = ob
+                bus['node']['object'] = dup_ob.object
+                bus['node']['base']   = ob
 
-            # Currently processed dupli name
-            dup_node_name = clean_string("OB%sDO%sID%i" % (ob.name,
-                                                           dup_ob.object.name,
-                                                           dup_id))
-            dup_node_matrix = dup_ob.matrix
+                # Currently processed dupli name
+                dup_node_name = LibUtils.CleanString("OB%sDO%sID%i" % (ob.name,
+                                                               dup_ob.object.name,
+                                                               dup_id))
+                dup_node_matrix = dup_ob.matrix
 
-            # For case when dupli is inside other dupli
-            if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
-                # Store parent dupli name
-                parent_dupli   = bus['node']['dupli']['name']
-                dup_node_name += parent_dupli
+                # For case when dupli is inside other dupli
+                if 'dupli' in bus['node'] and 'name' in bus['node']['dupli']:
+                    # Store parent dupli name
+                    parent_dupli   = bus['node']['dupli']['name']
+                    dup_node_name += parent_dupli
 
-            bus['node']['dupli'] =  {}
-            bus['node']['dupli']['name']   = dup_node_name
-            bus['node']['dupli']['matrix'] = dup_node_matrix
+                bus['node']['dupli'] =  {}
+                bus['node']['dupli']['name']   = dup_node_name
+                bus['node']['dupli']['matrix'] = dup_node_matrix
 
-            _write_object(bus)
+                _write_object(bus)
 
-            bus['node']['object'] = ob
-            bus['node']['base']   = ob
+                bus['node']['object'] = ob
+                bus['node']['base']   = ob
 
-            bus['node']['dupli'] = {}
-            bus['node']['dupli']['name'] = parent_dupli
+                bus['node']['dupli'] = {}
+                bus['node']['dupli']['name'] = parent_dupli
 
-        ob.dupli_list_clear()
+            ob.dupli_list_clear()
 
 
 def _write_object(bus):
@@ -647,7 +652,9 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
     # Init output files
     # XXX: Refactor this
-    utils.init_files(bus)
+    err = utils.init_files(bus)
+    if err:
+        return err
 
     if VRayExporter.animation:
         ExportAnimation(bus)
