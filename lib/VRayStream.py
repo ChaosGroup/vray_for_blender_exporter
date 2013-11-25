@@ -412,7 +412,7 @@ class VRayExporter():
 
         Debug("VRayExporter::render")
 
-        self.socket.send("render", result=False)
+        self.socket.send("render")
 
     def stop(self):
         if self.socket is None:
@@ -420,7 +420,7 @@ class VRayExporter():
 
         Debug("VRayExporter::stop")
 
-        self.socket.send("stop", result=False)
+        self.socket.send("stop")
 
     def commit(self):
         if self.socket is None:
@@ -428,8 +428,8 @@ class VRayExporter():
 
         Debug("VRayExporter::commit")
 
-        # self.socket.send("commit", result=False)
-        self.socket.send("render", result=False)
+        # self.socket.send("commit")
+        self.socket.send("render")
 
     def quit(self):
         """
@@ -451,7 +451,7 @@ class VRayExporter():
         self.socket.send(cmd)
 
     def recieve_raw_image(self, bufSize):
-        self.socket.send("getRawImage", result=False)
+        self.socket.send("getRawImage")
         
         pixels = None
 
@@ -473,7 +473,7 @@ class VRayExporter():
             return 'V-Ray is not running'
 
         # Request image
-        self.socket.send("getImage 90 1", result=False)
+        self.socket.send("getImage 90 1")
 
         # Read image stream size
         jpeg_size_bytes = self.socket.recv(4)
