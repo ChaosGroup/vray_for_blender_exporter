@@ -72,6 +72,16 @@ VRayNodeTypeIcon = {
 ##     ## ##       ##   ### ##     ##
 ##     ## ######## ##    ##  #######
 
+class VRayNodeCategory(nodeitems_utils.NodeCategory):
+    pass
+
+
+def GetCategories():
+    return [
+        VRayNodeCategory('VRAY', "V-Ray Textures", items=[ nodeitems_utils.NodeItem(vrayNodeType.bl_rna.identifier, label=vrayNodeType.bl_label) for vrayNodeType in VRayNodeTypes['TEXTURE'] ] ),
+    ]
+
+
 def add_nodetype(layout, t):
     op = layout.operator("vray.add_node", text=t.bl_label, icon=t.bl_icon)
     op.type = t.bl_rna.identifier

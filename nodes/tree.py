@@ -221,7 +221,7 @@ def GetRegClasses():
 def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
-        regClass.register_categories()
+        # regClass.register_categories()
 
 
 def unregister():
