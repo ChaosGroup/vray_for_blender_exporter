@@ -95,6 +95,7 @@ class VRayExporter():
     #
     paramCache = None
     ntreeCache = None
+    needCommit = None
 
     def __init__(self):
         self.baseName = "scene"
@@ -112,6 +113,7 @@ class VRayExporter():
 
         self.paramCache = {}
         self.ntreeCache = {}
+        self.needCommit = False
 
     def __del__(self):
         self.closeFiles()
@@ -246,6 +248,8 @@ class VRayExporter():
 
             # Send value
             self.socket.send("set %s.%s=%s" % (pluginName, attibute, value))
+
+            self.needCommit = True
 
     def writeAttibute(self, attibute, value):
         """
@@ -433,8 +437,10 @@ class VRayExporter():
 
         Debug("VRayExporter::commit")
 
-        # self.socket.send("commit")
-        self.socket.send("render")
+        if self.needCommit:
+            # self.socket.send("commit")
+            self.socket.send("render")
+            self.needCommit = False
 
     def quit(self):
         """
