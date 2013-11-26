@@ -69,7 +69,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     nodesUseSidePanel = bpy.props.BoolProperty(
         name = "Side Panel",
         description = "Draw node properties in editors's side panel",
-        default = False
+        default = True
     )
 
     ######## ##     ## ########   #######  ########  ######## 
