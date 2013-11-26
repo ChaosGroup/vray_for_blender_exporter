@@ -65,7 +65,7 @@ class VRayProcess():
     progressUseCR = None
     verboseLevel  = None
 
-    # Woring mode: 'NORMAL', 'CMD', 'SPAWN'
+    # Working mode: 'NORMAL', 'CMD', 'SPAWN'
     mode = None
 
     # Distributed Rendering
@@ -92,6 +92,8 @@ class VRayProcess():
         self.sceneFile = sceneFile
 
     def setMode(self, mode):
+        Debug("VRayProcess::setMode(%s)" % mode)
+
         needRestart = False
         if self.mode is not None:
             if self.mode != mode:
@@ -113,7 +115,9 @@ class VRayProcess():
         procArgs.append('-showProgress=%i' % self.showProgress)
         procArgs.append('-display=%i' % self.display)
         procArgs.append('-sceneFile=%s' % self.sceneFile)
-        procArgs.append('-cmdMode=%s' % self.cmdMode)
+        
+        if self.cmdMode:
+            procArgs.append('-cmdMode=%s' % self.cmdMode)
 
         return procArgs
 

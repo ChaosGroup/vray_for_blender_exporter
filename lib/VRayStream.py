@@ -88,6 +88,7 @@ class VRayExporter():
     autorun = None
     process = None
     socket  = None
+    useSocket = None
 
     # Param cache
     # Used to send only changed attributes
@@ -305,7 +306,7 @@ class VRayExporter():
      ######  ########    ##     #######  ##        
 
     def setMode(self, mode):
-        Debug("VRayExporter::setMode")
+        Debug("VRayExporter::setMode(%s)" % mode)
         self.mode = mode
 
     def setProcessMode(self, mode='NORMAL'):
@@ -332,12 +333,16 @@ class VRayExporter():
 
         # Check if some instance is already running
         if self.socket.connect() is None:
-            self.reload_scene()
-            self.render()
+            if sys.platform in {'win32'}:
+                self.stopProcess()
+            else:
+                self.reload_scene()
+                self.render()
         else:
             self.process.run()
 
-        self.socket.connect(force=True)
+        if self.useSocket:
+            self.socket.connect(force=True)
 
     def stopProcess(self):
         Debug("VRayExporter::stopProcess")
