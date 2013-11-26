@@ -255,13 +255,16 @@ def rt_object_data_update(ob):
 
 def AddRTCallbacks():
     # Transforms and general attributes
-    bpy.app.handlers.object_update.append(rt_object_update)
+    if rt_object_update not in bpy.app.handlers.object_update:
+        bpy.app.handlers.object_update.append(rt_object_update)
 
     # Camera, Lamp settings are stored on data level
-    bpy.app.handlers.object_data_update.append(rt_object_data_update)
+    if rt_object_data_update not in bpy.app.handlers.object_data_update:
+        bpy.app.handlers.object_data_update.append(rt_object_data_update)
 
     # Node trees, environment
-    bpy.app.handlers.scene_update_post.append(rt_scene_update_post)
+    if rt_scene_update_post not in bpy.app.handlers.scene_update_post:
+        bpy.app.handlers.scene_update_post.append(rt_scene_update_post)
 
 
 def RemoveRTCallbacks():
