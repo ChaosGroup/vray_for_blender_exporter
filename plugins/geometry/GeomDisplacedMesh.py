@@ -47,6 +47,7 @@ PluginParams = (
         'name' : "Color",
         'desc' : "The displacement texture",
         'type' : 'TEXTURE',
+        'skip' : True,
         'default' : (0.0, 0.0, 0.0),
     },
     {
@@ -54,6 +55,7 @@ PluginParams = (
         'name' : "Float",
         'desc' : "The displacement texture",
         'type' : 'FLOAT_TEXTURE',
+        'skip' : True,
         'default' : 0.0,
     },
     {
