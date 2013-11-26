@@ -115,11 +115,11 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
         blenderGeometry = nt.nodes.new('VRayNodeBlenderOutputGeometry')
         blenderMaterial = nt.nodes.new('VRayNodeBlenderOutputMaterial')
 
-        blenderGeometry.location.x = outputNode.location.x - 200
-        blenderGeometry.location.y = outputNode.location.y - 50
-
         blenderMaterial.location.x = outputNode.location.x - 200
-        blenderMaterial.location.y = outputNode.location.y + 50
+        blenderMaterial.location.y = outputNode.location.y + 30
+
+        blenderGeometry.location.x = outputNode.location.x - 200
+        blenderGeometry.location.y = outputNode.location.y - 150
 
         nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
         nt.links.new(blenderGeometry.outputs['Geometry'], outputNode.inputs['Geometry'])
