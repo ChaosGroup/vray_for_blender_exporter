@@ -187,6 +187,8 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.operator('render.render', text="Render", icon=render_icon)
 		col = split.column()
 		col.operator('vray.stop', text="Stop", icon='CANCEL')
+		
+		layout.prop(VRayExporter, 'auto_meshes')
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
@@ -362,7 +364,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col= split.column()
 		col.label(text="Options:")
 		col.prop(ve, 'autorun')
-		col.prop(ve, 'auto_meshes')
 		col.prop(ve, 'display')
 		col.prop(ve, 'autoclose')
 		col.prop(ve, 'debug')

@@ -1063,7 +1063,7 @@ def init_files(bus, skipGeom=False):
 		exportDir=export_directory,
 		baseName=blendfile_name,
 		separateFiles=True,
-		overwriteGeometry=True
+		overwriteGeometry=VRayExporter.auto_meshes
 	)
 
 	if err:

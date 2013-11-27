@@ -158,16 +158,19 @@ class VRayExporter():
                     filename = "%s_%s.vrscene" % (self.baseName, fileType)
                     filepath = os.path.join(self.exportDir, filename)
 
+                    fmode = 'w'
                     if fileType == 'geometry' and not self.overwriteGeometry:
-                        continue
+                        fmode = 'r'
 
                     try:
-                        self.files[fileType] = open(filepath, 'w')
+                        self.files[fileType] = open(filepath, fmode)
                     except IOError:
                         Debug("File is busy! Looks like V-Ray is still running!", msgType='ERROR')
                         return 1
 
             for fileType in self.files:
+                if fileType == 'geometry' and not self.overwriteGeometry:
+                    continue
                 self.files[fileType].write("// V-Ray For Blender\n")
                 self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
 
@@ -182,7 +185,7 @@ class VRayExporter():
                 if fileType == 'scene':
                     continue
                 f = self.files[fileType]
-                mainFile.write('\n#include "%s"' % os.path.basename(f.name))
+                mainFile.write('\n#include "%s"' % os.path.basename(f.name))            
             mainFile.write('\n')
 
     def closeFiles(self):

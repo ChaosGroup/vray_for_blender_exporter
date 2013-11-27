@@ -649,6 +649,8 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
     # Set 'VRSCENE' mode to export to files
     VRayStream.setMode('VRSCENE')
+    
+    VRayStream.overwriteGeometry = VRayExporter.auto_meshes
 
     # Init output files
     # XXX: Refactor this
