@@ -324,7 +324,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
             Debug("Object \"%s\" Displacement: 'Float' texture is not connected!" % ob.name, msgType='ERROR')
             return mesh
 
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
+    o.set('OBJECT', pluginModule.ID, pluginName)
     o.writeHeader()
 
     o.writeAttibute("mesh", mesh)
