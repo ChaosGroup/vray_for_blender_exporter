@@ -126,7 +126,7 @@ PluginParams = (
         'desc' : "Progressive increase for samples_per_pixel (from 1 to real value). Use this for faster feadback",
         'type' : 'INT',
         'ui' : {
-            'min' : 1,
+            'min' : 0,
         },
         'default' : 1,
     },
