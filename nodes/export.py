@@ -237,11 +237,7 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
         if not inputSocket.is_linked:
             continue
 
-        texNode = GetConnectedNode(nodetree, inputSocket)
-        if not texNode:
-            continue
-
-        textures.append(WriteNode(bus, nodetree, texNode))
+        textures.append(WriteConnectedNode(bus, nodetree, inputSocket))
         blend_modes.append(inputSocket.value)
 
     o.set('TEXTURE', 'TexLayered', pluginName)
@@ -261,6 +257,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 
     brdfs   = []
     weights = []
+
     for i in range(int(len(node.inputs) / 2)):
         layer = i+1
         brdfSocket   = "BRDF %i"   % layer
@@ -269,8 +266,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
         if not node.inputs[brdfSocket].is_linked:
             continue
 
-        brdfNode = GetConnectedNode(nodetree, node.inputs[brdfSocket])
-        brdfs.append(WriteNode(bus, nodetree, brdfNode))
+        brdfs.append(WriteConnectedNode(bus, nodetree, node.inputs[brdfSocket]))
 
         if node.inputs[weightSocket].is_linked:
             weigthNode = GetConnectedNode(nodetree, node.inputs[weightSocket])
@@ -289,8 +285,6 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 
     o.set('BRDF', 'BRDFLayered', pluginName)
     o.writeHeader()
-    o.writeAttibute('textures', "List(%s)" % ','.join(reversed(textures)))
-    o.writeAttibute('blend_modes', "List(%s)" % ','.join(reversed(blend_modes)))
     o.writeAttibute('brdfs', "List(%s)" % ','.join(brdfs))
     o.writeAttibute('weights', "List(%s)" % ','.join(weights))
     o.writeAttibute('additive_mode', LibUtils.FormatValue(node.additive_mode))
