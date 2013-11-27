@@ -186,6 +186,14 @@ PluginParams = (
         'skip' : True,
         'default' : True,
     },
+    {
+        'attr' : 'filter',
+        'name' : "Filter",
+        'desc' : "",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
 )
 
 PluginWidget = """
