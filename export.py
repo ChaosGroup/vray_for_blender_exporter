@@ -324,7 +324,7 @@ def write_node(bus):
 
     material = base_mtl
 
-    if not VRayScene.RTEngine.enabled:
+    if not (VRayScene.RTEngine.enabled or bus['engine'] == 'VRAY_RENDER_RT'):
         material = "RS%s" % node_name
 
         o.set('MATERIAL', 'MtlRenderStats', material)
