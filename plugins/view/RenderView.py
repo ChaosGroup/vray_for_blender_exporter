@@ -73,7 +73,7 @@ PluginParams = (
         'attr' : 'clipping',
         'desc' : "true to enable clipping planes",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'clipping_near',
