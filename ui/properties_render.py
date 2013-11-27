@@ -567,7 +567,7 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 			col= split.column()
 		col.prop(SettingsGI, "primary_engine", text="")
 
-		if SettingsGI.primary_engine != 'SH':
+		if SettingsGI.primary_engine != '4':
 			layout.label(text="Secondary engine:")
 			if wide_ui:
 				split= layout.split(percentage=0.35)
@@ -610,7 +610,7 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 	@classmethod
 	def poll(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		return SettingsGI.on and SettingsGI.primary_engine == 'SH' and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and SettingsGI.primary_engine == '4' and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -685,7 +685,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 	@classmethod
 	def poll(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		return SettingsGI.on and SettingsGI.primary_engine == 'IM' and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and SettingsGI.primary_engine == '0' and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
 		layout= self.layout
@@ -693,7 +693,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 
 		vs= context.scene.vray
 		gi= vs.SettingsGI
-		module= gi.SettingsIrradianceMap
+		module= vs.SettingsIrradianceMap
 
 		split= layout.split()
 		colR= split.column()
@@ -821,7 +821,7 @@ class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 	@classmethod
 	def poll(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		showPanel = (SettingsGI.primary_engine == 'BF' or SettingsGI.secondary_engine == 'BF') and SettingsGI.primary_engine != 'SH'
+		showPanel = (SettingsGI.primary_engine == '2' or SettingsGI.secondary_engine == '2') and SettingsGI.primary_engine != '4'
 		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
@@ -830,12 +830,12 @@ class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 
 		vsce= context.scene.vray
 		gi= vsce.SettingsGI
-		module= gi.SettingsDMCGI
+		module= vsce.SettingsDMCGI
 
 		split= layout.split()
 		col= split.column()
 		col.prop(module, "subdivs")
-		if gi.secondary_engine == 'BF':
+		if gi.secondary_engine == '2':
 			if wide_ui:
 				col= split.column()
 			col.prop(module, "depth")
@@ -847,7 +847,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 	@classmethod
 	def poll(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		showPanel = (SettingsGI.primary_engine == 'LC' or SettingsGI.secondary_engine == 'LC') and SettingsGI.primary_engine != 'SH'
+		showPanel = (SettingsGI.primary_engine == '3' or SettingsGI.secondary_engine == '3') and SettingsGI.primary_engine != '4'
 		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
@@ -855,7 +855,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		wide_ui= context.region.width > classes.narrowui
 
 		vs= context.scene.vray
-		module= vs.SettingsGI.SettingsLightCache
+		module= vs.SettingsLightCache
 
 		split= layout.split()
 		col= split.column()
