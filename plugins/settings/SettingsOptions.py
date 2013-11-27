@@ -40,7 +40,7 @@ PluginParams = (
         'name' : "Render hidden",
         'desc' : "Render hidden geometrys",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'light_doLights',
@@ -61,7 +61,7 @@ PluginParams = (
         'name' : "Render Hidden Lights",
         'desc' : "Render hidden lights",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'light_doShadows',
