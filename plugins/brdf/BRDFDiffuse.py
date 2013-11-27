@@ -38,6 +38,7 @@ PluginParams = (
         'attr' : 'color',
         'desc' : "",
         'type' : 'COLOR',
+        'skip' : True,
         'default' : (1, 1, 1),
     },
     {
@@ -51,12 +52,14 @@ PluginParams = (
         'attr' : 'color_tex_mult',
         'desc' : "",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 1,
     },
     {
         'attr' : 'transparency',
         'desc' : "",
         'type' : 'COLOR',
+        'skip' : True,
         'default' : (0, 0, 0),
     },
     {
@@ -70,6 +73,7 @@ PluginParams = (
         'attr' : 'transparency_tex_mult',
         'desc' : "",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 1,
     },
     {
