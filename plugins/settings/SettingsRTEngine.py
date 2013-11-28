@@ -47,13 +47,13 @@ PluginParams = (
         'attr' : 'gpu_bundle_size',
         'desc' : "Number of samples to transfer over the network for RT-GPU",
         'type' : 'INT',
-        'default' : 192,
+        'default' : 128,
     },
     {
         'attr' : 'gpu_samples_per_pixel',
         'desc' : "Number of samples per pixel for RT-GPU",
         'type' : 'INT',
-        'default' : 16,
+        'default' : 1,
     },
     {
         'attr' : 'trace_depth',
@@ -128,7 +128,7 @@ PluginParams = (
         'ui' : {
             'min' : 0,
         },
-        'default' : 1,
+        'default' : 0,
     },
     {
         'attr' : 'undersampling',
