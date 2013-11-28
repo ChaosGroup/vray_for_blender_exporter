@@ -22,9 +22,13 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
+import bpy
+
 from vb25.debug import Debug, PrintDict
 
-from . import utils
+from . import utils, paths
 from . import AttributeUtils
 
 
@@ -75,10 +79,11 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
             if not value:
                 continue
             else:
+                subtype = attrDesc.get('subtype')
+                if subtype in {'FILE_PATH', 'DIR_PATH'}:
+                    # TODO: Copy file to the DR directory
+                    value = paths.unifyPath(value)
                 value = '"%s"' % value
-
-        # TODO: If 'subtype' is 'FILE_PATH' check if we need to copy it to the DR directory
-        # And check if we should do it here...
 
         o.writeAttibute(attrName, value)
 

@@ -39,3 +39,14 @@ def GetFilename(filepath):
 	fullFilename = GetFullFilename(filepath)
 	filename, fileext = os.path.splitext(fullFilename)
 	return filename
+
+
+def unifyPath(filepath, relative=False):
+	if relative:
+		if filepath.startswith('//'):
+			return filepath[2:].replace('\\', '/')
+
+	filepath = os.path.normpath(bpy.path.abspath(filepath))
+	filepath = filepath.replace('\\', '/')
+
+	return filepath
