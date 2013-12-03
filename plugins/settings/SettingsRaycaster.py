@@ -52,4 +52,34 @@ PluginParams = (
         'type' : 'INT',
         'default' : 4000,
     },
+    {
+        'attr' : 'embreeUse',
+        'desc' : "Enable/Disable using the embree ray caster",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'embreeUseMB',
+        'desc' : "Enable/disable using the embree ray caster for motion blur",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'embreeHighPrec',
+        'desc' : "Enable/disable high precision intersection",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'embreeLowMemory',
+        'desc' : "Try to conserve memory, using potentially slower algorithms",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'embreeRayPackets',
+        'desc' : "Turn on the packet ray casting",
+        'type' : 'BOOL',
+        'default' : False,
+    },
 )
