@@ -690,9 +690,6 @@ def Run(scene, engine):
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    if not VRayExporter.autorun:
-        return
-
     reloadScene = VRayStream.process.is_running()
 
     VRayStream.initProcess(utils.get_vray_standalone_path(scene))
@@ -703,6 +700,12 @@ def Run(scene, engine):
         VRayStream.setProcessMode('NORMAL')
 
     VRayStream.process.verboseLevel = int(VRayExporter.verboseLevel)
+    VRayStream.process.displaySRGB = VRayExporter.display_srgb
+
+    if not VRayExporter.autorun:
+        print("V-Ray Standalone Command line:\n  %s" % ' '.join(VRayStream.process.getCommandLine()))
+        return
+
     VRayStream.startProcess()
     if reloadScene:
         VRayStream.reload_scene()

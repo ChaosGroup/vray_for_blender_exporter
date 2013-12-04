@@ -115,9 +115,9 @@ class VRayProcess():
         procArgs.append('-showProgress=%i' % self.showProgress)
         procArgs.append('-display=%i' % self.display)
         procArgs.append('-sceneFile=%s' % self.sceneFile)
-        
         if self.cmdMode:
             procArgs.append('-cmdMode=%s' % self.cmdMode)
+        procArgs.append('-displaySRGB=%i' % (1 if self.displaySRGB else 2))
 
         return procArgs
 
