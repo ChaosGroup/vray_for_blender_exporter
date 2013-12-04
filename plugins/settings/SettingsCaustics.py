@@ -24,7 +24,7 @@
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsCaustics'
-NAME = 'SettingsCaustics'
+NAME = 'Caustics'
 DESC = ""
 
 PluginParams = (
