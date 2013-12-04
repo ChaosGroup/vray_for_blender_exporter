@@ -1048,38 +1048,10 @@ class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 		return SettingsCaustics.on and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-		layout= self.layout
+		VRayScene = context.scene.vray
+		SettingsCaustics = VRayScene.SettingsCaustics
 
-		vsce= context.scene.vray
-		vmodule= getattr(vsce, 'SettingsCaustics')
-
-		layout.prop(vmodule,'mode')
-
-		if vmodule.mode == 'FILE':
-			layout.prop(vmodule,'file')
-		else:
-			split= layout.split()
-			col= split.column()
-			col.prop(vmodule,'multiplier')
-			col.prop(vmodule,'search_distance')
-			if wide_ui:
-				col = split.column()
-			col.prop(vmodule,'max_photons')
-			col.prop(vmodule,'max_density')
-			col.prop(vmodule,'show_calc_phase')
-
-			split= layout.split()
-			split.label(text="Files:")
-			split= layout.split(percentage=0.25)
-			colL= split.column()
-			colR= split.column()
-			if wide_ui:
-				colL.prop(vmodule,"auto_save", text="Auto save")
-			else:
-				colL.prop(vmodule,"auto_save", text="")
-			colR.active= vmodule.auto_save
-			colR.prop(vmodule,"auto_save_file", text="")
+		classes.DrawPluginUIAuto(context, self.layout, SettingsCaustics, 'SettingsCaustics')
 
 
 class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):

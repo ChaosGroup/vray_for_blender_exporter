@@ -71,10 +71,10 @@ PluginParams = (
     },
     {
         'attr' : 'file',
-        'desc' : "",
+        'desc' : "File to take caustics map from when 'Mode' is 'From File'",
         'type' : 'STRING',
         'subtype' : 'FILE_PATH',
-        'default' : "",
+        'default' : "//lightmaps/caustics.vrmap",
     },
     {
         'attr' : 'dont_delete',
@@ -90,9 +90,11 @@ PluginParams = (
     },
     {
         'attr' : 'auto_save_file',
-        'desc' : "",
+        'name' : "File",
+        'desc' : "Auto save filepath",
         'type' : 'STRING',
-        'default' : "",
+        'subtype' : 'FILE_PATH',
+        'default' : "//lightmaps/caustics.vrmap",
     },
     {
         'attr' : 'show_calc_phase',
@@ -104,5 +106,46 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "mode" }
+        ]
+    },
+
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "active" : { "prop" : "mode", "condition" : "1" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "multiplier" },
+                    { "name" : "search_distance" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "max_photons" },
+                    { "name" : "max_density" },
+                    { "name" : "show_calc_phase" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "file", "active" : { "prop" : "mode", "condition" : "1" } }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "auto_save" },
+            { "name" : "auto_save_file", "active" : { "prop" : "auto_save" } }
+        ]
+    }
 ]}
 """
