@@ -24,7 +24,7 @@
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsCurrentFrame'
-NAME = 'SettingsCurrentFrame'
+NAME = 'Current Frame'
 DESC = ""
 
 PluginParams = (
