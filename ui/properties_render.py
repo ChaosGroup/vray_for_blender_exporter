@@ -167,14 +167,14 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 	bl_label = "Render"
 
 	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
+		layout = self.layout
+		wide_ui = context.region.width > classes.narrowui
 
-		rd= context.scene.render
+		rd = context.scene.render
 
-		VRayScene=       context.scene.vray
-		VRayExporter=    VRayScene.Exporter
-		SettingsOptions= VRayScene.SettingsOptions
+		VRayScene = context.scene.vray
+		VRayExporter    = VRayScene.Exporter
+		SettingsOptions = VRayScene.SettingsOptions
 
 		render_icon = 'RENDER_STILL'
 		if VRayExporter.animation:
@@ -200,7 +200,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
 		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.VRayDR, 'on')
-		col.prop(VRayScene.BakeView, 'use')
+		col.prop(VRayScene.BakeView, 'use', text="Bake")
 		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
 		# col.prop(VRayScene.VRayStereoscopicSettings, 'use')
 		if wide_ui:
@@ -214,6 +214,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 			col.prop(VRayExporter, 'camera_loop')
 		if VRayScene.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
+			col.prop(SettingsOptions, 'gi_texFilteringMultiplier')
 		col.prop(VRayExporter, 'use_still_motion_blur')
 		col.label(text="Options:")
 		col.prop(VRayExporter, 'draft')
@@ -305,15 +306,26 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		col.label(text="Geometry:")
 		col.prop(SettingsOptions, 'geom_doHidden')
 		col.prop(SettingsOptions, 'geom_backfaceCull')
-		col.prop(SettingsOptions, 'ray_bias', text="Secondary bias")
+		col.prop(SettingsOptions, 'ray_bias')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Lights:")
 		col.prop(SettingsOptions, 'light_doLights')
-		# col.prop(SettingsOptions, 'light_doDefaultLights')
+		col.prop(SettingsOptions, 'light_doDefaultLights')
+		col.prop(SettingsOptions, 'light_disableSelfIllumination')
 		col.prop(SettingsOptions, 'light_doHiddenLights')
 		col.prop(SettingsOptions, 'light_doShadows')
 		col.prop(SettingsOptions, 'light_onlyGI')
+
+		layout.label(text="GI:")
+		split= layout.split()
+		col= split.column()
+		col.prop(SettingsOptions, 'ray_max_intensity_on')
+		if wide_ui:
+			col= split.column()
+		sub = col.column()
+		sub.active = SettingsOptions.ray_max_intensity_on
+		sub.prop(SettingsOptions, 'ray_max_intensity', text="")
 
 		layout.label(text="Materials:")
 		split= layout.split()
@@ -333,6 +345,7 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 			if SettingsOptions.mtl_limitDepth:
 				col.prop(SettingsOptions, 'mtl_maxDepth')
 		col.prop(SettingsOptions, 'mtl_glossy')
+		col.prop(SettingsOptions, 'mtl_uninvertedNormalBump')
 
 		split= layout.split()
 		col= split.column()
@@ -970,6 +983,9 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 
 		vs= context.scene.vray
 		module= vs.VRayDR
+		SettingsOptions = vs.SettingsOptions
+
+		layout.prop(module, 'type', text="Network type")
 
 		split= layout.split()
 		col= split.column()
@@ -977,18 +993,23 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 		if module.type == 'WW':
 			col.prop(module, 'share_name')
 
-		split= layout.split()
-		col= split.column()
-		col.prop(module, 'type', text="Network type")
-
 		layout.separator()
+		layout.prop(module, 'port', text="Port")
 
 		split= layout.split()
 		col= split.column()
-		col.label(text="Port:")
-		if wide_ui:
-			col= split.column()
-		col.prop(module, 'port', text="")
+		col.prop(SettingsOptions, 'misc_transferAssets')
+		col.prop(SettingsOptions, 'misc_abortOnMissingAsset')
+		col.prop(SettingsOptions, 'dr_overwriteLocalCacheSettings')
+		col= split.column()
+		col.prop(SettingsOptions, 'misc_useCachedAssets')
+		split= layout.split()
+		split.active = SettingsOptions.dr_overwriteLocalCacheSettings
+		col= split.column()
+		col.prop(SettingsOptions, 'dr_assetsCacheLimitType', text="Cache Limit")
+		sub = col.row()
+		sub.active = SettingsOptions.dr_assetsCacheLimitType != '0'
+		sub.prop(SettingsOptions, 'dr_assetsCacheLimitValue', text="Limit")
 
 		layout.separator()
 
