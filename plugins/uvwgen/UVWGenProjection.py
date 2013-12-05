@@ -85,7 +85,7 @@ PluginParams = (
             ('4', "Ball", ""),
             ('5', "Cubic", ""),
             ('6', "Triplanar", ""),
-            ('8', "Perspective", ""), # XXX: Check why not 7
+            ('8', "Perspective", ""),
         ),
         'default' : '1',
     },
