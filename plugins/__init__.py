@@ -671,13 +671,13 @@ class VRayRenderNode(bpy.types.PropertyGroup):
 
 class VRayDR(bpy.types.PropertyGroup):
 	on = bpy.props.BoolProperty(
-		name= "Distributed rendering",
+		name= "Distributed Rendering",
 		description= "Distributed rendering",
 		default= False
 	)
 
 	port = bpy.props.IntProperty(
-		name= "Distributed rendering port",
+		name= "Distributed Rendering Port",
 		description= "Distributed rendering port",
 		min= 0,
 		max= 65535,
@@ -685,13 +685,13 @@ class VRayDR(bpy.types.PropertyGroup):
 	)
 
 	shared_dir = bpy.props.StringProperty(
-		name= "Shared directory",
+		name= "Shared Directory",
 		subtype= 'DIR_PATH',
 		description= "Distributed rendering shader directory"
 	)
 
 	share_name = bpy.props.StringProperty(
-		name= "Share name",
+		name= "Share Name",
 		default= "VRAYDR",
 		description= "Share name"
 	)
@@ -701,9 +701,9 @@ class VRayDR(bpy.types.PropertyGroup):
 		description= "Distributed rendering network type",
 		items= (
 			('WW', "Windows - Windows", "Window master & Windows nodes"),
-			('WU', "Windows - Unix (TODO)", "Window master & Unix nodes"),
+			# ('WU', "Windows - Unix",    "Window master & Unix nodes"),
 			('UU', "Unix - Unix",       "Unix master & Unix nodes"),
-			('UW', "Unix - Windows (TODO)", "Unix master & Windows nodes"),
+			# ('UW', "Unix - Windows",    "Unix master & Windows nodes"),
 		),
 		default= 'WW'
 	)

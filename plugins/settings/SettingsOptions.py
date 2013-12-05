@@ -37,8 +37,8 @@ PluginParams = (
     },
     {
         'attr' : 'geom_doHidden',
-        'name' : "Render hidden",
-        'desc' : "Render hidden geometrys",
+        'name' : "Render Hidden",
+        'desc' : "Render hidden geometry",
         'type' : 'BOOL',
         'default' : False,
     },
@@ -51,41 +51,45 @@ PluginParams = (
     },
     {
         'attr' : 'light_doDefaultLights',
-        'name' : "Use Default Lights",
+        'name' : "Default Lights",
         'desc' : "Use default lights (when no lights are presented in a scene)",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'light_doHiddenLights',
-        'name' : "Render Hidden Lights",
+        'name' : "Hidden Lights",
         'desc' : "Render hidden lights",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'light_doShadows',
-        'name' : "Render Shadows",
+        'name' : "Shadows",
         'desc' : "Render shadows",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'light_onlyGI',
-        'name' : "Lights GI only",
+        'name' : "Produce GI Only",
         'desc' : "Use only GI from lights",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'light_disableSelfIllumination',
-        'desc' : "Disable self-Illumination",
+        'name' : "Self Illumination",
+        'desc' : "self-Illumination",
         'type' : 'BOOL',
-        'default' : False,
+        'ui' : {
+            'inverted' : True,
+        },
+        'default' : True,
     },
     {
         'attr' : 'gi_dontRenderImage',
-        'name' : "Calculate GI only",
+        'name' : "Calculate GI Only",
         'desc' : "Don't render final image",
         'type' : 'BOOL',
         'default' : False,
@@ -155,12 +159,14 @@ PluginParams = (
     },
     {
         'attr' : 'mtl_glossy',
-        'desc' : "Render Glossy",
+        'name' : "Render Glossy",
+        'desc' : "Render glossy",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'mtl_uninvertedNormalBump',
+        'name' : 'Uninverted Normal Bump',
         'desc' : "If true the normal bump in tangent space will not be inverted on flipped UVs",
         'type' : 'BOOL',
         'default' : False,
@@ -174,7 +180,7 @@ PluginParams = (
     },
     {
         'attr' : 'ray_bias',
-        'name' : "Secondary Ray Bias",
+        'name' : "Sec. Ray Bias",
         'desc' : "Secondary ray bias",
         'type' : 'FLOAT',
         'default' : 0,
@@ -194,48 +200,61 @@ PluginParams = (
     },
     {
         'attr' : 'misc_abortOnMissingAsset',
+        'name' : "Abort On Missing Asset",
         'desc' : "",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'misc_transferAssets',
+        'name' : 'Transfer Assets',
         'desc' : "Transfer missing assets on DR",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'misc_useCachedAssets',
+        'name' : 'Use Cached Assets',
         'desc' : "Use cached assets on DR",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'dr_assetsCacheLimitType',
+        'name' : "Cache Limit Type",
         'desc' : "Type of the assets cache limit",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "None", "Assets are never deleted from the cache folder"),
+            ('1', "Age (Hours)", "Assets that have been transferred before the specified period of time are deleted; the specified value is in hours"),
+            ('2', "Size (GB)", "Assets are deleted from oldest to freshly received until the cache folder is below the specified size in gigabytes"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'dr_assetsCacheLimitValue',
+        'name' : "Cache Limit",
         'desc' : "Value of the assets cache limit",
         'type' : 'FLOAT',
         'default' : 0,
     },
     {
         'attr' : 'dr_overwriteLocalCacheSettings',
+        'name' : "Overwrite Cache Settings",
         'desc' : "If is true the client's cache settings will overwrite server settings",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'ray_max_intensity_on',
+        'name' : "Limit Ray Intensity",
         'desc' : "Enable clamping of secondary rays",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'ray_max_intensity',
+        'name' : "Max Ray Intensity",
         'desc' : "The max secondary ray intensity when ray_max_intensity_on is enabled",
         'type' : 'FLOAT',
         'default' : 20,
@@ -249,11 +268,6 @@ PluginParams = (
         'default' : "",
     },
 )
-
-PluginWidget = """
-{ "widgets": [
-]}
-"""
 
 
 # TODO: Resolve draft / preview
