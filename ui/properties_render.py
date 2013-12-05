@@ -449,12 +449,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			render_label = "Image"
 			render_icon  = 'RENDER_STILL'
 
-		box = layout.box()
-		box.label(text="Custom operators:")
-		split = box.split()
-		col = split.column()
-		col.operator('vray.render', text=render_label, icon=render_icon)
-
 
 class VRAY_RP_cm(classes.VRayRenderPanel):
 	bl_label = "Color mapping"
