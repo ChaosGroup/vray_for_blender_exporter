@@ -1148,32 +1148,11 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'verboseLevel')
 
 
-class VRAY_RP_about(classes.VRayRenderPanel):
-	bl_label   = "About"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw(self, context):
-		layout= self.layout
-
-		split= layout.split()
-		col= split.column()
-		col.label(text="V-Ray For Blender")
-		col.separator()
-		col.label(text="Developer: Andrei Izrantcev")
-		col.label(text="URL: http://vray.cgdo.ru")
-		col.label(text="Email: andrei.izrantcev@chaosgroup.com")
-		col.separator()
-		col.label(text="IRC: irc.freenode.net #vrayblender")
-		col.separator()
-		col.label(text="V-Ray(R) is a registered trademark of Chaos Group Ltd.")
-
-
 def GetRegClasses():
 	return (
 		VRAY_MT_preset_gi,
 		VRAY_MT_preset_global,
 		VRAY_MT_preset_IM,
-
 		VRAY_RP_dimensions,
 		VRAY_RP_output,
 		VRAY_RP_render,
@@ -1193,8 +1172,6 @@ def GetRegClasses():
 		VRAY_RP_dr,
 		VRAY_RP_bake,
 		VRAY_RP_SettingsSystem,
-		VRAY_RP_about,
-
 	)
 
 
