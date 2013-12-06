@@ -214,7 +214,6 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 			col.prop(VRayExporter, 'camera_loop')
 		if VRayScene.SettingsGI.on:
 			col.prop(SettingsOptions, 'gi_dontRenderImage')
-			col.prop(SettingsOptions, 'gi_texFilteringMultiplier')
 		col.prop(VRayExporter, 'use_still_motion_blur')
 		col.label(text="Options:")
 		col.prop(VRayExporter, 'draft')
@@ -326,6 +325,7 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		sub = col.column()
 		sub.active = SettingsOptions.ray_max_intensity_on
 		sub.prop(SettingsOptions, 'ray_max_intensity', text="")
+		layout.prop(SettingsOptions, 'gi_texFilteringMultiplier')
 
 		layout.label(text="Materials:")
 		split= layout.split()
