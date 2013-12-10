@@ -1109,6 +1109,19 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.prop(SettingsRaycaster, 'dynMemLimit')
+		
+		layout.separator()
+		layout.prop(SettingsRaycaster, 'embreeUse', text="Use Embree")
+
+		split = layout.split()
+		split.active = SettingsRaycaster.embreeUse
+		col = split.column()
+		col.prop(SettingsRaycaster, 'embreeUseMB', text="Use For Motion Blur")
+		col.prop(SettingsRaycaster, 'embreeHighPrec', text="High Precision")
+		if wide_ui:
+			col = split.column()
+		col.prop(SettingsRaycaster, 'embreeLowMemory', text="Low Memory")
+		col.prop(SettingsRaycaster, 'embreeRayPackets', text="Ray Packets")
 
 		# layout.separator()
 
