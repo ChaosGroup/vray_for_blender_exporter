@@ -154,7 +154,12 @@ PluginParams = (
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
-    ob    = bus['node'].get('object', None)
+
+    # XXX: Temporary fix for RT callback
+    if 'node' not in bus:
+        return pluginName
+
+    ob = bus['node'].get('object', None)
     
     o = bus['output']
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
