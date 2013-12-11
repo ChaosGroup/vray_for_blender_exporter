@@ -128,7 +128,7 @@ PluginParams = (
         'ui' : {
             'min' : 0,
         },
-        'default' : 0,
+        'default' : 1,
     },
     {
         'attr' : 'undersampling',
