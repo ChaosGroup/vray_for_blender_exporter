@@ -90,10 +90,47 @@ class VRayNodeRenderChannels(bpy.types.Node, tree.VRayTreeNode):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
+    unfiltered_fragment_method = bpy.props.EnumProperty(
+        name = "Fragment Method",
+        description = "Determines which fragment to use for unfiltered render elements",
+        items = (
+            ('0', "Best Coverage", ""),
+            ('1', "Closest To Camera", ""),
+        ),
+        default = '0'
+    )
+
+    deep_merge_mode = bpy.props.EnumProperty(
+        name = "Deep Merge Mode",
+        description = "Determines how to blend fragments within a pixel",
+        items = (
+            ('0', "By Render ID", ""),
+            ('1', "By Z-Depth", ""),
+        ),
+        default = '0'
+    )
+
+    deep_merge_coeff = bpy.props.FloatProperty(
+        name = "Global Light Level",
+        description = "Determines the z-depth blending sensitivity",
+        min = 0.0,
+        default = 1.0,
+    )
+
     def init(self, context):
         AddInput(self, 'VRaySocketRenderChannel', "Channel 1")
 
     def draw_buttons(self, context, layout):
+        split = layout.split()
+        col = split.column()
+        col.prop(self, 'unfiltered_fragment_method')
+        col.prop(self, 'deep_merge_mode')
+        sub = col.column()
+        sub.active = self.deep_merge_mode == '1'
+        sub.prop(self, 'deep_merge_coeff')
+
+        layout.separator()
+
         split = layout.split()
         row = split.row(align=True)
         row.operator('vray.node_add_render_channel_sockets', icon="ZOOMIN", text="Add")
