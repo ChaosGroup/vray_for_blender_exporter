@@ -307,6 +307,8 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
         AddOutput(self, 'VRaySocketObject', "Output")
+    elif self.vray_type == 'RENDERCHANNEL':
+        AddOutput(self, 'VRaySocketRenderChannelOutput', "Channel")
 
     if self.vray_plugin == 'TexGradRamp':
         if not self.texture:
