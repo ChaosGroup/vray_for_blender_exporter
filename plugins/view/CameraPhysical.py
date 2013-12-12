@@ -26,6 +26,7 @@ import bpy
 import math
 
 from vb25.lib import ExportUtils
+from vb25.lib import utils as LibUtils
 
 
 TYPE = 'CAMERA'
@@ -316,13 +317,13 @@ PluginParams = (
 )
 
 
-def get_lens_shift(ob):
+def GetLensShift(ob):
     shift = 0.0
     constraint = None
 
     if len(ob.constraints) > 0:
         for co in ob.constraints:
-            if co.type in ('TRACK_TO','DAMPED_TRACK','LOCKED_TRACK'):
+            if co.type in {'TRACK_TO', 'DAMPED_TRACK', 'LOCKED_TRACK'}:
                 constraint = co
                 break
 
@@ -330,7 +331,7 @@ def get_lens_shift(ob):
         constraint_ob = constraint.target
         if constraint_ob:
             z_shift = ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
-            l = get_distance(ob, constraint_ob)
+            l = LibUtils.GetDistanceObOb(ob, constraint_ob)
             shift = -1.0 * z_shift / l
     else:
         rx = ob.rotation_euler[0]
@@ -360,7 +361,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     focus_distance = camera.data.dof_distance
     if camera.data.dof_object:
-        focus_distance = get_distance(camera, camera.data.dof_object)
+        focus_distance = LibUtils.GetDistanceObOb(camera, camera.data.dof_object)
     if focus_distance < 0.001:
         focus_distance = 200.0 # XXX: Check this, 'focus_distance' was always buggy...
 
@@ -369,7 +370,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         # 'fov' : fov,
         
         'focus_distance' : focus_distance,
-        'lens_shift'     : get_lens_shift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
+        'lens_shift'     : GetLensShift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 
         'horizontal_offset' : -camera.data.shift_x,
         'vertical_offset'   : -camera.data.shift_y,
