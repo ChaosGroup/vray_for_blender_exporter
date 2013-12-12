@@ -54,7 +54,8 @@ PluginParams = (
     },
     {
         'attr' : 'consider_for_aa',
-        'desc' : "AA",
+        'name' : "Consider For AA",
+        'desc' : "Consider this render element for antialiasing (may slow down rendering)",
         'type' : 'BOOL',
         'default' : False,
     },
