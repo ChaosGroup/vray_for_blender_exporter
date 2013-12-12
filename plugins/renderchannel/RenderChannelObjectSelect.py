@@ -48,7 +48,7 @@ PluginParams = (
     },
     {
         'attr' : 'affect_matte_objects',
-        'desc' : "Don't affect Matte Objects",
+        'desc' : "Affect Matte Objects",
         'type' : 'BOOL',
         'default' : True,
     },
