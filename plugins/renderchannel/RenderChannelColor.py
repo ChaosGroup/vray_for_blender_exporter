@@ -35,8 +35,8 @@ DESC = "Generic render element"
 ColorChannelNames = {
     '1'   : "RGB",
     '101' : "Diffuse",
-    '102' : "Reflect",
-    '103' : "Refract",
+    '102' : "Reflection",
+    '103' : "Refraction",
     '104' : "Self Illumination",
     '105' : "Shadow",
     '106' : "Specular",
