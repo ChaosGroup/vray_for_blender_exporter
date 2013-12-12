@@ -26,90 +26,77 @@ import bpy
 
 import vb25.utils
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'RENDERCHANNEL'
-
-ID   = 'LIGHTSELECT'
+ID   = 'RenderChannelLightSelect'
 NAME = 'Light Select'
-PLUG = 'RenderChannelLightSelect'
 DESC = ""
-PID  = 9
 
-PARAMS = (
-    'name',
-    'lights',
-    'type',
-    'color_mapping',   # 1
-    'consider_for_aa', # 0
-)
+PluginParams = (
+    {
+        'attr' : 'name',
+        'desc' : "Channel name",
+        'type' : 'STRING',
+        'default' : NAME,
+    },
+    {
+        'attr' : 'color_mapping',
+        'desc' : "Color Mapping",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'consider_for_aa',
+        'name' : "Consider For AA",
+        'desc' : "Consider this render element for antialiasing (may slow down rendering)",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'filtering',
+        'desc' : "Filtering",
+        'type' : 'BOOL',
+        'default' : False,
+    },
 
-
-def add_properties(parent_struct):
-    class RenderChannelLightSelect(bpy.types.PropertyGroup):
-        pass
-    bpy.utils.register_class(RenderChannelLightSelect)
-
-    parent_struct.RenderChannelLightSelect = bpy.props.PointerProperty(
-        name        = "Light Select",
-        type        =  RenderChannelLightSelect,
-        description = "V-Ray \"Light Select\" render element settings"
-    )
-
-    RenderChannelLightSelect.lights = bpy.props.StringProperty(
-        name        = "Lights",
-        description = "Light list to appear in this channel: name{;name;...}",
-        default     = ""
-    )
-
-    RenderChannelLightSelect.type = bpy.props.EnumProperty(
-        name        = "Type",
-        description = "Lighting Type",
-        items = (
+    {
+        'attr' : 'lights',
+        'desc' : "Light list to appear in this channel",
+        'type' : 'PLUGIN',
+        'skip' : True,
+        'default' : "",
+    },
+    {
+        'attr' : 'type',
+        'name' : "Type",
+        'desc' : "",
+        'type' : 'ENUM',
+        'items' : (
             ('RAW',      "Raw",      ""),
             ('DIFFUSE',  "Diffuse",  ""),
             ('SPECULAR', "Specular", ""),
         ),
-        default = 'DIFFUSE'
-    )
-
-    RenderChannelLightSelect.consider_for_aa = bpy.props.BoolProperty(
-        name        = "Consider for AA",
-        description = "",
-        default     = False
-    )
-
-    RenderChannelLightSelect.color_mapping = bpy.props.BoolProperty(
-        name        = "Color mapping",
-        description = "Apply color mapping to \"Light Select\" channel",
-        default     =  True
-    )
+        'skip' : True,
+        'default' : 'RAW',
+    },
+)
 
 
-
-'''
-  OUTPUT
-'''
-def write(ofile, render_channel, sce=None, name=None):
-    channel_name = render_channel.name
-    if name is not None:
-        channel_name = name
-
-    ofile.write("\nRenderChannelColor LightSelect_%s {"%(vb25.utils.clean_string(channel_name)))
-    ofile.write("\n\tname=\"%s\";"        % channel_name)
-    ofile.write("\n\tcolor_mapping=%i;"   % render_channel.color_mapping)
-    ofile.write("\n\tconsider_for_aa=%i;" % render_channel.consider_for_aa)
-    ofile.write("\n}\n")
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'name')
+    layout.prop(propGroup, 'type')
+    layout.prop(propGroup, 'color_mapping')
+    layout.prop(propGroup, 'consider_for_aa')
 
 
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    o = bus['output']
 
-'''
-  GUI
-'''
-def draw(rna_pointer, layout, wide_ui):
-    split = layout.split()
-    col = split.column()
+    o.set(TYPE, 'RenderChannelColor', pluginName)
+    o.writeHeader()
+    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
+    o.writeFooter()
 
-    col.prop_search(rna_pointer, 'lights', bpy.data, 'lamps')
-    col.prop(rna_pointer, 'type')
-    col.prop(rna_pointer, 'color_mapping')
-    col.prop(rna_pointer, 'consider_for_aa')
+    return pluginName

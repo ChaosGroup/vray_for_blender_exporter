@@ -194,16 +194,17 @@ def ExportCamera(scene, camera):
     pass
 
 
- #######  ########        ## ########  ######  ########  ######  
-##     ## ##     ##       ## ##       ##    ##    ##    ##    ## 
-##     ## ##     ##       ## ##       ##          ##    ##       
-##     ## ########        ## ######   ##          ##     ######  
-##     ## ##     ## ##    ## ##       ##          ##          ## 
-##     ## ##     ## ##    ## ##       ##    ##    ##    ##    ## 
- #######  ########   ######  ########  ######     ##     ######  
+##       ####  ######   ##     ## ########  ######  
+##        ##  ##    ##  ##     ##    ##    ##    ## 
+##        ##  ##        ##     ##    ##    ##       
+##        ##  ##   #### #########    ##     ######  
+##        ##  ##    ##  ##     ##    ##          ## 
+##        ##  ##    ##  ##     ##    ##    ##    ## 
+######## ####  ######   ##     ##    ##     ######  
 
 def write_lamp(bus):
-    ob = bus['node']['object']
+    scene = bus['scene']
+    ob    = bus['node']['object']
 
     lamp     = ob.data
     VRayLamp = lamp.vray
@@ -248,33 +249,47 @@ def write_lamp(bus):
     
     # Check 'Render Elements' and add light to channels
     #
-    # XXX: Resolve!
-    #
-    if False:
-        listRenderElements = {
-            'channels_raw'      : [],
-            'channels_diffuse'  : [],
-            'channels_specular' : [],
-        }
+    if scene.vray.ntree:
+        passesNode = NodesExport.GetNodeByType(scene.vray.ntree, 'VRayNodeRenderChannels')
+        if passesNode:
+            listRenderElements = {
+                'channels_raw'      : [],
+                'channels_diffuse'  : [],
+                'channels_specular' : [],
+            }
 
-        for channel in scene.vray.render_channels:
-            if channel.type == 'LIGHTSELECT' and channel.use:
-                channelData = channel.RenderChannelLightSelect
-                channelName = "LightSelect_%s" % LibUtils.CleanString(channel.name)
+            for socket in passesNode.inputs:
+                if not socket.is_linked or not socket.use:
+                    continue
 
-                lampList = generateDataList(channelData.lights, 'lamps')
+                lightSelectNode = NodesExport.GetConnectedNode(scene.vray.ntree, socket)
+                if not lightSelectNode or not lightSelectNode.bl_idname == 'VRayNodeRenderChannelLightSelect':
+                    continue
 
-                if lamp in lampList:
-                    key = 'channels_%s' % channelData.lower()
-                    listRenderElements[key].append(channelName)
+                lightsSocket = lightSelectNode.inputs['Lights']
+                if not lightsSocket.is_linked:
+                    continue
 
-        for key in listRenderElements:
-            renderChannelArray = listRenderElements[key]
+                lightSelectChannelName = NodesExport.GetNodeName(scene.vray.ntree, lightSelectNode)
 
-            if not len(renderChannelArray):
-                continue
+                lightGroup = NodesExport.WriteConnectedNode(bus, scene.vray.ntree, lightsSocket)
+                for l in lightGroup:
+                    if not l.type == 'LAMP':
+                        continue
+                    if not l == ob:
+                        continue
 
-            ofile.write("\n\t%s=List(%s);" % (key, ",".join(renderChannelArray)))
+                    lightChannelType = lightSelectNode.RenderChannelLightSelect.type
+
+                    if lightChannelType == 'RAW':
+                        listRenderElements['channels_raw'].append(lightSelectChannelName)
+                    elif lightChannelType == 'DIFFUSE':
+                        listRenderElements['channels_diffuse'].append(lightSelectChannelName)
+                    elif lightChannelType == 'SPECULAR':
+                        listRenderElements['channels_specular'].append(lightSelectChannelName)
+
+            for key in listRenderElements:
+                socketParams[key] = "List(%s)" % ",".join(listRenderElements[key])
 
     # Write light
     ExportUtils.WritePlugin(
@@ -285,6 +300,14 @@ def write_lamp(bus):
         socketParams
     )
 
+
+ #######  ########        ## ########  ######  ########  ######  
+##     ## ##     ##       ## ##       ##    ##    ##    ##    ## 
+##     ## ##     ##       ## ##       ##          ##    ##       
+##     ## ########        ## ######   ##          ##     ######  
+##     ## ##     ## ##    ## ##       ##          ##          ## 
+##     ## ##     ## ##    ## ##       ##    ##    ##    ##    ## 
+ #######  ########   ######  ########  ######     ##     ######  
 
 def write_node(bus):
     scene = bus['scene']
