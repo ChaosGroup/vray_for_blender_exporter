@@ -81,6 +81,7 @@ def GetObjects(bus, checkAnimated=False, checkUpdated=False):
 
 def ExportRenderPasses(bus):
     scene = bus['scene']
+    o     = bus['output']
 
     ntree = scene.vray.ntree
     if not ntree:
@@ -93,6 +94,13 @@ def ExportRenderPasses(bus):
     for socket in outputNode.inputs:
         if socket.is_linked and socket.use:
             NodesExport.WriteConnectedNode(bus, ntree, socket)
+
+    o.set('RENDERCHANNEL', 'SettingsRenderChannels', 'SettingsRenderChannels')
+    o.writeHeader()
+    o.writeAttibute('unfiltered_fragment_method', outputNode.unfiltered_fragment_method)
+    o.writeAttibute('deep_merge_mode', outputNode.deep_merge_mode)
+    o.writeAttibute('deep_merge_coeff', outputNode.deep_merge_coeff)
+    o.writeFooter()
 
 
 def ExportSettings(bus):
