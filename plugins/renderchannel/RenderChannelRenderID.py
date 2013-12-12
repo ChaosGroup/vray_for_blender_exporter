@@ -25,7 +25,7 @@
 TYPE = 'RENDERCHANNEL'
 ID   = 'RenderChannelRenderID'
 NAME = 'Render ID'
-DESC = "The object's \"Pass Index\" contributes the pixel value"
+DESC = "The object's render ID contributes the pixel value"
 
 PluginParams = (
     {
