@@ -134,6 +134,13 @@ def FormatHexValue(value):
     return ''.join([ "%02X" % b for b in bytes ])
 
 
+def GetDistanceObOb(ob1, ob2):
+    t1 = ob1.matrix_world.translation
+    t2 = ob2.matrix_world.translation
+    d = t1 - t2
+    return d.length
+
+
 # Helper function to convert mathutils.Vector to
 # hex vector in vrscene format
 def FormatHexVector(vector):
