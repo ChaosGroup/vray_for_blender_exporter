@@ -60,6 +60,12 @@ def GetConnectedSocket(ntree, nodeSocket):
     return None
 
 
+def GetNodesByType(ntree, nodeType):
+    for n in ntree.nodes:
+        if n.bl_idname == nodeType:
+            yield n
+
+
 def GetNodeByType(ntree, nodeType):
     for n in ntree.nodes:
         if n.bl_idname == nodeType:
