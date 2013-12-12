@@ -79,6 +79,22 @@ def GetObjects(bus, checkAnimated=False, checkUpdated=False):
 ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
  ######  ########    ##       ##    #### ##    ##  ######    ######
 
+def ExportRenderPasses(bus):
+    scene = bus['scene']
+
+    ntree = scene.vray.ntree
+    if not ntree:
+        return
+
+    outputNode = NodesExport.GetNodeByType(ntree, 'VRayNodeRenderChannels')
+    if not outputNode:
+        return
+
+    for socket in outputNode.inputs:
+        if socket.is_linked and socket.use:
+            NodesExport.WriteConnectedNode(bus, ntree, socket)
+
+
 def ExportSettings(bus):
     """
     Exports global render settings
@@ -157,6 +173,8 @@ def ExportSettings(bus):
             ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
 
     PLUGINS_ID['SettingsEnvironment'].write(bus)
+
+    ExportRenderPasses(bus)
 
 
  ######     ###    ##     ## ######## ########     ###    
