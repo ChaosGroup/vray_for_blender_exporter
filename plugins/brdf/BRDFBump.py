@@ -59,14 +59,14 @@ PluginParams = (
         'name' : "Bump Amount",
         'desc' : "Bump amount",
         'type' : 'FLOAT',
-        'default' : 1,
+        'default' : 0.1,
     },
     {
         'attr' : 'bump_tex_mult_tex',
         'name' : "Bump Amount Texture",
         'desc' : "Bump amount texture",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.1,
     },
     {
         'attr' : 'bump_shadows',
