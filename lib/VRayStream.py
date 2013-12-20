@@ -454,8 +454,8 @@ class VRayExporter():
         #
         Debug("VRayExporter::quit")
 
-        self.socket.send("stop", result=True)
-        self.socket.send("unload", result=True)
+        self.socket.send("stop")
+        self.socket.send("unload")
         self.socket.send("quit")
         self.socket.disconnect()
 
