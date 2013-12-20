@@ -111,7 +111,7 @@ class VRayNodeRenderChannels(bpy.types.Node, tree.VRayTreeNode):
     )
 
     deep_merge_coeff = bpy.props.FloatProperty(
-        name = "Global Light Level",
+        name = "Deep Merge Coeff",
         description = "Determines the z-depth blending sensitivity",
         min = 0.0,
         default = 1.0,
