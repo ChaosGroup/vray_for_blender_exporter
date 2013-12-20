@@ -69,37 +69,37 @@ class VRayRenderer(bpy.types.RenderEngine):
         export.Run(scene, self.bl_idname)
 
 
-class VRayRendererPreview(bpy.types.RenderEngine):
-    bl_idname      = 'VRAY_RENDER_PREVIEW'
-    bl_label       = "V-Ray (With Material Preview)"
-    bl_use_preview = True
+# class VRayRendererPreview(bpy.types.RenderEngine):
+#     bl_idname      = 'VRAY_RENDER_PREVIEW'
+#     bl_label       = "V-Ray (With Material Preview)"
+#     bl_use_preview = True
 
-    err = None
+#     err = None
 
-    def update(self, data, scene):
-        debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
+#     def update(self, data, scene):
+#         debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
 
-        realtime.RemoveRTCallbacks()
+#         realtime.RemoveRTCallbacks()
 
-        if self.is_preview:
-            if scene.render.resolution_x < 64:
-                # Don't render icons
-                return
+#         if self.is_preview:
+#             if scene.render.resolution_x < 64:
+#                 # Don't render icons
+#                 return
 
-        self.err = export.Export(data, scene, self.bl_idname, self.is_preview)
-        ErrorReport(self, err)
+#         self.err = export.Export(data, scene, self.bl_idname, self.is_preview)
+#         ErrorReport(self, err)
 
-    def render(self, scene):
-        debug.Debug("VRayRendererPreview::render(is_preview=%i)" % self.is_preview)
-        if self.err:
-            return
+#     def render(self, scene):
+#         debug.Debug("VRayRendererPreview::render(is_preview=%i)" % self.is_preview)
+#         if self.err:
+#             return
 
-        if self.is_preview:
-            if scene.render.resolution_x < 64:
-                # Don't render icons
-                return
+#         if self.is_preview:
+#             if scene.render.resolution_x < 64:
+#                 # Don't render icons
+#                 return
 
-        export.Run(scene, self.bl_idname)
+#         export.Run(scene, self.bl_idname)
 
 
 class VRayRendererRT(bpy.types.RenderEngine):
