@@ -44,7 +44,8 @@ DESC = "Environment and effects"
 
 def WriteEffects(bus, ntree, node):
     for nodeSocket in node.inputs:
-        NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
+        if nodeSocket.use:
+            NodesExport.WriteConnectedNode(bus, ntree, nodeSocket)
 
 
 ######## ##    ## ##     ## #### ########   #######  ##    ## ##     ## ######## ##    ## ######## 
