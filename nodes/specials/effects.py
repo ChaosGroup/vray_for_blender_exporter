@@ -50,7 +50,7 @@ class VRayEffectsHolderAddSockets(bpy.types.Operator):
 
         newIndex = len(node.inputs) + 1
 
-        AddInput(node, 'VRaySocketObject', GetSocketName(newIndex))
+        AddInput(node, 'VRaySocketEffect', GetSocketName(newIndex))
 
         return {'FINISHED'}
 
@@ -94,7 +94,7 @@ class VRayNodeEffectsHolder(bpy.types.Node, tree.VRayTreeNode):
     vray_plugin = 'NONE'
 
     def init(self, context):
-        AddInput(self, 'VRaySocketObject', GetSocketName(1))
+        AddInput(self, 'VRaySocketEffect', GetSocketName(1))
         AddOutput(self, 'VRaySocketObject', "Effects")
 
     def draw_buttons(self, context, layout):
