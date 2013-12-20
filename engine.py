@@ -165,7 +165,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
 def GetRegClasses():
     return (
         VRayRenderer,
-        VRayRendererPreview,
+        # VRayRendererPreview,
         VRayRendererRT,
     )
 
