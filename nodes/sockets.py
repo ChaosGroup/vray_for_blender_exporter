@@ -449,9 +449,9 @@ class VRaySocketRenderChannel(bpy.types.NodeSocket, base.NodeSocket, VRaySocketU
     bl_label  = 'Render Channel Socket'
 
     value = bpy.props.StringProperty(
-        name        = "Defautl Material",
-        description = "Defautl material",
-        default     = "MANOMATERIALISSET"
+        name        = "",
+        description = "",
+        default     = ""
     )
 
     vray_attr = bpy.props.StringProperty(
@@ -477,9 +477,66 @@ class VRaySocketRenderChannelOutput(bpy.types.NodeSocket, base.NodeSocket):
     bl_label  = 'Render Channel Ouput Socket'
 
     value = bpy.props.StringProperty(
-        name        = "Defautl Material",
-        description = "Defautl material",
-        default     = "MANOMATERIALISSET"
+        name        = "",
+        description = "",
+        default     = ""
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw_color(self, context, node):
+        return (0.075, 0.619, 1.0, 1.000)
+
+
+######## ######## ######## ########  ######  ########  ######  
+##       ##       ##       ##       ##    ##    ##    ##    ## 
+##       ##       ##       ##       ##          ##    ##       
+######   ######   ######   ######   ##          ##     ######  
+##       ##       ##       ##       ##          ##          ## 
+##       ##       ##       ##       ##    ##    ##    ##    ## 
+######## ##       ##       ########  ######     ##     ######  
+
+class VRaySocketEffect(bpy.types.NodeSocket, base.NodeSocket, VRaySocketUse):
+    bl_idname = 'VRaySocketEffect'
+    bl_label  = 'Effect Socket'
+
+    value = bpy.props.StringProperty(
+        name        = "",
+        description = "",
+        default     = ""
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.active = self.use
+        split = layout.split()
+        row = split.row(align=True)
+        row.label(text)
+        row.prop(self, 'use', text="")
+
+    def draw_color(self, context, node):
+        return (0.075, 0.619, 1.0, 1.000)
+
+
+class VRaySocketEffectOutput(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = 'VRaySocketEffectOutput'
+    bl_label  = 'Effect Socket Socket'
+
+    value = bpy.props.StringProperty(
+        name        = "",
+        description = "",
+        default     = ""
     )
 
     vray_attr = bpy.props.StringProperty(
@@ -516,6 +573,8 @@ def GetRegClasses():
         VRaySocketMtl,
         VRaySocketRenderChannel,
         VRaySocketRenderChannelOutput,
+        VRaySocketEffect,
+        VRaySocketEffectOutput,
     )
 
 
