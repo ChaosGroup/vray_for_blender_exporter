@@ -129,6 +129,21 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 1,
     },
+
+    {
+        'attr' : 'clip_near',
+        'desc' : "Clip near",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
+    {
+        'attr' : 'clip_far',
+        'desc' : "Clip far",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
 )
 
 
@@ -137,12 +152,14 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     ca    = bus['camera']
 
     VRayScene = scene.vray
-    VRayBake  = VRayScene.BakeView
+    VRayBake   = VRayScene.BakeView
+    SettingsCamera = VRayScene.SettingsCamera
 
     if VRayBake.use:
         return
 
     VRayCamera = ca.data.vray
+    RenderView = VRayCamera.RenderView
 
     fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
     
@@ -153,9 +170,14 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     overrideParams.update({
         'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
-        'clipping_near' : ca.data.clip_start,
-        'clipping_far' : ca.data.clip_end,
+        'clipping' : RenderView.clip_near or RenderView.clip_far
     })
+
+    # if SettingsCamera.type not in {'SPHERIFICAL', 'BOX'}:
+    if RenderView.clip_near:
+        overrideParams['clipping_near'] = camera.data.clip_start
+    if RenderView.clip_far:
+        overrideParams['clipping_far'] = camera.data.clip_end
 
     if 'fov' not in overrideParams:
         overrideParams['fov'] = fov
