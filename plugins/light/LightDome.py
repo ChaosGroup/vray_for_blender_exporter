@@ -413,6 +413,7 @@ PluginWidget = """
     {   "layout" : "ROW",
         "align" : true,
         "attrs" : [
+            { "name" : "use_dome_tex" },
             { "name" : "tex_resolution" },
             { "name" : "tex_adaptive" }
         ]
