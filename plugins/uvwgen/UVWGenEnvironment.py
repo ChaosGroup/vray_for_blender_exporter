@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb25.lib import ExportUtils
+
 
 TYPE = 'UVWGEN'
 ID   = 'UVWGenEnvironment'
@@ -45,45 +47,71 @@ PluginParams = (
     },
     {
         'attr' : 'mapping_type',
-        'desc' : 'One of "angular", "cubic", "spherical", "mirror_ball", "screen", "max_spherical", "spherical_vray", "max_cylindrical" or "max_shrink_wrap"',
-        'type' : 'STRING',
-        'default' : "spherical",
+        'desc' : 'Mapping type',
+        'type' : 'ENUM',
+        'items' : (
+            ('angular', "Angular", ""),
+            ('cubic', "Cubic", ""),
+            ('spherical', "Spherical", ""),
+            ('mirror_ball', "Mirror Ball", ""),
+            ('screen', "Screen", ""),
+            ('max_spherical', "Spherical (3ds max)", ""),
+            ('spherical_vray', "Spherical (V-Ray)", ""),
+            ('max_cylindrical', "Cylindrical (3ds max)", ""),
+            ('max_shrink_wrap', "Shrink Wrap (3ds max)", ""),
+        ),
+        'default' : 'spherical',
     },
     {
         'attr' : 'wrap_u',
-        'desc' : "0 - no wrapping, 1 - wrap, 2 - mirror tile",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Wrap U",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Wrapping", ""),
+            ('1', "Wrap", ""),
+            ('2', "Mirror Tile", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'wrap_v',
-        'desc' : "0 - no wrapping, 1 - wrap, 2 - mirror tile",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Wrap V",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Wrapping", ""),
+            ('1', "Wrap", ""),
+            ('2', "Mirror Tile", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'wrap_w',
-        'desc' : "0 - no wrapping, 1 - wrap, 2 - mirror tile",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Wrap W",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "No Wrapping", ""),
+            ('1', "Wrap", ""),
+            ('2', "Mirror Tile", ""),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'crop_u',
-        'desc' : "1 to crop in the u-direction",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Crop in the u-direction",
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'crop_v',
-        'desc' : "1 to crop in the v-direction",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Crop in the v-direction",
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'crop_w',
-        'desc' : "1 to crop in the w-direction",
-        'type' : 'INT',
-        'default' : 0,
+        'desc' : "Crop in the w-direction",
+        'type' : 'BOOL',
+        'default' : False,
     },
     {
         'attr' : 'duvw_scale',
@@ -110,3 +138,11 @@ PluginParams = (
         'default' : 1000,
     },
 )
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'mapping_type' : '"%s"' % propGroup.mapping_type,
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
