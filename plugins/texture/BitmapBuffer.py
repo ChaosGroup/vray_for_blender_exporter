@@ -88,7 +88,7 @@ PluginParams = (
         'items' : (
             ('0', "Bilinear", ""),
             ('1', "Bicubic", ""),
-            ('2', "iquadratic", ""),
+            ('2', "Quadratic", ""),
         ),
         'default' : '0',
     },
