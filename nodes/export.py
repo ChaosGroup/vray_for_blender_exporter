@@ -67,6 +67,8 @@ def GetNodesByType(ntree, nodeType):
 
 
 def GetNodeByType(ntree, nodeType):
+    if not ntree:
+        return None
     for n in ntree.nodes:
         if n.bl_idname == nodeType:
             return n
@@ -80,15 +82,15 @@ def GetOutputNode(ntree):
 def GetOutputName(ntree):
     outputNode = GetNodeByType(ntree, 'VRayNodeOutputMaterial')
     if not outputNode:
-        return bus['defaults']['material']
+        return None
 
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
-        return bus['defaults']['material']
+        return None
 
     connectedNode = GetConnectedNode(ntree, materialSocket)
     if not connectedNode:
-        return bus['defaults']['material']
+        return None
 
     return GetNodeName(ntree, connectedNode)
 
