@@ -455,6 +455,7 @@ def write_object(bus):
 
 def _write_object_particles_hair(bus):
     scene = bus['scene']
+    o     = bus['output']
     ob    = bus['node']['object']
 
     VRayScene    = scene.vray
@@ -480,11 +481,11 @@ def _write_object_particles_hair(bus):
         hair_node_name = "Node"+hair_geom_name
 
         _vray_for_blender.exportHair(
-            bpy.context.as_pointer(), # Context
-            ob.as_pointer(),          # Object
-            ps.as_pointer(),          # ParticleSystem
-            hair_geom_name,           # Result plugin name
-            bus['files']['geom']      # Output file
+            bpy.context.as_pointer(),   # Context
+            ob.as_pointer(),            # Object
+            ps.as_pointer(),            # ParticleSystem
+            hair_geom_name,             # Result plugin name
+            o.getFileByType('GEOMETRY') # Output file
         )
 
         bus['node']['hair']     = True
