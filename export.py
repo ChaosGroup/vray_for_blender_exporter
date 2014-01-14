@@ -324,8 +324,11 @@ def write_node(bus):
     ob         = bus['node']['object']
     visibility = bus['visibility']
 
-    if not bus['node']['material'] or not bus['node']['geometry']:
+    if not bus['node']['geometry']:
         return
+
+    if not bus['node']['material']:
+        bus['node']['material'] = bus['defaults']['material']
 
     VRayScene = scene.vray
     SettingsOptions = VRayScene.SettingsOptions
@@ -368,7 +371,7 @@ def write_node(bus):
         node_name = bus['node']['particle']['name']
         matrix    = bus['node']['particle']['matrix']
 
-    if 'hair' in bus['node'] and bus['node']['hair'] == True:
+    if bus['node'].get('hair', False):
         node_name += 'HAIR'
 
     material = base_mtl
@@ -420,6 +423,12 @@ def write_object(bus):
     bus['node']['geometry'] = get_name(ob.data if VRayExporter.use_instances else ob, prefix='ME')
     bus['node']['matrix']   = ob.matrix_world
 
+    # If this is hair we already have all needed data in the bus
+    #
+    if bus['node'].get('hair', False):
+        write_node(bus)
+        return
+
     # Check if this is a particle holder and skip if needed
     if len(ob.particle_systems):
         for ps in ob.particle_systems:
@@ -445,10 +454,8 @@ def write_object(bus):
     bus['node']['geometry'] = socketParams.get('geometry', None)
     bus['node']['material'] = socketParams.get('material', None)
 
-    # If 'geometry' is None, we need to check if LightMesh node was used
+    # TODO: If 'geometry' is None, we need to check if LightMesh node was used
     # and export as Light
-    #
-    # TODO
 
     write_node(bus)
 
@@ -471,7 +478,7 @@ def _write_object_particles_hair(bus):
         if not (ps.settings.type == 'HAIR' and ps.settings.render_type == 'PATH'):
             continue
 
-        ps_material = bus['defaults']['material']
+        ps_material = None
         ps_material_idx = ps.settings.material
         if len(ob.material_slots) >= ps_material_idx:
             if ob.material_slots[ps_material_idx - 1].material:
