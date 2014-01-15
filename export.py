@@ -653,7 +653,17 @@ def ExportFrame(bus, frame=None, camera=None, checkAnimated=False, checkUpdated=
     ExportObjects(bus)
 
 
-def ExportAnimation():
+def ExportAnimation(bus):
+    """
+    Exports scene animation
+    Only works in 'VRSCENE' work
+    """
+
+    scene = bus['scene']
+
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
+
     if VRayExporter.animation_type == 'FRAMEBYFRAME':
         if VRayExporter.use_still_motion_blur:
             pass
