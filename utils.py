@@ -590,11 +590,9 @@ def to_double_hex_vector(vector):
 
 # Transform matrix string
 def transform(m):
+	if hasattr(_vray_for_blender, 'getTransformHex'):
+		return _vray_for_blender.getTransformHex(m.copy())
 	return "Transform(Matrix(Vector(%f,%f,%f),Vector(%f,%f,%f),Vector(%f,%f,%f)),Vector(%f,%f,%f))" % (m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2], m[0][3], m[1][3], m[2][3])
-	# return 'TransformHex("%s%s%s%s")' % (to_vrscene_hex_vector(m.col[0]),
-	# 	to_vrscene_hex_vector(m.col[1]),
-	# 	to_vrscene_hex_vector(m.col[2]),
-	# 	to_double_hex_vector(m.translation))
 
 
 # Clean string from forbidden chars
