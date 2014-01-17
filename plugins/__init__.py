@@ -138,7 +138,7 @@ def UpdateJsonDescription():
 		Debug("Plugin directory not found!", msgType='ERROR')
 		return
 
-	jsonDirpath = os.path.join(pluginsDir, "JSON")
+	jsonDirpath = os.path.expanduser("~/devel/vray/vray_json")
 
 	for p in PLUGINS_ID:
 		pluginModule = PLUGINS_ID[p]
