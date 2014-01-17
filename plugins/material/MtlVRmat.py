@@ -60,7 +60,7 @@ PluginParams = (
         'name' : "Expanded",
         'desc' : "Material is expanded to nodes",
         'type' : 'BOOL',
-        'options' : {'HIDDEN'},
+        'options' : 'HIDDEN',
         'skip' : True,
         'default' : False,
     },
