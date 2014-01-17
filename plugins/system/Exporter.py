@@ -117,7 +117,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     customFrame = bpy.props.IntProperty(
         name        = "Custom Frame",
         description = "Custom frame number",
-        options     = 'HIDDEN',
+        options     = {'HIDDEN'},
         min         = 0,
         max         = 1024,
         default     = 0
@@ -299,7 +299,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     wait = bpy.props.BoolProperty(
         name        = "Wait",
         description = "Wait for V-Ray to complete rendering",
-        options     = 'HIDDEN',
+        options     = {'HIDDEN'},
         default     = False
     )
 
