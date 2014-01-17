@@ -115,7 +115,7 @@ PluginWidget = """
     {   "layout" : "COLUMN",
         "attrs" : [
             { "name" : "creases" },
-            { "name" : "use_3d_mapping" },
+            { "name" : "use_3d_mapping" }
         ]
     },
 
