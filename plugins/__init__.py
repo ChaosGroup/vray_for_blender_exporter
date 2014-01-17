@@ -94,8 +94,11 @@ def LoadPluginAttributes(plugins, pointerProp):
 		AddAttributes(plugins[plugin], pointerProp)
 
 
+def GetPluginsDir():
+	return os.path.join(utils.get_vray_exporter_path(), "plugins")
+
 def LoadPlugins(PluginDict, PluginIDDict):
-	pluginsDir = os.path.join(utils.get_vray_exporter_path(), "plugins")
+	pluginsDir = GetPluginsDir()
 
 	if not pluginsDir or not os.path.exists(pluginsDir):
 		Debug("Plugin directory not found!", msgType='ERROR')
