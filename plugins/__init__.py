@@ -129,6 +129,51 @@ def LoadPlugins(PluginDict, PluginIDDict):
 		PluginIDDict[plugin.ID] = plugin
 
 
+def UpdateJsonDescription():
+	import json
+
+	pluginsDir = GetPluginsDir()
+
+	if not pluginsDir or not os.path.exists(pluginsDir):
+		Debug("Plugin directory not found!", msgType='ERROR')
+		return
+
+	jsonDirpath = os.path.join(pluginsDir, "JSON")
+
+	for p in PLUGINS_ID:
+		pluginModule = PLUGINS_ID[p]
+
+		if not hasattr(pluginModule, 'PluginParams'):
+			Debug("Plugin '%s' has 'PluginParams'!" % p, msgType='ERROR')
+			continue
+
+		jsonFilepath = os.path.join(jsonDirpath, "%s.json" % p)
+
+		pluginWidgetTmpl = """
+{ "widgets": [
+]}
+"""
+
+		if hasattr(pluginModule, 'PluginWidget'):
+			pluginWidget = pluginModule.PluginWidget
+		else:
+			pluginWidget = pluginWidgetTmpl
+
+		plugWdgDict = None
+		try:
+			plugWdgDict = json.loads(pluginWidget)
+		except ValueError as e:
+			print(p, e)
+
+		jsonPlugin = {
+			'PluginParams' : pluginModule.PluginParams,
+			'PluginWidget' : plugWdgDict,
+		}
+
+		with open(jsonFilepath, 'w') as f:
+			json.dump(jsonPlugin, f, indent=4, sort_keys=True)
+
+
 def GetPluginByName(pluginID):
 	for pluginName in PLUGINS_ID:
 		plugin = PLUGINS_ID[pluginName]
