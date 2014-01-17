@@ -158,7 +158,7 @@ def GenerateAttribute(classMembers, attrDesc):
         
         options = {'FAKE_USER'}
         if 'options' in attrDesc:
-            for opt in attrDesc['options']:
+            for opt in attrDesc['options'].split():
                 options.add(opt)
 
         classMembers[attrDesc['attr']] = idref.IDRefProperty(
@@ -199,7 +199,13 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'ENUM'}:
         attrArgs['items'] = attrDesc['items']
 
-    for optionalKey in ('size', 'options', 'precision', 'subtype'):
+    if 'options' in attrDesc:
+        options = set()
+        for opt in attrDesc['options'].split():
+            options.add(opt)
+        attrArgs['options'] = options
+
+    for optionalKey in {'size', 'precision', 'subtype'}:
         if optionalKey in attrDesc:
             attrArgs[optionalKey] = attrDesc[optionalKey]
 
