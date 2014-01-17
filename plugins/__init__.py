@@ -149,10 +149,7 @@ def UpdateJsonDescription():
 
 		jsonFilepath = os.path.join(jsonDirpath, "%s.json" % p)
 
-		pluginWidgetTmpl = """
-{ "widgets": [
-]}
-"""
+		pluginWidgetTmpl = """{ "widgets": []}"""
 
 		if hasattr(pluginModule, 'PluginWidget'):
 			pluginWidget = pluginModule.PluginWidget
@@ -166,8 +163,12 @@ def UpdateJsonDescription():
 			print(p, e)
 
 		jsonPlugin = {
-			'PluginParams' : pluginModule.PluginParams,
-			'PluginWidget' : plugWdgDict,
+			'Type'       : pluginModule.TYPE,
+			'ID'         : pluginModule.ID,
+			'Name'       : pluginModule.NAME,
+			'Desciption' : pluginModule.DESC,
+			'Parameters' : pluginModule.PluginParams,
+			'Widget'     : plugWdgDict,
 		}
 
 		with open(jsonFilepath, 'w') as f:
