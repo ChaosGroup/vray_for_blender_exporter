@@ -624,6 +624,8 @@ def ExportFrame(bus, frame=None, camera=None, checkAnimated=False, checkUpdated=
     @checkAnimated - will check for object's attr "is_animated" (TODO)
     """
 
+    timer = time.clock()
+
     scene = bus['scene']
 
     bus.update({
@@ -651,6 +653,8 @@ def ExportFrame(bus, frame=None, camera=None, checkAnimated=False, checkUpdated=
     ExportSettings(bus)
 
     ExportObjects(bus)
+
+    print("Frame export done in [%.2f]" % (time.clock() - timer))
 
 
 def ExportAnimation(bus):
