@@ -200,6 +200,34 @@ class VRaySceneNode:
         return node_tree.bl_idname == 'VRayNodeTreeScene'
 
 
+######## ########  #### ########  #######  ########  
+##       ##     ##  ##     ##    ##     ## ##     ## 
+##       ##     ##  ##     ##    ##     ## ##     ## 
+######   ##     ##  ##     ##    ##     ## ########  
+##       ##     ##  ##     ##    ##     ## ##   ##   
+##       ##     ##  ##     ##    ##     ## ##    ##  
+######## ########  ####    ##     #######  ##     ## 
+
+class VRayNodeTreeEditor(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
+    bl_label  = "V-Ray Node Tree Editor"
+    bl_idname = 'VRayNodeTreeEditor'
+    bl_icon   = 'NODETREE'
+
+    socket_type = VRayTreeSockets
+
+    @classmethod
+    def get_from_context(cls, context):
+        VRayExporter = context.scene.vray.Exporter
+
+        listIndex = VRayExporter.ntreeListIndex if VRayExporter.ntreeListIndex >= 0 else 0
+
+        ntree = bpy.data.node_groups[listIndex]
+        if ntree:
+            return ntree, context.scene, context.scene
+
+        return (None, None, None)
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -215,6 +243,8 @@ def GetRegClasses():
         VRayNodeTreeLight,
         VRayNodeTreeWorld,
         VRayNodeTreeScene,
+
+        VRayNodeTreeEditor,
     )
 
 
