@@ -187,8 +187,15 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.operator('render.render', text="Render", icon=render_icon)
 		col = split.column()
 		col.operator('vray.stop', text="Stop", icon='CANCEL')
-		
-		layout.prop(VRayExporter, 'auto_meshes')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(VRayExporter, 'auto_meshes')
+		col = split.column()
+		if rd.use_lock_interface:
+			col.prop(rd, "use_lock_interface", text="Lock", icon='LOCKED')
+		else:
+			col.prop(rd, "use_lock_interface", text="Lock", icon='UNLOCKED')
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
