@@ -38,7 +38,7 @@ PluginParams = (
             ('2', "Adaptive Subdivision", ""),
             ('3', "Progressive", ""),
         ),
-        'default' : '0',
+        'default' : '1',
     },
     {
         'attr' : 'fixed_subdivs',
