@@ -78,8 +78,8 @@ class VRayProcess():
         self.cmdMode = 1
         self.display = 1
 
-    def __del__(self):
-        self.kill()
+    # def __del__(self):
+    #     self.kill()
 
     def init(self, vrayExe):
         self.vrayExe = vrayExe

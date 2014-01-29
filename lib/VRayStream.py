@@ -115,11 +115,11 @@ class VRayExporter():
         self.ntreeCache = {}
         self.needCommit = False
 
-    def __del__(self):
-        self.closeFiles()
+    # def __del__(self):
+    #     self.closeFiles()
 
-        if self.process is not None:
-            self.process.kill()
+    #     if self.process is not None:
+    #         self.process.kill()
 
     ######## #### ##       ########  ######  
     ##        ##  ##       ##       ##    ## 
