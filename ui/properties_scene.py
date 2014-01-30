@@ -27,6 +27,7 @@ import bpy
 from pynodes_framework import idref
 
 from vb25.ui      import classes
+from vb25.lib     import utils as LibUtils
 from vb25.plugins import PLUGINS
 
 
@@ -131,17 +132,33 @@ class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 
 		if bpy.data.lamps:
 			for lamp in bpy.data.lamps:
-				VRayLamp= lamp.vray
-				sub_t= col.row()
-				sub_t.label(text= " %s" % lamp.name, icon='LAMP_%s' % lamp.type)
+				VRayLight = lamp.vray
+				VRayScene = context.scene.vray
 
-				sub= col.row(align= True)
-				sub_c= sub.row()
-				sub_c.prop(VRayLamp, 'enabled', text="")
-				sub_c.prop(lamp,     'color',     text="")
-				sub_v= sub.row()
-				sub_v.prop(VRayLamp, 'intensity', text="")
-				sub_v.prop(VRayLamp, 'subdivs',   text="")
+				lightPluginName = LibUtils.GetLightPluginName(lamp)
+
+				lightPropGroup = getattr(VRayLight, lightPluginName)
+
+				sub_t = col.row()
+				sub_t.label(text=" %s" % lamp.name, icon='LAMP_%s' % lamp.type)
+
+				if lightPluginName == 'SunLight':
+					sub = col.row()
+
+					sub.prop(lightPropGroup, 'enabled', text="")
+
+					r = sub.row()
+					r.scale_x = 0.4
+					r.prop(lightPropGroup, 'filter_color',   text="")
+
+					sub.prop(lightPropGroup, 'intensity_multiplier', text="")
+					sub.prop(lightPropGroup, 'shadow_subdivs',       text="")
+				else:
+					sub = col.row()
+					sub.prop(lightPropGroup, 'enabled', text="")
+					sub.prop(lightPropGroup, 'color',   text="")
+					sub.prop(lightPropGroup, 'intensity', text="")
+					sub.prop(lightPropGroup, 'subdivs',   text="")
 		else:
 			col.label(text="Nothing in bpy.data.lamps...")
 
