@@ -87,7 +87,7 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
 
 class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
     bl_idname = 'VRayNodeBlenderOutputMaterial'
-    bl_label  = 'Blender Object Material'
+    bl_label  = 'Blender Object Materials'
     bl_icon   = 'MATERIAL'
 
     vray_type   = 'NONE'
