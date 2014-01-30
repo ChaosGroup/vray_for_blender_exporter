@@ -448,7 +448,7 @@ def write_object(bus):
     else:
         socketParams['material'] = NodesExport.WriteVRayNodeBlenderOutputMaterial(bus, None, None)
         socketParams['geometry'] = NodesExport.WriteVRayNodeBlenderOutputGeometry(bus, None, None)
-    
+
     PrintDict("Object \"%s\"" % ob.name, socketParams)
 
     bus['node']['geometry'] = socketParams.get('geometry', None)
@@ -654,6 +654,8 @@ def ExportFrame(bus, frame=None, camera=None, checkAnimated=False, checkUpdated=
 
     ExportObjects(bus)
 
+    _vray_for_blender.clearCache()
+
     print("Frame export done in [%.2f]" % (time.clock() - timer))
 
 
@@ -681,6 +683,8 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
+
+    _vray_for_blender.initCache(int(VRayExporter.animation), int(VRayExporter.check_animated))
 
     bus = {
         # Data exporter
@@ -755,6 +759,9 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
     VRayStream.write('MAIN', utils.get_vrscene_template("defaults.vrscene"))
 
     VRayStream.closeFiles()
+
+    _vray_for_blender.clearFrames()
+    _vray_for_blender.clearCache()
 
 
 def Run(scene, engine):
