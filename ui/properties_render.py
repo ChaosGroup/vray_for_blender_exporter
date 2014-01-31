@@ -199,6 +199,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
+			layout.prop(VRayExporter, 'check_animated')
 
 		split= layout.split()
 		col= split.column()
@@ -390,7 +391,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Geometry Export:")
-		# col.prop(ve, 'check_animated')
 		col.prop(ve, 'use_fast_dupli_export')
 		col.prop(ve, 'use_instances')
 		col.prop(ve, 'use_smoke')
