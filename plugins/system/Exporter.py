@@ -108,10 +108,15 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = True
     )
 
-    check_animated = bpy.props.BoolProperty(
-        name = "Check animated",
-        description = "Detect animated meshes",
-        default = False
+    check_animated = bpy.props.EnumProperty(
+        name  = "Check Animated",
+        items = (
+            ('0', "None",   "Don't check meshes for animation"),
+            ('1', "Simple", "Simple check"),
+            ('2', "Hash",   "Check mesh data hash"),
+            ('3', "Both",   "Use both methods"),
+        ),
+        default = '3'
     )
 
     customFrame = bpy.props.IntProperty(
