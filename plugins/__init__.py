@@ -951,7 +951,7 @@ def register():
 	VRayScene.Exporter = bpy.props.PointerProperty(
 		name = "Exporter",
 		type =  bpy.types.VRayExporter,
-		description = "Include additional *.vrscene files"
+		description = "Global exporting settings"
 	)
 
 
