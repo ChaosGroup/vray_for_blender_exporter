@@ -36,6 +36,7 @@ from vb30.debug import Debug
 from vb30.lib   import ClassUtils
 
 
+PLUGINS_DIRS = []
 PLUGINS_ID = {}
 PLUGINS = {
 	'BRDF':          {},
@@ -108,7 +109,11 @@ def LoadPlugins(PluginDict, PluginIDDict):
 	#
 	plugins = []
 	for dirName, subdirList, fileList in os.walk(pluginsDir):
+		if dirName.endswith("__pycache__"):
+			continue
+
 		if not dirName in sys.path:
+			PLUGINS_DIRS.append(dirName)
 			sys.path.append(dirName)
 
 		for fname in fileList:
@@ -956,6 +961,9 @@ def register():
 
 
 def unregister():
+	for plugDir in PLUGINS_DIRS:
+		sys.path.remove(plugDir)
+
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)
 
