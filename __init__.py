@@ -23,7 +23,7 @@
 #
 
 bl_info = {
-    "name" : "V-Ray For Blender",
+    "name" : "V-Ray For Blender 3.0",
     "author" : "",
     "blender" : (2, 67, 0),
     "location" : "Info header, render engine menu",
