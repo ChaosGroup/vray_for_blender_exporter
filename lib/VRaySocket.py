@@ -27,7 +27,7 @@
 import socket
 import time
 
-from vb25.debug import Debug
+from vb30.debug import Debug
 
 
 class VRaySocket():

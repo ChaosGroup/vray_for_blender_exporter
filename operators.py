@@ -35,14 +35,14 @@ import bpy
 import bmesh
 from bpy.props import *
 
-import vb25.proxy
+import vb30.proxy
 
-from vb25.lib     import VRaySocket, VRayProxy
-from vb25.lib     import utils as LibUtils
-from vb25.utils   import *
-from vb25.plugins import PLUGINS, PLUGINS_ID
+from vb30.lib     import VRaySocket, VRayProxy
+from vb30.lib     import utils as LibUtils
+from vb30.utils   import *
+from vb30.plugins import PLUGINS, PLUGINS_ID
 
-from vb25.lib.VRayStream import VRayStream
+from vb30.lib.VRayStream import VRayStream
 
 
 ##     ## ########  ########     ###    ######## ########
@@ -59,12 +59,12 @@ class VRAY_OT_update(bpy.types.Operator):
 	bl_description = "Update exporter from github"
 
 	def execute(self, context):
-		update_dir = create_dir(os.path.join(tempfile.gettempdir(), "vb25_update"))
+		update_dir = create_dir(os.path.join(tempfile.gettempdir(), "vb30_update"))
 
 		# Downloading file
 		self.report({'INFO'}, "Downloading 'master' branch archive...")
 
-		GIT_MASTER_URL = "https://github.com/bdancer/vb25/zipball/master"
+		GIT_MASTER_URL = "https://github.com/bdancer/vb30/zipball/master"
 
 		# devnote: urllib2 not available, urllib's fancyurlopener returns errors anyways (when connection is not available)
 		# so this is a working 'ugly fix' that at leasts works. Sorry the ghetto fix.
@@ -80,33 +80,33 @@ class VRAY_OT_update(bpy.types.Operator):
 		ziparchive.close()
 
 		# Check update dir
-		cur_vb25_dirpath = get_vray_exporter_path()
-		new_vb25_dirpath = ""
+		cur_vb30_dirpath = get_vray_exporter_path()
+		new_vb30_dirpath = ""
 
 		dirnames = os.listdir(update_dir)
 		for dirname in dirnames:
-			if dirname.startswith("bdancer-vb25-"):
-				new_vb25_dirpath = os.path.join(update_dir, dirname)
+			if dirname.startswith("bdancer-vb30-"):
+				new_vb30_dirpath = os.path.join(update_dir, dirname)
 				break
 
-		if not new_vb25_dirpath:
+		if not new_vb30_dirpath:
 			self.report({'ERROR'}, "Update files not found!")
 			return {'CANCELLED'}
 
 		# Copying new files
 		debug(context.scene, "Copying new files...")
-		if os.path.exists(cur_vb25_dirpath):
+		if os.path.exists(cur_vb30_dirpath):
 			if sys.platform == 'win32':
-				for item in os.listdir(cur_vb25_dirpath):
-					s = os.path.join(cur_vb25_dirpath, item)
+				for item in os.listdir(cur_vb30_dirpath):
+					s = os.path.join(cur_vb30_dirpath, item)
 					if os.path.isdir(s):
 						os.system("rmdir /Q /S %s" % s)
 					else:
 						os.system("del /Q /F %s" % s)
 			else:
-				shutil.rmtree(cur_vb25_dirpath)
+				shutil.rmtree(cur_vb30_dirpath)
 
-		copytree(new_vb25_dirpath, cur_vb25_dirpath)
+		copytree(new_vb30_dirpath, cur_vb30_dirpath)
 
 		if os.path.exists(filename):
 			self.report({'INFO'}, "Removing update archive: %s"%(filename))

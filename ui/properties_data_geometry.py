@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 
 class VRAY_DP_tools(classes.VRayGeomPanel):

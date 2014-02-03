@@ -24,9 +24,9 @@
 
 import bpy
 
-import vb25.utils
+import vb30.utils
 
-from vb25.lib import ExportUtils
+from vb30.lib import ExportUtils
 
 
 TYPE = 'RENDERCHANNEL'

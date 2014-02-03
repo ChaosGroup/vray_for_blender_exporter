@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib import ExportUtils, AttributeUtils
+from vb30.lib import ExportUtils, AttributeUtils
 
 
 TYPE = 'TEXTURE'

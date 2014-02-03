@@ -27,9 +27,9 @@ import mathutils
 
 import _vray_for_blender
 
-from vb25.lib import ExportUtils
-from vb25.lib import utils as LibUtils
-from vb25     import utils
+from vb30.lib import ExportUtils
+from vb30.lib import utils as LibUtils
+from vb30     import utils
 
 
 TYPE = 'EFFECT'

@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 from ..        import tree
 from ..sockets import AddInput, AddOutput

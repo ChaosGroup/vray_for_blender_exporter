@@ -26,17 +26,17 @@ import bpy
 
 from bpy.app.handlers import persistent
 
-from vb25.plugins import PLUGINS_ID
+from vb30.plugins import PLUGINS_ID
 
-from vb25.nodes import export as NodeExport
-from vb25.debug import Debug
+from vb30.nodes import export as NodeExport
+from vb30.debug import Debug
 
-from vb25.lib.VRayStream import VRayStream
-from vb25.lib import utils as LibUtils
-from vb25.lib import ExportUtils
+from vb30.lib.VRayStream import VRayStream
+from vb30.lib import utils as LibUtils
+from vb30.lib import ExportUtils
 
-from vb25 import utils
-from vb25 import export
+from vb30 import utils
+from vb30 import export
 
 
 def HashNodeTreeLinks(ntree):

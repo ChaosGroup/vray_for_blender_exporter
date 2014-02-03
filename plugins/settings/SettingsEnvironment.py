@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb25.utils import *
-from vb25.nodes import export as NodesExport
+from vb30.utils import *
+from vb30.nodes import export as NodesExport
 
 
 TYPE = 'SETTINGS'

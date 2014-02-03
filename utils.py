@@ -40,7 +40,7 @@ import getpass
 import bpy
 import mathutils
 
-from vb25.plugins import *
+from vb30.plugins import *
 
 
 PLATFORM = sys.platform
@@ -910,9 +910,9 @@ def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
 			debug(None, "Proxy Creator not found!", error= True)
 
 
-# Returns path to vb25 folder
+# Returns path to vb30 folder
 def get_vray_exporter_path():
-	for vb_path in bpy.utils.script_paths(os.path.join('startup','vb25')):
+	for vb_path in bpy.utils.script_paths(os.path.join('addons','vb30')):
 		if vb_path:
 			return vb_path
 	return ""

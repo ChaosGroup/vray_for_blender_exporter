@@ -27,27 +27,27 @@ import sys
 
 import bpy
 
-from vb25.ui import classes
-from vb25    import plugins
+from vb30.ui import classes
+from vb30    import plugins
 
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
 	bl_label= "Irradiance Map Presets"
-	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "im")
+	preset_subdir= os.path.join("..", "startup", "vb30", "presets", "im")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 
 
 class VRAY_MT_preset_global(bpy.types.Menu):
 	bl_label= "Global Presets"
-	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "render")
+	preset_subdir= os.path.join("..", "startup", "vb30", "presets", "render")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 
 
 class VRAY_MT_preset_gi(bpy.types.Menu):
 	bl_label= "GI Presets"
-	preset_subdir= os.path.join("..", "startup", "vb25", "presets", "gi")
+	preset_subdir= os.path.join("..", "startup", "vb30", "presets", "gi")
 	preset_operator= "script.execute_preset"
 	draw= bpy.types.Menu.draw_preset
 

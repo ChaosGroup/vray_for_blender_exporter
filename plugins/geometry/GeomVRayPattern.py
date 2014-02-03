@@ -26,7 +26,7 @@
 import bpy
 import mathutils
 
-from vb25 import utils
+from vb30 import utils
 
 
 TYPE = 'OBJECT'

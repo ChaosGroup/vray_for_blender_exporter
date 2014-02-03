@@ -27,8 +27,8 @@ import math
 import bpy
 import mathutils
 
-from vb25.lib import ExportUtils
-from vb25.lib import utils
+from vb30.lib import ExportUtils
+from vb30.lib import utils
 
 
 TYPE = 'UVWGEN'

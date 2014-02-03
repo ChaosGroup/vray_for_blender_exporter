@@ -31,9 +31,9 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25       import utils
-from vb25.debug import Debug
-from vb25.lib   import ClassUtils
+from vb30       import utils
+from vb30.debug import Debug
+from vb30.lib   import ClassUtils
 
 
 PLUGINS_ID = {}
@@ -181,9 +181,6 @@ def GetPluginByName(pluginID):
 		if pluginID == plugin.ID:
 			return plugin
 	return None
-
-
-LoadPlugins(PLUGINS, PLUGINS_ID)
 
 
  ######     ###    ##     ## ######## ########     ###
@@ -802,6 +799,8 @@ def GetRegClasses():
 
 
 def register():
+	LoadPlugins(PLUGINS, PLUGINS_ID)
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
@@ -954,6 +953,7 @@ def register():
 		type =  bpy.types.VRayExporter,
 		description = "Include additional *.vrscene files"
 	)
+
 
 def unregister():
 	for regClass in GetRegClasses():

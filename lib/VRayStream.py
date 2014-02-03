@@ -29,8 +29,8 @@ import datetime
 import os
 import sys
 
-from vb25       import utils
-from vb25.debug import Debug
+from vb30       import utils
+from vb30.debug import Debug
 
 from .            import utils as LibUtils
 from .VRaySocket  import VRaySocket

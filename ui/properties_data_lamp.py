@@ -26,10 +26,10 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25.ui      import classes
-from vb25.lib     import utils as LibUtils
-from vb25.lib     import DrawUtils
-from vb25.plugins import PLUGINS
+from vb30.ui      import classes
+from vb30.lib     import utils as LibUtils
+from vb30.lib     import DrawUtils
+from vb30.plugins import PLUGINS
 
 
 ##     ## ######## #### ##        ######  

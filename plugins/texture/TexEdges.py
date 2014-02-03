@@ -22,7 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from vb25.lib import ExportUtils
+from vb30.lib import ExportUtils
 
 
 TYPE = 'TEXTURE'

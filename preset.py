@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.utils import *
+from vb30.utils import *
 
 
 class VRAY_PRESETS():
@@ -513,7 +513,7 @@ bpy.utils.register_class(VRAY_PRESET_gi)
 # }
 # def generate_presets():
 # 	for preset in SSS2:
-# 		ofile= open("/home/bdancer/devel/vrayblender/exporter/vb25/presets/sss/%s.py"%(preset), 'w')
+# 		ofile= open("/home/bdancer/devel/vrayblender/exporter/vb30/presets/sss/%s.py"%(preset), 'w')
 # 		ofile.write("import bpy\n")
 # 		for param in SSS2[preset]:
 # 			ps= SSS2[preset][param]

@@ -27,11 +27,11 @@ import mathutils
 
 import _vray_for_blender
 
-from vb25.lib     import ExportUtils
-from vb25.lib     import utils as LibUtils
-from vb25.plugins import PLUGINS
-from vb25.debug   import Debug, PrintDict
-from vb25.utils   import get_name, clean_string, get_data_by_name
+from vb30.lib     import ExportUtils
+from vb30.lib     import utils as LibUtils
+from vb30.plugins import PLUGINS
+from vb30.debug   import Debug, PrintDict
+from vb30.utils   import get_name, clean_string, get_data_by_name
 
 
 ##     ## ######## #### ##       #### ######## #### ########  ######

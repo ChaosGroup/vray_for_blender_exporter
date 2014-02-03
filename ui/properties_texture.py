@@ -26,7 +26,7 @@ import bpy
 
 from bpy.types import Brush, Lamp, Material, Object, ParticleSettings, Texture, World
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 from bl_ui.properties_texture import context_tex_datablock
 

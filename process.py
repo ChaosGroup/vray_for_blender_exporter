@@ -30,9 +30,9 @@ import sys
 import tempfile
 import time
 
-from vb25                import utils
-from vb25.lib.VRaySocket import VRaySocket
-from vb25.debug          import Debug
+from vb30                import utils
+from vb30.lib.VRaySocket import VRaySocket
+from vb30.debug          import Debug
 
 
 # V-Ray process

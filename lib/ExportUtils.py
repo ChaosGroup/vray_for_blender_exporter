@@ -26,7 +26,7 @@ import os
 
 import bpy
 
-from vb25.debug import Debug, PrintDict
+from vb30.debug import Debug, PrintDict
 
 from . import utils, paths
 from . import AttributeUtils

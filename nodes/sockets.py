@@ -26,7 +26,7 @@ import bpy
 
 from pynodes_framework import base
 
-from vb25.debug import Debug
+from vb30.debug import Debug
 
 
 def AddInput(node, socketType, socketName, attrName=None, default=None):

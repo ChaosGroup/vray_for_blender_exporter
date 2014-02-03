@@ -29,7 +29,7 @@ import bpy
 from bpy.props import *
 
 ''' vb modules '''
-from vb25.utils import *
+from vb30.utils import *
 
 
 TYPE = 'CAMERA'

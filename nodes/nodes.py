@@ -32,10 +32,10 @@ import nodeitems_utils
 
 from pynodes_framework import idref, base, parameter
 
-from vb25.plugins import PLUGINS
-from vb25.debug   import Debug, PrintDict
-from vb25.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
-from vb25.ui      import classes
+from vb30.plugins import PLUGINS
+from vb30.debug   import Debug, PrintDict
+from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
+from vb30.ui      import classes
 
 from .        import tree
 from .sockets import AddInput, AddOutput

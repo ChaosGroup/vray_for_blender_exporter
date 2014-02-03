@@ -25,8 +25,8 @@
 import bpy
 import math
 
-from vb25.lib import ExportUtils
-from vb25.lib import utils as LibUtils
+from vb30.lib import ExportUtils
+from vb30.lib import utils as LibUtils
 
 
 TYPE = 'CAMERA'

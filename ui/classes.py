@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb25.lib import DrawUtils
-from vb25     import plugins
+from vb30.lib import DrawUtils
+from vb30     import plugins
 
 
 ########  ######## ######## #### ##    ## ########  ######

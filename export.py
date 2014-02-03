@@ -35,15 +35,15 @@ import mathutils
 
 import _vray_for_blender
 
-from vb25.plugins import PLUGINS, PLUGINS_ID
+from vb30.plugins import PLUGINS, PLUGINS_ID
 
-from vb25.lib     import utils as LibUtils
-from vb25.lib     import ExportUtils
-from vb25.nodes   import export as NodesExport
-from vb25.debug   import Debug, PrintDict
-from vb25.lib.VRayStream import VRayStream
-from vb25         import utils
-from vb25.utils   import get_name, a, p
+from vb30.lib     import utils as LibUtils
+from vb30.lib     import ExportUtils
+from vb30.nodes   import export as NodesExport
+from vb30.debug   import Debug, PrintDict
+from vb30.lib.VRayStream import VRayStream
+from vb30         import utils
+from vb30.utils   import get_name, a, p
 
 
 ##     ## ######## #### ##        ######  

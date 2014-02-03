@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb25.lib   import DrawUtils, ExportUtils
-from vb25.utils import get_full_filepath
+from vb30.lib   import DrawUtils, ExportUtils
+from vb30.utils import get_full_filepath
 
 
 TYPE = 'TEXTURE'

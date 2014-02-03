@@ -26,19 +26,19 @@ __all__ = [ 'classes' ]
 
 
 def register():
-    from vb25.ui import classes
-    from vb25.ui import properties_data_geometry
-    from vb25.ui import properties_data_camera
-    from vb25.ui import properties_data_lamp
-    from vb25.ui import properties_data_empty
-    from vb25.ui import properties_material
-    from vb25.ui import properties_object
-    from vb25.ui import properties_particles
-    from vb25.ui import properties_render
-    from vb25.ui import properties_render_layers
-    from vb25.ui import properties_scene
-    from vb25.ui import properties_texture
-    from vb25.ui import properties_world
+    from vb30.ui import classes
+    from vb30.ui import properties_data_geometry
+    from vb30.ui import properties_data_camera
+    from vb30.ui import properties_data_lamp
+    from vb30.ui import properties_data_empty
+    from vb30.ui import properties_material
+    from vb30.ui import properties_object
+    from vb30.ui import properties_particles
+    from vb30.ui import properties_render
+    from vb30.ui import properties_render_layers
+    from vb30.ui import properties_scene
+    from vb30.ui import properties_texture
+    from vb30.ui import properties_world
 
     classes.register()
 
@@ -57,19 +57,19 @@ def register():
 
 
 def unregister():
-    from vb25.ui import classes
-    from vb25.ui import properties_data_geometry
-    from vb25.ui import properties_data_camera
-    from vb25.ui import properties_data_lamp
-    from vb25.ui import properties_data_empty
-    from vb25.ui import properties_material
-    from vb25.ui import properties_object
-    from vb25.ui import properties_particles
-    from vb25.ui import properties_render
-    from vb25.ui import properties_render_layers
-    from vb25.ui import properties_scene
-    from vb25.ui import properties_texture
-    from vb25.ui import properties_world
+    from vb30.ui import classes
+    from vb30.ui import properties_data_geometry
+    from vb30.ui import properties_data_camera
+    from vb30.ui import properties_data_lamp
+    from vb30.ui import properties_data_empty
+    from vb30.ui import properties_material
+    from vb30.ui import properties_object
+    from vb30.ui import properties_particles
+    from vb30.ui import properties_render
+    from vb30.ui import properties_render_layers
+    from vb30.ui import properties_scene
+    from vb30.ui import properties_texture
+    from vb30.ui import properties_world
     
     classes.unregister()
 

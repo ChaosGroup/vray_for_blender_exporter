@@ -26,7 +26,7 @@ import bpy
 
 from pynodes_framework import parameter, base, group, category
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 
 class VRayData():

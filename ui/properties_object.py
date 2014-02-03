@@ -26,7 +26,7 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 
 class VRAY_OBP_context_node(classes.VRayObjectPanel):

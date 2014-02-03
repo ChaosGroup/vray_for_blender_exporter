@@ -26,7 +26,7 @@ import math
 
 import bpy
 
-from vb25.lib import DrawUtils, ExportUtils, utils
+from vb30.lib import DrawUtils, ExportUtils, utils
 
 
 TYPE = 'UVWGEN'

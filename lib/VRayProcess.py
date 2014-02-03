@@ -30,7 +30,7 @@ import signal
 import sys
 import tempfile
 
-from vb25.debug import Debug
+from vb30.debug import Debug
 
 
 if sys.platform not in {'win32'}:

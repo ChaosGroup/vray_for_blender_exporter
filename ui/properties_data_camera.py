@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.ui import classes
+from vb30.ui import classes
 
 
 from bl_ui import properties_data_camera

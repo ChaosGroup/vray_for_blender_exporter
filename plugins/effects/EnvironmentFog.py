@@ -25,7 +25,7 @@
 import bpy
 import mathutils
 
-from vb25.lib import ExportUtils
+from vb30.lib import ExportUtils
 
 
 TYPE = 'EFFECT'

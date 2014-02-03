@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb25.lib import ExportUtils, utils
+from vb30.lib import ExportUtils, utils
 
 import TexCommonParams
 

@@ -32,8 +32,8 @@ import time
 import bpy
 import bmesh
 
-from vb25.lib   import VRayProxy
-from vb25.utils import *
+from vb30.lib   import VRayProxy
+from vb30.utils import *
 
 
 def write_mesh_hq(ofile, sce, ob):

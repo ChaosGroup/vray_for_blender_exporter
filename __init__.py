@@ -29,8 +29,8 @@ bl_info = {
     "location" : "Info header, render engine menu",
     "description" : "Exporter to the V-Ray Standalone file format",
     "warning" : "",
-    "wiki_url" : "https://github.com/bdancer/vb25/wiki",
-    "tracker_url" : "https://github.com/bdancer/vb25/issues",
+    "wiki_url" : "https://github.com/bdancer/vb30/wiki",
+    "tracker_url" : "https://github.com/bdancer/vb30/issues",
     "support" : 'COMMUNITY',
     "category" : "Render"
 }
@@ -56,15 +56,15 @@ if "bpy" in locals():
     imp.reload(ui)
 else:
     import bpy
-    from vb25 import plugins
-    from vb25 import preset
-    from vb25 import operators
-    from vb25 import proxy
-    from vb25 import nodes
-    from vb25 import engine
-    from vb25 import realtime
-    from vb25 import keymap
-    from vb25 import ui
+    from vb30 import plugins
+    from vb30 import preset
+    from vb30 import operators
+    from vb30 import proxy
+    from vb30 import nodes
+    from vb30 import engine
+    from vb30 import realtime
+    from vb30 import keymap
+    from vb30 import ui
 
 
 def register():
