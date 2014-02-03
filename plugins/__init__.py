@@ -105,8 +105,6 @@ def LoadPlugins(PluginDict, PluginIDDict):
 		Debug("Plugin directory not found!", msgType='ERROR')
 		return
 
-	# TODO: Rewrite to importlib
-	#
 	plugins = []
 	for dirName, subdirList, fileList in os.walk(pluginsDir):
 		if dirName.endswith("__pycache__"):
@@ -123,7 +121,6 @@ def LoadPlugins(PluginDict, PluginIDDict):
 				continue
 
 			module_name, module_ext = os.path.splitext(fname)
-			# module_path = os.path.join(dirName, fname)
 
 			plugins.append(__import__(module_name))
 
@@ -804,6 +801,9 @@ def GetRegClasses():
 
 
 def register():
+	global PLUGINS
+	global PLUGINS_ID
+
 	LoadPlugins(PLUGINS, PLUGINS_ID)
 
 	for regClass in GetRegClasses():
@@ -944,7 +944,7 @@ def register():
 	LoadPluginAttributes(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPluginAttributes(PLUGINS['UVWGEN'],        VRayTexture)
 
-	LoadPluginAttributes(PLUGINS['SYSTEM'], VRayScene)
+	LoadPluginAttributes(PLUGINS['SYSTEM'],        VRayScene)
 
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
@@ -961,8 +961,8 @@ def register():
 
 
 def unregister():
-	for plugDir in PLUGINS_DIRS:
-		sys.path.remove(plugDir)
+	global PLUGINS_ID
+	global PLUGINS_DIRS
 
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)
@@ -972,6 +972,8 @@ def unregister():
 	idref.bpy_unregister_idref(VRayObject,   'ntree')
 	idref.bpy_unregister_idref(VRayScene,    'ntree')
 	idref.bpy_unregister_idref(VRayWorld,    'ntree')
+
+	del VRayScene.Exporter
 
 	for pluginName in PLUGINS_ID:
 		plugin = PLUGINS_ID[pluginName]
@@ -986,3 +988,11 @@ def unregister():
 	del bpy.types.Scene.vray
 	del bpy.types.Texture.vray
 	del bpy.types.World.vray
+
+	for plugDir in PLUGINS_DIRS:
+		if plugDir in sys.path:
+			sys.path.remove(plugDir)
+	PLUGINS_DIRS = []
+
+	for plug in PLUGINS_ID:
+		del plug
