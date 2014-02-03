@@ -505,8 +505,10 @@ def register():
 
 def unregister():
     # XXX: Remove after Blender fix
-    idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image')
-    idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image_user')
+    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image'):
+        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image')
+    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image_user'):
+        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image_user')
 
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
