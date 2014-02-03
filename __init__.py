@@ -39,9 +39,6 @@ bl_info = {
 import os
 import sys
 
-directory = os.path.dirname(__file__)
-if directory not in sys.path:
-    sys.path.append(directory)
 
 if "bpy" in locals():
     import imp
