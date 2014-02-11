@@ -182,20 +182,12 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		elif VRayExporter.camera_loop:
 			render_icon = 'CAMERA_DATA'
 
-		split= layout.split()
-		col= split.column()
-		col.operator('render.render', text="Render", icon=render_icon)
-		col = split.column()
-		col.operator('vray.stop', text="Stop", icon='CANCEL')
+		split = layout.split()
+		row = split.row(align=True)
+		row.operator('render.render', text="Render", icon=render_icon)
+		row.prop(rd, "use_lock_interface", text="")
 
-		split= layout.split()
-		col= split.column()
-		col.prop(VRayExporter, 'auto_meshes')
-		col = split.column()
-		if rd.use_lock_interface:
-			col.prop(rd, "use_lock_interface", text="Lock", icon='LOCKED')
-		else:
-			col.prop(rd, "use_lock_interface", text="Lock", icon='UNLOCKED')
+		layout.prop(VRayExporter, 'auto_meshes', text="Re-Export Meshes")
 
 		if VRayExporter.animation:
 			layout.prop(VRayExporter, 'animation_type')
@@ -214,7 +206,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
-		col.prop(VRayExporter, 'activeLayers', text="Layers")
+		col.prop(VRayExporter, 'activeLayers', text="")
 		if VRayExporter.activeLayers == 'CUSTOM':
 			col.prop(VRayExporter, 'customRenderLayers', text="")
 		col.prop(VRayExporter, 'animation')
@@ -225,12 +217,15 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_still_motion_blur')
 		col.label(text="Options:")
 		col.prop(VRayExporter, 'draft')
+		col.prop(rd, "display_mode", text="")
 
 		layout.separator()
-		layout.prop(rd, "display_mode", text="Display")
 
-		layout.separator()
-		layout.operator('vray.terminate', text="Terminate", icon='RADIO')
+		split = layout.split()
+		col = split.column()
+		col.operator('vray.stop', text="Stop", icon='CANCEL')
+		col = split.column()
+		col.operator('vray.terminate', text="Terminate", icon='RADIO')
 
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
