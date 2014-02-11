@@ -221,9 +221,10 @@ class VRayNodeTreeEditor(bpy.types.NodeTree, base.NodeTree, category.CategoryNod
 
         listIndex = VRayExporter.ntreeListIndex if VRayExporter.ntreeListIndex >= 0 else 0
 
-        ntree = bpy.data.node_groups[listIndex]
-        if ntree:
-            return ntree, context.scene, context.scene
+        if len(bpy.data.node_groups):
+            ntree = bpy.data.node_groups[listIndex]
+            if ntree:
+                return ntree, context.scene, context.scene
 
         return (None, None, None)
 
