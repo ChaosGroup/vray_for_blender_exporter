@@ -90,9 +90,9 @@ class VRayExporter(bpy.types.PropertyGroup):
         name        = "Active layers",
         description = "Render objects from layers",
         items = (
-            ('ACTIVE', "Active", ""),
-            ('ALL',    "All",    ""),
-            ('CUSTOM', "Custom", "")
+            ('ACTIVE', "Active Layers", ""),
+            ('ALL',    "All Layers",    ""),
+            ('CUSTOM', "Custom Layers", "")
         ),
         default = 'ACTIVE'
     )
