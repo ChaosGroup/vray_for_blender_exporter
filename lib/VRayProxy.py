@@ -1,7 +1,7 @@
 #
 # V-Ray/Blender
 #
-# http://vray.cgdo.ru
+# http://chaosgroup.com
 #
 # Author: Andrei Izrantcev
 # E-Mail: andrei.izrantcev@chaosgroup.com

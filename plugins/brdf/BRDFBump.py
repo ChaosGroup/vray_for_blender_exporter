@@ -1,7 +1,7 @@
 #
 # V-Ray For Blender
 #
-# http://vray.cgdo.ru
+# http://chaosgroup.com
 #
 # Author: Andrei Izrantcev
 # E-Mail: andrei.izrantcev@chaosgroup.com
@@ -93,7 +93,7 @@ PluginParams = (
     {
         'attr' : 'normal_uvwgen',
         'desc' : "The uvw generator for the normal map texture when \"Type\" is \"Normal (Tangent)\"",
-        'type' : 'PLUGIN',
+        'type' : 'UVWGEN',
         'default' : "",
     },
     {
