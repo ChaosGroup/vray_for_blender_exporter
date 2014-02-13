@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.lib import ExportUtils, utils
+
 
 TYPE = 'TEXTURE'
 ID   = 'TexRemap'
@@ -294,3 +296,47 @@ PluginWidget = """
     }
 ]}
 """
+
+
+def nodeDraw(context, layout, node):
+    layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    o     = bus['output']
+
+    texture = bus['context']['node'].texture
+
+    colValue = "List(Color(1.0,1.0,1.0),Color(0.0,0.0,0.0))"
+    posValue = "ListFloat(1.0,0.0)"
+    typesValue = "ListInt(0,0)"
+
+    if texture.color_ramp:
+        ramp_col = []
+        for i,element in enumerate(reversed(texture.color_ramp.elements)):
+            tex_acolor = "%sC%i" % (pluginName, i)
+           
+            o.set('TEXTURE', 'TexAColor', tex_acolor)
+            o.writeHeader()
+            o.writeAttibute('texture', "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color));
+            o.writeFooter()
+
+            ramp_col.append(tex_acolor)
+
+        ramp_pos = []
+        for element in reversed(texture.color_ramp.elements):
+            ramp_pos.append("%.3f" % element.position)
+
+        colValue = "List(%s)" % ",".join(ramp_col)
+        posValue = "ListFloat(%s)" % ",".join(ramp_pos)
+
+        typesValue = "ListInt(%s)" % ",".join(['0']*len(texture.color_ramp.elements))
+
+    overrideParams.update({
+        'color_colors'    : utils.AnimatedValue(scene, colValue),
+        'color_positions' : utils.AnimatedValue(scene, posValue),
+        'color_types'     : utils.AnimatedValue(scene, typesValue),
+    })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
