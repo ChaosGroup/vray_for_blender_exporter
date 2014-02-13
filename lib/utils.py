@@ -27,6 +27,8 @@ import struct
 import bpy
 import mathutils
 
+import _vray_for_blender
+
 from . import paths
 
 
@@ -156,7 +158,7 @@ def FormatValue(t, subtype=None, quotes=False):
     elif type(t) is float:
         return "%.6f"%(t)
     elif type(t) is mathutils.Matrix:
-        return "Transform(Matrix(Vector(%.6f,%f,%f),Vector(%.6f,%.6f,%.6f),Vector(%.6f,%.6f,%.6f)),Vector(%.12f,%.12f,%.12f))" % (t[0][0], t[1][0], t[2][0], t[0][1], t[1][1], t[2][1], t[0][2], t[1][2], t[2][2], t[0][3], t[1][3], t[2][3])
+        return _vray_for_blender.getTransformHex(t.copy())
     elif type(t) is mathutils.Vector:
         return "Vector(%.3f,%.3f,%.3f)" % (t.x,t.y,t.z)
     elif type(t) is mathutils.Color:
