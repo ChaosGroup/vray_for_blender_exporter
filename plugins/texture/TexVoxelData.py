@@ -95,12 +95,12 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         return None
 
     _vray_for_blender.exportSmoke(
-        bpy.context.as_pointer(),        # Context
-        domainObject.as_pointer(),       # Object
-        smd.as_pointer(),                # SmokeModifierData
+        bpy.context.as_pointer(),     # Context
+        domainObject.as_pointer(),    # Object
+        smd.as_pointer(),             # SmokeModifierData
         int(propGroup.interpolation), # Interpolation type
-        pluginName,                      # Result plugin name
-        o.getFileByType('GEOMETRY')      # Output file
+        pluginName,                   # Result plugin name
+        o.getFileByType('GEOMETRY')   # Output file
     )
 
     return pluginName
