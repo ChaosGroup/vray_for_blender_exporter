@@ -1,7 +1,7 @@
 #
 # V-Ray For Blender
 #
-# http://vray.cgdo.ru
+# http://chaosgroup.com
 #
 # Author: Andrei Izrantcev
 # E-Mail: andrei.izrantcev@chaosgroup.com
@@ -34,10 +34,6 @@ bl_info = {
     "support" : 'COMMUNITY',
     "category" : "Render"
 }
-
-
-import os
-import sys
 
 
 if "bpy" in locals():
