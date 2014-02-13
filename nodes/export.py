@@ -331,6 +331,11 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
             if connectedSocket.vray_attr not in {'uvwgen', 'bitmap'}:
                 vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
 
+                if connectedNode.bl_idname == 'VRayNodeTexMayaFluid':
+                    vrayPlugin = vrayPlugin.replace("::out_flame",   "@Flame")
+                    vrayPlugin = vrayPlugin.replace("::out_density", "@Density")
+                    vrayPlugin = vrayPlugin.replace("::out_fuel",    "@Fuel")
+
         return vrayPlugin
     
     return None
@@ -378,7 +383,7 @@ def WriteNode(bus, nodetree, node, returnDefault=False):
     pluginModule = PLUGINS[vrayType][vrayPlugin]
 
     # XXX: Used to access 'image' pointer for BitmapBuffer
-    # and 'texture' for TexGradRamp
+    # and 'texture' for TexGradRamp and TexRemap
     #
     bus['context']['node'] = node
 

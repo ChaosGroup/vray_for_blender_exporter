@@ -251,7 +251,7 @@ def VRayNodeDraw(self, context, layout):
     if hasattr(vrayPlugin, 'nodeDraw'):
         # XXX: The only way to use images by now
         # Remove after Blender fix
-        if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp'}:
+        if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp', 'TexRemap'}:
             vrayPlugin.nodeDraw(context, layout, self)
         else:
             vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
@@ -310,7 +310,7 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'RENDERCHANNEL':
         AddOutput(self, 'VRaySocketRenderChannelOutput', "Channel")
 
-    if self.vray_plugin == 'TexGradRamp':
+    if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         if not self.texture:
             self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
             self.texture.use_color_ramp = True
@@ -321,7 +321,7 @@ def VRayNodeInit(self, context):
 
 
 def VRayNodeCopy(self, node):
-    if self.vray_plugin == 'TexGradRamp':
+    if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
         self.texture.use_color_ramp = True
 
@@ -331,7 +331,7 @@ def VRayNodeCopy(self, node):
 
 
 def VRayNodeFree(self):
-    if self.vray_plugin in {'TexGradRamp', 'BitmapBuffer'}:
+    if self.vray_plugin in {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
         if self.texture:
             self.texture.user_clear()
             bpy.data.textures.remove(self.texture)
@@ -457,7 +457,7 @@ def LoadDynamicNodes():
                     options = {'FAKE_USER', 'NEVER_NULL'},
                 ))
 
-            elif pluginName == 'TexGradRamp':
+            elif pluginName in {'TexGradRamp', 'TexRemap'}:
                 idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
                     "Texture",
                     "Fake texture for Ramp widget",
