@@ -368,6 +368,25 @@ PluginWidget = """
         ]
     },
 
+    {   "layout" : "SEPARATOR" },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "shadow_opacity" },
+                    { "name" : "affect_shadows" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "solid_mode" },
+                    { "name" : "solid_threshold" }
+                ]
+            }
+        ]
+    },
+
     {   "layout" : "SPLIT",
         "splits" : [
             {   "layout" : "COLUMN",
@@ -380,8 +399,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "attrs" : [
                     { "name" : "affect_reflections" },
-                    { "name" : "affect_refractions" },
-                    { "name" : "affect_shadows" }
+                    { "name" : "affect_refractions" }
                 ]
             }
         ]
