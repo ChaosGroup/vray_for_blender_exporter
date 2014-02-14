@@ -306,6 +306,14 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
     o     = bus['output']
 
+    INTERPOLATION = {
+        'CONSTANT' : '0',
+        'LINEAR'   : '1',
+        'EASE'     : '2',
+        'CARDINAL' : '3',
+        'B_SPLINE' : '4',
+    }
+
     texture = bus['context']['node'].texture
 
     colValue = "List(Color(1.0,1.0,1.0),Color(0.0,0.0,0.0))"
@@ -313,6 +321,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     typesValue = "ListInt(0,0)"
 
     if texture.color_ramp:
+        colType = INTERPOLATION[texture.color_ramp.interpolation]
+
         ramp_col = []
         for i,element in enumerate(reversed(texture.color_ramp.elements)):
             tex_acolor = "%sC%i" % (pluginName, i)
@@ -331,7 +341,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         colValue = "List(%s)" % ",".join(ramp_col)
         posValue = "ListFloat(%s)" % ",".join(ramp_pos)
 
-        typesValue = "ListInt(%s)" % ",".join(['0']*len(texture.color_ramp.elements))
+        typesValue = "ListInt(%s)" % ",".join([colType]*len(texture.color_ramp.elements))
 
     overrideParams.update({
         'color_colors'    : utils.AnimatedValue(scene, colValue),
