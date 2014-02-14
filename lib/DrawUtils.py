@@ -64,7 +64,7 @@ def DrawAttr(layout, propGroup, attr, text=None):
 
 
 def Draw(context, layout, propGroup, PluginParams):
-    for attrDesc in PluginParams:
+    for attrDesc in sorted(PluginParams, key=lambda x: x['attr']):
         if attrDesc['type'] in AttributeUtils.SkippedTypes:
             continue
         if attrDesc['type'] in AttributeUtils.OutputTypes:
