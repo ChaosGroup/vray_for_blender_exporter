@@ -664,7 +664,6 @@ def ExportAnimation(bus):
     Exports scene animation
     Only works in 'VRSCENE' work
     """
-
     scene = bus['scene']
 
     VRayScene = scene.vray
@@ -673,6 +672,23 @@ def ExportAnimation(bus):
     if VRayExporter.animation_type == 'FRAMEBYFRAME':
         if VRayExporter.use_still_motion_blur:
             pass
+    else:
+        # Store current frame
+        selected_frame = scene.frame_current
+
+        f = scene.frame_start
+        while(f <= scene.frame_end):
+            scene.frame_set(f)
+
+            ExportFrame(bus, checkAnimated=VRayExporter.checkAnimated)
+
+            f += scene.frame_step
+
+            # Clear names cache
+            _vray_for_blender.clearCache()
+
+        # Restore selected frame
+        scene.frame_set(selected_frame)
 
 
 def Export(data, scene, engine, is_preview=False, is_viewport=False):
