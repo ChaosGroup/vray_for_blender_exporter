@@ -152,13 +152,16 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
         if bus['engine'] == 'VRAY_RENDER_RT' and VRayScene.RTEngine.use_opencl == '4':
             setattr(propGroup, 'dynamic_geometry', True)
 
-        _vray_for_blender.exportMesh(
-            bpy.context.as_pointer(),   # Context
-            ob.as_pointer(),            # Object
-            meshName,                   # Result plugin name
-            propGroup,                  # PropertyGroup
-            o.getFileByType('GEOMETRY') # Output file
-        )
+        try:
+            _vray_for_blender.exportMesh(
+                bpy.context.as_pointer(),   # Context
+                ob.as_pointer(),            # Object
+                meshName,                   # Result plugin name
+                propGroup,                  # PropertyGroup
+                o.getFileByType('GEOMETRY') # Output file
+            )
+        except:
+            return None
 
         if bus['engine'] == 'VRAY_RENDER_RT' and VRayScene.RTEngine.use_opencl == '4':
             setattr(propGroup, 'dynamic_geometry', dynamic_geometry)
