@@ -33,7 +33,14 @@ PluginParams = (
     {
         'attr' : 'input',
         'desc' : "The color value",
-        'type' : 'FLOAT_TEXTURE',
-        'default' : 0,
+        'type' : 'TEXTURE',
+        'default' : (0.0, 0.0, 0.0),
+    },
+
+    {
+        'attr' : 'out_float',
+        'desc' : "The resulting float",
+        'type' : 'OUTPUT_FLOAT_TEXTURE',
+        'default' : 1.0,
     },
 )
