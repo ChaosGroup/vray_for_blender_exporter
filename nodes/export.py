@@ -269,6 +269,8 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     brdfs   = []
     weights = []
 
+    transparency = WriteConnectedNode(bus, nodetree, node.inputs["Transparency"])
+
     for i in range(int(len(node.inputs) / 2)):
         layer = i+1
         brdfSocket   = "BRDF %i"   % layer
@@ -299,6 +301,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     o.writeAttibute('brdfs', "List(%s)" % ','.join(brdfs))
     o.writeAttibute('weights', "List(%s)" % ','.join(weights))
     o.writeAttibute('additive_mode', LibUtils.FormatValue(node.additive_mode))
+    o.writeAttibute('transparency_tex', LibUtils.FormatValue(transparency))
     o.writeFooter()
 
     return pluginName
@@ -344,7 +347,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
     return None
 
 
-def WriteNode(bus, nodetree, node, returnDefault=False):
+def WriteNode(bus, nodetree, node, returnDefault=True):
     Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
