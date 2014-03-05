@@ -113,6 +113,8 @@ class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
     )
 
     def init(self, context):
+        AddInput(self, 'VRaySocketColor', "Transparency", default=(0.0,0.0,0.0))
+
         for i in range(2):
             humanIndex = i + 1
 
@@ -124,7 +126,7 @@ class VRayNodeBRDFLayered(bpy.types.Node, tree.VRayTreeNode):
 
             self.inputs[weightSockName].value = 1.0
 
-        self.outputs.new('VRaySocketBRDF', "BRDF")
+        AddOutput(self, 'VRaySocketBRDF', "BRDF")
 
     def draw_buttons(self, context, layout):
         split = layout.split()
