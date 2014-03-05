@@ -22,11 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
-
-import TexCommonParams
-
-
 TYPE = 'TEXTURE'
 ID   = 'TexBlend'
 NAME = 'Blend'
