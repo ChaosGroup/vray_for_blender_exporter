@@ -103,7 +103,7 @@ class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
         layout.prop(self, 'wrap_id')
 
     def init(self, context):
-        AddInput(self, 'VRaySocketFloatNoValue', "ID Generator")
+        AddInput(self, 'VRaySocketFloatNoValue', "ID Generator", attrName='mtlid_gen_float')
 
         AddOutput(self, 'VRaySocketMtl', "Material")
 
