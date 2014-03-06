@@ -61,6 +61,8 @@ else:
 
 
 def register():
+    engine.Init()
+
     plugins.register()
     operators.register()
     ui.register()
@@ -72,6 +74,8 @@ def register():
 
 
 def unregister():
+    engine.Shutdown()
+
     plugins.unregister()
     operators.unregister()
     engine.unregister()

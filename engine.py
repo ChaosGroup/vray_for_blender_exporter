@@ -22,18 +22,31 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
 import bpy
 import bgl
 import math
+
+import _vray_for_blender
 
 from .lib.VRayStream import VRayStream
 from .lib import ExportUtils
 from .plugins import PLUGINS_ID
 
+from . import utils
 from . import export
 from . import debug
 
 from . import realtime
+
+
+def Init():
+    _vray_for_blender.start(os.path.join(utils.get_vray_exporter_path(), "plugins_desc"))
+
+
+def Shutdown():
+    _vray_for_blender.free()
 
 
 def ErrorReport(engine, err):
