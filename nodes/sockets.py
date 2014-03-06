@@ -219,6 +219,13 @@ class VRaySocketFloatNoValue(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketFloatNoValue'
     bl_label  = 'Float socket'
 
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
     def draw(self, context, layout, node, text):
         layout.label(text)
 
