@@ -36,4 +36,3 @@ from vb30.lib.DrawUtils      import *
 from vb30.lib.VRayStream     import VRayStream
 from vb30.lib.VRaySocket     import VRaySocket
 from vb30.lib.VRayProcess    import VRayProcess
-from vb30.lib.VRayProxy      import MeshFile
