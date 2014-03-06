@@ -733,6 +733,8 @@ def GetRegClasses():
 		VRAY_OT_channel_del,
 		VRAY_OT_node_add,
 		VRAY_OT_node_del,
+		VRAY_OT_dr_nodes_load,
+		VRAY_OT_dr_nodes_save,
 		VRAY_OT_settings_to_text,
 		VRAY_OT_flip_resolution,
 		VRAY_OT_stop,
