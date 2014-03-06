@@ -389,6 +389,55 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+
+class VRAY_OT_dr_nodes_load(bpy.types.Operator):
+	bl_idname      = "vray.dr_nodes_load"
+	bl_label       = "Load DR Nodes"
+	bl_description = "Load distributed rendering nodes list"
+
+	def execute(self, context):
+		VRayScene = context.scene.vray
+		VRayDR = VRayScene.VRayDR
+
+		nodesFilepath = os.path.join(GetUserConfigDir(), "render_nodes.txt")
+
+		if not os.path.exists(nodesFilepath):
+			return {'CANCELLED'}
+
+		with open(nodesFilepath, 'r') as nodesFile:
+			VRayDR.nodes.clear()
+
+			for line in nodesFile.readlines():
+				l = line.strip()
+				if not l:
+					continue
+
+				item = VRayDR.nodes.add()
+				item.name, item.address = l.split(":")
+
+		VRayDR.nodes_selected = 0
+
+		return {'FINISHED'}
+
+
+class VRAY_OT_dr_nodes_save(bpy.types.Operator):
+	bl_idname      = "vray.dr_nodes_save"
+	bl_label       = "Save DR Nodes"
+	bl_description = "Save distributed rendering nodes list"
+
+	def execute(self, context):
+		VRayScene = context.scene.vray
+		VRayDR = VRayScene.VRayDR
+
+		nodesFilepath = os.path.join(GetUserConfigDir(), "render_nodes.txt")
+
+		with open(nodesFilepath, 'w') as nodesFile:
+			for item in VRayDR.nodes:
+				nodesFile.write("%s:%s\n" % (item.name, item.address))
+
+		return {'FINISHED'}
+
+
 ########  #######     ######## ######## ##     ## ########
    ##    ##     ##       ##    ##        ##   ##     ##
    ##    ##     ##       ##    ##         ## ##      ##
