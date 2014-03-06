@@ -716,6 +716,12 @@ class VRayRenderNode(bpy.types.PropertyGroup):
 		description= "Render node IP or hostname"
 	)
 
+	use = bpy.props.BoolProperty(
+		name = "Use Node",
+		description = "Use render node",
+		default = True
+	)
+
 
 class VRayDR(bpy.types.PropertyGroup):
 	on = bpy.props.BoolProperty(
