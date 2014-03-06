@@ -218,10 +218,15 @@ def WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node):
     else:
         bus['node']['material'] = mtl_name
 
+        id_generator = WriteConnectedNode(bus, nodetree, node.inputs["ID Generator"])
+
         o.set('MATERIAL', 'MtlMulti', mtl_name)
         o.writeHeader()
         o.writeAttibute('mtls_list', "List(%s)" % ','.join(mtls_list))
         o.writeAttibute('ids_list', "ListInt(%s)" % ','.join(ids_list))
+        o.writeAttibute('wrap_id', node.wrap_id)
+        if id_generator:
+            o.writeAttibute('mtlid_gen_float', id_generator)
         o.writeFooter()
 
     return bus['node']['material']
