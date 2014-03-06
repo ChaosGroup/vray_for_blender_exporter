@@ -37,7 +37,7 @@ from bpy.props import *
 
 import vb30.proxy
 
-from vb30.lib     import VRaySocket, VRayProxy
+from vb30.lib     import VRaySocket
 from vb30.lib     import utils as LibUtils
 from vb30.utils   import *
 from vb30.plugins import PLUGINS, PLUGINS_ID
