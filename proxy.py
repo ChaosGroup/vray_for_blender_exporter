@@ -32,8 +32,9 @@ import time
 import bpy
 import bmesh
 
-from vb30.lib   import VRayProxy
 from vb30.utils import *
+
+from vb30.vray_tools import VRayProxy
 
 
 def write_mesh_hq(ofile, sce, ob):
@@ -128,7 +129,9 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 	bl_description = "Loads mesh preview from vrmesh file"
 
 	def execute(self, context):
-		proxyFilepath = bpy.path.abspath(context.node.GeomMeshFile.file)
+		GeomMeshFile = context.node.GeomMeshFile
+
+		proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
 
 		if not proxyFilepath:
 			self.report({'ERROR'}, "Proxy filepath is not set!")
@@ -139,23 +142,25 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 			return {'FINISHED'}
 
 		meshFile = VRayProxy.MeshFile(proxyFilepath)
-		result = meshFile.readFile()
 
+		result = meshFile.readFile()
 		if result is not None:
 			self.report({'ERROR'}, "Error parsing VRayProxy file!")
 			return {'FINISHED'}
 
-		previewVoxel = meshFile.getVoxelByType(VRayProxy.MVF_PREVIEW_VOXEL)
+		meshData = meshFile.getPreviewMesh(
+			GeomMeshFile.anim_type,
+			GeomMeshFile.anim_offset,
+			GeomMeshFile.anim_speed,
+			context.scene.frame_current-1
+		)
 
-		if not previewVoxel:
+		if meshData is None:
 			self.report({'ERROR'}, "Can't find preview voxel!")
 			return {'FINISHED'}
 
-		vertices = previewVoxel.getVertices()
-		faces    = previewVoxel.getFaces()
-
 		mesh = bpy.data.meshes.new("VRayProxyPreview")
-		mesh.from_pydata(vertices, [], faces)
+		mesh.from_pydata(meshData['vertices'], [], meshData['faces'])
 		mesh.update()
 
 		# Replace object mesh
