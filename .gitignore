@@ -1,8 +1,4 @@
 __pycache__
-
-plugins_desc/
-vray_tools/
-
 *.pyc
 *.so
 
