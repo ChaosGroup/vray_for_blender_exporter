@@ -47,6 +47,7 @@ if "bpy" in locals():
     imp.reload(realtime)
     imp.reload(keymap)
     imp.reload(ui)
+    imp.reload(events)
 else:
     import bpy
     from vb30 import plugins
@@ -58,6 +59,7 @@ else:
     from vb30 import realtime
     from vb30 import keymap
     from vb30 import ui
+    from vb30 import events
 
 
 def register():
@@ -71,6 +73,7 @@ def register():
     proxy.register()
     realtime.register()
     keymap.register()
+    events.register()
 
 
 def unregister():
@@ -84,3 +87,4 @@ def unregister():
     realtime.unregister()
     ui.unregister()
     keymap.unregister()
+    events.unregister()
