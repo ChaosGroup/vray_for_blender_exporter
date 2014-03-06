@@ -301,6 +301,12 @@ class VRayList(bpy.types.UIList):
         layout.label(item.name)
 
 
+class VRayListDR(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label("%s [%s]" % (item.name, item.address))
+        layout.prop(item, 'use', text="")
+
+
 class VRayListMaterialSlots(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         ob   = data
@@ -335,6 +341,7 @@ def GetRegClasses():
         VRayListNodeTrees,
         VRayListMaterialSlots,
         VRayListUse,
+        VRayListDR,
         VRayList,
     )
 
