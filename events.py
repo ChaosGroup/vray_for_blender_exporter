@@ -24,10 +24,13 @@
 
 import bpy
 
+import vb30.engine
+
 
 def AddEvent(event, func):
     if func not in event:
         event.append(func)
+
 
 def DelEvent(event, func):
     if func in event:
@@ -44,11 +47,18 @@ def dr_nodes_restore(e):
     bpy.ops.vray.dr_nodes_load()
 
 
+@bpy.app.handlers.persistent
+def event_shutdown(e):
+    vb30.engine.Shutdown()
+
+
 def register():
     AddEvent(bpy.app.handlers.save_post, dr_nodes_store)
     AddEvent(bpy.app.handlers.load_post, dr_nodes_restore)
+    AddEvent(bpy.app.handlers.exit,      event_shutdown)
 
 
 def unregister():
     DelEvent(bpy.app.handlers.save_post, dr_nodes_store)
     DelEvent(bpy.app.handlers.load_post, dr_nodes_restore)
+    DelEvent(bpy.app.handlers.exit,      event_shutdown)
