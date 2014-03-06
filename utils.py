@@ -920,6 +920,13 @@ def get_vray_exporter_path():
 	return ""
 
 
+def GetUserConfigDir():
+	userConfigDirpath = os.path.join(bpy.utils.user_resource('CONFIG'), "vrayblender")
+	if not os.path.exists(userConfigDirpath):
+		os.makedirs(userConfigDirpath)
+	return userConfigDirpath
+
+
 def getColorMappingFilepath():
 	return os.path.join(tempfile.gettempdir(), "colorMapping_%s.vrscene" % (get_username()))
 
