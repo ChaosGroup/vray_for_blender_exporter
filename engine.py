@@ -36,6 +36,7 @@ from .plugins import PLUGINS_ID
 
 from . import utils
 from . import export
+from . import export_cpp
 from . import debug
 
 from . import realtime
@@ -70,7 +71,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
         realtime.RemoveRTCallbacks()
 
-        self.err = export.Export(data, scene, self.bl_idname)
+        self.err = export_cpp.Export(data, scene, self)
         ErrorReport(self, self.err)
 
     def render(self, scene):
