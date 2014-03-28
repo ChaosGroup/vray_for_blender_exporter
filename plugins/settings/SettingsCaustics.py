@@ -33,7 +33,7 @@ PluginParams = (
         'name' : "Use Caustics",
         'desc' : "Enable caustics computation",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'max_photons',
