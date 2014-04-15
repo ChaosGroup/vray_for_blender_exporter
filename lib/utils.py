@@ -57,7 +57,7 @@ ObjectPrefix = {
 
 
 def FilterObjectListByType(objectList, objectType):
-    objectList = filter(lambda x: x.type == objectType, objectList)
+    return filter(lambda x: x.type == objectType, objectList)
 
 
 def GetLightPluginName(lamp):

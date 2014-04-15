@@ -111,8 +111,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     o     = bus['output']
 
     lights = overrideParams.get('lights', [])
-    
-    LibUtils.FilterObjectListByType(lights, 'LAMP')
+    lights = LibUtils.FilterObjectListByType(lights, 'LAMP')
 
     lightsStr = ",".join(lights)
 
