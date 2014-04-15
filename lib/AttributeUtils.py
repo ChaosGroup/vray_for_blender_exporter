@@ -149,8 +149,13 @@ def GenerateAttribute(classMembers, attrDesc):
         'attr'        : attrDesc['attr'],
         'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
         'description' : attrDesc['desc'],
-        'default'     : attrDesc['default'],
     }
+
+    if 'default' in attrDesc:
+        attrArgs['default'] = attrDesc['default']
+
+    if 'update' in attrDesc:
+        attrArgs['update'] = attrDesc['update']
 
     if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
         if attrDesc['type'] == 'MTEX':
