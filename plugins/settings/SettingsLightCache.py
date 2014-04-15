@@ -22,6 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsLightCache'
 NAME = 'SettingsLightCache'
@@ -200,3 +205,10 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    if propGroup.num_passes_auto:
+        overrideParams['num_passes'] = bpy.context.scene.render.threads
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
