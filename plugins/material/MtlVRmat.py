@@ -22,7 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
 import bpy
+
+from vb30.vray_tools.VRaySceneParser import GetMaterialsNames
+from vb30.vray_tools.VrmatParser     import GetXMLMaterialsNames
 
 
 TYPE = 'MATERIAL'
@@ -68,8 +73,96 @@ PluginParams = (
 
 
 def nodeDraw(context, layout, MtlVRmat):
-    layout.prop(MtlVRmat, 'filename')
-    layout.prop(MtlVRmat, 'mtlname')
+    split = layout.split(percentage=0.2, align=True)
+    split.column().label("File:")
+    split.column().prop(MtlVRmat, 'filename', text="")
+
+    split = layout.split(percentage=0.2, align=True)
+    split.column().label("Name:")
+    row = split.column().row(align=True)
+    row.prop(MtlVRmat, 'mtlname', text="")
+    row.operator("vray.get_vrscene_material_name", text="", icon='IMASEL')
 
 
-# TODO: custom export function
+class VRayMaterialNameMenu(bpy.types.Menu):
+    bl_label = "Select Material Name"
+    bl_idname = "VRayMaterialNameMenu"
+
+    ma_list = []
+
+    def draw(self, context):
+        row = self.layout.row()
+        sub = row.column()
+
+        for i,maName in enumerate(self.ma_list):
+            if i and i % 15 == 0:
+                sub = row.column()
+            sub.operator("vray.set_vrscene_material_name", text=maName).name = maName
+
+
+class VRaySetMaterialName(bpy.types.Operator):
+    bl_idname      = "vray.set_vrscene_material_name"
+    bl_label       = "Set Material Name"
+    bl_description = "Set material name from *.vrscene file"
+
+    name = bpy.props.StringProperty()
+
+    def execute(self, context):
+        node = context.active_node
+        if not node:
+            return {'CANCELLED'}
+        if node.bl_idname != "VRayNodeMtlVRmat":
+            return {'CANCELLED'}
+
+        MtlVRmat = node.MtlVRmat
+        MtlVRmat.mtlname = self.name
+
+        return {'FINISHED'}
+
+
+class VRayGetMaterialName(bpy.types.Operator):
+    bl_idname      = "vray.get_vrscene_material_name"
+    bl_label       = "Get Material Name"
+    bl_description = "Get material name from *.vrscene file"
+
+    def execute(self, context):
+        node = context.active_node
+        if not node:
+            return {'CANCELLED'}
+        if node.bl_idname != "VRayNodeMtlVRmat":
+            return {'CANCELLED'}
+
+        MtlVRmat = node.MtlVRmat
+        if not MtlVRmat.filename:
+            return {'CANCELLED'}
+
+        filePath = os.path.normpath(bpy.path.abspath(MtlVRmat.filename))
+        if not os.path.exists(filePath):
+            return {'CANCELLED'}
+
+        if filePath.endswith(".vrscene"):
+            VRayMaterialNameMenu.ma_list = GetMaterialsNames(filePath)
+        else:
+            VRayMaterialNameMenu.ma_list = GetXMLMaterialsNames(filePath)
+
+        bpy.ops.wm.call_menu(name=VRayMaterialNameMenu.bl_idname)
+
+        return {'FINISHED'}
+
+
+def GetRegClasses():
+    return (
+        VRayMaterialNameMenu,
+        VRayGetMaterialName,
+        VRaySetMaterialName,
+    )
+
+
+def register():
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
+
+
+def unregister():
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)
