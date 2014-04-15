@@ -40,7 +40,7 @@ def ExportFrame(bus):
     export.ExportSettings(bus)
 
     _vray_for_blender.setSkipObjects(bus['exporter'], set())
-    _vray_for_blender.exportScene(bus['exporter'])
+    _vray_for_blender.exportScene(bus['exporter'], True, True)
 
     # Clean current frame name cache
     _vray_for_blender.clearCache()
@@ -91,21 +91,15 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
     checkAnimated = int(VRayExporter.check_animated)
 
     bus['exporter'] = _vray_for_blender.init(
-        context = bpy.context.as_pointer(),
         scene   = scene.as_pointer(),
         engine  = engine.as_pointer(),
-
-        exportNodes    = True,
-        exportGeometry = True,
-
-        isAnimation   = isAnimation,
-        checkAnimated = checkAnimated,
+        context = bpy.context.as_pointer(),
 
         objectFile   = o.getFileByType('OBJECT'),
         geometryFile = o.getFileByType('GEOMETRY'),
         lightsFile   = o.getFileByType('LIGHT'),
 
-        useNodes = 1
+        useNodes = True
     )
 
     _vray_for_blender.initCache(isAnimation, checkAnimated)
