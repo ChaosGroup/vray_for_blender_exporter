@@ -175,9 +175,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     # if SettingsCamera.type not in {'SPHERIFICAL', 'BOX'}:
     if RenderView.clip_near:
-        overrideParams['clipping_near'] = camera.data.clip_start
+        overrideParams['clipping_near'] = ca.data.clip_start
     if RenderView.clip_far:
-        overrideParams['clipping_far'] = camera.data.clip_end
+        overrideParams['clipping_far'] = ca.data.clip_end
 
     if 'fov' not in overrideParams:
         overrideParams['fov'] = fov
