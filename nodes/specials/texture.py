@@ -42,6 +42,13 @@ class VRaySocketTexLayered(bpy.types.NodeSocket, base.NodeSocket):
     bl_idname = 'VRaySocketTexLayered'
     bl_label  = 'TexLayered Socket'
 
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
     value = bpy.props.EnumProperty(
         name = "Blend Mode",
         description = "Blend mode",
@@ -140,10 +147,10 @@ class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
 
             AddInput(self, 'VRaySocketTexLayered', texSockName)
 
-        AddOutput(self, 'VRaySocketColor', "Output")
-        AddOutput(self, 'VRaySocketColor', "Out Transparency", 'out_transparency')
-        AddOutput(self, 'VRaySocketColor', "Out Alpha",        'out_alpha')
-        AddOutput(self, 'VRaySocketColor', "Out Intensity",    'out_intensity')
+        AddOutput(self, 'VRaySocketColor',      "Output")
+        AddOutput(self, 'VRaySocketFloatColor', "Out Transparency", 'out_transparency')
+        AddOutput(self, 'VRaySocketFloatColor', "Out Alpha",        'out_alpha')
+        AddOutput(self, 'VRaySocketFloatColor', "Out Intensity",    'out_intensity')
 
     def draw_buttons(self, context, layout):
         split = layout.split()
