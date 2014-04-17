@@ -324,14 +324,12 @@ def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
         self.texture.use_color_ramp = True
-
-    elif self.vray_plugin == 'BitmapBuffer':
-        self.texture = bpy.data.textures.new("Bitmap_%s" % self.name, 'NONE')
-        self.texture.use_color_ramp = True
+    elif self.bl_idname == 'VRayNodeBitmapBuffer':
+        self.texture = node.texture
 
 
 def VRayNodeFree(self):
-    if self.vray_plugin in {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
+    if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         if self.texture:
             self.texture.user_clear()
             bpy.data.textures.remove(self.texture)
