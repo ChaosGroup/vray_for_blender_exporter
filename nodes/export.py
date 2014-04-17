@@ -252,13 +252,20 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
         if not inputSocket.is_linked:
             continue
 
-        textures.append(WriteConnectedNode(bus, nodetree, inputSocket))
+        tex = WriteConnectedNode(bus, nodetree, inputSocket)
+
+        # XXX: For some reason TexLayered doesn't like ::out_smth
+        semiPos = tex.find("::")
+        if semiPos:
+            tex = tex[:semiPos]
+
+        textures.append(tex)
         blend_modes.append(inputSocket.value)
 
     o.set('TEXTURE', 'TexLayered', pluginName)
     o.writeHeader()
     o.writeAttibute('textures', "List(%s)" % ','.join(reversed(textures)))
-    o.writeAttibute('blend_modes', "List(%s)" % ','.join(reversed(blend_modes)))
+    o.writeAttibute('blend_modes', "ListInt(%s)" % ','.join(reversed(blend_modes)))
     o.writeFooter()
 
     return pluginName
@@ -286,8 +293,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
         brdfs.append(WriteConnectedNode(bus, nodetree, node.inputs[brdfSocket]))
 
         if node.inputs[weightSocket].is_linked:
-            weigthNode = GetConnectedNode(nodetree, node.inputs[weightSocket])
-            weights.append(WriteNode(bus, nodetree, weigthNode))
+            weights.append(WriteConnectedNode(bus, nodetree, node.inputs[weightSocket]))
         else:
             weightParam = "%sW%sI%i"%(pluginName, brdfs[i], i)
             
