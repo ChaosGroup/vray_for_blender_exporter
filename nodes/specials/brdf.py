@@ -74,18 +74,20 @@ class VRAY_OT_node_del_brdf_layered_sockets(bpy.types.Operator):
         if not nSockets:
             return {'FINISHED'}
 
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
-            if not s.is_linked:
-                index = re.findall(r'\d+', s.name)[0]
+        for i in range(int(nSockets/2), -1, -1):
+            brdfSockName   = "BRDF %s" % i
+            weightSockName = "Weight %s" % i
 
-                brdfSockName   = "BRDF %s" % index
-                weightSockName = "Weight %s" % index
+            if not (brdfSockName in node.inputs and weightSockName in node.inputs):
+                continue
 
-                if not node.inputs[brdfSockName].is_linked and not node.inputs[weightSockName].is_linked:
-                    node.inputs.remove(node.inputs[brdfSockName])
-                    node.inputs.remove(node.inputs[weightSockName])
-                    break
+            brdfSock   = node.inputs[brdfSockName]
+            weightSock = node.inputs[weightSockName]
+
+            if not brdfSock.is_linked and not weightSock.is_linked:
+                node.inputs.remove(node.inputs[brdfSockName])
+                node.inputs.remove(node.inputs[weightSockName])
+                break
 
         return {'FINISHED'}
 
