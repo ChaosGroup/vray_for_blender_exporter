@@ -157,7 +157,7 @@ PluginParams = (
         'name' : "Max. Subdivs",
         'desc' : "Max. subdivs value for the progressive image sampler",
         'type' : 'INT',
-        'default' : 4,
+        'default' : 100,
     },
     {
         'attr' : 'progressive_threshold',
