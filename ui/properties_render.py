@@ -219,13 +219,13 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'draft')
 		col.prop(rd, "display_mode", text="")
 
-		layout.separator()
+		# layout.separator()
 
-		split = layout.split()
-		col = split.column()
-		col.operator('vray.stop', text="Stop", icon='CANCEL')
-		col = split.column()
-		col.operator('vray.terminate', text="Terminate", icon='RADIO')
+		# split = layout.split()
+		# col = split.column()
+		# col.operator('vray.stop', text="Stop", icon='CANCEL')
+		# col = split.column()
+		# col.operator('vray.terminate', text="Terminate", icon='RADIO')
 
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
