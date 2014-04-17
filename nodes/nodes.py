@@ -394,9 +394,6 @@ def LoadDynamicNodes():
                 'bl_idname' : DynNodeClassName,
                 'bl_label'  : vrayPlugin.NAME,
                 'bl_icon'   : VRayNodeTypeIcon.get(pluginType, 'VRAY_LOGO_MONO'),
-
-                'vray_type'   : pluginType,
-                'vray_plugin' : pluginName,
             }
 
             if usePynodesFramwork:
@@ -440,6 +437,9 @@ def LoadDynamicNodes():
             if useCatergories:
                 if pluginType == 'TEXTURE':
                     category_textures()(DynNodeClass)
+
+            setattr(DynNodeClass, 'vray_type',   bpy.props.StringProperty(default=pluginType))
+            setattr(DynNodeClass, 'vray_plugin', bpy.props.StringProperty(default=pluginName))
 
             bpy.utils.register_class(DynNodeClass)
 
