@@ -22,6 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsDMCSampler'
 NAME = 'DMC Sampler'
@@ -72,10 +77,12 @@ PluginWidget = """
 """
 
 
-# TODO: Resolve draft / preview
-#
-# bus['files']['scene'].write("\nSettingsDMCSampler {")
-# bus['files']['scene'].write("\n\tadaptive_amount=0.99;")
-# bus['files']['scene'].write("\n\tadaptive_threshold=0.2;")
-# bus['files']['scene'].write("\n\tsubdivs_mult=0.01;")
-# bus['files']['scene'].write("\n}\n")
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    if bpy.context.scene.vray.Exporter.draft:
+        overrideParams.update({
+            'adaptive_amount'    : 0.99,
+            'adaptive_threshold' : 0.2,
+            'subdivs_mult'       : 0.01,
+        })
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
