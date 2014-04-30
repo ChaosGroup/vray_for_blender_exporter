@@ -113,9 +113,15 @@ class VRAY_SP_tools(classes.VRayScenePanel):
 		col=  split.column()
 		col.operator("vray.copy_linked_materials", icon='MATERIAL')
 
-		layout.separator()
-		layout.label(text="Scene Node Trees:")
-		layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows = 4)
+
+class VRAY_SP_ntrees(classes.VRayScenePanel):
+	bl_label   = "Node Trees"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		self.layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows = 4)
 
 
 class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
@@ -166,6 +172,7 @@ class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 def GetRegClasses():
 	return (
 		VRAY_SP_tools,
+		VRAY_SP_ntrees,
 		VRAY_SP_includer,
 		VRAY_SP_lights_tweaker,
 	)
