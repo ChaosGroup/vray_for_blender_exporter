@@ -375,14 +375,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
 
                         inPluginOutputSocketName = AttributeUtils.GetNameFromAttr(inPluginOutput) if inPluginOutput else getOutputSocket(connectedPluginID)
 
-                        connectedNode = None
-                        if connectedPluginID == 'TexLayered':
-                            connectedNode = createNodeTexLayered(ntree, n, vrsceneDict, connectedPlugin)
-                        elif connectedPluginID == 'BRDFLayered':
-                            connectedNode = createNodeBRDFLayered(ntree, n, vrsceneDict, connectedPlugin)
-                        else:
-                            connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)
-
+                        connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)
                         if connectedNode:
                             ntree.links.new(connectedNode.outputs[inPluginOutputSocketName], n.inputs[attrSocketName])
 
