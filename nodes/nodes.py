@@ -335,6 +335,10 @@ def VRayNodeFree(self):
             bpy.data.textures.remove(self.texture)
 
 
+def VRayNodeDrawLabel(self):
+    return "%s [%s]" % (self.name, self.vray_plugin)
+
+
 ########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######
 ##     ##  ##  ##  ###   ##   ## ##   ###   ###  ##  ##    ##    ###   ## ##     ## ##     ## ##       ##    ##
 ##     ##   ####   ####  ##  ##   ##  #### ####  ##  ##          ####  ## ##     ## ##     ## ##       ##
@@ -425,6 +429,7 @@ def LoadDynamicNodes():
                 DynNodeClassAttrs['free']             = VRayNodeFree
                 DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
                 DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
+                DynNodeClassAttrs['draw_label']       = VRayNodeDrawLabel
 
                 DynNodeClass = type(
                     DynNodeClassName,  # Name
