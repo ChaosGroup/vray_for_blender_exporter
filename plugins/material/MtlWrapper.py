@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.lib.DrawUtils import GetContextType, GetRegionWidthFromContext
+
 
 TYPE = 'MATERIAL'
 ID   = 'MtlWrapper'
