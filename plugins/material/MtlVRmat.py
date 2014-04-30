@@ -234,6 +234,16 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
 
         ntree.links.new(texNode.outputs[texPlugOutput], texSocket)
 
+    for attrName in pluginDesc['Attributes']:
+        # Skip lists
+        if attrName in {'textures', 'blend_modes'}:
+            continue
+
+        attrValue = pluginDesc['Attributes'][attrName]
+
+        if hasattr(texLayeredNode, attrName):
+            setattr(texLayeredNode, attrName, attrValue)
+
     return texLayeredNode
 
 
@@ -281,6 +291,16 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
 
         processSocket(brdfLayeredNode, brdfSocket,   brdf)
         processSocket(brdfLayeredNode, weightSocket, weights[i])
+
+    for attrName in pluginDesc['Attributes']:
+        # Skip lists
+        if attrName in {'brdfs', 'weights'}:
+            continue
+
+        attrValue = pluginDesc['Attributes'][attrName]
+
+        if hasattr(brdfLayeredNode, attrName):
+            setattr(brdfLayeredNode, attrName, attrValue)
 
     return brdfLayeredNode
 
