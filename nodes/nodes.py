@@ -306,7 +306,7 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
-        AddOutput(self, 'VRaySocketObject', "Output")
+        AddOutput(self, 'VRaySocketEffect', "Output")
     elif self.vray_type == 'RENDERCHANNEL':
         AddOutput(self, 'VRaySocketRenderChannelOutput', "Channel")
 
