@@ -33,6 +33,8 @@ from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
 from vb30.utils   import get_name, clean_string, get_data_by_name
 
+from .utils import *
+
 
 ##     ## ######## #### ##       #### ######## #### ########  ######
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
@@ -41,39 +43,6 @@ from vb30.utils   import get_name, clean_string, get_data_by_name
 ##     ##    ##     ##  ##        ##     ##     ##  ##             ##
 ##     ##    ##     ##  ##        ##     ##     ##  ##       ##    ##
  #######     ##    #### ######## ####    ##    #### ########  ######
-
-def GetNodeName(ntree, node):
-    return clean_string("NT%sN%s" % (ntree.name, node.name))
-
-
-def GetConnectedNode(ntree, nodeSocket):
-    for l in nodeSocket.links:
-        if l.from_node:
-            return l.from_node
-    return None
-
-
-def GetConnectedSocket(ntree, nodeSocket):
-    for l in nodeSocket.links:
-        if l.from_socket:
-            return l.from_socket
-    return None
-
-
-def GetNodesByType(ntree, nodeType):
-    for n in ntree.nodes:
-        if n.bl_idname == nodeType:
-            yield n
-
-
-def GetNodeByType(ntree, nodeType):
-    if not ntree:
-        return None
-    for n in ntree.nodes:
-        if n.bl_idname == nodeType:
-            return n
-    return None
-
 
 def GetOutputNode(ntree):
     return GetNodeByType(ntree, 'VRayNodeOutputMaterial')
@@ -118,6 +87,15 @@ def WriteVRayNodeSelectGroup(bus, nodetree, node):
     if node.groupName not in bpy.data.groups:
         return []
     return bpy.data.groups[node.groupName].objects
+
+
+def WriteVRayNodeSelectNodeTree(bus, nodetree, node):
+    if not node.ntree:
+        return None
+
+    # XXX: Finish this...
+
+    return node.ntree.name
 
 
 ########  ##       ######## ##    ## ########  ######## ########      #######  ########        ## ########  ######  ######## 
@@ -257,7 +235,7 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
         # XXX: For some reason TexLayered doesn't like ::out_smth
         semiPos = tex.find("::")
         if semiPos != -1:
-            tex = tex[:semiPos+1]
+            tex = tex[:semiPos]
 
         textures.append(tex)
         blend_modes.append(inputSocket.value)
@@ -369,6 +347,8 @@ def WriteNode(bus, nodetree, node, returnDefault=True):
         return WriteVRayNodeSelectObject(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeSelectGroup':
         return WriteVRayNodeSelectGroup(bus, nodetree, node)
+    elif node.bl_idname == 'VRayNodeSelectNodeTree':
+        return WriteVRayNodeSelectNodeTree(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeBlenderOutputGeometry':
         return WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeBlenderOutputMaterial':
