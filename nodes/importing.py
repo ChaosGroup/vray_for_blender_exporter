@@ -270,7 +270,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
     else:
         pluginModule = PLUGINS_ID.get(pluginID)
         if pluginModule is None:
-            print("Plugin '%s' is not yet supported! This shouldn't happen!" % pluginID)
+            print("Plugin '%s' is not yet supported! This shouldn't happen! Please, report this!" % pluginID)
             return None
 
         n = ntree.nodes.new('VRayNode%s' % pluginID)
@@ -285,7 +285,12 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
         #
         for attrName in pluginAttrs:
             attrValue = pluginAttrs[attrName]
+
             attrDesc  = getParamDesc(pluginModule.PluginParams, attrName)
+            if attrDesc is None:
+                # XXX: This could happen when loading VISMATS; error message disabled here...
+                # print("Plugin '%s': Attribute '%s' is not yet supported! This is very strange!" % (pluginID, attrName))
+                continue
 
             attrSocketName = getSocketName(pluginModule.PluginParams, attrName)
 

@@ -29,7 +29,7 @@ from pprint import pprint
 import bpy
 
 from vb30.vray_tools.VRaySceneParser import GetMaterialsNames, ParseVrscene
-from vb30.vray_tools.VrmatParser     import GetXMLMaterialsNames
+from vb30.vray_tools.VrmatParser     import GetXMLMaterialsNames, ParseVrmat
 
 from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
@@ -180,11 +180,13 @@ class VRayMaterialExpand(bpy.types.Operator):
             print("File doesn't exist!")
             return {'CANCELLED'}
 
-        if not filePath.endswith(".vrscene"):
-            print("File is not a vrscene!")
-            return {'CANCELLED'}
-
-        vrsceneDict = ParseVrscene(filePath)
+        namePrefix  = ""
+        vrsceneDict = []
+        if filePath.endswith(".vrscene"):
+            vrsceneDict = ParseVrscene(filePath)
+        else:
+            vrsceneDict = ParseVrmat(filePath)
+            namePrefix  = "/"
 
         # Preview data from the file
         #
@@ -202,7 +204,7 @@ class VRayMaterialExpand(bpy.types.Operator):
 
         # Find requested material plugin
         #
-        mtlName     = MtlVRmat.mtlname
+        mtlName     = namePrefix + MtlVRmat.mtlname
         mtlPlugDesc = NodesImport.getPluginByName(vrsceneDict, mtlName)
 
         if not mtlPlugDesc:

@@ -30,10 +30,16 @@ from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
 
 from vb30.vray_tools.VRaySceneParser import ParseVrscene
+from vb30.vray_tools.VrmatParser     import ParseVrmat
 
 
 def ImportMaterials(context, filePath, baseMaterial):
-    vrsceneDict = ParseVrscene(filePath)
+    vrsceneDict = {}
+
+    if filePath.endswith(".vrscene"):
+        vrsceneDict = ParseVrscene(filePath)
+    else:
+        vrsceneDict = ParseVrmat(filePath)
 
     MaterialTypeFilter = {
         'STANDARD' : {
@@ -99,10 +105,10 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
     bl_description = "Import materials from *.vrscene or *.vismat file"
 
     # ImportHelper class uses this
-    filename_ext = ".vrscene;.vismat"
+    filename_ext = ".vrscene;.vismat;.vrmat"
 
     filter_glob = bpy.props.StringProperty(
-        default = "*.vrscene;*.vismat",
+        default = "*.vrscene;*.vismat;*.vrmat",
         options = {'HIDDEN'},
     )
 
@@ -123,7 +129,7 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
 
 
 def VRayMenuItemImportMaterials(self, context):
-    self.layout.operator(VRayOperatorImportMaterials.bl_idname, text="V-Ray: Import Materials (.vrscene/.vismat)")
+    self.layout.operator(VRayOperatorImportMaterials.bl_idname, text="V-Ray: Import Materials (.vrscene/.vismat/.vrmat)")
 
 
 def GetRegClasses():
