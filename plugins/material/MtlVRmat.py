@@ -265,7 +265,6 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
 
             ntree.links.new(inNode.outputs[plOutput], socket)
         else:
-            print(attrValue)
             socket.value = attrValue
 
         return inNode
@@ -285,6 +284,7 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
         if not brdfSockName in brdfLayeredNode.inputs:
             AddInput(brdfLayeredNode, 'VRaySocketBRDF',       brdfSockName)
             AddInput(brdfLayeredNode, 'VRaySocketFloatColor', weightSockName)
+            brdfLayeredNode.inputs[weightSockName].value = 1.0
 
         brdfSocket   = brdfLayeredNode.inputs[brdfSockName]
         weightSocket = brdfLayeredNode.inputs[weightSockName]
