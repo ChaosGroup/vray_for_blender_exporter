@@ -312,17 +312,17 @@ def VRayNodeInit(self, context):
 
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         if not self.texture:
-            self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
+            self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
             self.texture.use_color_ramp = True
 
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
-            self.texture = bpy.data.textures.new("Bitmap_%s" % self.name, 'IMAGE')
+            self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
 
 
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
-        self.texture = bpy.data.textures.new("Ramp_%s" % self.name, 'NONE')
+        self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
         self.texture.use_color_ramp = True
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         self.texture = node.texture
@@ -375,7 +375,7 @@ def LoadDynamicNodes():
 
         for pluginName in sorted(PLUGINS[pluginType]):
             # Skip manually created nodes
-            if pluginName in ['BRDFLayered', 'TexLayered']:
+            if pluginName in {'BRDFLayered', 'TexLayered'}:
                 continue
 
             # Plugin was not registered by the plugin manager,
