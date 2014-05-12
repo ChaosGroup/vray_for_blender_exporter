@@ -256,8 +256,8 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
 
         # XXX: For some reason TexLayered doesn't like ::out_smth
         semiPos = tex.find("::")
-        if semiPos:
-            tex = tex[:semiPos]
+        if semiPos != -1:
+            tex = tex[:semiPos+1]
 
         textures.append(tex)
         blend_modes.append(inputSocket.value)
