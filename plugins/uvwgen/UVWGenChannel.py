@@ -23,6 +23,7 @@
 #
 
 import bpy
+import mathutils
 
 from vb30.lib import ExportUtils
 
@@ -136,22 +137,9 @@ def nodeDraw(context, layout, UVWGenChannel):
     layout.prop(UVWGenChannel, 'uvw_channel')
 
 
-def writeDatablock(bus, pluginName, PluginParams, UVWGenChannel, mappedParams):
-    ofile = bus['files']['nodetree']
-    scene = bus['scene']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    overrideParams.update({
+        'uvw_transform' : mathutils.Matrix.Identity(4),
+    })
 
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tuvw_transform=Transform(")
-    ofile.write("\n\t\tMatrix(")
-    ofile.write("\n\t\tVector(1.0,0.0,0.0),")
-    ofile.write("\n\t\tVector(0.0,1.0,0.0),")
-    ofile.write("\n\t\tVector(0.0,0.0,1.0)")
-    ofile.write("\n\t\t),")
-    ofile.write("\n\t\tVector(0.0,0.0,0.0)")
-    ofile.write("\n\t);")
-
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, UVWGenChannel, mappedParams, PluginParams)
-
-    ofile.write("\n}\n")
-
-    return pluginName
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
