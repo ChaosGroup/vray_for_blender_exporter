@@ -201,6 +201,11 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
         pass
 
+    elif attrDesc['type'] in {'TRANSFORM'}:
+        attrArgs['size']    = 16
+        attrArgs['subtype'] = 'MATRIX'
+        attrArgs['default'] = (1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,0)
+
     elif attrDesc['type'] in {'ENUM'}:
         attrArgs['items'] = attrDesc['items']
 
