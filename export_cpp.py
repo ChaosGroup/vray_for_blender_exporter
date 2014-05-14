@@ -99,7 +99,9 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
         geometryFile = o.getFileByType('GEOMETRY'),
         lightsFile   = o.getFileByType('LIGHT'),
 
-        useNodes = True
+        useNodes     = True,
+        materialFile = o.getFileByType('MATERIAL'),
+        textureFile  = o.getFileByType('TEXTURE'),
     )
 
     _vray_for_blender.initCache(isAnimation, checkAnimated)
@@ -107,3 +109,5 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
     ExportFrame(bus)
 
     _vray_for_blender.clearFrames()
+
+    o.closeFiles()
