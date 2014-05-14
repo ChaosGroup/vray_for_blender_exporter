@@ -114,8 +114,12 @@ class VRAY_OT_node_del_texlayered_sockets(bpy.types.Operator):
         if not nSockets:
             return {'FINISHED'}
 
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
+        for i in range(nSockets-1, 0, -1):
+            humanIndex = i + 1
+            texSockName = "Texture %i" % humanIndex
+            if texSockName not in node.inputs:
+                break
+            s = node.inputs[texSockName]
             if not s.is_linked:
                 node.inputs.remove(s)
                 break
@@ -139,7 +143,34 @@ class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
     vray_type   = 'TEXTURE'
     vray_plugin = 'TexLayered'
 
+    alpha_from_intensity = bpy.props.BoolProperty(
+        name        = "Alpha From Intersity",
+        description = "Object",
+        default     =  False
+    )
+
+    invert = bpy.props.BoolProperty(
+        name        = "Invert",
+        description = "Invert",
+        default     =  False
+    )
+
+    invert_alpha = bpy.props.BoolProperty(
+        name        = "Invert Alpha",
+        description = "Invert Alpha",
+        default     =  False
+    )
+
     def init(self, context):
+        AddInput(self, 'VRaySocketFloatColor', "Alpha",        'alpha',        1.0)
+        AddInput(self, 'VRaySocketFloatColor', "Alpha Mult",   'alpha_mult',   1.0)
+        AddInput(self, 'VRaySocketFloatColor', "Alpha Offset", 'alpha_offset', 0.0)
+
+        AddInput(self, 'VRaySocketColor', "No UV Color", 'nouvw_color', (0.5,0.5,0.5))
+
+        AddInput(self, 'VRaySocketColor', "Color Mult",   'color_mult',   (1.0,1.0,1.0))
+        AddInput(self, 'VRaySocketColor', "Color Offset", 'color_offset', (0.0,0.0,0.0))
+
         for i in range(2):
             humanIndex = i + 1
 
@@ -153,6 +184,12 @@ class VRayNodeTexLayered(bpy.types.Node, tree.VRayTreeNode):
         AddOutput(self, 'VRaySocketFloatColor', "Out Intensity",    'out_intensity')
 
     def draw_buttons(self, context, layout):
+        split = layout.split()
+        col = split.column()
+        col.prop(self, 'invert')
+        col.prop(self, 'invert_alpha')
+        col.prop(self, 'alpha_from_intensity')
+
         split = layout.split()
         row = split.row(align=True)
         row.operator('vray.node_add_texlayered_sockets', icon="ZOOMIN", text="Add")
