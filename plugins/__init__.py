@@ -131,6 +131,10 @@ def LoadPlugins(PluginDict, PluginIDDict):
 		PluginIDDict[plugin.ID] = plugin
 
 
+# Usage:
+#   import vb30
+#   vb30.plugins.GenerateJsonDescription(vb30.plugins.PLUGINS_ID['PluginName'])
+#
 def GenerateJsonDescription(pluginModule):
 	import json
 
