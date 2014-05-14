@@ -44,6 +44,7 @@ PluginTypes = {
 SkippedTypes = {
     'LIST',
     'INT_LIST',
+    'FLOAT_LIST',
     'MATRIX',
     'TRANSFORM',
     'TRANSFORM_TEXTURE',
