@@ -25,6 +25,7 @@
 import bpy
 
 from vb30.lib.DrawUtils import GetContextType, GetRegionWidthFromContext
+from vb30.ui.classes    import narrowui
 
 
 TYPE = 'MATERIAL'
