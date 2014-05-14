@@ -315,9 +315,14 @@ def VRayNodeInit(self, context):
             self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
             self.texture.use_color_ramp = True
 
+    elif self.vray_plugin == 'LightMesh':
+        AddOutput(self, 'VRaySocketGeom', "Light")
+
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
             self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
+
+
 
 
 def VRayNodeCopy(self, node):
