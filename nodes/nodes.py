@@ -323,8 +323,6 @@ def VRayNodeInit(self, context):
             self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
 
 
-
-
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
