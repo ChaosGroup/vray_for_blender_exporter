@@ -36,11 +36,4 @@ PluginParams = (
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
-
-    {
-        'attr' : 'out_float',
-        'desc' : "The resulting float",
-        'type' : 'OUTPUT_FLOAT_TEXTURE',
-        'default' : 1.0,
-    },
 )
