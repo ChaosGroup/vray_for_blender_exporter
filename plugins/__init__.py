@@ -131,9 +131,39 @@ def LoadPlugins(PluginDict, PluginIDDict):
 		PluginIDDict[plugin.ID] = plugin
 
 
-def UpdateJsonDescription():
+def GenerateJsonDescription(pluginModule):
 	import json
 
+	if not hasattr(pluginModule, 'PluginParams'):
+		Debug("Plugin '%s' has 'PluginParams'!" % p, msgType='ERROR')
+		return None
+
+	pluginWidgetTmpl = """{ "widgets": []}"""
+
+	if hasattr(pluginModule, 'PluginWidget'):
+		pluginWidget = pluginModule.PluginWidget
+	else:
+		pluginWidget = pluginWidgetTmpl
+
+	plugWdgDict = None
+	try:
+		plugWdgDict = json.loads(pluginWidget)
+	except ValueError as e:
+		print(p, e)
+
+	jsonPlugin = {
+		'Type'       : pluginModule.TYPE,
+		'ID'         : pluginModule.ID,
+		'Name'       : pluginModule.NAME,
+		'Desciption' : pluginModule.DESC,
+		'Parameters' : pluginModule.PluginParams,
+		'Widget'     : plugWdgDict,
+	}
+
+	return jsonPlugin
+
+
+def UpdateJsonDescription():
 	pluginsDir = GetPluginsDir()
 
 	if not pluginsDir or not os.path.exists(pluginsDir):
@@ -145,36 +175,12 @@ def UpdateJsonDescription():
 	for p in PLUGINS_ID:
 		pluginModule = PLUGINS_ID[p]
 
-		if not hasattr(pluginModule, 'PluginParams'):
-			Debug("Plugin '%s' has 'PluginParams'!" % p, msgType='ERROR')
-			continue
-
 		jsonFilepath = os.path.join(jsonDirpath, "%s.json" % p)
 
-		pluginWidgetTmpl = """{ "widgets": []}"""
-
-		if hasattr(pluginModule, 'PluginWidget'):
-			pluginWidget = pluginModule.PluginWidget
-		else:
-			pluginWidget = pluginWidgetTmpl
-
-		plugWdgDict = None
-		try:
-			plugWdgDict = json.loads(pluginWidget)
-		except ValueError as e:
-			print(p, e)
-
-		jsonPlugin = {
-			'Type'       : pluginModule.TYPE,
-			'ID'         : pluginModule.ID,
-			'Name'       : pluginModule.NAME,
-			'Desciption' : pluginModule.DESC,
-			'Parameters' : pluginModule.PluginParams,
-			'Widget'     : plugWdgDict,
-		}
-
 		with open(jsonFilepath, 'w') as f:
-			json.dump(jsonPlugin, f, indent=4, sort_keys=True)
+			jsonPlugin = GenerateJsonDescription(pluginID, outputFile)
+			if jsonPlugin is not None:
+				json.dump(jsonPlugin, f, indent=4, sort_keys=True)
 
 
 def GetPluginByName(pluginID):
