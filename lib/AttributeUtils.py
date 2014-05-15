@@ -191,6 +191,8 @@ def GenerateAttribute(classMembers, attrDesc):
         c = attrDesc['default']
         attrArgs['subtype'] = 'COLOR'
         attrArgs['default'] = (c[0], c[1], c[2])
+        attrArgs['min'] = 0.0
+        attrArgs['max'] = 1.0
 
     elif attrDesc['type'] in {'VECTOR'}:
         if 'subtype' not in attrDesc:
