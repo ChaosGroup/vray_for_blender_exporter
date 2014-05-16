@@ -39,8 +39,6 @@ from . import export
 from . import export_cpp
 from . import debug
 
-from . import realtime
-
 
 def Init():
     _vray_for_blender.start(os.path.join(utils.get_vray_exporter_path(), "plugins_desc"))
@@ -116,71 +114,10 @@ class VRayRendererPreview(bpy.types.RenderEngine):
         export.Run(scene, self.bl_idname)
 
 
-# class VRayRendererRT(bpy.types.RenderEngine):
-#     bl_idname      = 'VRAY_RENDER_RT'
-#     bl_label       = "V-Ray Realtime"
-#     bl_use_preview =  False
-
-#     err = None
-
-#     def viewRealtime(self, context):
-#         VRayStream.setMode('SOCKET')
-
-#         bus = realtime.GetBus()
-
-#         VRayScene = context.scene.vray
-
-#         fov = None
-#         if context.space_data.camera:
-#             fov = context.space_data.camera.data.angle
-#         else:
-#             fov = 2.0 * math.atan((32.0 / 2.0) / context.space_data.lens)
-
-#         tm  = context.region_data.view_matrix.inverted()
-
-#         pluginModule = PLUGINS_ID['RenderView']
-#         propGroup = context.scene.camera.data.vray.RenderView
-
-#         overrideParams = {
-#             'fov' : fov,
-#             'transform' : tm,
-#             'orthographic' : not context.region_data.is_perspective,
-#         }
-
-#         ExportUtils.WritePlugin(bus, pluginModule, 'RenderView', propGroup, overrideParams)
-
-#         VRayStream.commit()
-
-#     def view_update(self, context):
-#         print("VRayRendererRT::view_update()")
-#         self.viewRealtime(context)
-
-#     def view_draw(self, context):
-#         print("VRayRendererRT::view_draw()")
-#         self.viewRealtime(context)
-
-#     def update(self, data, scene):
-#         debug.Debug("VRayRendererRT::update()")
-
-#         self.err = export.Export(data, scene, self.bl_idname)
-#         ErrorReport(self, self.err)
-
-#         realtime.AddRTCallbacks()
-
-#     def render(self, scene):
-#         debug.Debug("VRayRendererRT::render()")
-
-#         if self.err:
-#             return
-
-#         export.Run(scene, self.bl_idname)
-
-
 def GetRegClasses():
     return (
         VRayRenderer,
         VRayRendererPreview,
-        # VRayRendererRT,
     )
 
 

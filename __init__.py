@@ -43,7 +43,6 @@ if "bpy" in locals():
     imp.reload(proxy)
     imp.reload(nodes)
     imp.reload(engine)
-    imp.reload(realtime)
     imp.reload(keymap)
     imp.reload(ui)
     imp.reload(events)
@@ -55,7 +54,6 @@ else:
     from vb30 import proxy
     from vb30 import nodes
     from vb30 import engine
-    from vb30 import realtime
     from vb30 import keymap
     from vb30 import ui
     from vb30 import events
@@ -70,7 +68,6 @@ def register():
     engine.register()
     nodes.register()
     proxy.register()
-    realtime.register()
     keymap.register()
     events.register()
 
@@ -83,7 +80,6 @@ def unregister():
     engine.unregister()
     nodes.unregister()
     proxy.unregister()
-    realtime.unregister()
     ui.unregister()
     keymap.unregister()
     events.unregister()
