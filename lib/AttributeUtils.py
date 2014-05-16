@@ -44,6 +44,7 @@ PluginTypes = {
 SkippedTypes = {
     'LIST',
     'INT_LIST',
+    'FLOAT_LIST',
     'MATRIX',
     'TRANSFORM',
     'TRANSFORM_TEXTURE',
@@ -96,6 +97,13 @@ TypeToSocket = {
     'OUTPUT_VECTOR_TEXTURE'    : 'VRaySocketFloatColor',
     'OUTPUT_TRANSFORM_TEXTURE' : 'VRaySocketVector',
 }
+
+TypeToLightSocket = dict(TypeToSocket)
+for key in TypeToLightSocket:
+    if TypeToLightSocket[key] == 'VRaySocketColor':
+        TypeToLightSocket[key] = 'VRaySocketColorNoValue'
+    elif TypeToLightSocket[key] in {'VRaySocketFloat', 'VRaySocketFloatColor'}:
+        TypeToLightSocket[key] = 'VRaySocketFloatNoValue'
 
 TypeToProp = {
     'BOOL'   : bpy.props.BoolProperty,
@@ -190,6 +198,8 @@ def GenerateAttribute(classMembers, attrDesc):
         c = attrDesc['default']
         attrArgs['subtype'] = 'COLOR'
         attrArgs['default'] = (c[0], c[1], c[2])
+        attrArgs['min'] = 0.0
+        attrArgs['max'] = 1.0
 
     elif attrDesc['type'] in {'VECTOR'}:
         if 'subtype' not in attrDesc:

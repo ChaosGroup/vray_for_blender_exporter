@@ -69,8 +69,8 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
     bl_label  = 'Blender Object Geometry'
     bl_icon   = 'MESH_DATA'
 
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
+    vray_type   = bpy.props.StringProperty(default='NONE')
+    vray_plugin = bpy.props.StringProperty(default='NONE')
 
     GeomStaticMesh = bpy.props.PointerProperty(
         name = "GeomStaticMesh",
@@ -90,8 +90,8 @@ class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
     bl_label  = 'Blender Object Materials'
     bl_icon   = 'MATERIAL'
 
-    vray_type   = 'NONE'
-    vray_plugin = 'NONE'
+    vray_type   = bpy.props.StringProperty(default='NONE')
+    vray_plugin = bpy.props.StringProperty(default='NONE')
 
     wrap_id = bpy.props.BoolProperty(
         name        = "Wrap ID",

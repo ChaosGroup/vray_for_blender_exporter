@@ -324,6 +324,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         colType = INTERPOLATION[texture.color_ramp.interpolation]
 
         ramp_col = []
+        ramp_pos = []
         for i,element in enumerate(reversed(texture.color_ramp.elements)):
             tex_acolor = "%sC%i" % (pluginName, i)
            
@@ -333,9 +334,6 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             o.writeFooter()
 
             ramp_col.append(tex_acolor)
-
-        ramp_pos = []
-        for element in reversed(texture.color_ramp.elements):
             ramp_pos.append("%.3f" % element.position)
 
         colValue = "List(%s)" % ",".join(ramp_col)

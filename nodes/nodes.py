@@ -261,6 +261,12 @@ def VRayNodeDrawSide(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
+    if self.vray_type == 'LIGHT':
+        # We only need sockets from 'LIGHT' nodes.
+        # Params will be taken from lamp propGroup
+        #
+        return
+
     if context.scene.vray.Exporter.nodesUseSidePanel:
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
@@ -287,7 +293,11 @@ def VRayNodeInit(self, context):
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
         if attr['type'] in AttributeUtils.InputTypes:
-            AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
+            TypeToSocket = AttributeUtils.TypeToSocket
+            if self.vray_type == 'LIGHT':
+                TypeToSocket = AttributeUtils.TypeToLightSocket
+
+            AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
         if attr['type'] in AttributeUtils.OutputTypes:
             AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
@@ -314,6 +324,9 @@ def VRayNodeInit(self, context):
         if not self.texture:
             self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
             self.texture.use_color_ramp = True
+
+    elif self.vray_plugin == 'LightMesh':
+        AddOutput(self, 'VRaySocketGeom', "Light")
 
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
@@ -394,9 +407,6 @@ def LoadDynamicNodes():
                 'bl_idname' : DynNodeClassName,
                 'bl_label'  : vrayPlugin.NAME,
                 'bl_icon'   : VRayNodeTypeIcon.get(pluginType, 'VRAY_LOGO_MONO'),
-
-                'vray_type'   : pluginType,
-                'vray_plugin' : pluginName,
             }
 
             if usePynodesFramwork:
@@ -440,6 +450,9 @@ def LoadDynamicNodes():
             if useCatergories:
                 if pluginType == 'TEXTURE':
                     category_textures()(DynNodeClass)
+
+            setattr(DynNodeClass, 'vray_type',   bpy.props.StringProperty(default=pluginType))
+            setattr(DynNodeClass, 'vray_plugin', bpy.props.StringProperty(default=pluginName))
 
             bpy.utils.register_class(DynNodeClass)
 

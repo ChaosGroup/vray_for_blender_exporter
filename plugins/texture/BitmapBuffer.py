@@ -192,6 +192,8 @@ def gui(context, layout, BitmapBuffer, node):
     layout.template_preview(node.texture)
     layout.template_ID(node.texture, 'image', open='image.open')
     layout.separator()
+    layout.prop(node.texture.image, 'filepath')
+    layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 

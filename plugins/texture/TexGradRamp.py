@@ -40,13 +40,13 @@ PluginParams.extend([
     {
         'attr' : 'positions',
         'desc' : "positions of the given colors",
-        'type' : 'FLOAT',
+        'type' : 'FLOAT_LIST',
         'default' : 0.0,
     },
     {
         'attr' : 'colors',
         'desc' : "the given colors",
-        'type' : 'TEXTURE',
+        'type' : 'LIST',
         'default' : (0.0, 0.0, 0.0),
     },
     {
@@ -208,6 +208,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     if texture.color_ramp:
         ramp_col = []
+        ramp_pos = []
         for i,element in enumerate(texture.color_ramp.elements):
             tex_acolor = "%sC%i" % (pluginName, i)
            
@@ -217,9 +218,6 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             o.writeFooter()
 
             ramp_col.append(tex_acolor)
-
-        ramp_pos = []
-        for element in texture.color_ramp.elements:
             ramp_pos.append("%.3f" % element.position)
 
         colValue = "List(%s)" % ",".join(ramp_col)

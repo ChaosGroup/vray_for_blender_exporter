@@ -933,7 +933,8 @@ def getColorMappingFilepath():
 
 # Detects V-Ray Standalone installation
 def get_vray_standalone_path(sce):
-	VRayExporter= sce.vray.Exporter
+	VRayExporter    = sce.vray.Exporter
+	VRayPreferences = bpy.context.user_preferences['vb30']
 
 	vray_bin= "vray"
 	if PLATFORM == 'win32':
@@ -959,8 +960,10 @@ def get_vray_standalone_path(sce):
 						return vray_path
 		return None
 
-	if not VRayExporter.detect_vray and VRayExporter.vray_binary:
-		return bpy.path.abspath(VRayExporter.vray_binary)
+	if not VRayPreferences.detect_vray and VRayPreferences.vray_binary:
+		manualVRayPath = bpy.path.abspath(VRayPreferences.vray_binary)
+		if os.path.exists(manualVRayPath):
+			return manualVRayPath
 
 	vray_standalone_paths= get_env_paths('VRAY_PATH')
 	if vray_standalone_paths:

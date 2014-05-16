@@ -23,12 +23,41 @@
 #
 
 import bpy
+import sys
 
 
 TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
 NAME = 'Exporter'
 DESC = "Exporter configuration"
+
+
+class VRayExporterPreferences(bpy.types.AddonPreferences):
+    bl_idname = "vb30"
+
+    detect_vray = bpy.props.BoolProperty(
+        name = "Detect V-Ray",
+        description = "Detect V-Ray binary location",
+        default = True
+    )
+
+    vray_binary = bpy.props.StringProperty(
+        name = "Path",
+        subtype = 'FILE_PATH',
+        description = "Path to V-Ray binary. Don\'t use relative path here - use absolute!"
+    )
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.prop(self, "detect_vray")
+        if not self.detect_vray:
+            vrayBin = "vray.exe" if sys.platform == 'win32' else "vray"
+            layout.label('Select "vray" binary (do NOT use relative path here!):')
+            
+            split = layout.split(percentage=0.2, align=True)
+            split.column().label("Filepath:")
+            split.column().prop(self, "vray_binary", text="")
 
 
 class VRayExporter(bpy.types.PropertyGroup):
@@ -379,6 +408,7 @@ class VRayExporter(bpy.types.PropertyGroup):
 def GetRegClasses():
     return (
         VRayExporter,
+        VRayExporterPreferences,
     )
 
 

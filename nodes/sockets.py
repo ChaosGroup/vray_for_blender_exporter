@@ -43,12 +43,12 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
         createdSocket.vray_attr = attrName
 
     if default is not None:
-        if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
-            createdSocket.value = (default[0], default[1], default[2])
-            Debug("  Setting default value: (%.3f, %.3f, %.3f)" % (default[0], default[1], default[2]), msgType='INFO')
-        else:
-            createdSocket.value = default
-            Debug("  Setting default value: %s" % default, msgType='INFO')
+        # Some socket intensionally have no 'value'
+        if hasattr(createdSocket, 'value'):
+            if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
+                createdSocket.value = (default[0], default[1], default[2])
+            else:
+                createdSocket.value = default
 
 
 def AddOutput(node, socketType, socketName, attrName=None):
@@ -314,6 +314,24 @@ class VRaySocketColor(bpy.types.NodeSocket, base.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
+class VRaySocketColorNoValue(bpy.types.NodeSocket, base.NodeSocket):
+    bl_idname = 'VRaySocketColorNoValue'
+    bl_label  = 'Color socket'
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
 ##     ## ########  ######  ########  #######  ########
 ##     ## ##       ##    ##    ##    ##     ## ##     ##
 ##     ## ##       ##          ##    ##     ## ##     ##
@@ -574,6 +592,7 @@ def GetRegClasses():
         VRaySocketFloatColor,
         VRaySocketFloatNoValue,
         VRaySocketColor,
+        VRaySocketColorNoValue,
         VRaySocketVector,
         VRaySocketCoords,
         VRaySocketBRDF,

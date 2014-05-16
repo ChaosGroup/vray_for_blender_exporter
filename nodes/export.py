@@ -240,10 +240,26 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
         textures.append(tex)
         blend_modes.append(inputSocket.value)
 
+    alpha        = WriteConnectedNode(bus, nodetree, node.inputs['Alpha'])
+    alpha_mult   = WriteConnectedNode(bus, nodetree, node.inputs['Alpha Mult'])
+    alpha_offset = WriteConnectedNode(bus, nodetree, node.inputs['Alpha Offset'])
+    nouvw_color  = WriteConnectedNode(bus, nodetree, node.inputs['No UV Color'])
+    color_mult   = WriteConnectedNode(bus, nodetree, node.inputs['Color Mult'])
+    color_offset = WriteConnectedNode(bus, nodetree, node.inputs['Color Offset'])
+
     o.set('TEXTURE', 'TexLayered', pluginName)
     o.writeHeader()
     o.writeAttibute('textures', "List(%s)" % ','.join(reversed(textures)))
     o.writeAttibute('blend_modes', "ListInt(%s)" % ','.join(reversed(blend_modes)))
+    o.writeAttibute('alpha_from_intensity', node.alpha_from_intensity)
+    o.writeAttibute('invert', node.invert)
+    o.writeAttibute('invert_alpha', node.invert_alpha)
+    o.writeAttibute('alpha', alpha)
+    o.writeAttibute('alpha_mult', alpha_mult)
+    o.writeAttibute('alpha_offset', alpha_offset)
+    o.writeAttibute('nouvw_color', nouvw_color)
+    o.writeAttibute('color_mult', color_mult)
+    o.writeAttibute('color_offset', color_offset)
     o.writeFooter()
 
     return pluginName

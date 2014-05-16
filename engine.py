@@ -36,6 +36,7 @@ from .plugins import PLUGINS_ID
 
 from . import utils
 from . import export
+from . import export_cpp
 from . import debug
 
 from . import realtime
@@ -70,7 +71,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
         realtime.RemoveRTCallbacks()
 
-        self.err = export.Export(data, scene, self.bl_idname)
+        self.err = export_cpp.Export(data, scene, self)
         ErrorReport(self, self.err)
 
     def render(self, scene):
@@ -115,71 +116,71 @@ class VRayRenderer(bpy.types.RenderEngine):
 #         export.Run(scene, self.bl_idname)
 
 
-class VRayRendererRT(bpy.types.RenderEngine):
-    bl_idname      = 'VRAY_RENDER_RT'
-    bl_label       = "V-Ray Realtime"
-    bl_use_preview =  False
+# class VRayRendererRT(bpy.types.RenderEngine):
+#     bl_idname      = 'VRAY_RENDER_RT'
+#     bl_label       = "V-Ray Realtime"
+#     bl_use_preview =  False
 
-    err = None
+#     err = None
 
-    def viewRealtime(self, context):
-        VRayStream.setMode('SOCKET')
+#     def viewRealtime(self, context):
+#         VRayStream.setMode('SOCKET')
 
-        bus = realtime.GetBus()
+#         bus = realtime.GetBus()
 
-        VRayScene = context.scene.vray
+#         VRayScene = context.scene.vray
 
-        fov = None
-        if context.space_data.camera:
-            fov = context.space_data.camera.data.angle
-        else:
-            fov = 2.0 * math.atan((32.0 / 2.0) / context.space_data.lens)
+#         fov = None
+#         if context.space_data.camera:
+#             fov = context.space_data.camera.data.angle
+#         else:
+#             fov = 2.0 * math.atan((32.0 / 2.0) / context.space_data.lens)
 
-        tm  = context.region_data.view_matrix.inverted()
+#         tm  = context.region_data.view_matrix.inverted()
 
-        pluginModule = PLUGINS_ID['RenderView']
-        propGroup = context.scene.camera.data.vray.RenderView
+#         pluginModule = PLUGINS_ID['RenderView']
+#         propGroup = context.scene.camera.data.vray.RenderView
 
-        overrideParams = {
-            'fov' : fov,
-            'transform' : tm,
-            'orthographic' : not context.region_data.is_perspective,
-        }
+#         overrideParams = {
+#             'fov' : fov,
+#             'transform' : tm,
+#             'orthographic' : not context.region_data.is_perspective,
+#         }
 
-        ExportUtils.WritePlugin(bus, pluginModule, 'RenderView', propGroup, overrideParams)
+#         ExportUtils.WritePlugin(bus, pluginModule, 'RenderView', propGroup, overrideParams)
 
-        VRayStream.commit()
+#         VRayStream.commit()
 
-    def view_update(self, context):
-        print("VRayRendererRT::view_update()")
-        self.viewRealtime(context)
+#     def view_update(self, context):
+#         print("VRayRendererRT::view_update()")
+#         self.viewRealtime(context)
 
-    def view_draw(self, context):
-        print("VRayRendererRT::view_draw()")
-        self.viewRealtime(context)
+#     def view_draw(self, context):
+#         print("VRayRendererRT::view_draw()")
+#         self.viewRealtime(context)
 
-    def update(self, data, scene):
-        debug.Debug("VRayRendererRT::update()")
+#     def update(self, data, scene):
+#         debug.Debug("VRayRendererRT::update()")
 
-        self.err = export.Export(data, scene, self.bl_idname)
-        ErrorReport(self, self.err)
+#         self.err = export.Export(data, scene, self.bl_idname)
+#         ErrorReport(self, self.err)
 
-        realtime.AddRTCallbacks()
+#         realtime.AddRTCallbacks()
 
-    def render(self, scene):
-        debug.Debug("VRayRendererRT::render()")
+#     def render(self, scene):
+#         debug.Debug("VRayRendererRT::render()")
 
-        if self.err:
-            return
+#         if self.err:
+#             return
 
-        export.Run(scene, self.bl_idname)
+#         export.Run(scene, self.bl_idname)
 
 
 def GetRegClasses():
     return (
         VRayRenderer,
         # VRayRendererPreview,
-        VRayRendererRT,
+        # VRayRendererRT,
     )
 
 
