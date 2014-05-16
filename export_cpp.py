@@ -37,9 +37,10 @@ import bpy
 
 import _vray_for_blender
 
-from vb30.lib.VRayStream import VRayStream
+from vb30.lib.VRayStream import VRayPluginExporter
 from vb30                import utils
 from vb30                import export
+from vb30                import debug
 
 
 def ExportFrame(bus):
@@ -56,9 +57,29 @@ def ExportFrame(bus):
     # Clean current frame name cache
     _vray_for_blender.clearCache()
 
+    # Export lights
+    for ob in export.GetObjects(bus):
+        if ob.type == 'LAMP':
+            # Node struct
+            bus['node'] = {
+                # Currently processes object
+                'object' : ob,
+
+                # Object visibility
+                'visible' : ob,
+
+                # Attributes for particle / dupli export
+                'base' : ob,
+                'dupli' : {},
+                'particle' : {},
+            }
+
+            export.write_lamp(bus)
+
 
 def ExportAnimation(bus):
     scene = bus['scene']
+    o     = bus['output']
 
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
@@ -67,11 +88,14 @@ def ExportAnimation(bus):
         if VRayExporter.use_still_motion_blur:
             pass
     else:
+        o.frameStep = scene.frame_step
+
         # Store current frame
         selected_frame = scene.frame_current
 
         f = scene.frame_start
         while(f <= scene.frame_end):
+            o.frameNumber = f
             scene.frame_set(f)
 
             ExportFrame(bus)
@@ -82,13 +106,17 @@ def ExportAnimation(bus):
         scene.frame_set(selected_frame)
 
 
-def Export(data, scene, engine, is_preview=False, is_viewport=False):
+def ExportEx(data, scene, engine, isPreview=False):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
-    o            = VRayStream
 
-    o.setMode('VRSCENE')
+    isAnimation   = VRayExporter.animation and VRayExporter.animation_type in {'FULL'}
+
+    o = VRayPluginExporter()
     o.overwriteGeometry = VRayExporter.auto_meshes
+    o.isAnimation       = isAnimation
+
+    print(o.isAnimation)
 
     bus = {
         'camera'     : scene.camera,
@@ -97,7 +125,7 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
         'frame'      : scene.frame_current,
         'gizmos'     : set(),
         'output'     : o,
-        'preview'    : is_preview,
+        'preview'    : isPreview,
         'scene'      : scene,
         'visibility' : utils.get_visibility_lists(scene.camera),
         'volumes'    : set(),
@@ -123,8 +151,6 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
     if err:
         return err
 
-    isAnimation   = VRayExporter.animation and VRayExporter.animation_type in {'FULL'}
-    checkAnimated = int(VRayExporter.check_animated)
 
     bus['exporter'] = _vray_for_blender.init(
         scene   = scene.as_pointer(),
@@ -140,7 +166,7 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
         textureFile  = o.getFileByType('TEXTURE'),
     )
 
-    _vray_for_blender.initCache(isAnimation, checkAnimated)
+    _vray_for_blender.initCache(isAnimation, 1)
 
     o.write('MAIN', "\n")
     o.write('MAIN', utils.get_vrscene_template("defaults.vrscene"))
@@ -152,23 +178,21 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
     _vray_for_blender.clearFrames()
 
-    # Temp lamp export
-    for ob in export.GetObjects(bus):
-        if ob.type == 'LAMP':
-            # Node struct
-            bus['node'] = {
-                # Currently processes object
-                'object' : ob,
-
-                # Object visibility
-                'visible' : ob,
-
-                # Attributes for particle / dupli export
-                'base' : ob,
-                'dupli' : {},
-                'particle' : {},
-            }
-
-            export.write_lamp(bus)
-
     o.closeFiles()
+
+    return None
+
+
+def Export(data, scene, engine, isPreview=False):
+    try:
+        # Do everythign here; basically because we want to close files
+        # if smth goes wrong...
+        #
+        ExportEx(data, scene, engine, isPreview)
+    except Exception as e:
+        debug.ExceptionInfo(e)
+        # Close files here
+        # o.closeFiles()
+        return "Export error! Check system console!"
+
+    return None

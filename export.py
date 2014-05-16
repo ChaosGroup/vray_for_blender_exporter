@@ -41,7 +41,6 @@ from vb30.lib     import utils as LibUtils
 from vb30.lib     import ExportUtils
 from vb30.nodes   import export as NodesExport
 from vb30.debug   import Debug, PrintDict
-from vb30.lib.VRayStream import VRayStream
 from vb30         import utils
 from vb30.utils   import get_name, a, p
 
@@ -781,31 +780,8 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
 
 def Run(scene, engine):
-    VRayScene = scene.vray
-    VRayExporter = VRayScene.Exporter
-
-    reloadScene = VRayStream.process.is_running()
-
-    VRayStream.initProcess(utils.get_vray_standalone_path(scene))
-
-    if engine == 'VRAY_RENDER_RT':
-        VRayStream.setProcessMode('CMD')
-    else:
-        VRayStream.setProcessMode('NORMAL')
-
-    VRayStream.process.verboseLevel = int(VRayExporter.verboseLevel)
-    VRayStream.process.displaySRGB = VRayExporter.display_srgb
-
-    if not VRayExporter.autorun:
-        print("V-Ray Standalone Command line:\n  %s" % ' '.join(VRayStream.process.getCommandLine()))
-        return
-
-    VRayStream.startProcess()
-    if reloadScene:
-        VRayStream.reload_scene()
-        VRayStream.render()
+    return None
 
 
 def Stop():
-    # Stop process
-    VRayStream.stopProcess()
+    return None

@@ -24,8 +24,7 @@
 
 import bpy
 
-from .VRayStream import VRayStream
-from .           import utils as LibUtils
+from . import utils as LibUtils
 
 
 def UpdateWorldHorizonColor(self, context):

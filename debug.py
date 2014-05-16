@@ -22,7 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import inspect
+import os
 import sys
+import traceback
 
 import bpy
 
@@ -81,3 +84,40 @@ def PrintDict(title, params, spacing=2):
                 Debug(''.join([' ']*int(spacing)*2) + str(item))
         else:
             Debug("%s%s: %s" % (''.join([' ']*int(spacing)), Color(key, 'yellow'), params[key]))
+
+
+# https://gist.github.com/techtonik/2151727
+#
+def caller_name(skip=2):
+    """Get a name of a caller in the format module.class.method
+    
+       `skip` specifies how many levels of stack to skip while getting caller
+       name. skip=1 means "who calls me", skip=2 "who calls my caller" etc.
+       
+       An empty string is returned if skipped levels exceed stack height
+    """
+    stack = inspect.stack()
+    start = 0 + skip
+    if len(stack) < start + 1:
+      return ''
+    parentframe = stack[start][0]
+    name = []
+    module = inspect.getmodule(parentframe)
+    if module:
+        name.append(module.__name__)
+    if 'self' in parentframe.f_locals:
+        name.append(parentframe.f_locals['self'].__class__.__name__)
+    codename = parentframe.f_code.co_name
+    if codename != '<module>':
+        name.append(codename)
+    del parentframe
+    return ".".join(name)
+
+
+def ExceptionInfo(e):
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+
+    print("Exception => '%s': %s" % (type(e).__name__, e))
+    print("Traceback =>")
+
+    traceback.print_tb(exc_traceback)

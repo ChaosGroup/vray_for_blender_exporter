@@ -33,6 +33,4 @@ from vb30.lib.AttributeUtils import *
 from vb30.lib.ExportUtils    import *
 from vb30.lib.DrawUtils      import *
 
-from vb30.lib.VRayStream     import VRayStream
-from vb30.lib.VRaySocket     import VRaySocket
 from vb30.lib.VRayProcess    import VRayProcess

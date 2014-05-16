@@ -23,21 +23,13 @@
 #
 
 import os
-
 import bpy
-import bgl
-import math
 
 import _vray_for_blender
-
-from .lib.VRayStream import VRayStream
-from .lib import ExportUtils
-from .plugins import PLUGINS_ID
 
 from . import utils
 from . import export
 from . import export_cpp
-from . import debug
 
 
 def Init():
@@ -48,13 +40,29 @@ def Shutdown():
     _vray_for_blender.free()
 
 
-def ErrorReport(engine, err):
-    if not err:
+def ExportScene(engine, data, scene):
+    if engine.is_preview:
+        if scene.render.resolution_x < 64: # Don't render icons
+            return
+    engine.err = export_cpp.Export(data, scene, engine, engine.is_preview)
+    if engine.err is not None:
+        engine.report({'ERROR'}, engine.err)
+
+
+def StartRenderer(engine, scene):
+    if engine.is_preview:
+        if scene.render.resolution_x < 64: # Don't render icons
+            return
+
+    if engine.err is not None:
+        engine.report({'ERROR'}, engine.err)
         return
-    if err == 1:
-        engine.report({'ERROR'}, "Files are busy! Looks like V-Ray is still running!")
-    else:
-        engine.report({'ERROR'}, "Error: %s" % err)
+
+    err = export.Run(scene, engine)
+    if err is not None:
+        engine.report({'ERROR'}, err)
+
+    engine.err = None
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -65,20 +73,10 @@ class VRayRenderer(bpy.types.RenderEngine):
     err = None
 
     def update(self, data, scene):
-        debug.Debug("VRayRenderer::update()")
-
-        realtime.RemoveRTCallbacks()
-
-        self.err = export_cpp.Export(data, scene, self)
-        ErrorReport(self, self.err)
+        ExportScene(self, data, scene)
 
     def render(self, scene):
-        debug.Debug("VRayRenderer::render()")
-        
-        if self.err:
-            return
-
-        export.Run(scene, self.bl_idname)
+        StartRenderer(self, scene)
 
 
 class VRayRendererPreview(bpy.types.RenderEngine):
@@ -89,29 +87,10 @@ class VRayRendererPreview(bpy.types.RenderEngine):
     err = None
 
     def update(self, data, scene):
-        debug.Debug("VRayRendererPreview::update(is_preview=%i)" % self.is_preview)
-
-        realtime.RemoveRTCallbacks()
-
-        if self.is_preview:
-            if scene.render.resolution_x < 64:
-                # Don't render icons
-                return
-
-        self.err = export.Export(data, scene, self.bl_idname, self.is_preview)
-        ErrorReport(self, err)
+        ExportScene(self, data, scene)
 
     def render(self, scene):
-        debug.Debug("VRayRendererPreview::render(is_preview=%i)" % self.is_preview)
-        if self.err:
-            return
-
-        if self.is_preview:
-            if scene.render.resolution_x < 64:
-                # Don't render icons
-                return
-
-        export.Run(scene, self.bl_idname)
+        StartRenderer(self, scene)
 
 
 def GetRegClasses():
