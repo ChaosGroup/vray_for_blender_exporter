@@ -261,6 +261,12 @@ def VRayNodeDrawSide(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
+    if self.vray_type == 'LIGHT':
+        # We only need sockets from 'LIGHT' nodes.
+        # Params will be taken from lamp propGroup
+        #
+        return
+
     if context.scene.vray.Exporter.nodesUseSidePanel:
         vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
@@ -287,7 +293,11 @@ def VRayNodeInit(self, context):
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
         if attr['type'] in AttributeUtils.InputTypes:
-            AddInput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
+            TypeToSocket = AttributeUtils.TypeToSocket
+            if self.vray_type == 'LIGHT':
+                TypeToSocket = AttributeUtils.TypeToLightSocket
+
+            AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
         if attr['type'] in AttributeUtils.OutputTypes:
             AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])

@@ -23,16 +23,15 @@
 #
 
 bl_info = {
-    "name" : "V-Ray For Blender 3.0",
-    "author" : "",
-    "blender" : (2, 67, 0),
-    "location" : "Info header, render engine menu",
+    "name"        : "V-Ray For Blender 3.0",
+    "author"      : "Andrei Izrantcev <andrei.izrantcev@chaosgroup.com>",
+    "blender"     : (2, 70, 0),
+    "location"    : "Info header, render engine menu",
     "description" : "Exporter to the V-Ray Standalone file format",
-    "warning" : "",
-    "wiki_url" : "https://github.com/bdancer/vb30/wiki",
+    "warning"     : "",
+    "wiki_url"    : "https://github.com/bdancer/vb30/wiki",
     "tracker_url" : "https://github.com/bdancer/vb30/issues",
-    "support" : 'COMMUNITY',
-    "category" : "Render"
+    "category"    : "Render"
 }
 
 

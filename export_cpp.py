@@ -22,6 +22,17 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+# Exporter workflow:
+#   - Export "Environment" with Python and "Effects" with Python and C++ Python API
+#     and prepare exclude lists for further exclusion from 'Nodes'
+#   - Export lights with Python
+#   - Export geometry, objects and particles/dupli with C++
+#   - Export material nodetrees with C++
+#   - Export "Render Elements" with Python
+#   - Start static/animation render
+#   - Load image back for "Preview" renderer or if "Image To Blender" is turned on
+#
+
 import bpy
 
 import _vray_for_blender
@@ -40,10 +51,35 @@ def ExportFrame(bus):
     export.ExportSettings(bus)
 
     _vray_for_blender.setSkipObjects(bus['exporter'], set())
-    _vray_for_blender.exportScene(bus['exporter'], True, True)
+    _vray_for_blender.exportScene(bus['exporter'], True, VRayExporter.auto_meshes)
 
     # Clean current frame name cache
     _vray_for_blender.clearCache()
+
+
+def ExportAnimation(bus):
+    scene = bus['scene']
+
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
+
+    if VRayExporter.animation_type == 'FRAMEBYFRAME':
+        if VRayExporter.use_still_motion_blur:
+            pass
+    else:
+        # Store current frame
+        selected_frame = scene.frame_current
+
+        f = scene.frame_start
+        while(f <= scene.frame_end):
+            scene.frame_set(f)
+
+            ExportFrame(bus)
+
+            f += scene.frame_step
+
+        # Restore selected frame
+        scene.frame_set(selected_frame)
 
 
 def Export(data, scene, engine, is_preview=False, is_viewport=False):
@@ -106,8 +142,33 @@ def Export(data, scene, engine, is_preview=False, is_viewport=False):
 
     _vray_for_blender.initCache(isAnimation, checkAnimated)
 
-    ExportFrame(bus)
+    o.write('MAIN', "\n")
+    o.write('MAIN', utils.get_vrscene_template("defaults.vrscene"))
+
+    if VRayExporter.animation:
+        ExportAnimation(bus)
+    else:
+        ExportFrame(bus)
 
     _vray_for_blender.clearFrames()
+
+    # Temp lamp export
+    for ob in export.GetObjects(bus):
+        if ob.type == 'LAMP':
+            # Node struct
+            bus['node'] = {
+                # Currently processes object
+                'object' : ob,
+
+                # Object visibility
+                'visible' : ob,
+
+                # Attributes for particle / dupli export
+                'base' : ob,
+                'dupli' : {},
+                'particle' : {},
+            }
+
+            export.write_lamp(bus)
 
     o.closeFiles()

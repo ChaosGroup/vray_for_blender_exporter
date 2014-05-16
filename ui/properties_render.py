@@ -408,17 +408,10 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.separator()
 
 		layout.label(text="Advanced:")
-		# layout.prop(ve, 'backend')
 		split= layout.split()
 		col= split.column()
-		col.prop(ve, 'detect_vray')
-		if wide_ui:
-			col= split.column()
 		col.prop(ve, 'display_srgb')
-		if not ve.detect_vray:
-			split= layout.split()
-			col= split.column()
-			col.prop(ve, 'vray_binary')
+
 		split= layout.split()
 		col= split.column()
 		if sys.platform == "linux":

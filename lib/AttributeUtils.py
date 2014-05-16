@@ -98,6 +98,13 @@ TypeToSocket = {
     'OUTPUT_TRANSFORM_TEXTURE' : 'VRaySocketVector',
 }
 
+TypeToLightSocket = dict(TypeToSocket)
+for key in TypeToLightSocket:
+    if TypeToLightSocket[key] == 'VRaySocketColor':
+        TypeToLightSocket[key] = 'VRaySocketColorNoValue'
+    elif TypeToLightSocket[key] in {'VRaySocketFloat', 'VRaySocketFloatColor'}:
+        TypeToLightSocket[key] = 'VRaySocketFloatNoValue'
+
 TypeToProp = {
     'BOOL'   : bpy.props.BoolProperty,
     'COLOR'  : bpy.props.FloatVectorProperty,
