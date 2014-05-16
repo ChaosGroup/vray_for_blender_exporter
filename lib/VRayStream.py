@@ -111,6 +111,10 @@ class VRayPluginExporter:
         self.pluginCache = dict()
         self.namesCache  = set()
 
+        self.isAnimation = False
+        self.frameNumber = 1
+        self.frameStep   = 1
+
 
     ######## #### ##       ########  ######  
     ##        ##  ##       ##       ##    ## 
@@ -225,11 +229,12 @@ class VRayPluginExporter:
     # Useless right now; keep for compatibility
     #
     def writeHeader(self):
-        if self.pluginName in self.namesCache:
-            self.pluginID   = None
-            self.pluginName = None
-        else:
-            self.namesCache.add(self.pluginName)
+        # if self.pluginName in self.namesCache:
+        #     self.pluginID   = None
+        #     self.pluginName = None
+        # else:
+        #     self.namesCache.add(self.pluginName)
+        pass
 
 
     # This function will fill pluginAttrs dict
@@ -264,16 +269,12 @@ class VRayPluginExporter:
         # If it's not an animation export simply write attr value
         #
         if not self.isAnimation:
-            print(self.pluginName, attrName, " not self.isAnimation")
-            
             self.pluginAttrs[attrName] = LibUtils.FormatValue(val)
 
         # If it's an animation we should check the cache and export
         # new value or ever create a keyframe
         #
         else:
-            print(self.pluginName, attrName, " not self.isAnimation")
-
             newValue = LibUtils.FormatValue(val)
             cFrame, cValue = self._getCachedValue(attrName)
 
@@ -283,7 +284,6 @@ class VRayPluginExporter:
                 attrValue  = "interpolate((%i,%s))" % (self.frameNumber, newValue)
             else:
                 if newValue == cValue:
-                    print(self.pluginName, attrName, "SAME_VALUE")
                     # New value is the same no need to export
                     return
                 else:
@@ -292,8 +292,6 @@ class VRayPluginExporter:
                     # Cached value is more then frame step back -
                     # need a keyframe
                     if cFrame < prevFrame:
-                        print(self.pluginName, attrName, "NEW_VALUE_KEYFRAME")
-
                         attrValue  = "interpolate("
                         attrValue += "(%i,%s)," % (prevFrame,        cValue)
                         attrValue += "(%i,%s)"  % (self.frameNumber, newValue)
@@ -302,7 +300,6 @@ class VRayPluginExporter:
                     # Cached value is from previous frame -
                     # simply new frame data
                     else:
-                        print(self.pluginName, attrName, "NEW_VALUE")
                         attrValue  = "interpolate((%i,%s))" % (self.frameNumber, newValue)
 
             # Store in cache

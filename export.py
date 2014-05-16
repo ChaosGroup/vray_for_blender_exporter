@@ -242,7 +242,7 @@ def write_lamp(bus):
         if lightNode:
             for nodeSocket in lightNode.inputs:
                 vrayAttr = nodeSocket.vray_attr
-                value = NodesExport.WriteConnectedNode(bus, VRayLamp.ntree, nodeSocket, returnDefault=False)
+                value = NodesExport.WriteConnectedNode(bus, VRayLamp.ntree, nodeSocket, linkedOnly=True)
                 if value is not None:
                     socketParams[vrayAttr] = value
 
@@ -253,7 +253,17 @@ def write_lamp(bus):
         else:
             socketParams['u_size'] = lamp.size / 2.0
             socketParams['v_size'] = lamp.size / 2.0
-    
+    elif lamp.type == 'SPOT':
+        if lamp.vray.spot_type == 'SPOT':
+            socketParams['fallsize'] = lamp.spot_size
+        elif lamp.vray.spot_type == 'IES':
+            pass
+    elif lamp.type == 'SUN':
+        if lamp.vray.direct_type == 'DIRECT':
+            pass
+        elif lamp.vray.direct_type == 'SUN':
+            pass
+
     # Check 'Render Elements' and add light to channels
     #
     if scene.vray.ntree:

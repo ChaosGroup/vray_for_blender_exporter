@@ -49,14 +49,6 @@ def ExportFrame(bus):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    export.ExportSettings(bus)
-
-    _vray_for_blender.setSkipObjects(bus['exporter'], set())
-    _vray_for_blender.exportScene(bus['exporter'], True, VRayExporter.auto_meshes)
-
-    # Clean current frame name cache
-    _vray_for_blender.clearCache()
-
     # Export lights
     for ob in export.GetObjects(bus):
         if ob.type == 'LAMP':
@@ -75,6 +67,13 @@ def ExportFrame(bus):
             }
 
             export.write_lamp(bus)
+
+    _vray_for_blender.setSkipObjects(bus['exporter'], set())
+    _vray_for_blender.exportScene(bus['exporter'], True, VRayExporter.auto_meshes)
+
+    # Clean current frame name cache
+    _vray_for_blender.clearCache()
+
 
 
 def ExportAnimation(bus):
@@ -95,8 +94,8 @@ def ExportAnimation(bus):
 
         f = scene.frame_start
         while(f <= scene.frame_end):
-            o.frameNumber = f
             scene.frame_set(f)
+            o.frameNumber = f
 
             ExportFrame(bus)
 
@@ -115,8 +114,6 @@ def ExportEx(data, scene, engine, isPreview=False):
     o = VRayPluginExporter()
     o.overwriteGeometry = VRayExporter.auto_meshes
     o.isAnimation       = isAnimation
-
-    print(o.isAnimation)
 
     bus = {
         'camera'     : scene.camera,
@@ -151,7 +148,6 @@ def ExportEx(data, scene, engine, isPreview=False):
     if err:
         return err
 
-
     bus['exporter'] = _vray_for_blender.init(
         scene   = scene.as_pointer(),
         engine  = engine.as_pointer(),
@@ -170,6 +166,8 @@ def ExportEx(data, scene, engine, isPreview=False):
 
     o.write('MAIN', "\n")
     o.write('MAIN', utils.get_vrscene_template("defaults.vrscene"))
+
+    export.ExportSettings(bus)
 
     if VRayExporter.animation:
         ExportAnimation(bus)

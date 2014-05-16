@@ -270,6 +270,14 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
     elif pluginID == 'BitmapBuffer':
         return createNodeBitmapBuffer(ntree, prevNode, vrsceneDict, pluginDesc)
 
+    elif pluginID == 'TexGradRamp':
+        # TODO
+        return "NULL"
+
+    elif pluginID == 'TexRemap':
+        # TODO
+        return "NULL"
+
     else:
         pluginModule = PLUGINS_ID.get(pluginID)
         if pluginModule is None:

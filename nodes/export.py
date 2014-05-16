@@ -319,19 +319,19 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 ##        ##   ##  ##        ##     ## ##    ##     ##
 ######## ##     ## ##         #######  ##     ##    ##
 
-def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
+def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
     Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
 
     if not nodeSocket.is_linked:
-        if returnDefault:
-            return nodeSocket.value
-        else:
+        if linkedOnly:
             return None
-    
+        else:
+            return nodeSocket.value
+
     connectedNode   = GetConnectedNode(nodetree, nodeSocket)
     connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
     if connectedNode:
-        vrayPlugin = WriteNode(bus, nodetree, connectedNode, returnDefault=returnDefault)
+        vrayPlugin = WriteNode(bus, nodetree, connectedNode, linkedOnly=linkedOnly)
 
         if connectedSocket.vray_attr and connectedSocket.vray_attr not in {'NONE'}:
             # XXX: use as a workaround
@@ -351,7 +351,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=True):
     return None
 
 
-def WriteNode(bus, nodetree, node, returnDefault=True):
+def WriteNode(bus, nodetree, node, linkedOnly=False):
     Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
@@ -390,7 +390,7 @@ def WriteNode(bus, nodetree, node, returnDefault=True):
     for nodeSocket in node.inputs:
         vrayAttr = nodeSocket.vray_attr
 
-        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket, returnDefault=returnDefault)
+        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=linkedOnly)
 
     pluginModule = PLUGINS[vrayType][vrayPlugin]
 
