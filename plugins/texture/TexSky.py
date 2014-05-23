@@ -25,7 +25,7 @@
 import bpy
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'TEXTURE'

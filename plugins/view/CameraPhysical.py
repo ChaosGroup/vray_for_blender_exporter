@@ -25,8 +25,7 @@
 import bpy
 import math
 
-from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
+from vb30.lib import ExportUtils, LibUtils, BlenderUtils
 
 
 TYPE = 'CAMERA'
@@ -331,7 +330,7 @@ def GetLensShift(ob):
         constraint_ob = constraint.target
         if constraint_ob:
             z_shift = ob.matrix_world.to_translation()[2] - constraint_ob.matrix_world.to_translation()[2]
-            l = LibUtils.GetDistanceObOb(ob, constraint_ob)
+            l = BlenderUtils.GetDistanceObOb(ob, constraint_ob)
             shift = -1.0 * z_shift / l
     else:
         rx = ob.rotation_euler[0]

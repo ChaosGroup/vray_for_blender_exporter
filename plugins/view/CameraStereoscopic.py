@@ -1,35 +1,34 @@
-'''
+#
+# V-Ray For Blender
+#
+# http://chaosgroup.com
+#
+# Author: Maxim Seliverstoff
+#
+# Contributor: Andrei Izrantcev
+# E-Mail: andrei.izrantcev@chaosgroup.com
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
+#
 
-  V-Ray/Blender
 
-  http://vray.cgdo.ru
-
-  Author: Andrey M. Izrantsev (aka bdancer)
-  E-Mail: izrantsev@cgdo.ru
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-  All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
-'''
-
-
-''' Blender modules '''
 import bpy
 from bpy.props import *
 
-''' vb modules '''
-from vb30.utils import *
+from vb30.lib import LibUtils
 
 
 TYPE = 'CAMERA'
@@ -250,7 +249,8 @@ def create_stereo_cam(context):
 
 
 def write(bus):
-	ofile  = bus['files']['camera']
+	o = bus['output']
+
 	scene  = bus['scene']
 	camera = bus['camera']
 
@@ -261,18 +261,31 @@ def write(bus):
 	CameraStereoscopic = VRayCamera.CameraStereoscopic
 
 	if CameraStereoscopic.use and StereoSettings.use:
+		def _writeCam(camera, tm):
+			fov, orthoWidth = get_camera_fov(scene, camera)
+
+			camName = LibUtils.CleanString(camera.name)
+
+			o.set('CAMERA', 'RenderView', camName)
+			o.writeHeader()
+			o.writeAttibute("transform", tm)
+			# ofile.write("\n\tfov=%s;" % a(scene, fov))
+			# if SettingsCamera.type not in {'SPHERIFICAL', 'BOX'}:
+			# 	ofile.write("\n\tclipping=%i;" % (RenderView.clip_near or RenderView.clip_far))
+			# 	if RenderView.clip_near:
+			# 		ofile.write("\n\tclipping_near=%s;" % a(scene, camera.data.clip_start))
+			# 	if RenderView.clip_far:
+			# 		ofile.write("\n\tclipping_far=%s;" % a(scene, camera.data.clip_end))
+			# if camera.data.type == 'ORTHO':
+			# 	ofile.write("\n\torthographic=1;")
+			# 	ofile.write("\n\torthographicWidth=%s;" % a(scene, orthoWidth))
+			o.writeFooter()
+
 		camera_left  = bpy.data.objects.get(CameraStereoscopic.LeftCam)
 		camera_right = bpy.data.objects.get(CameraStereoscopic.RightCam)
 
-		ofile.write("\n\n// Camera Left: %s" % (clean_string(camera_left.name)))
-		ofile.write("\nRenderView %s {" % (clean_string(camera_left.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_left, "left"))))
-		ofile.write("\n}\n")
-
-		ofile.write("\n\n// Camera Right: %s" % (clean_string(camera_right.name)))
-		ofile.write("\nRenderView %s {" % (clean_string(camera_right.name)))
-		ofile.write("\n\ttransform=%s;" % a(scene, transform(matrix_recalc(bus, camera_right, "right"))))
-		ofile.write("\n}\n")
+		_writeCam(camera_left,  matrix_recalc(bus, camera_left,  "left"))
+		_writeCam(camera_right, matrix_recalc(bus, camera_right, "right"))
 
 
 def matrix_recalc(bus, cam, pos):

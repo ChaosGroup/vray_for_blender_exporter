@@ -24,8 +24,7 @@
 
 import bpy
 
-from vb30.lib   import DrawUtils, ExportUtils
-from vb30.utils import get_full_filepath
+from vb30.lib   import DrawUtils, ExportUtils, PathUtils
 from vb30.debug import Debug
 
 
@@ -192,8 +191,10 @@ def gui(context, layout, BitmapBuffer, node):
     layout.template_preview(node.texture)
     layout.template_ID(node.texture, 'image', open='image.open')
     layout.separator()
-    layout.prop(node.texture.image, 'filepath')
-    layout.separator()
+
+    if node.texture.image:
+        layout.prop(node.texture.image, 'filepath')
+        layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
@@ -206,7 +207,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     # TODO: Add file existance check
     overrideParams.update({
-        'file' : get_full_filepath(bus, image, image.filepath),
+        'file' : PathUtils.get_full_filepath(bus, image, image.filepath),
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -33,6 +33,7 @@ def register():
     from . import texture
     from . import effects
     from . import renderchannels
+    from . import inputlist
 
     outputs.register()
     selector.register()
@@ -41,6 +42,8 @@ def register():
     texture.register()
     effects.register()
     renderchannels.register()
+    inputlist.register()
+
 
 def unregister():
     from . import outputs
@@ -50,6 +53,7 @@ def unregister():
     from . import texture
     from . import effects
     from . import renderchannels
+    from . import inputlist
 
     outputs.unregister()
     selector.unregister()
@@ -58,3 +62,4 @@ def unregister():
     texture.unregister()
     effects.unregister()
     renderchannels.unregister()
+    inputlist.unregister()

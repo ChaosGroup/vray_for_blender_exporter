@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb30.lib import ExportUtils, utils
+from vb30.lib import ExportUtils
 
 import TexCommonParams
 
@@ -198,8 +198,7 @@ def nodeDraw(context, layout, node):
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    o     = bus['output']
+    o = bus['output']
 
     texture = bus['context']['node'].texture
 
@@ -224,8 +223,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         posValue = "ListFloat(%s)" % ",".join(ramp_pos)
 
     overrideParams.update({
-        'colors'    : utils.AnimatedValue(scene, colValue),
-        'positions' : utils.AnimatedValue(scene, posValue),
+        'colors'    : colValue,
+        'positions' : posValue,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

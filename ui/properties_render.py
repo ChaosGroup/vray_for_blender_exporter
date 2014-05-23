@@ -27,8 +27,9 @@ import sys
 
 import bpy
 
-from vb30.ui import classes
-from vb30    import plugins
+from vb30.lib import LibUtils
+from vb30.ui  import classes
+from vb30     import plugins
 
 
 class VRAY_MT_preset_IM(bpy.types.Menu):
@@ -81,9 +82,6 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		row = col.row()
 		row.prop(rd, "use_border", text="Border")
 		row.prop(rd, "use_crop_to_border", text="Crop")
-
-		# col.prop(VRayScene, "image_aspect_lock", text="Lock Image Aspect")
-		# col.prop(VRayScene, "image_aspect")
 
 		col = split.column(align=True)
 		col.label(text="Pixel aspect:")
@@ -143,11 +141,11 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		col= split.column()
 		col.prop(SettingsOutput, 'img_format', text="Format")
 
-		imgFormat = SettingsOutput.img_format
+		formatPropGroupName = LibUtils.FormatToSettings[SettingsOutput.img_format]
 
-		imgFormatPropGroup = getattr(VRayScene, imgFormat)
+		imgFormatPropGroup = getattr(VRayScene, formatPropGroupName)
 
-		classes.DrawPluginUIAuto(context, layout, imgFormatPropGroup, imgFormat)
+		classes.DrawPluginUIAuto(context, layout, imgFormatPropGroup, formatPropGroupName)
 
 		layout.separator()
 
@@ -159,8 +157,8 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		col.prop(VRayExporter,   'image_to_blender')
-
+		if not VRayExporter.animation:
+			col.prop(VRayExporter, 'image_to_blender')
 
 
 class VRAY_RP_render(classes.VRayRenderPanel):
@@ -187,11 +185,11 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		row.operator('render.render', text="Render", icon=render_icon)
 		row.prop(rd, "use_lock_interface", text="")
 
-		layout.prop(VRayExporter, 'auto_meshes', text="Re-Export Meshes")
-
 		if VRayExporter.animation:
-			layout.prop(VRayExporter, 'animation_type')
-			layout.prop(VRayExporter, 'check_animated')
+			layout.prop(VRayExporter, 'animation_type', text="Mode")
+
+		if VRayExporter.useSeparateFiles:
+			layout.prop(VRayExporter, 'auto_meshes', text="Re-Export Meshes")
 
 		split= layout.split()
 		col= split.column()
@@ -202,7 +200,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayScene.VRayDR, 'on')
 		col.prop(VRayScene.BakeView, 'use', text="Bake")
 		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
-		# col.prop(VRayScene.VRayStereoscopicSettings, 'use')
+		col.prop(VRayScene.VRayStereoscopicSettings, 'use')
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")
@@ -212,20 +210,17 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'animation')
 		if not VRayExporter.animation:
 			col.prop(VRayExporter, 'camera_loop')
-		if VRayScene.SettingsGI.on:
-			col.prop(SettingsOptions, 'gi_dontRenderImage')
-		col.prop(VRayExporter, 'use_still_motion_blur')
-		col.label(text="Options:")
+
+		layout.label(text="Options:")
+		split = layout.split()
+		col = split.column()
 		col.prop(VRayExporter, 'draft')
-		col.prop(rd, "display_mode", text="")
+		if wide_ui:
+			col = split.column()
+		col.prop(SettingsOptions, 'gi_dontRenderImage')
 
-		# layout.separator()
-
-		# split = layout.split()
-		# col = split.column()
-		# col.operator('vray.stop', text="Stop", icon='CANCEL')
-		# col = split.column()
-		# col.operator('vray.terminate', text="Terminate", icon='RADIO')
+		layout.separator()
+		layout.prop(rd, "display_mode")
 
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
@@ -306,12 +301,12 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Geometry:")
-		col.prop(SettingsOptions, 'geom_doHidden')
+		# col.prop(SettingsOptions, 'geom_doHidden')
 		col.prop(SettingsOptions, 'geom_backfaceCull')
 		col.prop(SettingsOptions, 'ray_bias')
 		if wide_ui:
 			col= split.column()
-		col.label(text="Lights:")
+		col.label(text="Lighting:")
 		col.prop(SettingsOptions, 'light_doLights')
 		col.prop(SettingsOptions, 'light_doDefaultLights')
 		col.prop(SettingsOptions, 'light_disableSelfIllumination')
@@ -366,94 +361,87 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout= self.layout
 		wide_ui= context.region.width > classes.narrowui
 
-		rd= context.scene.render
-		ve= context.scene.vray.Exporter
+		VRayScene      = context.scene.vray
+		VRayExporter   = VRayScene.Exporter
+		SettingsOutput = VRayScene.SettingsOutput
 
-		row= layout.row(align=True)
-		row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
-		row.operator("vray.preset_add", text="", icon="ZOOMIN")
-		row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
-
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.label(text="Options:")
-		col.prop(ve, 'autorun')
-		col.prop(ve, 'display')
-		col.prop(ve, 'autoclose')
-		col.prop(ve, 'debug')
-		if wide_ui:
-			col= split.column()
-		col.label(text="Geometry Export:")
-		col.prop(ve, 'use_fast_dupli_export')
-		col.prop(ve, 'use_instances')
-		col.prop(ve, 'use_smoke')
-		col.prop(ve, 'use_hair')
-		col.prop(ve, 'mesh_debug')
+		# row= layout.row(align=True)
+		# row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
+		# row.operator("vray.preset_add", text="", icon="ZOOMIN")
+		# row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
 
 		layout.separator()
-		layout.label(text="Nodes:")
-		layout.prop(ve, 'nodesUseSidePanel')
-
-		layout.separator()
-		layout.label(text="Experimental:")
+		layout.label(text="Options:")
 		split = layout.split()
 		col = split.column()
-		col.prop(ve, 'use_feedback')
+		col.prop(VRayExporter, 'autorun')
 		if wide_ui:
-			col= split.column()
-		col.prop(ve, 'use_progress')
+			col = split.column()
+		col.prop(VRayExporter, 'use_smoke')
+		col.prop(VRayExporter, 'use_hair')
 
 		layout.separator()
+		layout.label(text="V-Ray Frame Buffer:")
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayExporter, 'display', text="Display")
+		col.prop(VRayExporter, 'display_srgb', text="sRGB")
+		if wide_ui:
+			col = split.column()
+		col.prop(VRayExporter, 'autoclose')
 
+		layout.prop(SettingsOutput, 'frame_stamp_enabled', text="Frame Stamp")
+		if SettingsOutput.frame_stamp_enabled:
+			layout.prop(SettingsOutput, 'frame_stamp_text', text="")
+
+		layout.separator()
+		layout.label(text="Animation:")
+		split = layout.split()
+		col = split.column()
+		sub = col.row()
+		sub.active = not VRayExporter.animation or (VRayExporter.animation and  VRayExporter.animation_type == 'FRAMEBYFRAME')
+		sub.prop(VRayExporter, 'frames_to_export')
+
+		layout.separator()
+		layout.label(text="Export:")
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayExporter, 'output', text="Directory")
+		if VRayExporter.output == 'USER':
+			col.prop(VRayExporter, 'output_dir')
+
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayExporter, 'useSeparateFiles')
+		if wide_ui:
+			col = split.column()
+		col.prop(VRayExporter, 'output_unique', text="Unique Filename")
+
+		layout.separator()
 		layout.label(text="Advanced:")
-		split= layout.split()
-		col= split.column()
-		col.prop(ve, 'display_srgb')
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayExporter, 'debug')
 
-		split= layout.split()
-		col= split.column()
 		if sys.platform == "linux":
-			col.prop(ve, 'log_window')
-			if ve.log_window:
-				col.prop(ve, 'log_window_type', text="Terminal")
-				if ve.log_window_type == 'CUSTOM':
-					col.prop(ve, 'log_window_term')
-		layout.separator()
-
-		split= layout.split()
-		col= split.column()
-		col.prop(ve, 'output', text="Export to")
-		if ve.output == 'USER':
-			col.prop(ve, 'output_dir')
-		col.prop(ve, 'output_unique')
-
-		layout.separator()
-
-		layout.operator('vray.update', icon='FILE_REFRESH')
-
-		# Manual render pipeline controls
-		if ve.animation:
-			render_label = "Animation"
-			render_icon  = 'RENDER_ANIMATION'
-		elif ve.camera_loop:
-			render_label = "Cameras"
-			render_icon  = 'RENDER_ANIMATION'
-		else:
-			render_label = "Image"
-			render_icon  = 'RENDER_STILL'
+			split = layout.split()
+			col = split.column()
+			col.prop(VRayExporter, 'log_window')
+			if VRayExporter.log_window:
+				col.prop(VRayExporter, 'log_window_type', text="Terminal")
+				if VRayExporter.log_window_type == 'CUSTOM':
+					col.prop(VRayExporter, 'log_window_term')
 
 
 class VRAY_RP_cm(classes.VRayRenderPanel):
-	bl_label = "Color mapping"
+	bl_label = "Color Mapping"
 
 	def draw(self, context):
 		layout= self.layout
 		wide_ui= context.region.width > classes.narrowui
 
-		vs= context.scene.vray
-		cm= vs.SettingsColorMapping
+		VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+		cm= VRayPreferences.SettingsColorMapping
 
 		split= layout.split()
 		col= split.column()
@@ -501,7 +489,7 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 
 
 class VRAY_RP_dmc(classes.VRayRenderPanel):
-	bl_label = "DMC sampler"
+	bl_label = "DMC Sampler"
 
 	def draw(self, context):
 		layout= self.layout
@@ -537,12 +525,12 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 		VRayScene=  context.scene.vray
 		SettingsGI= VRayScene.SettingsGI
 
-		row= layout.row(align=True)
-		row.menu("VRAY_MT_preset_gi", text=bpy.types.VRAY_MT_preset_gi.bl_label)
-		row.operator("vray.preset_gi_add", text="", icon="ZOOMIN")
-		row.operator("vray.preset_gi_add", text="", icon="ZOOMOUT").remove_active = True
+		# row= layout.row(align=True)
+		# row.menu("VRAY_MT_preset_gi", text=bpy.types.VRAY_MT_preset_gi.bl_label)
+		# row.operator("vray.preset_gi_add", text="", icon="ZOOMIN")
+		# row.operator("vray.preset_gi_add", text="", icon="ZOOMOUT").remove_active = True
 
-		layout.separator()
+		# layout.separator()
 
 		split= layout.split()
 		col= split.column()
@@ -1122,35 +1110,30 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		col.prop(SettingsRaycaster, 'embreeLowMemory', text="Low Memory")
 		col.prop(SettingsRaycaster, 'embreeRayPackets', text="Ray Packets")
 
-		# layout.separator()
-
-		# layout.label(text="Units scale:")
-		# split= layout.split()
-		# col= split.column()
-		# col.prop(SettingsUnitsInfo, 'meters_scale', text="Metric")
-		# if wide_ui:
-		# 	col= split.column()
-		# col.prop(SettingsUnitsInfo, 'photometric_scale', text="Photometric")
-
 		layout.separator()
+		layout.label(text="Render Region Division:")
+		layout.prop(SettingsRegionsGenerator, 'seqtype', text="Sequence")
+		layout.prop(SettingsRegionsGenerator, 'xymeans', text="Buckets")
 
-		layout.label(text="Render region division:")
-		split= layout.split()
-		col= split.column()
-		col.prop(SettingsRegionsGenerator, 'xymeans', text="XY")
-		col.prop(SettingsRegionsGenerator, 'seqtype')
+		bucketLabel = "Size" if SettingsRegionsGenerator.xymeans == '0' else "Count"
+
+		split = layout.split()
+		col = split.column()
+		col.prop(SettingsRegionsGenerator, 'lock_size', text="Lock %s" % bucketLabel)
 		col.prop(SettingsRegionsGenerator, 'reverse')
 		if wide_ui:
-			col= split.column()
-		sub= col.row(align=True)
-		sub.prop(SettingsRegionsGenerator, 'xc')
-		sub= sub.column()
-		sub.active= not SettingsRegionsGenerator.lock_size
-		sub.prop(SettingsRegionsGenerator, 'yc')
-		col.prop(SettingsRegionsGenerator, 'lock_size')
+			col = split.column()
+		if SettingsRegionsGenerator.lock_size:
+			col.prop(SettingsRegionsGenerator, 'xc', text=bucketLabel)
+		else:
+			sub = col.column(align=True)
+			sub.prop(SettingsRegionsGenerator, 'xc', text="X %s" % bucketLabel)
+			sub.prop(SettingsRegionsGenerator, 'yc', text="Y %s" % bucketLabel)
 
 		layout.separator()
+		layout.label("Console Log:")
 		layout.prop(VRayExporter, 'verboseLevel')
+		layout.prop(VRayExporter, 'showProgress')
 
 
 def GetRegClasses():

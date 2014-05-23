@@ -28,7 +28,7 @@ import bpy
 
 from vb30.debug import Debug, PrintDict
 
-from . import utils, paths
+from . import PathUtils
 from . import AttributeUtils
 
 
@@ -81,20 +81,28 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
             else:
                 subtype = attrDesc.get('subtype')
                 if subtype in {'FILE_PATH', 'DIR_PATH'}:
-                    # TODO: Copy file to the DR directory
-                    value = paths.unifyPath(value)
+                    value = PathUtils.UnifyPath(value)
+
+                    if subtype == 'FILE_PATH':
+                        # TODO:
+                        #   If DR is on, copy file to the DR directory
+                        #   and return relative path.
+                        #
+                        pass
+
                 value = '"%s"' % value
 
         o.writeAttibute(attrName, value)
 
 
-# Use this function from inside the module's 'writeDatablock'
+# NOTE: You could use this function from inside module's 'writeDatablock'
+#
 def WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams):
     o = bus['output']
 
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
     o.writeHeader()
-    
+
     WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
 
     o.writeFooter()
@@ -106,6 +114,4 @@ def WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams):
     if hasattr(pluginModule, 'writeDatablock'):
         return pluginModule.writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams)
 
-    WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
-
-    return pluginName
+    return WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

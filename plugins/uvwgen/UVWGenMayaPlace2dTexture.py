@@ -26,7 +26,7 @@ import math
 
 import bpy
 
-from vb30.lib import DrawUtils, ExportUtils, utils
+from vb30.lib import DrawUtils, ExportUtils, LibUtils
 
 
 TYPE = 'UVWGEN'
@@ -271,8 +271,7 @@ def nodeDraw(context, layout, UVWGenMayaPlace2dTexture):
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    scene = bus['scene']
-    o     = bus['output']
+    o = bus['output']
 
     rotate_frame_tex = mappedParams['rotate_frame_tex']
     if type(rotate_frame_tex) is float:
@@ -282,7 +281,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
 
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
     o.writeHeader()
-    o.writeAttibute("rotate_frame_tex", utils.AnimatedValue(scene, rotate_frame_tex_value))
+    o.writeAttibute("rotate_frame_tex", rotate_frame_tex_value)
 
     ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
 

@@ -46,3 +46,41 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def write(bus):
+    if not bus['lightlinker']:
+        return
+
+    scene = bus['scene']
+
+    ignored_lights = []
+    ignored_shadow_lights = []
+
+    for light in bus['lightlinker']:
+        lightSettings = bus['lightlinker'][light]
+
+        hasInclude = len(lightSettings.get('include', ()))
+        hasExclude = len(lightSettings.get('exclude', ()))
+
+        if not (hasInclude or hasExclude):
+            continue
+
+        # If exclude then add as is
+        exclude = set()
+        if hasExclude:
+            for ob in lightSettings['exclude']:
+                exclude.add(utils.get_name(ob, prefix='OB'))
+
+        # If include then add all others that are not in the list
+        if hasInclude:
+            for ob in utils.GeometryObjectIt(scene):
+                if ob not in lightSettings['include']:
+                    exclude.add(utils.get_name(ob, prefix='OB'))
+
+        ignored_lights.append("List(%s,%s)" % (light, ",".join(exclude)))
+
+    ofile.write("\n{ID} {ID} {{".format(ID=ID))
+    ofile.write("\n\tignored_lights=List(%s);" % ",".join(ignored_lights))
+    # ofile.write("\n\tignored_shadow_lights=List(%s);\n" % ignored_shadow_lights)
+    ofile.write("\n}\n")

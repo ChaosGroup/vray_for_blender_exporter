@@ -27,11 +27,9 @@ import mathutils
 
 import _vray_for_blender
 
-from vb30.lib     import ExportUtils
-from vb30.lib     import utils as LibUtils
+from vb30.lib     import ExportUtils, LibUtils
 from vb30.plugins import PLUGINS
-from vb30.debug   import Debug, PrintDict
-from vb30.utils   import get_name, clean_string, get_data_by_name
+from vb30         import debug
 
 from .utils import *
 
@@ -116,8 +114,6 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
 
     meshName = bus['node']['geometry']
 
-    # XXX: Resolve manual meshes export
-    #
     if not VRayExporter.auto_meshes:
         return meshName
 
@@ -136,10 +132,13 @@ def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
                 ob.as_pointer(),            # Object
                 meshName,                   # Result plugin name
                 propGroup,                  # PropertyGroup
-                o.getFileByType('GEOMETRY') # Output file
+                o.fileManager.getFileByPluginType('GEOMETRY') # Output file
             )
-        except:
-            return None
+        except Exception as e:
+            debug.ExceptionInfo(e)
+            debug.Debug("Error exporting geometry for object '%s'" % ob.name, msgType='ERROR')
+        finally:
+            meshName = None
 
         if bus['engine'] == 'VRAY_RENDER_RT' and VRayScene.RTEngine.use_opencl == '4':
             setattr(propGroup, 'dynamic_geometry', dynamic_geometry)
@@ -221,7 +220,7 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
     scene = bus['scene']
     o     = bus['output']
 
-    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
+    pluginName = LibUtils.CleanString("nt%sn%s" % (nodetree.name, node.name))
 
     textures    = []
     blend_modes = []
@@ -269,7 +268,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
     scene = bus['scene']
     o     = bus['output']
 
-    pluginName = clean_string("nt%sn%s" % (nodetree.name, node.name))
+    pluginName = LibUtils.CleanString("nt%sn%s" % (nodetree.name, node.name))
 
     brdfs   = []
     weights = []
@@ -290,22 +289,22 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
             weights.append(WriteConnectedNode(bus, nodetree, node.inputs[weightSocket]))
         else:
             weightParam = "%sW%sI%i"%(pluginName, brdfs[i], i)
-            
+
             weightColor = mathutils.Color([node.inputs[weightSocket].value]*3)
 
             o.set('TEXTURE', 'TexAColor', weightParam)
             o.writeHeader()
-            o.writeAttibute('texture', LibUtils.AnimatedValue(scene, weightColor))
+            o.writeAttibute('texture', weightColor)
             o.writeFooter()
-            
+
             weights.append(weightParam)
 
     o.set('BRDF', 'BRDFLayered', pluginName)
     o.writeHeader()
     o.writeAttibute('brdfs', "List(%s)" % ','.join(brdfs))
     o.writeAttibute('weights', "List(%s)" % ','.join(weights))
-    o.writeAttibute('additive_mode', LibUtils.FormatValue(node.additive_mode))
-    o.writeAttibute('transparency_tex', LibUtils.FormatValue(transparency))
+    o.writeAttibute('additive_mode', node.additive_mode)
+    o.writeAttibute('transparency_tex', transparency)
     o.writeFooter()
 
     return pluginName
@@ -320,7 +319,7 @@ def WriteVRayNodeBRDFLayered(bus, nodetree, node):
 ######## ##     ## ##         #######  ##     ##    ##
 
 def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
-    Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
+    # Debug("Processing socket: %s [%s]" % (nodeSocket.name, nodeSocket.vray_attr))
 
     if not nodeSocket.is_linked:
         if linkedOnly:
@@ -347,12 +346,12 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
                     vrayPlugin = vrayPlugin.replace("::out_fuel",    "@Fuel")
 
         return vrayPlugin
-    
+
     return None
 
 
 def WriteNode(bus, nodetree, node, linkedOnly=False):
-    Debug("Processing node: %s..." % node.name)
+    # Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
     if node.bl_idname == 'VRayNodeBRDFLayered':
@@ -370,7 +369,7 @@ def WriteNode(bus, nodetree, node, linkedOnly=False):
     elif node.bl_idname == 'VRayNodeBlenderOutputMaterial':
         return WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node)
 
-    pluginName = clean_string("NT%sN%s" % (nodetree.name, node.name))
+    pluginName = LibUtils.CleanString("NT%sN%s" % (nodetree.name, node.name))
     if pluginName in bus['cache']['plugins']:
         return pluginName
     bus['cache']['plugins'].add(pluginName)
@@ -381,7 +380,7 @@ def WriteNode(bus, nodetree, node, linkedOnly=False):
     if vrayType == 'NONE' or vrayPlugin == 'NONE':
         return None
 
-    Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
+    # Debug("Generating plugin \"%s\" [%s, %s]" % (pluginName, vrayType, vrayPlugin), msgType='INFO')
 
     propGroup = getattr(node, vrayPlugin)
 
@@ -426,7 +425,7 @@ def WriteVRayMaterialNodeTree(bus, ntree, force=False):
 
     outputNode = GetNodeByType(ntree, 'VRayNodeOutputMaterial')
     if not outputNode:
-        Debug("Output node not found!", msgType='ERROR')
+        debug.Debug("Output node not found!", msgType='ERROR')
         return bus['defaults']['material']
 
     # Check global material override
@@ -439,9 +438,9 @@ def WriteVRayMaterialNodeTree(bus, ntree, force=False):
     #
     materialSocket = outputNode.inputs['Material']
     if not materialSocket.is_linked:
-        Debug("NodeTree: %s" % ntree.name, msgType='ERROR')
-        Debug("  Node: %s" % outputNode.name, msgType='ERROR')
-        Debug("  Error: Material socket is not connected!", msgType='ERROR')
+        debug.Debug("NodeTree: %s" % ntree.name, msgType='ERROR')
+        debug.Debug("  Node: %s" % outputNode.name, msgType='ERROR')
+        debug.Debug("  Error: Material socket is not connected!", msgType='ERROR')
         return bus['defaults']['material']
 
     return WriteConnectedNode(bus, ntree, materialSocket)

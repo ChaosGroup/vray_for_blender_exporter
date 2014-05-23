@@ -31,28 +31,29 @@ import bpy
 
 from pynodes_framework import idref
 
-from vb30       import utils
 from vb30.debug import Debug
 from vb30.lib   import ClassUtils
+from vb30.lib   import SysUtils
 
 
 PLUGINS_DIRS = []
 PLUGINS_ID = {}
 PLUGINS = {
-	'BRDF':          {},
-	'CAMERA':        {},
-	'GEOMETRY':      {},
-	'LIGHT':         {},
-	'MATERIAL':      {},
-	'OBJECT':        {},
-	'RENDERCHANNEL': {},
-	'SETTINGS':      {},
-	'SLOT':          {},
-	'TEXTURE':       {},
-	'WORLD':         {},
-	'UVWGEN':        {},
-	'SYSTEM':        {},
-	'EFFECT':        {},
+	'BRDF':            {},
+	'CAMERA':          {},
+	'GEOMETRY':        {},
+	'LIGHT':           {},
+	'MATERIAL':        {},
+	'OBJECT':          {},
+	'RENDERCHANNEL':   {},
+	'SETTINGS':        {},
+	'SETTINGS_GLOBAL': {},
+	'SLOT':            {},
+	'TEXTURE':         {},
+	'WORLD':           {},
+	'UVWGEN':          {},
+	'SYSTEM':          {},
+	'EFFECT':          {},
 }
 
 
@@ -96,7 +97,8 @@ def LoadPluginAttributes(plugins, pointerProp):
 
 
 def GetPluginsDir():
-	return os.path.join(utils.get_vray_exporter_path(), "plugins")
+	return os.path.join(SysUtils.GetExporterPath(), "plugins")
+
 
 def LoadPlugins(PluginDict, PluginIDDict):
 	pluginsDir = GetPluginsDir()
@@ -441,24 +443,36 @@ class VRayLight(bpy.types.PropertyGroup):
 		default= False
 	)
 
-	include_exclude = bpy.props.EnumProperty(
-		name = "Type",
-		description = "Include or exclude object from lightning",
-		items = (
-			('EXCLUDE', "Exclude", ""),
-			('INCLUDE', "Include", ""),
-		),
-		default = 'EXCLUDE'
+	use_include= bpy.props.BoolProperty(
+		name= "Use Include",
+		description= "Use include",
+		default= False
 	)
 
-	include_objects = bpy.props.StringProperty(
-		name = "Include objects",
-		description = "Include objects: name{;name;etc}"
+	include_objects= bpy.props.StringProperty(
+		name= "Include objects",
+		description= "Include objects"
 	)
 
-	include_groups = bpy.props.StringProperty(
-		name = "Include groups",
-		description = "Include groups: name{;name;etc}"
+	include_groups= bpy.props.StringProperty(
+		name= "Include groups",
+		description= "Include groups"
+	)
+
+	use_exclude= bpy.props.BoolProperty(
+		name= "Use Exclude",
+		description= "Use exclude",
+		default= False
+	)
+
+	exclude_objects= bpy.props.StringProperty(
+		name= "Exclude objects",
+		description= "Exclude objects"
+	)
+
+	exclude_groups= bpy.props.StringProperty(
+		name= "Exclude groups",
+		description= "Exclude groups"
 	)
 
 	omni_type = bpy.props.EnumProperty(
@@ -682,7 +696,7 @@ class VRayFur(bpy.types.PropertyGroup):
 		soft_min= 0.0,
 		soft_max= 0.01,
 		precision= 5,
-		default= 0.0001
+		default= 0.001
 	)
 
 	make_thinner= bpy.props.BoolProperty(
@@ -946,6 +960,17 @@ def register():
 		description = "Include additional *.vrscene files"
 	)
 
+	# Add global settings to 'VRayExporterPreferences'
+	# BEFORE registration
+	#
+	for pluginName in PLUGINS['SETTINGS_GLOBAL']:
+		AddAttributes(
+			PLUGINS['SETTINGS_GLOBAL'][pluginName],
+			PLUGINS['SYSTEM']['VRayExporter'].VRayExporterPreferences
+		)
+
+	# Register properties
+	#
 	for pluginName in PLUGINS_ID:
 		plugin = PLUGINS_ID[pluginName]
 		if hasattr(plugin, 'register'):
@@ -963,7 +988,7 @@ def register():
 	LoadPluginAttributes(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPluginAttributes(PLUGINS['UVWGEN'],        VRayTexture)
 
-	LoadPluginAttributes(PLUGINS['SYSTEM'],        VRayScene)
+	LoadPluginAttributes(PLUGINS['SYSTEM'], VRayScene)
 
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
 	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)

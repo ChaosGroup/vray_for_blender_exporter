@@ -24,8 +24,6 @@
 
 import bpy
 
-import vb30.utils
-
 from vb30.lib import ExportUtils
 
 

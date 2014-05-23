@@ -37,7 +37,7 @@ PluginParams = (
         'attr' : 'color',
         'desc' : "The self-illumination color",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (1.0, 1.0, 1.0),
     },
     {
         'attr' : 'colorMultiplier',

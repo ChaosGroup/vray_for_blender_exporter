@@ -32,8 +32,6 @@ import time
 import bpy
 import bmesh
 
-from vb30.utils import *
-
 from vb30.vray_tools import VRayProxy
 
 
@@ -113,6 +111,42 @@ def generate_proxy(sce, ob, vrmesh, append=False):
 	hq_file.close()
 	proxy_creator(hq_file.name, vrmesh, append)
 	os.remove(hq_file.name)
+
+
+def proxy_creator(hq_filepath, vrmesh_filepath, append= False):
+	proxycreator_bin= "proxycreator"
+
+	if PLATFORM == 'linux':
+		proxycreator_bin += "_linux"
+	elif PLATFORM == 'win32':
+		proxycreator_bin += "_windows"
+	else:
+		proxycreator_bin += "_mac"
+
+	if PLATFORM in ['linux', 'win32']:
+		proxycreator_bin += "_"+ARCH[:-3]
+
+	if PLATFORM == 'win32':
+		proxycreator_bin += ".exe"
+
+	vray_exporter_path= get_vray_exporter_path()
+	if vray_exporter_path:
+		proxycreator_bin= os.path.join(vray_exporter_path, "bin", proxycreator_bin)
+
+		if os.path.exists(proxycreator_bin):
+			debug(None, "Proxy Creator: %s" % (proxycreator_bin))
+
+			cmd= []
+			cmd.append(proxycreator_bin)
+			if append:
+				cmd.append('--append')
+			cmd.append(hq_filepath)
+			cmd.append(vrmesh_filepath)
+
+			proc= subprocess.call(cmd)
+
+		else:
+			debug(None, "Proxy Creator not found!", error= True)
 
 
 ########  ########   #######  ##     ## ##    ##
@@ -196,7 +230,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
 			GeomMeshFile= ob.data.vray.GeomMeshFile
 
-			vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else clean_string(ob.name)
+			vrmesh_filename= GeomMeshFile.filename if GeomMeshFile.filename else LibUtils.CleanString(ob.name)
 			vrmesh_filename+= ".vrmesh"
 
 			vrmesh_dirpath= bpy.path.abspath(GeomMeshFile.dirpath)

@@ -28,7 +28,6 @@ import bpy
 import mathutils
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils
 
 
 TYPE = 'UVWGEN'
@@ -153,21 +152,22 @@ PluginParams = (
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    scene = bus['scene']
+    o = bus['output']
 
     # XXX: Temporary fix for RT callback
     if 'node' not in bus:
         return pluginName
 
+    # TODO: get object from socket only!
+    #
     ob = bus['node'].get('object', None)
     
-    o = bus['output']
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
 
     o.writeHeader()
 
     if ob is not None:
-        o.writeAttibute("uvw_transform", utils.AnimatedValue(scene, ob.matrix_world.copy().inverted()))
+        o.writeAttibute("uvw_transform", ob.matrix_world.copy().inverted())
 
     ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
 

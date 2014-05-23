@@ -27,7 +27,7 @@ import bpy
 import _vray_for_blender
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'TEXTURE'
@@ -100,7 +100,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         smd.as_pointer(),             # SmokeModifierData
         int(propGroup.interpolation), # Interpolation type
         pluginName,                   # Result plugin name
-        o.getFileByType('GEOMETRY')   # Output file
+        o.fileManager.getFileByPluginType('GEOMETRY')   # Output file
     )
 
     return pluginName

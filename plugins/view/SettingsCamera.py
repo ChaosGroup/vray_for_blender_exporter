@@ -23,7 +23,6 @@
 #
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
 
 
 TYPE = 'SETTINGS'
@@ -100,8 +99,7 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    ca    = bus['camera']
+    ca = bus['camera']
 
     VRayCamera = ca.data.vray
     
@@ -114,9 +112,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             cameraType = 8
 
     overrideParams.update({
-        'fov' : -1,
-        'type' : cameraType,
-        'height' : LibUtils.AnimatedValue(scene, ca.data.ortho_scale),
+        'fov'    : -1,
+        'type'   : cameraType,
+        'height' : ca.data.ortho_scale,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

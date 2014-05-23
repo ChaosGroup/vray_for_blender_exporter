@@ -22,15 +22,4 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# VRay base classes
-
-from vb30.lib.utils          import *
-
-from vb30.lib.CallbackUI     import *
-
-from vb30.lib.ClassUtils     import *
-from vb30.lib.AttributeUtils import *
-from vb30.lib.ExportUtils    import *
-from vb30.lib.DrawUtils      import *
-
-from vb30.lib.VRayProcess    import VRayProcess
+__all__ = []

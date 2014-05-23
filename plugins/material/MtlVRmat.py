@@ -118,14 +118,16 @@ class VRayGetMaterialName(bpy.types.Operator):
     bl_label       = "Get Material Name"
     bl_description = "Get material name from *.vrscene file"
 
+    node = None
+
     def execute(self, context):
-        node = context.active_node
-        if not node:
-            return {'CANCELLED'}
-        if node.bl_idname != "VRayNodeMtlVRmat":
+        if not self.node:
             return {'CANCELLED'}
 
-        MtlVRmat = node.MtlVRmat
+        if self.node.bl_idname != "VRayNodeMtlVRmat":
+            return {'CANCELLED'}
+
+        MtlVRmat = self.node.MtlVRmat
         if not MtlVRmat.filename:
             return {'CANCELLED'}
 

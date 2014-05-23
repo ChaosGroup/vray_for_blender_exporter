@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb30.lib import ExportUtils, utils
+from vb30.lib import ExportUtils
 
 
 TYPE = 'TEXTURE'
@@ -303,8 +303,7 @@ def nodeDraw(context, layout, node):
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    o     = bus['output']
+    o = bus['output']
 
     INTERPOLATION = {
         'CONSTANT' : '0',
@@ -342,9 +341,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         typesValue = "ListInt(%s)" % ",".join([colType]*len(texture.color_ramp.elements))
 
     overrideParams.update({
-        'color_colors'    : utils.AnimatedValue(scene, colValue),
-        'color_positions' : utils.AnimatedValue(scene, posValue),
-        'color_types'     : utils.AnimatedValue(scene, typesValue),
+        'color_colors'    : colValue,
+        'color_positions' : posValue,
+        'color_types'     : typesValue,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

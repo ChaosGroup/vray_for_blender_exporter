@@ -26,6 +26,7 @@ import bpy
 import mathutils
 
 from vb30.lib import ExportUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'EFFECT'
@@ -51,7 +52,7 @@ PluginParams = (
         'attr' : 'color',
         'desc' : "Fog color",
         'type' : 'COLOR',
-        'default' : (0, 0, 0),
+        'default' : (1, 1, 1),
     },
     {
         'attr' : 'color_mult',
@@ -64,20 +65,20 @@ PluginParams = (
         'name' : "Color",
         'desc' : "Fog texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (1.0, 1.0, 1.0),
     },
     {
         'attr' : 'emission',
         'desc' : "Fog emission color",
         'type' : 'COLOR',
-        'default' : (0, 0, 0),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'emission_tex',
         'name' : "Emission",
         'desc' : "Fog emission texture",
         'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
+        'default' : (0.5, 0.5, 0.5),
     },
     {
         'attr' : 'emission_mult',
@@ -415,7 +416,7 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    bus['volumes'].add(pluginName)
+    bus['environment_volume'].add(pluginName)
 
     gizmos = overrideParams['gizmos']
     gizmosList = []
@@ -424,6 +425,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         gizmosList.extend(gizmos)
     else:
         gizmosList.append(gizmos)
+
+    gizmosList = filter(None, gizmosList)
 
     overrideParams.update({
         'color' : mathutils.Color((0.0,0.0,0.0)),

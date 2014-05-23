@@ -23,6 +23,9 @@
 #
 
 import bpy
+import mathutils
+
+from vb30.lib import ExportUtils
 
 
 TYPE = 'EFFECT'
@@ -49,9 +52,53 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : False,
     },
+
+    {
+        'attr' : 'object',
+        'desc' : "",
+        'type' : 'STRING',
+        'skip' :  True,
+        'default' : "",
+    },
 )
 
 
 def nodeDraw(context, layout, SphereFadeGizmo):
-    layout.prop(SphereFadeGizmo, 'radius')
+    layout.prop_search(SphereFadeGizmo,   'object',
+                       bpy.context.scene, 'objects',
+                       text="")
+
+    ob = None
+    if SphereFadeGizmo.object:
+        if SphereFadeGizmo.object in bpy.context.scene.objects:
+            ob = bpy.context.scene.objects[SphereFadeGizmo.object]
+
+    if ob and not ob.type == 'EMPTY':
+        layout.prop(SphereFadeGizmo, 'radius')
+
     layout.prop(SphereFadeGizmo, 'invert')
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    if not propGroup.object:
+        return None
+
+    if propGroup.object not in bpy.context.scene.objects:
+        return None
+
+    ob = bpy.context.scene.objects[propGroup.object]
+
+    if ob.type == 'EMPTY':
+        tm = mathutils.Matrix.Translation(ob.matrix_world.translation)
+        
+        scaVec = ob.matrix_world.to_scale()
+        sca = (scaVec[0] + scaVec[1] + scaVec[2]) / 3.0
+
+        drawSize = ob.empty_draw_size * sca
+
+        overrideParams['radius']    = drawSize
+        overrideParams['transform'] = tm
+    else:
+        overrideParams['transform'] = ob.matrix_world.normalized()
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -23,6 +23,8 @@
 #
 
 from vb30.lib import ExportUtils
+from vb30.lib import PathUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'SETTINGS'
@@ -53,6 +55,7 @@ PluginParams = (
         'attr' : 'img_file',
         'desc' : "Render file name (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
         'type' : 'STRING',
+        'skip' : True,
         'default' : "%F_%C",
     },
     {
@@ -60,6 +63,7 @@ PluginParams = (
         'desc' : "Render file directory (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
         'type' : 'STRING',
         'subtype' : 'DIR_PATH',
+        'skip' : True,
         'default' : "//render/%F/",
     },
     {
@@ -168,60 +172,70 @@ PluginParams = (
         'attr' : 'rgn_left',
         'desc' : "Image output region left coord",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 0,
     },
     {
         'attr' : 'rgn_width',
         'desc' : "Image output region width",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 640,
     },
     {
         'attr' : 'rgn_top',
         'desc' : "Image output region top coord",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 0,
     },
     {
         'attr' : 'rgn_height',
         'desc' : "Image output region height",
         'type' : 'FLOAT',
+        'skip' : True,
         'default' : 480,
     },
     {
         'attr' : 'bmp_width',
         'desc' : "Output bitmap width",
         'type' : 'INT',
+        'skip' : True,
         'default' : 640,
     },
     {
         'attr' : 'bmp_height',
         'desc' : "Output bitmap height",
         'type' : 'INT',
+        'skip' : True,
         'default' : 480,
     },
     {
         'attr' : 'r_left',
         'desc' : "Bitmap output region left coord",
         'type' : 'INT',
+        'skip' : True,
         'default' : 0,
     },
     {
         'attr' : 'r_width',
         'desc' : "Bitmap output region width",
         'type' : 'INT',
+        'skip' : True,
         'default' : 640,
     },
     {
         'attr' : 'r_top',
         'desc' : "Bitmap output region top coord",
         'type' : 'INT',
+        'skip' : True,
         'default' : 0,
     },
     {
         'attr' : 'r_height',
         'desc' : "Bitmap output region height",
         'type' : 'INT',
+        'skip' : True,
         'default' : 480,
     },
     {
@@ -234,7 +248,7 @@ PluginParams = (
         'attr' : 'frame_stamp_text',
         'desc' : "Frame stamp text",
         'type' : 'STRING',
-        'default' : "",
+        'default' : "V-Ray %vraycore | %rendertime",
     },
     {
         'attr' : 'relements_separateFolders',
@@ -273,16 +287,16 @@ PluginParams = (
         'desc' : "Output image format",
         'type' : 'ENUM',
         'items' : (
-            ('SettingsPNG',  "PNG",       ""),
-            ('SettingsJPEG', "JPEG",      ""),
-            ('SettingsTIFF', "TIFF",      ""),
-            ('SettingsTGA',  "TGA",       ""),
-            ('SettingsSGI',  "SGI",       ""),
-            ('SettingsEXR',  "OpenEXR",   ""),
-            ('SettingsVRST', "VRayImage", "V-Ray Image Format"),
+            ('PNG',  "PNG",       ""),
+            ('JPG',  "JPEG",      ""),
+            ('TIFF', "TIFF",      ""),
+            ('TGA',  "TGA",       ""),
+            ('SGI',  "SGI",       ""),
+            ('EXR',  "OpenEXR",   ""),
+            ('VRST', "VRayImage", "V-Ray Image Format"),
         ),
         'skip' : True,
-        'default' : 'SettingsJPEG',
+        'default' : 'JPG',
     },
 )
 
@@ -293,49 +307,36 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene  = bus['scene']
+    scene = bus['scene']
+    o     = bus['output']
 
     VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
 
-    img_width = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
+    img_width  = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
     img_height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
     
-    if VRayScene.RTEngine.enabled or scene.render.engine == 'VRAY_RENDER_RT':
+    if VRayScene.RTEngine.enabled:
         if VRayScene.SettingsRTEngine.stereo_mode:
             img_width *= 2.0
 
-    overrideParams.update({
-        'img_width'  : img_width,
-        'img_height' : img_height,
-        'bmp_width'  : img_width,
-        'bmp_height' : img_height,
-        'rgn_width'  : img_width,
-        'rgn_height' : img_height,
-        'r_width'    : img_width,
-        'r_height'   : img_height,
+    overrideParams['img_width']  = img_width
+    overrideParams['img_height'] = img_height
 
-        'img_file' : "",
-        'img_dir' : "",
-    })
+    if not propGroup.img_file:
+        Debug("Image output filename is not set!", msgType='ERROR')
+        return
+
+    if not propGroup.img_dir:
+        Debug("Image output directory is not set!", msgType='ERROR')
+        return
+
+    if o.isPreviewRender():
+        img_dir  = PathUtils.GetPreviewDir()
+        img_file = "preview"
+    else:
+        if VRayExporter.auto_save_render:
+            overrideParams['img_file'] = LibUtils.FormatPath(propGroup.img_file, scene, o.getBaseName())
+            overrideParams['img_dir']  = LibUtils.FormatPath(propGroup.img_dir,  scene, o.getBaseName())
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
-
-# ofile.write("\nSettingsOutput SettingsOutput {")
-# if VRayExporter.auto_save_render:
-#   ofile.write("\n\timg_file= \"%s\";" % bus['filenames']['output_filename'])
-#   ofile.write("\n\timg_dir= \"%s/\";" % bus['filenames']['output'])
-# ofile.write("\n\timg_noAlpha=%d;" % SettingsOutput.img_noAlpha)
-# ofile.write("\n\timg_separateAlpha=%d;" % SettingsOutput.img_separateAlpha)
-# ofile.write("\n\timg_width=%s;" % wx)
-# ofile.write("\n\timg_height=%s;" % (wx if VRayScene.BakeView.use else wy))
-# ofile.write("\n\timg_file_needFrameNumber=%d;" % SettingsOutput.img_file_needFrameNumber)
-# ofile.write("\n\tanim_start=%d;" % scene.frame_start)
-# ofile.write("\n\tanim_end=%d;" % scene.frame_end)
-# ofile.write("\n\tframe_start=%d;" % scene.frame_start)
-# ofile.write("\n\tframes_per_second=%.3f;" % 1.0)
-# ofile.write("\n\tframes=%d-%d;" % (scene.frame_start, scene.frame_end))
-# ofile.write("\n\tframe_stamp_enabled=%d;" % 0)
-# ofile.write("\n\tframe_stamp_text= \"%s\";" % ("V-Ray/Blender 2.0 | V-Ray Standalone %%vraycore | %%rendertime"))
-# ofile.write("\n\trelements_separateFolders=%d;" % SettingsOutput.relements_separateFolders)
-# ofile.write("\n\trelements_divider= \".\";")
-# ofile.write("\n}\n")

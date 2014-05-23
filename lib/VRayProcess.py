@@ -31,181 +31,169 @@ import sys
 import tempfile
 
 from vb30.debug import Debug
+from . import PathUtils
 
 
-if sys.platform not in {'win32'}:
-    import fcntl
-
-
-class VRayProcess():
-    # Process management
-    vrayExe = None
-    process = None
-    procExitReady = None
-
-    # Command line arguments
-    # Render Input
-    sceneFile = None
-    include = None
-
-    # Render Output
-    imgFile = None
-    noFrameNumbers = None
-
-    # VFB Display Options
-    display = None
-    autoclose = None
-    setfocus = None
-    displaySRGB = None
-    displayLUT = None
-    displayAspect = None
-
-    # Console Output
-    showProgress  = None
-    progressUseCR = None
-    verboseLevel  = None
-
-    # Working mode: 'NORMAL', 'CMD', 'SPAWN'
-    mode = None
-
-    # Distributed Rendering
-    transferAssets = None
-
+class VRayProcess:
     def __init__(self):
-        self.vrayExe = "vray"
-        self.verboseLevel = 1
-        self.showProgress = 1
-        self.cmdMode = 1
+        self.filepath = ""
+        self.waitExit = False
+        self.autorun  = True
+
+        # Process
+        self.process  = None
+
+        # Performance
+        self.numThreads = 0
+
+        # Input data
+        self.sceneFile = ""
+        self.include = ""
+
+        # Animation
+        self.frames = ""
+
+        # Distributed Rendering
+        self.distributed = 0
+        self.renderhost = ""
+        self.portNumber = 20207
+        self.limitHosts = 0
+
+        self.transferAssets = 0
+        self.cachedAssetsLimitType = 0
+        self.cachedAssetsLimitValue = 0.0
+        self.overwriteLocalCacheSettings = 0
+
+        # VFB Display Options
+        self.useRegion = False
+        self.useCrop   = False
+
+        self.autoClose = 0
+        self.setfocus = 1
         self.display = 1
+        self.displayAspect = 0
+        self.displayLUT = 0
+        self.displaySRGB = 2
+        self.region = ""
 
-    # def __del__(self):
-    #     self.kill()
+        # Output file
+        self.imgFile = ""
+        self.noFrameNumbers = 0
 
-    def init(self, vrayExe):
-        self.vrayExe = vrayExe
+        # Realtime engine
+        self.rtEngine = 0
+        self.rtNoise = 0.001
+        self.rtSampleLevel = 0
+        self.rtTimeOut = 0.0
+
+        # Progress output
+        self.verboseLevel = '3'
+        self.showProgress = '1'
+        self.progressIncrement = 10
+        self.progressUpdateFreq = 200
+        self.progressUseColor = 1
+        self.progressUseCR = 1
+
+        # Unused params
+        #
+        # self.interactive = 0
+
+        # These params will be setup via 'SettingsOutput'
+        #
+        # imgHeight
+        # imgWidth
+        # region
+        # crop
+
+    def setVRayStandalone(self, filepath):
+        self.filepath = filepath
+
+    def setAutorun(self, autorun):
+        self.autorun = autorun
 
     def setSceneFile(self, sceneFile):
-        if self.sceneFile is not None:
-            if self.sceneFile != sceneFile:
-                self.sceneFile = sceneFile
-                self.restart()
         self.sceneFile = sceneFile
 
-    def setMode(self, mode):
-        Debug("VRayProcess::setMode(%s)" % mode)
+    def setWaitExit(self, waitExit):
+        self.waitExit = waitExit
 
-        needRestart = False
-        if self.mode is not None:
-            if self.mode != mode:
-                needRestart = True
+    def setDisplaySRGB(self, useSRBG):
+        self.displaySRGB = 1 if useSRBG else 2
 
-        self.mode = mode
-        
-        if self.mode == 'NORMAL':
-            self.cmdMode = 0
-        else:
-            self.cmdMode = 1
-        
-        if needRestart:
-            self.restart()
+    def setDisplayVFB(self, displayVFB):
+        self.display = displayVFB
+
+    def setAutoclose(self, autoclose):
+        self.autoclose = autoclose
+
+    def setOutputFile(self, imgFile):
+        self.imgFile = imgFile
+
+    def setVerboseLevel(self, verboseLevel):
+        self.verboseLevel = verboseLevel
+
+    def setShowProgress(self, progress):
+        self.showProgress = progress
+
+    def setThreads(self, threads):
+        self.numThreads = threads
+
+    def setRegion(self, x0, y0, x1, y1, useCrop=False):
+        self.useRegion = True
+        self.useCrop   = useCrop
+        self.region = "%i;%i;%i;%i" % (x0, y0, x1, y1)
+
+    def setFrames(self, frameStart, frameEnd, frameStep=1):
+        self.frames = "%d-%d,%d" % (frameStart, frameEnd, frameStep)
 
     def getCommandLine(self):
-        procArgs = [self.vrayExe]
-        procArgs.append('-verboseLevel=%i' % self.verboseLevel)
-        procArgs.append('-showProgress=%i' % self.showProgress)
-        procArgs.append('-display=%i' % self.display)
-        procArgs.append('-sceneFile=%s' % self.sceneFile)
-        if self.cmdMode:
-            procArgs.append('-cmdMode=%s' % self.cmdMode)
-        procArgs.append('-displaySRGB=%i' % (1 if self.displaySRGB else 2))
+        cmd = [self.filepath]
+        cmd.append('-verboseLevel=%s' % self.verboseLevel)
+        cmd.append('-showProgress=%s' % self.showProgress)
+        cmd.append('-display=%s' % self.display)
+        cmd.append('-displaySRGB=%s' % self.displaySRGB)
 
-        return procArgs
+        if self.numThreads:
+            cmd.append('-numThreads=%s' % self.numThreads)
+
+        if self.useRegion:
+            regionType = "crop" if self.useCrop else "region"
+            cmd.append('-%s=%s' % (regionType, self.region))
+
+        if self.imgFile:
+            cmd.append('-imgFile=%s' % PathUtils.Quotes(self.imgFile))
+
+        if self.frames:
+            cmd.append('-frames=%s' % self.frames)
+
+        cmd.append('-sceneFile=%s' % PathUtils.Quotes(self.sceneFile))
+
+        return cmd
+
 
     def run(self):
-        Debug("VRayProcess::run")
+        cmd     = self.getCommandLine()
+        errCode = 0
 
-        if self.is_running():
-            return
-
-        procArgs = self.getCommandLine()
-
-        if self.mode in {'SPAWN'}:
-            self.process = subprocess.Popen(procArgs, bufsize=256, stdout=subprocess.PIPE)
-
-            if sys.platform not in {'win32'}:
-                fd = self.process.stdout.fileno()
-                fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-                fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+        if self.autorun:
+            self.process = subprocess.Popen(cmd)
+            if self.waitExit:
+                errCode = self.process.wait()
         else:
-            self.process = subprocess.Popen(procArgs)
+            print("V-Ray Command Line: %s" % " ".join(cmd))
 
-    def restart(self):
-        Debug("VRayProcess::restart")
+        return errCode
 
-        self.kill()
-        self.run()
 
     def kill(self):
-        Debug("VRayProcess::kill")
-
         if self.is_running():
             self.process.terminate()
-
         self.process = None
 
+
     def is_running(self):
-        if self.mode in {'CMD', 'SPAWN'}:
-            if self.process is None:
-                return False
-            if self.process.poll() is None:
-                return True
+        if self.process is None:
+            return False
+        if self.process.poll() is None:
+            return True
         return False
-
-    def get_progress(self):
-        msg  = None
-        prog = None
-
-        if self.mode not in {'SPAWN'}:
-            return {None, None}
-
-        if not self.is_running():
-            return {None, None}
-
-        stdout_lines = None
-        try:
-            self.process.stdout.flush()
-            stdout_lines = self.process.stdout.readlines(256)
-        except:
-            pass
-
-        if stdout_lines:
-            for stdout_line in stdout_lines:
-                line = stdout_line.decode('ascii').strip()
-
-                if self.debug:
-                    print(line)
-
-                if line.find("Building light cache") != -1:
-                    msg = "Light cache"
-                elif line.find("Prepass") != -1:
-                    prepass_num = line[line.find("Prepass")+7:line.find("of")].strip()
-                    msg = "Irradiance map (prepass %s)" % (prepass_num)
-                elif line.find("Rendering image") != -1:
-                    msg = "Rendering"
-                elif line.find("Building caustics") != -1:
-                    msg = "Caustics"
-                elif line.find("Frame took") != -1:
-                    self.procRenderFinished = True
-
-                if msg is None:
-                    continue
-
-                p_start = line.find("...: ") + 5
-                p_end   = line.find("%")
-
-                if p_start != -1 and p_end != -1 and p_end > p_start:
-                    p_str = line[p_start:p_end].strip()
-                    if len(p_str):
-                        prog = float(p_str) / 100.0
-                        break
-        return msg, prog

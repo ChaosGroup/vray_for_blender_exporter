@@ -25,7 +25,7 @@
 import bpy
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'TEXTURE'
@@ -274,7 +274,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
 
     if 'radius' in mappedParams:
         if type(mappedParams['radius']) is float:
-            radiusResult = LibUtils.AnimatedValue(scene, mappedParams['radius'])
+            radiusResult = mappedParams['radius']
         else:
             radiusTexName = pluginName + "Radius"
             radiusResult = radiusTexName + "::product"
@@ -282,7 +282,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
             o.set('TEXTURE', 'TexFloatOp', radiusTexName)
             o.writeHeader()
             o.writeAttibute("float_a", mappedParams['radius'])
-            o.writeAttibute("float_b", LibUtils.AnimatedValue(scene, propGroup.radius))
+            o.writeAttibute("float_b", propGroup.radius)
             o.writeFooter()
 
     o.set(pluginModule.TYPE, pluginModule.ID, pluginName)

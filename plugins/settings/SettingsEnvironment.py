@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb30.utils import *
+from vb30.lib import LibUtils
 from vb30.nodes import export as NodesExport
 
 
@@ -60,14 +60,17 @@ def WriteEnvironment(bus, ntree, node):
     scene = bus['scene']
     o     = bus['output']
 
-    volumes = bus.get('volumes', ())
+    volumes = bus.get('environment_volume', ())
 
     VRayWorld = scene.world.vray
+
+    lLevel = VRayWorld.global_light_level
+    global_light_level = mathutils.Color((lLevel,lLevel,lLevel))
 
     if node is None:
         o.set('WORLD', ID, 'SettingsEnvironment')
         o.writeHeader()
-        o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
+        o.writeAttibute('global_light_level', global_light_level)
         o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
         o.writeFooter()
         return
@@ -79,7 +82,7 @@ def WriteEnvironment(bus, ntree, node):
 
     o.set('WORLD', ID, 'SettingsEnvironment')
     o.writeHeader()
-    o.writeAttibute('global_light_level', a(scene, "Color(1.0,1.0,1.0)*%.3f" % VRayWorld.global_light_level))
+    o.writeAttibute('global_light_level', global_light_level)
     o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
     o.writeAttibute('bg_color', "Color(0.0,0.0,0.0)")
     o.writeAttibute('bg_tex_mult', 1.0)
@@ -90,7 +93,7 @@ def WriteEnvironment(bus, ntree, node):
     o.writeAttibute('refract_color', "Color(0.0,0.0,0.0)")
     o.writeAttibute('refract_tex_mult', 1.0)
 
-    o.writeAttibute('bg_tex', a(scene, socketParams.get('bg_tex', node.inputs['Background'].value)))
+    o.writeAttibute('bg_tex', socketParams.get('bg_tex', node.inputs['Background'].value))
 
     for override in {'gi_tex', 'reflect_tex', 'refract_tex'}:
         value = None
@@ -101,7 +104,7 @@ def WriteEnvironment(bus, ntree, node):
             value = socketParams.get('bg_tex', None)
 
         if value:
-            o.writeAttibute(override, a(scene, value))
+            o.writeAttibute(override, value)
 
     o.writeFooter()
 
@@ -118,6 +121,7 @@ def write(bus):
         return
 
     # Effects must be always exported before Environment
+    # because of 'environment_volume' attribute
     #
     effectsSocket = outputNode.inputs['Effects']
     if effectsSocket.is_linked:
@@ -128,31 +132,3 @@ def write(bus):
     environmentSocket = outputNode.inputs['Environment']
     environmentNode = NodesExport.GetConnectedNode(ntree, environmentSocket)
     WriteEnvironment(bus, ntree, environmentNode)
-
-
-# def write_SphereFadeGizmo(bus, ob):
-#     vray = ob.vray
-#     name= "MG%s" % get_name(ob, prefix='EMPTY')
-#     o.writeAttibute('\nSphereFadeGizmo %s {" % name)
-#     o.writeAttibute('transform=%s;" % a(scene, transform(ob.matrix_world)))
-#     if ob.type == 'EMPTY':
-#         o.writeAttibute('radius=%s;" % ob.empty_draw_size)
-#     elif vray.MtlRenderStats.use:
-#         o.writeAttibute('radius=%s;" % vray.fade_radius)
-#     o.writeAttibute('invert=0;")
-#     o.writeAttibute('\n}\n")
-#     return name
-
-
-# def write_SphereFade(bus, effect, gizmos):
-#     scene= bus['scene']
-#     name= "ESF%s" % clean_string(effect.name)
-
-#     o.writeAttibute('\nSphereFade %s {" % name)
-#     print(gizmos)
-#     o.writeAttibute('gizmos= List(%s);" % ','.join(gizmos))
-#     for param in PARAMS['SphereFade']:
-#         value= getattr(effect.SphereFade, param)
-#         o.writeAttibute('%s=%s;"%(param, a(scene,value)))
-
-#     o.writeAttibute('\n}\n")

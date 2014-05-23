@@ -122,7 +122,7 @@ PluginParams = (
         'attr' : 'uvw_channel',
         'desc' : "",
         'type' : 'INT',
-        'default' : 1,
+        'default' : 0,
     },
     {
         'attr' : 'uvwgen',

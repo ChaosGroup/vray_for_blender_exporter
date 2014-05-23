@@ -37,8 +37,7 @@ from bpy.props import *
 
 import vb30.proxy
 
-from vb30.lib     import utils as LibUtils
-from vb30.utils   import *
+from vb30.lib     import LibUtils, BlenderUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 
 
@@ -396,7 +395,7 @@ class VRAY_OT_dr_nodes_load(bpy.types.Operator):
 		VRayScene = context.scene.vray
 		VRayDR = VRayScene.VRayDR
 
-		nodesFilepath = os.path.join(GetUserConfigDir(), "render_nodes.txt")
+		nodesFilepath = os.path.join(BlenderUtils.GetUserConfigDir(), "render_nodes.txt")
 
 		if not os.path.exists(nodesFilepath):
 			return {'CANCELLED'}
@@ -426,7 +425,7 @@ class VRAY_OT_dr_nodes_save(bpy.types.Operator):
 		VRayScene = context.scene.vray
 		VRayDR = VRayScene.VRayDR
 
-		nodesFilepath = os.path.join(GetUserConfigDir(), "render_nodes.txt")
+		nodesFilepath = os.path.join(BlenderUtils.GetUserConfigDir(), "render_nodes.txt")
 
 		with open(nodesFilepath, 'w') as nodesFile:
 			for item in VRayDR.nodes:

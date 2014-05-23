@@ -22,31 +22,28 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import os
-
-import bpy
+from vb30.nodes import export as NodesExport
 
 
-# Get full file name (name.ext)
-#
-def GetFullFilename(filepath):
-	return os.path.basename(bpy.path.abspath(filepath))
+def ExportRenderElements(bus):
+    scene = bus['scene']
+    o     = bus['output']
 
+    ntree = scene.vray.ntree
+    if not ntree:
+        return
 
-# Get file name (without .ext)
-#
-def GetFilename(filepath):
-	fullFilename = GetFullFilename(filepath)
-	filename, fileext = os.path.splitext(fullFilename)
-	return filename
+    outputNode = NodesExport.GetNodeByType(ntree, 'VRayNodeRenderChannels')
+    if not outputNode:
+        return
 
+    for socket in outputNode.inputs:
+        if socket.is_linked and socket.use:
+            NodesExport.WriteConnectedNode(bus, ntree, socket)
 
-def unifyPath(filepath, relative=False):
-	if relative:
-		if filepath.startswith('//'):
-			return filepath[2:].replace('\\', '/')
-
-	filepath = os.path.normpath(bpy.path.abspath(filepath))
-	filepath = filepath.replace('\\', '/')
-
-	return filepath
+    o.set('RENDERCHANNEL', 'SettingsRenderChannels', 'SettingsRenderChannels')
+    o.writeHeader()
+    o.writeAttibute('unfiltered_fragment_method', outputNode.unfiltered_fragment_method)
+    o.writeAttibute('deep_merge_mode', outputNode.deep_merge_mode)
+    o.writeAttibute('deep_merge_coeff', outputNode.deep_merge_coeff)
+    o.writeFooter()

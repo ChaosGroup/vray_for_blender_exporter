@@ -22,11 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-
 import bpy
 import mathutils
-
-from vb30 import utils
 
 
 TYPE = 'OBJECT'

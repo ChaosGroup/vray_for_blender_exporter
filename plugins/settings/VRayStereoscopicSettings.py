@@ -24,7 +24,7 @@
 
 TYPE = 'SETTINGS'
 ID   = 'VRayStereoscopicSettings'
-NAME = 'VRayStereoscopicSettings'
+NAME = 'Stereo Render'
 DESC = ""
 
 PluginParams = (
@@ -156,6 +156,7 @@ PluginParams = (
 
     {
         'attr' : 'use',
+        'name' : 'Stereo Render',
         'desc' : "Use Stereoscopic",
         'type' : 'BOOL',
         'skip' : True,

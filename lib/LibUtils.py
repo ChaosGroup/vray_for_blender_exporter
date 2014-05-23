@@ -29,8 +29,6 @@ import mathutils
 
 import _vray_for_blender
 
-from . import paths
-
 
 LampSubType = {
     'AREA'  :  None,
@@ -50,14 +48,15 @@ LampSubtypeToPlugin = {
     'SUN'     : 'SunLight',
 }
 
-ObjectPrefix = {
-    'LAMP'   : 'LA',
-    'CAMERA' : 'CA',
+FormatToSettings = {
+    'PNG'  : 'SettingsPNG',
+    'JPG'  : 'SettingsJPEG',
+    'TIFF' : 'SettingsTIFF',
+    'TGA'  : 'SettingsTGA',
+    'SGI'  : 'SettingsSGI',
+    'EXR'  : 'SettingsEXR',
+    'VRST' : 'SettingsVRST',
 }
-
-
-def FilterObjectListByType(objectList, objectType):
-    return filter(lambda x: x.type == objectType, objectList)
 
 
 def GetLightPluginName(lamp):
@@ -68,19 +67,18 @@ def GetLightPluginName(lamp):
     return LampSubtypeToPlugin[getattr(lamp.vray, LampSubType[lamp.type])]
 
 
-def IsAnimated(ob):
-    if ob.animation_data:
-        return True
-    if hasattr(ob, 'data') and ob.data:
-        if ob.data.animation_data:
-            return True
-    return False
+def GetAsList(value):
+    l = []
+    if type(value) is list:
+        l.extend(value)
+    else:
+        l.append(value)
+    return l
 
 
+# Strips string from deprecated chars
+#
 def CleanString(s, stripSigns=True):
-    """
-    Strip string from deprecated chars
-    """
     if stripSigns:
         s = s.replace("+", "p")
         s = s.replace("-", "m")
@@ -91,65 +89,8 @@ def CleanString(s, stripSigns=True):
     return s
 
 
-def GetObjectName(ob, prefix=None):
-    if prefix is None: 
-        prefix = ObjectPrefix.get(ob.type, 'OB')
-    name = prefix + ob.name
-    if ob.library:
-        name = 'LI' + paths.GetFilename(ob.library.filepath) + name
-    return CleanString(name)
-
-
-def GetGroupObjects(groupName):
-    obList = []
-    if groupName in bpy.data.groups:
-        obList.extend(bpy.data.groups[groupName].objects)
-    return obList
-
-
-def GetGroupObjectsNames(groupName):
-    obList = [GetObjectName(ob) for ob in GetGroupObjects(groupName)]
-    return obList
-
-
-def GetSmokeModifier(ob):
-    if len(ob.modifiers):
-        for md in ob.modifiers:
-            if md.type == 'SMOKE' and md.smoke_type == 'DOMAIN':
-                return md
-    return None
-
-
-def GetSceneObject(scene, objectName):
-    if objectName not in scene.objects:
-        return None
-    return scene.objects[objectName]
-
-
-# Helper function to convert a value to
-# hex in vrscene format
-def FormatHexValue(value):
-    if type(value) is float:
-        bytes = struct.pack('<f', value)
-    else:
-        bytes = struct.pack('<i', value)
-    return ''.join([ "%02X" % b for b in bytes ])
-
-
-def GetDistanceObOb(ob1, ob2):
-    t1 = ob1.matrix_world.translation
-    t2 = ob2.matrix_world.translation
-    d = t1 - t2
-    return d.length
-
-
-# Helper function to convert mathutils.Vector to
-# hex vector in vrscene format
-def FormatHexVector(vector):
-    return ''.join([ to_vrscene_hex(v) for v in vector ])
-
-
 # Return value in .vrscene format
+#
 def FormatValue(t, subtype=None, quotes=False, ascii=False):
     if type(t) is bool:
         return "%i"%(t)
@@ -177,28 +118,15 @@ def FormatValue(t, subtype=None, quotes=False, ascii=False):
     return t
 
 
-def AnimValue(frame, value, quotes=False):
-    val = FormatValue(value, quotes=quotes)
-    
-    return "interpolate((%i,%s))" % (frame, val)
-
-
-# Return animatable value in .vrscene format
-def AnimatedValue(scene, value, quotes=False):
-    VRayScene    = scene.vray
-    VRayExporter = VRayScene.Exporter
-
-    frame = scene.frame_current
-    
-    if VRayExporter.camera_loop:
-        frame = VRayExporter.customFrame
-
-    val = FormatValue(value, quotes=quotes)
-
-    if VRayScene.RTEngine.enabled and VRayScene.RTEngine.use_opencl:
-        return val
-
-    if not VRayExporter.animation and not VRayExporter.use_still_motion_blur:
-        return val
-
-    return "interpolate((%i,%s))" % (frame, val)
+# This funciton will substitue special format sequences with
+# the correspondent values
+#
+def FormatName(path, scene, blendfileName):
+    substDict = {
+        r'%C' : CleanString(scene.camera.name),
+        r'%S' : CleanString(scene.name),
+        r'%F' : CleanString(blendfileName, stripSigns=False),
+    }
+    for key in substDict:
+        path = path.replace(key, substDict[key])
+    return path

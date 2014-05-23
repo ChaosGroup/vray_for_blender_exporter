@@ -169,7 +169,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         fov = fov * aspect
 
     overrideParams.update({
-        'use_scene_offset' : False if bus["engine"] == 'VRAY_RENDER_RT' else True,
+        'use_scene_offset' : False if bus["engine"].bl_idname == 'VRAY_RENDER_RT' else True,
         'clipping' : RenderView.clip_near or RenderView.clip_far
     })
 

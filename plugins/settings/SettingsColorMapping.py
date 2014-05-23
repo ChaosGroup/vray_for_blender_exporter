@@ -22,15 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# TODO: Store colormapping settings seperately for proper preview
-#
-def updatePreviewColorMapping(self, context):
-    pass
-
-
-TYPE = 'SETTINGS'
+TYPE = 'SETTINGS_GLOBAL'
 ID   = 'SettingsColorMapping'
-NAME = 'SettingsColorMapping'
+NAME = 'Color Mapping'
 DESC = ""
 
 PluginParams = (

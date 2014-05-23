@@ -164,6 +164,7 @@ PluginParams = (
         'name' : "Threshold",
         'desc' : "Noise threshold for the progressive image sampler",
         'type' : 'FLOAT',
+        'precision' : 4,
         'default' : 0.01,
     },
     {
@@ -186,6 +187,13 @@ PluginParams = (
         'desc' : "If true, the AA mask will be rendered",
         'type' : 'BOOL',
         'default' : False,
+    },
+    {
+        'attr' : 'min_shade_rate',
+        'name' : "Min Sading Rate",
+        'desc' : "",
+        'type' : 'INT',
+        'default' : 2,
     },
 
     {
@@ -222,6 +230,11 @@ PluginWidget = """
     {   "layout" : "ROW",
         "attrs" : [
             { "name" : "type" }
+        ]
+    },
+    {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "min_shade_rate" }
         ]
     },
 

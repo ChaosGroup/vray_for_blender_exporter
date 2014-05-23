@@ -240,10 +240,6 @@ def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
-    if context.scene.vray.Exporter.debug:
-        layout.label(text="Type: %s"   % self.vray_type)
-        layout.label(text="Plugin: %s" % self.vray_plugin)
-
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
     # Draw node properties using 'nodeDraw'
@@ -267,17 +263,16 @@ def VRayNodeDrawSide(self, context, layout):
         #
         return
 
-    if context.scene.vray.Exporter.nodesUseSidePanel:
-        vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+    vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
-        classes.DrawPluginUI(
-            context,
-            layout,
-            self,                            # PropertyGroup holder
-            getattr(self, self.vray_plugin), # PropertyGroup
-            self.vray_plugin,                # Plugin name
-            vrayPlugin                       # Plugin module
-        )
+    classes.DrawPluginUI(
+        context,
+        layout,
+        self,                            # PropertyGroup holder
+        getattr(self, self.vray_plugin), # PropertyGroup
+        self.vray_plugin,                # Plugin name
+        vrayPlugin                       # Plugin module
+    )
 
 
 def VRayNodeInit(self, context):
@@ -316,7 +311,7 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
-        AddOutput(self, 'VRaySocketEffect', "Output")
+        AddOutput(self, 'VRaySocketEffectOutput', "Output")
     elif self.vray_type == 'RENDERCHANNEL':
         AddOutput(self, 'VRaySocketRenderChannelOutput', "Channel")
 
@@ -349,7 +344,9 @@ def VRayNodeFree(self):
 
 
 def VRayNodeDrawLabel(self):
-    return "%s [%s]" % (self.name, self.vray_plugin)
+    if bpy.context.scene.vray.Exporter.debug:
+        return "%s [%s]" % (self.name, self.vray_plugin)
+    return self.name
 
 
 ########  ##    ## ##    ##    ###    ##     ## ####  ######     ##    ##  #######  ########  ########  ######

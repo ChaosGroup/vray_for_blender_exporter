@@ -240,7 +240,7 @@ PluginParams = (
         'attr' : 'use_dome_tex',
         'desc' : "",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'tex_resolution',

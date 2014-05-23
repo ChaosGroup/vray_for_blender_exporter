@@ -67,16 +67,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
-    backend = bpy.props.EnumProperty(
-        name        = "Renderer",
-        description = "V-Ray type",
-        items = (
-                ('STD', "V-Ray Standalone", ""),
-                ('VB',  "V-Ray For Blender", ""),
-        ),
-        default = 'STD'
-    )
-
     spherical_harmonics = bpy.props.EnumProperty(
         name = "Spherical Harmonics Mode",
         description = "Bake or render spherical harmonics",
@@ -87,20 +77,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'BAKE'
     )
 
-    ##    ##  #######  ########  ########  ######  
-    ###   ## ##     ## ##     ## ##       ##    ## 
-    ####  ## ##     ## ##     ## ##       ##       
-    ## ## ## ##     ## ##     ## ######    ######  
-    ##  #### ##     ## ##     ## ##             ## 
-    ##   ### ##     ## ##     ## ##       ##    ## 
-    ##    ##  #######  ########  ########  ######  
-    
-    nodesUseSidePanel = bpy.props.BoolProperty(
-        name = "Side Panel",
-        description = "Draw node properties in editors's side panel",
-        default = True
-    )
-
     ######## ##     ## ########   #######  ########  ######## 
     ##        ##   ##  ##     ## ##     ## ##     ##    ##    
     ##         ## ##   ##     ## ##     ## ##     ##    ##    
@@ -108,12 +84,6 @@ class VRayExporter(bpy.types.PropertyGroup):
     ##         ## ##   ##        ##     ## ##   ##      ##    
     ##        ##   ##  ##        ##     ## ##    ##     ##    
     ######## ##     ## ##         #######  ##     ##    ##    
-    
-    use_fast_dupli_export = bpy.props.BoolProperty(
-        name = "Fast Dupli / Particles Export",
-        description = "Use fast dupli export",
-        default = False
-    )
 
     activeLayers = bpy.props.EnumProperty(
         name        = "Active layers",
@@ -131,23 +101,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         size    = 20
     )
 
-    use_displace = bpy.props.BoolProperty(
-        name = "Displace / subdiv",
-        description = "Use displace / subdivisions",
-        default = True
-    )
-
-    check_animated = bpy.props.EnumProperty(
-        name  = "Check Animated",
-        items = (
-            ('0', "None",   "Don't check meshes for animation"),
-            ('1', "Simple", "Simple check"),
-            ('2', "Hash",   "Check mesh data hash"),
-            ('3', "Both",   "Use both methods"),
-        ),
-        default = '3'
-    )
-
     customFrame = bpy.props.IntProperty(
         name        = "Custom Frame",
         description = "Custom frame number",
@@ -157,45 +110,47 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = 0
     )
 
-    use_hair = bpy.props.BoolProperty(
-        name = "Hair",
-        description = "Render hair",
+    use_displace = bpy.props.BoolProperty(
+        name = "Displace / Subdiv",
+        description = "Use displace / subdivisions",
         default = True
     )
 
     use_still_motion_blur = bpy.props.BoolProperty(
         name        = "Still Motion Blur",
-        description = "Generate data for still motion blur",
+        description = "Generate data for motion blur",
         default     = False
     )
 
+    frames_to_export = bpy.props.IntProperty(
+        name        = "Frames To Export",
+        description = "Export several frames for correct motion blur",
+        min         = 1,
+        soft_max    = 10,
+        default     = 1,
+    )
+
+    use_hair = bpy.props.BoolProperty(
+        name = "Export Hair",
+        description = "Render hair",
+        default = True
+    )
+
     use_smoke = bpy.props.BoolProperty(
-        name = "Smoke",
+        name = "Export Smoke",
         description = "Render smoke",
         default = True
     )
 
-    use_smoke_hires = bpy.props.BoolProperty(
-        name = "Smoke High Resolution",
-        description = "Render high resolution smoke",
-        default = True
-    )
-
-    use_instances = bpy.props.BoolProperty(
-        name = "Instances",
-        description = "Use instances (Alt+D meshes will be the same; saves memory and faster export)",
-        default = False
-    )
-
     camera_loop = bpy.props.BoolProperty(
-        name = "Camera loop",
+        name = "Camera Loop",
         description = "Render views from all cameras",
         default = False
     )
 
     auto_meshes = bpy.props.BoolProperty(
-        name = "Auto export meshes",
-        description = "Export meshes automatically before render",
+        name = "Re-Export Meshes",
+        description = "Re-Export meshes",
         default = True
     )
 
@@ -205,19 +160,13 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
-    mesh_debug = bpy.props.BoolProperty(
-        name = "Debug",
-        description = "Enable build debug output",
-        default = False
-    )
-
     output = bpy.props.EnumProperty(
-        name = "Exporting directory",
+        name = "Exporting Directory",
         description = "Exporting directory",
         items = (
-            ('USER',"User-defined directory",""),
-            ('SCENE',"Scene file directory",""),
-            ('TMP',"Global TMP directory","")
+            ('USER',  "Custom Directory", ""),
+            ('SCENE', "Scene Dile Directory",   ""),
+            ('TMP',   "Global TMP directory",   "")
         ),
         default = 'TMP'
     )
@@ -233,12 +182,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         name        = "Separate Files",
         description = "Export plugins to separate files",
         default     = True
-    )
-
-    checkAnimated = bpy.props.BoolProperty(
-        name        = "Check Animated",
-        description = "Check 'is_animated' attribute when exporting animation",
-        default     = False
     )
 
 
@@ -260,21 +203,22 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Animation Mode",
         description = "Animation Type",
         items = (
-            ('FRAMEBYFRAME', "Frame-By-Frame", "Export and render frame by frame"),
-            ('FULL',         "Full Range",     "Export full animation range then render"),
-            ('NOTMESHES',    "All But Meshes", "Export full animation range then render (meshes are not animated)")
+            ('FRAMEBYFRAME', "Frame By Frame",               "Export and render frame by frame"),
+            ('FULL',         "Full Range",                   "Export full animation range then render"),
+            ('NOTMESHES',    "Full Range (Except Geometry)", "Export full animation range then render (meshes are not animated)"),
+            ('CAMERA',       "Full Range (Camera Only)",     "Export full animation of camera motion"),
         ),
-        default = 'FRAMEBYFRAME'
+        default = 'FULL'
     )
 
     draft = bpy.props.BoolProperty(
-        name = "Draft render",
+        name = "Draft Render",
         description = "Render with low settings",
         default = False
     )
 
     image_to_blender = bpy.props.BoolProperty(
-        name = "Image to Blender",
+        name = "Image To Blender",
         description = "Pass image to Blender on render end (EXR file format is used)",
         default = False
     )
@@ -294,7 +238,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     verboseLevel = bpy.props.EnumProperty(
-        name = "Log level",
+        name = "Log Level",
         description = "Specifies the verbose level of information printed to the standard output",
         items = (
             ('0', "No information", "No information printed"),
@@ -306,39 +250,31 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = '3'
     )
 
+    showProgress = bpy.props.EnumProperty(
+        name = "Show Progress",
+        description = "Specifies whether calculations progress should be printed to the standard output",
+        items = (
+            ('0', "None",                 ""),
+            ('1', "Verbose > Only Erros", 'Display progress only if "Verbose Level" is > "Only errors"'),
+            ('2', "Always",               "Errors and warnings"),
+        ),
+        default = '1'
+    )
+
     autoclose = bpy.props.BoolProperty(
-        name = "Auto close",
+        name = "Auto Close",
         description = "Stop render and close VFB on Esc",
         default = False
     )
 
     log_window = bpy.props.BoolProperty(
-        name = "Show log window",
+        name = "Show Log Window",
         description = "Show log window (Linux)",
         default = False
     )
 
-    use_feedback = bpy.props.BoolProperty(
-        name        = "Render feedback",
-        description = "Catch and show rendering progress",
-        default     = False
-    )
-
-    use_progress = bpy.props.BoolProperty(
-        name        = "Show progress",
-        description = "Catch and show calculations progress",
-        default     = False
-    )
-
-    wait = bpy.props.BoolProperty(
-        name        = "Wait",
-        description = "Wait for V-Ray to complete rendering",
-        options     = {'HIDDEN'},
-        default     = False
-    )
-
     log_window_type = bpy.props.EnumProperty(
-        name = "Log window type",
+        name = "Log Window Type",
         description = "Log window type",
         items = (
             ('DEFAULT', "Default",        ""),
@@ -351,8 +287,8 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     log_window_term = bpy.props.StringProperty(
-        name = "Log window terminal",
-        description = "Log window terminal command",
+        name = "Custom Terminal",
+        description = "Custom log window terminal command",
         default = "x-terminal-emulator"
     )
 
@@ -369,7 +305,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     display_srgb = bpy.props.BoolProperty(
-        name = "Display in sRGB",
+        name = "Display In sRGB",
         description = "Display colors on Vray Framebuffer in sRGB space",
         default = False
     )
@@ -387,21 +323,22 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     output_unique = bpy.props.BoolProperty(
-        name = "Use unique file name",
+        name = "Use Unique Filename",
         description = "Use unique file name",
         default = False
     )
 
     auto_save_render = bpy.props.BoolProperty(
-        name = "Save render",
+        name = "Save Render",
         description = "Save render automatically",
         default = False
     )
 
-    socket_address = bpy.props.StringProperty(
-        name        = "Socket address",
-        description = "V-Ray Standalone socket interface address",
-        default     = "localhost"
+    wait = bpy.props.BoolProperty(
+        name        = "Wait Proccess Exit",
+        description = "Wait for V-Ray to complete rendering",
+        options     = {'HIDDEN'},
+        default     = False
     )
 
 

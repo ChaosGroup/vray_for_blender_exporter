@@ -22,37 +22,34 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from vb30.lib import LibUtils
 
+def ExportCamera(bus):
+    scene  = bus['scene']
+    camera = bus['camera']
 
-def GetNodeName(ntree, node):
-    return LibUtils.CleanString("NT%sN%s" % (ntree.name, node.name))
+    VRayScene  = scene.vray
+    VRayCamera = camera.data.vray
 
+    # NOTE: Order is vital here
+    cameraPlugins = (
+        'SettingsCamera',
+        'RenderView',
+        'CameraPhysical',
+        'VRayStereoscopicSettings',
+    )
 
-def GetConnectedNode(ntree, nodeSocket):
-    for l in nodeSocket.links:
-        if l.from_node:
-            return l.from_node
-    return None
+    for pluginName in cameraPlugins:
+        propGroup      = None
+        overrideParams = {}
 
+        if pluginName == 'VRayStereoscopicSettings':
+            propGroup = getattr(VRayScene, pluginName)
+        else:
+            propGroup = getattr(VRayCamera, pluginName)
 
-def GetConnectedSocket(ntree, nodeSocket):
-    for l in nodeSocket.links:
-        if l.from_socket:
-            return l.from_socket
-    return None
+        if not propGroup:
+            continue
 
+        pluginModule = PLUGINS_ID[pluginName]
 
-def GetNodesByType(ntree, nodeType):
-    for n in ntree.nodes:
-        if n.bl_idname == nodeType:
-            yield n
-
-
-def GetNodeByType(ntree, nodeType):
-    if not ntree:
-        return None
-    for n in ntree.nodes:
-        if n.bl_idname == nodeType:
-            return n
-    return None
+        ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)

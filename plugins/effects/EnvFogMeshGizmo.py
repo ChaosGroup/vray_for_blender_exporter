@@ -27,9 +27,8 @@ import mathutils
 
 import _vray_for_blender
 
-from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
-from vb30     import utils
+from vb30.lib import ExportUtils, BlenderUtils
+from vb30.lib import LibUtils
 
 
 TYPE = 'EFFECT'
@@ -50,7 +49,7 @@ PluginParams = (
         'name' : "Object",
         'desc' : "",
         'skip' : True,
-        'type' : 'GEOMETRY',
+        'type' : 'PLUGIN',
         'default' : "",
     },
     {
@@ -83,24 +82,28 @@ def writeEnvFogMeshGizmo(bus, ob, lights, pluginName):
     scene = bus['scene']
     o     = bus['output']
 
-    geomName = LibUtils.GetObjectName(ob, prefix='ME')
+    VRayScene    = scene.vray
+    VRayExporter = VRayScene.Exporter
+
+    geomName = BlenderUtils.GetObjectName(ob, prefix='ME')
     if geomName in bus['cache']['mesh']:
         return
 
     bus['cache']['mesh'].add(geomName)
 
-    _vray_for_blender.exportMesh(
-        bpy.context.as_pointer(),   # Context
-        ob.as_pointer(),            # Object
-        geomName,                   # Result plugin name
-        None,                       # propGroup
-        o.getFileByType('GEOMETRY') # Output file
-    )
+    if VRayExporter.auto_meshes:
+        _vray_for_blender.exportMesh(
+            bpy.context.as_pointer(),   # Context
+            ob.as_pointer(),            # Object
+            geomName,                   # Result plugin name
+            None,                       # propGroup
+            o.fileManager.getFileByPluginType('GEOMETRY') # Output file
+        )
 
     o.set(TYPE, ID, pluginName)
     o.writeHeader()
     o.writeAttibute('geometry', geomName)
-    o.writeAttibute('transform', LibUtils.AnimatedValue(scene, ob.matrix_world));
+    o.writeAttibute('transform', ob.matrix_world)
     if lights:
         o.writeAttibute('lights', "List(%s)" % lights)
     o.writeFooter()
@@ -110,8 +113,11 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
     o     = bus['output']
 
+    VRayScene    = scene.vray
+    VRayExporter = VRayScene.Exporter
+
     lights = overrideParams.get('lights', [])
-    lights = LibUtils.FilterObjectListByType(lights, 'LAMP')
+    lights = BlenderUtils.FilterObjectListByType(lights, 'LAMP')
 
     lightsStr = ",".join(lights)
 
@@ -125,23 +131,27 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if not domainObject:
         return None
 
-    pluginName = LibUtils.GetObjectName(domainObject, prefix='MG')
+    if not BlenderUtils.ObjectVisible(bus, domainObject):
+        return None
 
-    smd = LibUtils.GetSmokeModifier(domainObject)
+    pluginName = BlenderUtils.GetObjectName(domainObject, prefix='MG')
+
+    smd = BlenderUtils.GetSmokeModifier(domainObject)
     if smd:
-        _vray_for_blender.exportSmokeDomain(
-            bpy.context.as_pointer(),   # Context
-            domainObject.as_pointer(),  # Object
-            smd.as_pointer(),           # SmokeModifierData
-            pluginName,                 # Result plugin name
-            lightsStr,                  # Lights (string)
-            o.getFileByType('GEOMETRY') # Output file
-        )
+        if VRayExporter.auto_meshes:
+            _vray_for_blender.exportSmokeDomain(
+                bpy.context.as_pointer(),   # Context
+                domainObject.as_pointer(),  # Object
+                smd.as_pointer(),           # SmokeModifierData
+                pluginName,                 # Result plugin name
+                lightsStr,                  # Lights (string)
+                o.fileManager.getFileByPluginType('GEOMETRY') # Output file
+            )
     else:
         writeEnvFogMeshGizmo(bus, domainObject, lightsStr, pluginName)
     
     # To exclude object from Node creation
     #
-    bus['gizmos'].add(domainObject.name)
+    bus['skipObjects'].add(domainObject)
 
     return pluginName

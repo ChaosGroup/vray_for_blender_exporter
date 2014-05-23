@@ -23,74 +23,44 @@
 #
 
 import os
+
 import bpy
 
 import _vray_for_blender
 
-from . import utils
-from . import export
-from . import export_cpp
+from .lib import SysUtils
+from .    import export
 
 
 def Init():
-    _vray_for_blender.start(os.path.join(utils.get_vray_exporter_path(), "plugins_desc"))
+    _vray_for_blender.start(os.path.join(SysUtils.GetExporterPath(), "plugins_desc"))
 
 
 def Shutdown():
     _vray_for_blender.free()
 
 
-def ExportScene(engine, data, scene):
-    if engine.is_preview:
-        if scene.render.resolution_x < 64: # Don't render icons
-            return
-    engine.err = export_cpp.Export(data, scene, engine, engine.is_preview)
-    if engine.err is not None:
-        engine.report({'ERROR'}, engine.err)
+class VRayRendererBase(bpy.types.RenderEngine):
+    def render(self, scene):
+        if self.is_preview:
+            if scene.render.resolution_x < 64: # Don't render icons
+                return
+
+        err = export.RenderScene(self, scene)
+        if err is not None:
+            self.report({'ERROR'}, err)
 
 
-def StartRenderer(engine, scene):
-    if engine.is_preview:
-        if scene.render.resolution_x < 64: # Don't render icons
-            return
-
-    if engine.err is not None:
-        engine.report({'ERROR'}, engine.err)
-        return
-
-    err = export.Run(scene, engine)
-    if err is not None:
-        engine.report({'ERROR'}, err)
-
-    engine.err = None
-
-
-class VRayRenderer(bpy.types.RenderEngine):
+class VRayRenderer(VRayRendererBase):
     bl_idname      = 'VRAY_RENDER'
     bl_label       = "V-Ray"
     bl_use_preview =  False
 
-    err = None
 
-    def update(self, data, scene):
-        ExportScene(self, data, scene)
-
-    def render(self, scene):
-        StartRenderer(self, scene)
-
-
-class VRayRendererPreview(bpy.types.RenderEngine):
+class VRayRendererPreview(VRayRendererBase):
     bl_idname      = 'VRAY_RENDER_PREVIEW'
     bl_label       = "V-Ray (With Material Preview)"
-    bl_use_preview = True
-
-    err = None
-
-    def update(self, data, scene):
-        ExportScene(self, data, scene)
-
-    def render(self, scene):
-        StartRenderer(self, scene)
+    bl_use_preview =  True
 
 
 def GetRegClasses():

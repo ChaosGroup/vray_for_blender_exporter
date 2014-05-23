@@ -48,8 +48,8 @@ PluginParams = (
         'desc' : "Size in pixels or number of regions",
         'type' : 'ENUM',
         'items' : (
-            ('0', "Region Count", ""),
-            ('1', "Bucket W/H", "")
+            ('0', "Width / Heigth", ""),
+            ('1', "Count",        ""),
         ),
         'default' : '0',
     },
@@ -63,7 +63,7 @@ PluginParams = (
             ('2', "Checker", ""),
             ('3', "Spiral", ""),
             ('4', "Triangulation", ""),
-            ('5', "Hilbert", ""),
+            ('5', "Hilbert Curve", ""),
         ),
         'default' : '4',
     },
@@ -84,7 +84,7 @@ PluginParams = (
         'attr' : 'lock_size',
         'desc' : "Lock bucket size (X = Y)",
         'type' : 'BOOL',
-        'skip' : True,
-        'default' : False,
+        'skip' :  True,
+        'default' : True,
     },
 )

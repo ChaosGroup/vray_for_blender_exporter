@@ -61,7 +61,7 @@ def Debug(message, newline=True, cr=True, msgType='NORMAL'):
             return
 
     sys.stdout.write("%s: %s%s" % (
-        Color("V-Ray/Blender", 'green'),
+        Color("V-Ray For Blender", 'green'),
         Color(message, MsgTypeToColor[msgType]),
         '\n' if newline else '\r' if cr else ''
     ))

@@ -25,7 +25,6 @@
 import bpy
 
 from vb30.lib import ExportUtils
-from vb30.lib import utils as LibUtils
 
 
 TYPE = 'EFFECT'
@@ -169,8 +168,7 @@ def gui(context, layout, VolumeVRayToon):
 # XXX: exclude lights
 #
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    o     = bus['output']
+    o = bus['output']
 
     bus['volumes'].add(pluginName)
 
@@ -186,7 +184,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if type(overrideParams['lineWidth_tex']) is str:
         o.writeAttibute('lineWidth_tex', overrideParams['lineWidth_tex'])
     else:
-        o.writeAttibute('lineWidth', LibUtils.AnimatedValue(scene, overrideParams['lineWidth_tex']))
+        o.writeAttibute('lineWidth', overrideParams['lineWidth_tex'])
     
     ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
 

@@ -24,7 +24,7 @@
 
 import bpy
 
-import vb30.engine
+from . import engine
 
 
 def AddEvent(event, func):
@@ -49,7 +49,7 @@ def dr_nodes_restore(e):
 
 @bpy.app.handlers.persistent
 def event_shutdown(e):
-    vb30.engine.Shutdown()
+    engine.Shutdown()
 
 
 def register():

@@ -89,7 +89,7 @@ PluginParams = (
     },
     {
         'attr' : 'gi_dontRenderImage',
-        'name' : "Calculate GI Only",
+        'name' : "Don't Render Image",
         'desc' : "Don't render final image",
         'type' : 'BOOL',
         'default' : False,
@@ -173,7 +173,7 @@ PluginParams = (
     },
     {
         'attr' : 'geom_backfaceCull',
-        'name' : "Force Back Face Culling",
+        'name' : "Back Face Culling",
         'desc' : "If true, back faces will be invisible to camera and shadow rays",
         'type' : 'BOOL',
         'default' : False,
@@ -210,7 +210,7 @@ PluginParams = (
         'name' : 'Transfer Assets',
         'desc' : "Transfer missing assets on DR",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'misc_useCachedAssets',

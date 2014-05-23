@@ -69,6 +69,13 @@ PluginParams = (
         'type' : 'INT',
         'default' : 2,
     },
+    {
+        'attr' : 'div_shade_subdivs',
+        'name' : "Divide Shading Subdivs",
+        'desc' : "",
+        'type' : 'BOOL',
+        'default' : True,
+    },
 )
 
 PluginWidget = """

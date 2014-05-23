@@ -27,7 +27,7 @@ import bpy
 from pynodes_framework import idref
 
 from vb30.ui      import classes
-from vb30.lib     import utils as LibUtils
+from vb30.lib     import LibUtils
 from vb30.lib     import DrawUtils
 from vb30.plugins import PLUGINS
 
@@ -170,11 +170,19 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 
         layout.active = VRayLamp.use_include_exclude
 
-        split = layout.split()
-        col = split.column()
-        col.prop(VRayLamp, 'include_exclude', text="Type")
-        col.prop_search(VRayLamp, 'include_objects', context.scene, 'objects', text="Object")
-        col.prop_search(VRayLamp, 'include_groups',  bpy.data,      'groups',  text="Group")
+        layout.prop(VRayLamp, 'use_include')
+        split= layout.split()
+        split.active = VRayLamp.use_include
+        col= split.column()
+        col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="")
+        col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="")
+
+        layout.prop(VRayLamp, 'use_exclude')
+        split= layout.split()
+        split.active = VRayLamp.use_exclude
+        col= split.column()
+        col.prop_search(VRayLamp, 'exclude_objects',  context.scene, 'objects', text="")
+        col.prop_search(VRayLamp, 'exclude_groups',   bpy.data,      'groups',  text="")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

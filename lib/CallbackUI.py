@@ -24,7 +24,7 @@
 
 import bpy
 
-from . import utils as LibUtils
+from . import LibUtils
 
 
 def UpdateWorldHorizonColor(self, context):
