@@ -1,7 +1,7 @@
 // Preview overrides begin
 LightDirectMax LALamp_008 {
-	intensity=1.000000;
-	color=Color(1.000000, 1.000000, 1.000000);
+	intensity=1.5;
+	color=Color(1.0, 1.0, 1.0);
 	shadows=0;
 	cutoffThreshold=0.01;
 	affectSpecular=0;
@@ -9,15 +9,15 @@ LightDirectMax LALamp_008 {
 	fallsize=100.0;
 	transform=Transform(
 		Matrix(
-			Vector(1.000000, 0.000000, -0.000000),
-			Vector(0.000000, 0.000000, 1.000000),
-			Vector(0.000000, -1.000000, 0.000000)
+			Vector(1.0, 0.0, -0.0),
+			Vector(0.0, 0.0, 1.0),
+			Vector(0.0, -1.0, 0.0)
 		),
 		Vector(1.471056, -14.735638, 3.274598));
 }
 LightSpot LALamp_002 {
-	intensity=5.000000;
-	color=Color(1.000000, 1.000000, 1.000000);
+	intensity=10.0;
+	color=Color(1.0, 1.0, 1.0);
 	coneAngle=1.3;
 	penumbraAngle=-0.4;
 	shadows=1;
@@ -25,7 +25,7 @@ LightSpot LALamp_002 {
 	affectDiffuse=1;
 	affectSpecular=0;
 	areaSpeculars=0;
-	shadowRadius=0.000000;
+	shadowRadius=0.0;
 	shadowSubdivs=4;
 	decay=1.0;
 	transform=Transform(
@@ -37,13 +37,13 @@ LightSpot LALamp_002 {
 		Vector(-5.725639, -13.646054, 8.5));
 }
 LightOmni LALamp {
-	intensity=50.000000;
-	color=Color(1.000000, 1.000000, 1.000000);
+	intensity=50.0;
+	color=Color(1.0, 1.0, 1.0);
 	shadows=0;
 	cutoffThreshold=0.01;
 	affectDiffuse=1;
 	affectSpecular=0;
-	specular_contribution=0.000000;
+	specular_contribution=0.0;
 	areaSpeculars=0;
 	shadowSubdivs=4;
 	decay=2.0;
@@ -56,8 +56,8 @@ LightOmni LALamp {
 		Vector(15.685226, -7.460007, 3.0));
 }
 LightOmni LALamp_001 {
-	intensity=20.000000;
-	color=Color(1.000000, 1.000000, 1.000000);
+	intensity=20.0;
+	color=Color(1.0, 1.0, 1.0);
 	shadows=0;
 	cutoffThreshold=0.01;
 	affectDiffuse=1;
@@ -73,26 +73,19 @@ LightOmni LALamp_001 {
 		),
 		Vector(-10.500286, -12.464991, 4.0));
 }
-MtlDiffuse CheckerBlack {
+MtlDiffuse MAcheckerdark {
 	diffuse=Color(0.05,0.05,0.05);
 }
-MtlDiffuse CheckerWhite {
+MtlDiffuse MAcheckerlight {
 	diffuse=Color(0.95,0.95,0.95);
 }
-MtlMulti RSOBcheckers_002 {
-	mtls_list=List(CheckerBlack,CheckerWhite);
-	ids_list=ListInt(0,1);
+SettingsDMCSampler {
+	adaptive_amount=0.99;
+	adaptive_threshold=0.2;
+	subdivs_mult=0.01;
 }
-MtlMulti RSOBcheckers_004 {
-	mtls_list=List(CheckerBlack,CheckerWhite);
-	ids_list=ListInt(0,1);
-}
-MtlMulti RSOBcheckers_007 {
-	mtls_list=List(CheckerBlack,CheckerWhite);
-	ids_list=ListInt(0,1);
-}
-MtlMulti RSOBcheckers_008 {
-	mtls_list=List(CheckerBlack,CheckerWhite);
-	ids_list=ListInt(0,1);
+SettingsImageSampler {
+	type=0; // Fastest result, but no AA :(
+	fixed_subdivs=1;
 }
 // Preview overrides end
