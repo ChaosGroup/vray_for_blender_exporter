@@ -31,6 +31,31 @@ from vb30.lib     import DrawUtils
 from vb30.plugins import PLUGINS
 
 
+def RenderMaterialPanel(mat, context, layout):
+    if not mat:
+        return
+
+    VRayMaterial = mat.vray
+
+    layout.separator()
+    layout.prop(mat, "diffuse_color", text="Viewport Color")
+
+    layout.separator()
+
+    split = layout.split()
+    row = split.row(align=True)
+    idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
+    row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
+
+    if not classes.TreeHasNodes(VRayMaterial.ntree):
+        return
+
+    activeNode = VRayMaterial.ntree.nodes[-1]
+
+    layout.separator()
+    classes.DrawNodePanel(context, layout, activeNode, PLUGINS)
+
+
 class VRAY_MP_context_material(classes.VRayMaterialPanel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
@@ -71,26 +96,8 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
         elif mat:
             layout.template_ID(space, "pin_id")
 
-        if mat:
-            VRayMaterial = mat.vray
-
-            layout.separator()
-            layout.prop(mat, "diffuse_color", text="Viewport Color")
-
-            layout.separator()
-
-            split = layout.split()
-            row = split.row(align=True)
-            idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
-            row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
-
-            if not classes.TreeHasNodes(VRayMaterial.ntree):
-                return
-
-            activeNode = VRayMaterial.ntree.nodes[-1]
-
-            layout.separator()
-            classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
+        if context.scene.render.engine != 'VRAY_RENDER_PREVIEW':
+            RenderMaterialPanel(mat, context, layout)
 
 
 class VRAY_MP_preview(classes.VRayMaterialPanel):
@@ -102,10 +109,29 @@ class VRAY_MP_preview(classes.VRayMaterialPanel):
         self.layout.template_preview(context.material, show_buttons=True)
 
 
+class VRAY_MP_preview_material(classes.VRayMaterialPanel):
+    bl_label = "Material"
+
+    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
+
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return (context.material or context.object) and classes.PollEngine(cls, context)
+
+    def draw(self, context):
+        layout = self.layout
+
+        mat = context.material
+
+        RenderMaterialPanel(mat, context, layout)
+
+
 def GetRegClasses():
     return (
         VRAY_MP_preview,
         VRAY_MP_context_material,
+        VRAY_MP_preview_material,
     )
 
 
