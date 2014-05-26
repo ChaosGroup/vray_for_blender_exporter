@@ -124,7 +124,7 @@ class VRayProcess:
         self.display = displayVFB
 
     def setAutoclose(self, autoclose):
-        self.autoclose = autoclose
+        self.autoClose = autoclose
 
     def setOutputFile(self, imgFile):
         self.imgFile = imgFile
@@ -143,15 +143,21 @@ class VRayProcess:
         self.useCrop   = useCrop
         self.region = "%i;%i;%i;%i" % (x0, y0, x1, y1)
 
-    def setFrames(self, frameStart, frameEnd, frameStep=1):
-        self.frames = "%d-%d,%d" % (frameStart, frameEnd, frameStep)
+    def setFrames(self, frameStart=None, frameEnd=None, frameStep=None):
+        if frameStart is not None:
+            self.frames  = "%d" % frameStart
+        if frameEnd is not None:
+            self.frames += "-%d" % frameEnd
+        if frameStep is not None:
+            self.frames += ",%d" % frameStep
 
     def getCommandLine(self):
         cmd = [self.filepath]
         cmd.append('-verboseLevel=%s' % self.verboseLevel)
         cmd.append('-showProgress=%s' % self.showProgress)
-        cmd.append('-display=%s' % self.display)
-        cmd.append('-displaySRGB=%s' % self.displaySRGB)
+        cmd.append('-display=%i' % self.display)
+        cmd.append('-displaySRGB=%i' % self.displaySRGB)
+        cmd.append('-autoClose=%i' % self.autoClose)
 
         if self.numThreads:
             cmd.append('-numThreads=%s' % self.numThreads)
