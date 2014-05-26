@@ -126,7 +126,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if not domainObject:
         return None
 
-    smd = LibUtils.GetSmokeModifier(domainObject)
+    smd = BlenderUtils.GetSmokeModifier(domainObject)
     if not smd:
         return None
 

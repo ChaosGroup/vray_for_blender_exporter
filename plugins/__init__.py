@@ -990,13 +990,6 @@ def register():
 
 	LoadPluginAttributes(PLUGINS['SYSTEM'], VRayScene)
 
-	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayMaterial)
-	AddAttributes(PLUGINS['SETTINGS']['SettingsEnvironment'], VRayObject)
-
-	AddAttributes(PLUGINS['SETTINGS']['SettingsCamera'],      VRayCamera)
-	AddAttributes(PLUGINS['SETTINGS']['SettingsCameraDof'],   VRayCamera)
-	AddAttributes(PLUGINS['SETTINGS']['SettingsMotionBlur'],  VRayCamera)
-
 	VRayScene.Exporter = bpy.props.PointerProperty(
 		name = "Exporter",
 		type =  bpy.types.VRayExporter,

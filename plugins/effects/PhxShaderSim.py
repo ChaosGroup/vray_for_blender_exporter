@@ -25,8 +25,7 @@
 import bpy
 import mathutils
 
-from vb30.lib import ExportUtils
-from vb30.lib import LibUtils
+from vb30.lib import ExportUtils, LibUtils, BlenderUtils
 
 
 TYPE = 'EFFECT'
@@ -866,7 +865,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if not cache:
         return None
 
-    smd = LibUtils.GetSmokeModifier(cache)
+    smd = BlenderUtils.GetSmokeModifier(cache)
     if not smd:
         return None
 

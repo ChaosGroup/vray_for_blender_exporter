@@ -26,6 +26,8 @@ from vb30.lib import ExportUtils
 from vb30.lib import PathUtils
 from vb30.lib import LibUtils
 
+from vb30 import debug
+
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsOutput'
@@ -55,7 +57,6 @@ PluginParams = (
         'attr' : 'img_file',
         'desc' : "Render file name (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
         'type' : 'STRING',
-        'skip' : True,
         'default' : "%F_%C",
     },
     {
@@ -63,7 +64,6 @@ PluginParams = (
         'desc' : "Render file directory (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
         'type' : 'STRING',
         'subtype' : 'DIR_PATH',
-        'skip' : True,
         'default' : "//render/%F/",
     },
     {
@@ -323,20 +323,23 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     overrideParams['img_width']  = img_width
     overrideParams['img_height'] = img_height
 
-    if not propGroup.img_file:
-        Debug("Image output filename is not set!", msgType='ERROR')
-        return
+    if o.isPreviewRender() or VRayExporter.auto_save_render:
+        pm = o.getFileManager().getPathManager()
+        img_file = pm.getImgFilename()
+        img_dir  = pm.getImgDirpath()
 
-    if not propGroup.img_dir:
-        Debug("Image output directory is not set!", msgType='ERROR')
-        return
+        if not img_file:
+            debug.Debug("Image output filename is not set!", msgType='ERROR')
+            return None
 
-    if o.isPreviewRender():
-        img_dir  = PathUtils.GetPreviewDir()
-        img_file = "preview"
-    else:
-        if VRayExporter.auto_save_render:
-            overrideParams['img_file'] = LibUtils.FormatPath(propGroup.img_file, scene, o.getBaseName())
-            overrideParams['img_dir']  = LibUtils.FormatPath(propGroup.img_dir,  scene, o.getBaseName())
+        if not img_dir:
+            debug.Debug("Image output directory is not set!", msgType='ERROR')
+            return None
+
+        overrideParams['img_file'] = img_file
+        overrideParams['img_dir']  = img_dir
+
+        if o.isPreviewRender():
+            overrideParams['img_file_needFrameNumber'] = False
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

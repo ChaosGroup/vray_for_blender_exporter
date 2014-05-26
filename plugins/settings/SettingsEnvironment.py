@@ -23,6 +23,7 @@
 #
 
 import bpy
+import mathutils
 
 from vb30.lib import LibUtils
 from vb30.nodes import export as NodesExport
@@ -73,7 +74,7 @@ def WriteEnvironment(bus, ntree, node):
         o.writeAttibute('global_light_level', global_light_level)
         o.writeAttibute('environment_volume', "List(%s)" % (','.join(volumes)))
         o.writeFooter()
-        return
+        return None
 
     socketParams = {}
     for nodeSocket in node.inputs:

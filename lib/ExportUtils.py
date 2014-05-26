@@ -28,8 +28,7 @@ import bpy
 
 from vb30.debug import Debug, PrintDict
 
-from . import PathUtils
-from . import AttributeUtils
+from . import AttributeUtils, PathUtils, BlenderUtils
 
 
 def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
@@ -78,19 +77,20 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
         if attrDesc['type'] in {'STRING'}:
             if not value:
                 continue
-            else:
-                subtype = attrDesc.get('subtype')
-                if subtype in {'FILE_PATH', 'DIR_PATH'}:
-                    value = PathUtils.UnifyPath(value)
 
-                    if subtype == 'FILE_PATH':
-                        # TODO:
-                        #   If DR is on, copy file to the DR directory
-                        #   and return relative path.
-                        #
-                        pass
+            subtype = attrDesc.get('subtype')
+            if subtype in {'FILE_PATH', 'DIR_PATH'}:
+                if not BlenderUtils.RelativePathValid(value):
+                    continue
+                value = bpy.path.abspath(value)
+                if subtype == 'FILE_PATH':
+                    # TODO: If DR is on, copy file to the DR directory
+                    pass
+                elif subtype == 'DIR_PATH':
+                    # Ensure slash at the end of directory path
+                    value = os.path.normpath(value) + os.sep
 
-                value = '"%s"' % value
+            value = '"%s"' % value
 
         o.writeAttibute(attrName, value)
 

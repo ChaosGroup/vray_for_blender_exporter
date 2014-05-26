@@ -154,3 +154,11 @@ def GetVRsceneTemplate(filename):
 		return ""
 
 	return open(templateFilepath, 'r').read()
+
+
+def IsRTEngine(bus):
+	if bus["engine"].bl_idname == 'VRAY_RENDER_RT':
+		return True
+	if bus["scene"].vray.RTEngine.enabled:
+		return True
+	return False

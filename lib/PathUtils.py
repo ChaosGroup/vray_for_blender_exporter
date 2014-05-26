@@ -25,6 +25,7 @@
 import os
 import sys
 import tempfile
+import pathlib
 
 import bpy
 
@@ -32,11 +33,16 @@ from vb30 import debug
 
 from . import SysUtils
 
+
 def GetFilename(filepath, ext=True):
     filename = os.path.basename(bpy.path.abspath(filepath))
     if not ext:
         filename, fileext = os.path.splitext(filename)
     return filename
+
+
+def GetTmpDirectory():
+    return tempfile.gettempdir()
 
 
 # Convert slashes to unix style
@@ -56,6 +62,7 @@ def path_sep_to_unix(filepath):
     # if sys.platform != 'win32':
     filepath = filepath.replace('\\\\', '/')
     filepath = filepath.replace('\\', '/')
+
     return filepath
 
 
@@ -66,9 +73,12 @@ def Quotes(path):
 
 
 def GetPreviewDir():
+    previewRoot   = tempfile.gettempdir()
+    previewSubdir = "vrayblender_preview_%s" % SysUtils.GetUsername()
     if sys.platform == 'linux':
-        return "/dev/shm/vrayblender_preview"
-    return os.path.join(tempfile.gettempdir(), "vrayblender_preview_%s" % SysUtils.GetUsername())
+        previewRoot = "/dev/shm"
+    previewDir = os.path.join(previewRoot, previewSubdir)
+    return CreateDirectory(previewDir)
 
 
 def CopyTree(src, dst, symlinks=False, ignore=None):
@@ -99,10 +109,10 @@ def CreateDirectory(directory):
     return directory
 
 
-def create_dir_from_filepath(filepath):
-    file_path, file_name= os.path.split(bpy.path.abspath(filepath))
-    file_path= create_dir(file_path)
-    return os.path.join(file_path, file_name)
+def CreateDirectoryFromFilepath(filepath):
+    dirPath, fileName = os.path.split(bpy.path.abspath(filepath))
+    dirPath = CreateDirectory(dirPath)
+    return os.path.join(dirPath, fileName)
 
 
 # Get full filepath

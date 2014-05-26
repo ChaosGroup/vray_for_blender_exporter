@@ -32,8 +32,7 @@ import sys
 
 from vb30.debug import Debug
 
-from . import LibUtils
-from . import PathUtils
+from . import LibUtils, PathUtils, SysUtils, BlenderUtils
 
 
 PluginTypeToFile = {
@@ -54,6 +53,14 @@ PluginTypeToFile = {
 }
 
 
+########     ###    ######## ##     ##  ######  
+##     ##   ## ##      ##    ##     ## ##    ## 
+##     ##  ##   ##     ##    ##     ## ##       
+########  ##     ##    ##    #########  ######  
+##        #########    ##    ##     ##       ## 
+##        ##     ##    ##    ##     ## ##    ## 
+##        ##     ##    ##    ##     ##  ######  
+
 class VRayFilePaths:
     exportFilename  = None
     exportDirectory = None
@@ -66,8 +73,9 @@ class VRayFilePaths:
     separateFiles   = None
 
     # Used to load image back to Blender
-    imgFilepath     = None
-    imgLoadFilepath = None
+    imgDirectory    = None
+    imgFilename     = None
+    imgLoadFilename = None
 
     # Used to copy assets in a correspondent subdirectory
     assetSubdirs = None
@@ -84,11 +92,20 @@ class VRayFilePaths:
     def getExportDirectory(self):
         return self.exportDirectory
 
+    def getExportFilename(self):
+        return self.exportFilename
+
     def getFilePrefix(self):
         return self.filePrefix
 
+    def getImgDirpath(self):
+        return self.imgDirectory
+
+    def getImgFilename(self):
+        return self.imgFilename
+
     def getImgLoadFilepath(self):
-        return self.imgLoadFilepath
+        return os.path.join(self.imgDirectory, self.imgLoadFilename)
 
     def useSeparateFiles(self):
         return self.separateFiles
@@ -104,122 +121,129 @@ class VRayFilePaths:
         Debug('Export filename: "%s"' % self.exportFilename)
         if self.filePrefix:
             Debug('Expicit prefix: "%s"' % self.filePrefix)
-        Debug('Export filename: "%s"' % self.exportFilename)
         Debug('Separate files: %s' % self.separateFiles)
 
-        if self.imgFilepath:
-            Debug('Output file: "%s"' % self.imgFilepath)
-            Debug('Load file:   "%s"' % self.imgLoadFilepath)
+        if self.imgFilename is not None:
+            Debug('Output directory: "%s"' % self.imgDirectory)
+            Debug('Output file: "%s"' % self.imgFilename)
+            Debug('Load file:   "%s"' % self.imgLoadFilename)
 
-    def initFromScene(self, scene, engine):
-        VRayScene = scene.vray
-        
-        VRayExporter    = VRayScene.exporter
-        VRayDR          = VRayScene.VRayDR
-        SettingsOutput  = VRayScene.SettingsOutput
-        SettingsOptions = VRayScene.SettingsOptions
-
-        # Blend-file name without extension
-        blendfile_name = PathUtils.GetFilename(bpy.data.filepath, ext=False) if bpy.data.filepath else "default"
-
-        # Default export directory is system's %TMP%
-        default_dir = tempfile.gettempdir()
-
-        # Export and output directory
-        export_filepath = os.path.join(default_dir, "vrayblender_"+get_username())
-        export_filename = "scene"
-        output_filepath = default_dir
-
-        if SettingsOutput.img_dir:
-            img_dir = SettingsOutput.img_dir
-            if not RelativePathValid(img_dir):
-                img_dir = default_dir
-            output_filepath = bpy.path.abspath(img_dir)
-            output_filepath = LibUtils.FormatName(output_filepath, scene, blendfile_name)
-
-        if VRayExporter.output == 'USER':
-            if VRayExporter.output_dir:
-                export_filepath = bpy.path.abspath(VRayExporter.output_dir)
-
-        elif VRayExporter.output == 'SCENE' and bpy.data.filepath:
-            sceneFiledir = os.path.dirname(bpy.data.filepath)
-            export_filepath = os.path.join(sceneFiledir, "vrscene")
-
-        if VRayExporter.output_unique:
-            export_filename = blendfile_name
-
-        if VRayExporter.output == 'USER':
-            export_filepath = bpy.path.abspath(VRayExporter.output_dir)
-
+    def initFromScene(self, engine, scene):
         if engine.is_preview:
-            self.exportfileName = "preview"
-            self.separateFiles  = False
+            self.separateFiles   = False
+            self.exportFilename  = "preview"
             self.exportDirectory = PathUtils.GetPreviewDir()
+            self.imgDirectory    = PathUtils.GetPreviewDir()
+            self.imgFilename     = "preview.png"
+            self.imgLoadFilename = "preview.png"
+
         else:
-            if VRayDR.on:
+            VRayScene = scene.vray
+
+            VRayExporter    = VRayScene.Exporter
+            VRayDR          = VRayScene.VRayDR
+            SettingsOutput  = VRayScene.SettingsOutput
+            SettingsOptions = VRayScene.SettingsOptions
+
+            # Blend-file name without extension
+            blendfile_name = PathUtils.GetFilename(bpy.data.filepath, ext=False) if bpy.data.filepath else "default"
+
+            substrDict = {
+                'blend_name'  : blendfile_name, 
+                'camera_name' : scene.camera.name,
+                'scene_name'  : scene.name,
+            }
+
+            # Default export directory is system's %TMP%
+            default_dir = PathUtils.GetTmpDirectory()
+
+            # Export and output directory
+            export_filepath = os.path.join(default_dir, "vrayblender_"+SysUtils.GetUsername())
+            export_filename = "scene"
+            output_filepath = default_dir
+
+            if VRayExporter.output == 'USER':
+                if VRayExporter.output_dir:
+                    export_filepath = bpy.path.abspath(VRayExporter.output_dir)
+
+            elif VRayExporter.output == 'SCENE' and bpy.data.filepath:
+                sceneFiledir = os.path.dirname(bpy.data.filepath)
+                export_filepath = os.path.join(sceneFiledir, "vrscene")
+
+            if VRayExporter.output_unique:
                 export_filename = blendfile_name
 
-            # Distributed rendering
-            # If not transferring assets
-            if VRayDR.on and VRayDR.transferAssets == '0':
-                sharedDir = VRayDR.shared_dir
-                if sharedDir == "":
-                    sharedDir = default_dir
-                abs_shared_dir  = os.path.normpath(bpy.path.abspath(sharedDir))
-                export_filepath = os.path.normpath(os.path.join(abs_shared_dir, blendfile_name + os.sep))
+            if VRayExporter.output == 'USER':
+                export_filepath = bpy.path.abspath(VRayExporter.output_dir)
 
-                bus['filenames']['DR']               = {}
-                bus['filenames']['DR']['shared_dir'] = abs_shared_dir
-                bus['filenames']['DR']['sub_dir']    = blendfile_name
-                bus['filenames']['DR']['dest_dir']   = export_filepath
-                bus['filenames']['DR']['prefix']     = bus['filenames']['DR']['dest_dir']
-                bus['filenames']['DR']['tex_dir']    = os.path.join(export_filepath, "textures")
-                bus['filenames']['DR']['ies_dir']    = os.path.join(export_filepath, "IES")
+            if VRayDR.on:
+                if VRayDR.transferAssets != '0':
+                    # "Transfer Asssets" feature doesn't support "#include" statement ATM.
+                    self.separateFiles = False
 
-        self.export_directory = PathUtils.CreateDirectory(export_filepath)
+                # TODO: Set filepath prefix for network paths here
 
-        if VRayExporter.auto_save_render:
-            # Render output dir
-            bus['filenames']['output'] = PathUtils.CreateDirectory(output_filepath)
+                export_filepath = bpy.path.abspath(VRayDR.shared_dir)
 
-            # Render output file name
-            ext = SettingsOutput.img_format.lower()
+            self.exportDirectory = PathUtils.CreateDirectory(export_filepath)
+            self.exportFilename  = export_filename
 
-            file_name = "render"
-            if SettingsOutput.img_file:
-                file_name = SettingsOutput.img_file
-                file_name = LibUtils.FormatName(file_name, scene, blendfile_name)
-                load_file_name = file_name
-            bus['filenames']['output_filename'] = "%s.%s" % (file_name, ext)
+            if VRayExporter.auto_save_render:
+                if SettingsOutput.img_dir:
+                    img_dir = SettingsOutput.img_dir
+                    if not BlenderUtils.RelativePathValid(img_dir):
+                        img_dir = default_dir
 
-            # Render output - load file name
-            if SettingsOutput.img_file_needFrameNumber:
-                load_file_name = "%s.%.4i" % (load_file_name, scene.frame_current)
-            bus['filenames']['output_loadfile'] = "%s.%s" % (load_file_name, ext)
+                    output_filepath = bpy.path.abspath(img_dir)
+                    output_filepath = LibUtils.FormatName(output_filepath, substrDict)
 
-        # Lightmaps path
-        # bus['filenames']['lightmaps']= create_dir(os.path.join(export_filepath, "lightmaps"))
+                # Render output dir
+                self.imgDirectory = PathUtils.CreateDirectory(output_filepath)
 
+                # Render output file name
+                ext = SettingsOutput.img_format.lower()
+
+                file_name = "render"
+                if SettingsOutput.img_file:
+                    file_name = SettingsOutput.img_file
+                    file_name = LibUtils.FormatName(file_name, substrDict)
+                    load_file_name = file_name
+                self.imgFilename = "%s.%s" % (file_name, ext)
+
+                # Render output - load file name
+                if SettingsOutput.img_file_needFrameNumber:
+                    load_file_name = "%s.%.4i" % (load_file_name, scene.frame_current)
+
+                self.imgLoadFilename = "%s.%s" % (load_file_name, ext)
+
+
+######## #### ##       ########  ######  
+##        ##  ##       ##       ##    ## 
+##        ##  ##       ##       ##       
+######    ##  ##       ######    ######  
+##        ##  ##       ##             ## 
+##        ##  ##       ##       ##    ## 
+##       #### ######## ########  ######  
 
 class VRayExportFiles:
-    def __init__(self):
-        # Export directory
-        self.exportDir = None
+    def __init__(self, pm):
+        # Paths manager
+        self.pm = pm
 
         # *.vrscene files dict
         self.files = {}
 
-        # Filename prefix
-        self.baseName = "scene"
+        # Export directory
+        self.exportDir = pm.getExportDirectory()
 
-        # Whether to use unique prefix
-        self.useBaseName = False
+        # Filename prefix
+        self.baseName = pm.getExportFilename()
 
         # If to overwrite geometry
         self.overwriteGeometry = True
 
         # Write particular plugin types to the correspondent file
-        self.separateFiles = True
+        self.separateFiles = pm.useSeparateFiles()
 
         # Write included files relative
         self.includeRelative = True
@@ -241,6 +265,9 @@ class VRayExportFiles:
 
     def setPrefix(self, prefix):
         self.explicitPrefix = prefix
+
+    def getPathManager(self):
+        return self.pm
 
     def init(self):
         self.files = {}
@@ -284,32 +311,33 @@ class VRayExportFiles:
     def writeIncludes(self):
         if not self.files:
             return
+        if not self.separateFiles:
+            return
 
-        if self.separateFiles:
-            mainFile = self.files['scene']
+        mainFile = self.files['scene']
 
-            for fileType in self.files:
-                if fileType == 'scene':
-                    continue
+        for fileType in self.files:
+            if fileType == 'scene':
+                continue
 
-                f = self.files[fileType]
-                filepath = f.name
-                filename = os.path.basename(filepath)
+            f = self.files[fileType]
+            filepath = f.name
+            filename = os.path.basename(filepath)
 
-                includeFilepath = filepath
-                if self.includeRelative:
-                    includeFilepath = filename
-                if self.explicitPrefix:
-                    includeFilepath = os.path.join(self.explicitPrefix, filename)
+            includeFilepath = filepath
+            if self.includeRelative:
+                includeFilepath = filename
+            if self.explicitPrefix:
+                includeFilepath = os.path.join(self.explicitPrefix, filename)
 
-                mainFile.write('\n#include "%s"' % includeFilepath)
-            mainFile.write('\n')
+            mainFile.write('\n#include "%s"' % includeFilepath)
+        mainFile.write('\n')
 
 
     def closeFiles(self):
+        Debug("VRayExportFiles::closeFiles()")
         if not self.files:
             return
-        Debug("VRayExportFiles::closeFiles()")
         for fileType in self.files:
             f = self.files[fileType]
             if f and not f.closed:
@@ -317,6 +345,8 @@ class VRayExportFiles:
 
 
     def getFileByPluginType(self, pluginType):
+        if not self.separateFiles:
+            return self.files['scene']
         fileType = PluginTypeToFile[pluginType]
         return self.files[fileType]
 
@@ -335,6 +365,14 @@ class VRayExportFiles:
             return f.name
         return None
 
+
+######## ##     ## ########   #######  ########  ######## 
+##        ##   ##  ##     ## ##     ## ##     ##    ##    
+##         ## ##   ##     ## ##     ## ##     ##    ##    
+######      ###    ########  ##     ## ########     ##    
+##         ## ##   ##        ##     ## ##   ##      ##    
+##        ##   ##  ##        ##     ## ##    ##     ##    
+######## ##     ## ##         #######  ##     ##    ##    
 
 class VRayPluginExporter:
     def __init__(self):
@@ -358,6 +396,8 @@ class VRayPluginExporter:
         self.isAnimation = False
         self.frameNumber = 1
         self.frameStep   = 1
+        self.frameStart  = 1
+        self.frameEnd    = 2
 
         # Preview renderer
         self.isPreview   = False
@@ -365,6 +405,12 @@ class VRayPluginExporter:
 
     def setAnimation(self, animation):
         self.isAnimation = animation
+
+    def setFrameStart(self, start):
+        self.frameStart = start
+
+    def setFrameEnd(self, end):
+        self.frameEnd = end
 
     def setFrameStep(self, frameStep):
         self.frameStep = frameStep
@@ -382,6 +428,8 @@ class VRayPluginExporter:
     def isPreviewRender(self):
         return self.isPreview
 
+    def getFileManager(self):
+        return self.fileManager
 
     # Set params for currently exported plugin
     #

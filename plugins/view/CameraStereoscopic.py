@@ -54,10 +54,9 @@ def add_properties(rna_pointer):
 	class CameraStereoscopic(bpy.types.PropertyGroup):
 		def CalcAngle(self, cam):
 			stereo_base = cam.stereo_base
-			focal_dist = cam.stereo_distance
-			if(cam.use_convergence):
-				cam_angle = math.degrees( math.atan2((stereo_base/2), focal_dist) )
-				return cam_angle
+			focal_dist  = cam.stereo_distance
+			if cam.use_convergence:
+				return math.degrees(math.atan2((stereo_base/2), focal_dist))
 			else:
 				return 0.0
 
@@ -355,10 +354,6 @@ class VRAY_OT_create_stereo_cam(bpy.types.Operator):
 
 		if not CameraStereoscopic.use:
 			CameraStereoscopic.use = True
-			# Check use_scripts_auto_execute settings
-			#autoexec = context.user_preferences.system.use_scripts_auto_execute
-			#if(autoexec):
-			#	print(autoexec)
 			create_stereo_cam(context)
 		else:
 			CameraStereoscopic.use = False
