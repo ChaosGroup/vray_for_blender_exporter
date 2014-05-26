@@ -26,6 +26,8 @@ import inspect
 import os
 import sys
 import traceback
+import time
+import datetime
 
 import bpy
 
@@ -121,3 +123,17 @@ def ExceptionInfo(e):
     print("Traceback =>")
 
     traceback.print_tb(exc_traceback)
+
+
+def TimeIt(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time() - ts
+        sys.stdout.write("%s: %s\n" % (
+            Color("V-Ray For Blender", 'green'),
+            "%s() done in %s" % (method.__name__, str(datetime.timedelta(seconds=te)))
+        ))
+        sys.stdout.flush()
+        return result
+    return timed
