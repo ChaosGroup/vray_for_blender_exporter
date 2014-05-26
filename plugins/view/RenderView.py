@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb30.lib import ExportUtils
+from vb30.lib import ExportUtils, SysUtils
 
 
 TYPE = 'CAMERA'
@@ -148,18 +148,19 @@ PluginParams = (
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    o = bus['output']
     scene = bus['scene']
     ca    = bus['camera']
 
     VRayScene = scene.vray
-    VRayBake   = VRayScene.BakeView
-    SettingsCamera = VRayScene.SettingsCamera
+    VRayBake  = VRayScene.BakeView
 
     if VRayBake.use:
         return
 
     VRayCamera = ca.data.vray
-    RenderView = VRayCamera.RenderView
+    RenderView     = VRayCamera.RenderView
+    SettingsCamera = VRayCamera.SettingsCamera
 
     fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
     
@@ -168,10 +169,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if aspect < 1.0:
         fov = fov * aspect
 
-    overrideParams.update({
-        'use_scene_offset' : False if bus["engine"].bl_idname == 'VRAY_RENDER_RT' else True,
-        'clipping' : RenderView.clip_near or RenderView.clip_far
-    })
+    overrideParams['use_scene_offset'] = SysUtils.IsRTEngine(bus)
+    overrideParams['clipping'] = RenderView.clip_near or RenderView.clip_far
 
     # if SettingsCamera.type not in {'SPHERIFICAL', 'BOX'}:
     if RenderView.clip_near:
@@ -182,8 +181,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if 'fov' not in overrideParams:
         overrideParams['fov'] = fov
     if 'transform' not in overrideParams:
-        overrideParams['transform'] = ca.matrix_world.normalized()
+        overrideParams['transform'] = ca.matrix_world
     if 'orthographic' not in overrideParams:
         overrideParams['orthographic'] = ca.data.type == 'ORTHO'
+
+    # o.write('CAMERA', "\n// Camera name: %s" % ca.name)
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
