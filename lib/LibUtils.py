@@ -121,12 +121,12 @@ def FormatValue(t, subtype=None, quotes=False, ascii=False):
 # This funciton will substitue special format sequences with
 # the correspondent values
 #
-def FormatName(path, scene, blendfileName):
+def FormatName(s, values):
     substDict = {
-        r'%C' : CleanString(scene.camera.name),
-        r'%S' : CleanString(scene.name),
-        r'%F' : CleanString(blendfileName, stripSigns=False),
+        r'%C' : CleanString(values.get('camera_name', "")),
+        r'%S' : CleanString(values.get('scene_name', "")),
+        r'%F' : CleanString(values.get('blend_name', "render"), stripSigns=False),
     }
     for key in substDict:
-        path = path.replace(key, substDict[key])
-    return path
+        s = s.replace(key, substDict[key])
+    return s
