@@ -25,7 +25,7 @@
 from vb30.lib import ExportUtils
 
 
-TYPE = 'SETTINGS'
+TYPE = 'CAMERA'
 ID   = 'SettingsCamera'
 NAME = 'Camera'
 DESC = ""

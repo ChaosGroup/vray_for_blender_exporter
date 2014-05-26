@@ -22,7 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-TYPE = 'SETTINGS'
+TYPE = 'CAMERA'
 ID   = 'SettingsCameraDof'
 NAME = 'SettingsCameraDof'
 DESC = ""
