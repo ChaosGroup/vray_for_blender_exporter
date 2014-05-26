@@ -22,9 +22,15 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import _vray_for_blender
+
+from vb30.lib import BlenderUtils
+
+from vb30 import debug
+
 
 def ExportObjects(bus, exportNodes=True, exportMeshes=None):
-    Debug("ExportFrame()")
+    debug.Debug("ExportObjects()")
 
     o      = bus['output']
     scene  = bus['scene']
@@ -34,21 +40,15 @@ def ExportObjects(bus, exportNodes=True, exportMeshes=None):
     VRayExporter = VRayScene.Exporter
 
     # Setup object to skip, this is mainly from "Effect" gizmos
-    #
     skipObjects = [ob.as_pointer() for ob in bus['skipObjects']]
     _vray_for_blender.setSkipObjects(bus['exporter'], skipObjects)
 
     # Setup "Hide From View"
-    #
     hideFromView = BlenderUtils.GetCameraHideLists(camera)
     _vray_for_blender.setHideFromView(bus['exporter'], hideFromView)
 
     # Finally export stuff
-    #
-    exportGeometry = VRayExporter.auto_meshes
-
-    if exportMeshes is not None
-        exportGeometry = exportMeshes
+    exportGeometry = exportMeshes if exportMeshes is not None else VRayExporter.auto_meshes
 
     _vray_for_blender.exportScene(
         bus['exporter'],

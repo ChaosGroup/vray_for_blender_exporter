@@ -22,8 +22,15 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib     import ExportUtils
+from vb30.plugins import PLUGINS_ID
+
+from vb30 import debug
+
 
 def ExportCamera(bus):
+    debug.Debug("ExportCamera()")
+
     scene  = bus['scene']
     camera = bus['camera']
 
@@ -32,6 +39,8 @@ def ExportCamera(bus):
 
     # NOTE: Order is vital here
     cameraPlugins = (
+        'SettingsMotionBlur',
+        'SettingsCameraDof',
         'SettingsCamera',
         'RenderView',
         'CameraPhysical',
@@ -44,6 +53,11 @@ def ExportCamera(bus):
 
         if pluginName == 'VRayStereoscopicSettings':
             propGroup = getattr(VRayScene, pluginName)
+            if not propGroup.use:
+                continue
+        elif pluginName == 'CameraStereoscopic':
+            PLUGINS_ID['CameraStereoscopic'].write(bus)
+            continue
         else:
             propGroup = getattr(VRayCamera, pluginName)
 

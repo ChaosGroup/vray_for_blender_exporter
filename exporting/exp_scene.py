@@ -22,15 +22,22 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from vb30.plugins import PLUGINS_ID
-
 from vb30 import debug
 
+from . import exp_lights
+from . import exp_camera
+from . import exp_environment
+from . import exp_objects
 
-# Exports environment and effects
-# Must be called once before the object export
-#
-def ExportEnvironment(bus):
-    debug.Debug("ExportEnvironment()")
 
-    PLUGINS_ID['SettingsEnvironment'].write(bus)
+def ExportScene(bus, exportNodes=True, exportMeshes=None):
+    debug.Debug("ExportScene()")
+
+    err = None
+
+    err = exp_environment.ExportEnvironment(bus)
+    err = exp_lights.ExportLights(bus)
+    err = exp_camera.ExportCamera(bus)
+    err = exp_objects.ExportObjects(bus, exportNodes, exportMeshes)
+
+    return err

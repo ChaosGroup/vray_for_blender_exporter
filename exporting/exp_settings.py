@@ -65,7 +65,9 @@ def ExportSettings(bus):
             if pluginName in {'RenderView',
                               'VRayStereoscopicSettings',
                               'CameraPhysical',
-                              'SettingsCamera'}:
+                              'SettingsCamera',
+                              'SettingsMotionBlur',
+                              'SettingsCameraDof'}:
                 continue
 
 

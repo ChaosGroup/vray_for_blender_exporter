@@ -22,7 +22,13 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from . import exp_camera
+import bpy
+
+import _vray_for_blender
+
+from vb30 import debug
+
+from . import exp_camera, exp_scene, exp_init
 
 
 def GetLoopCameras(scene):
@@ -43,68 +49,36 @@ def IsHideFromViewUsed(cameras):
     return False
 
 
-def ExportCameraLoop(bus, scene, engine):
-    Debug("ExportCameraLoop()")
+@debug.TimeIt
+def ExportCameraLoop(bus):
+    debug.Debug("ExportCameraLoop()")
 
-    o = bus['output']
+    scene  = bus['scene']
+    engine = bus['engine']
+    camera = bus['camera']
+    o      = bus['output']
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
     cameras = GetLoopCameras(scene)
+    if not len(cameras):
+        return 'No cameras are selected for "Camera Loop"!'
+
+    cameras = sorted(cameras, key=lambda c: c.name)
+
+    # We will create animated camera from 'cameras'
+    o.setAnimation(True)
+    o.setFrameStart(1)
+    o.setFrameEnd(len(cameras))
+    o.setFrameStep(1)
 
     if IsHideFromViewUsed(cameras):
-        bus['exporter'] = _vray_for_blender.init(
-            scene   = scene.as_pointer(),
-            engine  = engine.as_pointer(),
-            context = bpy.context.as_pointer(),
+        debug.Debug('Using "Hide From View"...')
 
-            useNodes = True,
-
-            objectFile   = o.fileManager.getFileByPluginType('OBJECT'),
-            geometryFile = o.fileManager.getFileByPluginType('GEOMETRY'),
-            lightsFile   = o.fileManager.getFileByPluginType('LIGHT'),
-            materialFile = o.fileManager.getFileByPluginType('MATERIAL'),
-            textureFile  = o.fileManager.getFileByPluginType('TEXTURE'),
-
-            isAnimation = False,
-        )
-
-        # Export objects as usual
-        #
-        ExportFrame(bus)
-
-        # Export animated camera from 'Camera Loop' cameras
-        #
-        o.setAnimation(True)
-        for i, camera in enumerate(cameras):
-            # Setup camera
-            bus['camera'] = camera
-
-            # Setup fake frame
-            frame = i+1
-            o.setFrame(frame)
-
-            exp_camera.ExportCamera(bus)
-
-    else:
-        bus['exporter'] = _vray_for_blender.init(
-            scene   = scene.as_pointer(),
-            engine  = engine.as_pointer(),
-            context = bpy.context.as_pointer(),
-
-            useNodes = True,
-
-            objectFile   = o.fileManager.getFileByPluginType('OBJECT'),
-            geometryFile = o.fileManager.getFileByPluginType('GEOMETRY'),
-            lightsFile   = o.fileManager.getFileByPluginType('LIGHT'),
-            materialFile = o.fileManager.getFileByPluginType('MATERIAL'),
-            textureFile  = o.fileManager.getFileByPluginType('TEXTURE'),
-
-            isAnimation = True,
-            frameStart  = 1,
-            frameStep   = 1,
-        )
+        # Since hide from view affect object properties we have to export in
+        # animation mode 
+        bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
 
         for i, camera in enumerate(cameras):
             # Setup camera
@@ -115,12 +89,28 @@ def ExportCameraLoop(bus, scene, engine):
             o.setFrame(frame)
             _vray_for_blender.setFrame(frame)
 
-            # Export meshes only for the first frame since
-            # 'Hide From View' affects only object level
-            #
-            exportMeshes = frame == 1
-
             # Since we are using 'Hide From View' we have to update
-            # object's visibilities
+            # object's visibilities.
+            # Export meshes only for the first frame since
+            # 'Hide From View' affects only object level.
             #
-            ExportFrame(bus, exportNodes=True, exportMeshes=exportMeshes)
+            exp_scene.ExportScene(bus, exportNodes=True, exportMeshes=(frame==1))
+
+    else:
+        bus['exporter'] = exp_init.InitExporter(bus)
+
+        # Export objects as usual
+        exp_scene.ExportScene(bus)
+
+        # Export animated camera from 'Camera Loop' cameras
+        for i, camera in enumerate(cameras):
+            # Setup camera
+            bus['camera'] = camera
+
+            # Setup fake frame
+            frame = i+1
+            o.setFrame(frame)
+
+            exp_camera.ExportCamera(bus)
+
+    exp_init.ShutdownExporter(bus)

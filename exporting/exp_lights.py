@@ -22,7 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from vb30.lib import BlenderUtils, SysUtils, ExportUtils, LibUtils
+from vb30.lib     import BlenderUtils, SysUtils, ExportUtils, LibUtils
+from vb30.nodes   import export as NodesExport
+from vb30.plugins import PLUGINS
+
+from vb30 import debug
 
 
 def ExportLamp(bus):
@@ -135,7 +139,10 @@ def ExportLamp(bus):
             bus['lightlinker'][lamp_name]['exclude'] = BlenderUtils.GetObjectList(VRayLamp.exclude_objects, VRayLamp.exclude_groups)
 
 
+@debug.TimeIt
 def ExportLights(bus):
+    debug.Debug("ExportLights()")
+
     scene = bus['scene']
 
     for ob in BlenderUtils.SceneLampIt(scene):

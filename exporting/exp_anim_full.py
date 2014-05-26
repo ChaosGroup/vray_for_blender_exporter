@@ -22,38 +22,57 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import _vray_for_blender
+
 from vb30 import debug
 
 from . import exp_init
 from . import exp_scene
-from . import exp_anim_full
 
 
 @debug.TimeIt
-def ExportSingleFrame(bus):
-    o      = bus['output']
-    scene  = bus['scene']
+def ExportAnimation(bus, frameStart, frameEnd, frameStep):
+    debug.Debug("ExportAnimation()")
 
     err = None
 
-    VRayScene    = scene.vray
+    scene = bus['scene']
+    o     = bus['output']
+
+    VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    if VRayExporter.frames_to_export > 1:
-        frameStart = scene.frame_current
-        frameEnd   = frameStart + VRayExporter.frames_to_export
-        frameStep  = scene.frame_step
+    o.setAnimation(True)
 
-        err = exp_anim_full.ExportAnimation(
-            bus,
-            frameStart,
-            frameEnd,
-            frameStep
-        )
+    o.setFrameStart(frameStart)
+    o.setFrameEnd(frameEnd)
 
-    else:
-        bus['exporter'] = exp_init.InitExporter(bus)
+    # Set frame step; used to detect if we need
+    # to export a keyframe in interpolate()
+    o.setFrameStep(frameStep)
+
+    # Store current frame
+    selected_frame = scene.frame_current
+
+    # Init exporter
+    bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
+
+    f = frameStart
+    while(f <= frameEnd):
+        scene.frame_set(f)
+
+        o.setFrame(f)
+        _vray_for_blender.setFrame(f)
+
         err = exp_scene.ExportScene(bus)
-        exp_init.ShutdownExporter(bus)
+        if err is not None:
+            break
+
+        f += frameStep
+
+    # Restore selected frame
+    scene.frame_set(selected_frame)
+
+    exp_init.ShutdownExporter(bus)
 
     return err
