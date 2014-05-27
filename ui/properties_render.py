@@ -440,8 +440,7 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		layout= self.layout
 		wide_ui= context.region.width > classes.narrowui
 
-		VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
-		cm= VRayPreferences.SettingsColorMapping
+		cm= context.scene.vray.SettingsColorMapping
 
 		split= layout.split()
 		col= split.column()
@@ -976,6 +975,7 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			col.prop(SettingsOptions, 'dr_overwriteLocalCacheSettings')
 			col= split.column()
 			col.prop(SettingsOptions, 'misc_useCachedAssets')
+			col.prop(VRayDR, 'renderOnlyOnNodes')
 			split= layout.split()
 			split.active = SettingsOptions.dr_overwriteLocalCacheSettings
 			col= split.column()
