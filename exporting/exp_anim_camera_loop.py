@@ -51,8 +51,6 @@ def IsHideFromViewUsed(cameras):
 
 @debug.TimeIt
 def ExportCameraLoop(bus):
-    debug.Debug("ExportCameraLoop()")
-
     scene  = bus['scene']
     engine = bus['engine']
     camera = bus['camera']

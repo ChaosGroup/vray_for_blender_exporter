@@ -28,9 +28,8 @@ from vb30.plugins import PLUGINS_ID
 from vb30 import debug
 
 
+@debug.TimeIt
 def ExportCamera(bus):
-    debug.Debug("ExportCamera()")
-
     scene  = bus['scene']
     camera = bus['camera']
 

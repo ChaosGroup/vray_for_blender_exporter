@@ -141,8 +141,6 @@ def ExportLamp(bus):
 
 @debug.TimeIt
 def ExportLights(bus):
-    debug.Debug("ExportLights()")
-
     scene = bus['scene']
 
     for ob in BlenderUtils.SceneLampIt(scene):

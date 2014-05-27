@@ -30,7 +30,6 @@ from vb30 import debug
 # Exports environment and effects
 # Must be called once before the object export
 #
+@debug.TimeIt
 def ExportEnvironment(bus):
-    debug.Debug("ExportEnvironment()")
-
     PLUGINS_ID['SettingsEnvironment'].write(bus)
