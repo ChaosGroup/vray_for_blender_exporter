@@ -509,10 +509,10 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.prop(cm, 'type')
-		if cm.type == 'REIN':
+		if cm.type == '6':
 			col.prop(cm, "dark_mult", text="Multiplier")
 			col.prop(cm, "bright_mult",  text="Burn")
-		elif cm.type in ('GCOR', 'GINT'):
+		elif cm.type in {'4', '5'}:
 			col.prop(cm, "bright_mult", text="Multiplier")
 			col.prop(cm, "dark_mult", text="Inverse gamma")
 		else:
