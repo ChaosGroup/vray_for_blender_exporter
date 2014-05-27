@@ -30,8 +30,6 @@ from vb30 import debug
 
 
 def ExportObjects(bus, exportNodes=True, exportMeshes=None):
-    debug.Debug("ExportObjects()")
-
     o      = bus['output']
     scene  = bus['scene']
     camera = bus['camera']
