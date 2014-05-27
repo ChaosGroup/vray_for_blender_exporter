@@ -30,7 +30,7 @@ bl_info = {
     "description" : "Exporter to the V-Ray Standalone file format",
     "warning"     : "",
     "wiki_url"    : "https://github.com/bdancer/vb30/wiki",
-    "tracker_url" : "https://github.com/bdancer/vb30/issues",
+    "tracker_url" : "https://github.com/bdancer/blender-for-vray/issues",
     "category"    : "Render"
 }
 
