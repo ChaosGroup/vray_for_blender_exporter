@@ -24,20 +24,28 @@
 
 from vb30 import debug
 
-from . import exp_lights
 from . import exp_camera
 from . import exp_environment
+from . import exp_lights
 from . import exp_objects
 
 
+@debug.TimeIt
 def ExportScene(bus, exportNodes=True, exportMeshes=None):
-    debug.Debug("ExportScene()")
-
-    err = None
-
     err = exp_environment.ExportEnvironment(bus)
-    err = exp_lights.ExportLights(bus)
-    err = exp_camera.ExportCamera(bus)
-    err = exp_objects.ExportObjects(bus, exportNodes, exportMeshes)
+    if err is not None:
+        return err
 
-    return err
+    err = exp_lights.ExportLights(bus)
+    if err is not None:
+        return err
+
+    err = exp_camera.ExportCamera(bus)
+    if err is not None:
+        return err
+
+    err = exp_objects.ExportObjects(bus, exportNodes, exportMeshes)
+    if err is not None:
+        return err
+
+    return None
