@@ -323,7 +323,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     overrideParams['img_width']  = img_width
     overrideParams['img_height'] = img_height
 
-    if o.isPreviewRender() or VRayExporter.auto_save_render:
+    if not (o.isPreviewRender() or VRayExporter.auto_save_render):
+        overrideParams['img_file'] = ""
+        overrideParams['img_dir']  = ""
+    else:
         pm = o.getFileManager().getPathManager()
         img_file = pm.getImgFilename()
         img_dir  = pm.getImgDirpath()
