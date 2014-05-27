@@ -22,10 +22,20 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-TYPE = 'SETTINGS_GLOBAL'
+TYPE = 'SETTINGS'
 ID   = 'SettingsColorMapping'
 NAME = 'Color Mapping'
 DESC = ""
+
+
+def SyncWithPreferences():
+    pass
+
+
+def updatePreviewColorMapping(self, context):
+    if bpy.context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+        open(getColorMappingFilepath(), 'w').write(getColorMappingData(context.scene))
+
 
 PluginParams = (
     {
