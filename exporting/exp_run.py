@@ -41,6 +41,7 @@ def Run(bus):
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
+    VRayDR       = VRayScene.VRayDR
 
     p = VRayProcess()
     p.setVRayStandalone(SysUtils.GetVRayStandalonePath())
@@ -68,6 +69,13 @@ def Run(bus):
         p.setVerboseLevel(0)
         p.setAutoclose(True)
         p.setDisplayVFB(False)
+
+    if VRayDR.on:
+        if len(VRayDR.nodes):
+            p.setDistributed(2 if VRayDR.renderOnlyOnNodes else 1)
+            p.setRenderhosts([n.address for n in VRayDR.nodes if n.use])
+            p.setPortNumber(VRayDR.port)
+            p.setTransferAssets(VRayDR.transferAssets)
 
     if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
         p.setWaitExit(True)
