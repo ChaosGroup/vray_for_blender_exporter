@@ -25,6 +25,7 @@
 import bpy
 import sys
 
+from vb30 import version
 
 TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
@@ -49,6 +50,8 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+
+        layout.label(text="Exporter revision: %s" % version.VERSION)
 
         layout.prop(self, "detect_vray")
         if not self.detect_vray:
