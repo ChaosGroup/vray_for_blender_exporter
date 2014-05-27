@@ -122,6 +122,7 @@ class VRAY_SP_ntrees(classes.VRayScenePanel):
 		VRayExporter = context.scene.vray.Exporter
 
 		self.layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows = 4)
+		self.layout.operator("vray.del_nodetree", text="Delete Selected Nodetree", icon="ZOOMOUT")
 
 
 class VRAY_SP_lights_tweaker(classes.VRayScenePanel):

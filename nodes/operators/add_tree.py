@@ -190,6 +190,30 @@ class VRAY_OT_add_node(BlNode.NodeAddOperator, bpy.types.Operator):
         node = super(VRAY_OT_add_node, self).create_node(context, node_type)
 
 
+class VRAY_OT_del_nodetree(bpy.types.Operator):
+    bl_idname      = "vray.del_nodetree"
+    bl_label       = "Delete Nodetree"
+    bl_description = ""
+
+    def execute(self, context):
+        VRayExporter = context.scene.vray.Exporter
+
+        selectedNodeTree = VRayExporter.ntreeListIndex
+        if selectedNodeTree == -1:
+            return {'CANCELLED'}
+
+        ntree = bpy.data.node_groups[selectedNodeTree]
+        ntree.use_fake_user = False
+        ntree.user_clear()
+        bpy.data.node_groups.remove(ntree)
+
+        VRayExporter.ntreeListIndex -= 1
+        if VRayExporter.ntreeListIndex == -1 and len(bpy.data.node_groups):
+            VRayExporter.ntreeListIndex = 0
+
+        return {'FINISHED'}
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -209,6 +233,8 @@ def GetRegClasses():
         VRAY_OT_add_nodetree_object,
         VRAY_OT_add_material_nodetree,
         VRAY_OT_add_world_nodetree,
+
+        VRAY_OT_del_nodetree,
     )
 
 
