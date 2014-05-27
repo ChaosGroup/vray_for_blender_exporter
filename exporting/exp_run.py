@@ -43,8 +43,12 @@ def Run(bus):
     VRayExporter = VRayScene.Exporter
     VRayDR       = VRayScene.VRayDR
 
+    vrayCmd = SysUtils.GetVRayStandalonePath()
+    if not vrayCmd:
+        raise Exception("V-Ray not found!")
+
     p = VRayProcess()
-    p.setVRayStandalone(SysUtils.GetVRayStandalonePath())
+    p.setVRayStandalone(vrayCmd)
     p.setSceneFile(o.fileManager.getOutputFilepath())
     p.setAutorun(VRayExporter.autorun)
     p.setVerboseLevel(VRayExporter.verboseLevel)
@@ -108,6 +112,6 @@ def RunEx(bus):
         Run(bus)
     except Exception as e:
         debug.ExceptionInfo(e)
-        return "Run error! Check system console!"
+        return "Run error: %s" % e
 
     return None
