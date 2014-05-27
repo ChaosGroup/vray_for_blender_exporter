@@ -342,6 +342,12 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
 
                 else:
                     attrSocket = n.inputs[attrSocketName]
+
+                    # Fix for color attribute
+                    if type(attrValue) in [list, tuple]:
+                        if len(attrValue) == 4:
+                            attrValue = attrValue[:3]
+
                     attrSocket.value = attrValue
 
                 continue
