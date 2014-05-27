@@ -802,6 +802,12 @@ class VRayDR(bpy.types.PropertyGroup):
 		max= 100
 	)
 
+	renderOnlyOnNodes = bpy.props.BoolProperty(
+		name        = "Render Only On Nodes",
+		description = "Use distributed rendering excluding the local machine",
+		default     = False
+	)
+
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
@@ -988,7 +994,8 @@ def register():
 	LoadPluginAttributes(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPluginAttributes(PLUGINS['UVWGEN'],        VRayTexture)
 
-	LoadPluginAttributes(PLUGINS['SYSTEM'], VRayScene)
+	LoadPluginAttributes(PLUGINS['SYSTEM'],          VRayScene)
+	LoadPluginAttributes(PLUGINS['SETTINGS_GLOBAL'], VRayScene)
 
 	VRayScene.Exporter = bpy.props.PointerProperty(
 		name = "Exporter",
