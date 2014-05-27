@@ -151,6 +151,18 @@ class VRayProcess:
         if frameStep is not None:
             self.frames += ",%d" % frameStep
 
+    def setDistributed(self, d):
+        self.distributed = d
+
+    def setRenderhosts(self, hosts):
+        self.renderhost = ";".join(hosts)
+
+    def setPortNumber(self, n):
+        self.portNumber = n
+
+    def setTransferAssets(self, v):
+        self.transferAssets = v
+
     def getCommandLine(self):
         cmd = [self.filepath]
         cmd.append('-verboseLevel=%s' % self.verboseLevel)
@@ -158,6 +170,12 @@ class VRayProcess:
         cmd.append('-display=%i' % self.display)
         cmd.append('-displaySRGB=%i' % self.displaySRGB)
         cmd.append('-autoClose=%i' % self.autoClose)
+
+        if self.distributed:
+            cmd.append('-distributed=%i' % self.distributed)
+            cmd.append('-renderhost="%s"' % self.renderhost)
+            cmd.append('-portNumber=%i' % self.portNumber)
+            cmd.append('-transferAssets=%s' % self.transferAssets)
 
         if self.numThreads:
             cmd.append('-numThreads=%s' % self.numThreads)
