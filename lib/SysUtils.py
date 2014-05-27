@@ -44,121 +44,121 @@ def GetHostname():
 
 
 def GetVRayStandalonePath():
-	VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+    VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
 
-	vray_bin = "vray"
-	if sys.platform == 'win32':
-		vray_bin += ".exe"
+    vray_bin = "vray"
+    if sys.platform == 'win32':
+        vray_bin += ".exe"
 
-	def get_env_paths(var):
-		split_char= ';' if sys.platform == 'win32' else ":"
-		env_var= os.getenv(var)
-		if env_var:
-			return env_var.replace('\"','').split(split_char)
-		return []
+    def get_env_paths(var):
+        split_char= ';' if sys.platform == 'win32' else ":"
+        env_var= os.getenv(var)
+        if env_var:
+            return env_var.replace('\"','').split(split_char)
+        return []
 
-	def find_vray_std_osx_official():
-		vrayPath = "/Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/bin/snow_leopard_x86/gcc-4.2/vray"
-		if os.path.exists(vrayPath):
-			return vrayPath
-		return None
+    def find_vray_std_osx_official():
+        vrayPath = "/Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/bin/snow_leopard_x86/gcc-4.2/vray"
+        if os.path.exists(vrayPath):
+            return vrayPath
+        return None
 
-	def find_vray_std_osx():
-		import glob
-		instLogFilepath = "/var/log/chaos_installs"
-		if not os.path.exists(instLogFilepath):
-			return None
-		instLog = open(instLogFilepath, 'r').readlines()
-		for l in instLog:
-			# Example path:
-			#  /Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/uninstall/linuxinstaller.app/Contents
-			#
-			if 'V-Ray Standalone' in l and '[UN]' not in l:
-				_tmp_, path = l.strip().split('=')
+    def find_vray_std_osx():
+        import glob
+        instLogFilepath = "/var/log/chaos_installs"
+        if not os.path.exists(instLogFilepath):
+            return None
+        instLog = open(instLogFilepath, 'r').readlines()
+        for l in instLog:
+            # Example path:
+            #  /Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/uninstall/linuxinstaller.app/Contents
+            #
+            if 'V-Ray Standalone' in l and '[UN]' not in l:
+                _tmp_, path = l.strip().split('=')
 
-				# Going up to /Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/bin
-				path = os.path.normpath(os.path.join(path.strip(), '..', '..', '..', "bin"))
+                # Going up to /Applications/ChaosGroup/V-Ray/Standalone_for_snow_leopard_x86/bin
+                path = os.path.normpath(os.path.join(path.strip(), '..', '..', '..', "bin"))
 
-				possiblePaths = glob.glob('%s/*/*/vray' % path)
-				if len(possiblePaths):
-					return possiblePaths[0]
-				return None
-		return None
+                possiblePaths = glob.glob('%s/*/*/vray' % path)
+                if len(possiblePaths):
+                    return possiblePaths[0]
+                return None
+        return None
 
-	def find_vray_binary(paths):
-		if paths:
-			for p in paths:
-				if p:
-					vray_path= os.path.join(p,vray_bin)
-					if os.path.exists(vray_path):
-						return vray_path
-		return None
+    def find_vray_binary(paths):
+        if paths:
+            for p in paths:
+                if p:
+                    vray_path= os.path.join(p,vray_bin)
+                    if os.path.exists(vray_path):
+                        return vray_path
+        return None
 
-	if not VRayPreferences.detect_vray and VRayPreferences.vray_binary:
-		manualVRayPath = bpy.path.abspath(VRayPreferences.vray_binary)
-		if os.path.exists(manualVRayPath):
-			return manualVRayPath
+    if not VRayPreferences.detect_vray and VRayPreferences.vray_binary:
+        manualVRayPath = bpy.path.abspath(VRayPreferences.vray_binary)
+        if os.path.exists(manualVRayPath):
+            return manualVRayPath
 
-	# Check 'VRAY_PATH' environment variable
-	#
-	vray_standalone_paths= get_env_paths('VRAY_PATH')
-	if vray_standalone_paths:
-		vray_standalone= find_vray_binary(vray_standalone_paths)
-		if vray_standalone:
-			return vray_standalone
+    # Check 'VRAY_PATH' environment variable
+    #
+    vray_standalone_paths= get_env_paths('VRAY_PATH')
+    if vray_standalone_paths:
+        vray_standalone= find_vray_binary(vray_standalone_paths)
+        if vray_standalone:
+            return vray_standalone
 
-	# On OS X check default path and install log
-	#
-	if sys.platform in {'darwin'}:
-		path = find_vray_std_osx_official()
-		if path is not None:
-			return path
-		path = find_vray_std_osx()
-		if path is not None:
-			return path
+    # On OS X check default path and install log
+    #
+    if sys.platform in {'darwin'}:
+        path = find_vray_std_osx_official()
+        if path is not None:
+            return path
+        path = find_vray_std_osx()
+        if path is not None:
+            return path
 
-	# Try to find Standalone in V-Ray For Maya
-	#
-	for var in reversed(sorted(os.environ.keys())):
-		if var.startswith('VRAY_FOR_MAYA'):
-			if var.find('MAIN') != -1:
-				debug(sce, "Searching in: %s" % (var))
-				vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
-				if vray_maya:
-					debug(sce, "V-Ray found in: %s" % (vray_maya))
-					return vray_maya
+    # Try to find Standalone in V-Ray For Maya
+    #
+    for var in reversed(sorted(os.environ.keys())):
+        if var.startswith('VRAY_FOR_MAYA'):
+            if var.find('MAIN') != -1:
+                debug(sce, "Searching in: %s" % (var))
+                vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
+                if vray_maya:
+                    debug(sce, "V-Ray found in: %s" % (vray_maya))
+                    return vray_maya
 
-	# Try to find vray binary in %PATH%
-	debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)
+    # Try to find vray binary in %PATH%
+    debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)
 
-	return shutil.which(vray_bin)
+    return shutil.which(vray_bin)
 
 
 def GetExporterPath():
-	for path in bpy.utils.script_paths(os.path.join('addons','vb30')):
-		if path:
-			return path
-	return None
+    for path in bpy.utils.script_paths(os.path.join('addons','vb30')):
+        if path:
+            return path
+    return None
 
 
 def GetVRsceneTemplate(filename):
-	templatesDir = os.path.join(GetExporterPath(), "templates")
-	templateFilepath = os.path.join(templatesDir, filename)
+    templatesDir = os.path.join(GetExporterPath(), "templates")
+    templateFilepath = os.path.join(templatesDir, filename)
 
-	templateFilepathUser = os.path.join(BlenderUtils.GetUserConfigDir(), "templates", "%s.user" % filename)
+    templateFilepathUser = os.path.join(BlenderUtils.GetUserConfigDir(), "templates", "%s.user" % filename)
 
-	if os.path.exists(templateFilepathUser):
-		templateFilepath = templateFilepathUser
+    if os.path.exists(templateFilepathUser):
+        templateFilepath = templateFilepathUser
 
-	if not os.path.exists(templateFilepath):
-		return ""
+    if not os.path.exists(templateFilepath):
+        return ""
 
-	return open(templateFilepath, 'r').read()
+    return open(templateFilepath, 'r').read()
 
 
 def IsRTEngine(bus):
-	if bus["engine"].bl_idname == 'VRAY_RENDER_RT':
-		return True
-	if bus["scene"].vray.RTEngine.enabled:
-		return True
-	return False
+    if bus["engine"].bl_idname == 'VRAY_RENDER_RT':
+        return True
+    if bus["scene"].vray.RTEngine.enabled:
+        return True
+    return False
