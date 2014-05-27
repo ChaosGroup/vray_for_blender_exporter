@@ -510,11 +510,11 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		col= split.column()
 		col.prop(cm, 'type')
 		if cm.type == '6':
-			col.prop(cm, "dark_mult", text="Multiplier")
-			col.prop(cm, "bright_mult",  text="Burn")
+			col.prop(cm, "dark_mult",   text="Multiplier")
+			col.prop(cm, "bright_mult", text="Burn")
 		elif cm.type in {'4', '5'}:
 			col.prop(cm, "bright_mult", text="Multiplier")
-			col.prop(cm, "dark_mult", text="Inverse gamma")
+			col.prop(cm, "dark_mult",   text="Inverse Gamma")
 		else:
 			col.prop(cm, "bright_mult")
 			col.prop(cm, "dark_mult")
