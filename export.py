@@ -54,9 +54,8 @@ from vb30.exporting import exp_anim_camera_loop
 from vb30 import debug
 
 
+@debug.TimeIt
 def Export(bus, scene, engine, isPreview=False):
-    debug.Debug("Export()")
-
     o = bus['output']
 
     VRayScene    = scene.vray
