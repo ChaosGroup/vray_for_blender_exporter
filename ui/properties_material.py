@@ -116,6 +116,8 @@ class VRAY_MP_preview_material(classes.VRayMaterialPanel):
 
     @classmethod
     def poll(cls, context):
+        if not context.material:
+            return False
         engine = context.scene.render.engine
         return (context.material or context.object) and classes.PollEngine(cls, context)
 
