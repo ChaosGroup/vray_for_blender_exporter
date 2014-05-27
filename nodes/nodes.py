@@ -257,7 +257,7 @@ def VRayNodeDrawSide(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
 
-    if self.vray_type == 'LIGHT':
+    if self.vray_type == 'LIGHT' and self.vray_plugin not in {'LightMesh'}:
         # We only need sockets from 'LIGHT' nodes.
         # Params will be taken from lamp propGroup
         #
