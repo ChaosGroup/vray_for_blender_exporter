@@ -26,8 +26,7 @@ import bpy
 
 import _vray_for_blender
 
-from vb30.lib import ExportUtils
-from vb30.lib import LibUtils
+from vb30.lib import ExportUtils, LibUtils, BlenderUtils
 
 
 TYPE = 'TEXTURE'
