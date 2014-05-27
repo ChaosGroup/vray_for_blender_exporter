@@ -53,6 +53,14 @@ class VRAY_MT_preset_gi(bpy.types.Menu):
 	draw= bpy.types.Menu.draw_preset
 
 
+########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
+##     ##  ##  ###   ### ##       ###   ## ##    ##  ##  ##     ## ###   ## ##    ##
+##     ##  ##  #### #### ##       ####  ## ##        ##  ##     ## ####  ## ##
+##     ##  ##  ## ### ## ######   ## ## ##  ######   ##  ##     ## ## ## ##  ######
+##     ##  ##  ##     ## ##       ##  ####       ##  ##  ##     ## ##  ####       ##
+##     ##  ##  ##     ## ##       ##   ### ##    ##  ##  ##     ## ##   ### ##    ##
+########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
+
 class VRAY_RP_dimensions(classes.VRayRenderPanel):
 	bl_label = "Dimensions"
 
@@ -102,6 +110,14 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		subrow.prop(rd, "frame_map_old", text="Old")
 		subrow.prop(rd, "frame_map_new", text="New")
 
+
+ #######  ##     ## ######## ########  ##     ## ########
+##     ## ##     ##    ##    ##     ## ##     ##    ##
+##     ## ##     ##    ##    ##     ## ##     ##    ##
+##     ## ##     ##    ##    ########  ##     ##    ##
+##     ## ##     ##    ##    ##        ##     ##    ##
+##     ## ##     ##    ##    ##        ##     ##    ##
+ #######   #######     ##    ##         #######     ##
 
 class VRAY_RP_output(classes.VRayRenderPanel):
 	bl_label = "Output"
@@ -160,6 +176,14 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		if not VRayExporter.animation:
 			col.prop(VRayExporter, 'image_to_blender')
 
+
+########  ######## ##    ## ########  ######## ########
+##     ## ##       ###   ## ##     ## ##       ##     ##
+##     ## ##       ####  ## ##     ## ##       ##     ##
+########  ######   ## ## ## ##     ## ######   ########
+##   ##   ##       ##  #### ##     ## ##       ##   ##
+##    ##  ##       ##   ### ##     ## ##       ##    ##
+##     ## ######## ##    ## ########  ######## ##     ##
 
 class VRAY_RP_render(classes.VRayRenderPanel):
 	bl_label = "Render"
@@ -223,6 +247,14 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.prop(rd, "display_mode")
 
 
+########  ########    ###    ##       ######## #### ##     ## ########
+##     ## ##         ## ##   ##          ##     ##  ###   ### ##
+##     ## ##        ##   ##  ##          ##     ##  #### #### ##
+########  ######   ##     ## ##          ##     ##  ## ### ## ######
+##   ##   ##       ######### ##          ##     ##  ##     ## ##
+##    ##  ##       ##     ## ##          ##     ##  ##     ## ##
+##     ## ######## ##     ## ########    ##    #### ##     ## ########
+
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 	bl_label = "Realtime Engine"
 
@@ -239,11 +271,19 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 		VRayScene = context.scene.vray
 
 		classes.DrawPluginUIAuto(context, self.layout, VRayScene.RTEngine, 'RTEngine')
-		
+
 		self.layout.separator()
 
 		classes.DrawPluginUIAuto(context, self.layout, VRayScene.SettingsRTEngine, 'SettingsRTEngine')
 
+
+ ######  ######## ######## ########  ########  #######   ######   ######   #######  ########  ####  ######
+##    ##    ##    ##       ##     ## ##       ##     ## ##    ## ##    ## ##     ## ##     ##  ##  ##    ##
+##          ##    ##       ##     ## ##       ##     ## ##       ##       ##     ## ##     ##  ##  ##
+ ######     ##    ######   ########  ######   ##     ##  ######  ##       ##     ## ########   ##  ##
+      ##    ##    ##       ##   ##   ##       ##     ##       ## ##       ##     ## ##         ##  ##
+##    ##    ##    ##       ##    ##  ##       ##     ## ##    ## ##    ## ##     ## ##         ##  ##    ##
+ ######     ##    ######## ##     ## ########  #######   ######   ######   #######  ##        ####  ######
 
 class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 	bl_label = "Stereoscopic"
@@ -285,6 +325,14 @@ class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 		#layout.separator()
 		#layout.prop(VRayStereoscopicSettings, 'exclude_list')
 
+
+ ######   ##        #######  ########     ###    ##        ######
+##    ##  ##       ##     ## ##     ##   ## ##   ##       ##    ##
+##        ##       ##     ## ##     ##  ##   ##  ##       ##
+##   #### ##       ##     ## ########  ##     ## ##        ######
+##    ##  ##       ##     ## ##     ## ######### ##             ##
+##    ##  ##       ##     ## ##     ## ##     ## ##       ##    ##
+ ######   ########  #######  ########  ##     ## ########  ######
 
 class VRAY_RP_Globals(classes.VRayRenderPanel):
 	bl_label   = "Globals"
@@ -352,6 +400,14 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 			col= split.column()
 		col.prop(SettingsOptions, 'mtl_transpCutoff')
 
+
+######## ##     ## ########   #######  ########  ######## ######## ########
+##        ##   ##  ##     ## ##     ## ##     ##    ##    ##       ##     ##
+##         ## ##   ##     ## ##     ## ##     ##    ##    ##       ##     ##
+######      ###    ########  ##     ## ########     ##    ######   ########
+##         ## ##   ##        ##     ## ##   ##      ##    ##       ##   ##
+##        ##   ##  ##        ##     ## ##    ##     ##    ##       ##    ##
+######## ##     ## ##         #######  ##     ##    ##    ######## ##     ##
 
 class VRAY_RP_exporter(classes.VRayRenderPanel):
 	bl_label   = "Exporter"
@@ -433,6 +489,14 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 					col.prop(VRayExporter, 'log_window_term')
 
 
+ ######   #######  ##        #######  ########     ##     ##    ###    ########  ########  #### ##    ##  ######
+##    ## ##     ## ##       ##     ## ##     ##    ###   ###   ## ##   ##     ## ##     ##  ##  ###   ## ##    ##
+##       ##     ## ##       ##     ## ##     ##    #### ####  ##   ##  ##     ## ##     ##  ##  ####  ## ##
+##       ##     ## ##       ##     ## ########     ## ### ## ##     ## ########  ########   ##  ## ## ## ##   ####
+##       ##     ## ##       ##     ## ##   ##      ##     ## ######### ##        ##         ##  ##  #### ##    ##
+##    ## ##     ## ##       ##     ## ##    ##     ##     ## ##     ## ##        ##         ##  ##   ### ##    ##
+ ######   #######  ########  #######  ##     ##    ##     ## ##     ## ##        ##        #### ##    ##  ######
+
 class VRAY_RP_cm(classes.VRayRenderPanel):
 	bl_label = "Color Mapping"
 
@@ -467,6 +531,14 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 			col.prop(cm, "clamp_level")
 
 
+#### ##     ##    ###     ######   ########     ######     ###    ##     ## ########  ##       ######## ########
+ ##  ###   ###   ## ##   ##    ##  ##          ##    ##   ## ##   ###   ### ##     ## ##       ##       ##     ##
+ ##  #### ####  ##   ##  ##        ##          ##        ##   ##  #### #### ##     ## ##       ##       ##     ##
+ ##  ## ### ## ##     ## ##   #### ######       ######  ##     ## ## ### ## ########  ##       ######   ########
+ ##  ##     ## ######### ##    ##  ##                ## ######### ##     ## ##        ##       ##       ##   ##
+ ##  ##     ## ##     ## ##    ##  ##          ##    ## ##     ## ##     ## ##        ##       ##       ##    ##
+#### ##     ## ##     ##  ######   ########     ######  ##     ## ##     ## ##        ######## ######## ##     ##
+
 class VRAY_RP_aa(classes.VRayRenderPanel):
 	bl_label = "Image Sampler"
 
@@ -486,6 +558,14 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 
 				classes.DrawPluginUIAuto(context, self.layout, filterPropGroup, filterPluginName)
 
+
+########  ##     ##  ######
+##     ## ###   ### ##    ##
+##     ## #### #### ##
+##     ## ## ### ## ##
+##     ## ##     ## ##
+##     ## ##     ## ##    ##
+########  ##     ##  ######
 
 class VRAY_RP_dmc(classes.VRayRenderPanel):
 	bl_label = "DMC Sampler"
@@ -508,6 +588,14 @@ class VRAY_RP_dmc(classes.VRayRenderPanel):
 		col.prop(module, "adaptive_amount")
 		col.prop(module, "adaptive_min_samples")
 
+
+ ######   ####
+##    ##   ##
+##         ##
+##   ####  ##
+##    ##   ##
+##    ##   ##
+ ######   ####
 
 class VRAY_RP_gi(classes.VRayRenderPanel):
 	bl_label = "Global Illumination"
@@ -593,6 +681,14 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 		sub.prop(SettingsGI, 'ray_distance')
 
 
+ ######  ########  ##     ##        ##     ##    ###    ########  ##     ##  #######  ##    ## ####  ######   ######
+##    ## ##     ## ##     ##        ##     ##   ## ##   ##     ## ###   ### ##     ## ###   ##  ##  ##    ## ##    ##
+##       ##     ## ##     ##        ##     ##  ##   ##  ##     ## #### #### ##     ## ####  ##  ##  ##       ##
+ ######  ########  #########        ######### ##     ## ########  ## ### ## ##     ## ## ## ##  ##  ##        ######
+      ## ##        ##     ##        ##     ## ######### ##   ##   ##     ## ##     ## ##  ####  ##  ##             ##
+##    ## ##        ##     ## ###    ##     ## ##     ## ##    ##  ##     ## ##     ## ##   ###  ##  ##    ## ##    ##
+ ######  ##        ##     ## ###    ##     ## ##     ## ##     ## ##     ##  #######  ##    ## ####  ######   ######
+
 class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 	bl_label = "Spherical Harmonics"
 
@@ -667,6 +763,14 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 				col.prop(SphericalHarmonicsExporter, 'bounces')
 				col.prop(SphericalHarmonicsExporter, 'hit_recording')
 
+
+#### ########  ########         ##     ##    ###    ########
+ ##  ##     ## ##     ##        ###   ###   ## ##   ##     ##
+ ##  ##     ## ##     ##        #### ####  ##   ##  ##     ##
+ ##  ########  ########         ## ### ## ##     ## ########
+ ##  ##   ##   ##   ##          ##     ## ######### ##
+ ##  ##    ##  ##    ##  ###    ##     ## ##     ## ##
+#### ##     ## ##     ## ###    ##     ## ##     ## ##
 
 class VRAY_RP_GI_im(classes.VRayRenderPanel):
 	bl_label = "Irradiance Map"
@@ -804,6 +908,14 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 			colR.prop(module,"auto_save_file", text="")
 
 
+########  ########  ##     ## ######## ########    ########  #######  ########   ######  ########
+##     ## ##     ## ##     ##    ##    ##          ##       ##     ## ##     ## ##    ## ##
+##     ## ##     ## ##     ##    ##    ##          ##       ##     ## ##     ## ##       ##
+########  ########  ##     ##    ##    ######      ######   ##     ## ########  ##       ######
+##     ## ##   ##   ##     ##    ##    ##          ##       ##     ## ##   ##   ##       ##
+##     ## ##    ##  ##     ##    ##    ##          ##       ##     ## ##    ##  ##    ## ##
+########  ##     ##  #######     ##    ########    ##        #######  ##     ##  ######  ########
+
 class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 	bl_label = "Brute Force"
 
@@ -829,6 +941,14 @@ class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 				col= split.column()
 			col.prop(module, "depth")
 
+
+##       ####  ######   ##     ## ########     ######     ###     ######  ##     ## ########
+##        ##  ##    ##  ##     ##    ##       ##    ##   ## ##   ##    ## ##     ## ##
+##        ##  ##        ##     ##    ##       ##        ##   ##  ##       ##     ## ##
+##        ##  ##   #### #########    ##       ##       ##     ## ##       ######### ######
+##        ##  ##    ##  ##     ##    ##       ##       ######### ##       ##     ## ##
+##        ##  ##    ##  ##     ##    ##       ##    ## ##     ## ##    ## ##     ## ##
+######## ####  ######   ##     ##    ##        ######  ##     ##  ######  ##     ## ########
 
 class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 	bl_label = "Light Cache"
@@ -917,6 +1037,14 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 			colR.prop(module,"auto_save_file", text="")
 
 
+########  ####  ######  ########  ##          ###     ######  ########
+##     ##  ##  ##    ## ##     ## ##         ## ##   ##    ## ##
+##     ##  ##  ##       ##     ## ##        ##   ##  ##       ##
+##     ##  ##   ######  ########  ##       ##     ## ##       ######
+##     ##  ##        ## ##        ##       ######### ##       ##
+##     ##  ##  ##    ## ##        ##       ##     ## ##    ## ##
+########  ####  ######  ##        ######## ##     ##  ######  ########
+
 class VRAY_RP_displace(classes.VRayRenderPanel):
 	bl_label = "Displace / Subdivision"
 
@@ -945,6 +1073,14 @@ class VRAY_RP_displace(classes.VRayRenderPanel):
 		col.prop(SettingsDefaultDisplacement, 'override_on')
 
 
+########  ########
+##     ## ##     ##
+##     ## ##     ##
+##     ## ########
+##     ## ##   ##
+##     ## ##    ##
+########  ##     ##
+
 class VRAY_RP_dr(classes.VRayRenderPanel):
 	bl_label = "Distributed Rendering"
 
@@ -960,15 +1096,17 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 		VRayDR          = VRayScene.VRayDR
 		SettingsOptions = VRayScene.SettingsOptions
 
-		layout.prop(SettingsOptions, 'misc_transferAssets')
+		layout.prop(VRayDR, 'assetSharing')
+		layout.separator()
 
-		if not SettingsOptions.misc_transferAssets:
-			layout.prop(VRayDR, 'type', text="Network type")
-
+		if VRayDR.assetSharing == 'SHARE':
+			layout.prop(VRayDR, 'networkType')
 			layout.prop(VRayDR, 'shared_dir')
-			if VRayDR.type == 'WW':
+			if VRayDR.networkType == 'WW':
 				layout.prop(VRayDR, 'share_name')
-		else:
+			layout.separator()
+
+		elif VRayDR.assetSharing == 'TRANSFER':
 			split= layout.split()
 			col= split.column()
 			col.prop(SettingsOptions, 'misc_abortOnMissingAsset')
@@ -983,10 +1121,9 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			sub = col.row()
 			sub.active = SettingsOptions.dr_assetsCacheLimitType != '0'
 			sub.prop(SettingsOptions, 'dr_assetsCacheLimitValue', text="Limit")
+			layout.separator()
 
-		layout.separator()
 		layout.prop(VRayDR, 'port', text="Port")
-
 		layout.separator()
 
 		split= layout.split()
@@ -1008,6 +1145,14 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'address')
 
+
+########     ###    ##    ## ########
+##     ##   ## ##   ##   ##  ##
+##     ##  ##   ##  ##  ##   ##
+########  ##     ## #####    ######
+##     ## ######### ##  ##   ##
+##     ## ##     ## ##   ##  ##
+########  ##     ## ##    ## ########
 
 class VRAY_RP_bake(classes.VRayRenderPanel):
 	bl_label   = "Bake"
@@ -1040,6 +1185,14 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 		col.prop(VRayBake, 'flip_derivs')
 
 
+ ######     ###    ##     ##  ######  ######## ####  ######   ######
+##    ##   ## ##   ##     ## ##    ##    ##     ##  ##    ## ##    ##
+##        ##   ##  ##     ## ##          ##     ##  ##       ##
+##       ##     ## ##     ##  ######     ##     ##  ##        ######
+##       ######### ##     ##       ##    ##     ##  ##             ##
+##    ## ##     ## ##     ## ##    ##    ##     ##  ##    ## ##    ##
+ ######  ##     ##  #######   ######     ##    ####  ######   ######
+
 class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 	bl_label = "Caustics"
 
@@ -1054,6 +1207,14 @@ class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 
 		classes.DrawPluginUIAuto(context, self.layout, SettingsCaustics, 'SettingsCaustics')
 
+
+ ######  ##    ##  ######  ######## ######## ##     ##
+##    ##  ##  ##  ##    ##    ##    ##       ###   ###
+##         ####   ##          ##    ##       #### ####
+ ######     ##     ######     ##    ######   ## ### ##
+      ##    ##          ##    ##    ##       ##     ##
+##    ##    ##    ##    ##    ##    ##       ##     ##
+ ######     ##     ######     ##    ######## ##     ##
 
 class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 	bl_label   = "System"
@@ -1096,7 +1257,7 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.prop(SettingsRaycaster, 'dynMemLimit')
-		
+
 		layout.separator()
 		layout.prop(SettingsRaycaster, 'embreeUse', text="Use Embree")
 
@@ -1135,6 +1296,14 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'verboseLevel')
 		layout.prop(VRayExporter, 'showProgress')
 
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 def GetRegClasses():
 	return (
