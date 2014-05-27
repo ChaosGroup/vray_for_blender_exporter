@@ -416,6 +416,12 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 #         ofile.write("\n\tfov=%s;" % a(scene,fov))
 #         ofile.write("\n\twhite_balance=%s;" % a(scene, CameraPhysical.white_balance))
 
+        # aspect = scene.render.resolution_x / scene.render.resolution_y
+        # mult = 1.72 if aspect < 1.0 else 1.0
+
+        # ofile.write("\n\thorizontal_offset= %s;" % a(scene, -camera.data.shift_x * mult))
+        # ofile.write("\n\tvertical_offset= %s;"   % a(scene, -camera.data.shift_y * mult))
+
 #         for param in PARAMS:
 #             if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
 #                 value= get_lens_shift(camera)

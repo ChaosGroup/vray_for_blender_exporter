@@ -57,7 +57,7 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
         if not self.detect_vray:
             vrayBin = "vray.exe" if sys.platform == 'win32' else "vray"
             layout.label('Select "vray" binary (do NOT use relative path here!):')
-            
+
             split = layout.split(percentage=0.2, align=True)
             split.column().label("Filepath:")
             split.column().prop(self, "vray_binary", text="")
@@ -80,13 +80,13 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'BAKE'
     )
 
-    ######## ##     ## ########   #######  ########  ######## 
-    ##        ##   ##  ##     ## ##     ## ##     ##    ##    
-    ##         ## ##   ##     ## ##     ## ##     ##    ##    
-    ######      ###    ########  ##     ## ########     ##    
-    ##         ## ##   ##        ##     ## ##   ##      ##    
-    ##        ##   ##  ##        ##     ## ##    ##     ##    
-    ######## ##     ## ##         #######  ##     ##    ##    
+    ######## ##     ## ########   #######  ########  ########
+    ##        ##   ##  ##     ## ##     ## ##     ##    ##
+    ##         ## ##   ##     ## ##     ## ##     ##    ##
+    ######      ###    ########  ##     ## ########     ##
+    ##         ## ##   ##        ##     ## ##   ##      ##
+    ##        ##   ##  ##        ##     ## ##    ##     ##
+    ######## ##     ## ##         #######  ##     ##    ##
 
     activeLayers = bpy.props.EnumProperty(
         name        = "Active layers",
@@ -102,15 +102,6 @@ class VRayExporter(bpy.types.PropertyGroup):
     customRenderLayers = bpy.props.BoolVectorProperty(
         subtype = 'LAYER',
         size    = 20
-    )
-
-    customFrame = bpy.props.IntProperty(
-        name        = "Custom Frame",
-        description = "Custom frame number",
-        options     = {'HIDDEN'},
-        min         = 0,
-        max         = 1024,
-        default     = 0
     )
 
     use_displace = bpy.props.BoolProperty(
@@ -188,30 +179,26 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
 
-    ########  ######## ##    ## ########  ######## ########      ######  ######## ######## ######## #### ##    ##  ######    ######  
-    ##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ## 
-    ##     ## ##       ####  ## ##     ## ##       ##     ##    ##       ##          ##       ##     ##  ####  ## ##        ##       
-    ########  ######   ## ## ## ##     ## ######   ########      ######  ######      ##       ##     ##  ## ## ## ##   ####  ######  
-    ##   ##   ##       ##  #### ##     ## ##       ##   ##            ## ##          ##       ##     ##  ##  #### ##    ##        ## 
-    ##    ##  ##       ##   ### ##     ## ##       ##    ##     ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ## 
-    ##     ## ######## ##    ## ########  ######## ##     ##     ######  ########    ##       ##    #### ##    ##  ######    ######  
+    ########  ######## ##    ## ########  ######## ########      ######  ######## ######## ######## #### ##    ##  ######    ######
+    ##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ##
+    ##     ## ##       ####  ## ##     ## ##       ##     ##    ##       ##          ##       ##     ##  ####  ## ##        ##
+    ########  ######   ## ## ## ##     ## ######   ########      ######  ######      ##       ##     ##  ## ## ## ##   ####  ######
+    ##   ##   ##       ##  #### ##     ## ##       ##   ##            ## ##          ##       ##     ##  ##  #### ##    ##        ##
+    ##    ##  ##       ##   ### ##     ## ##       ##    ##     ##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
+    ##     ## ######## ##    ## ########  ######## ##     ##     ######  ########    ##       ##    #### ##    ##  ######    ######
 
-    animation = bpy.props.BoolProperty(
-        name = "Animation",
-        description = "Render animation",
-        default = False
-    )
-
-    animation_type = bpy.props.EnumProperty(
+    animation_mode = bpy.props.EnumProperty(
         name = "Animation Mode",
         description = "Animation Type",
         items = (
-            ('FRAMEBYFRAME', "Frame By Frame",               "Export and render frame by frame"),
+            ('NONE',         "None",                         "Render single frame"),
             ('FULL',         "Full Range",                   "Export full animation range then render"),
-            ('NOTMESHES',    "Full Range (Except Geometry)", "Export full animation range then render (meshes are not animated)"),
             ('CAMERA',       "Full Range (Camera Only)",     "Export full animation of camera motion"),
+            ('NOTMESHES',    "Full Range (Except Geometry)", "Export full animation range then render (meshes are not animated)"),
+            ('CAMERA_LOOP',  "Camera Loop",                  "Render all scene cameras"),
+            ('FRAMEBYFRAME', "Frame By Frame",               "Export and render frame by frame"),
         ),
-        default = 'FULL'
+        default = 'NONE'
     )
 
     draft = bpy.props.BoolProperty(
@@ -226,13 +213,13 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
-    ########  ########   #######   ######  ########  ######   ######  
-    ##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ## 
-    ##     ## ##     ## ##     ## ##       ##       ##       ##       
-    ########  ########  ##     ## ##       ######    ######   ######  
-    ##        ##   ##   ##     ## ##       ##             ##       ## 
-    ##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ## 
-    ##        ##     ##  #######   ######  ########  ######   ######  
+    ########  ########   #######   ######  ########  ######   ######
+    ##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ##
+    ##     ## ##     ## ##     ## ##       ##       ##       ##
+    ########  ########  ##     ## ##       ######    ######   ######
+    ##        ##   ##   ##     ## ##       ##             ##       ##
+    ##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ##
+    ##        ##     ##  #######   ######  ########  ######   ######
 
     autorun = bpy.props.BoolProperty(
         name = "Autorun",

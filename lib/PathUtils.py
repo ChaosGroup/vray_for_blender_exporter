@@ -26,6 +26,8 @@ import os
 import sys
 import tempfile
 import pathlib
+import filecmp
+import shutil
 
 import bpy
 
@@ -115,80 +117,59 @@ def CreateDirectoryFromFilepath(filepath):
     return os.path.join(dirPath, fileName)
 
 
-# Get full filepath
-# Also copies file to DR shared folder
-def get_full_filepath(bus, ob, filepath):
-    def rel_path(filepath):
-        if filepath[:2] == "//":
-            return True
-        else:
-            return False
+# @srcFilepath - full absolute path
+#
+def CopyDRAsset(bus, srcFilepath):
+    scene = bus['scene']
 
-    scene= bus['scene']
+    VRayScene = scene.vray
+    VRayDR    = VRayScene.VRayDR
 
-    VRayDR= scene.vray.VRayDR
+    srcFilepath = os.path.normpath(srcFilepath)
+    dstRoot     = CreateDirectory(bpy.path.abspath(VRayDR.shared_dir))
 
-    # If object is linked and path is relative
-    # we need to find correct absolute path
-    if ob and ob.library and rel_path(filepath):
-        lib_path= os.path.dirname(bpy.path.abspath(ob.library.filepath))
-        filepath= os.path.normpath(os.path.join(lib_path,filepath[2:]))
+    ExtToSubdir = {
+        'ies'    : "ies",
+        'lens'   : "misc",
+        'vrmesh' : "proxy",
+        'vrmap'  : "lightmaps",
+    }
 
-    # Full absolute file path
-    src_file = bpy.path.abspath(filepath)
-    src_file = path_sep_to_unix(src_file)
-    src_file = os.path.normpath(src_file)
+    srcFilename = os.path.basename(srcFilepath)
 
-    if not VRayDR.on:
-        return src_file
+    srcFiletype = os.path.splitext(srcFilename)[1]
 
-    # File name
-    src_filename= os.path.basename(src_file)
+    assetSubdir = ExtToSubdir.get(srcFiletype.lower(), "textures")
 
-    # DR shared directory
-    dest_path= bus['filenames']['DR']['dest_dir']
+    if assetSubdir:
+        dstRoot = CreateDirectory(os.path.join(dstRoot, assetSubdir))
 
-    # If shared directory is not set
-    # just return absolute file path
-    if not dest_path:
-        return src_file
+    dstFilepath = os.path.join(dstRoot, srcFilename)
 
-    file_type= os.path.splitext(src_file)[1]
+    if not os.path.exists(srcFilepath):
+        # debug.PrintError('"%s" file does not exists!' % srcFilepath)
+        return srcFilepath
 
-    component_subdir= ""
-    if file_type.lower() in {'ies','lens'}:
-        component_subdir= "misc"
-    elif file_type.lower() == "vrmesh":
-        component_subdir= "proxy"
-    elif file_type.lower() == "vrmap":
-        component_subdir= "lightmaps"
+    if not os.path.isfile(srcFilepath):
+        debug.PrintError('"%s" is not a file!' % srcFilepath)
+        return srcFilepath
+
     else:
-        component_subdir= "textures"
+        if os.path.exists(dstFilepath):
+            if not filecmp.cmp(srcFilepath, dstFilepath):
+                debug.Debug('Copying "%s" to "%s"'% (debug.Color(srcFilename, 'magenta'), dstRoot))
 
-    if component_subdir:
-        dest_path= create_dir(os.path.join(dest_path, component_subdir))
+                shutil.copyfile(srcFilepath, dstFilepath)
 
-    # Copy file to the shared directory
-    dest_file= os.path.join(dest_path, src_filename)
-
-    if os.path.isfile(src_file):
-        if os.path.exists(dest_file):
-            # Copy only if the file was changed
-            if not filecmp.cmp(dest_file, src_file):
-                debug(scene, "Copying \"%s\" to \"%s\""% (color(src_filename, 'magenta'), dest_path))
-                shutil.copyfile(src_file, dest_file)
             else:
-                debug(scene, "File \"%s\" exists and not modified."% (color(src_filename, 'magenta')))
+                debug.Debug('File "%s" exists and not modified.'% debug.Color(srcFilename, 'magenta'))
+
         else:
-            debug(scene, "Copying \"%s\" to \"%s\"" % (color(src_filename, 'magenta'), dest_path))
-            shutil.copyfile(src_file, dest_file)
-    else:
-        debug(scene, "\"%s\" is not a file!" % (src_file), error= True)
-        return src_file
+            debug.Debug('Copying "%s" to "%s"' % (debug.Color(srcFilename, 'magenta'), dstRoot))
 
-    if VRayDR.type == 'WW':
-        return "//%s/%s/%s/%s/%s"%(HOSTNAME,
-                                   VRayDR.share_name,
-                                   bus['filenames']['DR']['sub_dir'], component_subdir, src_filename)
+            shutil.copyfile(srcFilepath, dstFilepath)
 
-    return bus['filenames']['DR']['prefix'] + os.sep + component_subdir + os.sep + src_filename
+    if VRayDR.networkType == 'WW':
+        return pathlib.Path(r'\\') / SysUtils.GetHostname() / VRayDR.share_name / assetSubdir / srcFilename
+
+    return dstFilepath

@@ -173,7 +173,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		if not VRayExporter.animation:
+		if VRayExporter.animation_mode == 'NONE':
 			col.prop(VRayExporter, 'image_to_blender')
 
 
@@ -198,10 +198,10 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		VRayExporter    = VRayScene.Exporter
 		SettingsOptions = VRayScene.SettingsOptions
 
-		render_icon = 'RENDER_STILL'
-		if VRayExporter.animation:
-			render_icon = 'RENDER_ANIMATION'
-		elif VRayExporter.camera_loop:
+		render_icon = 'RENDER_ANIMATION'
+		if VRayExporter.animation_mode == 'NONE':
+			render_icon = 'RENDER_STILL'
+		elif VRayExporter.animation_mode == 'CAMERA_LOOP':
 			render_icon = 'CAMERA_DATA'
 
 		split = layout.split()
@@ -209,8 +209,8 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		row.operator('render.render', text="Render", icon=render_icon)
 		row.prop(rd, "use_lock_interface", text="")
 
-		if VRayExporter.animation:
-			layout.prop(VRayExporter, 'animation_type', text="Mode")
+		layout.prop(VRayExporter, 'animation_mode', text="Animation")
+		layout.separator()
 
 		if VRayExporter.useSeparateFiles:
 			layout.prop(VRayExporter, 'auto_meshes', text="Re-Export Meshes")
@@ -231,17 +231,8 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'activeLayers', text="")
 		if VRayExporter.activeLayers == 'CUSTOM':
 			col.prop(VRayExporter, 'customRenderLayers', text="")
-		col.prop(VRayExporter, 'animation')
-		if not VRayExporter.animation:
-			col.prop(VRayExporter, 'camera_loop')
-
-		layout.label(text="Options:")
-		split = layout.split()
-		col = split.column()
-		col.prop(VRayExporter, 'draft')
-		if wide_ui:
-			col = split.column()
 		col.prop(SettingsOptions, 'gi_dontRenderImage')
+		col.prop(VRayExporter, 'draft')
 
 		layout.separator()
 		layout.prop(rd, "display_mode")
@@ -425,8 +416,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		# row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
 		# row.operator("vray.preset_add", text="", icon="ZOOMIN")
 		# row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
+		# layout.separator()
 
-		layout.separator()
 		layout.label(text="Options:")
 		split = layout.split()
 		col = split.column()
@@ -435,6 +426,12 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			col = split.column()
 		col.prop(VRayExporter, 'use_smoke')
 		col.prop(VRayExporter, 'use_hair')
+
+		split = layout.split()
+		col = split.column()
+		sub = col.row()
+		sub.active = VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}
+		sub.prop(VRayExporter, 'frames_to_export')
 
 		layout.separator()
 		layout.label(text="V-Ray Frame Buffer:")
@@ -449,14 +446,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.prop(SettingsOutput, 'frame_stamp_enabled', text="Frame Stamp")
 		if SettingsOutput.frame_stamp_enabled:
 			layout.prop(SettingsOutput, 'frame_stamp_text', text="")
-
-		layout.separator()
-		layout.label(text="Animation:")
-		split = layout.split()
-		col = split.column()
-		sub = col.row()
-		sub.active = not VRayExporter.animation or (VRayExporter.animation and  VRayExporter.animation_type == 'FRAMEBYFRAME')
-		sub.prop(VRayExporter, 'frames_to_export')
 
 		layout.separator()
 		layout.label(text="Export:")
@@ -1107,13 +1096,15 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			layout.separator()
 
 		elif VRayDR.assetSharing == 'TRANSFER':
-			split= layout.split()
-			col= split.column()
+			split = layout.split()
+			col = split.column()
+			col.prop(VRayDR, 'checkAssets')
+			col.prop(VRayDR, 'renderOnlyOnNodes')
+			col = split.column()
+			col.prop(SettingsOptions, 'misc_useCachedAssets')
 			col.prop(SettingsOptions, 'misc_abortOnMissingAsset')
 			col.prop(SettingsOptions, 'dr_overwriteLocalCacheSettings')
-			col= split.column()
-			col.prop(SettingsOptions, 'misc_useCachedAssets')
-			col.prop(VRayDR, 'renderOnlyOnNodes')
+
 			split= layout.split()
 			split.active = SettingsOptions.dr_overwriteLocalCacheSettings
 			col= split.column()

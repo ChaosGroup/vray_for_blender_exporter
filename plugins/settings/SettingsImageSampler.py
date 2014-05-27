@@ -317,14 +317,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-# TODO: resolve use_dmc_treshhold
-# TODO: resolve filter export
-# TODO: Resolve draft / preview
-# TODO: Try using progressive sampler for preview with render time restriction
-#
-# bus['files']['scene'].write("\nSettingsImageSampler {")
-# bus['files']['scene'].write("\n\ttype=0;")
-# bus['files']['scene'].write("\n\tfixed_subdivs=1;")
-# bus['files']['scene'].write("\n}\n")

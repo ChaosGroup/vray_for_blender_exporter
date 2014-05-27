@@ -33,13 +33,15 @@
 #   - Load image back for "Preview" renderer or if "Image To Blender" is turned on
 #
 
+import os
+
 import bpy
 
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayPluginExporter
 from vb30.lib.VRayStream import VRayFilePaths
 
-from vb30.lib import SysUtils
+from vb30.lib import SysUtils, BlenderUtils
 
 from vb30.nodes import export as NodesExport
 
@@ -67,22 +69,34 @@ def Export(bus, scene, engine, isPreview=False):
     exp_settings.ExportSettings(bus)
     exp_channels.ExportRenderElements(bus)
 
-    if VRayExporter.animation:
-        if VRayExporter.animation_type == 'FRAMEBYFRAME':
-            err = exp_frame.ExportSingleFrame(bus)
-        else:
-            err = exp_anim_full.ExportAnimation(bus,
-                scene.frame_start,
-                scene.frame_end,
-                scene.frame_step
-            )
-    elif VRayExporter.camera_loop:
-        err = exp_anim_camera_loop.ExportCameraLoop(bus)
-    else:
+    if VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}:
         err = exp_frame.ExportSingleFrame(bus)
+
+    elif VRayExporter.animation_mode == 'CAMERA_LOOP':
+        err = exp_anim_camera_loop.ExportCameraLoop(bus)
+
+    else:
+        err = exp_anim_full.ExportAnimation(bus,
+            scene.frame_start,
+            scene.frame_end,
+            scene.frame_step
+        )
 
     if o.isPreviewRender():
         o.write('MAIN', SysUtils.GetVRsceneTemplate("preview.vrscene"))
+
+    if VRayExporter.draft:
+        o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
+
+    if VRayScene.Includer.use:
+        if VRayScene.Includer.use:
+            o.write('MAIN', "\n// Include additional *.vrscene files")
+            for includeFile in VRayScene.Includer.nodes:
+                if not includeFile.use:
+                    continue
+                filepath = BlenderUtils.GetFullFilepath(includeFile.scene)
+                o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
+            o.write('MAIN', '\n')
 
     return err
 
@@ -125,10 +139,10 @@ def ExportEx(bus):
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...
-        Export(bus, scene, engine, engine.is_preview)
+        err = Export(bus, scene, engine, engine.is_preview)
     except Exception as e:
         debug.ExceptionInfo(e)
-        err = "Export error! Check system console!"
+        err = str(e)
     finally:
         exp_init.ShutdownExporter(bus)
         o.done()
@@ -206,7 +220,7 @@ def RenderScene(engine, scene):
 
     err = None
 
-    if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+    if VRayExporter.animation_mode == 'FRAMEBYFRAME':
         # Store current frame
         selected_frame = scene.frame_current
 

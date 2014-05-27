@@ -165,11 +165,11 @@ def ExportAnimation(bus, frameStart, frameEnd, frameStep):
     o.setFrameEnd(frameEnd)
     o.setFrameStep(frameStep)
 
-    if VRayExporter.animation_type == 'NOTMESHES':
+    if VRayExporter.animation_mode == 'NOTMESHES':
         err = ExportFullNotMeshes(bus)
-    elif VRayExporter.animation_type == 'CAMERA':
+    elif VRayExporter.animation_mode == 'CAMERA':
         err = ExportCameraOnly(bus)
     else:
-        err = ExportFullRange(bus, frameStart, frameEnd, frameStep)
+        err = ExportFullRange(bus)
 
     return err

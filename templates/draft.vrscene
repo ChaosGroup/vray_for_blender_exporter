@@ -1,6 +1,6 @@
 // Draft settings begin
 SettingsDMCSampler {
-	adaptive_amount=0.85;
+	adaptive_amount=0.95;
 	adaptive_threshold=0.1;
 	subdivs_mult=0.1;
 }

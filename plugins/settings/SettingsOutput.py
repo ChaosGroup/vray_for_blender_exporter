@@ -68,24 +68,28 @@ PluginParams = (
     },
     {
         'attr' : 'img_file_needFrameNumber',
+        'name' : "Add Frame Number",
         'desc' : "Add frame number to the image file name",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'img_separateAlpha',
+        'name' : "Separate Alpha",
         'desc' : "Write the alpha channel to a separate file",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'img_noAlpha',
+        'name' : "No Alpha",
         'desc' : "Don't write the alpha channel to the final image",
         'type' : 'BOOL',
         'default' : False,
     },
     {
         'attr' : 'img_dontSaveRgbChannel',
+        'name' : "Don't Save RGB",
         'desc' : "If true, the RGB channel will not be saved to disk",
         'type' : 'BOOL',
         'default' : False,
@@ -252,6 +256,7 @@ PluginParams = (
     },
     {
         'attr' : 'relements_separateFolders',
+        'name' : "Separate Folders",
         'desc' : "Save render channels in separate folders",
         'type' : 'BOOL',
         'default' : False,
@@ -315,7 +320,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     img_width  = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
     img_height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
-    
+
     if VRayScene.RTEngine.enabled:
         if VRayScene.SettingsRTEngine.stereo_mode:
             img_width *= 2.0

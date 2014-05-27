@@ -30,8 +30,15 @@ import bpy
 def InitExporter(bus, isAnimation=False, frameStart=1, frameStep=1):
     scene  = bus['scene']
     engine = bus['engine']
+    o      = bus['output']
 
-    o = bus['output']
+    VRayScene = scene.vray
+    VRayDR    = VRayScene.VRayDR
+
+    drSharePath = ""
+    if VRayDR.on:
+        if VRayDR.assetSharing == 'SHARE':
+            drSharePath = bpy.path.abspath(VRayDR.shared_dir)
 
     exporter = _vray_for_blender.init(
         scene   = scene.as_pointer(),
@@ -49,6 +56,8 @@ def InitExporter(bus, isAnimation=False, frameStart=1, frameStep=1):
         isAnimation = isAnimation,
         frameStart  = frameStart,
         frameStep   = frameStep,
+
+        drSharePath = drSharePath,
     )
 
     return exporter

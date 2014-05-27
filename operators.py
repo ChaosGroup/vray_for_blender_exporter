@@ -144,87 +144,6 @@ class VRAY_OT_lens_shift(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-######## ######## ######## ########  ######  ########  ######
-##       ##       ##       ##       ##    ##    ##    ##    ##
-##       ##       ##       ##       ##          ##    ##
-######   ######   ######   ######   ##          ##     ######
-##       ##       ##       ##       ##          ##          ##
-##       ##       ##       ##       ##    ##    ##    ##    ##
-######## ##       ##       ########  ######     ##     ######
-
-class VRAY_OT_effect_add(bpy.types.Operator):
-	bl_idname=      'vray.effect_add'
-	bl_label=       "Add Effect"
-
-	bl_description= "Add effect"
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-		VRayEffects.effects.add()
-		VRayEffects.effects[-1].name= "Effect"
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_effect_remove(bpy.types.Operator):
-	bl_idname=      'vray.effect_remove'
-	bl_label=       "Remove Effect"
-	bl_description= "Remove effect"
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-
-		if VRayEffects.effects_selected >= 0:
-			VRayEffects.effects.remove(VRayEffects.effects_selected)
-			VRayEffects.effects_selected-= 1
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_effect_up(bpy.types.Operator):
-	bl_idname=      'vray.effect_up'
-	bl_label=       "Move effect up"
-	bl_description= "Move effect up"
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-
-		if VRayEffects.effects_selected <= 0:
-			return {'CANCELLED'}
-
-		VRayEffects.effects.move(VRayEffects.effects_selected,
-								 VRayEffects.effects_selected - 1)
-		VRayEffects.effects_selected-= 1
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_effect_down(bpy.types.Operator):
-	bl_idname=      'vray.effect_down'
-	bl_label=       "Move effect down"
-	bl_description= "Move effect down"
-
-	def execute(self, context):
-		VRayScene= context.scene.vray
-
-		VRayEffects= VRayScene.VRayEffects
-
-		if VRayEffects.effects_selected == len(VRayEffects.effects) - 1:
-			return {'CANCELLED'}
-
-		VRayEffects.effects.move(VRayEffects.effects_selected,
-								 VRayEffects.effects_selected + 1)
-		VRayEffects.effects_selected+= 1
-
-		return {'FINISHED'}
-
-
 #### ##    ##  ######  ##       ##     ## ########  ######## ########
  ##  ###   ## ##    ## ##       ##     ## ##     ## ##       ##     ##
  ##  ####  ## ##       ##       ##     ## ##     ## ##       ##     ##
@@ -302,49 +221,6 @@ class VRAY_OT_includer_down(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-######## ##       ######## ##     ## ######## ##    ## ########  ######
-##       ##       ##       ###   ### ##       ###   ##    ##    ##    ##
-##       ##       ##       #### #### ##       ####  ##    ##    ##
-######   ##       ######   ## ### ## ######   ## ## ##    ##     ######
-##       ##       ##       ##     ## ##       ##  ####    ##          ##
-##       ##       ##       ##     ## ##       ##   ###    ##    ##    ##
-######## ######## ######## ##     ## ######## ##    ##    ##     ######
-
-class VRAY_OT_channel_add(bpy.types.Operator):
-	bl_idname=      'vray.render_channels_add'
-	bl_label=       "Add Render Channel"
-	bl_description= "Add render channel"
-
-	def execute(self, context):
-		sce= context.scene
-		vsce= sce.vray
-
-		render_channels= vsce.render_channels
-
-		render_channels.add()
-		render_channels[-1].name= "RenderChannel"
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_channel_del(bpy.types.Operator):
-	bl_idname=      'vray.render_channels_remove'
-	bl_label=       "Remove Render Channel"
-	bl_description= "Remove render channel"
-
-	def execute(self, context):
-		sce= context.scene
-		vsce= sce.vray
-
-		render_channels= vsce.render_channels
-
-		if vsce.render_channels_index >= 0:
-		   render_channels.remove(vsce.render_channels_index)
-		   vsce.render_channels_index-= 1
-
-		return {'FINISHED'}
-
-
 ########  ########
 ##     ## ##     ##
 ##     ## ##     ##
@@ -368,7 +244,6 @@ class VRAY_OT_node_add(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-
 class VRAY_OT_node_del(bpy.types.Operator):
 	bl_idname=      'vray.render_nodes_remove'
 	bl_label=       "Remove Render Node"
@@ -383,7 +258,6 @@ class VRAY_OT_node_del(bpy.types.Operator):
 		   module.nodes_selected-= 1
 
 		return {'FINISHED'}
-
 
 
 class VRAY_OT_dr_nodes_load(bpy.types.Operator):
@@ -501,41 +375,8 @@ class VRAY_OT_flip_resolution(bpy.types.Operator):
 
 		VRayScene = scene.vray
 
-		# if VRayScene.image_aspect_lock:
-		# 	VRayScene.image_aspect = 1.0 / VRayScene.image_aspect
-
 		rd.resolution_x, rd.resolution_y = rd.resolution_y, rd.resolution_x
 		rd.pixel_aspect_x, rd.pixel_aspect_y = rd.pixel_aspect_y, rd.pixel_aspect_x
-
-		return {'FINISHED'}
-
-
-########  ######## ##    ## ########  ######## ########
-##     ## ##       ###   ## ##     ## ##       ##     ##
-##     ## ##       ####  ## ##     ## ##       ##     ##
-########  ######   ## ## ## ##     ## ######   ########
-##   ##   ##       ##  #### ##     ## ##       ##   ##
-##    ##  ##       ##   ### ##     ## ##       ##    ##
-##     ## ######## ##    ## ########  ######## ##     ##
-
-class VRAY_OT_terminate(bpy.types.Operator):
-	bl_idname      = "vray.terminate"
-	bl_label       = "Terminate VRayRT"
-	bl_description = "Terminates running VRayRT instance"
-
-	def execute(self, context):
-		VRayStream.stopProcess()
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_stop(bpy.types.Operator):
-	bl_idname      = "vray.stop"
-	bl_label       = "Stop Rendering"
-	bl_description = "Stop the rendering"
-
-	def execute(self, context):
-		VRayStream.stop()
 
 		return {'FINISHED'}
 
@@ -648,96 +489,27 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 	bl_description = "Add Sky texture to the background"
 
 	def execute(self, context):
-		scene= context.scene
-
-		try:
-			for i,slot in enumerate(scene.world.texture_slots):
-				if not slot:
-					tex= bpy.data.textures.new(name= 'VRaySky',
-											   type= 'VRAY')
-					tex.vray.type= 'TexSky'
-					new_slot= scene.world.texture_slots.create(i)
-					new_slot.texture= tex
-					break
-		except:
-			debug(scene,
-				  "Sky texture only availble in \"%s\"!" % color("Special build",'green'),
-				  error= True)
-
+		# TODO: Create noded version
+		#
 		return {'FINISHED'}
-
-
-##       #### ##    ## ##    ## #### ##    ##  ######
-##        ##  ###   ## ##   ##   ##  ###   ## ##    ##
-##        ##  ####  ## ##  ##    ##  ####  ## ##
-##        ##  ## ## ## #####     ##  ## ## ## ##   ####
-##        ##  ##  #### ##  ##    ##  ##  #### ##    ##
-##        ##  ##   ### ##   ##   ##  ##   ### ##    ##
-######## #### ##    ## ##    ## #### ##    ##  ######
-
-class VRAY_OT_copy_linked_materials(bpy.types.Operator):
-	bl_idname      = "vray.copy_linked_materials"
-	bl_label       = "Copy linked materials"
-	bl_description = "Copy linked materials"
-
-	def execute(self, context):
-		scene=  context.scene
-		object= context.active_object
-
-		if not object:
-			debug(scene, "No object selected!", error= True)
-			return {'CANCELLED'}
-
-		if object.type == 'EMPTY':
-			debug(scene, "Empty object type is not supported! Use simple mesh instead.", error= True)
-			return {'CANCELLED'}
-
-		if object.dupli_type == 'GROUP':
-			object.dupli_list_create(scene)
-
-			for dup_ob in object.dupli_list:
-				ob= dup_ob.object
-				for slot in ob.material_slots:
-					ma= slot.material
-					if ma:
-						materials= [slot.material for slot in object.material_slots]
-						if ma not in materials:
-							debug(scene, "Adding material: %s" % (ma.name))
-							object.data.materials.append(ma)
-
-			object.dupli_list_clear()
-
-			return {'FINISHED'}
-
-		debug(scene, "Object \"%s\" has no dupli-group assigned!" % (object.name), error= True)
-		return {'CANCELLED'}
 
 
 def GetRegClasses():
 	return (
 		VRAY_OT_update,
 		VRAY_OT_lens_shift,
-		VRAY_OT_effect_add,
-		VRAY_OT_effect_remove,
-		VRAY_OT_effect_up,
-		VRAY_OT_effect_down,
 		VRAY_OT_includer_add,
 		VRAY_OT_includer_remove,
 		VRAY_OT_includer_up,
 		VRAY_OT_includer_down,
-		VRAY_OT_channel_add,
-		VRAY_OT_channel_del,
 		VRAY_OT_node_add,
 		VRAY_OT_node_del,
 		VRAY_OT_dr_nodes_load,
 		VRAY_OT_dr_nodes_save,
 		VRAY_OT_settings_to_text,
 		VRAY_OT_flip_resolution,
-		VRAY_OT_stop,
-		VRAY_OT_terminate,
 		VRAY_OT_set_kelvin_color,
 		VRAY_OT_add_sky,
-		VRAY_OT_copy_linked_materials,
 	)
 
 

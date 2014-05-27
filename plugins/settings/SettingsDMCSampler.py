@@ -82,14 +82,3 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    if bpy.context.scene.vray.Exporter.draft:
-        overrideParams.update({
-            'adaptive_amount'    : 0.99,
-            'adaptive_threshold' : 0.2,
-            'subdivs_mult'       : 0.01,
-        })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

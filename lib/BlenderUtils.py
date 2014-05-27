@@ -173,7 +173,7 @@ def FilterObjectListByType(objectList, objectType):
 
 
 def GetObjectName(ob, prefix=None):
-    if prefix is None: 
+    if prefix is None:
         prefix = ObjectPrefix.get(ob.type, 'OB')
     name = prefix + ob.name
     if ob.library:
@@ -273,3 +273,27 @@ def RelativePathValid(path):
     if bpy.data.filepath:
         return True
     return False
+
+
+def GetFullFilepath(filepath, holder=None):
+    fullFilepath = filepath
+
+    if not IsPathRelative(filepath):
+        fullFilepath = filepath
+
+    elif not (holder and holder.library):
+        fullFilepath = bpy.path.abspath(filepath)
+
+    else:
+        # Path is from linked library and is relative
+        # Remove "//"
+        filepath = filepath[2:]
+
+        # Use library dirpath as relative root
+        libraryDirpath = os.path.dirname(bpy.path.abspath(holder.library.filepath))
+
+        fullFilepath = os.path.normpath(os.path.join(libraryDirpath, filepath))
+
+    fullFilepath = os.path.normpath(fullFilepath)
+
+    return fullFilepath

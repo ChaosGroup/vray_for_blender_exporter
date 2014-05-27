@@ -35,6 +35,9 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
     scene = bus['scene']
     o     = bus['output']
 
+    VRayScene = scene.vray
+    VRayDR    = VRayScene.VRayDR
+
     if not hasattr(pluginModule, 'PluginParams'):
         Debug("Module %s doesn't have PluginParams!" % pluginModule.ID, msgType='ERROR')
         return
@@ -80,12 +83,17 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
 
             subtype = attrDesc.get('subtype')
             if subtype in {'FILE_PATH', 'DIR_PATH'}:
+                # This check is basically for the default unsaved scene
                 if not BlenderUtils.RelativePathValid(value):
                     continue
-                value = bpy.path.abspath(value)
+
+                value = BlenderUtils.GetFullFilepath(value)
+
                 if subtype == 'FILE_PATH':
-                    # TODO: If DR is on, copy file to the DR directory
-                    pass
+                    if VRayDR.on:
+                        if VRayDR.assetSharing == 'SHARE':
+                            value = PathUtils.CopyDRAsset(bus, value)
+
                 elif subtype == 'DIR_PATH':
                     # Ensure slash at the end of directory path
                     value = os.path.normpath(value) + os.sep

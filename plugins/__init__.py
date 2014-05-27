@@ -299,6 +299,7 @@ for key in {'camera', 'gi', 'reflect', 'refract', 'shadows'}:
 ##     ## ##     ## ##    ## ##       ##          ##
 ##     ## ##     ## ##    ## ##       ##    ##    ##
  #######  ########   ######  ########  ######     ##
+
 class VRayAsset(bpy.types.PropertyGroup):
 	scenePrefix = bpy.props.StringProperty(
 		name        = "Prefix",
@@ -365,23 +366,6 @@ class VRayObject(bpy.types.PropertyGroup):
 		name        = "Override With VRScene Asset",
 		description = "Override with *.vrscene asset",
 		default     = False
-	)
-
-	is_animated = bpy.props.BoolProperty(
-		name        = "Animated",
-		description = "Defines object as animated",
-		default     =  True
-	)
-
-	fade_radius = bpy.props.FloatProperty(
-		name = "Sphere Fade Radius",
-		description = "Sphere fade gizmo radius",
-		min = 0.0,
-		max = 10000.0,
-		soft_min = 0.0,
-		soft_max = 100.0,
-		precision = 3,
-		default = 1.0
 	)
 
 
@@ -547,18 +531,7 @@ class VRayTexture(bpy.types.PropertyGroup):
 ##     ## ######## ##    ## ########  ######## ##     ##    ######## ######## ######## ##     ## ######## ##    ##    ##
 
 class VRayRenderChannel(bpy.types.PropertyGroup):
-	type= bpy.props.EnumProperty(
-		name= "Channel Type",
-		description= "Render channel type",
-		items= (tuple(gen_menu_items(PLUGINS['RENDERCHANNEL']))),
-		default= 'NONE'
-	)
-
-	use= bpy.props.BoolProperty(
-		name= "",
-		description= "Use render channel",
-		default= True
-	)
+	pass
 
 
  ######   ######  ######## ##    ## ########
@@ -570,24 +543,7 @@ class VRayRenderChannel(bpy.types.PropertyGroup):
  ######   ######  ######## ##    ## ########
 
 class VRayScene(bpy.types.PropertyGroup):
-	render_channels= bpy.props.CollectionProperty(
-		name= "Render Channels",
-		type=  VRayRenderChannel,
-		description= "V-Ray render channels"
-	)
-
-	render_channels_use= bpy.props.BoolProperty(
-		name= "Use render channels",
-		description= "Use render channels",
-		default= False
-	)
-
-	render_channels_index= bpy.props.IntProperty(
-		name= "Render Channel Index",
-		default= -1,
-		min= -1,
-		max= 100
-	)
+	pass
 
 
 class IncluderList(bpy.types.PropertyGroup):
@@ -611,60 +567,6 @@ class Includer(bpy.types.PropertyGroup):
 		default     = False
 	)
 
-	setting= bpy.props.BoolProperty(
-		name= "",
-		description= "Use scene Settings",
-		default= True
-	)
-
-	camera= bpy.props.BoolProperty(
-		name= "",
-		description= "Use camera",
-		default= True
-	)
-
-	materials= bpy.props.BoolProperty(
-		name= "",
-		description= "Use materials",
-		default= True
-	)
-
-	environment= bpy.props.BoolProperty(
-		name= "",
-		description= "Use environment",
-		default= True
-	)
-
-	lights= bpy.props.BoolProperty(
-		name= "",
-		description= "Use lights",
-		default= True
-	)
-
-	textures= bpy.props.BoolProperty(
-		name= "",
-		description= "Use textures",
-		default= True
-	)
-
-	colorMapping_standalone= bpy.props.BoolProperty(
-		name= "",
-		description= "Use Color Mapping standalone",
-		default= True
-	)
-
-	geometry= bpy.props.BoolProperty(
-		name= "",
-		description= "Use scene geometry",
-		default= True
-	)
-
-	scene_nodes= bpy.props.BoolProperty(
-		name= "",
-		description= "Use Vray nodes",
-		default= True
-	)
-	
 	nodes= bpy.props.CollectionProperty(
 		name= "Scene Name",
 		type=  IncluderList,
@@ -729,13 +631,13 @@ class VRayParticleSettings(bpy.types.PropertyGroup):
 	pass
 
 
-########  ####  ######  ######## ########  #### ########  ##     ## ######## ######## ########  
-##     ##  ##  ##    ##    ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ## 
-##     ##  ##  ##          ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ## 
-##     ##  ##   ######     ##    ########   ##  ########  ##     ##    ##    ######   ##     ## 
-##     ##  ##        ##    ##    ##   ##    ##  ##     ## ##     ##    ##    ##       ##     ## 
-##     ##  ##  ##    ##    ##    ##    ##   ##  ##     ## ##     ##    ##    ##       ##     ## 
-########  ####  ######     ##    ##     ## #### ########   #######     ##    ######## ########  
+########  ####  ######  ######## ########  #### ########  ##     ## ######## ######## ########
+##     ##  ##  ##    ##    ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ##
+##     ##  ##  ##          ##    ##     ##  ##  ##     ## ##     ##    ##    ##       ##     ##
+##     ##  ##   ######     ##    ########   ##  ########  ##     ##    ##    ######   ##     ##
+##     ##  ##        ##    ##    ##   ##    ##  ##     ## ##     ##    ##    ##       ##     ##
+##     ##  ##  ##    ##    ##    ##    ##   ##  ##     ## ##     ##    ##    ##       ##     ##
+########  ####  ######     ##    ##     ## #### ########   #######     ##    ######## ########
 
 class VRayRenderNode(bpy.types.PropertyGroup):
 	address= bpy.props.StringProperty(
@@ -777,14 +679,23 @@ class VRayDR(bpy.types.PropertyGroup):
 		description= "Share name"
 	)
 
-	type = bpy.props.EnumProperty(
-		name= "Type",
+	assetSharing = bpy.props.EnumProperty(
+		name        = "Asset Sharing",
+		description = "Asset sharing for distributed rendering",
+		items = (
+			('TRANSFER', "V-Ray Transfer",   "V-Ray will transfer assets itself"),
+			('SHARE',    "Shared Directory", "Share assets via shared directory"),
+			('ABSOLUTE', "Absolute Paths",   "Use paths as is"),
+		),
+		default = 'TRANSFER'
+	)
+
+	networkType = bpy.props.EnumProperty(
+		name= "Network Type",
 		description= "Distributed rendering network type",
 		items= (
-			('WW', "Windows - Windows", "Window master & Windows nodes"),
-			# ('WU', "Windows - Unix",    "Window master & Unix nodes"),
-			('UU', "Unix - Unix",       "Unix master & Unix nodes"),
-			# ('UW', "Unix - Windows",    "Unix master & Windows nodes"),
+			('WW', "Windows", "Window master & Windows nodes"),
+			('UU', "Unix",    "Unix master & Unix nodes"),
 		),
 		default= 'WW'
 	)
@@ -805,6 +716,12 @@ class VRayDR(bpy.types.PropertyGroup):
 	renderOnlyOnNodes = bpy.props.BoolProperty(
 		name        = "Render Only On Nodes",
 		description = "Use distributed rendering excluding the local machine",
+		default     = False
+	)
+
+	checkAssets = bpy.props.BoolProperty(
+		name        = "Check Asset Cache",
+		description = "Check for assets in the asset cache folder before transferring them",
 		default     = False
 	)
 
@@ -855,7 +772,7 @@ def register():
 		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeScene',
 		options = {'FAKE_USER'},
 	))
-	
+
 	idref.bpy_register_idref(VRayWorld, 'ntree', idref.IDRefProperty(
 		"Node Tree",
 		"V-Ray environment node tree",
@@ -863,7 +780,7 @@ def register():
 		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeWorld',
 		options = {'FAKE_USER'},
 	))
-	
+
 	idref.bpy_register_idref(VRayMaterial, 'ntree', idref.IDRefProperty(
 		"Node Tree",
 		"V-Ray material node tree",

@@ -30,7 +30,8 @@ import signal
 import sys
 import tempfile
 
-from vb30.debug import Debug
+from vb30 import debug
+
 from . import PathUtils
 
 
@@ -175,7 +176,7 @@ class VRayProcess:
             cmd.append('-distributed=%i' % self.distributed)
             cmd.append('-renderhost="%s"' % self.renderhost)
             cmd.append('-portNumber=%i' % self.portNumber)
-            cmd.append('-transferAssets=%s' % self.transferAssets)
+            cmd.append('-transferAssets=%i' % self.transferAssets)
 
         if self.numThreads:
             cmd.append('-numThreads=%s' % self.numThreads)
@@ -204,7 +205,7 @@ class VRayProcess:
             if self.waitExit:
                 errCode = self.process.wait()
         else:
-            print("V-Ray Command Line: %s" % " ".join(cmd))
+            debug.PrintInfo("Command Line: %s" % " ".join(cmd))
 
         return errCode
 

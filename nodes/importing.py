@@ -334,6 +334,11 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                     else:
                         connectedPluginID = connectedPlugin['ID']
 
+                        # TODO:
+                        # 1. Check if connected pluginID is in collapseable type
+                        # 2. Check if it doesn't have any input connections
+                        # 3. Collapse to value
+
                         inPluginOutputSocketName = AttributeUtils.GetNameFromAttr(inPluginOutput) if inPluginOutput else getOutputSocket(connectedPluginID)
 
                         connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)

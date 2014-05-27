@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsOptions'
 NAME = 'Options'
@@ -270,10 +273,16 @@ PluginParams = (
 )
 
 
-# TODO: Resolve draft / preview
-#
-# ofile.write("\n\tmtl_limitDepth= 1;")
-# ofile.write("\n\tmtl_maxDepth= 5;")
-# ofile.write("\n\tmtl_transpMaxLevels= 10;")
-# ofile.write("\n\tmtl_transpCutoff= 0.1;")
-# ofile.write("\n\tmtl_glossy= 1;")
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    o     = bus['output']
+
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
+    VRayDR       = VRayScene.VRayDR
+
+    if VRayDR.on:
+        if VRayDR.assetSharing == 'TRANSFER':
+            overrideParams['misc_transferAssets'] = True
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

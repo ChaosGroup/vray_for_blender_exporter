@@ -32,9 +32,9 @@ from vb30.plugins import PLUGINS
 
 
 class VRAY_SP_includer(classes.VRayScenePanel):
-	bl_label   = "Includes"
+	bl_label   = "Include *.vrscene"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	def draw_header(self, context):
 		VRayScene = context.scene.vray
 		Includer  = VRayScene.Includer
@@ -49,7 +49,7 @@ class VRAY_SP_includer(classes.VRayScenePanel):
 
 		vs= context.scene.vray
 		module= vs.Includer
-		
+
 		layout.active= module.use
 
 		row.template_list("VRayListUse", "", module, 'nodes', module, 'nodes_selected', rows = 4)
@@ -72,26 +72,11 @@ class VRAY_SP_includer(classes.VRayScenePanel):
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'scene')
 
-		# layout.separator()
-		# box= layout.box()
-		# box.label(text="Enable options export in curent scene:")
-		# split = box.split()
-		# col= split.column()
-		# col.prop(module, 'setting', text="Use export scene setting")
-		# col.prop(module, 'camera', text="Use export camera")
-		# col.prop(module, 'materials', text="Use export materials")
-		
-		# col.prop(module, 'environment', text="Use export environment")
-		# col.prop(module, 'lights', text="Use export lights")
-		# col.prop(module, 'colorMapping_standalone', text="Use Color Mapping")
-		# col.prop(module, 'geometry', text="Use export geometry")
-		# col.prop(module, 'scene_nodes', text="Use Vray Nodes")
-
 
 class VRAY_SP_tools(classes.VRayScenePanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 
@@ -128,7 +113,7 @@ class VRAY_SP_ntrees(classes.VRayScenePanel):
 class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
-	
+
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
 

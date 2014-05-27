@@ -53,13 +53,13 @@ PluginTypeToFile = {
 }
 
 
-########     ###    ######## ##     ##  ######  
-##     ##   ## ##      ##    ##     ## ##    ## 
-##     ##  ##   ##     ##    ##     ## ##       
-########  ##     ##    ##    #########  ######  
-##        #########    ##    ##     ##       ## 
-##        ##     ##    ##    ##     ## ##    ## 
-##        ##     ##    ##    ##     ##  ######  
+########     ###    ######## ##     ##  ######
+##     ##   ## ##      ##    ##     ## ##    ##
+##     ##  ##   ##     ##    ##     ## ##
+########  ##     ##    ##    #########  ######
+##        #########    ##    ##     ##       ##
+##        ##     ##    ##    ##     ## ##    ##
+##        ##     ##    ##    ##     ##  ######
 
 class VRayFilePaths:
     exportFilename  = None
@@ -149,7 +149,7 @@ class VRayFilePaths:
             blendfile_name = PathUtils.GetFilename(bpy.data.filepath, ext=False) if bpy.data.filepath else "default"
 
             substrDict = {
-                'blend_name'  : blendfile_name, 
+                'blend_name'  : blendfile_name,
                 'camera_name' : scene.camera.name,
                 'scene_name'  : scene.name,
             }
@@ -177,8 +177,9 @@ class VRayFilePaths:
                 export_filepath = bpy.path.abspath(VRayExporter.output_dir)
 
             if VRayDR.on:
-                if VRayDR.transferAssets != '0':
-                    # "Transfer Asssets" feature doesn't support "#include" statement ATM.
+                if VRayDR.assetSharing == 'TRANSFER':
+                    # "Transfer Asssets" feature doesn't support "#include" statement ATM,
+                    # so export everything in a single file
                     self.separateFiles = False
 
                 # TODO: Set filepath prefix for network paths here
@@ -217,13 +218,13 @@ class VRayFilePaths:
                 self.imgLoadFilename = "%s.%s" % (load_file_name, ext)
 
 
-######## #### ##       ########  ######  
-##        ##  ##       ##       ##    ## 
-##        ##  ##       ##       ##       
-######    ##  ##       ######    ######  
-##        ##  ##       ##             ## 
-##        ##  ##       ##       ##    ## 
-##       #### ######## ########  ######  
+######## #### ##       ########  ######
+##        ##  ##       ##       ##    ##
+##        ##  ##       ##       ##
+######    ##  ##       ######    ######
+##        ##  ##       ##             ##
+##        ##  ##       ##       ##    ##
+##       #### ######## ########  ######
 
 class VRayExportFiles:
     def __init__(self, pm):
@@ -366,13 +367,13 @@ class VRayExportFiles:
         return None
 
 
-######## ##     ## ########   #######  ########  ######## 
-##        ##   ##  ##     ## ##     ## ##     ##    ##    
-##         ## ##   ##     ## ##     ## ##     ##    ##    
-######      ###    ########  ##     ## ########     ##    
-##         ## ##   ##        ##     ## ##   ##      ##    
-##        ##   ##  ##        ##     ## ##    ##     ##    
-######## ##     ## ##         #######  ##     ##    ##    
+######## ##     ## ########   #######  ########  ########
+##        ##   ##  ##     ## ##     ## ##     ##    ##
+##         ## ##   ##     ## ##     ## ##     ##    ##
+######      ###    ########  ##     ## ########     ##
+##         ## ##   ##        ##     ## ##   ##      ##
+##        ##   ##  ##        ##     ## ##    ##     ##
+######## ##     ## ##         #######  ##     ##    ##
 
 class VRayPluginExporter:
     def __init__(self):

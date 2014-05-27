@@ -24,8 +24,8 @@
 
 import bpy
 
-from vb30.lib   import DrawUtils, ExportUtils, PathUtils
-from vb30.debug import Debug
+from vb30.lib import DrawUtils, ExportUtils, PathUtils, BlenderUtils
+from vb30 import debug
 
 
 TYPE = 'TEXTURE'
@@ -200,14 +200,27 @@ def gui(context, layout, BitmapBuffer, node):
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    image = bus['context']['node'].texture.image
-    if not image:
-        Debug("Node \"%s\": Image is not set!" % bus['context']['node'].name, msgType='ERROR')
+    scene = bus['scene']
+
+    VRayScene = scene.vray
+    VRayDR    = VRayScene.VRayDR
+
+    node = bus['context'].get('node')
+    if not node:
+        debug.PrintError('Incorrect node context!')
         return None
 
-    # TODO: Add file existance check
-    overrideParams.update({
-        'file' : PathUtils.get_full_filepath(bus, image, image.filepath),
-    })
+    image = node.texture.image
+    if not image:
+        debug.PrintError('Node "%s": Image is not set!' % node.name)
+        return None
+
+    filepath = BlenderUtils.GetFullFilepath(image.filepath, holder=image)
+
+    if VRayDR.on:
+        if VRayDR.assetSharing == 'SHARE':
+            filepath = PathUtils.CopyDRAsset(bus, filepath)
+
+    overrideParams['file'] = filepath
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

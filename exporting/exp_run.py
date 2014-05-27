@@ -76,12 +76,17 @@ def Run(bus):
 
     if VRayDR.on:
         if len(VRayDR.nodes):
+            transferAssets = VRayDR.assetSharing == 'TRANSFER'
+            if transferAssets:
+                if VRayDR.checkAssets:
+                    transferAssets = 2
+
             p.setDistributed(2 if VRayDR.renderOnlyOnNodes else 1)
             p.setRenderhosts([n.address for n in VRayDR.nodes if n.use])
             p.setPortNumber(VRayDR.port)
-            p.setTransferAssets(VRayDR.transferAssets)
+            p.setTransferAssets(transferAssets)
 
-    if VRayExporter.animation and VRayExporter.animation_type == 'FRAMEBYFRAME':
+    if VRayExporter.animation_mode == 'FRAMEBYFRAME':
         p.setWaitExit(True)
         p.setAutoclose(True)
         p.setFrames(scene.frame_current)
