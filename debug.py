@@ -39,7 +39,7 @@ MsgTypeToColor = {
 }
 
 def Color(text, color=None):
-    if not color or sys.platform in ['win32']:
+    if not color or sys.platform == 'win32':
         return text
     if color == 'green':
         return "\033[0;32m%s\033[0m" % text
@@ -55,12 +55,18 @@ def Color(text, color=None):
         return text
 
 
+def IsDebugMode():
+    if hasattr(bpy.context, 'scene'):
+        if bpy.context.scene.vray.Exporter.debug:
+            return True
+    return False
+
+
 # Log message
 #
 def Debug(message, newline=True, cr=True, msgType='NORMAL'):
-    if hasattr(bpy.context, 'scene'):
-        if not bpy.context.scene.vray.Exporter.debug and msgType != 'ERROR':
-            return
+    if not IsDebugMode():
+        return
 
     sys.stdout.write("%s: %s%s" % (
         Color("V-Ray For Blender", 'green'),
@@ -127,13 +133,17 @@ def ExceptionInfo(e):
 
 def TimeIt(method):
     def timed(*args, **kw):
+        if IsDebugMode():
+            sys.stdout.write(Color("V-Ray For Blender", 'green'))
+            sys.stdout.write(": %s()...\n" % method.__name__)
+            sys.stdout.flush()
         ts = time.time()
         result = method(*args, **kw)
         te = time.time() - ts
-        sys.stdout.write("%s: %s\n" % (
-            Color("V-Ray For Blender", 'green'),
-            "%s() done in %s" % (method.__name__, str(datetime.timedelta(seconds=te)))
-        ))
-        sys.stdout.flush()
+        td = datetime.timedelta(seconds=te)
+        if IsDebugMode():
+            sys.stdout.write(Color("V-Ray For Blender", 'green'))
+            sys.stdout.write(": %s() done [%s].\n" % (method.__name__, str(td)))
+            sys.stdout.flush()
         return result
     return timed
