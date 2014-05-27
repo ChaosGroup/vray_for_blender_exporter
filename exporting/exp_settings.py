@@ -97,8 +97,6 @@ def ExportSettings(bus):
                 else:
                     if pluginName == 'SphericalHarmonicsExporter':
                         continue
-            elif pluginName == 'SettingsColorMapping':
-                propGroup = VRayPreferences.SettingsColorMapping
             else:
                 propGroup = getattr(VRayScene, pluginName)
             
