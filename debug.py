@@ -64,17 +64,22 @@ def IsDebugMode():
 
 # Log message
 #
-def Debug(message, newline=True, cr=True, msgType='NORMAL'):
-    if not IsDebugMode():
-        return
-
-    sys.stdout.write("%s: %s%s" % (
+def PrintInfo(message, msgType='NORMAL'):
+    sys.stdout.write("%s: %s\n" % (
         Color("V-Ray For Blender", 'green'),
         Color(message, MsgTypeToColor[msgType]),
-        '\n' if newline else '\r' if cr else ''
     ))
-    if not newline:
-        sys.stdout.flush()
+    sys.stdout.flush()
+
+
+def PrintError(message):
+    Debug(message, msgType='ERROR')
+
+
+def Debug(message, msgType='NORMAL'):
+    if not IsDebugMode() and msgType in {'NORMAL'}:
+        return
+    PrintInfo(message, msgType)
 
 
 # Prints fancy dict
@@ -98,10 +103,10 @@ def PrintDict(title, params, spacing=2):
 #
 def caller_name(skip=2):
     """Get a name of a caller in the format module.class.method
-    
+
        `skip` specifies how many levels of stack to skip while getting caller
        name. skip=1 means "who calls me", skip=2 "who calls my caller" etc.
-       
+
        An empty string is returned if skipped levels exceed stack height
     """
     stack = inspect.stack()
@@ -123,6 +128,9 @@ def caller_name(skip=2):
 
 
 def ExceptionInfo(e):
+    if not IsDebugMode():
+        return
+
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     print("Exception => '%s': %s" % (type(e).__name__, e))
