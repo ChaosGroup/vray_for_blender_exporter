@@ -102,14 +102,12 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     ca = bus['camera']
 
     VRayCamera = ca.data.vray
-    
+    if VRayCamera.CameraPhysical.use:
+        return
+
     cameraType = propGroup.type
     if ca.data.type == 'ORTHO':
         cameraType = 7
-    else:
-        # We must set camera type to "pinhole" to make the physical camera match the fov
-        if VRayCamera.CameraPhysical:
-            cameraType = 8
 
     overrideParams.update({
         'fov'    : -1,
