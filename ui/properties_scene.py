@@ -73,32 +73,6 @@ class VRAY_SP_includer(classes.VRayScenePanel):
 			layout.prop(render_node, 'scene')
 
 
-class VRAY_SP_tools(classes.VRayScenePanel):
-	bl_label   = "Tools"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
-
-		VRayExporter = context.scene.vray.Exporter
-
-		layout= self.layout
-
-		box = layout.box()
-		box.label(text="Scene:")
-		split = box.split()
-		col = split.column()
-		col.operator("vray.settings_to_text", icon='TEXT')
-
-		layout.separator()
-
-		box = layout.box()
-		box.label(text="Object:")
-		split = box.split()
-		col=  split.column()
-		col.operator("vray.copy_linked_materials", icon='MATERIAL')
-
-
 class VRAY_SP_ntrees(classes.VRayScenePanel):
 	bl_label   = "Node Trees"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -162,7 +136,6 @@ class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 
 def GetRegClasses():
 	return (
-		VRAY_SP_tools,
 		VRAY_SP_ntrees,
 		VRAY_SP_includer,
 		VRAY_SP_lights_tweaker,
