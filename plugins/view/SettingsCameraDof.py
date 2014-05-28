@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import ExportUtils, BlenderUtils
+
+
 TYPE = 'CAMERA'
 ID   = 'SettingsCameraDof'
 NAME = 'SettingsCameraDof'
@@ -89,3 +92,11 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    ca = bus['camera']
+
+    overrideParams['focal_dist'] = BlenderUtils.GetCameraDofDistance(ca)
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
