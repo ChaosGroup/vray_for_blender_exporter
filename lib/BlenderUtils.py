@@ -215,6 +215,17 @@ def GetDistanceObOb(ob1, ob2):
     return d.length
 
 
+def GetCameraDofDistance(ca):
+    dofDistance = ca.data.dof_distance
+
+    dofObjectName = ca.data.dof_object
+    if dofObjectName and dofObjectName in bpy.context.scene.objects:
+        dofObject = bpy.context.scene.objects[dofObjectName]
+        dofDistance = GetDistanceObOb(ca, dofObject)
+
+    return dofDistance
+
+
 def GetUserConfigDir():
     userConfigDirpath = os.path.join(bpy.utils.user_resource('CONFIG'), "vrayblender")
     if not os.path.exists(userConfigDirpath):
