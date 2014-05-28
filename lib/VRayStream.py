@@ -573,3 +573,67 @@ class VRayPluginExporter:
         else:
             self.fileManager.writeIncludes()
             self.fileManager.closeFiles()
+
+
+class VRaySimplePluginExporter:
+    def __init__(self, outputFilepath):
+        self.output = open(outputFilepath, 'w')
+
+        self.namesCache = set()
+
+        # Currently processed plugin
+        self.pluginType  = None
+        self.pluginID    = None
+        self.pluginName  = None
+        self.pluginAttrs = None
+
+    def __del__(self):
+        if self.output and not self.output.closed:
+            self.output.close()
+
+    # Set params for currently exported plugin
+    #
+    def set(self, pluginType, pluginID, pluginName):
+        self.pluginType  = pluginType
+        self.pluginID    = pluginID
+        self.pluginName  = pluginName
+        self.pluginAttrs = {}
+
+    # Useless right now; keep for compatibility
+    def writeHeader(self):
+        if self.pluginName in self.namesCache:
+            self.pluginID   = None
+            self.pluginName = None
+
+    def writeAttibute(self, attrName, val):
+        # Could also mean that plugin is already exported
+        if not self.pluginID and not self.pluginName:
+            return
+        # Store value for writing
+        self.pluginAttrs[attrName] = LibUtils.FormatValue(val)
+
+    # This will actually write plugin data to file
+    def writeFooter(self):
+        # Could also mean that plugin is already exported
+        if not self.pluginID and not self.pluginName:
+            return
+        # No attributes are collected for write
+        if not self.pluginAttrs:
+            return
+
+        p = "\n%s %s {" % (self.pluginID, self.pluginName)
+        for attrName in sorted(self.pluginAttrs.keys()):
+            p += "\n\t%s=%s;" % (attrName, self.pluginAttrs[attrName])
+        p += "\n}\n"
+
+        self.output.write(p)
+
+        # Reset current plugin
+        self.pluginType  = None
+        self.pluginID    = None
+        self.pluginName  = None
+        self.pluginAttrs = None
+
+    # Writes arbitary data to file
+    def write(self, pluginType, data):
+        self.output.write(data)
