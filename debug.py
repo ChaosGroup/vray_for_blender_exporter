@@ -64,7 +64,7 @@ def IsDebugMode():
 
 # Log message
 #
-def PrintInfo(message, msgType='NORMAL'):
+def PrintInfo(message, msgType='INFO'):
     sys.stdout.write("%s: %s\n" % (
         Color("V-Ray For Blender", 'green'),
         Color(message, MsgTypeToColor[msgType]),
@@ -76,8 +76,8 @@ def PrintError(message):
     Debug(message, msgType='ERROR')
 
 
-def Debug(message, msgType='NORMAL'):
-    if not IsDebugMode() and msgType in {'NORMAL'}:
+def Debug(message, msgType='INFO'):
+    if not IsDebugMode() and msgType in {'INFO'}:
         return
     PrintInfo(message, msgType)
 
