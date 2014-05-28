@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import _vray_for_blender
+
 from vb30 import debug
 
 from . import exp_init
@@ -44,15 +46,16 @@ def ExportSingleFrame(bus):
         frameEnd   = frameStart + VRayExporter.frames_to_export
         frameStep  = scene.frame_step
 
-        err = exp_anim_full.ExportAnimation(
-            bus,
-            frameStart,
-            frameEnd,
-            frameStep
-        )
+        o.setAnimation(True)
+        o.setFrameStart(frameStart)
+        o.setFrameEnd(frameEnd)
+        o.setFrameStep(frameStep)
+
+        err = exp_anim_full.ExportFullRange(bus)
 
     else:
         bus['exporter'] = exp_init.InitExporter(bus)
+        _vray_for_blender.setFrame(scene.frame_current)
         err = exp_scene.ExportScene(bus)
         exp_init.ShutdownExporter(bus)
 
