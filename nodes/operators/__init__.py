@@ -28,14 +28,18 @@ __all__ = []
 def register():
     from . import add_tree
     from . import import_file
+    from . import export_tree
 
     add_tree.register()
     import_file.register()
+    export_tree.register()
 
 
 def unregister():
     from . import add_tree
     from . import import_file
+    from . import export_tree
 
     add_tree.unregister()
     import_file.unregister()
+    export_tree.unregister()
