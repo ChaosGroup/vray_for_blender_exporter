@@ -23,6 +23,7 @@
 #
 
 import os
+import tempfile
 
 import bpy
 
@@ -282,7 +283,10 @@ def GetFullFilepath(filepath, holder=None):
         fullFilepath = filepath
 
     elif not (holder and holder.library):
-        fullFilepath = bpy.path.abspath(filepath)
+        if RelativePathValid(filepath):
+            fullFilepath = bpy.path.abspath(filepath)
+        else:
+            fullFilepath = os.path.join(tempfile.gettempdir(), filepath[2:])
 
     else:
         # Path is from linked library and is relative
