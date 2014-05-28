@@ -38,17 +38,17 @@ class VRAY_DP_camera(classes.VRayCameraPanel):
 	bl_label = "Parameters"
 
 	def draw(self, context):
-		layout= self.layout
+		layout = self.layout
 
-		ca= context.camera
+		ca = context.camera
 
-		VRayCamera= ca.vray
+		VRayCamera = ca.vray
 
-		RenderView=         VRayCamera.RenderView
-		SettingsCamera=     VRayCamera.SettingsCamera
-		SettingsCameraDof=  VRayCamera.SettingsCameraDof
-		SettingsMotionBlur= VRayCamera.SettingsMotionBlur
-		CameraPhysical=     VRayCamera.CameraPhysical
+		RenderView         = VRayCamera.RenderView
+		SettingsCamera     = VRayCamera.SettingsCamera
+		SettingsCameraDof  = VRayCamera.SettingsCameraDof
+		SettingsMotionBlur = VRayCamera.SettingsMotionBlur
+		CameraPhysical     = VRayCamera.CameraPhysical
 
 		wide_ui= context.region.width > classes.narrowui
 
@@ -76,27 +76,14 @@ class VRAY_DP_camera(classes.VRayCameraPanel):
 		layout.separator()
 
 		if ca.type == 'ORTHO':
-			col.prop(ca, 'ortho_scale')
+			layout.prop(ca, 'ortho_scale')
 		else:
-			split= layout.split()
-			col= split.column()
+			split = layout.split()
+			col = split.column()
 			col.label(text="Type:")
-			col= split.column()
+			col = split.column()
 			col.prop(SettingsCamera, 'type', text="")
-
 			layout.separator()
-
-		'''
-			SettingsCamera
-		'''
-		# SMTH
-
-		'''
-			SettingsCameraDof
-		'''
-		# split= layout.split()
-		# col= split.column()
-		# col= split.column()
 
 		layout.label(text="Clipping:")
 		split = layout.split()
@@ -112,39 +99,55 @@ class VRAY_DP_camera(classes.VRayCameraPanel):
 		sub.active = RenderView.clip_far
 		sub.prop(ca, 'clip_end', text="Far")
 
-		split= layout.split()
+		split = layout.split()
 		split.label(text="Depth of Field:")
-		split= layout.split()
-		col= split.column(align=True)
+		split = layout.split()
+		col = split.column(align=True)
 		col.prop(ca, 'dof_distance', text="Distance")
 		if wide_ui:
-			col= split.column()
+			col = split.column()
 		col.prop(ca, 'dof_object', text="")
 
 		layout.separator()
 
-		'''
-			SettingsMotionBlur
-		'''
-		box = layout.box()
-		box.prop(SettingsMotionBlur, 'on')
-		if SettingsMotionBlur.on:
-			box.prop(SettingsMotionBlur, 'camera_motion_blur')
+		if not CameraPhysical.use:
+			box = layout.box()
+			box.prop(SettingsCameraDof, 'on')
+			if SettingsCameraDof.on:
+				split = box.split()
+				col = split.column(align=True)
+				col.prop(SettingsCameraDof, 'aperture')
+				col.prop(SettingsCameraDof, 'center_bias')
 
-			col = box.column(align=True)
-			col.prop(SettingsMotionBlur, 'duration')
-			col.prop(SettingsMotionBlur, 'interval_center')
+				row = box.row(align=True)
+				row.prop(SettingsCameraDof, 'sides_on')
+				row.prop(SettingsCameraDof, 'sides_num')
 
-			row = box.row(align=True)
-			row.prop(SettingsMotionBlur, 'bias')
-			row.prop(SettingsMotionBlur, 'subdivs')
+				row = box.row(align=True)
+				row.prop(SettingsCameraDof, 'anisotropy')
+				row.prop(SettingsCameraDof, 'rotation')
 
-			row = box.row(align=True)
-			row.prop(SettingsMotionBlur, 'shutter_efficiency')
+				box.prop(SettingsCameraDof, 'subdivs')
 
-			row = box.row(align=True)
-			row.prop(SettingsMotionBlur, 'low_samples')
-			row.prop(SettingsMotionBlur, 'geom_samples', text="Geom Samples")
+			box = layout.box()
+			box.prop(SettingsMotionBlur, 'on')
+			if SettingsMotionBlur.on:
+				box.prop(SettingsMotionBlur, 'camera_motion_blur')
+
+				col = box.column(align=True)
+				col.prop(SettingsMotionBlur, 'duration')
+				col.prop(SettingsMotionBlur, 'interval_center')
+
+				row = box.row(align=True)
+				row.prop(SettingsMotionBlur, 'bias')
+				row.prop(SettingsMotionBlur, 'subdivs')
+
+				row = box.row(align=True)
+				row.prop(SettingsMotionBlur, 'shutter_efficiency')
+
+				row = box.row(align=True)
+				row.prop(SettingsMotionBlur, 'low_samples')
+				row.prop(SettingsMotionBlur, 'geom_samples', text="Geom. Samples")
 
 		split= layout.split()
 		col= split.column()
