@@ -86,13 +86,15 @@ def Run(bus):
             p.setPortNumber(VRayDR.port)
             p.setTransferAssets(transferAssets)
 
-    if VRayExporter.animation_mode == 'FRAMEBYFRAME':
+    if VRayExporter.animation_mode == 'NONE':
+        p.setFrames(scene.frame_current)
+
+    elif VRayExporter.animation_mode == 'FRAMEBYFRAME':
         p.setWaitExit(True)
         p.setAutoclose(True)
         p.setFrames(scene.frame_current)
-    elif VRayExporter.frames_to_export > 1:
-        p.setFrames(scene.frame_current)
-    elif o.isAnimation:
+
+    else:
         p.setFrames(o.frameStart, o.frameEnd, o.frameStep)
 
     if not scene.render.threads_mode == 'AUTO':
