@@ -24,7 +24,7 @@
 
 import bpy
 
-from vb30.lib import ExportUtils, SysUtils
+from vb30.lib import ExportUtils, SysUtils, BlenderUtils
 
 
 TYPE = 'CAMERA'
@@ -161,9 +161,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     VRayCamera = ca.data.vray
     RenderView     = VRayCamera.RenderView
     SettingsCamera = VRayCamera.SettingsCamera
+    SettingsCameraDof = VRayCamera.SettingsCameraDof
 
     fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
-    
+
     aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
 
     if aspect < 1.0:
@@ -185,6 +186,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if 'orthographic' not in overrideParams:
         overrideParams['orthographic'] = ca.data.type == 'ORTHO'
 
-    # o.write('CAMERA', "\n// Camera name: %s" % ca.name)
+    overrideParams['focalDistance'] = BlenderUtils.GetCameraDofDistance(ca)
+    overrideParams['aperture']      = SettingsCameraDof.aperture
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
