@@ -77,6 +77,10 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
         if attrDesc['type'] in AttributeUtils.PluginTypes and not value:
             continue
 
+        if attrDesc['type'] in {'TRANSFORM'}:
+            if not value:
+                continue
+
         if attrDesc['type'] in {'STRING'}:
             if not value:
                 continue

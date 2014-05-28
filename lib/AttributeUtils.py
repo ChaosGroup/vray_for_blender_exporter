@@ -46,7 +46,6 @@ SkippedTypes = {
     'INT_LIST',
     'FLOAT_LIST',
     'MATRIX',
-    'TRANSFORM',
     'TRANSFORM_TEXTURE',
 }
 
@@ -59,7 +58,7 @@ InputTypes = {
     'TEXTURE',
     'UVWGEN',
     'VECTOR',
-    # 'TRANSFORM',
+    'TRANSFORM',
 }
 
 OutputTypes = {
@@ -114,7 +113,7 @@ TypeToProp = {
     'INT'    : bpy.props.IntProperty,
     'STRING' : bpy.props.StringProperty,
 
-    'TRANSFORM' : bpy.props.FloatVectorProperty,
+    'TRANSFORM' : bpy.props.StringProperty,
     'MATRIX'    : bpy.props.FloatVectorProperty,
 
     'BRDF'     : bpy.props.StringProperty,
@@ -142,7 +141,7 @@ TypeToProp = {
 def GetNameFromAttr(attr):
     attr_name = attr.replace("_", " ")
     attr_name = re.sub(r"\B([A-Z])", r" \1", attr_name)
-    
+
     return attr_name.title()
 
 
@@ -168,7 +167,7 @@ def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
         if attrDesc['type'] == 'MTEX':
             attrDesc['type'] = 'TEXTURE'
-        
+
         options = {'FAKE_USER'}
         if 'options' in attrDesc:
             for opt in attrDesc['options'].split():
@@ -212,9 +211,12 @@ def GenerateAttribute(classMembers, attrDesc):
         pass
 
     elif attrDesc['type'] in {'TRANSFORM'}:
-        attrArgs['size']    = 16
-        attrArgs['subtype'] = 'MATRIX'
-        attrArgs['default'] = (1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,0)
+        # Currenlty used as fake string attribute
+        # attrArgs['size']    = 16
+        # attrArgs['subtype'] = 'MATRIX'
+        # attrArgs['default'] = (1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,0)
+        # Override default
+        attrArgs['default'] = ""
 
     elif attrDesc['type'] in {'ENUM'}:
         attrArgs['items'] = attrDesc['items']

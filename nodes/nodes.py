@@ -179,6 +179,7 @@ class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeSelectObject)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectNodeTree)
+        add_nodetype(self.layout, bpy.types.VRayNodeTransform)
 
 
 class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
@@ -228,13 +229,13 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuRenderChannels", icon='SCENE_DATA')
 
 
- ######  ##          ###     ######   ######     ##     ## ######## ######## ##     ##  #######  ########   ######  
-##    ## ##         ## ##   ##    ## ##    ##    ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ## 
-##       ##        ##   ##  ##       ##          #### #### ##          ##    ##     ## ##     ## ##     ## ##       
-##       ##       ##     ##  ######   ######     ## ### ## ######      ##    ######### ##     ## ##     ##  ######  
-##       ##       #########       ##       ##    ##     ## ##          ##    ##     ## ##     ## ##     ##       ## 
-##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ## 
- ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######  
+ ######  ##          ###     ######   ######     ##     ## ######## ######## ##     ##  #######  ########   ######
+##    ## ##         ## ##   ##    ## ##    ##    ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ##
+##       ##        ##   ##  ##       ##          #### #### ##          ##    ##     ## ##     ## ##     ## ##
+##       ##       ##     ##  ######   ######     ## ### ## ######      ##    ######### ##     ## ##     ##  ######
+##       ##       #########       ##       ##    ##     ## ##          ##    ##     ## ##     ## ##     ##       ##
+##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
+ ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######
 
 def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
