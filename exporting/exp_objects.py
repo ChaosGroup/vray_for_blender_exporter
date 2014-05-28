@@ -29,6 +29,7 @@ from vb30.lib import BlenderUtils
 from vb30 import debug
 
 
+@debug.TimeIt
 def ExportObjects(bus, exportNodes=True, exportMeshes=None):
     o      = bus['output']
     scene  = bus['scene']
