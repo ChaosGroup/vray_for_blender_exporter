@@ -22,12 +22,53 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
 import bpy
 
 
+class VRAY_MT_preset_global(bpy.types.Menu):
+    bl_label        = "Global Presets"
+    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "render")
+    preset_operator = "script.execute_preset"
+    draw            = bpy.types.Menu.draw_preset
+
+
+class VRAY_MT_preset_gi(bpy.types.Menu):
+    bl_label        = "GI Presets"
+    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "gi")
+    preset_operator = "script.execute_preset"
+    draw            = bpy.types.Menu.draw_preset
+
+
+class VRAY_MT_preset_im(bpy.types.Menu):
+    bl_label        = "Irradiance Map Presets"
+    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "im")
+    preset_operator = "script.execute_preset"
+    draw            = bpy.types.Menu.draw_preset
+
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
+
+def GetRegClasses():
+    return (
+        VRAY_MT_preset_global,
+        VRAY_MT_preset_gi,
+        VRAY_MT_preset_im,
+    )
+
+
 def register():
-    pass
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-    pass
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)
