@@ -43,32 +43,28 @@ from .utils import *
  #######     ##    #### ######## ####    ##    #### ########  ######
 
 def GetOutputNode(ntree):
-    return GetNodeByType(ntree, 'VRayNodeOutputMaterial')
+    NtreeToOutputNodeType = {
+        'VRayNodeTreeScene'    : 'VRayNodeRenderChannels',
+        'VRayNodeTreeWorld'    : 'VRayNodeEnvironment',
+        'VRayNodeTreeMaterial' : 'VRayNodeOutputMaterial',
+        'VRayNodeTreeObject'   : 'VRayNodeObjectOutput',
+        'VRayNodeTreeLight'    : 'VRayNodeTreeLight',
+    }
 
-
-def GetOutputName(ntree):
-    outputNode = GetNodeByType(ntree, 'VRayNodeOutputMaterial')
-    if not outputNode:
+    outputNodeType = NtreeToOutputNodeType.get(ntree.bl_idname)
+    if not outputNodeType:
         return None
 
-    materialSocket = outputNode.inputs['Material']
-    if not materialSocket.is_linked:
-        return None
-
-    connectedNode = GetConnectedNode(ntree, materialSocket)
-    if not connectedNode:
-        return None
-
-    return GetNodeName(ntree, connectedNode)
+    return GetNodeByType(ntree, outputNodeType)
 
 
- ######  ######## ##       ########  ######  ########  #######  ########   ######  
-##    ## ##       ##       ##       ##    ##    ##    ##     ## ##     ## ##    ## 
-##       ##       ##       ##       ##          ##    ##     ## ##     ## ##       
- ######  ######   ##       ######   ##          ##    ##     ## ########   ######  
-      ## ##       ##       ##       ##          ##    ##     ## ##   ##         ## 
-##    ## ##       ##       ##       ##    ##    ##    ##     ## ##    ##  ##    ## 
- ######  ######## ######## ########  ######     ##     #######  ##     ##  ######  
+ ######  ######## ##       ########  ######  ########  #######  ########   ######
+##    ## ##       ##       ##       ##    ##    ##    ##     ## ##     ## ##    ##
+##       ##       ##       ##       ##          ##    ##     ## ##     ## ##
+ ######  ######   ##       ######   ##          ##    ##     ## ########   ######
+      ## ##       ##       ##       ##          ##    ##     ## ##   ##         ##
+##    ## ##       ##       ##       ##    ##    ##    ##     ## ##    ##  ##    ##
+ ######  ######## ######## ########  ######     ##     #######  ##     ##  ######
 
 def WriteVRayNodeSelectObject(bus, nodetree, node):
     scene = bus['scene']
@@ -96,13 +92,13 @@ def WriteVRayNodeSelectNodeTree(bus, nodetree, node):
     return node.ntree.name
 
 
-########  ##       ######## ##    ## ########  ######## ########      #######  ########        ## ########  ######  ######## 
-##     ## ##       ##       ###   ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##    ##    ##    
-##     ## ##       ##       ####  ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##          ##    
-########  ##       ######   ## ## ## ##     ## ######   ########     ##     ## ########        ## ######   ##          ##    
-##     ## ##       ##       ##  #### ##     ## ##       ##   ##      ##     ## ##     ## ##    ## ##       ##          ##    
-##     ## ##       ##       ##   ### ##     ## ##       ##    ##     ##     ## ##     ## ##    ## ##       ##    ##    ##    
-########  ######## ######## ##    ## ########  ######## ##     ##     #######  ########   ######  ########  ######     ##    
+########  ##       ######## ##    ## ########  ######## ########      #######  ########        ## ########  ######  ########
+##     ## ##       ##       ###   ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##    ##    ##
+##     ## ##       ##       ####  ## ##     ## ##       ##     ##    ##     ## ##     ##       ## ##       ##          ##
+########  ##       ######   ## ## ## ##     ## ######   ########     ##     ## ########        ## ######   ##          ##
+##     ## ##       ##       ##  #### ##     ## ##       ##   ##      ##     ## ##     ## ##    ## ##       ##          ##
+##     ## ##       ##       ##   ### ##     ## ##       ##    ##     ##     ## ##     ## ##    ## ##       ##    ##    ##
+########  ######## ######## ##    ## ########  ######## ##     ##     #######  ########   ######  ########  ######     ##
 
 def WriteVRayNodeBlenderOutputGeometry(bus, nodetree, node):
     scene = bus['scene']
@@ -224,7 +220,7 @@ def WriteVRayNodeTexLayered(bus, nodetree, node):
 
     textures    = []
     blend_modes = []
-    
+
     for inputSocket in node.inputs:
         if not inputSocket.is_linked:
             continue
@@ -433,7 +429,7 @@ def WriteVRayMaterialNodeTree(bus, ntree, force=False):
     if 'material_override' in bus:
         if bus['material_override'] is not None and outputNode.dontOverride == False:
             return bus['material_override']
-    
+
     # Check connection
     #
     materialSocket = outputNode.inputs['Material']
