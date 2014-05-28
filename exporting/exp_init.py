@@ -27,7 +27,7 @@ import _vray_for_blender
 import bpy
 
 
-def InitExporter(bus, isAnimation=False, frameStart=1, frameStep=1):
+def InitExporter(bus, isAnimation=False):
     scene  = bus['scene']
     engine = bus['engine']
     o      = bus['output']
@@ -54,8 +54,8 @@ def InitExporter(bus, isAnimation=False, frameStart=1, frameStep=1):
         textureFile  = o.fileManager.getFileByPluginType('TEXTURE'),
 
         isAnimation = isAnimation,
-        frameStart  = frameStart,
-        frameStep   = frameStep,
+        frameStart  = o.frameStart,
+        frameStep   = o.frameStep,
 
         drSharePath = drSharePath,
     )
