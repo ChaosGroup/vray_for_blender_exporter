@@ -117,6 +117,7 @@ def ExportFullNotMeshes(bus):
     return None
 
 
+@debug.TimeIt
 def ExportFullRange(bus):
     scene = bus['scene']
     o     = bus['output']
@@ -132,7 +133,6 @@ def ExportFullRange(bus):
     f = o.frameStart
     while(f <= o.frameEnd):
         scene.frame_set(f)
-
         o.setFrame(f)
         _vray_for_blender.setFrame(f)
 
