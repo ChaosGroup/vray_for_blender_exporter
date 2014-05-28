@@ -32,6 +32,8 @@ from vb30.nodes import tools     as NodesTools
 from vb30.vray_tools.VRaySceneParser import ParseVrscene
 from vb30.vray_tools.VrmatParser     import ParseVrmat
 
+from vb30 import debug
+
 
 def ImportMaterials(context, filePath, baseMaterial):
     vrsceneDict = {}
@@ -81,6 +83,8 @@ def ImportMaterials(context, filePath, baseMaterial):
             materialNames.append(pluginName)
 
     for maName in materialNames:
+        debug.PrintInfo("Importing material: %s" % maName)
+
         pluginDesc = NodesImport.getPluginByName(vrsceneDict, maName)
 
         ntree = bpy.data.node_groups.new(maName, type='VRayNodeTreeMaterial')
