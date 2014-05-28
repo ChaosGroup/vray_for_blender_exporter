@@ -41,8 +41,8 @@ def ExportCamera(bus):
         'SettingsMotionBlur',
         'SettingsCameraDof',
         'SettingsCamera',
-        'RenderView',
         'CameraPhysical',
+        'RenderView',
         'VRayStereoscopicSettings',
     )
 
