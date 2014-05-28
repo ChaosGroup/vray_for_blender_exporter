@@ -88,6 +88,13 @@ class VRayExporter(bpy.types.PropertyGroup):
     ##        ##   ##  ##        ##     ## ##    ##     ##
     ######## ##     ## ##         #######  ##     ##    ##
 
+    ntreeExportDirectory = bpy.props.StringProperty(
+        name = "Export Path",
+        subtype = 'DIR_PATH',
+        description = "Export directory",
+        default = "//vrscenes/"
+    )
+
     activeLayers = bpy.props.EnumProperty(
         name        = "Active layers",
         description = "Render objects from layers",
