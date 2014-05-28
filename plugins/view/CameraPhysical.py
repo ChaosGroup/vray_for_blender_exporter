@@ -242,14 +242,14 @@ PluginParams = (
         'attr' : 'specify_fov',
         'desc' : "Use field of view instead of use the focal length, film width, scale etc",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
-    # {
-    #     'attr' : 'fov',
-    #     'desc' : "the FOV value (in radians) to use when specify_fov is true",
-    #     'type' : 'FLOAT',
-    #     'default' : 1.5708,
-    # },
+    {
+        'attr' : 'fov',
+        'desc' : "the FOV value (in radians) to use when specify_fov is true",
+        'type' : 'FLOAT',
+        'default' : 1.5708,
+    },
     {
         'attr' : 'horizontal_shift',
         'desc' : "the horizontal lens shift",
@@ -305,7 +305,7 @@ PluginParams = (
         'type' : 'BOOL',
         'skip' : True,
         'default' : False,
-    },    
+    },
     {
         'attr' : 'use',
         'desc' : "Use Physical Camera",
@@ -358,17 +358,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if aspect < 1.0:
         fov = fov * aspect
 
-    focus_distance = camera.data.dof_distance
-    if camera.data.dof_object:
-        focus_distance = LibUtils.GetDistanceObOb(camera, camera.data.dof_object)
-    if focus_distance < 0.001:
-        focus_distance = 200.0 # XXX: Check this, 'focus_distance' was always buggy...
-
     overrideParams.update({
-        # Setup FOV in 'RenderView' plugin
-        # 'fov' : fov,
-        
-        'focus_distance' : focus_distance,
+        'fov' : fov,
+
+        'focus_distance' : BlenderUtils.GetCameraDofDistance(camera),
         'lens_shift'     : GetLensShift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 
         'horizontal_offset' : -camera.data.shift_x,
@@ -376,57 +369,3 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
-
-
-# def write(bus):
-#     TYPE= {
-#         'STILL':     0,
-#         'CINEMATIC': 1,
-#         'VIDEO':     2,
-#     }
-
-#     ofile=  bus['files']['camera']
-#     scene=  bus['scene']
-#     camera= bus['camera']
-
-#     VRayCamera=     camera.data.vray
-#     CameraPhysical= VRayCamera.CameraPhysical
-
-#     fov= VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
-
-#     aspect= scene.render.resolution_x / scene.render.resolution_y
-
-#     if aspect < 1.0:
-#         fov= fov * aspect
-
-#     focus_distance= camera.data.dof_distance
-#     if camera.data.dof_object:
-#         focus_distance= get_distance(camera, camera.data.dof_object)
-
-#     if focus_distance < 0.001:
-#         focus_distance= 200.0
-
-#     if CameraPhysical.use:
-#         ofile.write("\n// Camera: %s" % (camera.name))
-#         ofile.write("\nCameraPhysical PhysicalCamera {")
-#         ofile.write("\n\ttype=%d;" % TYPE[CameraPhysical.type])
-#         ofile.write("\n\tspecify_focus= 1;")
-#         ofile.write("\n\tfocus_distance=%s;" % a(scene,focus_distance))
-#         ofile.write("\n\tspecify_fov=%i;" % CameraPhysical.specify_fov)
-#         ofile.write("\n\tfov=%s;" % a(scene,fov))
-#         ofile.write("\n\twhite_balance=%s;" % a(scene, CameraPhysical.white_balance))
-
-        # aspect = scene.render.resolution_x / scene.render.resolution_y
-        # mult = 1.72 if aspect < 1.0 else 1.0
-
-        # ofile.write("\n\thorizontal_offset= %s;" % a(scene, -camera.data.shift_x * mult))
-        # ofile.write("\n\tvertical_offset= %s;"   % a(scene, -camera.data.shift_y * mult))
-
-#         for param in PARAMS:
-#             if param == 'lens_shift' and CameraPhysical.guess_lens_shift:
-#                 value= get_lens_shift(camera)
-#             else:
-#                 value= getattr(CameraPhysical,param)
-#             ofile.write("\n\t%s=%s;"%(param, a(scene,value)))
-
-#         ofile.write("\n}\n")
