@@ -29,6 +29,8 @@ import bpy
 from vb30.plugins import PLUGINS_ID
 from vb30.lib     import AttributeUtils
 
+from vb30 import debug
+
 from .sockets import AddInput, AddOutput
 from .utils   import GetConnectedNode
 
@@ -80,13 +82,13 @@ def getSocketName(pluginParams, attrName):
     return attrDesc.get('name', AttributeUtils.GetNameFromAttr(attrDesc['attr']))
 
 
-######## ######## ##     ##       ##          ###    ##    ## ######## ########  ######## ########  
-   ##    ##        ##   ##        ##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
-   ##    ##         ## ##         ##        ##   ##    ####   ##       ##     ## ##       ##     ## 
-   ##    ######      ###          ##       ##     ##    ##    ######   ########  ######   ##     ## 
-   ##    ##         ## ##         ##       #########    ##    ##       ##   ##   ##       ##     ## 
-   ##    ##        ##   ##        ##       ##     ##    ##    ##       ##    ##  ##       ##     ## 
-   ##    ######## ##     ##       ######## ##     ##    ##    ######## ##     ## ######## ########  
+######## ######## ##     ##       ##          ###    ##    ## ######## ########  ######## ########
+   ##    ##        ##   ##        ##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
+   ##    ##         ## ##         ##        ##   ##    ####   ##       ##     ## ##       ##     ##
+   ##    ######      ###          ##       ##     ##    ##    ######   ########  ######   ##     ##
+   ##    ##         ## ##         ##       #########    ##    ##       ##   ##   ##       ##     ##
+   ##    ##        ##   ##        ##       ##     ##    ##    ##       ##    ##  ##       ##     ##
+   ##    ######## ##     ##       ######## ##     ##    ##    ######## ##     ## ######## ########
 
 def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
     textures    = pluginDesc['Attributes']['textures']
@@ -120,8 +122,8 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
             texPlugOutput = getOutputSocket(texPlugin['ID'])
 
         texNode = createNode(ntree, texLayeredNode, vrsceneDict, texPlugin)
-
-        ntree.links.new(texNode.outputs[texPlugOutput], texSocket)
+        if texNode:
+            ntree.links.new(texNode.outputs[texPlugOutput], texSocket)
 
     for attrName in pluginDesc['Attributes']:
         # Skip lists
@@ -136,16 +138,20 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
     return texLayeredNode
 
 
-########  ########  ########  ########       ##          ###    ##    ## ######## ########  ######## ########  
-##     ## ##     ## ##     ## ##             ##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
-##     ## ##     ## ##     ## ##             ##        ##   ##    ####   ##       ##     ## ##       ##     ## 
-########  ########  ##     ## ######         ##       ##     ##    ##    ######   ########  ######   ##     ## 
-##     ## ##   ##   ##     ## ##             ##       #########    ##    ##       ##   ##   ##       ##     ## 
-##     ## ##    ##  ##     ## ##             ##       ##     ##    ##    ##       ##    ##  ##       ##     ## 
-########  ##     ## ########  ##             ######## ##     ##    ##    ######## ##     ## ######## ########  
+########  ########  ########  ########       ##          ###    ##    ## ######## ########  ######## ########
+##     ## ##     ## ##     ## ##             ##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
+##     ## ##     ## ##     ## ##             ##        ##   ##    ####   ##       ##     ## ##       ##     ##
+########  ########  ##     ## ######         ##       ##     ##    ##    ######   ########  ######   ##     ##
+##     ## ##   ##   ##     ## ##             ##       #########    ##    ##       ##   ##   ##       ##     ##
+##     ## ##    ##  ##     ## ##             ##       ##     ##    ##    ##       ##    ##  ##       ##     ##
+########  ##     ## ########  ##             ######## ##     ##    ##    ######## ##     ## ######## ########
 
 def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
     def processSocket(thisNode, socket, attrValue):
+        # Could happen with some broken files
+        if not attrValue:
+            return
+
         plName   = attrValue
         plOutput = None
         if plName.find("::") != -1:
@@ -159,35 +165,34 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
                 plOutput = getOutputSocket(pl['ID'])
 
             inNode = createNode(ntree, thisNode, vrsceneDict, pl)
-
-            ntree.links.new(inNode.outputs[plOutput], socket)
+            if inNode:
+                ntree.links.new(inNode.outputs[plOutput], socket)
         else:
             socket.value = attrValue
 
-        return inNode
-
-    brdfs   = pluginDesc['Attributes']['brdfs']
-    weights = pluginDesc['Attributes']['weights']
+    brdfs   = pluginDesc['Attributes'].get('brdfs')
+    weights = pluginDesc['Attributes'].get('weights')
 
     brdfLayeredNode = ntree.nodes.new('VRayNodeBRDFLayered')
 
-    for i,brdf in enumerate(brdfs):
-        humanIndex = i + 1
+    if brdfs and weights:
+        for i,brdf in enumerate(brdfs):
+            humanIndex = i + 1
 
-        brdfSockName   = "BRDF %s"   % humanIndex
-        weightSockName = "Weight %s" % humanIndex
+            brdfSockName   = "BRDF %s"   % humanIndex
+            weightSockName = "Weight %s" % humanIndex
 
-        # NOTE: Node already has two inputs
-        if not brdfSockName in brdfLayeredNode.inputs:
-            AddInput(brdfLayeredNode, 'VRaySocketBRDF',       brdfSockName)
-            AddInput(brdfLayeredNode, 'VRaySocketFloatColor', weightSockName)
-            brdfLayeredNode.inputs[weightSockName].value = 1.0
+            # NOTE: Node already has two inputs
+            if not brdfSockName in brdfLayeredNode.inputs:
+                AddInput(brdfLayeredNode, 'VRaySocketBRDF',       brdfSockName)
+                AddInput(brdfLayeredNode, 'VRaySocketFloatColor', weightSockName)
+                brdfLayeredNode.inputs[weightSockName].value = 1.0
 
-        brdfSocket   = brdfLayeredNode.inputs[brdfSockName]
-        weightSocket = brdfLayeredNode.inputs[weightSockName]
+            brdfSocket   = brdfLayeredNode.inputs[brdfSockName]
+            weightSocket = brdfLayeredNode.inputs[weightSockName]
 
-        processSocket(brdfLayeredNode, brdfSocket,   brdf)
-        processSocket(brdfLayeredNode, weightSocket, weights[i])
+            processSocket(brdfLayeredNode, brdfSocket,   brdf)
+            processSocket(brdfLayeredNode, weightSocket, weights[i])
 
     for attrName in pluginDesc['Attributes']:
         # Skip lists
@@ -202,13 +207,13 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
     return brdfLayeredNode
 
 
-########  #### ######## ##     ##    ###    ########        ########  ##     ## ######## ######## ######## ########  
-##     ##  ##     ##    ###   ###   ## ##   ##     ##       ##     ## ##     ## ##       ##       ##       ##     ## 
-##     ##  ##     ##    #### ####  ##   ##  ##     ##       ##     ## ##     ## ##       ##       ##       ##     ## 
-########   ##     ##    ## ### ## ##     ## ########        ########  ##     ## ######   ######   ######   ########  
-##     ##  ##     ##    ##     ## ######### ##              ##     ## ##     ## ##       ##       ##       ##   ##   
-##     ##  ##     ##    ##     ## ##     ## ##              ##     ## ##     ## ##       ##       ##       ##    ##  
-########  ####    ##    ##     ## ##     ## ##              ########   #######  ##       ##       ######## ##     ## 
+########  #### ######## ##     ##    ###    ########        ########  ##     ## ######## ######## ######## ########
+##     ##  ##     ##    ###   ###   ## ##   ##     ##       ##     ## ##     ## ##       ##       ##       ##     ##
+##     ##  ##     ##    #### ####  ##   ##  ##     ##       ##     ## ##     ## ##       ##       ##       ##     ##
+########   ##     ##    ## ### ## ##     ## ########        ########  ##     ## ######   ######   ######   ########
+##     ##  ##     ##    ##     ## ######### ##              ##     ## ##     ## ##       ##       ##       ##   ##
+##     ##  ##     ##    ##     ## ##     ## ##              ##     ## ##     ## ##       ##       ##       ##    ##
+########  ####    ##    ##     ## ##     ## ##              ########   #######  ##       ##       ######## ##     ##
 
 def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
     pluginModule = PLUGINS_ID.get('BitmapBuffer')
@@ -242,13 +247,123 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
     return bitmatBuffer
 
 
- ######   ######## ##    ## ######## ########  ####  ######  
-##    ##  ##       ###   ## ##       ##     ##  ##  ##    ## 
-##        ##       ####  ## ##       ##     ##  ##  ##       
-##   #### ######   ## ## ## ######   ########   ##  ##       
-##    ##  ##       ##  #### ##       ##   ##    ##  ##       
-##    ##  ##       ##   ### ##       ##    ##   ##  ##    ## 
- ######   ######## ##    ## ######## ##     ## ####  ######  
+########     ###    ##     ## ########   ######
+##     ##   ## ##   ###   ### ##     ## ##    ##
+##     ##  ##   ##  #### #### ##     ## ##
+########  ##     ## ## ### ## ########   ######
+##   ##   ######### ##     ## ##              ##
+##    ##  ##     ## ##     ## ##        ##    ##
+##     ## ##     ## ##     ## ##         ######
+
+CollapsibleTypes = {
+    'TexAColor',
+    'TexCombineColor',
+}
+
+
+def CollapseToValue(pluginDesc):
+    pluginID    = pluginDesc['ID']
+    pluginAttrs = pluginDesc['Attributes']
+
+    if pluginID == 'TexAColor':
+        color = pluginAttrs['texture']
+        # 'color' is mapped, nothing to do
+        if type(color) is str:
+            return None
+        return color
+
+    elif pluginID == 'TexCombineColor':
+        color   = pluginAttrs['color']
+        texture = pluginAttrs['texture']
+
+        texture_multiplier = pluginAttrs['texture_multiplier']
+
+        # 'texture' is mapped, nothing to do
+        if type(texture) is str:
+            return None
+
+        # TODO: Finish value calculations
+
+        return 0.0
+
+    return None
+
+
+def FillRamp(vrsceneDict, ramp, colors, positions):
+    RampElements = []
+
+    for col, pos in zip(colors, positions):
+        rampElement = {
+            'color'    : col,
+            'position' : pos,
+        }
+
+        for key in rampElement:
+            value = rampElement[key]
+
+            if type(value) is str:
+                conPlugin   = getPluginByName(vrsceneDict, value)
+                conPluginID = conPlugin['ID']
+
+                if conPluginID not in CollapsibleTypes:
+                    debug.PrintError("Plugin '%s': Unsupported parameter value! This shouldn't happen! Please, report this!" % conPluginID)
+                    rampElement[key] = None
+                else:
+                    rampElement[key] = CollapseToValue(conPlugin)
+
+        RampElements.append(rampElement)
+
+    # Create ramp elements
+    # Ramp already has 2 elements
+    elementsToCreate = len(RampElements) - 2
+    for i in range(elementsToCreate):
+        # We will setup proper position later
+        ramp.elements.new(0.0)
+
+    # Setup elements values
+    elementStep = 1.0 / len(ramp.elements)
+
+    for i,rampElement in enumerate(RampElements):
+        col = rampElement['color']
+        if col is None:
+            col = (1.0,1.0,1.0)
+
+        pos = rampElement['position']
+        if pos is None:
+            pos = i * elementStep
+
+        el = ramp.elements[i]
+        el.color    = col
+        el.position = pos
+
+
+def createNodeTexGradRamp(ntree, prevNode, vrsceneDict, pluginDesc):
+    pluginModule = PLUGINS_ID.get('TexGradRamp')
+    texGradRamp  = ntree.nodes.new('VRayNodeTexGradRamp')
+    propGroup    = texGradRamp.TexGradRamp
+
+    attributes   = pluginDesc['Attributes']
+
+    FillRamp(vrsceneDict,
+        texGradRamp.texture.color_ramp,
+        attributes['colors'],
+        attributes['positions']
+    )
+
+    return texGradRamp
+
+
+def createNodeTexRemap(ntree, prevNode, vrsceneDict, pluginDesc):
+    return None
+
+
+ ######   ######## ##    ## ######## ########  ####  ######
+##    ##  ##       ###   ## ##       ##     ##  ##  ##    ##
+##        ##       ####  ## ##       ##     ##  ##  ##
+##   #### ######   ## ## ## ######   ########   ##  ##
+##    ##  ##       ##  #### ##       ##   ##    ##  ##
+##    ##  ##       ##   ### ##       ##    ##   ##  ##    ##
+ ######   ######## ##    ## ######## ##     ## ####  ######
 
 def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
     from vb30.plugins import PLUGINS_ID
@@ -271,17 +386,15 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
         return createNodeBitmapBuffer(ntree, prevNode, vrsceneDict, pluginDesc)
 
     elif pluginID == 'TexGradRamp':
-        # TODO
-        return "NULL"
+        return createNodeTexGradRamp(ntree, prevNode, vrsceneDict, pluginDesc)
 
     elif pluginID == 'TexRemap':
-        # TODO
-        return "NULL"
+        return createNodeTexRemap(ntree, prevNode, vrsceneDict, pluginDesc)
 
     else:
         pluginModule = PLUGINS_ID.get(pluginID)
         if pluginModule is None:
-            print("Plugin '%s' is not yet supported! This shouldn't happen! Please, report this!" % pluginID)
+            debug.PrintError("Plugin '%s' is not yet supported! This shouldn't happen! Please, report this!" % pluginID)
             return None
 
         n = ntree.nodes.new('VRayNode%s' % pluginID)
@@ -309,28 +422,31 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
             if attrDesc['type'] in AttributeUtils.OutputTypes:
                 continue
 
-            # Attribute could possibly be mapped with other node
-            # Check if we could find requested node in a vrsceneDict
-            #
-            if attrDesc['type'] in AttributeUtils.InputTypes:
+            if attrDesc['type'] not in AttributeUtils.InputTypes:
+                # Attribute is not mappable, so simply set it's value
+                if attrDesc['type'] == 'ENUM':
+                    attrValue = str(attrValue)
+
+                setattr(propGroup, attrName, attrValue)
+
+            else:
+                # Attribute could possibly be mapped with other node
+                # Check if we could find requested node in a vrsceneDict
                 if type(attrValue) is str:
                     inPluginName   = attrValue
                     inPluginOutput = None
 
                     # Check if a specific output is requested (like MyTexture::out_intensity)
-                    #
                     if inPluginName.find("::") != -1:
                         inPluginName, inPluginOutput = attrValue.split("::")
 
                     # Set socket value
-                    #
                     connectedPlugin = getPluginByName(vrsceneDict, inPluginName)
                     if connectedPlugin is None:
                         attrSocket = n.inputs[attrSocketName]
                         attrSocket.value = attrValue
 
                     # Create connected plugin
-                    #
                     else:
                         connectedPluginID = connectedPlugin['ID']
 
@@ -345,6 +461,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                         if connectedNode:
                             ntree.links.new(connectedNode.outputs[inPluginOutputSocketName], n.inputs[attrSocketName])
 
+                # Attr is not linked - set socket default value
                 else:
                     attrSocket = n.inputs[attrSocketName]
 
@@ -354,13 +471,5 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                             attrValue = attrValue[:3]
 
                     attrSocket.value = attrValue
-
-                continue
-
-            # Attribute is not mappable, so simply set it's value
-            if attrDesc['type'] == 'ENUM':
-                attrValue = str(attrValue)
-
-            setattr(propGroup, attrName, attrValue)
 
     return n
