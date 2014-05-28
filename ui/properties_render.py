@@ -1134,24 +1134,22 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 		return VRayBake.use and classes.VRayRenderPanel.poll(context)
 
 	def draw(self, context):
-		wide_ui= context.region.width > classes.narrowui
+		wide_ui = context.region.width > classes.narrowui
 
-		VRayScene= context.scene.vray
-		VRayBake= VRayScene.BakeView
+		VRayScene = context.scene.vray
+		VRayBake  = VRayScene.BakeView
 
-		layout= self.layout
+		layout = self.layout
+		layout.prop_search(VRayBake, 'bake_node', context.scene, 'objects')
 
-		split= layout.split()
-		col= split.column()
-		col.prop_search(VRayBake, 'bake_node', context.scene, 'objects')
+		layout.separator()
+		layout.prop(VRayBake, 'uv_channel')
 
-		col.prop(VRayBake, 'uvChannel')
-
-		split= layout.split()
-		col= split.column()
+		split = layout.split()
+		col = split.column()
 		col.prop(VRayBake, 'dilation')
 		if wide_ui:
-			col= split.column()
+			col = split.column()
 		col.prop(VRayBake, 'flip_derivs')
 
 
