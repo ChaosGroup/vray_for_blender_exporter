@@ -43,7 +43,7 @@ def ExportSingleFrame(bus):
 
     if VRayExporter.frames_to_export > 1:
         frameStart = scene.frame_current
-        frameEnd   = frameStart + VRayExporter.frames_to_export
+        frameEnd   = frameStart + VRayExporter.frames_to_export - 1
         frameStep  = scene.frame_step
 
         o.setAnimation(True)
