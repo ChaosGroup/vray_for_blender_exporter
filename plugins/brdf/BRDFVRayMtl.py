@@ -728,3 +728,7 @@ PluginWidget = """
     }
 ]}
 """
+
+
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'brdf_type', text="Type")
