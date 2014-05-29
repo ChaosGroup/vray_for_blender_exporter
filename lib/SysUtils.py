@@ -29,6 +29,8 @@ import sys
 
 import bpy
 
+from vb30 import debug
+
 from . import BlenderUtils
 
 
@@ -122,14 +124,14 @@ def GetVRayStandalonePath():
     for var in reversed(sorted(os.environ.keys())):
         if var.startswith('VRAY_FOR_MAYA'):
             if var.find('MAIN') != -1:
-                debug(sce, "Searching in: %s" % (var))
-                vray_maya= find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
+                debug.PrintInfo("Searching in: %s" % var)
+                vray_maya = find_vray_binary([os.path.join(path, 'bin') for path in get_env_paths(var)])
                 if vray_maya:
-                    debug(sce, "V-Ray found in: %s" % (vray_maya))
+                    debug.PrintInfo("V-Ray found in: %s" % vray_maya)
                     return vray_maya
 
     # Try to find vray binary in %PATH%
-    debug(sce, "V-Ray not found! Trying to start \"%s\" command from $PATH..." % (vray_bin), True)
+    debug.PrintError("V-Ray not found! Trying to start \"%s\" command from $PATH..." % vray_bin)
 
     return shutil.which(vray_bin)
 
