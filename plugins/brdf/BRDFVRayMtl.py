@@ -71,6 +71,8 @@ PluginParams = (
             ('0', "Phong", "Phong"),
             ('1', "Blinn", "Blinn"),
             ('2', "Ward",  "Ward"),
+            ('3', "V-Ray", "V-Ray"),
+            ('4', "GGX",   "GGX"),
         ),
         'default' : '1',
     },
