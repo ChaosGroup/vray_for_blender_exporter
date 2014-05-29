@@ -37,7 +37,7 @@ from bpy.props import *
 
 import vb30.proxy
 
-from vb30.lib     import LibUtils, BlenderUtils
+from vb30.lib     import LibUtils, BlenderUtils, PathUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 
 
@@ -55,7 +55,7 @@ class VRAY_OT_update(bpy.types.Operator):
 	bl_description = "Update exporter from github"
 
 	def execute(self, context):
-		update_dir = create_dir(os.path.join(tempfile.gettempdir(), "vb30_update"))
+		update_dir = PathUtils.CreateDirectory(os.path.join(tempfile.gettempdir(), "vb30_update"))
 
 		# Downloading file
 		self.report({'INFO'}, "Downloading 'master' branch archive...")
