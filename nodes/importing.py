@@ -227,12 +227,16 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
 
     # TODO: Search for missing textures under file location
     #
-    if os.path.exists(imageFilepath):
-        filedir, filename = os.path.split(imageFilepath)
-        fname, fext = os.path.splitext(filename)
+    if not os.path.exists(imageFilepath):
+        debug.PrintError("Couldn't find file: %s" % imageFilepath)
+    else:
+        imageBlockName = bpy.path.display_name_from_filepath(imageFilepath)
 
-        bitmapTexture.image = bpy.data.images.load(imageFilepath)
-        bitmapTexture.image.name = fname
+        if imageBlockName in bpy.data.images:
+            bitmapTexture.image = bpy.data.images[imageBlockName]
+        else:
+            bitmapTexture.image = bpy.data.images.load(imageFilepath)
+            bitmapTexture.image.name = imageBlockName
 
     for attrName in pluginDesc['Attributes']:
         attrDesc  = getParamDesc(pluginModule.PluginParams, attrName)
