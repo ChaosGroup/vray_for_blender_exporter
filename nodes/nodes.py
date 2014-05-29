@@ -179,8 +179,6 @@ class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeSelectObject)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectNodeTree)
-        add_nodetype(self.layout, bpy.types.VRayNodeTransform)
-        add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
 
 
 class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
@@ -216,6 +214,15 @@ class VRayNodesMenuLights(bpy.types.Menu, tree.VRayData):
             add_nodetype(self.layout, vrayNodeType)
 
 
+class VRayNodesMenuMath(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesMenuMath"
+    bl_label  = "Math"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.VRayNodeTransform)
+        add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
+
+
 def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuGeom", icon='MESH_DATA')
     self.layout.menu("VRayNodesMenuLights", icon='LAMP')
@@ -223,6 +230,7 @@ def VRayNodesMenu(self, context):
     self.layout.menu("VRayNodesMenuMaterial", icon='MATERIAL')
     self.layout.menu("VRayNodesMenuTexture", icon='TEXTURE')
     self.layout.menu("VRayNodesMenuMapping", icon='GROUP_UVS')
+    self.layout.menu("VRayNodesMenuMath", icon='MANIPUL')
     self.layout.menu("VRayNodesMenuSelector", icon='ZOOM_SELECTED')
     self.layout.menu("VRayNodesMenuOutput", icon='OBJECT_DATA')
     self.layout.menu("VRayNodesMenuEnvironment", icon='WORLD')
@@ -505,6 +513,7 @@ StaticClasses = (
     VRayNodesMenuSelector,
     VRayNodesMenuTexture,
     VRayNodesMenuRenderChannels,
+    VRayNodesMenuMath,
 )
 
 
