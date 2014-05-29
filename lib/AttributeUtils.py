@@ -107,6 +107,7 @@ for key in TypeToLightSocket:
 TypeToProp = {
     'BOOL'   : bpy.props.BoolProperty,
     'COLOR'  : bpy.props.FloatVectorProperty,
+    'ACOLOR' : bpy.props.FloatVectorProperty,
     'VECTOR' : bpy.props.FloatVectorProperty,
     'ENUM'   : bpy.props.EnumProperty,
     'FLOAT'  : bpy.props.FloatProperty,
