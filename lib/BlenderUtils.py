@@ -22,6 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import math
 import os
 import tempfile
 
@@ -218,12 +219,27 @@ def GetDistanceObOb(ob1, ob2):
 def GetCameraDofDistance(ca):
     dofDistance = ca.data.dof_distance
 
-    dofObjectName = ca.data.dof_object
-    if dofObjectName and dofObjectName in bpy.context.scene.objects:
-        dofObject = bpy.context.scene.objects[dofObjectName]
+    dofObject = ca.data.dof_object
+    if dofObject:
         dofDistance = GetDistanceObOb(ca, dofObject)
 
     return dofDistance
+
+
+def GetCameraFOV(camera):
+    scene      = bpy.context.scene
+    VRayCamera = camera.data.vray
+
+    fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
+
+    orthoWidth = camera.data.ortho_scale
+    aspect     = scene.render.resolution_x / scene.render.resolution_y
+
+    if aspect < 1.0:
+        fov = 2 * math.atan(math.tan(fov/2.0) * aspect)
+        orthoWidth *= aspect
+
+    return fov, orthoWidth
 
 
 def GetUserConfigDir():
