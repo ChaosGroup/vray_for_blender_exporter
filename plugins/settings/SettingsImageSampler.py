@@ -190,7 +190,7 @@ PluginParams = (
     },
     {
         'attr' : 'min_shade_rate',
-        'name' : "Min Sading Rate",
+        'name' : "Min Shading Rate",
         'desc' : "",
         'type' : 'INT',
         'default' : 2,
@@ -198,7 +198,7 @@ PluginParams = (
 
     {
         'attr' : 'use_dmc_treshhold',
-        'name' : "Use DMC sampler threshold",
+        'name' : "Use DMC Sampler Threshold",
         'desc' : "Use threshold specified in the \"DMC sampler\"",
         'type' : 'BOOL',
         'skip' : True,
