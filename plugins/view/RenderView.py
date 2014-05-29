@@ -163,12 +163,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     SettingsCamera = VRayCamera.SettingsCamera
     SettingsCameraDof = VRayCamera.SettingsCameraDof
 
-    fov = VRayCamera.fov if VRayCamera.override_fov else ca.data.angle
-
-    aspect = float(scene.render.resolution_x) / float(scene.render.resolution_y)
-
-    if aspect < 1.0:
-        fov = fov * aspect
+    fov, orthoWidth = BlenderUtils.GetCameraFOV(ca)
 
     overrideParams['use_scene_offset'] = SysUtils.IsRTEngine(bus)
     overrideParams['clipping'] = RenderView.clip_near or RenderView.clip_far
@@ -185,6 +180,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         overrideParams['transform'] = ca.matrix_world
     if 'orthographic' not in overrideParams:
         overrideParams['orthographic'] = ca.data.type == 'ORTHO'
+    overrideParams['orthographicWidth'] = orthoWidth
 
     overrideParams['focalDistance'] = BlenderUtils.GetCameraDofDistance(ca)
     overrideParams['aperture']      = SettingsCameraDof.aperture
