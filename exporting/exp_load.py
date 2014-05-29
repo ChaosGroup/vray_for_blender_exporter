@@ -31,7 +31,7 @@ def LoadImage(scene, engine, o, p):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    if VRayExporter.animation:
+    if VRayExporter.animation_mode not in {'NONE'}:
         return
 
     imageToBlender = VRayExporter.auto_save_render and VRayExporter.image_to_blender
