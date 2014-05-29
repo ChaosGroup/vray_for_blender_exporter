@@ -297,10 +297,16 @@ def VRayNodeInit(self, context):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
+        attr_options = attr.get('option')
+
         if attr['type'] in AttributeUtils.InputTypes:
             TypeToSocket = AttributeUtils.TypeToSocket
             if self.vray_type == 'LIGHT':
-                TypeToSocket = AttributeUtils.TypeToLightSocket
+                TypeToSocket = AttributeUtils.TypeToSocketNoValue
+
+            if attr_options:
+                if 'LINKED_ONLY' in attr_options:
+                    TypeToSocket = AttributeUtils.TypeToSocketNoValue
 
             AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 

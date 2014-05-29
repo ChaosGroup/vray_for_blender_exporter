@@ -71,6 +71,7 @@ PluginParams = (
         'name' : 'Environment',
         'desc' : "Environment override texture",
         'type' : 'TEXTURE',
+        'option' : ['LINKED_ONLY'],
         'default' : (1.0,1.0,1.0),
     },
     {
