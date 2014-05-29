@@ -122,15 +122,15 @@ PluginParams = (
     {
         'attr' : 'ground_on',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
+        'type' : 'BOOL',
+        'default' : False,
     },
-    # {
-    #     'attr' : 'ground_position',
-    #     'desc' : "",
-    #     'type' : 'VECTOR',
-    #     'default' : (0, 0, 0),
-    # },
+    {
+        'attr' : 'ground_position',
+        'desc' : "",
+        'type' : 'VECTOR',
+        'default' : (0, 0, 0),
+    },
     {
         'attr' : 'ground_radius',
         'desc' : "",
