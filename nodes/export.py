@@ -366,6 +366,8 @@ def WriteNode(bus, nodetree, node, linkedOnly=False):
         return WriteVRayNodeBlenderOutputMaterial(bus, nodetree, node)
     elif node.bl_idname == 'VRayNodeTransform':
         return node.getTransform()
+    elif node.bl_idname == 'VRayNodeMatrix':
+        return node.getMatrix()
 
     pluginName = LibUtils.CleanString("NT%sN%s" % (nodetree.name, node.name))
     if pluginName in bus['cache']['plugins']:

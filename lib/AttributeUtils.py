@@ -45,7 +45,6 @@ SkippedTypes = {
     'LIST',
     'INT_LIST',
     'FLOAT_LIST',
-    'MATRIX',
     'TRANSFORM_TEXTURE',
 }
 
@@ -59,6 +58,7 @@ InputTypes = {
     'UVWGEN',
     'VECTOR',
     'TRANSFORM',
+    'MATRIX',
 }
 
 OutputTypes = {
@@ -77,7 +77,7 @@ TypeToSocket = {
     'INT'    : 'VRaySocketInt',
 
     'TRANSFORM' : 'VRaySocketTransform',
-    'MATRIX'    : 'VRaySocketMatrix',
+    'MATRIX'    : 'VRaySocketTransform',
 
     'BRDF'     : 'VRaySocketBRDF',
     'GEOMETRY' : 'VRaySocketGeom',
@@ -114,7 +114,7 @@ TypeToProp = {
     'STRING' : bpy.props.StringProperty,
 
     'TRANSFORM' : bpy.props.StringProperty,
-    'MATRIX'    : bpy.props.FloatVectorProperty,
+    'MATRIX'    : bpy.props.StringProperty,
 
     'BRDF'     : bpy.props.StringProperty,
     'GEOMETRY' : bpy.props.StringProperty,
@@ -210,7 +210,7 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
         pass
 
-    elif attrDesc['type'] in {'TRANSFORM'}:
+    elif attrDesc['type'] in {'TRANSFORM', 'MATRIX'}:
         # Currenlty used as fake string attribute
         # attrArgs['size']    = 16
         # attrArgs['subtype'] = 'MATRIX'

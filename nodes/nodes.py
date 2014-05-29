@@ -180,6 +180,7 @@ class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
         add_nodetype(self.layout, bpy.types.VRayNodeSelectNodeTree)
         add_nodetype(self.layout, bpy.types.VRayNodeTransform)
+        add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
 
 
 class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):

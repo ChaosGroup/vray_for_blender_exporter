@@ -84,6 +84,50 @@ class VRayNodeTransform(bpy.types.Node):
         return tm
 
 
+class VRayNodeMatrix(bpy.types.Node):
+    bl_idname = 'VRayNodeMatrix'
+    bl_label  = 'Matrix'
+    bl_icon   = 'AXIS_TOP'
+
+    vray_type   = 'NONE'
+    vray_plugin = 'NONE'
+
+    rotate = bpy.props.FloatVectorProperty(
+        name        = "Rotation",
+        description = "Rotation",
+        size        = 3,
+        unit        = 'ROTATION',
+        default     = (0.0, 0.0, 0.0)
+    )
+
+    scale = bpy.props.FloatVectorProperty(
+        name        = "Scale",
+        description = "Scale",
+        size        = 3,
+        unit        = 'AREA',
+        default     = (1.0, 1.0, 1.0)
+    )
+
+    def init(self, context):
+        AddOutput(self, 'VRaySocketTransform', "Matrix")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'rotate')
+        layout.prop(self, 'scale')
+
+    def getMatrix(self):
+        mat_rot  = mathutils.Matrix.Rotation(self.rotate[0], 3, 'X') * \
+                   mathutils.Matrix.Rotation(self.rotate[1], 3, 'Y') * \
+                   mathutils.Matrix.Rotation(self.rotate[2], 3, 'Z')
+
+        mat_sca  = mathutils.Matrix.Scale(self.scale[0], 3, (1.0, 0.0, 0.0)) * \
+                   mathutils.Matrix.Scale(self.scale[1], 3, (0.0, 1.0, 0.0)) * \
+                   mathutils.Matrix.Scale(self.scale[2], 3, (0.0, 0.0, 1.0))
+
+        tm = mat_rot * mat_sca
+
+        return tm
+
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
@@ -96,6 +140,7 @@ class VRayNodeTransform(bpy.types.Node):
 def GetRegClasses():
     return (
         VRayNodeTransform,
+        VRayNodeMatrix,
     )
 
 
