@@ -22,6 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
+from vb30.lib import LibUtils, ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'VRayStereoscopicSettings'
 NAME = 'Stereo Render'
@@ -168,3 +173,23 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    o      = bus['output']
+    scene  = bus['scene']
+    camera = bus['camera']
+
+    VRayCamera = camera.data.vray
+    CameraStereoscopic = VRayCamera.CameraStereoscopic
+
+    if CameraStereoscopic.use:
+        cam = bpy.data.objects.get(CameraStereoscopic.LeftCam)
+        if cam:
+            overrideParams['left_camera']  = LibUtils.CleanString(cam.name)
+
+        cam = bpy.data.objects.get(CameraStereoscopic.RightCam)
+        if cam:
+            overrideParams['right_camera'] = LibUtils.CleanString(cam.name)
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
