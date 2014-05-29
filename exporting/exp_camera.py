@@ -43,6 +43,7 @@ def ExportCamera(bus):
         'SettingsCamera',
         'CameraPhysical',
         'RenderView',
+        'CameraStereoscopic',
         'VRayStereoscopicSettings',
     )
 
