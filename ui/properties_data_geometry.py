@@ -27,6 +27,14 @@ import bpy
 from vb30.ui import classes
 
 
+def GetContextData(context):
+	if context.active_object.type == 'MESH':
+		return context.mesh
+	else:
+		return context.curve
+	return data
+
+
 class VRAY_DP_tools(classes.VRayGeomPanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -39,7 +47,9 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 
 		layout= self.layout
 
-		VRayMesh=     context.mesh.vray
+		data = GetContextData(context)
+
+		VRayMesh = data.vray
 		GeomMeshFile= VRayMesh.GeomMeshFile
 
 		layout.label(text="Generate VRayProxy:")
