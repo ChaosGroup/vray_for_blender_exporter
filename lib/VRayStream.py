@@ -544,7 +544,11 @@ class VRayPluginExporter:
             p += "\n\t%s=%s;" % (attrName, self.pluginAttrs[attrName])
         p += "\n}\n"
 
-        self.fileManager.getOutputFile(self.pluginType).write(p)
+        outputFile = self.fileManager.getOutputFile(self.pluginType)
+        if self.pluginID == 'VRayStereoscopicSettings':
+            outputFile = self.fileManager.getOutputFile('CAMERA')
+
+        outputFile.write(p)
 
         # Reset current plugin
         self.pluginType  = None
