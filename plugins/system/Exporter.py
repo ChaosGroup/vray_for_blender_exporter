@@ -166,7 +166,7 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "Exporting directory",
         items = (
             ('USER',  "Custom Directory", ""),
-            ('SCENE', "Scene Dile Directory",   ""),
+            ('SCENE', "Scene File Directory",   ""),
             ('TMP',   "Global TMP directory",   "")
         ),
         default = 'TMP'
