@@ -231,6 +231,7 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
         debug.PrintError("Couldn't find file: %s" % imageFilepath)
     else:
         imageBlockName = bpy.path.display_name_from_filepath(imageFilepath)
+        imageFilepath = imageFilepath.replace("\\", "/")
 
         if imageBlockName in bpy.data.images:
             bitmapTexture.image = bpy.data.images[imageBlockName]
