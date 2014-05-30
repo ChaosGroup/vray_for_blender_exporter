@@ -1294,6 +1294,7 @@ def GetRegClasses():
 		VRAY_RP_dr,
 		VRAY_RP_bake,
 		VRAY_RP_SettingsSystem,
+		VRAY_RP_VRayStereoscopicSettings,
 	)
 
 
