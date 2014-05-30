@@ -203,28 +203,37 @@ class VRayProcess:
         cmd     = self.getCommandLine()
         errCode = 0
 
+        commandLine = " ".join(cmd)
+
+        baseFile = self.sceneFile
+        if bpy.data.filepath:
+            baseFile = bpy.data.filepath
+
+        sceneFileName = bpy.path.display_name_from_filepath(baseFile)
+        runExt        = "bat" if sys.platform == 'win32' else "sh"
+        cmdSep        = "^" if sys.platform == 'win32' else "\\"
+
+        runFilename = "render_%s.%s" % (sceneFileName, runExt)
+        runFilepath = os.path.join(os.path.dirname(baseFile), runFilename)
+
+        debug.PrintInfo("Generating %s..." % runFilename)
+        debug.PrintInfo("Command Line: %s" % commandLine)
+
+        fileCmdLine = ""
+        for c in cmd:
+            fileCmdLine += c + " %s\n" % cmdSep
+
+        with open(runFilepath, 'w') as f:
+            f.write(fileCmdLine)
+            f.write("\n")
+
+        if sys.platform not in {'win32'}:
+            os.chmod(runFilepath, 0o744)
+
         if self.autorun:
             self.process = subprocess.Popen(cmd)
             if self.waitExit:
                 errCode = self.process.wait()
-        else:
-            commandLine = " ".join(cmd)
-            debug.PrintInfo("Command Line: %s" % commandLine)
-
-            if bpy.data.filepath:
-                sceneFileName = bpy.path.display_name_from_filepath(bpy.data.filepath)
-                runExt        = "bat" if sys.platform == 'win32' else "sh"
-
-                runFilename = "render_%s.%s" % (sceneFileName, runExt)
-                runFullfilepath = os.path.join(os.path.dirname(bpy.data.filepath), runFilename)
-
-                debug.PrintInfo("Generating %s..." % runFilename)
-
-                with open(runFullfilepath, 'w') as f:
-                    f.write(commandLine)
-
-                if sys.platform not in {'win32'}:
-                    os.chmod(runFullfilepath, 0o744)
 
         return errCode
 
