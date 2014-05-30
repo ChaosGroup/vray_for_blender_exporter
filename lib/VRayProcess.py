@@ -22,12 +22,15 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
 import os
 import re
 import struct
 import subprocess
 import signal
 import sys
+import shutil
 import tempfile
 
 from vb30 import debug
@@ -205,7 +208,23 @@ class VRayProcess:
             if self.waitExit:
                 errCode = self.process.wait()
         else:
-            debug.PrintInfo("Command Line: %s" % " ".join(cmd))
+            commandLine = " ".join(cmd)
+            debug.PrintInfo("Command Line: %s" % commandLine)
+
+            if bpy.data.filepath:
+                sceneFileName = bpy.path.display_name_from_filepath(bpy.data.filepath)
+                runExt        = "bat" if sys.platform == 'win32' else "sh"
+
+                runFilename = "render_%s.%s" % (sceneFileName, runExt)
+                runFullfilepath = os.path.join(os.path.dirname(bpy.data.filepath), runFilename)
+
+                debug.PrintInfo("Generating %s..." % runFilename)
+
+                with open(runFullfilepath, 'w') as f:
+                    f.write(commandLine)
+
+                if sys.platform not in {'win32'}:
+                    os.chmod(runFullfilepath, 0o744)
 
         return errCode
 
