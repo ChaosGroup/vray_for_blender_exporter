@@ -42,21 +42,6 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 		row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 
 
-class VRAY_OBP_render(classes.VRayObjectPanel):
-	bl_label = "Render"
-	bl_options = {'DEFAULT_CLOSED'}
-
-	def draw_header(self, context):
-		self.layout.label(text="", icon='VRAY_LOGO_MONO')
-
-	def draw(self, context):
-		layout = self.layout
-
-		VRayObject = context.object.vray
-
-		layout.prop(VRayObject, 'fade_radius')
-
-
 class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 	bl_label   = "VRayPattern"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -141,7 +126,6 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
-		VRAY_OBP_render,
 		VRAY_OBP_VRayPattern,
 	)
 
