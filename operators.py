@@ -62,11 +62,18 @@ class VRAY_OT_update(bpy.types.Operator):
 
 		git = shutil.which("git")
 		if not git:
-			# Try default path
-			git = "C:/Program Files (x86)/Git/bin/git.exe"
-			if not os.path.exists(git):
+			if sys.platform == 'win32':
+				# Try default path
+				git = "C:/Program Files (x86)/Git/bin/git.exe"
+				if os.path.exists(git):
+					self.report({'ERROR'}, "Git is not found!")
+					return {'CANCELLED'}
+			else:
 				self.report({'ERROR'}, "Git is not found!")
 				return {'CANCELLED'}
+
+		if sys.platform == 'win32':
+			git = "\"%s\"" % git
 
 		os.chdir(exporterDir)
 		os.system("%s pull --rebase" % git)
