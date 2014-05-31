@@ -26,6 +26,7 @@ import getpass
 import os
 import socket
 import sys
+import shutil
 
 import bpy
 
