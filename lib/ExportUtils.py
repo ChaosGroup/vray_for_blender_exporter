@@ -67,6 +67,11 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
         if attrName in mappedParams:
             value = mappedParams[attrName]
 
+            # This allows us to use None to skip
+            # particular parameter export
+            if value is None:
+                continue
+
         if value is None:
             value = getattr(propGroup, attrName)
 
@@ -87,10 +92,6 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
 
             subtype = attrDesc.get('subtype')
             if subtype in {'FILE_PATH', 'DIR_PATH'}:
-                # This check is basically for the default unsaved scene
-                if not BlenderUtils.RelativePathValid(value):
-                    continue
-
                 value = BlenderUtils.GetFullFilepath(value)
 
                 if subtype == 'FILE_PATH':
@@ -101,6 +102,8 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
                 elif subtype == 'DIR_PATH':
                     # Ensure slash at the end of directory path
                     value = os.path.normpath(value) + os.sep
+
+                value = PathUtils.CreateDirectoryFromFilepath(value)
 
             value = '"%s"' % value
 
