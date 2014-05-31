@@ -1,7 +1,7 @@
 // Fail-safe defaults begin
 UVWGenChannel DEFAULTUVWC {
 	uvw_channel=0;
-	uvw_transform=Transform(Matrix(Vector(1.0,0.0,0.0),Vector(0.0,1.0,0.0),Vector(0.0,0.0,1.0)),Vector(0.0,0.0,0.0));
+	uvw_transform=TransformHex("0000803F0000000000000000000000000000803F0000000000000000000000000000803F00000000000000000000000000000000000000000000000000000000");
 }
 TexChecker TENOTEXTUREIESSET {
 	uvwgen=DEFAULTUVWC;
