@@ -36,8 +36,6 @@ from vb30.lib import LibUtils
 
 TYPE = 'CAMERA'
 ID   = 'CameraStereoscopic'
-PLUG = 'CameraStereoscopic'
-
 NAME = 'Stereoscopic camera'
 DESC = "V-Ray CameraStereoscopic settings"
 
@@ -67,7 +65,7 @@ class CameraStereoscopic(bpy.types.PropertyGroup):
 	)
 
 	use_convergence = BoolProperty(
-		name        = "Use convergence",
+		name        = "Use Convergence",
 		description = "",
 		default     = False,
 		update      = stereoRigUpdate
