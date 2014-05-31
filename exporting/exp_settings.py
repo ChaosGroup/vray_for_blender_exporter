@@ -44,16 +44,15 @@ def ExportSettings(bus):
     SettingsOutput = VRayScene.SettingsOutput
     SettingsGI     = VRayScene.SettingsGI
 
-    for pluginType in {'SETTINGS', 'SETTINGS_GLOBAL', 'CAMERA'}:
+    for pluginType in {'SETTINGS', 'SETTINGS_GLOBAL'}:
         for pluginName in PLUGINS[pluginType]:
             if pluginName in {'BakeView',
-
+                              'VRayStereoscopicSettings',
                               'SettingsPtexBaker',
                               'SettingsVertexBaker',
                               'SettingsCurrentFrame',
                               'SettingsLightTree',
                               'SettingsVRST',
-                              'CameraStereoscopic',
                               'SettingsEnvironment'}:
                 continue
 
@@ -61,21 +60,11 @@ def ExportSettings(bus):
                               'SettingsVFB'}:
                 continue
 
-            # Skip camera plugins, we export then separately
-            if pluginName in {'RenderView',
-                              'VRayStereoscopicSettings',
-                              'CameraPhysical',
-                              'SettingsCamera',
-                              'SettingsMotionBlur',
-                              'SettingsCameraDof'}:
-                continue
-
-
             pluginModule = PLUGINS[pluginType][pluginName]
 
             propGroup      = None
             overrideParams = {}
-            
+
             if pluginName == 'SettingsRegionsGenerator':
                 propGroup = getattr(VRayScene, pluginName)
 
@@ -87,7 +76,7 @@ def ExportSettings(bus):
                 continue
             elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
                 propGroup = getattr(VRayScene, pluginName)
-                
+
                 if SettingsGI.primary_engine != '4':
                     continue
 
@@ -99,7 +88,7 @@ def ExportSettings(bus):
                         continue
             else:
                 propGroup = getattr(VRayScene, pluginName)
-            
+
             if not propGroup:
                 continue
 
