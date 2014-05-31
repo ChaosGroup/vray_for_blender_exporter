@@ -133,6 +133,8 @@ def CopyDRAsset(bus, srcFilepath):
         'lens'   : "misc",
         'vrmesh' : "proxy",
         'vrmap'  : "lightmaps",
+        'vrst'   : "lightmaps",
+        'vrsm'   : "lightmaps",
     }
 
     srcFilename = os.path.basename(srcFilepath)
