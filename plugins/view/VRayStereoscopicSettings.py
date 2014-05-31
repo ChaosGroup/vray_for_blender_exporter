@@ -111,7 +111,8 @@ PluginParams = (
         'attr' : 'shademap_file',
         'desc' : "The name of the file in which the shade map information is stored",
         'type' : 'STRING',
-        'default' : "",
+        'subtype' : 'FILE_PATH',
+        'default' : "//lightmaps/shade.vrst",
     },
     {
         'attr' : 'float_colors_mode',
@@ -183,13 +184,22 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     VRayCamera = camera.data.vray
     CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-    if CameraStereoscopic.use:
-        cam = bpy.data.objects.get(CameraStereoscopic.LeftCam)
-        if cam:
-            overrideParams['left_camera']  = LibUtils.CleanString(cam.name)
+    # XXX: Some code is broken in VRayStereoscopicSettings
+    # Export it only if we are use CameraStereoscopic to calculate views
+    #
+    if not CameraStereoscopic.use:
+        return
 
-        cam = bpy.data.objects.get(CameraStereoscopic.RightCam)
-        if cam:
-            overrideParams['right_camera'] = LibUtils.CleanString(cam.name)
+    cam = bpy.data.objects.get(CameraStereoscopic.LeftCam)
+    if cam:
+        overrideParams['left_camera']  = LibUtils.CleanString(cam.name)
+
+    cam = bpy.data.objects.get(CameraStereoscopic.RightCam)
+    if cam:
+        overrideParams['right_camera'] = LibUtils.CleanString(cam.name)
+
+    # NOTE: Shademap is currently broken
+    overrideParams['sm_mode'] = 0
+    overrideParams['shademap_file'] = None
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
