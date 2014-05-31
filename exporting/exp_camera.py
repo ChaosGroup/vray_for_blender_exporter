@@ -53,8 +53,6 @@ def ExportCamera(bus):
 
         if pluginName == 'VRayStereoscopicSettings':
             propGroup = getattr(VRayScene, pluginName)
-            if not propGroup.use:
-                continue
         elif pluginName == 'CameraStereoscopic':
             PLUGINS_ID['CameraStereoscopic'].write(bus)
             continue
@@ -62,6 +60,13 @@ def ExportCamera(bus):
             propGroup = getattr(VRayCamera, pluginName)
 
         if not propGroup:
+            continue
+
+        enabled = True
+        for enableAttr in {'use', 'on'}:
+            if hasattr(propGroup, enableAttr):
+                enabled = getattr(propGroup, enableAttr)
+        if not enabled:
             continue
 
         pluginModule = PLUGINS_ID[pluginName]
