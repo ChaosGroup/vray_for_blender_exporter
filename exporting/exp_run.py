@@ -69,6 +69,7 @@ def Run(bus):
     #     p.setRegion(x0, y0, x1, y1, useCrop=scene.render.use_crop_to_border)
 
     if engine.is_preview:
+        p.setPreview(True)
         p.setShowProgress(0)
         p.setVerboseLevel(0)
         p.setAutoclose(True)
