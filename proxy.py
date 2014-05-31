@@ -223,7 +223,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 		VRayExporter = VRayScene.Exporter
 
 		def _create_proxy(ob):
-			if ob.type in ('LAMP','CAMERA','ARMATURE','LATTICE','EMPTY'):
+			if ob.type in {'LAMP','CAMERA','SPEAKER','ARMATURE','LATTICE','EMPTY'}:
 				return
 
 			timer= time.clock()
