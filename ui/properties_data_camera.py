@@ -268,11 +268,7 @@ class VRAY_DP_camera_stereoscopic(classes.VRayCameraPanel):
 		VRayCamera = ca.vray
 		CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-		# RADIOBUT_OFF RADIOBUT_ON
-		if CameraStereoscopic.use:
-			icon_name = "CHECKBOX_HLT"
-		else:
-			icon_name = "CHECKBOX_DEHLT"
+		icon_name = "CHECKBOX_HLT" if CameraStereoscopic.use else "CHECKBOX_DEHLT"
 
 		self.layout.operator('vray.create_stereo_cam', text="", icon=icon_name, emboss=False)
 
@@ -286,15 +282,17 @@ class VRAY_DP_camera_stereoscopic(classes.VRayCameraPanel):
 		layout = self.layout
 		layout.active = CameraStereoscopic.use
 
-		split= layout.split()
-		col= split.column()
-		sub= col.column(align=True)
-		sub.prop(CameraStereoscopic, 'stereo_base', text="Eye Distance")
-		sub.prop(CameraStereoscopic, 'stereo_distance', text="Fov Distance")
-		sub.prop(CameraStereoscopic, 'use_convergence', text="Use convergence")
-		sub.prop(CameraStereoscopic, 'show_cams', text="Show L/R cameras")
+		split = layout.split()
+		col = split.column(align=True)
+		col.prop(CameraStereoscopic, 'stereo_base', text="Eye Distance")
+		col.prop(CameraStereoscopic, 'stereo_distance', text="Focus Distance")
+
+		split = layout.split()
+		col = split.column()
+		col.prop(CameraStereoscopic, 'use_convergence', text="Use convergence")
+		col.prop(CameraStereoscopic, 'show_cams', text="Show L/R cameras")
 		if CameraStereoscopic.show_cams:
-			sub.prop(CameraStereoscopic, 'show_limits', text="Show Limits")
+			col.prop(CameraStereoscopic, 'show_limits', text="Show Limits")
 
 
 class VRAY_DP_hide_from_view(classes.VRayCameraPanel):
