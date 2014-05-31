@@ -85,13 +85,13 @@ def PollEngine(cls, context):
     return rd.engine in cls.COMPAT_ENGINES
 
 
-########  ########     ###    ##      ## 
-##     ## ##     ##   ## ##   ##  ##  ## 
-##     ## ##     ##  ##   ##  ##  ##  ## 
-##     ## ########  ##     ## ##  ##  ## 
-##     ## ##   ##   ######### ##  ##  ## 
-##     ## ##    ##  ##     ## ##  ##  ## 
-########  ##     ## ##     ##  ###  ###  
+########  ########     ###    ##      ##
+##     ## ##     ##   ## ##   ##  ##  ##
+##     ## ##     ##  ##   ##  ##  ##  ##
+##     ## ########  ##     ## ##  ##  ##
+##     ## ##   ##   ######### ##  ##  ##
+##     ## ##    ##  ##     ## ##  ##  ##
+########  ##     ## ##     ##  ###  ###
 
 def DrawPluginUIAuto(context, layout, propGroup, pluginID):
     pluginModule = plugins.GetPluginByName(pluginID)
@@ -171,7 +171,7 @@ class VRayDataPanel(VRayPanel):
 
 
 class VRayGeomPanel(VRayDataPanel):
-    incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE', 'EMPTY'}
 
     @classmethod
     def poll(cls, context):
@@ -205,7 +205,7 @@ class VRayObjectPanel(VRayPanel):
     bl_region_type = 'WINDOW'
     bl_context     = 'object'
 
-    incompatTypes  = {'LAMP', 'CAMERA', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE', 'EMPTY'}
 
     @classmethod
     def poll(cls, context):
