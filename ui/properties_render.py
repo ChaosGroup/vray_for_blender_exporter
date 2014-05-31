@@ -287,10 +287,13 @@ class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 		col.prop(VRayStereoscopicSettings, 'view')
 		col.prop(VRayStereoscopicSettings, 'adjust_resolution')
 
-		layout.separator()
-		layout.prop(VRayStereoscopicSettings, 'shademap_file', text="Shademap")
-		layout.prop(VRayStereoscopicSettings, 'sm_mode', text="Mode")
-		layout.prop(VRayStereoscopicSettings, 'reuse_threshold')
+		# NOTE: Shademap is currently broken
+		# layout.separator()
+		# layout.prop(VRayStereoscopicSettings, 'sm_mode', text="Mode")
+		# sub = layout.row()
+		# sub.active = VRayStereoscopicSettings.sm_mode != '0'
+		# sub.prop(VRayStereoscopicSettings, 'shademap_file', text="Shademap")
+		# layout.prop(VRayStereoscopicSettings, 'reuse_threshold')
 
 		#layout.separator()
 		#layout.prop(VRayStereoscopicSettings, 'exclude_list')
@@ -455,6 +458,9 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				col.prop(VRayExporter, 'log_window_type', text="Terminal")
 				if VRayExporter.log_window_type == 'CUSTOM':
 					col.prop(VRayExporter, 'log_window_term')
+
+		layout.separator()
+		layout.operator('vray.update', icon='FILE_REFRESH')
 
 
  ######   #######  ##        #######  ########     ##     ##    ###    ########  ########  #### ##    ##  ######

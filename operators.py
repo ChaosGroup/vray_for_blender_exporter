@@ -26,9 +26,8 @@ import os
 import subprocess
 import tempfile
 import time
-import zipfile
-import urllib.request
 import sys
+import shutil
 
 import bpy
 
@@ -37,7 +36,7 @@ from bpy.props import *
 
 import vb30.proxy
 
-from vb30.lib     import LibUtils, BlenderUtils, PathUtils
+from vb30.lib     import LibUtils, BlenderUtils, PathUtils, SysUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 
 
@@ -55,64 +54,25 @@ class VRAY_OT_update(bpy.types.Operator):
 	bl_description = "Update exporter from github"
 
 	def execute(self, context):
-		update_dir = PathUtils.CreateDirectory(os.path.join(tempfile.gettempdir(), "vb30_update"))
-
-		# Downloading file
-		self.report({'INFO'}, "Downloading 'master' branch archive...")
-
-		GIT_MASTER_URL = "https://github.com/bdancer/vb30/zipball/master"
-
-		# devnote: urllib2 not available, urllib's fancyurlopener returns errors anyways (when connection is not available)
-		# so this is a working 'ugly fix' that at leasts works. Sorry the ghetto fix.
-		try:
-			(filename, headers) = urllib.request.urlretrieve(GIT_MASTER_URL)
-		except urllib.error.URLError:
-			self.report({'ERROR'}, "Error retrieving the files. Check your connection.")
+		# Check if target dir is writable
+		exporterDir = SysUtils.GetExporterPath()
+		if not os.access(exporterDir, os.W_OK):
+			self.report({'ERROR'}, "Exporter directory is not writable!")
 			return {'CANCELLED'}
 
-		# Extracting archive
-		ziparchive = zipfile.ZipFile(filename)
-		ziparchive.extractall(update_dir)
-		ziparchive.close()
+		git = shutil.which("git")
+		if not git:
+			# Try default path
+			git = "C:/Program Files (x86)/Git/bin/git.exe"
+			if not os.path.exists(git):
+				self.report({'ERROR'}, "Git is not found!")
+				return {'CANCELLED'}
 
-		# Check update dir
-		cur_vb30_dirpath = get_vray_exporter_path()
-		new_vb30_dirpath = ""
+		os.chdir(exporterDir)
+		os.system("%s pull --rebase" % git)
+		os.system("%s submodule foreach git pull --rebase origin master" % git)
 
-		dirnames = os.listdir(update_dir)
-		for dirname in dirnames:
-			if dirname.startswith("bdancer-vb30-"):
-				new_vb30_dirpath = os.path.join(update_dir, dirname)
-				break
-
-		if not new_vb30_dirpath:
-			self.report({'ERROR'}, "Update files not found!")
-			return {'CANCELLED'}
-
-		# Copying new files
-		debug(context.scene, "Copying new files...")
-		if os.path.exists(cur_vb30_dirpath):
-			if sys.platform == 'win32':
-				for item in os.listdir(cur_vb30_dirpath):
-					s = os.path.join(cur_vb30_dirpath, item)
-					if os.path.isdir(s):
-						os.system("rmdir /Q /S %s" % s)
-					else:
-						os.system("del /Q /F %s" % s)
-			else:
-				shutil.rmtree(cur_vb30_dirpath)
-
-		copytree(new_vb30_dirpath, cur_vb30_dirpath)
-
-		if os.path.exists(filename):
-			self.report({'INFO'}, "Removing update archive: %s"%(filename))
-			os.remove(filename)
-
-		if os.path.exists(update_dir):
-			self.report({'INFO'}, "Removing update unpack directory: %s"%(update_dir))
-			shutil.rmtree(update_dir)
-
-		self.report({'INFO'}, "V-Ray/Blender exporter updated!")
+		self.report({'INFO'}, "V-Ray For Blender exporter is now updated! Please, restart Blender!")
 
 		return {'FINISHED'}
 
