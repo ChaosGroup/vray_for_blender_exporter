@@ -115,7 +115,7 @@ PluginWidget = """
     {   "layout" : "SEPARATOR" },
 
     {   "layout" : "SPLIT",
-        "active" : { "prop" : "mode", "condition" : "1" },
+        "active" : { "prop" : "mode", "condition" : "0" },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
