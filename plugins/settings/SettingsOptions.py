@@ -285,4 +285,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         if VRayDR.assetSharing == 'TRANSFER':
             overrideParams['misc_transferAssets'] = True
 
+    # NOTE: UI value defines inverse action
+    overrideParams['light_disableSelfIllumination'] = not propGroup.light_disableSelfIllumination
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
