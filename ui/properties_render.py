@@ -29,7 +29,7 @@ import bpy
 
 from vb30.lib import LibUtils
 from vb30.ui  import classes
-from vb30     import plugins
+from vb30     import plugins, preset
 
 
 ########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
@@ -394,11 +394,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
 
-		# row= layout.row(align=True)
-		# row.menu("VRAY_MT_preset_global", text=bpy.types.VRAY_MT_preset_global.bl_label)
-		# row.operator("vray.preset_add", text="", icon="ZOOMIN")
-		# row.operator("vray.preset_add", text="", icon="ZOOMOUT").remove_active = True
-		# layout.separator()
+		preset.GlobalPreset(layout)
 
 		layout.label(text="Options:")
 		split = layout.split()
