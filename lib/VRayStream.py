@@ -181,10 +181,8 @@ class VRayFilePaths:
                     # "Transfer Asssets" feature doesn't support "#include" statement ATM,
                     # so export everything in a single file
                     self.separateFiles = False
-
-                # TODO: Set filepath prefix for network paths here
-
-                export_filepath = bpy.path.abspath(VRayDR.shared_dir)
+                elif VRayDR.assetSharing == 'SHARE':
+                    export_filepath = bpy.path.abspath(VRayDR.shared_dir)
 
             self.exportDirectory = PathUtils.CreateDirectory(export_filepath)
             self.exportFilename  = export_filename
