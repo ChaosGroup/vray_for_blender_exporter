@@ -359,7 +359,19 @@ def createNodeTexGradRamp(ntree, prevNode, vrsceneDict, pluginDesc):
 
 
 def createNodeTexRemap(ntree, prevNode, vrsceneDict, pluginDesc):
-    return None
+    pluginModule = PLUGINS_ID.get('TexRemap')
+    texTexRemap  = ntree.nodes.new('VRayNodeTexRemap')
+    propGroup    = texTexRemap.TexRemap
+
+    attributes   = pluginDesc['Attributes']
+
+    FillRamp(vrsceneDict,
+        texTexRemap.texture.color_ramp,
+        attributes['color_colors'],
+        attributes['color_positions']
+    )
+
+    return texTexRemap
 
 
  ######   ######## ##    ## ######## ########  ####  ######
