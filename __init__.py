@@ -70,6 +70,7 @@ def register():
     proxy.register()
     keymap.register()
     events.register()
+    preset.register()
 
 
 def unregister():
@@ -83,3 +84,4 @@ def unregister():
     ui.unregister()
     keymap.unregister()
     events.unregister()
+    preset.unregister()
