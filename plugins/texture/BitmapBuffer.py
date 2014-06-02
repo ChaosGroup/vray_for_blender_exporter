@@ -180,7 +180,8 @@ def nodeDraw(context, layout, node):
 
     split = layout.split()
     row = split.row(align=True)
-    layout.template_preview(node.texture)
+    if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+        layout.template_preview(node.texture)
     layout.template_ID(node.texture, 'image', open='image.open')
 
 
@@ -188,7 +189,8 @@ def gui(context, layout, BitmapBuffer, node):
     if not node.texture:
         return
 
-    layout.template_preview(node.texture)
+    if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+        layout.template_preview(node.texture)
     layout.template_ID(node.texture, 'image', open='image.open')
     layout.separator()
 
