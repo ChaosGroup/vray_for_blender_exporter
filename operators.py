@@ -65,7 +65,7 @@ class VRAY_OT_update(bpy.types.Operator):
 			if sys.platform == 'win32':
 				# Try default path
 				git = "C:/Program Files (x86)/Git/bin/git.exe"
-				if os.path.exists(git):
+				if not os.path.exists(git):
 					self.report({'ERROR'}, "Git is not found!")
 					return {'CANCELLED'}
 			else:
