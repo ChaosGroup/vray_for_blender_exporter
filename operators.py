@@ -250,7 +250,16 @@ class VRAY_OT_dr_nodes_load(bpy.types.Operator):
 					continue
 
 				item = VRayDR.nodes.add()
-				item.name, item.address = l.split(":")
+
+				nodeSetup = l.split(":")
+
+				# For compatibility
+				if len(nodeSetup) == 2:
+					item.name, item.address = nodeSetup
+				else:
+					item.name    = nodeSetup[0]
+					item.address = nodeSetup[1]
+					item.use     = int(nodeSetup[2])
 
 		VRayDR.nodes_selected = 0
 
@@ -270,7 +279,7 @@ class VRAY_OT_dr_nodes_save(bpy.types.Operator):
 
 		with open(nodesFilepath, 'w') as nodesFile:
 			for item in VRayDR.nodes:
-				nodesFile.write("%s:%s\n" % (item.name, item.address))
+				nodesFile.write("%s:%s:%i\n" % (item.name, item.address, item.use))
 
 		return {'FINISHED'}
 
