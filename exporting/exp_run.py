@@ -56,17 +56,16 @@ def Run(bus):
     p.setDisplaySRGB(VRayExporter.display_srgb)
 
     # TODO: Rewrite into 'SettingsOutput'
-    #
-    # if scene.render.use_border:
-    #     resolution_x = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
-    #     resolution_y = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
-    #
-    #     x0 = resolution_x *        scene.render.border_min_x
-    #     y0 = resolution_y * (1.0 - scene.render.border_max_y)
-    #     x1 = resolution_x *        scene.render.border_max_x
-    #     y1 = resolution_y * (1.0 - scene.render.border_min_y)
-    #
-    #     p.setRegion(x0, y0, x1, y1, useCrop=scene.render.use_crop_to_border)
+    if scene.render.use_border:
+        resolution_x = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
+        resolution_y = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
+
+        x0 = resolution_x *        scene.render.border_min_x
+        y0 = resolution_y * (1.0 - scene.render.border_max_y)
+        x1 = resolution_x *        scene.render.border_max_x
+        y1 = resolution_y * (1.0 - scene.render.border_min_y)
+
+        p.setRegion(x0, y0, x1, y1, useCrop=scene.render.use_crop_to_border)
 
     if engine.is_preview:
         p.setPreview(True)
