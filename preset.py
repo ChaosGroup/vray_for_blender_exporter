@@ -26,26 +26,279 @@ import os
 
 import bpy
 
+from vb30.plugins import PLUGINS_ID
 
-class VRAY_MT_preset_global(bpy.types.Menu):
-    bl_label        = "Global Presets"
-    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "render")
-    preset_operator = "script.execute_preset"
-    draw            = bpy.types.Menu.draw_preset
+from vb30.lib import VRayStream
+from vb30.lib import ExportUtils, SysUtils, LibUtils, PathUtils, BlenderUtils
 
+from vb30.nodes import importing
+from vb30.vray_tools.VRaySceneParser import ParseVrscene
 
-class VRAY_MT_preset_gi(bpy.types.Menu):
-    bl_label        = "GI Presets"
-    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "gi")
-    preset_operator = "script.execute_preset"
-    draw            = bpy.types.Menu.draw_preset
+from vb30 import debug
 
 
-class VRAY_MT_preset_im(bpy.types.Menu):
+ ######  ######## ######## ######## #### ##    ##  ######    ######
+##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ##
+##       ##          ##       ##     ##  ####  ## ##        ##
+ ######  ######      ##       ##     ##  ## ## ## ##   ####  ######
+      ## ##          ##       ##     ##  ##  #### ##    ##        ##
+##    ## ##          ##       ##     ##  ##   ### ##    ##  ##    ##
+ ######  ########    ##       ##    #### ##    ##  ######    ######
+
+PresetTypePlugins = {
+    'render' : (
+        'SettingsGI',
+        'SettingsLightCache',
+    ),
+}
+
+##     ## ######## ##    ## ##     ##    ########     ###     ######  ########
+###   ### ##       ###   ## ##     ##    ##     ##   ## ##   ##    ## ##
+#### #### ##       ####  ## ##     ##    ##     ##  ##   ##  ##       ##
+## ### ## ######   ## ## ## ##     ##    ########  ##     ##  ######  ######
+##     ## ##       ##  #### ##     ##    ##     ## #########       ## ##
+##     ## ##       ##   ### ##     ##    ##     ## ##     ## ##    ## ##
+##     ## ######## ##    ##  #######     ########  ##     ##  ######  ########
+
+class VRayPresetMenuBase(bpy.types.Menu):
+    def path_menu(self, searchpaths):
+        filter_ext = lambda ext: ext.lower() == ".vrscene"
+
+        if not searchpaths:
+            self.layout.label("* No Preset Data *")
+
+        files = []
+        for directory in searchpaths:
+            files.extend([(f, os.path.join(directory, f))
+                          for f in os.listdir(directory)
+                          if (not f.startswith("."))
+                          if ((filter_ext is None) or
+                              (filter_ext(os.path.splitext(f)[1])))
+                          ])
+
+        files.sort()
+
+        for f, filepath in files:
+            props = self.layout.operator("vray.preset_apply",
+                                         text=bpy.path.display_name(f),
+                                         translate=False)
+
+            props.filepath    = filepath
+            props.menu_idname = self.bl_idname
+
+    def draw(self, context):
+        presetPaths = (
+            os.path.join(SysUtils.GetExporterPath(), "presets", self.preset_subdir),
+            os.path.join(BlenderUtils.GetUserConfigDir(), "presets", self.preset_subdir),
+        )
+
+        paths = []
+        for path in presetPaths:
+            if os.path.exists(path):
+                paths.append(path)
+
+        self.path_menu(paths)
+
+
+   ###    ########  ########  ##       ##    ##
+  ## ##   ##     ## ##     ## ##        ##  ##
+ ##   ##  ##     ## ##     ## ##         ####
+##     ## ########  ########  ##          ##
+######### ##        ##        ##          ##
+##     ## ##        ##        ##          ##
+##     ## ##        ##        ########    ##
+
+class VRayPresetApply(bpy.types.Operator):
+    bl_idname = "vray.preset_apply"
+    bl_label = "Apply V-Ray preset"
+
+    filepath = bpy.props.StringProperty(
+        subtype = 'FILE_PATH',
+        options = {'SKIP_SAVE'},
+    )
+
+    menu_idname = bpy.props.StringProperty(
+        name        = "Menu ID Name",
+        description = "ID name of the menu this was called from",
+        options     = {'SKIP_SAVE'},
+    )
+
+    def execute(self, context):
+        filepath = self.filepath
+
+        # Сhange the menu title to the most recently chosen option
+        preset_class = getattr(bpy.types, self.menu_idname)
+        preset_class.bl_label = bpy.path.display_name(os.path.basename(filepath))
+
+        # Apply preset
+        #
+        debug.PrintInfo('Applying preset from "%s"' % filepath)
+
+        vrsceneDict = ParseVrscene(filepath)
+
+        for pluginDesc in vrsceneDict:
+            pluginID    = pluginDesc['ID']
+            pluginName  = pluginDesc['Name']
+            pluginAttrs = pluginDesc['Attributes']
+
+            pluginModule = PLUGINS_ID.get(pluginID)
+            if pluginModule is None:
+                continue
+
+            propGroup = getattr(context.scene.vray, pluginID)
+
+            for attrName in pluginAttrs:
+                attrDesc  = importing.getParamDesc(pluginModule.PluginParams, attrName)
+                if attrDesc is None:
+                    continue
+
+                attrValue = pluginAttrs[attrName]
+                if attrDesc['type'] == 'ENUM':
+                    attrValue = str(attrValue)
+
+                setattr(propGroup, attrName, attrValue)
+
+        return {'FINISHED'}
+
+
+   ###    ########  ########           ##    ########  ######## ##     ##  #######  ##     ## ########
+  ## ##   ##     ## ##     ##         ##     ##     ## ##       ###   ### ##     ## ##     ## ##
+ ##   ##  ##     ## ##     ##        ##      ##     ## ##       #### #### ##     ## ##     ## ##
+##     ## ##     ## ##     ##       ##       ########  ######   ## ### ## ##     ## ##     ## ######
+######### ##     ## ##     ##      ##        ##   ##   ##       ##     ## ##     ##  ##   ##  ##
+##     ## ##     ## ##     ##     ##         ##    ##  ##       ##     ## ##     ##   ## ##   ##
+##     ## ########  ########     ##          ##     ## ######## ##     ##  #######     ###    ########
+
+class VRayPresetAddBase:
+    name = bpy.props.StringProperty(
+        name        = "Name",
+        description = "Name of the preset, used to make the path name",
+        maxlen      =  64,
+        default     = ""
+    )
+
+    preset_menu = bpy.props.StringProperty(
+        name    = "Preset Menu",
+        options = {'SKIP_SAVE'},
+    )
+
+    preset_type = bpy.props.StringProperty(
+        name        = "Preset Type",
+        description = "Preset type (name of the preset sub-directory)",
+        default     = ""
+    )
+
+    remove_active = bpy.props.BoolProperty(
+        default = False,
+        options = {'HIDDEN'}
+    )
+
+    def draw(self, context):
+        self.layout.prop(self, 'name')
+
+    def invoke(self, context, event):
+        if not self.remove_active:
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
+        else:
+            return self.execute(context)
+
+    def execute(self, context):
+        preset_menu_class = getattr(bpy.types, self.preset_menu)
+
+        userPresetsSubdir = os.path.join(BlenderUtils.GetUserConfigDir(), "presets", self.preset_type)
+
+        exportPath = PathUtils.CreateDirectory(userPresetsSubdir)
+
+        presetName = preset_menu_class.bl_label if self.remove_active else self.name
+
+        fileName = "%s.vrscene" % LibUtils.CleanString(bpy.path.display_name(presetName))
+
+        outputFilepath = os.path.normpath(os.path.join(exportPath, fileName))
+
+        if self.remove_active:
+            debug.PrintInfo('Removing preset file: "%s"' % outputFilepath)
+            if not os.path.exists(outputFilepath):
+                return {'CANCELLED'}
+            try:
+                os.remove(outputFilepath)
+            except:
+                debug.PrintError('Error removing preset file: "%s"!' % outputFilepath)
+
+            # Set default menu name
+            preset_menu_class.bl_label = bpy.path.display_name(self.preset_type)
+
+        else:
+            bus = {
+                'output' : VRayStream.VRaySimplePluginExporter(outputFilepath),
+                'scene'  : context.scene,
+            }
+
+            for pluginID in PresetTypePlugins[self.preset_type]:
+                pluginModule = PLUGINS_ID.get(pluginID)
+                if pluginModule is None:
+                    continue
+
+                propGroup = getattr(context.scene.vray, pluginID)
+
+                ExportUtils.WritePlugin(bus, pluginModule, pluginID.lower(), propGroup, {})
+
+        return {'FINISHED'}
+
+
+##     ## ######## ##    ## ##     ##
+###   ### ##       ###   ## ##     ##
+#### #### ##       ####  ## ##     ##
+## ### ## ######   ## ## ## ##     ##
+##     ## ##       ##  #### ##     ##
+##     ## ##       ##   ### ##     ##
+##     ## ######## ##    ##  #######
+
+class VRayPresetMenuGlobal(VRayPresetMenuBase):
+    bl_label      = "Global Presets"
+    preset_subdir = "render"
+
+
+class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
+    bl_idname      = "vray.preset_add_global"
+    bl_label       = "Save Global Preset"
+    bl_description = "Save global preset"
+
+    def __init__(self):
+        self.preset_menu = 'VRayPresetMenuGlobal'
+        self.preset_type = 'render'
+
+
+class VRayPresetMenuGI(VRayPresetMenuBase):
+    bl_label      = "GI Presets"
+    preset_subdir = "gi"
+
+
+class VRayPresetMenuIM(VRayPresetMenuBase):
     bl_label        = "Irradiance Map Presets"
-    preset_subdir   = os.path.join("..", "startup", "vb30", "presets", "im")
-    preset_operator = "script.execute_preset"
-    draw            = bpy.types.Menu.draw_preset
+    preset_subdir   = "im"
+
+
+########  ########     ###    ##      ##
+##     ## ##     ##   ## ##   ##  ##  ##
+##     ## ##     ##  ##   ##  ##  ##  ##
+##     ## ########  ##     ## ##  ##  ##
+##     ## ##   ##   ######### ##  ##  ##
+##     ## ##    ##  ##     ## ##  ##  ##
+########  ##     ## ##     ##  ###  ###
+
+def PresetBase(layout, menuName, menuOperator):
+    menuClass = getattr(bpy.types, menuName)
+
+    row = layout.row(align=True)
+    row.menu(menuName, text=menuClass.bl_label)
+    row.operator(menuOperator, text="", icon="ZOOMIN")
+    row.operator(menuOperator, text="", icon="ZOOMOUT").remove_active = True
+    layout.separator()
+
+
+def GlobalPreset(layout):
+    PresetBase(layout, 'VRayPresetMenuGlobal', "vray.preset_add_global")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -58,9 +311,13 @@ class VRAY_MT_preset_im(bpy.types.Menu):
 
 def GetRegClasses():
     return (
-        VRAY_MT_preset_global,
-        VRAY_MT_preset_gi,
-        VRAY_MT_preset_im,
+        VRayPresetMenuGI,
+        VRayPresetMenuIM,
+
+        VRayPresetAddGlobal,
+        VRayPresetMenuGlobal,
+
+        VRayPresetApply,
     )
 
 
