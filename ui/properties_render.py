@@ -766,7 +766,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 		colR= split.column()
 		colR.prop(module, "mode", text="Mode")
 
-		if module.mode not in ('FILE', 'ANIM_REND'):
+		if module.mode not in {'2', '7'}:
 			# split= layout.split()
 			# col= split.column()
 			# col.label(text="Preset:")
@@ -812,7 +812,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 			col.prop(module,"randomize_samples", text="Randomize")
 			col.prop(module,"check_sample_visibility", text="Check sample")
 
-		if module.mode == 'FILE':
+		if module.mode == '2':
 			layout.label(text="Basic parameters:")
 			layout.prop(module,"interp_samples", text= "Interp. samples")
 
@@ -823,7 +823,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 			col.prop(module,"lookup_mode")
 			col.prop(module,"calc_interp_samples")
 
-		if module.mode == 'ANIM_REND':
+		if module.mode == '7':
 			split= layout.split()
 			split.label(text="Basic parameters:")
 
@@ -873,7 +873,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 		split= layout.split(percentage=0.3)
 		colL= split.column()
 		colR= split.column()
-		if module.mode in ('FILE', 'ANIM_REND'):
+		if module.mode in {'2', '7'}:
 			colL.label(text="Map file name:")
 			colR.prop(module,"file", text="")
 		else:
@@ -944,7 +944,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		col= split.column()
 		col.prop(module, "mode", text="Mode")
 
-		if not module.mode == 'FILE':
+		if not module.mode == '1':
 			layout.label(text="Calculation parameters:")
 			if wide_ui:
 				split= layout.split(percentage=0.6)
@@ -971,8 +971,8 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		sub= split.column().row()
 		sub.active= module.filter
 		sub.prop(module, "filter_type", text="Type")
-		if module.filter_type != 'NONE':
-			if module.filter_type == 'NEAREST':
+		if module.filter_type != '0':
+			if module.filter_type == '1':
 				sub.prop(module, "filter_samples")
 			else:
 				sub.prop(module, "filter_size")
@@ -1002,7 +1002,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		split= layout.split(percentage=0.3)
 		colL= split.column()
 		colR= split.column()
-		if module.mode == 'FILE':
+		if module.mode == '1':
 			colL.label(text="Map file name:")
 			colR.prop(module,"file", text="")
 		else:
