@@ -767,12 +767,12 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 		colR.prop(module, "mode", text="Mode")
 
 		if module.mode not in ('FILE', 'ANIM_REND'):
-			split= layout.split()
-			col= split.column()
-			col.label(text="Preset:")
-			if wide_ui:
-				col= split.column()
-			col.menu('VRAY_MT_preset_IM', text="Preset")
+			# split= layout.split()
+			# col= split.column()
+			# col.label(text="Preset:")
+			# if wide_ui:
+			# 	col= split.column()
+			# col.menu('VRAY_MT_preset_IM', text="Preset")
 
 			split= layout.split()
 			split.label(text="Basic parameters:")
