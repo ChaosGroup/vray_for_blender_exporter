@@ -318,12 +318,13 @@ def GetFullFilepath(filepath, holder=None):
     else:
         # Path is from linked library and is relative
         # Remove "//"
-        filepath = filepath[2:]
+        # filepath = filepath[2:]
 
         # Use library dirpath as relative root
-        libraryDirpath = os.path.dirname(bpy.path.abspath(holder.library.filepath))
+        # libraryDirpath = os.path.dirname(bpy.path.abspath(holder.library.filepath))
 
-        fullFilepath = os.path.normpath(os.path.join(libraryDirpath, filepath))
+        # fullFilepath = os.path.normpath(os.path.join(libraryDirpath, filepath))
+        fullFilepath = bpy.path.abspath(filepath, library=holder.library)
 
     fullFilepath = os.path.normpath(fullFilepath)
 
