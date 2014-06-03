@@ -1,0 +1,8 @@
+SettingsIrradianceMap SettingsIrradianceMap {
+	min_rate=-3;
+	max_rate=-1;
+	subdivs=50;
+	color_threshold=0.3;
+	normal_threshold=0.2;
+	distance_threshold=0.5;
+}
