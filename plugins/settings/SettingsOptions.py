@@ -82,13 +82,10 @@ PluginParams = (
     },
     {
         'attr' : 'light_disableSelfIllumination',
-        'name' : "Self Illumination",
-        'desc' : "self-Illumination",
+        'name' : "No Self Illumination",
+        'desc' : "Disable self illumination",
         'type' : 'BOOL',
-        'ui' : {
-            'inverted' : True,
-        },
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'gi_dontRenderImage',
@@ -284,8 +281,5 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if VRayDR.on:
         if VRayDR.assetSharing == 'TRANSFER':
             overrideParams['misc_transferAssets'] = True
-
-    # NOTE: UI value defines inverse action
-    overrideParams['light_disableSelfIllumination'] = not propGroup.light_disableSelfIllumination
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
