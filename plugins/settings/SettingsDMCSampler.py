@@ -43,12 +43,20 @@ PluginParams = (
         'attr' : 'adaptive_amount',
         'desc' : "A value of 1.0 means full adaptation; a value of 0.0 means no adaptation",
         'type' : 'FLOAT',
+        'ui' : {
+            'min' : 0.0,
+            'max' : 1.0,
+        },
         'default' : 0.85,
     },
     {
         'attr' : 'adaptive_threshold',
         'desc' : "Controls V-Ray's judgement of when a blurry value is \"good enough\" to be used",
         'type' : 'FLOAT',
+        'ui' : {
+            'min' : 0.0,
+            'max' : 1.0,
+        },
         'default' : 0.01,
     },
     {
@@ -66,13 +74,18 @@ PluginParams = (
     {
         'attr' : 'path_sampler_type',
         'desc' : "",
-        'type' : 'INT',
-        'default' : 2,
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "0", ""),
+            ('1', "1", ""),
+            ('2', "2", ""),
+        ),
+        'default' : '2',
     },
     {
         'attr' : 'div_shade_subdivs',
         'name' : "Divide Shading Subdivs",
-        'desc' : "",
+        'desc' : "Allow VRay to divide the number of samples for lights, materials etc by the number of AA samples in order to achieve roughly the same quality and number of rays when changing AA settings",
         'type' : 'BOOL',
         'default' : True,
     },
@@ -80,5 +93,25 @@ PluginParams = (
 
 PluginWidget = """
 { "widgets": [
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "adaptive_amount", "slider" : true },
+                    { "name" : "adaptive_threshold", "label" : "Noise Thresh." },
+                    { "name" : "subdivs_mult" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "adaptive_min_samples", "label" : "Min. Samples" },
+                    { "name" : "time_dependent" },
+                    { "name" : "div_shade_subdivs" }
+                ]
+            }
+        ]
+    }
 ]}
 """

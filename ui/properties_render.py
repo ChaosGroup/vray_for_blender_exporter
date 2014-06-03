@@ -541,22 +541,10 @@ class VRAY_RP_dmc(classes.VRayRenderPanel):
 	bl_label = "DMC Sampler"
 
 	def draw(self, context):
-		layout= self.layout
-		wide_ui= context.region.width > classes.narrowui
+		VRayScene = context.scene.vray
+		SettingsDMCSampler = VRayScene.SettingsDMCSampler
 
-		vs= context.scene.vray
-		module= vs.SettingsDMCSampler
-
-		split= layout.split()
-		col= split.column()
-		col.prop(module, "adaptive_threshold")
-		col.prop(module, "subdivs_mult")
-		col.prop(module, "time_dependent")
-
-		if wide_ui:
-			col= split.column()
-		col.prop(module, "adaptive_amount")
-		col.prop(module, "adaptive_min_samples")
+		classes.DrawPluginUIAuto(context, self.layout, SettingsDMCSampler, 'SettingsDMCSampler')
 
 
  ######   ####
