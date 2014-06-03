@@ -51,6 +51,7 @@ SkippedTypes = {
 InputTypes = {
     'BRDF',
     'FLOAT_TEXTURE',
+    'VECTOR_TEXTURE',
     'GEOMETRY',
     'MATERIAL',
     'PLUGIN',
@@ -88,6 +89,7 @@ TypeToSocket = {
     'TEXTURE'       : 'VRaySocketColor',
     'FLOAT_TEXTURE' : 'VRaySocketFloatColor',
     'INT_TEXTURE'   : 'VRaySocketFloatColor',
+    'VECTOR_TEXTURE' : 'VRaySocketVector',
 
     'OUTPUT_COLOR'             : 'VRaySocketColor',
     'OUTPUT_PLUGIN'            : 'VRaySocketObject',
@@ -126,6 +128,7 @@ TypeToProp = {
     'INT_TEXTURE'   : bpy.props.IntProperty,
     'FLOAT_TEXTURE' : bpy.props.FloatProperty,
     'TEXTURE'       : bpy.props.FloatVectorProperty,
+    'VECTOR_TEXTURE' : bpy.props.FloatVectorProperty,
 
     'OUTPUT_COLOR'             : bpy.props.FloatVectorProperty,
     'OUTPUT_PLUGIN'            : bpy.props.StringProperty,

@@ -221,6 +221,7 @@ class VRayNodesMenuMath(bpy.types.Menu, tree.VRayData):
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.VRayNodeTransform)
         add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
+        add_nodetype(self.layout, bpy.types.VRayNodeVector)
 
 
 def VRayNodesMenu(self, context):
