@@ -56,8 +56,8 @@ def IsRegionWide(context):
 
 def DrawAttr(layout, propGroup, attr, text=None):
     if not hasattr(propGroup, attr):
-        return    
-    if text is not None:    
+        return
+    if text is not None:
         layout.prop(propGroup, attr, text=text)
     else:
         layout.prop(propGroup, attr)
@@ -82,7 +82,7 @@ def ShowContainer(layout, show, propGroup):
     if show is not None:
         showProp      = show['prop']
         showCondition = show.get('condition', True)
-        
+
         if not getattr(propGroup, showProp) == showCondition:
             return False
     return True
@@ -96,20 +96,20 @@ def SetActive(layout, active, propGroup):
         layout.active = getattr(propGroup, prop) == condition
 
 
-def RenderItem(propGroup, layout, attr, text=None, expand=False, active=None):
+def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, active=None):
     container = layout
 
     if active is not None:
         prop      = active['prop']
         condition = active.get('condition', True)
-        
+
         container = layout.row()
         container.active = getattr(propGroup, prop) == condition
 
     if text is not None:
-        container.prop(propGroup, attr, expand=expand, text=text)
+        container.prop(propGroup, attr, slider=slider, expand=expand, text=text)
     else:
-        container.prop(propGroup, attr, expand=expand)
+        container.prop(propGroup, attr, slider=slider, expand=expand)
 
 
 def RenderContainer(context, layout, item, align=False, label=None, propGroup=None, active=None):
@@ -132,7 +132,7 @@ def RenderContainer(context, layout, item, align=False, label=None, propGroup=No
         container = layout
     elif item == 'BOX':
         container = layout.box()
-    
+
     SetActive(container, active, propGroup)
 
     return container
@@ -149,7 +149,7 @@ def RenderWidget(context, propGroup, layout, widget):
 
     if containerType == 'SPLIT':
         subLayout = layout
-        
+
         if IsRegionWide(context):
             subLayout = RenderContainer(
                 context,
@@ -191,8 +191,9 @@ def RenderWidget(context, propGroup, layout, widget):
         label  = item.get('label', None)
         active = item.get('active', None)
         expand = IsRegionWide(context) and item.get('expand', False)
+        slider = item.get('slider', False)
 
-        RenderItem(propGroup, container, attr, text=label, expand=expand, active=active)
+        RenderItem(propGroup, container, attr, text=label, slider=slider, expand=expand, active=active)
 
 
 def RenderTemplate(context, layout, propGroup, pluginModule):
