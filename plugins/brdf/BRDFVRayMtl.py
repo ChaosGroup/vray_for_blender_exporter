@@ -525,7 +525,7 @@ PluginWidget = """
         "align" : true,
         "attrs" : [
             { "name" : "fresnel" },
-            { "name" : "fresnel_ior" }
+            { "name" : "fresnel_ior_lock" }
         ]
     },
 
