@@ -370,7 +370,7 @@ class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
             layout.prop(self, 'value', text="")
 
     def draw_color(self, context, node):
-        return (1.000, 0.819, 0.119, 1.000)
+        return (0.388, 0.388, 0.78, 1.000000)
 
 
  ######   #######   #######  ########  ########   ######
