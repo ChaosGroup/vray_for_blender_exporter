@@ -129,6 +129,31 @@ class VRayNodeMatrix(bpy.types.Node):
         return tm
 
 
+class VRayNodeVector(bpy.types.Node):
+    bl_idname = 'VRayNodeVector'
+    bl_label  = 'Vector'
+    bl_icon   = 'AXIS_TOP'
+
+    vray_type   = 'NONE'
+    vray_plugin = 'NONE'
+
+    vector = bpy.props.FloatVectorProperty(
+        name        = "Vector",
+        description = "Vector",
+        size        = 3,
+        default     = (0.0, 0.0, 0.0)
+    )
+
+    def init(self, context):
+        AddOutput(self, 'VRaySocketVector', "Vector")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, 'vector')
+
+    def getVector(self):
+        return self.vector
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -141,6 +166,7 @@ def GetRegClasses():
     return (
         VRayNodeTransform,
         VRayNodeMatrix,
+        VRayNodeVector,
     )
 
 
