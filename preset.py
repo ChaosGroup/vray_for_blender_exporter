@@ -209,9 +209,8 @@ class VRayPresetAddBase:
         preset_menu_class = getattr(bpy.types, self.preset_menu)
         preset_type = preset_menu_class.preset_subdir
 
-        userPresetsSubdir = os.path.join(BlenderUtils.GetUserConfigDir(), "presets", preset_type)
-
-        exportPath = PathUtils.CreateDirectory(userPresetsSubdir)
+        presetSubdir = PathUtils.CreateDirectory(os.path.join(BlenderUtils.GetUserConfigDir(), "presets"))
+        exportPath   = PathUtils.CreateDirectory(os.path.join(presetSubdir, preset_type))
 
         presetName = preset_menu_class.bl_label if self.remove_active else self.name
 
