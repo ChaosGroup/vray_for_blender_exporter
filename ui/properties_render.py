@@ -319,6 +319,8 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		VRayExporter=    VRayScene.Exporter
 		SettingsOptions= VRayScene.SettingsOptions
 
+		preset.WidgetPresetGlobal(layout)
+
 		split= layout.split()
 		col= split.column()
 		col.label(text="Geometry:")
@@ -393,8 +395,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		VRayScene      = context.scene.vray
 		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
-
-		preset.WidgetPresetGlobal(self.layout)
 
 		layout.label(text="Options:")
 		split = layout.split()

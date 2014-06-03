@@ -26,7 +26,7 @@ import os
 
 import bpy
 
-from vb30.plugins import PLUGINS_ID
+from vb30.plugins import PLUGINS, PLUGINS_ID
 
 from vb30.lib import VRayStream
 from vb30.lib import ExportUtils, SysUtils, LibUtils, PathUtils, BlenderUtils
@@ -46,9 +46,16 @@ from vb30 import debug
  ######  ########    ##       ##    #### ##    ##  ######    ######
 
 PresetTypePlugins = {
-    'render' : (
+    'gi' : (
         'SettingsGI',
         'SettingsLightCache',
+        'SettingsDMCGI',
+        'SettingsIrradianceMap',
+        'SphericalHarmonicsRenderer',
+        'SphericalHarmonicsExporter',
+    ),
+    'im' : (
+        'SettingsIrradianceMap',
     ),
 }
 
@@ -87,10 +94,10 @@ class VRayPresetMenuBase(bpy.types.Menu):
             props.menu_idname = self.bl_idname
 
     def draw(self, context):
-        presetPaths = (
+        presetPaths = {
             os.path.join(SysUtils.GetExporterPath(), "presets", self.preset_subdir),
             os.path.join(BlenderUtils.GetUserConfigDir(), "presets", self.preset_subdir),
-        )
+        }
 
         paths = []
         for path in presetPaths:
@@ -174,6 +181,7 @@ class VRayPresetAddBase:
         name        = "Name",
         description = "Name of the preset, used to make the path name",
         maxlen      =  64,
+        options     = {'SKIP_SAVE'},
         default     = ""
     )
 
@@ -182,15 +190,9 @@ class VRayPresetAddBase:
         options = {'SKIP_SAVE'},
     )
 
-    preset_type = bpy.props.StringProperty(
-        name        = "Preset Type",
-        description = "Preset type (name of the preset sub-directory)",
-        default     = ""
-    )
-
     remove_active = bpy.props.BoolProperty(
         default = False,
-        options = {'HIDDEN'}
+        options = {'HIDDEN', 'SKIP_SAVE'},
     )
 
     def draw(self, context):
@@ -205,8 +207,9 @@ class VRayPresetAddBase:
 
     def execute(self, context):
         preset_menu_class = getattr(bpy.types, self.preset_menu)
+        preset_type = preset_menu_class.preset_subdir
 
-        userPresetsSubdir = os.path.join(BlenderUtils.GetUserConfigDir(), "presets", self.preset_type)
+        userPresetsSubdir = os.path.join(BlenderUtils.GetUserConfigDir(), "presets", preset_type)
 
         exportPath = PathUtils.CreateDirectory(userPresetsSubdir)
 
@@ -217,6 +220,9 @@ class VRayPresetAddBase:
         outputFilepath = os.path.normpath(os.path.join(exportPath, fileName))
 
         if self.remove_active:
+            # NOTE: Remove function is locked to user config directory,
+            # so system settings are safe
+
             debug.PrintInfo('Removing preset file: "%s"' % outputFilepath)
             if not os.path.exists(outputFilepath):
                 return {'CANCELLED'}
@@ -226,17 +232,27 @@ class VRayPresetAddBase:
                 debug.PrintError('Error removing preset file: "%s"!' % outputFilepath)
 
             # Set default menu name
-            preset_menu_class.bl_label = bpy.path.display_name(self.preset_type)
+            preset_menu_class.bl_label = bpy.path.display_name(preset_type)
 
         else:
             bus = {
                 'output' : VRayStream.VRaySimplePluginExporter(outputFilepath),
                 'scene'  : context.scene,
+                'camera' : context.scene.camera,
             }
 
-            for pluginID in PresetTypePlugins[self.preset_type]:
+            pluginPresetIDs = None
+            if preset_type == 'global':
+                pluginPresetIDs = (pID for pID in sorted(PLUGINS['SETTINGS']))
+            else:
+                pluginPresetIDs = PresetTypePlugins[preset_type]
+
+            for pluginID in pluginPresetIDs:
                 pluginModule = PLUGINS_ID.get(pluginID)
                 if pluginModule is None:
+                    continue
+
+                if not hasattr(context.scene.vray, pluginID):
                     continue
 
                 propGroup = getattr(context.scene.vray, pluginID)
@@ -256,7 +272,7 @@ class VRayPresetAddBase:
 
 class VRayPresetMenuGlobal(VRayPresetMenuBase):
     bl_label      = "Global Presets"
-    preset_subdir = "render"
+    preset_subdir = "global"
 
 
 class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
@@ -266,12 +282,20 @@ class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
 
     def __init__(self):
         self.preset_menu = 'VRayPresetMenuGlobal'
-        self.preset_type = 'render'
 
 
 class VRayPresetMenuGI(VRayPresetMenuBase):
     bl_label      = "GI Presets"
     preset_subdir = "gi"
+
+
+class VRayPresetAddGI(VRayPresetAddBase, bpy.types.Operator):
+    bl_idname      = "vray.preset_add_gi"
+    bl_label       = "Save Global Preset"
+    bl_description = "Save global preset"
+
+    def __init__(self):
+        self.preset_menu = 'VRayPresetMenuGlobal'
 
 
 class VRayPresetMenuIM(VRayPresetMenuBase):
@@ -297,8 +321,12 @@ def PresetBase(layout, menuName, menuOperator):
     layout.separator()
 
 
-def GlobalPreset(layout):
+def WidgetPresetGlobal(layout):
     PresetBase(layout, 'VRayPresetMenuGlobal', "vray.preset_add_global")
+
+
+def WidgetPresetGI(layout):
+    PresetBase(layout, 'VRayPresetMenuGI', "vray.preset_add_gi")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -311,11 +339,13 @@ def GlobalPreset(layout):
 
 def GetRegClasses():
     return (
-        VRayPresetMenuGI,
-        VRayPresetMenuIM,
-
         VRayPresetAddGlobal,
         VRayPresetMenuGlobal,
+
+        VRayPresetAddGI,
+        VRayPresetMenuGI,
+
+        VRayPresetMenuIM,
 
         VRayPresetApply,
     )
