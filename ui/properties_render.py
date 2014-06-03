@@ -394,7 +394,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
 
-		preset.GlobalPreset(layout)
+		preset.WidgetPresetGlobal(self.layout)
 
 		layout.label(text="Options:")
 		split = layout.split()
@@ -570,12 +570,7 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 		VRayScene=  context.scene.vray
 		SettingsGI= VRayScene.SettingsGI
 
-		# row= layout.row(align=True)
-		# row.menu("VRAY_MT_preset_gi", text=bpy.types.VRAY_MT_preset_gi.bl_label)
-		# row.operator("vray.preset_gi_add", text="", icon="ZOOMIN")
-		# row.operator("vray.preset_gi_add", text="", icon="ZOOMOUT").remove_active = True
-
-		# layout.separator()
+		preset.WidgetPresetGI(self.layout)
 
 		split= layout.split()
 		col= split.column()
@@ -746,17 +741,11 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 		gi= vs.SettingsGI
 		module= vs.SettingsIrradianceMap
 
-		split= layout.split()
-		colR= split.column()
-		colR.prop(module, "mode", text="Mode")
+		layout.prop(module, "mode", text="Mode")
+		layout.separator()
 
 		if module.mode not in {'2', '7'}:
-			# split= layout.split()
-			# col= split.column()
-			# col.label(text="Preset:")
-			# if wide_ui:
-			# 	col= split.column()
-			# col.menu('VRAY_MT_preset_IM', text="Preset")
+			layout.menu('VRayPresetMenuIM', text=bpy.types.VRayPresetMenuIM.bl_label)
 
 			split= layout.split()
 			split.label(text="Basic parameters:")
