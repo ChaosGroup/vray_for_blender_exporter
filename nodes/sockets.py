@@ -348,11 +348,9 @@ class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
         name = "Vector",
         description = "Vector",
         subtype = 'TRANSLATION',
-        min = 0.0,
-        max = 1.0,
-        soft_min = 0.0,
+        soft_min = -1.0,
         soft_max = 1.0,
-        default = (1.0, 1.0, 1.0)
+        default = (0.0, 0.0, 0.0)
     )
 
     vray_attr = bpy.props.StringProperty(

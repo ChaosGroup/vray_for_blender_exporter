@@ -83,7 +83,13 @@ def GetCategories():
 
 
 def add_nodetype(layout, t):
-    op = layout.operator("vray.add_node", text=t.bl_label, icon=t.bl_icon)
+    icon = 'NONE'
+    name = t.bl_rna.name
+
+    if hasattr(t, 'bl_icon'):
+        icon = t.bl_icon
+
+    op = layout.operator("vray.add_node", text=name, icon=icon)
     op.type = t.bl_rna.identifier
     op.use_transform = False
 
@@ -224,7 +230,16 @@ class VRayNodesMenuMath(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeVector)
 
 
+class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
+    bl_idname = "VRayNodesFromBlender"
+    bl_label  = "Blender"
+
+    def draw(self, context):
+        add_nodetype(self.layout, bpy.types.ShaderNodeNormal)
+
+
 def VRayNodesMenu(self, context):
+    self.layout.menu("VRayNodesFromBlender", icon='BLENDER')
     self.layout.menu("VRayNodesMenuGeom", icon='MESH_DATA')
     self.layout.menu("VRayNodesMenuLights", icon='LAMP')
     self.layout.menu("VRayNodesMenuBRDF", icon='TEXTURE_SHADED')
@@ -317,7 +332,11 @@ def VRayNodeInit(self, context):
     if self.vray_type == 'TEXTURE':
         # Some plugins already have properly defined outputs
         #
-        if not self.vray_plugin in {'BitmapBuffer'}:
+        if self.vray_plugin in {'BitmapBuffer'}:
+            pass
+        elif self.vray_plugin in {'TexVector'}:
+            AddOutput(self, 'VRaySocketVector', "Vector")
+        else:
             AddOutput(self, 'VRaySocketColor', "Output")
     elif self.vray_type == 'UVWGEN':
         AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
@@ -509,6 +528,7 @@ def LoadDynamicNodes():
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
 StaticClasses = (
+    VRayNodesFromBlender,
     VRayNodesMenuBRDF,
     VRayNodesMenuEffects,
     VRayNodesMenuEnvironment,
