@@ -639,3 +639,6 @@ class VRaySimplePluginExporter:
     # Writes arbitary data to file
     def write(self, pluginType, data):
         self.output.write(data)
+
+    def isPreviewRender(self):
+        return False
