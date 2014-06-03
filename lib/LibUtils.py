@@ -78,12 +78,16 @@ def GetAsList(value):
 
 # Strips string from deprecated chars
 #
+# NOTE: Some unicode conversion support?
+#
 def CleanString(s, stripSigns=True):
     if stripSigns:
         s = s.replace("+", "p")
         s = s.replace("-", "m")
     for i in range(len(s)):
         c = s[i]
+        if c in "|@":
+            continue
         if not ((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')):
             s = s.replace(c, "_")
     return s
