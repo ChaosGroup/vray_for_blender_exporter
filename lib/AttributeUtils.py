@@ -238,7 +238,7 @@ def GenerateAttribute(classMembers, attrDesc):
 
         attrArgs['min'] = attrDesc['ui'].get('min', defUi['min'])
         attrArgs['max'] = attrDesc['ui'].get('max', defUi['max'])
-        attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', attrArgs['soft_min'])
-        attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', attrArgs['soft_max'])
+        attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', attrArgs['min'])
+        attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', attrArgs['max'])
 
     classMembers[attrDesc['attr']] = attrFunc(**attrArgs)
