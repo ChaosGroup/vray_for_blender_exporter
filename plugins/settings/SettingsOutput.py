@@ -319,19 +319,21 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    VRayCamera = camera.data.vray
-    CameraStereoscopic = VRayCamera.CameraStereoscopic
-
     img_width  = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
     img_height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
 
-    if VRayScene.RTEngine.enabled:
-        if VRayScene.SettingsRTEngine.stereo_mode:
-            img_width *= 2
-    else:
-        if VRayScene.VRayStereoscopicSettings.use and not CameraStereoscopic.use:
-            if VRayScene.VRayStereoscopicSettings.adjust_resolution:
+    # NOTE: Camera could be None when saving a preset, for example
+    if camera:
+        VRayCamera = camera.data.vray
+        CameraStereoscopic = VRayCamera.CameraStereoscopic
+
+        if VRayScene.RTEngine.enabled:
+            if VRayScene.SettingsRTEngine.stereo_mode:
                 img_width *= 2
+        else:
+            if VRayScene.VRayStereoscopicSettings.use and not CameraStereoscopic.use:
+                if VRayScene.VRayStereoscopicSettings.adjust_resolution:
+                    img_width *= 2
 
     overrideParams['img_width']  = img_width
     overrideParams['img_height'] = img_height
