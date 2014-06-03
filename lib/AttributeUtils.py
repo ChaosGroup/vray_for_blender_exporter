@@ -93,8 +93,8 @@ TypeToSocket = {
     'OUTPUT_PLUGIN'            : 'VRaySocketObject',
     'OUTPUT_FLOAT_TEXTURE'     : 'VRaySocketFloatColor',
     'OUTPUT_TEXTURE'           : 'VRaySocketColor',
-    'OUTPUT_VECTOR_TEXTURE'    : 'VRaySocketFloatColor',
-    'OUTPUT_TRANSFORM_TEXTURE' : 'VRaySocketVector',
+    'OUTPUT_VECTOR_TEXTURE'    : 'VRaySocketVector',
+    'OUTPUT_TRANSFORM_TEXTURE' : 'VRaySocketTransform',
 }
 
 TypeToSocketNoValue = dict(TypeToSocket)
@@ -238,7 +238,7 @@ def GenerateAttribute(classMembers, attrDesc):
 
         attrArgs['min'] = attrDesc['ui'].get('min', defUi['min'])
         attrArgs['max'] = attrDesc['ui'].get('max', defUi['max'])
-        attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', defUi['soft_min'])
-        attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', defUi['soft_max'])
+        attrArgs['soft_min'] = attrDesc['ui'].get('soft_min', attrArgs['soft_min'])
+        attrArgs['soft_max'] = attrDesc['ui'].get('soft_max', attrArgs['soft_max'])
 
     classMembers[attrDesc['attr']] = attrFunc(**attrArgs)
