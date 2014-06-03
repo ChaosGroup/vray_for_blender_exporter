@@ -73,13 +73,17 @@ class VRAY_OT_update(bpy.types.Operator):
 				return {'CANCELLED'}
 
 		if sys.platform == 'win32':
-			git = "\"%s\"" % git
+			git = '"%s"' % git
 
 		os.chdir(exporterDir)
-		os.system("%s pull --rebase" % git)
-		os.system("%s submodule foreach git pull --rebase origin master" % git)
+		err  = os.system("%s pull --rebase" % git)
+		err += os.system("%s submodule foreach git pull --rebase origin master" % git)
 
-		self.report({'INFO'}, "V-Ray For Blender exporter is now updated! Please, restart Blender!")
+		if err:
+			self.report({'WARNING'}, "V-Ray For Blender: Git update warning! Check system console!")
+			return {'CANCELLED'}
+
+		self.report({'INFO'}, "V-Ray For Blender: Exporter is now updated! Please, restart Blender!")
 
 		return {'FINISHED'}
 
