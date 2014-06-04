@@ -109,19 +109,35 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
 
         texPlugName   = tex
         texPlugOutput = None
-        if texPlugName.find("::") != -1:
-            texPlugName, texPlugOutput = texPlugName.split("::")
-            texPlugOutput = AttributeUtils.GetNameFromAttr(texPlugOutput)
+        texNode       = None
 
-        texPlugin = getPluginByName(vrsceneDict, texPlugName)
-        if texPlugin is None:
-            print("Plugin '%s' not found in the vrscene file!" % texPlugName)
-            continue
+        # It looks like param is color
+        if type(texPlugName) is tuple:
+            texAColor = {
+                'ID'         : 'TexAColor',
+                'Name'       : 'Color',
+                'Attributes' : {
+                    'texture' : texPlugName
+                }
+            }
+            texNode = createNode(ntree, texLayeredNode, vrsceneDict, texAColor)
+
+        # Params is texture
+        else:
+            if texPlugName.find("::") != -1:
+                texPlugName, texPlugOutput = texPlugName.split("::")
+                texPlugOutput = AttributeUtils.GetNameFromAttr(texPlugOutput)
+
+            texPlugin = getPluginByName(vrsceneDict, texPlugName)
+            if texPlugin is None:
+                print("Plugin '%s' not found in the vrscene file!" % texPlugName)
+                continue
+
+            texNode = createNode(ntree, texLayeredNode, vrsceneDict, texPlugin)
 
         if texPlugOutput is None:
             texPlugOutput = getOutputSocket(texPlugin['ID'])
 
-        texNode = createNode(ntree, texLayeredNode, vrsceneDict, texPlugin)
         if texNode:
             ntree.links.new(texNode.outputs[texPlugOutput], texSocket)
 
