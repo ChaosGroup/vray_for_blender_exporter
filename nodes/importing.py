@@ -112,6 +112,8 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
         texNode       = None
 
         # It looks like param is color
+        # This is support for cases like this:
+        #    textures = List(AColor(0.0,0.0,0.0,1.0),SomeTexture);
         if type(texPlugName) is tuple:
             texAColor = {
                 'ID'         : 'TexAColor',
