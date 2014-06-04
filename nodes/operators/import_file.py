@@ -26,6 +26,8 @@ import bpy_extras
 
 from pprint import pprint
 
+from vb30.plugins import PLUGINS, PLUGINS_ID
+
 from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
 
@@ -36,6 +38,8 @@ from vb30 import debug
 
 
 def ImportMaterials(context, filePath, baseMaterial):
+    debug.PrintInfo('Importing materials from "%s"' % filePath)
+
     vrsceneDict = {}
 
     if filePath.endswith(".vrscene"):
@@ -100,6 +104,42 @@ def ImportMaterials(context, filePath, baseMaterial):
     return {'FINISHED'}
 
 
+def ImportSettings(context, filePath, pluginFilter=None):
+    debug.PrintInfo('Importing settings from "%s"' % filePath)
+
+    vrsceneDict = ParseVrscene(filePath)
+
+    for pluginDesc in vrsceneDict:
+        pluginID    = pluginDesc['ID']
+        pluginName  = pluginDesc['Name']
+        pluginAttrs = pluginDesc['Attributes']
+
+        if pluginID not in PLUGINS['SETTINGS']:
+            continue
+
+        pluginModule = PLUGINS_ID.get(pluginID)
+        if pluginModule is None:
+            continue
+
+        if not hasattr(context.scene.vray, pluginID):
+            continue
+
+        propGroup = getattr(context.scene.vray, pluginID)
+
+        for attrName in pluginAttrs:
+            attrDesc  = NodesImport.getParamDesc(pluginModule.PluginParams, attrName)
+            if attrDesc is None:
+                continue
+
+            attrValue = pluginAttrs[attrName]
+            if attrDesc['type'] == 'ENUM':
+                attrValue = str(attrValue)
+
+            setattr(propGroup, attrName, attrValue)
+
+    return {'FINISHED'}
+
+
 # ImportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 #
@@ -132,13 +172,31 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
         return ImportMaterials(context, self.filepath, self.base_material)
 
 
-def VRayMenuItemImportMaterials(self, context):
+class VRayOperatorImportSettings(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+    bl_idname      = "vray.import_settings"
+    bl_label       = "Import Settings"
+    bl_description = "Import settings from *.vrscene"
+
+    filename_ext = ".vrscene"
+
+    filter_glob = bpy.props.StringProperty(
+        default = "*.vrscene",
+        options = {'HIDDEN'},
+    )
+
+    def execute(self, context):
+        return ImportSettings(context, self.filepath)
+
+
+def VRayMenuItems(self, context):
     self.layout.operator(VRayOperatorImportMaterials.bl_idname, text="V-Ray: Import Materials (.vrscene/.vismat/.vrmat)")
+    self.layout.operator(VRayOperatorImportSettings.bl_idname,  text="V-Ray: Import Settings (.vrscene)")
 
 
 def GetRegClasses():
     return (
         VRayOperatorImportMaterials,
+        VRayOperatorImportSettings,
     )
 
 
@@ -146,11 +204,11 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    bpy.types.INFO_MT_file_import.append(VRayMenuItemImportMaterials)
+    bpy.types.INFO_MT_file_import.append(VRayMenuItems)
 
 
 def unregister():
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
 
-    bpy.types.INFO_MT_file_import.remove(VRayMenuItemImportMaterials)
+    bpy.types.INFO_MT_file_import.remove(VRayMenuItems)
