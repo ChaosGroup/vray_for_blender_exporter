@@ -172,13 +172,13 @@ class VRayLightNode:
         return node_tree.bl_idname == 'VRayNodeTreeLight'
 
 
- ######   ######  ######## ##    ## ######## 
-##    ## ##    ## ##       ###   ## ##       
-##       ##       ##       ####  ## ##       
- ######  ##       ######   ## ## ## ######   
-      ## ##       ##       ##  #### ##       
-##    ## ##    ## ##       ##   ### ##       
- ######   ######  ######## ##    ## ######## 
+ ######   ######  ######## ##    ## ########
+##    ## ##    ## ##       ###   ## ##
+##       ##       ##       ####  ## ##
+ ######  ##       ######   ## ## ## ######
+      ## ##       ##       ##  #### ##
+##    ## ##    ## ##       ##   ### ##
+ ######   ######  ######## ##    ## ########
 
 class VRayNodeTreeScene(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Scene Node Tree"
@@ -200,13 +200,13 @@ class VRaySceneNode:
         return node_tree.bl_idname == 'VRayNodeTreeScene'
 
 
-######## ########  #### ########  #######  ########  
-##       ##     ##  ##     ##    ##     ## ##     ## 
-##       ##     ##  ##     ##    ##     ## ##     ## 
-######   ##     ##  ##     ##    ##     ## ########  
-##       ##     ##  ##     ##    ##     ## ##   ##   
-##       ##     ##  ##     ##    ##     ## ##    ##  
-######## ########  ####    ##     #######  ##     ## 
+######## ########  #### ########  #######  ########
+##       ##     ##  ##     ##    ##     ## ##     ##
+##       ##     ##  ##     ##    ##     ## ##     ##
+######   ##     ##  ##     ##    ##     ## ########
+##       ##     ##  ##     ##    ##     ## ##   ##
+##       ##     ##  ##     ##    ##     ## ##    ##
+######## ########  ####    ##     #######  ##     ##
 
 class VRayNodeTreeEditor(bpy.types.NodeTree, base.NodeTree, category.CategoryNodeTree, VRayData):
     bl_label  = "V-Ray Node Tree Editor"
@@ -220,8 +220,13 @@ class VRayNodeTreeEditor(bpy.types.NodeTree, base.NodeTree, category.CategoryNod
         VRayExporter = context.scene.vray.Exporter
 
         listIndex = VRayExporter.ntreeListIndex if VRayExporter.ntreeListIndex >= 0 else 0
+        nNodeGroups = len(bpy.data.node_groups)
 
-        if len(bpy.data.node_groups):
+        if nNodeGroups:
+            if listIndex >= nNodeGroups:
+                VRayExporter.ntreeListIndex = 0
+                listIndex                   = 0
+
             ntree = bpy.data.node_groups[listIndex]
             if ntree:
                 return ntree, context.scene, context.scene
