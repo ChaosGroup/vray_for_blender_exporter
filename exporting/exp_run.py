@@ -47,7 +47,7 @@ def Run(bus):
     if not vrayCmd:
         raise Exception("V-Ray not found!")
 
-    imageToBlender = not scene.render.use_border and VRayExporter.auto_save_render and VRayExporter.image_to_blender
+    imageToBlender = VRayExporter.animation_mode == 'NONE' and not scene.render.use_border and VRayExporter.auto_save_render and VRayExporter.image_to_blender
 
     p = VRayProcess()
     p.setVRayStandalone(vrayCmd)
