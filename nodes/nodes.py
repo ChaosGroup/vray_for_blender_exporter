@@ -131,7 +131,7 @@ class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
 
 class VRayNodesMenuGeom(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesMenuGeom"
-    bl_label  = "Geomtery"
+    bl_label  = "Geometry"
 
     def draw(self, context):
         row = self.layout.row()
