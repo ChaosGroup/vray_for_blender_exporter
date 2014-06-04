@@ -142,7 +142,7 @@ PluginParams = (
             ('2', "Delone Triangulation",  ""),
             ('3', "Weighted Average", "")
         ),
-        'default' : '2',
+        'default' : '1',
     },
     {
         'attr' : 'lookup_mode',
