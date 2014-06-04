@@ -47,6 +47,8 @@ def Run(bus):
     if not vrayCmd:
         raise Exception("V-Ray not found!")
 
+    imageToBlender = not scene.render.use_border and VRayExporter.auto_save_render and VRayExporter.image_to_blender
+
     p = VRayProcess()
     p.setVRayStandalone(vrayCmd)
     p.setSceneFile(o.fileManager.getOutputFilepath())
@@ -66,6 +68,10 @@ def Run(bus):
         y1 = resolution_y * (1.0 - scene.render.border_min_y)
 
         p.setRegion(x0, y0, x1, y1, useCrop=scene.render.use_crop_to_border)
+
+    if imageToBlender:
+        p.setWaitExit(True)
+        p.setAutoclose(True)
 
     if engine.is_preview:
         p.setPreview(True)
@@ -108,7 +114,7 @@ def Run(bus):
 
     p.run()
 
-    if engine.is_preview:
+    if imageToBlender or engine.is_preview:
         exp_load.LoadImage(scene, engine, o, p)
 
 
