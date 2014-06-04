@@ -294,11 +294,11 @@ class VRayPresetMenuGI(VRayPresetMenuBase):
 
 class VRayPresetAddGI(VRayPresetAddBase, bpy.types.Operator):
     bl_idname      = "vray.preset_add_gi"
-    bl_label       = "Save Global Preset"
-    bl_description = "Save global preset"
+    bl_label       = "Save GI Preset"
+    bl_description = "Save GI preset"
 
     def __init__(self):
-        self.preset_menu = 'VRayPresetMenuGlobal'
+        self.preset_menu = 'VRayPresetMenuGI'
 
 
 class VRayPresetMenuIM(VRayPresetMenuBase):
