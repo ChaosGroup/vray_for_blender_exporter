@@ -22,6 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import ExportUtils
+from vb30 import debug
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsIrradianceMap'
 NAME = 'SettingsIrradianceMap'
@@ -133,10 +137,10 @@ PluginParams = (
         'desc' : "Method for interpolating the GI value from the samples in the irradiance map",
         'type' : 'ENUM',
         'items' : (
-            ('0', "Least squares with Voronoi weights", ""),
-            ('1', "Delone triangulation",  ""),
-            ('2', "Least squares fit", ""),
-            ('3', "Weighted average", "")
+            ('0', "Least Squares With Voronoi Weights", ""),
+            ('1', "Least Squares Fit", ""),
+            ('2', "Delone Triangulation",  ""),
+            ('3', "Weighted Average", "")
         ),
         'default' : '2',
     },
@@ -236,3 +240,16 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+    o     = bus['output']
+
+    if propGroup.min_rate > propGroup.max_rate:
+        debug.PrinInfo('Irradiance Map "Min. Rate" is more then "Max. Rate"!')
+
+        overrideParams['min_rate'] = propGroup.max_rate
+        overrideParams['max_rate'] = propGroup.min_rate
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
