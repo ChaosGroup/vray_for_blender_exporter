@@ -229,6 +229,11 @@ class VRayNodesMenuMath(bpy.types.Menu, tree.VRayData):
         add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
         add_nodetype(self.layout, bpy.types.VRayNodeVector)
 
+        for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
+            if hasattr(vrayNodeType, 'bl_menu'):
+                if vrayNodeType.bl_menu == 'Math':
+                    add_nodetype(self.layout, vrayNodeType)
+
 
 class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
     bl_idname = "VRayNodesFromBlender"
@@ -431,6 +436,7 @@ def LoadDynamicNodes():
 
             vrayPlugin  = PLUGINS[pluginType][pluginName]
             textureBpyType = getattr(bpy.types, pluginName)
+            textureMenuType = getattr(vrayPlugin, 'MENU', None)
 
             # Debug("Creating Node from plugin: %s" % pluginName, msgType='INFO')
 
@@ -440,6 +446,7 @@ def LoadDynamicNodes():
                 'bl_idname' : DynNodeClassName,
                 'bl_label'  : vrayPlugin.NAME,
                 'bl_icon'   : VRayNodeTypeIcon.get(pluginType, 'VRAY_LOGO_MONO'),
+                'bl_menu'   : textureMenuType,
             }
 
             if usePynodesFramwork:
