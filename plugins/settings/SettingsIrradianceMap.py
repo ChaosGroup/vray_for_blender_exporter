@@ -247,7 +247,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     o     = bus['output']
 
     if propGroup.min_rate > propGroup.max_rate:
-        debug.PrinInfo('Irradiance Map "Min. Rate" is more then "Max. Rate"!')
+        debug.PrintInfo('Irradiance Map "Min. Rate" is more then "Max. Rate"!')
 
         overrideParams['min_rate'] = propGroup.max_rate
         overrideParams['max_rate'] = propGroup.min_rate
