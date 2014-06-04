@@ -462,7 +462,12 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                 if attrDesc['type'] == 'ENUM':
                     attrValue = str(attrValue)
 
-                setattr(propGroup, attrName, attrValue)
+                    possibleValues = (item[0] for item in attrDesc['items'])
+                    if attrValue not in possibleValues:
+                        attrValue = None
+
+                if attrValue is not None:
+                    setattr(propGroup, attrName, attrValue)
 
             else:
                 # Attribute could possibly be mapped with other node
@@ -478,8 +483,13 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                     # Set socket value
                     connectedPlugin = getPluginByName(vrsceneDict, inPluginName)
                     if connectedPlugin is None:
-                        attrSocket = n.inputs[attrSocketName]
-                        attrSocket.value = attrValue
+                        if type(attrValue) is str:
+                            # TODO: finish this or check if None is ok here
+                            if attrDesc['type'] == 'ENUM':
+                                pass
+                        else:
+                            attrSocket = n.inputs[attrSocketName]
+                            attrSocket.value = attrValue
 
                     # Create connected plugin
                     else:
