@@ -347,11 +347,11 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         img_dir  = pm.getImgDirpath()
 
         if not img_file:
-            debug.Debug("Image output filename is not set!", msgType='ERROR')
+            debug.PrintError("Image output filename is not set!")
             return None
 
         if not img_dir:
-            debug.Debug("Image output directory is not set!", msgType='ERROR')
+            debug.PrintError("Image output directory is not set!")
             return None
 
         overrideParams['img_file'] = img_file
