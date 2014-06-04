@@ -152,6 +152,10 @@ class VRayPresetApply(bpy.types.Operator):
             if pluginModule is None:
                 continue
 
+            if not hasattr(context.scene.vray, pluginID):
+                # TODO: Add warning?
+                continue
+
             propGroup = getattr(context.scene.vray, pluginID)
 
             for attrName in pluginAttrs:
