@@ -44,8 +44,9 @@ def RenderMaterialPanel(mat, context, layout):
 
     split = layout.split()
     row = split.row(align=True)
-    idref.draw_idref(row, VRayMaterial, 'ntree', text="Node Tree")
-    row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
+    row.prop_search(VRayMaterial, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+    if not VRayMaterial.ntree:
+        row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")
 
     if not classes.TreeHasNodes(VRayMaterial.ntree):
         return

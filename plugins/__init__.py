@@ -368,6 +368,13 @@ class VRayObject(bpy.types.PropertyGroup):
 		default     = False
 	)
 
+	ntree = bpy.props.PointerProperty(
+		name = "Node Tree",
+		type = bpy.types.NodeTree,
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeObject',
+		description = "V-Ray node tree",
+	)
+
 
 ##     ## ########  ######  ##     ##
 ###   ### ##       ##    ## ##     ##
@@ -390,7 +397,13 @@ class VRayMesh(bpy.types.PropertyGroup):
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
 class VRayMaterial(bpy.types.PropertyGroup):
-	pass
+	ntree = bpy.props.PointerProperty(
+		name = "Node Tree",
+		type = bpy.types.NodeTree,
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeMaterial',
+		description = "V-Ray material node tree",
+	)
+
 
 
 ##       ####  ######   ##     ## ########
@@ -490,6 +503,13 @@ class VRayLight(bpy.types.PropertyGroup):
 		default = 'SPOT'
 	)
 
+	ntree = bpy.props.PointerProperty(
+		name = "Node Tree",
+		type = bpy.types.NodeTree,
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeLight',
+		description = "V-Ray node tree",
+	)
+
 
 ##      ##  #######  ########  ##       ########
 ##  ##  ## ##     ## ##     ## ##       ##     ##
@@ -507,6 +527,13 @@ class VRayWorld(bpy.types.PropertyGroup):
 		soft_max = 2.0,
 		precision = 3,
 		default = 1.0,
+	)
+
+	ntree = bpy.props.PointerProperty(
+		name = "Node Tree",
+		type = bpy.types.NodeTree,
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeWorld',
+		description = "V-Ray environment node tree",
 	)
 
 
@@ -543,7 +570,12 @@ class VRayRenderChannel(bpy.types.PropertyGroup):
  ######   ######  ######## ##    ## ########
 
 class VRayScene(bpy.types.PropertyGroup):
-	pass
+	ntree = bpy.props.PointerProperty(
+		name = "Node Tree",
+		type = bpy.types.NodeTree,
+		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeScene',
+		description = "V-Ray scene node tree",
+	)
 
 
 class IncluderList(bpy.types.PropertyGroup):
@@ -764,46 +796,6 @@ def register():
 
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
-
-	idref.bpy_register_idref(VRayScene, 'ntree', idref.IDRefProperty(
-		"Node Tree",
-		"V-Ray scene node tree",
-		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeScene',
-		options = {'FAKE_USER'},
-	))
-
-	idref.bpy_register_idref(VRayWorld, 'ntree', idref.IDRefProperty(
-		"Node Tree",
-		"V-Ray environment node tree",
-		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeWorld',
-		options = {'FAKE_USER'},
-	))
-
-	idref.bpy_register_idref(VRayMaterial, 'ntree', idref.IDRefProperty(
-		"Node Tree",
-		"V-Ray material node tree",
-		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeMaterial',
-		options = {'FAKE_USER'},
-	))
-
-	idref.bpy_register_idref(VRayObject, 'ntree', idref.IDRefProperty(
-		"Node Tree",
-		"V-Ray object node tree",
-		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeObject',
-		options = {'FAKE_USER'},
-	))
-
-	idref.bpy_register_idref(VRayLight, 'ntree', idref.IDRefProperty(
-		"Node Tree",
-		"V-Ray light node tree",
-		idtype = 'NODETREE',
-		poll = lambda s, p: p.bl_idname == 'VRayNodeTreeLight',
-		options = {'FAKE_USER'},
-	))
 
 	bpy.types.ParticleSettings.vray= bpy.props.PointerProperty(
 		name= "V-Ray Particle Settings",

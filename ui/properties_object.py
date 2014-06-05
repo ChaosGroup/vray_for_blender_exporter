@@ -38,8 +38,9 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 
 		split = self.layout.split()
 		row = split.row(align=True)
-		idref.draw_idref(row, VRayObject, 'ntree', text="Node Tree")
-		row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
+		row.prop_search(VRayObject, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+		if not VRayObject.ntree:
+			row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 
 
 class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):

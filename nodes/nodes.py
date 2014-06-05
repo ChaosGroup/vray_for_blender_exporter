@@ -505,20 +505,11 @@ def LoadDynamicNodes():
             # XXX: The only way to use idrefs under nodes
             # Remove after Blender fix
             #
-            if pluginName == 'BitmapBuffer':
-                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
-                    "Texture",
-                    "Fake texture for image texure",
-                    idtype = 'TEXTURE',
-                    options = {'FAKE_USER', 'NEVER_NULL'},
-                ))
-
-            elif pluginName in {'TexGradRamp', 'TexRemap'}:
-                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
-                    "Texture",
-                    "Fake texture for Ramp widget",
-                    idtype = 'TEXTURE',
-                    options = {'FAKE_USER', 'NEVER_NULL'},
+            if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
+                setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
+                    name = "Texture",
+                    type = bpy.types.Texture,
+                    description = "Fake texture for internal usage",
                 ))
 
     # Add manually defined classes
