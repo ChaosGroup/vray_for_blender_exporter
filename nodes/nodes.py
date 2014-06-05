@@ -91,7 +91,7 @@ def add_nodetype(layout, t):
 
     op = layout.operator("vray.add_node", text=name, icon=icon)
     op.type = t.bl_rna.identifier
-    op.use_transform = False
+    op.use_transform = True
 
 
 class VRayNodesMenuRenderChannels(bpy.types.Menu, tree.VRayData):
