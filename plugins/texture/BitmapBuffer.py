@@ -178,10 +178,6 @@ def nodeDraw(context, layout, node):
     if not node.texture:
         return
 
-    split = layout.split()
-    row = split.row(align=True)
-    if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
-        layout.template_preview(node.texture)
     layout.template_ID(node.texture, 'image', open='image.open')
 
 
