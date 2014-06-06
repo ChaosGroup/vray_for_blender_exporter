@@ -30,6 +30,7 @@ import bpy
 import mathutils
 
 import nodeitems_utils
+import nodeitems_builtins
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
@@ -101,6 +102,17 @@ def GetCategories():
                 nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
             ],
             icon='BLENDER'
+        ),
+        VRayNodeCategory(
+            "LAYOUT",
+            "Layout",
+            items=[
+                nodeitems_utils.NodeItem("NodeFrame"),
+                nodeitems_utils.NodeItem("NodeReroute"),
+                # nodeitems_utils.NodeItem("ShaderNodeGroup"),
+                # nodeitems_utils.NodeItem("NodeGroupInput", poll=nodeitems_builtins.group_input_output_item_poll),
+                # nodeitems_utils.NodeItem("NodeGroupOutput", poll=nodeitems_builtins.group_input_output_item_poll),
+            ],
         ),
     ]
 
