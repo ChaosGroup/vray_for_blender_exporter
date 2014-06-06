@@ -28,6 +28,7 @@ import sys
 
 import bpy
 import mathutils
+
 import nodeitems_utils
 
 from vb30.plugins import PLUGINS
@@ -37,6 +38,7 @@ from vb30.ui      import classes
 
 from .        import tree
 from .sockets import AddInput, AddOutput
+
 
 
 VRayNodeTypes = {
@@ -76,7 +78,30 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
 def GetCategories():
     return [
-        VRayNodeCategory('VRAY', "V-Ray Textures", items=[ nodeitems_utils.NodeItem(vrayNodeType.bl_rna.identifier, label=vrayNodeType.bl_label) for vrayNodeType in VRayNodeTypes['TEXTURE'] ] ),
+        VRayNodeCategory(
+            'VRAY_TEXTURES',
+            "Textures",
+            items=[
+                nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label) for t in VRayNodeTypes['TEXTURE']
+            ],
+            icon='TEXTURE'
+        ),
+        VRayNodeCategory(
+            'VRAY_GEOMETRY',
+            "Geometry",
+            items=[
+                nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label) for t in VRayNodeTypes['GEOMETRY']
+            ],
+            icon='MESH_DATA'
+        ),
+        VRayNodeCategory(
+            'BLENDER',
+            "Blender",
+            items=[
+                nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
+            ],
+            icon='BLENDER'
+        ),
     ]
 
 
@@ -243,12 +268,9 @@ class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
 
 
 def VRayNodesMenu(self, context):
-    self.layout.menu("VRayNodesFromBlender", icon='BLENDER')
-    self.layout.menu("VRayNodesMenuGeom", icon='MESH_DATA')
     self.layout.menu("VRayNodesMenuLights", icon='LAMP')
     self.layout.menu("VRayNodesMenuBRDF", icon='TEXTURE_SHADED')
     self.layout.menu("VRayNodesMenuMaterial", icon='MATERIAL')
-    self.layout.menu("VRayNodesMenuTexture", icon='TEXTURE')
     self.layout.menu("VRayNodesMenuMapping", icon='GROUP_UVS')
     self.layout.menu("VRayNodesMenuMath", icon='MANIPUL')
     self.layout.menu("VRayNodesMenuSelector", icon='ZOOM_SELECTED')
@@ -343,7 +365,7 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'BRDF':
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
     elif self.vray_type == 'GEOMETRY':
-        AddOutput(self, 'VRaySocketGeom', "Geomtery")
+        AddOutput(self, 'VRaySocketGeom', "Geometry")
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
@@ -505,6 +527,8 @@ def GetRegClasses():
 
 def register():
     LoadDynamicNodes()
+
+    nodeitems_utils.register_node_categories('VRAY_TEXTURES', GetCategories())
 
     bpy.types.NODE_MT_add.append(VRayNodesMenu)
 
