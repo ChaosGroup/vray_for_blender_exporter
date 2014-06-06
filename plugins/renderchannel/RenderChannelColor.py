@@ -32,41 +32,37 @@ ID   = 'RenderChannelColor'
 NAME = 'Color Channel'
 DESC = "Generic render element"
 
-ColorChannelNames = {
-    '1'   : "RGB",
-    '101' : "Diffuse",
-    '102' : "Reflection",
-    '103' : "Refraction",
-    '104' : "Self Illumination",
-    '105' : "Shadow",
-    '106' : "Specular",
-    '107' : "Lightning",
-    '108' : "GI",
-    '109' : "Caustics",
-    '110' : "Raw GI",
-    '111' : "Raw Lightning",
-    '112' : "Raw Shadow",
-    '113' : "Velocity",
-    '118' : "Reflection Filter",
-    '119' : "Raw Reflection",
-    '120' : "Refraction Filter",
-    '121' : "Raw Refraction",
-    '122' : "Real Color",
-    '124' : "Background",
-    '125' : "Alpha",
-    '126' : "Color",
-    '127' : "Wire Color",
-    '128' : "Matte Shadow",
-    '129' : "Total Lightning",
-    '130' : "Raw Total Lightning",
-    '131' : "Bump Normal",
-    '132' : "Samplerate",
-    '133' : "SSS",
-}
-
-ColorChannelNamesMenu = []
-for key in ColorChannelNames:
-    ColorChannelNamesMenu.append((key, ColorChannelNames[key], ""))
+ColorChannelNamesMenu = (
+    ('1'  , "RGB", ""),
+    ('101', "Diffuse", ""),
+    ('102', "Reflection", ""),
+    ('103', "Refraction", ""),
+    ('104', "Self Illumination", ""),
+    ('105', "Shadow", ""),
+    ('106', "Specular", ""),
+    ('107', "Lightning", ""),
+    ('108', "GI", ""),
+    ('109', "Caustics", ""),
+    ('110', "Raw GI", ""),
+    ('111', "Raw Lightning", ""),
+    ('112', "Raw Shadow", ""),
+    ('113', "Velocity", ""),
+    ('118', "Reflection Filter", ""),
+    ('119', "Raw Reflection", ""),
+    ('120', "Refraction Filter", ""),
+    ('121', "Raw Refraction", ""),
+    ('122', "Real Color", ""),
+    ('124', "Background", ""),
+    ('125', "Alpha", ""),
+    ('126', "Color", ""),
+    ('127', "Wire Color", ""),
+    ('128', "Matte Shadow", ""),
+    ('129', "Total Lightning", ""),
+    ('130', "Raw Total Lightning", ""),
+    ('131', "Bump Normal", ""),
+    ('132', "Samplerate", ""),
+    ('133', "SSS", ""),
+)
 
 PluginParams = (
     {
