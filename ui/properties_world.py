@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.ui      import classes
 from vb30.lib     import DrawUtils
 from vb30.plugins import PLUGINS
@@ -34,7 +32,7 @@ from vb30.plugins import PLUGINS
 class VRAY_WP_context_world(classes.VRayWorldPanel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
-        
+
     def draw(self, context):
         layout = self.layout
 
@@ -55,9 +53,10 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         layout.separator()
         split = layout.split()
         row = split.row(align=True)
-        idref.draw_idref(row, VRayWorld, 'ntree', text="Node Tree")
-        row.operator("vray.add_world_nodetree", icon='ZOOMIN', text="")
-    
+        row.prop_search(VRayWorld, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+        if not VRayWorld.ntree:
+            row.operator("vray.add_world_nodetree", icon='ZOOMIN', text="")
+
         if not classes.TreeHasNodes(VRayWorld.ntree):
             return
 

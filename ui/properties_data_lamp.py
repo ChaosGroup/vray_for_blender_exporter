@@ -24,21 +24,19 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.ui      import classes
 from vb30.lib     import LibUtils
 from vb30.lib     import DrawUtils
 from vb30.plugins import PLUGINS
 
 
-##     ## ######## #### ##        ######  
-##     ##    ##     ##  ##       ##    ## 
-##     ##    ##     ##  ##       ##       
-##     ##    ##     ##  ##        ######  
-##     ##    ##     ##  ##             ## 
-##     ##    ##     ##  ##       ##    ## 
- #######     ##    #### ########  ######  
+##     ## ######## #### ##        ######
+##     ##    ##     ##  ##       ##    ##
+##     ##    ##     ##  ##       ##
+##     ##    ##     ##  ##        ######
+##     ##    ##     ##  ##             ##
+##     ##    ##     ##  ##       ##    ##
+ #######     ##    #### ########  ######
 
 def LightIsSun(lamp):
     if lamp.type == 'SUN' and lamp.vray.direct_type == 'SUN':
@@ -58,13 +56,13 @@ def LightIsAmbient(lamp):
     return False
 
 
- ######   #######  ##    ## ######## ######## ##     ## ######## 
-##    ## ##     ## ###   ##    ##    ##        ##   ##     ##    
-##       ##     ## ####  ##    ##    ##         ## ##      ##    
-##       ##     ## ## ## ##    ##    ######      ###       ##    
-##       ##     ## ##  ####    ##    ##         ## ##      ##    
-##    ## ##     ## ##   ###    ##    ##        ##   ##     ##    
- ######   #######  ##    ##    ##    ######## ##     ##    ##    
+ ######   #######  ##    ## ######## ######## ##     ## ########
+##    ## ##     ## ###   ##    ##    ##        ##   ##     ##
+##       ##     ## ####  ##    ##    ##         ## ##      ##
+##       ##     ## ## ## ##    ##    ######      ###       ##
+##       ##     ## ##  ####    ##    ##         ## ##      ##
+##    ## ##     ## ##   ###    ##    ##        ##   ##     ##
+ ######   #######  ##    ##    ##    ######## ##     ##    ##
 
 class VRAY_DP_context_lamp(classes.VRayLampPanel):
     bl_label   = ""
@@ -84,7 +82,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
 
         VRayLight = lamp.vray
 
-        layout.separator()      
+        layout.separator()
         layout.prop(lamp, 'type', expand=True)
 
         lightSubTypeAttr = LibUtils.LampSubType[lamp.type]
@@ -97,20 +95,21 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         layout.separator()
         split = self.layout.split()
         row = split.row(align=True)
-        idref.draw_idref(row, VRayLight, 'ntree', text="Node Tree")
-        row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
+        row.prop_search(VRayLight, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+        if not VRayLight.ntree:
+            row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
         layout.separator()
         classes.DrawPluginUI(context, layout, VRayLight, lightPropGroup, lightPluginName, PLUGINS['LIGHT'][lightPluginName])
 
 
- ######  ##     ##    ###    ########  ######## 
-##    ## ##     ##   ## ##   ##     ## ##       
-##       ##     ##  ##   ##  ##     ## ##       
- ######  ######### ##     ## ########  ######   
-      ## ##     ## ######### ##        ##       
-##    ## ##     ## ##     ## ##        ##       
- ######  ##     ## ##     ## ##        ######## 
+ ######  ##     ##    ###    ########  ########
+##    ## ##     ##   ## ##   ##     ## ##
+##       ##     ##  ##   ##  ##     ## ##
+ ######  ######### ##     ## ########  ######
+      ## ##     ## ######### ##        ##
+##    ## ##     ## ##     ## ##        ##
+ ######  ##     ## ##     ## ##        ########
 
 class VRAY_DP_light_shape(classes.VRayLampPanel):
     bl_label = "Shape"
@@ -147,13 +146,13 @@ class VRAY_DP_light_shape(classes.VRayLampPanel):
                 col.prop(lightPropGroup, 'ies_file', text="File")
 
 
-######## ##     ##  ######  ##       ##     ## ########  ######## 
-##        ##   ##  ##    ## ##       ##     ## ##     ## ##       
-##         ## ##   ##       ##       ##     ## ##     ## ##       
-######      ###    ##       ##       ##     ## ##     ## ######   
-##         ## ##   ##       ##       ##     ## ##     ## ##       
-##        ##   ##  ##    ## ##       ##     ## ##     ## ##       
-######## ##     ##  ######  ########  #######  ########  ######## 
+######## ##     ##  ######  ##       ##     ## ########  ########
+##        ##   ##  ##    ## ##       ##     ## ##     ## ##
+##         ## ##   ##       ##       ##     ## ##     ## ##
+######      ###    ##       ##       ##     ## ##     ## ######
+##         ## ##   ##       ##       ##     ## ##     ## ##
+##        ##   ##  ##    ## ##       ##     ## ##     ## ##
+######## ##     ##  ######  ########  #######  ########  ########
 
 class VRAY_DP_include_exclude(classes.VRayLampPanel):
     bl_label   = "Include / Exclude"

@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.ui import classes
 
 

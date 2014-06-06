@@ -26,8 +26,6 @@ import re
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.debug import Debug, PrintDict
 
 from . import CallbackUI
@@ -167,23 +165,6 @@ def GenerateAttribute(classMembers, attrDesc):
 
     if 'update' in attrDesc:
         attrArgs['update'] = attrDesc['update']
-
-    if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
-        if attrDesc['type'] == 'MTEX':
-            attrDesc['type'] = 'TEXTURE'
-
-        options = {'FAKE_USER'}
-        if 'options' in attrDesc:
-            for opt in attrDesc['options'].split():
-                options.add(opt)
-
-        classMembers[attrDesc['attr']] = idref.IDRefProperty(
-            attrArgs['name'],
-            attrArgs['description'],
-            idtype = attrDesc['type'],
-            options = options,
-        )
-        return
 
     defUi = {
         'min'      : -1<<20,

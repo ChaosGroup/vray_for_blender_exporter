@@ -29,8 +29,6 @@ import imp
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.debug import Debug
 from vb30.lib   import ClassUtils
 from vb30.lib   import SysUtils
@@ -919,12 +917,6 @@ def unregister():
 
 	for regClass in GetRegClasses():
 		bpy.utils.unregister_class(regClass)
-
-	idref.bpy_unregister_idref(VRayLight,    'ntree')
-	idref.bpy_unregister_idref(VRayMaterial, 'ntree')
-	idref.bpy_unregister_idref(VRayObject,   'ntree')
-	idref.bpy_unregister_idref(VRayScene,    'ntree')
-	idref.bpy_unregister_idref(VRayWorld,    'ntree')
 
 	del VRayScene.Exporter
 

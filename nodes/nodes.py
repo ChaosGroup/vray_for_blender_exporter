@@ -30,7 +30,7 @@ import bpy
 import mathutils
 import nodeitems_utils
 
-from pynodes_framework import idref, base, parameter
+from pynodes_framework import base, parameter
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
@@ -241,6 +241,7 @@ class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.ShaderNodeNormal)
+        add_nodetype(self.layout, bpy.types.ShaderNodeTexImage)
 
 
 def VRayNodesMenu(self, context):
@@ -496,6 +497,13 @@ def LoadDynamicNodes():
             setattr(DynNodeClass, 'vray_type',   bpy.props.StringProperty(default=pluginType))
             setattr(DynNodeClass, 'vray_plugin', bpy.props.StringProperty(default=pluginName))
 
+            if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
+                setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
+                    name = "Texture",
+                    type = bpy.types.Texture,
+                    description = "Fake texture for internal usage",
+                ))
+
             bpy.utils.register_class(DynNodeClass)
 
             ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
@@ -504,15 +512,6 @@ def LoadDynamicNodes():
 
             DynamicClasses.append(DynNodeClass)
 
-            # XXX: The only way to use idrefs under nodes
-            # Remove after Blender fix
-            #
-            if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
-                setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
-                    name = "Texture",
-                    type = bpy.types.Texture,
-                    description = "Fake texture for internal usage",
-                ))
 
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
@@ -555,12 +554,6 @@ def register():
 
 
 def unregister():
-    # XXX: Remove after Blender fix
-    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image'):
-        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image')
-    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image_user'):
-        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image_user')
-
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
 

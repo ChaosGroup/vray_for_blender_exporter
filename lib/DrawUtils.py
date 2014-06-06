@@ -26,8 +26,6 @@ import json
 
 from . import AttributeUtils
 
-from pynodes_framework import idref
-
 
 def GetContextType(context):
     if hasattr(context, 'node') and context.node:
@@ -72,10 +70,7 @@ def Draw(context, layout, propGroup, PluginParams):
         if attrDesc['type'] in AttributeUtils.InputTypes:
             continue
 
-        if attrDesc['type'] in {'IMAGE', 'NODETREE', 'MTEX'}:
-            idref.draw_idref(layout, propGroup, attrDesc['attr'])
-        else:
-            DrawAttr(layout, propGroup, attrDesc['attr'])
+        DrawAttr(layout, propGroup, attrDesc['attr'])
 
 
 def ShowContainer(layout, show, propGroup):
