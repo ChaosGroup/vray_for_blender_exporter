@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.debug import Debug, PrintDict
 
 from . import AttributeUtils
@@ -57,10 +55,6 @@ def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
         )
 
         bpy.utils.register_class(DynPropGroup)
-
-        if hasattr(pluginModule, 'PluginRefParams'):
-            for param in pluginModule.PluginRefParams:
-                idref.bpy_register_idref(DynPropGroup, param['attr'], getattr(propGroup, param['attr']))
 
     setattr(dataPointer, propGroupName, bpy.props.PointerProperty(
         attr        = propGroupName,

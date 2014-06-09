@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from ..        import tree
 from ..sockets import AddInput, AddOutput
 
@@ -38,11 +36,19 @@ class VRayNodeSelectNodeTree(bpy.types.Node, tree.VRayObjectNode):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
+    treeName = bpy.props.StringProperty(
+        name        = "Tree",
+        description = "Tree name",
+        default     = ""
+    )
+
     def init(self, context):
         AddOutput(self, 'VRaySocketObject', "Tree")
 
     def draw_buttons(self, context, layout):
-        idref.draw_idref(layout, self, 'ntree', text="")
+        layout.prop_search(self, 'treeName',
+                           bpy.data, 'node_groups',
+                           text="")
 
 
 class VRayNodeSelectObject(bpy.types.Node, tree.VRayObjectNode):
@@ -113,16 +119,7 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    idref.bpy_register_idref(VRayNodeSelectNodeTree, 'ntree', idref.IDRefProperty(
-        "Node Tree",
-        "V-Ray node tree",
-        idtype = 'NODETREE',
-        options = {'FAKE_USER'},
-    ))
-
 
 def unregister():
-    idref.bpy_unregister_idref(VRayNodeSelectNodeTree, 'ntree')
-
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)

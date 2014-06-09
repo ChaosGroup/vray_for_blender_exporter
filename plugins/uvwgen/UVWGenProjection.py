@@ -151,31 +151,6 @@ PluginParams = (
 )
 
 
-def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    o = bus['output']
-
-    # XXX: Temporary fix for RT callback
-    if 'node' not in bus:
-        return pluginName
-
-    # TODO: get object from socket only!
-    #
-    ob = bus['node'].get('object', None)
-    
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-
-    o.writeHeader()
-
-    if ob is not None:
-        o.writeAttibute("uvw_transform", ob.matrix_world.copy().inverted())
-
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
-
-    o.writeFooter()
-
-    return pluginName
-
-
 def nodeDraw(context, layout, UVWGenProjection):
     layout.prop(UVWGenProjection, 'type')
 
@@ -191,7 +166,7 @@ def gui(context, layout, UVWGenProjection):
     row = split.row(align=True)
     row.prop(UVWGenProjection, 'u_angle')
     row.prop(UVWGenProjection, 'v_angle')
-    
+
     split = layout.split()
     row = split.row(align=True)
     row.prop(UVWGenProjection, 'film_gate_w')

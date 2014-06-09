@@ -288,7 +288,7 @@ PluginWidget = """
             { "name" : "output_max" }
         ]
     },
-    
+
     {   "layout" : "COLUMN",
         "attrs" : [
             { "name" : "alpha_from_intensity" }
@@ -299,6 +299,10 @@ PluginWidget = """
 
 
 def nodeDraw(context, layout, node):
+    if not node.texture:
+        layout.label("Missing texture!")
+        return
+
     layout.template_color_ramp(node.texture, 'color_ramp', expand=True)
 
 
@@ -326,7 +330,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         ramp_pos = []
         for i,element in enumerate(reversed(texture.color_ramp.elements)):
             tex_acolor = "%sC%i" % (pluginName, i)
-           
+
             o.set('TEXTURE', 'TexAColor', tex_acolor)
             o.writeHeader()
             o.writeAttibute('texture', "AColor(%.3f,%.3f,%.3f,%.3f)" % tuple(element.color));

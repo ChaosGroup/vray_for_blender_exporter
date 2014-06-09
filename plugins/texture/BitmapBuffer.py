@@ -176,6 +176,7 @@ PluginParams = (
 
 def nodeDraw(context, layout, node):
     if not node.texture:
+        layout.label("Missing texture!")
         return
 
     layout.template_ID(node.texture, 'image', open='image.open')

@@ -26,6 +26,7 @@ import bpy
 import mathutils
 
 from ..sockets import AddInput, AddOutput
+from .. import export as NodesExport
 
 
 class VRayNodeTransform(bpy.types.Node):
@@ -60,15 +61,31 @@ class VRayNodeTransform(bpy.types.Node):
         default     = (1.0, 1.0, 1.0)
     )
 
+    def _getConnectedObject(self):
+        inputSocket = self.inputs['Object']
+        if inputSocket.is_linked:
+            inputLink = inputSocket.links[0]
+            connetedNode = inputLink.from_node
+            if connetedNode.bl_idname == 'VRayNodeSelectObject':
+                return NodesExport.WriteVRayNodeSelectObject(None, None, connetedNode)
+        return None
+
     def init(self, context):
+        AddInput(self,  'VRaySocketObject',    "Object")
         AddOutput(self, 'VRaySocketTransform', "Transform")
 
     def draw_buttons(self, context, layout):
-        layout.prop(self, 'rotate')
-        layout.prop(self, 'offset')
-        layout.prop(self, 'scale')
+        inputSocket = self.inputs['Object']
+        if not inputSocket.is_linked:
+            layout.prop(self, 'rotate')
+            layout.prop(self, 'offset')
+            layout.prop(self, 'scale')
 
     def getTransform(self):
+        ob = self._getConnectedObject()
+        if ob:
+            return ob.matrix_world.inverted()
+
         mat_offs = mathutils.Matrix.Translation(self.offset)
 
         mat_rot  = mathutils.Matrix.Rotation(self.rotate[0], 4, 'X') * \

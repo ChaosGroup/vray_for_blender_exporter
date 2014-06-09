@@ -30,7 +30,7 @@ import bpy
 import mathutils
 import nodeitems_utils
 
-from pynodes_framework import idref, base, parameter
+from pynodes_framework import base, parameter
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
@@ -241,6 +241,7 @@ class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
 
     def draw(self, context):
         add_nodetype(self.layout, bpy.types.ShaderNodeNormal)
+        add_nodetype(self.layout, bpy.types.ShaderNodeTexImage)
 
 
 def VRayNodesMenu(self, context):
@@ -360,6 +361,7 @@ def VRayNodeInit(self, context):
         if not self.texture:
             self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
             self.texture.use_color_ramp = True
+            self.texture.use_fake_user  = True
 
     elif self.vray_plugin == 'LightMesh':
         AddOutput(self, 'VRaySocketGeom', "Light")
@@ -367,6 +369,7 @@ def VRayNodeInit(self, context):
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
             self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
+            self.texture.use_fake_user  = True
 
 
 def VRayNodeCopy(self, node):
@@ -494,6 +497,13 @@ def LoadDynamicNodes():
             setattr(DynNodeClass, 'vray_type',   bpy.props.StringProperty(default=pluginType))
             setattr(DynNodeClass, 'vray_plugin', bpy.props.StringProperty(default=pluginName))
 
+            if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
+                setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
+                    name = "Texture",
+                    type = bpy.types.Texture,
+                    description = "Fake texture for internal usage",
+                ))
+
             bpy.utils.register_class(DynNodeClass)
 
             ClassUtils.RegisterPluginPropertyGroup(DynNodeClass, vrayPlugin)
@@ -502,24 +512,6 @@ def LoadDynamicNodes():
 
             DynamicClasses.append(DynNodeClass)
 
-            # XXX: The only way to use idrefs under nodes
-            # Remove after Blender fix
-            #
-            if pluginName == 'BitmapBuffer':
-                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
-                    "Texture",
-                    "Fake texture for image texure",
-                    idtype = 'TEXTURE',
-                    options = {'FAKE_USER', 'NEVER_NULL'},
-                ))
-
-            elif pluginName in {'TexGradRamp', 'TexRemap'}:
-                idref.bpy_register_idref(DynNodeClass, 'texture', idref.IDRefProperty(
-                    "Texture",
-                    "Fake texture for Ramp widget",
-                    idtype = 'TEXTURE',
-                    options = {'FAKE_USER', 'NEVER_NULL'},
-                ))
 
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
@@ -562,12 +554,6 @@ def register():
 
 
 def unregister():
-    # XXX: Remove after Blender fix
-    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image'):
-        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image')
-    if hasattr(bpy.types.VRayNodeBitmapBuffer, 'image_user'):
-        idref.bpy_unregister_idref(bpy.types.VRayNodeBitmapBuffer, 'image_user')
-
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
 

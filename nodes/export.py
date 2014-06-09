@@ -67,9 +67,9 @@ def GetOutputNode(ntree):
  ######  ######## ######## ########  ######     ##     #######  ##     ##  ######
 
 def WriteVRayNodeSelectObject(bus, nodetree, node):
-    scene = bus['scene']
     if not node.objectName:
         return []
+    scene = bpy.context.scene
     if node.objectName not in scene.objects:
         return []
     return [scene.objects[node.objectName]]

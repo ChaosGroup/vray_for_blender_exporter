@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import idref
-
 from vb30.ui import classes
 
 
@@ -37,11 +35,12 @@ class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
 		layout = self.layout
 
 		VRayScene = context.scene.vray
-		
+
 		split = layout.split()
 		row = split.row(align=True)
-		idref.draw_idref(row, VRayScene, 'ntree', text="Node Tree")
-		row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
+		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+		if not VRayScene.ntree:
+			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
 
 
 def GetRegClasses():
