@@ -1,10 +1,7 @@
 // Draft settings begin
-SettingsDMCSampler {
+SettingsDMCSampler SettingsDMCSampler {
 	adaptive_amount=0.95;
 	adaptive_threshold=0.1;
 	subdivs_mult=0.1;
-}
-SettingsImageSampler {
-	type=1;
 }
 // Draft settings end
