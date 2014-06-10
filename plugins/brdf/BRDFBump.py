@@ -42,15 +42,15 @@ PluginParams = (
     },
     {
         'attr' : 'bump_tex_float',
-        'name' : "Bump Texture",
-        'desc' : "Bump texture",
+        'name' : "Float Texture",
+        'desc' : "Float texture",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
     {
         'attr' : 'bump_tex_color',
-        'name' : "Normal Texture",
-        'desc' : "Bump texture",
+        'name' : "Color Texture",
+        'desc' : "Color texture",
         'type' : 'TEXTURE',
         'default' : (0.0, 0.0, 0.0),
     },
@@ -59,7 +59,7 @@ PluginParams = (
         'name' : "Bump Amount",
         'desc' : "Bump amount",
         'type' : 'FLOAT',
-        'default' : 0.1,
+        'default' : 1.0,
     },
     {
         'attr' : 'bump_tex_mult_tex',
