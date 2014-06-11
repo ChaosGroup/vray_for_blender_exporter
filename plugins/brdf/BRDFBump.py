@@ -45,6 +45,7 @@ PluginParams = (
         'name' : "Float Texture",
         'desc' : "Float texture",
         'type' : 'FLOAT_TEXTURE',
+        'option' : ['LINKED_ONLY'],
         'default' : 1.0,
     },
     {
@@ -52,6 +53,7 @@ PluginParams = (
         'name' : "Color Texture",
         'desc' : "Color texture",
         'type' : 'TEXTURE',
+        'option' : ['LINKED_ONLY'],
         'default' : (0.0, 0.0, 0.0),
     },
     {

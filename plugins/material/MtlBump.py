@@ -39,13 +39,17 @@ PluginParams = (
     },
     {
         'attr' : 'bump_tex_color',
+        'name' : "Color Texture",
         'desc' : "Bump texture",
         'type' : 'TEXTURE',
+        'option' : ['LINKED_ONLY'],
         'default' : (0.0, 0.0, 0.0),
     },
     {
         'attr' : 'bump_tex_float',
+        'name' : "Float Texture",
         'desc' : "Bump texture",
+        'option' : ['LINKED_ONLY'],
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.0,
     },
@@ -59,7 +63,7 @@ PluginParams = (
         'attr' : 'bump_tex_mult_tex',
         'desc' : "Bump amount texture",
         'type' : 'FLOAT_TEXTURE',
-        'default' : 1.0,
+        'default' : 0.1,
     },
     {
         'attr' : 'bump_shadows',
@@ -113,7 +117,6 @@ PluginWidget = """
 { "widgets": [
     {   "layout" : "COLUMN",
         "attrs" : [
-            { "name" : "" },
             { "name" : "bump_delta_scale" },
             { "name" : "bump_shadows" },
             { "name" : "compute_bump_for_shadows" },
