@@ -26,8 +26,6 @@ __all__ = [ 'export', 'importing' ]
 
 
 def register():
-    import nodeitems_utils
-
     from . import sockets
     from . import specials
     from . import nodes
@@ -45,12 +43,8 @@ def register():
 
     templates.register()
 
-    # nodeitems_utils.register_node_categories('VRAY', nodes.GetCategories())
-
 
 def unregister():
-    import nodeitems_utils
-
     from . import sockets
     from . import specials
     from . import nodes
@@ -67,5 +61,3 @@ def unregister():
     tree.unregister()
 
     operators.unregister()
-
-    # nodeitems_utils.unregister_node_categories('VRAY')
