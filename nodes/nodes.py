@@ -30,8 +30,6 @@ import bpy
 import mathutils
 import nodeitems_utils
 
-from pynodes_framework import base, parameter
-
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
 from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
@@ -319,16 +317,12 @@ def VRayNodeInit(self, context):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
-        attr_options = attr.get('option')
+        attr_options = attr.get('option', {})
 
         if attr['type'] in AttributeUtils.InputTypes:
             TypeToSocket = AttributeUtils.TypeToSocket
-            if self.vray_type == 'LIGHT':
+            if self.vray_type == 'LIGHT' or 'LINKED_ONLY' in attr_options:
                 TypeToSocket = AttributeUtils.TypeToSocketNoValue
-
-            if attr_options:
-                if 'LINKED_ONLY' in attr_options:
-                    TypeToSocket = AttributeUtils.TypeToSocketNoValue
 
             AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
@@ -401,13 +395,6 @@ def VRayNodeDrawLabel(self):
 ##     ##    ##    ##   ### ##     ## ##     ##  ##  ##    ##    ##   ### ##     ## ##     ## ##       ##    ##
 ########     ##    ##    ## ##     ## ##     ## ####  ######     ##    ##  #######  ########  ########  ######
 
-usePynodesFramwork = False
-useCatergories     = False
-
-category_textures = None
-if useCatergories:
-    category_textures = tree.VRayNodeTree.add_category("Textures", "Textures")
-
 DynamicClasses = []
 
 
@@ -441,8 +428,6 @@ def LoadDynamicNodes():
             textureBpyType = getattr(bpy.types, pluginName)
             textureMenuType = getattr(vrayPlugin, 'MENU', None)
 
-            # Debug("Creating Node from plugin: %s" % pluginName, msgType='INFO')
-
             DynNodeClassName = "VRayNode%s" % (pluginName)
 
             DynNodeClassAttrs = {
@@ -450,52 +435,24 @@ def LoadDynamicNodes():
                 'bl_label'  : vrayPlugin.NAME,
                 'bl_icon'   : VRayNodeTypeIcon.get(pluginType, 'VRAY_LOGO_MONO'),
                 'bl_menu'   : textureMenuType,
+
+                'init'             : VRayNodeInit,
+                'copy'             : VRayNodeCopy,
+                'free'             : VRayNodeFree,
+                'draw_buttons'     : VRayNodeDraw,
+                'draw_buttons_ext' : VRayNodeDrawSide,
+                'draw_label'       : VRayNodeDrawLabel,
+
+                'vray_type'   : bpy.props.StringProperty(default=pluginType),
+                'vray_plugin' : bpy.props.StringProperty(default=pluginName),
             }
 
-            if usePynodesFramwork:
-                # !!! Associates nodes with a socket type
-                DynNodeClassAttrs['socket_type'] = tree.VRayTreeSockets
+            DynNodeClass = type(
+                DynNodeClassName,  # Name
+                (bpy.types.Node,), # Inheritance
+                DynNodeClassAttrs  # Attributes
+            )
 
-                for attr in vrayPlugin.PluginParams:
-                    attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
-
-                    if attr['type'] not in AttributeUtils.OutputTypes and attr['type'] not in AttributeUtils.InputTypes:
-                        continue
-
-                    isOutput = attr['type'] in AttributeUtils.OutputTypes
-
-                    if attr['type'] in {'FLOAT_TEXTURE'}:
-                        # Debug("  Adding attribute '%s' {%s}" % (attr_name, attr['type']))
-                        DynNodeClassAttrs[attr['attr']] = parameter.NodeParamFloat(name=attr_name, is_output=isOutput, description=attr['desc'])
-
-                PrintDict("DynNodeClassAttrs for %s" % pluginName, DynNodeClassAttrs)
-
-                DynNodeClass = type(
-                    DynNodeClassName,
-                    (bpy.types.Node, base.Node),
-                    DynNodeClassAttrs
-                )
-
-            else:
-                DynNodeClassAttrs['init']             = VRayNodeInit
-                DynNodeClassAttrs['copy']             = VRayNodeCopy
-                DynNodeClassAttrs['free']             = VRayNodeFree
-                DynNodeClassAttrs['draw_buttons']     = VRayNodeDraw
-                DynNodeClassAttrs['draw_buttons_ext'] = VRayNodeDrawSide
-                DynNodeClassAttrs['draw_label']       = VRayNodeDrawLabel
-
-                DynNodeClass = type(
-                    DynNodeClassName,  # Name
-                    (bpy.types.Node, base.Node), # Inheritance
-                    DynNodeClassAttrs  # Attributes
-                )
-
-            if useCatergories:
-                if pluginType == 'TEXTURE':
-                    category_textures()(DynNodeClass)
-
-            setattr(DynNodeClass, 'vray_type',   bpy.props.StringProperty(default=pluginType))
-            setattr(DynNodeClass, 'vray_plugin', bpy.props.StringProperty(default=pluginName))
 
             if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
                 setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
@@ -511,7 +468,6 @@ def LoadDynamicNodes():
             VRayNodeTypes[pluginType].append(getattr(bpy.types, DynNodeClassName))
 
             DynamicClasses.append(DynNodeClass)
-
 
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
