@@ -24,8 +24,6 @@
 
 import bpy
 
-from pynodes_framework import base
-
 from vb30.debug import Debug
 
 
@@ -81,7 +79,7 @@ class VRaySocketUse():
 ##    ##  ##       ##     ## ##     ## ##          ##    ##    ##     ##
  ######   ########  #######  ##     ## ########    ##    ##     ##    ##
 
-class VRaySocketGeom(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketGeom(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketGeom'
     bl_label  = 'Geomtery socket'
 
@@ -113,7 +111,7 @@ class VRaySocketGeom(bpy.types.NodeSocket, base.NodeSocket):
 ##     ## ##     ## ##    ## ##       ##    ##    ##
  #######  ########   ######  ########  ######     ##
 
-class VRaySocketObject(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketObject(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketObject'
     bl_label  = 'Object socket'
 
@@ -145,7 +143,7 @@ class VRaySocketObject(bpy.types.NodeSocket, base.NodeSocket):
  ##  ##   ###    ##
 #### ##    ##    ##
 
-class VRaySocketInt(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketInt(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketInt'
     bl_label  = 'Integer socket'
 
@@ -184,7 +182,7 @@ class VRaySocketInt(bpy.types.NodeSocket, base.NodeSocket):
 ##       ##       ##     ## ##     ##    ##
 ##       ########  #######  ##     ##    ##
 
-class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketFloat(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketFloat'
     bl_label  = 'Float socket'
 
@@ -215,7 +213,7 @@ class VRaySocketFloat(bpy.types.NodeSocket, base.NodeSocket):
         return (0.1, 0.4, 0.4, 1.00)
 
 
-class VRaySocketFloatNoValue(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketFloatNoValue(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketFloatNoValue'
     bl_label  = 'Float socket'
 
@@ -241,7 +239,7 @@ class VRaySocketFloatNoValue(bpy.types.NodeSocket, base.NodeSocket):
 ##       ##       ##     ## ##     ##    ##       ##    ## ##     ## ##       ##     ## ##    ##
 ##       ########  #######  ##     ##    ##        ######   #######  ########  #######  ##     ##
 
-class VRaySocketFloatColor(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketFloatColor(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketFloatColor'
     bl_label  = 'Float color socket'
 
@@ -280,7 +278,7 @@ class VRaySocketFloatColor(bpy.types.NodeSocket, base.NodeSocket):
 ##    ## ##     ## ##       ##     ## ##    ##
  ######   #######  ########  #######  ##     ##
 
-class VRaySocketColor(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketColor(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketColor'
     bl_label  = 'Color socket'
 
@@ -314,7 +312,7 @@ class VRaySocketColor(bpy.types.NodeSocket, base.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
-class VRaySocketColorNoValue(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketColorNoValue(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketColorNoValue'
     bl_label  = 'Color socket'
 
@@ -340,7 +338,7 @@ class VRaySocketColorNoValue(bpy.types.NodeSocket, base.NodeSocket):
   ## ##   ##       ##    ##    ##    ##     ## ##    ##
    ###    ########  ######     ##     #######  ##     ##
 
-class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketVector(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketVector'
     bl_label  = 'Vector socket'
 
@@ -379,7 +377,7 @@ class VRaySocketVector(bpy.types.NodeSocket, base.NodeSocket):
 ##    ## ##     ## ##     ## ##    ##  ##     ## ##    ##
  ######   #######   #######  ##     ## ########   ######
 
-class VRaySocketCoords(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketCoords(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketCoords'
     bl_label  = 'Mapping socket'
 
@@ -403,7 +401,7 @@ class VRaySocketCoords(bpy.types.NodeSocket, base.NodeSocket):
         return (0.250, 0.273, 0.750, 1.00)
 
 
-class VRaySocketBRDF(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketBRDF(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketBRDF'
     bl_label  = 'BRDF socket'
 
@@ -435,7 +433,7 @@ class VRaySocketBRDF(bpy.types.NodeSocket, base.NodeSocket):
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-class VRaySocketMtl(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketMtl(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketMtl'
     bl_label  = 'Material Socket'
 
@@ -467,7 +465,7 @@ class VRaySocketMtl(bpy.types.NodeSocket, base.NodeSocket):
 ##    ##  ##       ##   ### ##     ## ##       ##    ##     ##    ## ##     ## ##     ## ##   ### ##   ### ##       ##
 ##     ## ######## ##    ## ########  ######## ##     ##     ######  ##     ## ##     ## ##    ## ##    ## ######## ########
 
-class VRaySocketRenderChannel(bpy.types.NodeSocket, base.NodeSocket, VRaySocketUse):
+class VRaySocketRenderChannel(bpy.types.NodeSocket, VRaySocketUse):
     bl_idname = 'VRaySocketRenderChannel'
     bl_label  = 'Render Channel Socket'
 
@@ -495,7 +493,7 @@ class VRaySocketRenderChannel(bpy.types.NodeSocket, base.NodeSocket, VRaySocketU
         return (0.075, 0.619, 1.0, 1.000)
 
 
-class VRaySocketRenderChannelOutput(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketRenderChannelOutput(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketRenderChannelOutput'
     bl_label  = 'Render Channel Ouput Socket'
 
@@ -512,6 +510,9 @@ class VRaySocketRenderChannelOutput(bpy.types.NodeSocket, base.NodeSocket):
         default = ""
     )
 
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
     def draw_color(self, context, node):
         return (0.075, 0.619, 1.0, 1.000)
 
@@ -524,7 +525,7 @@ class VRaySocketRenderChannelOutput(bpy.types.NodeSocket, base.NodeSocket):
 ##       ##       ##       ##       ##    ##    ##    ##    ##
 ######## ##       ##       ########  ######     ##     ######
 
-class VRaySocketEffect(bpy.types.NodeSocket, base.NodeSocket, VRaySocketUse):
+class VRaySocketEffect(bpy.types.NodeSocket, VRaySocketUse):
     bl_idname = 'VRaySocketEffect'
     bl_label  = 'Effect Socket'
 
@@ -552,7 +553,7 @@ class VRaySocketEffect(bpy.types.NodeSocket, base.NodeSocket, VRaySocketUse):
         return (0.075, 0.619, 1.0, 1.000)
 
 
-class VRaySocketEffectOutput(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketEffectOutput(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketEffectOutput'
     bl_label  = 'Effect Socket Socket'
 
@@ -569,6 +570,9 @@ class VRaySocketEffectOutput(bpy.types.NodeSocket, base.NodeSocket):
         default = ""
     )
 
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
     def draw_color(self, context, node):
         return (0.075, 0.619, 1.0, 1.000)
 
@@ -581,7 +585,7 @@ class VRaySocketEffectOutput(bpy.types.NodeSocket, base.NodeSocket):
    ##    ##    ##  ##     ## ##   ### ##    ## ##       ##     ## ##    ##  ##     ##
    ##    ##     ## ##     ## ##    ##  ######  ##        #######  ##     ## ##     ##
 
-class VRaySocketTransform(bpy.types.NodeSocket, base.NodeSocket):
+class VRaySocketTransform(bpy.types.NodeSocket):
     bl_idname = 'VRaySocketTransform'
     bl_label  = 'Transform Socket Socket'
 
