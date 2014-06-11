@@ -30,7 +30,6 @@ import bpy
 import mathutils
 
 import nodeitems_utils
-import nodeitems_builtins
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
