@@ -28,7 +28,9 @@ import sys
 
 import bpy
 import mathutils
+
 import nodeitems_utils
+import nodeitems_builtins
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
@@ -37,6 +39,7 @@ from vb30.ui      import classes
 
 from .        import tree
 from .sockets import AddInput, AddOutput
+
 
 
 VRayNodeTypes = {
@@ -74,188 +77,131 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
     pass
 
 
+def BuildItemsList(nodeType, subType=None):
+    return [ nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label) for t in VRayNodeTypes[nodeType] ]
+
+
 def GetCategories():
     return [
-        VRayNodeCategory('VRAY', "V-Ray Textures", items=[ nodeitems_utils.NodeItem(vrayNodeType.bl_rna.identifier, label=vrayNodeType.bl_label) for vrayNodeType in VRayNodeTypes['TEXTURE'] ] ),
+        VRayNodeCategory(
+            'MATERIAL',
+            "Material",
+            items = BuildItemsList('MATERIAL'),
+            icon  = 'MATERIAL'
+        ),
+        VRayNodeCategory(
+            'BRDF',
+            "BRDF",
+            items = BuildItemsList('BRDF'),
+            icon  = 'TEXTURE_SHADED'
+        ),
+        VRayNodeCategory(
+            'TEXTURE',
+            "Textures",
+            items = BuildItemsList('TEXTURE'),
+            icon  = 'TEXTURE'
+        ),
+        VRayNodeCategory(
+            'GEOMETRY',
+            "Geometry",
+            items = BuildItemsList('GEOMETRY'),
+            icon  = 'MESH_DATA'
+        ),
+        VRayNodeCategory(
+            'BLENDER',
+            "Blender",
+            items = [
+                nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
+            ],
+            icon = 'BLENDER'
+        ),
+        VRayNodeCategory(
+            'RENDERCHANNEL',
+            "Render Channels",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeRenderChannels", label="Channels Container"),
+            ] + BuildItemsList('RENDERCHANNEL'),
+            icon  = 'SCENE_DATA'
+        ),
+        VRayNodeCategory(
+            'ENVIRONMENT',
+            "Environment",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeEnvironment"),
+
+            ],
+            icon  = 'WORLD'
+        ),
+        VRayNodeCategory(
+            'OUTPUTS',
+            "Outputs",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeOutputMaterial"),
+                nodeitems_utils.NodeItem("VRayNodeWorldOutput"),
+                nodeitems_utils.NodeItem("VRayNodeObjectOutput"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputGeometry"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputMaterial"),
+
+            ],
+            icon  = 'OBJECT_DATA'
+        ),
+        VRayNodeCategory(
+            'SELECTORS',
+            "Selectors",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeSelectObject"),
+                nodeitems_utils.NodeItem("VRayNodeSelectGroup"),
+                nodeitems_utils.NodeItem("VRayNodeObjectOutput"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputGeometry"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputMaterial"),
+
+            ],
+            icon  = 'ZOOM_SELECTED'
+        ),
+        VRayNodeCategory(
+            'UVWGEN',
+            "Mapping",
+            items = BuildItemsList('UVWGEN'),
+            icon  = 'GROUP_UVS'
+        ),
+        VRayNodeCategory(
+            "LAYOUT",
+            "Layout",
+            items = [
+                nodeitems_utils.NodeItem("NodeFrame"),
+                nodeitems_utils.NodeItem("NodeReroute"),
+            ],
+            icon = 'VIEW3D_VEC'
+        ),
+        VRayNodeCategory(
+            "EFFECT",
+            "Effects",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeEffectsHolder"),
+            ] + BuildItemsList('EFFECT'),
+            icon  = 'GHOST_ENABLED',
+        ),
+        VRayNodeCategory(
+            "LIGHT",
+            "Lights",
+            items = BuildItemsList('LIGHT'),
+            icon = 'LAMP',
+        ),
+        VRayNodeCategory(
+            "MATH",
+            "Math",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeTransform"),
+                nodeitems_utils.NodeItem("VRayNodeMatrix"),
+                nodeitems_utils.NodeItem("VRayNodeVector"),
+                # for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
+                #     if hasattr(vrayNodeType, 'bl_menu'):
+                #         if vrayNodeType.bl_menu == 'Math':
+                #             add_nodetype(self.layout, vrayNodeType)
+            ],
+            icon = 'MANIPUL',
+        ),
     ]
-
-
-def add_nodetype(layout, t):
-    icon = 'NONE'
-    name = t.bl_rna.name
-
-    if hasattr(t, 'bl_icon'):
-        icon = t.bl_icon
-
-    op = layout.operator("vray.add_node", text=name, icon=icon)
-    op.type = t.bl_rna.identifier
-    op.use_transform = True
-
-
-class VRayNodesMenuRenderChannels(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuRenderChannels"
-    bl_label  = "Render Channels"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeRenderChannels)
-
-        row = self.layout.row()
-        sub = row.column()
-        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['RENDERCHANNEL'], key=lambda t: t.bl_label)):
-            if i and i % 15 == 0:
-                sub = row.column()
-            add_nodetype(sub, vrayNodeType)
-
-
-class VRayNodesMenuEnvironment(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuEnvironment"
-    bl_label  = "Environment"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeEnvironment)
-
-
-class VRayNodesMenuOutput(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuOutput"
-    bl_label  = "Output"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeOutputMaterial)
-        add_nodetype(self.layout, bpy.types.VRayNodeWorldOutput)
-        add_nodetype(self.layout, bpy.types.VRayNodeObjectOutput)
-        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutputGeometry)
-        add_nodetype(self.layout, bpy.types.VRayNodeBlenderOutputMaterial)
-
-
-class VRayNodesMenuGeom(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuGeom"
-    bl_label  = "Geometry"
-
-    def draw(self, context):
-        row = self.layout.row()
-        sub = row.column()
-        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['GEOMETRY'], key=lambda t: t.bl_label)):
-            if i and i % 15 == 0:
-                sub = row.column()
-            add_nodetype(sub, vrayNodeType)
-
-
-class VRayNodesMenuMapping(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuMapping"
-    bl_label  = "Mapping"
-
-    def draw(self, context):
-        for vrayNodeType in sorted(VRayNodeTypes['UVWGEN'], key=lambda t: t.bl_label):
-            add_nodetype(self.layout, vrayNodeType)
-
-
-class VRayNodesMenuTexture(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuTexture"
-    bl_label  = "Texture"
-
-    def draw(self, context):
-        row = self.layout.row()
-        sub = row.column()
-        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label)):
-            if i and i % 15 == 0:
-                sub = row.column()
-            add_nodetype(sub, vrayNodeType)
-
-
-class VRayNodesMenuBRDF(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuBRDF"
-    bl_label  = "BRDF"
-
-    def draw(self, context):
-        row = self.layout.row()
-        sub = row.column()
-        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['BRDF'], key=lambda t: t.bl_label)):
-            if i and i % 10 == 0:
-                sub = row.column()
-            add_nodetype(sub, vrayNodeType)
-
-
-class VRayNodesMenuSelector(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuSelector"
-    bl_label  = "Selectors"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeSelectObject)
-        add_nodetype(self.layout, bpy.types.VRayNodeSelectGroup)
-        add_nodetype(self.layout, bpy.types.VRayNodeSelectNodeTree)
-
-
-class VRayNodesMenuMaterial(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuMaterial"
-    bl_label  = "Material"
-
-    def draw(self, context):
-        row = self.layout.row()
-        sub = row.column()
-        for i,vrayNodeType in enumerate(sorted(VRayNodeTypes['MATERIAL'], key=lambda t: t.bl_label)):
-            if i and i % 10 == 0:
-                sub = row.column()
-            add_nodetype(sub, vrayNodeType)
-
-
-class VRayNodesMenuEffects(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuEffects"
-    bl_label  = "Effects"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeEffectsHolder)
-
-        for vrayNodeType in sorted(VRayNodeTypes['EFFECT'], key=lambda t: t.bl_label):
-            add_nodetype(self.layout, vrayNodeType)
-
-
-class VRayNodesMenuLights(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuLights"
-    bl_label  = "Lights"
-
-    def draw(self, context):
-        for vrayNodeType in sorted(VRayNodeTypes['LIGHT'], key=lambda t: t.bl_label):
-            add_nodetype(self.layout, vrayNodeType)
-
-
-class VRayNodesMenuMath(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesMenuMath"
-    bl_label  = "Math"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.VRayNodeTransform)
-        add_nodetype(self.layout, bpy.types.VRayNodeMatrix)
-        add_nodetype(self.layout, bpy.types.VRayNodeVector)
-
-        for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
-            if hasattr(vrayNodeType, 'bl_menu'):
-                if vrayNodeType.bl_menu == 'Math':
-                    add_nodetype(self.layout, vrayNodeType)
-
-
-class VRayNodesFromBlender(bpy.types.Menu, tree.VRayData):
-    bl_idname = "VRayNodesFromBlender"
-    bl_label  = "Blender"
-
-    def draw(self, context):
-        add_nodetype(self.layout, bpy.types.ShaderNodeNormal)
-        add_nodetype(self.layout, bpy.types.ShaderNodeTexImage)
-
-
-def VRayNodesMenu(self, context):
-    self.layout.menu("VRayNodesFromBlender", icon='BLENDER')
-    self.layout.menu("VRayNodesMenuGeom", icon='MESH_DATA')
-    self.layout.menu("VRayNodesMenuLights", icon='LAMP')
-    self.layout.menu("VRayNodesMenuBRDF", icon='TEXTURE_SHADED')
-    self.layout.menu("VRayNodesMenuMaterial", icon='MATERIAL')
-    self.layout.menu("VRayNodesMenuTexture", icon='TEXTURE')
-    self.layout.menu("VRayNodesMenuMapping", icon='GROUP_UVS')
-    self.layout.menu("VRayNodesMenuMath", icon='MANIPUL')
-    self.layout.menu("VRayNodesMenuSelector", icon='ZOOM_SELECTED')
-    self.layout.menu("VRayNodesMenuOutput", icon='OBJECT_DATA')
-    self.layout.menu("VRayNodesMenuEnvironment", icon='WORLD')
-    self.layout.menu("VRayNodesMenuEffects", icon='GHOST_ENABLED')
-    self.layout.menu("VRayNodesMenuRenderChannels", icon='SCENE_DATA')
 
 
  ######  ##          ###     ######   ######     ##     ## ######## ######## ##     ##  #######  ########   ######
@@ -343,7 +289,7 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'BRDF':
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
     elif self.vray_type == 'GEOMETRY':
-        AddOutput(self, 'VRaySocketGeom', "Geomtery")
+        AddOutput(self, 'VRaySocketGeom', "Geometry")
     elif self.vray_type == 'MATERIAL':
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
@@ -403,11 +349,6 @@ def LoadDynamicNodes():
     global VRayNodeTypes
 
     DynamicClasses = []
-
-    # Manually defined classes
-    #
-    for regClass in GetRegClasses():
-        bpy.utils.register_class(regClass)
 
     # Runtime Node classes generation
     #
@@ -482,38 +423,14 @@ def LoadDynamicNodes():
 ##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
 
-StaticClasses = (
-    VRayNodesFromBlender,
-    VRayNodesMenuBRDF,
-    VRayNodesMenuEffects,
-    VRayNodesMenuEnvironment,
-    VRayNodesMenuGeom,
-    VRayNodesMenuLights,
-    VRayNodesMenuMapping,
-    VRayNodesMenuMaterial,
-    VRayNodesMenuOutput,
-    VRayNodesMenuSelector,
-    VRayNodesMenuTexture,
-    VRayNodesMenuRenderChannels,
-    VRayNodesMenuMath,
-)
-
-
-def GetRegClasses():
-    return StaticClasses
-
-
 def register():
     LoadDynamicNodes()
 
-    bpy.types.NODE_MT_add.append(VRayNodesMenu)
+    nodeitems_utils.register_node_categories('VRAY_NODES', GetCategories())
 
 
 def unregister():
-    for regClass in GetRegClasses():
-        bpy.utils.unregister_class(regClass)
+    nodeitems_utils.unregister_node_categories('VRAY_NODES')
 
     for regClass in DynamicClasses:
         bpy.utils.unregister_class(regClass)
-
-    bpy.types.NODE_MT_add.remove(VRayNodesMenu)
