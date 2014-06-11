@@ -22,20 +22,18 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = []
+from . import outputs
+from . import selector
+from . import environment
+from . import brdf
+from . import texture
+from . import effects
+from . import renderchannels
+from . import inputlist
+from . import transform
 
 
 def register():
-    from . import outputs
-    from . import selector
-    from . import environment
-    from . import brdf
-    from . import texture
-    from . import effects
-    from . import renderchannels
-    from . import inputlist
-    from . import transform
-
     outputs.register()
     selector.register()
     environment.register()
@@ -48,16 +46,6 @@ def register():
 
 
 def unregister():
-    from . import outputs
-    from . import selector
-    from . import environment
-    from . import brdf
-    from . import texture
-    from . import effects
-    from . import renderchannels
-    from . import inputlist
-    from . import transform
-
     outputs.unregister()
     selector.unregister()
     environment.unregister()
