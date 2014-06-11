@@ -41,7 +41,6 @@ from .        import tree
 from .sockets import AddInput, AddOutput
 
 
-
 VRayNodeTypes = {
     'BRDF'          : [],
     'EFFECT'        : [],
@@ -84,6 +83,14 @@ def BuildItemsList(nodeType, subType=None):
 def GetCategories():
     return [
         VRayNodeCategory(
+            'BLENDER',
+            "Blender",
+            items = [
+                nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
+            ],
+            icon = 'BLENDER'
+        ),
+        VRayNodeCategory(
             'MATERIAL',
             "Material",
             items = BuildItemsList('MATERIAL'),
@@ -102,84 +109,16 @@ def GetCategories():
             icon  = 'TEXTURE'
         ),
         VRayNodeCategory(
-            'GEOMETRY',
-            "Geometry",
-            items = BuildItemsList('GEOMETRY'),
-            icon  = 'MESH_DATA'
-        ),
-        VRayNodeCategory(
-            'BLENDER',
-            "Blender",
-            items = [
-                nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
-            ],
-            icon = 'BLENDER'
-        ),
-        VRayNodeCategory(
-            'RENDERCHANNEL',
-            "Render Channels",
-            items = [
-                nodeitems_utils.NodeItem("VRayNodeRenderChannels", label="Channels Container"),
-            ] + BuildItemsList('RENDERCHANNEL'),
-            icon  = 'SCENE_DATA'
-        ),
-        VRayNodeCategory(
-            'ENVIRONMENT',
-            "Environment",
-            items = [
-                nodeitems_utils.NodeItem("VRayNodeEnvironment"),
-
-            ],
-            icon  = 'WORLD'
-        ),
-        VRayNodeCategory(
-            'OUTPUTS',
-            "Outputs",
-            items = [
-                nodeitems_utils.NodeItem("VRayNodeOutputMaterial"),
-                nodeitems_utils.NodeItem("VRayNodeWorldOutput"),
-                nodeitems_utils.NodeItem("VRayNodeObjectOutput"),
-                nodeitems_utils.NodeItem("VRayNodeBlenderOutputGeometry"),
-                nodeitems_utils.NodeItem("VRayNodeBlenderOutputMaterial"),
-
-            ],
-            icon  = 'OBJECT_DATA'
-        ),
-        VRayNodeCategory(
-            'SELECTORS',
-            "Selectors",
-            items = [
-                nodeitems_utils.NodeItem("VRayNodeSelectObject"),
-                nodeitems_utils.NodeItem("VRayNodeSelectGroup"),
-                nodeitems_utils.NodeItem("VRayNodeObjectOutput"),
-                nodeitems_utils.NodeItem("VRayNodeBlenderOutputGeometry"),
-                nodeitems_utils.NodeItem("VRayNodeBlenderOutputMaterial"),
-
-            ],
-            icon  = 'ZOOM_SELECTED'
-        ),
-        VRayNodeCategory(
             'UVWGEN',
             "Mapping",
             items = BuildItemsList('UVWGEN'),
             icon  = 'GROUP_UVS'
         ),
         VRayNodeCategory(
-            "LAYOUT",
-            "Layout",
-            items = [
-                nodeitems_utils.NodeItem("NodeFrame"),
-                nodeitems_utils.NodeItem("NodeReroute"),
-            ],
-            icon = 'VIEW3D_VEC'
-        ),
-        VRayNodeCategory(
-            "EFFECT",
-            "Effects",
-            items = [
-                nodeitems_utils.NodeItem("VRayNodeEffectsHolder"),
-            ] + BuildItemsList('EFFECT'),
-            icon  = 'GHOST_ENABLED',
+            'GEOMETRY',
+            "Geometry",
+            items = BuildItemsList('GEOMETRY'),
+            icon  = 'MESH_DATA'
         ),
         VRayNodeCategory(
             "LIGHT",
@@ -200,6 +139,62 @@ def GetCategories():
                 #             add_nodetype(self.layout, vrayNodeType)
             ],
             icon = 'MANIPUL',
+        ),
+        VRayNodeCategory(
+            'OUTPUTS',
+            "Outputs",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeOutputMaterial"),
+                nodeitems_utils.NodeItem("VRayNodeWorldOutput"),
+                nodeitems_utils.NodeItem("VRayNodeObjectOutput"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputGeometry"),
+                nodeitems_utils.NodeItem("VRayNodeBlenderOutputMaterial"),
+
+            ],
+            icon  = 'OBJECT_DATA'
+        ),
+        VRayNodeCategory(
+            'SELECTORS',
+            "Selectors",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeSelectObject"),
+                nodeitems_utils.NodeItem("VRayNodeSelectGroup"),
+            ],
+            icon  = 'ZOOM_SELECTED'
+        ),
+        VRayNodeCategory(
+            'ENVIRONMENT',
+            "Environment",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeEnvironment"),
+
+            ],
+            icon  = 'WORLD'
+        ),
+        VRayNodeCategory(
+            "EFFECT",
+            "Effects",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeEffectsHolder"),
+            ] + BuildItemsList('EFFECT'),
+            icon  = 'GHOST_ENABLED',
+        ),
+        VRayNodeCategory(
+            'RENDERCHANNEL',
+            "Render Channels",
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeRenderChannels", label="Channels Container"),
+            ] + BuildItemsList('RENDERCHANNEL'),
+            icon  = 'SCENE_DATA'
+        ),
+        VRayNodeCategory(
+            "LAYOUT",
+            "Layout",
+            items = [
+                nodeitems_utils.NodeItem("NodeFrame"),
+                nodeitems_utils.NodeItem("NodeReroute"),
+            ],
+            icon = 'VIEW3D_VEC'
         ),
     ]
 
@@ -393,7 +388,6 @@ def LoadDynamicNodes():
                 (bpy.types.Node,), # Inheritance
                 DynNodeClassAttrs  # Attributes
             )
-
 
             if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
                 setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
