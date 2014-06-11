@@ -109,7 +109,6 @@ PluginParams.extend([
         'type' : 'VECTOR',
         'default' : (0, 0, 1),
     },
-
     {
         'attr' : 'use_blend_input',
         'desc' : "",
@@ -164,3 +163,7 @@ PluginWidget = """
 ]}
 """
 PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams3dsMax.PluginWidget)
+
+
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'use_blend_input')
