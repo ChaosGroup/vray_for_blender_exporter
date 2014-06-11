@@ -38,7 +38,7 @@ from ..sockets import AddInput, AddOutput
 ##     ## ##     ## ##    ## ##       ##    ##    ##
  #######  ########   ######  ########  ######     ##
 
-class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
+class VRayNodeObjectOutput(bpy.types.Node):
     bl_idname = 'VRayNodeObjectOutput'
     bl_label  = 'Object Output'
     bl_icon   = 'VRAY_LOGO'
@@ -64,7 +64,7 @@ class VRayNodeObjectOutput(bpy.types.Node, tree.VRayObjectNode):
         AddInput(self, 'VRaySocketGeom', "Geometry", 'geometry')
 
 
-class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
+class VRayNodeBlenderOutputGeometry(bpy.types.Node):
     bl_idname = 'VRayNodeBlenderOutputGeometry'
     bl_label  = 'Blender Object Geometry'
     bl_icon   = 'MESH_DATA'
@@ -85,7 +85,7 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node, tree.VRayObjectNode):
         AddOutput(self, 'VRaySocketGeom', "Geometry")
 
 
-class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
+class VRayNodeBlenderOutputMaterial(bpy.types.Node):
     bl_idname = 'VRayNodeBlenderOutputMaterial'
     bl_label  = 'Blender Object Materials'
     bl_icon   = 'MATERIAL'
@@ -116,7 +116,7 @@ class VRayNodeBlenderOutputMaterial(bpy.types.Node, tree.VRayObjectNode):
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-class VRayNodeOutputMaterial(bpy.types.Node, tree.VRayTreeNode):
+class VRayNodeOutputMaterial(bpy.types.Node):
     bl_idname = 'VRayNodeOutputMaterial'
     bl_label  = 'Material Output'
     bl_icon   = 'VRAY_LOGO'
