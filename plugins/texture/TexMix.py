@@ -53,6 +53,7 @@ PluginParams.extend([
         'attr' : 'mix_map',
         'desc' : "Mix amount texture",
         'type' : 'TEXTURE',
+        'option' : ['LINKED_ONLY'],
         'default' : (0.5, 0.5, 0.5),
     },
     {
@@ -67,13 +68,12 @@ PluginParams.extend([
         'type' : 'FLOAT',
         'default' : 0.3,
     },
-
-    # {
-    #     'attr' : 'mix_amount',
-    #     'desc' : "Mix amount",
-    #     'type' : 'FLOAT',
-    #     'default' : 0,
-    # },
+    {
+        'attr' : 'mix_amount',
+        'desc' : "Mix amount",
+        'type' : 'FLOAT',
+        'default' : 0.5,
+    },
     # {
     #     'attr' : 'use_curve',
     #     'desc' : "If true the blend curve is used",
@@ -86,6 +86,7 @@ PluginWidget = """
 { "widgets": [
     {   "layout" : "ROW",
         "attrs" : [
+            { "name" : "mix_amount" },
             { "name" : "transition_upper" },
             { "name" : "transition_lower" }
         ]
@@ -95,3 +96,7 @@ PluginWidget = """
 ]}
 """
 PluginWidget = PluginWidget.replace('{TEX_COMMON}', TexCommonParams3dsMax.PluginWidget)
+
+
+def nodeDraw(context, layout, propGroup):
+    layout.prop(propGroup, 'mix_amount')
