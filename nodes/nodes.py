@@ -206,6 +206,17 @@ def GetCategories():
 ##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
  ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######
 
+def CreateRampTexture(self):
+    self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
+    self.texture.use_color_ramp = True
+    self.texture.use_fake_user  = True
+
+
+def CreateBitmapTexture(self):
+    self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
+    self.texture.use_color_ramp = True
+
+
 def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
         return
@@ -293,32 +304,27 @@ def VRayNodeInit(self, context):
 
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         if not self.texture:
-            self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
-            self.texture.use_color_ramp = True
-            self.texture.use_fake_user  = True
+            CreateRampTexture(self)
 
     elif self.vray_plugin == 'LightMesh':
         AddOutput(self, 'VRaySocketGeom', "Light")
 
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
-            self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
-            self.texture.use_fake_user  = True
+            CreateBitmapTexture(self)
 
 
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
-        self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
-        self.texture.use_color_ramp = True
+        CreateRampTexture(self)
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
-        self.texture = node.texture
+        CreateBitmapTexture(self)
 
 
 def VRayNodeFree(self):
-    if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
-        if self.texture:
-            self.texture.user_clear()
-            bpy.data.textures.remove(self.texture)
+    if self.texture:
+        self.texture.user_clear()
+        bpy.data.textures.remove(self.texture)
 
 
 def VRayNodeDrawLabel(self):
