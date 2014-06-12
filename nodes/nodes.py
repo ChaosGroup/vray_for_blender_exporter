@@ -214,7 +214,7 @@ def CreateRampTexture(self):
 
 def CreateBitmapTexture(self):
     self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
-    self.texture.use_color_ramp = True
+    self.texture.use_fake_user  = True
 
 
 def VRayNodeDraw(self, context, layout):
