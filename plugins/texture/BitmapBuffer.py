@@ -209,6 +209,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         debug.PrintError('Incorrect node context!')
         return None
 
+    if not node.texture:
+        debug.PrintError('Incorrect node texture!')
+        return None
+
     image = node.texture.image
     if not image:
         debug.PrintError('Node "%s": Image is not set!' % node.name)
