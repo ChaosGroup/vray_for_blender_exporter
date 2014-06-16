@@ -24,6 +24,8 @@
 
 import bpy
 
+from .nodes.operators.add_tree import AddMaterialNodeTree
+
 from . import engine
 
 
@@ -52,13 +54,22 @@ def event_shutdown(e):
     engine.Shutdown()
 
 
+@bpy.app.handlers.persistent
+def new_material_ntree(ma):
+    AddMaterialNodeTree(ma)
+
+
 def register():
     AddEvent(bpy.app.handlers.save_post, dr_nodes_store)
     AddEvent(bpy.app.handlers.load_post, dr_nodes_restore)
     AddEvent(bpy.app.handlers.exit,      event_shutdown)
+
+    AddEvent(bpy.app.handlers.new_material, new_material_ntree)
 
 
 def unregister():
     DelEvent(bpy.app.handlers.save_post, dr_nodes_store)
     DelEvent(bpy.app.handlers.load_post, dr_nodes_restore)
     DelEvent(bpy.app.handlers.exit,      event_shutdown)
+
+    DelEvent(bpy.app.handlers.new_material, new_material_ntree)

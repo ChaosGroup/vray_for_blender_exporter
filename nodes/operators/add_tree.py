@@ -78,7 +78,7 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
 
         ntree = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
         ntree.nodes.new('VRayNode%s' % self.lightType)
-        
+
         VRayLight.ntree = ntree
 
         return {'FINISHED'}
@@ -94,7 +94,7 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
 
         ntree = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
         ntree.nodes.new('VRayNodeRenderChannels')
-       
+
         VRayScene.ntree = ntree
 
         return {'FINISHED'}
@@ -152,31 +152,35 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def AddMaterialNodeTree(ma):
+    VRayMaterial = ma.vray
+
+    nt = bpy.data.node_groups.new(ma.name, type='VRayNodeTreeMaterial')
+
+    outputNode = nt.nodes.new('VRayNodeOutputMaterial')
+
+    singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
+    singleMaterial.location.x  = outputNode.location.x - 250
+    singleMaterial.location.y += 50
+
+    brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
+    brdfVRayMtl.location.x  = singleMaterial.location.x - 250
+    brdfVRayMtl.location.y += 100
+
+    nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
+
+    nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
+
+    VRayMaterial.ntree = nt
+
+
 class VRAY_OT_add_material_nodetree(bpy.types.Operator):
     bl_idname      = "vray.add_material_nodetree"
     bl_label       = "Use Nodes"
     bl_description = ""
 
     def execute(self, context):
-        VRayMaterial = context.material.vray
-
-        nt = bpy.data.node_groups.new(context.material.name, type='VRayNodeTreeMaterial')
-
-        outputNode = nt.nodes.new('VRayNodeOutputMaterial')
-
-        singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
-        singleMaterial.location.x  = outputNode.location.x - 250
-        singleMaterial.location.y += 50
-
-        brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
-        brdfVRayMtl.location.x  = singleMaterial.location.x - 250
-        brdfVRayMtl.location.y += 100
-
-        nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
-
-        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
-
-        VRayMaterial.ntree = nt
+        AddMaterialNodeTree(context.material)
 
         return {'FINISHED'}
 
