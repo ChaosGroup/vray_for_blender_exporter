@@ -113,7 +113,7 @@ PluginParams.extend([
         'attr' : 'use_blend_input',
         'desc' : "",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'blend_input',
