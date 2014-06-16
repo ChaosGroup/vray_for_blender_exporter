@@ -324,6 +324,7 @@ def VRayNodeCopy(self, node):
 def VRayNodeFree(self):
     pass
 
+
 def VRayNodeDrawLabel(self):
     if bpy.context.scene.vray.Exporter.debug:
         return "%s [%s]" % (self.name, self.vray_plugin)
