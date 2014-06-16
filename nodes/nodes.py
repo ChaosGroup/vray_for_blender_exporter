@@ -322,10 +322,7 @@ def VRayNodeCopy(self, node):
 
 
 def VRayNodeFree(self):
-    if self.texture:
-        self.texture.user_clear()
-        bpy.data.textures.remove(self.texture)
-
+    pass
 
 def VRayNodeDrawLabel(self):
     if bpy.context.scene.vray.Exporter.debug:
