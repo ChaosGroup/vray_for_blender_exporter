@@ -34,29 +34,15 @@ bl_info = {
     "category"    : "Render"
 }
 
-
-if "bpy" in locals():
-    import imp
-    imp.reload(plugins)
-    imp.reload(preset)
-    imp.reload(operators)
-    imp.reload(proxy)
-    imp.reload(nodes)
-    imp.reload(engine)
-    imp.reload(keymap)
-    imp.reload(ui)
-    imp.reload(events)
-else:
-    import bpy
-    from vb30 import plugins
-    from vb30 import preset
-    from vb30 import operators
-    from vb30 import proxy
-    from vb30 import nodes
-    from vb30 import engine
-    from vb30 import keymap
-    from vb30 import ui
-    from vb30 import events
+from vb30 import plugins
+from vb30 import preset
+from vb30 import operators
+from vb30 import proxy
+from vb30 import nodes
+from vb30 import engine
+from vb30 import keymap
+from vb30 import ui
+from vb30 import events
 
 
 def register():
