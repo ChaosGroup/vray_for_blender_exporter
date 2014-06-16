@@ -27,6 +27,7 @@ import os
 import socket
 import sys
 import shutil
+import platform
 
 import bpy
 
@@ -44,6 +45,13 @@ def GetUsername():
 
 def GetHostname():
     return socket.gethostname()
+
+
+def GetArch():
+    bitness = platform.architecture()[0]
+    if bitness == '32':
+        return 'x86'
+    return 'x86_64'
 
 
 def GetVRayStandalonePath():
