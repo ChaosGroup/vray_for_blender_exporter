@@ -25,39 +25,8 @@
 import os
 
 import bpy
-from bl_operators import node as BlNode
 
-
-class VRAY_OT_open_image(bpy.types.Operator):
-    bl_idname      = "vray.open_image"
-    bl_label       = "Open Image File"
-    bl_description = "Open image file"
-
-    filepath = bpy.props.StringProperty(
-        subtype = 'FILE_PATH',
-    )
-
-    def invoke(self, context, event):
-        wm = context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
-    def execute(self, context):
-        node = context.active_node
-
-        if not self.filepath:
-            return {'CANCELLED'}
-
-        if not os.path.exists(self.filepath):
-            return {'CANCELLED'}
-
-        filapath, filename = os.path.split(self.filepath)
-        fname, fext = os.path.splitext(filename)
-
-        node.image = bpy.data.images.load(self.filepath)
-        node.image.name = fname
-
-        return {'FINISHED'}
-
+from .. import tree_defaults
 
 class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_light"
@@ -76,10 +45,11 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
 
         VRayLight = context.object.data.vray
 
-        ntree = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
-        ntree.nodes.new('VRayNode%s' % self.lightType)
+        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
+        nt.nodes.new('VRayNode%s' % self.lightType)
+        nt.use_fake_user = True
 
-        VRayLight.ntree = ntree
+        VRayLight.ntree = nt
 
         return {'FINISHED'}
 
@@ -92,10 +62,11 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
     def execute(self, context):
         VRayScene = context.scene.vray
 
-        ntree = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
-        ntree.nodes.new('VRayNodeRenderChannels')
+        nt = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
+        nt.nodes.new('VRayNodeRenderChannels')
+        nt.use_fake_user = True
 
-        VRayScene.ntree = ntree
+        VRayScene.ntree = nt
 
         return {'FINISHED'}
 
@@ -109,6 +80,7 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
         VRayObject = context.object.vray
 
         nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeObject')
+        nt.use_fake_user = True
 
         outputNode = nt.nodes.new('VRayNodeObjectOutput')
 
@@ -138,6 +110,7 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         VRayWorld = context.world.vray
 
         nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
+        nt.use_fake_user = True
 
         outputNode = nt.nodes.new('VRayNodeWorldOutput')
         envNode = nt.nodes.new('VRayNodeEnvironment')
@@ -152,46 +125,15 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def AddMaterialNodeTree(ma):
-    VRayMaterial = ma.vray
-
-    nt = bpy.data.node_groups.new(ma.name, type='VRayNodeTreeMaterial')
-
-    outputNode = nt.nodes.new('VRayNodeOutputMaterial')
-
-    singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
-    singleMaterial.location.x  = outputNode.location.x - 250
-    singleMaterial.location.y += 50
-
-    brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
-    brdfVRayMtl.location.x  = singleMaterial.location.x - 250
-    brdfVRayMtl.location.y += 100
-
-    nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
-
-    nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
-
-    VRayMaterial.ntree = nt
-
-
 class VRAY_OT_add_material_nodetree(bpy.types.Operator):
     bl_idname      = "vray.add_material_nodetree"
     bl_label       = "Use Nodes"
     bl_description = ""
 
     def execute(self, context):
-        AddMaterialNodeTree(context.material)
+        tree_defaults.AddMaterialNodeTree(context.material)
 
         return {'FINISHED'}
-
-
-class VRAY_OT_add_node(BlNode.NodeAddOperator, bpy.types.Operator):
-    bl_idname      = "vray.add_node"
-    bl_label       = "Add World Nodetree"
-    bl_description = ""
-
-    def create_node(self, context, node_type=None):
-        node = super(VRAY_OT_add_node, self).create_node(context, node_type)
 
 
 class VRAY_OT_del_nodetree(bpy.types.Operator):
@@ -228,10 +170,6 @@ class VRAY_OT_del_nodetree(bpy.types.Operator):
 
 def GetRegClasses():
     return (
-        VRAY_OT_open_image,
-
-        VRAY_OT_add_node,
-
         VRAY_OT_add_nodetree_scene,
         VRAY_OT_add_nodetree_light,
         VRAY_OT_add_nodetree_object,
