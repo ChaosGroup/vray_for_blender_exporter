@@ -331,3 +331,13 @@ def GetFullFilepath(filepath, holder=None):
     fullFilepath = os.path.normpath(fullFilepath)
 
     return fullFilepath
+
+
+def AddEvent(event, func):
+    if func not in event:
+        event.append(func)
+
+
+def DelEvent(event, func):
+    if func in event:
+        event.remove(func)
