@@ -342,22 +342,24 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         overrideParams['img_file'] = ""
         overrideParams['img_dir']  = ""
     else:
-        pm = o.getFileManager().getPathManager()
-        img_file = pm.getImgFilename()
-        img_dir  = pm.getImgDirpath()
+        # NOTE: Could happen when saving preset
+        if hasattr(o, 'getFileManager'):
+            pm = o.getFileManager().getPathManager()
+            img_file = pm.getImgFilename()
+            img_dir  = pm.getImgDirpath()
 
-        if not img_file:
-            debug.PrintError("Image output filename is not set!")
-            return None
+            if not img_file:
+                debug.PrintError("Image output filename is not set!")
+                return None
 
-        if not img_dir:
-            debug.PrintError("Image output directory is not set!")
-            return None
+            if not img_dir:
+                debug.PrintError("Image output directory is not set!")
+                return None
 
-        overrideParams['img_file'] = img_file
-        overrideParams['img_dir']  = img_dir
+            overrideParams['img_file'] = img_file
+            overrideParams['img_dir']  = img_dir
 
-        if o.isPreviewRender():
-            overrideParams['img_file_needFrameNumber'] = False
+            if o.isPreviewRender():
+                overrideParams['img_file_needFrameNumber'] = False
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
