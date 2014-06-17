@@ -578,8 +578,8 @@ class VRayPluginExporter:
 
 
 class VRaySimplePluginExporter:
-    def __init__(self, outputFilepath):
-        self.output = open(outputFilepath, 'w')
+    def __init__(self, outputFilepath=None, outputFile=None):
+        self.output = outputFile if outputFile else open(outputFilepath, 'w')
 
         self.namesCache = set()
 
@@ -590,8 +590,7 @@ class VRaySimplePluginExporter:
         self.pluginAttrs = None
 
     def __del__(self):
-        if self.output and not self.output.closed:
-            self.output.close()
+        self.done()
 
     # Set params for currently exported plugin
     #
@@ -642,3 +641,7 @@ class VRaySimplePluginExporter:
 
     def isPreviewRender(self):
         return False
+
+    def done(self):
+        if self.output and not self.output.closed:
+            self.output.close()
