@@ -186,14 +186,13 @@ def gui(context, layout, BitmapBuffer, node):
     if not node.texture:
         return
 
-    if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
-        layout.template_preview(node.texture)
-    layout.template_ID(node.texture, 'image', open='image.open')
-    layout.separator()
-
     if node.texture.image:
+        if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+            layout.template_preview(node.texture)
         layout.prop(node.texture.image, 'filepath')
-        layout.separator()
+    else:
+        layout.template_ID(node.texture, 'image', open='image.open')
+    layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
