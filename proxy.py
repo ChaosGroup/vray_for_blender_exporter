@@ -76,8 +76,6 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
         cmd.append('%i-%i' % (frames[0], frames[1]))
     cmd.append(vrmeshFilepath)
 
-    print(cmd)
-
     err = subprocess.call(cmd)
     if err:
         return "Error generating vrmesh file!"
