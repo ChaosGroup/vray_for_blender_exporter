@@ -24,8 +24,7 @@
 
 import bpy
 
-from .nodes.operators.add_tree import AddMaterialNodeTree
-
+from .nodes.tree_defaults import AddMaterialNodeTree
 from . import engine
 
 
