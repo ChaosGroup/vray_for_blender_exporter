@@ -38,6 +38,7 @@ from vb30.lib import BlenderUtils, PathUtils, LibUtils, SysUtils
 from vb30.lib import VRayStream
 
 from vb30.vray_tools import VRayProxy
+from vb30 import debug
 
 
 def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, applyTm=False, useVelocity=False):
@@ -261,6 +262,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         _vray_for_blender.exit(exporter)
 
         # Launch the generator tool
+        err = None
         for nodeName in nodeNames:
             vrmeshName = LibUtils.CleanString(ob.name)
             if oneObject and GeomMeshFile.filename:
@@ -268,10 +270,17 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             vrmeshName += ".vrmesh"
             vrmeshFilepath = os.path.join(outputDirpath, vrmeshName)
 
-            LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames, applyTm, useVelocity)
+            err = LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames, applyTm, useVelocity)
+            if err is not None:
+                break
 
         # Remove temp export file
         os.remove(vrsceneFilepath)
+
+        if err:
+            self.report({'ERROR'}, "Error generating VRayProxy! Check system console!")
+            debug.PrintError(err)
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 
