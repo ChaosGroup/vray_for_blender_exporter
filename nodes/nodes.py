@@ -33,7 +33,7 @@ import nodeitems_utils
 
 from vb30.plugins import PLUGINS
 from vb30.debug   import Debug, PrintDict
-from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils
+from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils, LibUtils
 from vb30.ui      import classes
 
 from .        import tree
@@ -207,14 +207,20 @@ def GetCategories():
  ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######
 
 def CreateRampTexture(self):
-    self.texture = bpy.data.textures.new(".Ramp_%s" % self.name, 'NONE')
+    texName = ".Ramp@%s" % LibUtils.GetUUID()
+
+    self.texture = bpy.data.textures.new(texName, 'NONE')
     self.texture.use_color_ramp = True
     self.texture.use_fake_user  = True
+    self.texture_name = texName
 
 
 def CreateBitmapTexture(self):
-    self.texture = bpy.data.textures.new(".Bitmap_%s" % self.name, 'IMAGE')
+    texName = ".Bitmap@%s" % LibUtils.GetUUID()
+
+    self.texture = bpy.data.textures.new(texName, 'IMAGE')
     self.texture.use_fake_user  = True
+    self.texture_name = texName
 
 
 def VRayNodeDraw(self, context, layout):
@@ -397,6 +403,17 @@ def LoadDynamicNodes():
                     name = "Texture",
                     type = bpy.types.Texture,
                     description = "Fake texture for internal usage",
+                ))
+
+                # NOTE: We will store associated texture name for further possible
+                # refactor to find the texture used by this datablock simply by name
+                # and restore pointers
+                #
+                setattr(DynNodeClass, 'texture_name', bpy.props.StringProperty(
+                    name = "Texture Name",
+                    options = {'HIDDEN'},
+                    description = "Associated texture name",
+                    default = 'NONE'
                 ))
 
             bpy.utils.register_class(DynNodeClass)
