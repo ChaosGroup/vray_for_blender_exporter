@@ -47,7 +47,7 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
 
     if sys.platform == 'win32':
         ply2vrmeshExt = ".exe"
-        ply2vrmeshArch = SysUtils.GetArch()
+        ply2vrmeshArch = "_%s" % SysUtils.GetArch()
     elif sys.platform == 'linux':
         ply2vrmeshExt = ".bin"
     else:
