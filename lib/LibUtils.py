@@ -23,6 +23,7 @@
 #
 
 import struct
+import uuid
 
 import bpy
 import mathutils
@@ -57,6 +58,10 @@ FormatToSettings = {
     'EXR'  : 'SettingsEXR',
     'VRST' : 'SettingsVRST',
 }
+
+
+def GetUUID():
+    return str(uuid.uuid1()).split("-")[0]
 
 
 def GetLightPluginName(lamp):
