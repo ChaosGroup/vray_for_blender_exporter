@@ -24,6 +24,7 @@
 
 import bpy
 
+from vb30.lib import BlenderUtils
 from vb30.ui import classes
 
 
@@ -54,7 +55,7 @@ class VRayNodeTree(bpy.types.NodeTree, VRayData):
             ma = ob.active_material
             if ma != None:
                 if ma.vray.ntree:
-                    return ma.vray.ntree, ma, ma
+                    return ma.vray.ntree, None, None
         return (None, None, None)
 
 
@@ -73,16 +74,10 @@ class VRayNodeTreeWorld(bpy.types.NodeTree, VRayData):
 
     @classmethod
     def get_from_context(cls, context):
-        world = None
         if hasattr(context.scene, 'world'):
             world = context.scene.world
-
-        if world is None:
-            return (None, None, None)
-
-        if world.vray.ntree:
-            return world.vray.ntree, world, world
-
+            if world and world.vray.ntree:
+                return world.vray.ntree, None, None
         return (None, None, None)
 
 
@@ -103,9 +98,9 @@ class VRayNodeTreeObject(bpy.types.NodeTree, VRayData):
     @classmethod
     def get_from_context(cls, context):
         ob = context.active_object
-        if ob and ob.type not in {'LAMP', 'CAMERA'}:
+        if ob and ob.type not in BlenderUtils.NonGeometryTypes:
             if ob.vray.ntree:
-                return ob.vray.ntree, ob, ob
+                return ob.vray.ntree, None, None
         return (None, None, None)
 
 
@@ -127,7 +122,7 @@ class VRayNodeTreeLight(bpy.types.NodeTree, VRayData):
         ob = context.active_object
         if ob and ob.type == 'LAMP':
             if ob.data.vray.ntree:
-                return ob.data.vray.ntree, ob.data, ob.data
+                return ob.data.vray.ntree, None, None
         return (None, None, None)
 
 
@@ -147,7 +142,7 @@ class VRayNodeTreeScene(bpy.types.NodeTree, VRayData):
     @classmethod
     def get_from_context(cls, context):
         if context.scene.vray.ntree:
-            return context.scene.vray.ntree, context.scene, context.scene
+            return context.scene.vray.ntree, None, None
         return (None, None, None)
 
 
