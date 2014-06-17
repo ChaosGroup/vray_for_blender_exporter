@@ -40,7 +40,7 @@ from vb30.lib import VRayStream
 from vb30.vray_tools import VRayProxy
 
 
-def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, applyTm=False):
+def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, applyTm=False, useVelocity=False):
     ply2vrmeshBin  = "ply2vrmesh{arch}{ext}"
     ply2vrmeshArch = ""
 
@@ -66,6 +66,8 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
     cmd.append(vrsceneFilepath)
     cmd.append('-vrsceneNodeName')
     cmd.append(nodeName)
+    if useVelocity:
+        cmd.append('-vrsceneVelocity')
     if applyTm:
         cmd.append('-vrsceneApplyTm')
     if frames is not None:
@@ -209,7 +211,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                 frameStep  = sce.frame_step
                 frames = (sce.frame_start, sce.frame_end, sce.frame_step)
 
-        applyTm = GeomMeshFile.apply_transforms
+        applyTm     = GeomMeshFile.apply_transforms
+        useVelocity = GeomMeshFile.add_velocity
 
         # Export objects meshes and generate nodes name list
         nodeNames = set()
@@ -265,10 +268,10 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             vrmeshName += ".vrmesh"
             vrmeshFilepath = os.path.join(outputDirpath, vrmeshName)
 
-            LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames, applyTm)
+            LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames, applyTm, useVelocity)
 
         # Remove temp export file
-        # os.remove(vrsceneFilepath)
+        os.remove(vrsceneFilepath)
 
         return {'FINISHED'}
 
