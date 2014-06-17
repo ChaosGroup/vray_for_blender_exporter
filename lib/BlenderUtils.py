@@ -36,6 +36,8 @@ ObjectPrefix = {
     'CAMERA' : 'CA',
 }
 
+NonGeometryTypes = {'LAMP','CAMERA','SPEAKER','ARMATURE','LATTICE','EMPTY'}
+
 
 def SceneLampIt(scene, obType=None):
     for ob in scene.objects:
