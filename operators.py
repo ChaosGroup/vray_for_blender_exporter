@@ -38,6 +38,7 @@ import vb30.proxy
 
 from vb30.lib     import LibUtils, BlenderUtils, PathUtils, SysUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
+from vb30 import debug
 
 
 ##     ## ########  ########     ###    ######## ########
@@ -75,9 +76,17 @@ class VRAY_OT_update(bpy.types.Operator):
 		if sys.platform == 'win32':
 			git = '"%s"' % git
 
+		cmds = (
+			"%s pull --rebase" % git,
+			"%s submodule foreach git pull --rebase origin master" % git
+		)
+
 		os.chdir(exporterDir)
-		err  = os.system("%s pull --rebase" % git)
-		err += os.system("%s submodule foreach git pull --rebase origin master" % git)
+
+		err = 0
+		for cmd in cmds:
+			debug.PrintInfo("Executing: %s" % cmd)
+			err += os.system(cmd)
 
 		if err:
 			self.report({'WARNING'}, "V-Ray For Blender: Git update warning! Check system console!")
