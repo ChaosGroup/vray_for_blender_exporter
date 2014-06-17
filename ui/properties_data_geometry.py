@@ -52,36 +52,26 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 		VRayMesh = data.vray
 		GeomMeshFile= VRayMesh.GeomMeshFile
 
-		layout.label(text="Generate VRayProxy:")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomMeshFile, 'dirpath')
-		col.prop(GeomMeshFile, 'filename')
-		col.separator()
-		col.prop(GeomMeshFile, 'proxy_attach_mode', text="Attach mode")
-
-		split= layout.split()
-		col= split.column()
-		col.prop(GeomMeshFile, 'animation')
-		sub= col.column()
-		sub.active= GeomMeshFile.animation
-		sub.prop(GeomMeshFile, 'add_velocity')
-		sub.prop(GeomMeshFile, 'animation_range', text="Range")
-		if GeomMeshFile.animation_range == 'MANUAL':
-			sub= sub.column(align=True)
-			sub.prop(GeomMeshFile, 'frame_start')
-			sub.prop(GeomMeshFile, 'frame_end')
-		if wide_ui:
-			col= split.column()
-		col.prop(GeomMeshFile, 'add_suffix')
-		col.prop(GeomMeshFile, 'apply_transforms')
+		layout.label("Generate VRayProxy:")
+		layout.prop(GeomMeshFile, 'dirpath')
+		layout.prop(GeomMeshFile, 'filename')
+		layout.prop(GeomMeshFile, 'animation')
+		if GeomMeshFile.animation == 'MANUAL':
+			row = layout.row(align=True)
+			row.prop(GeomMeshFile, 'frame_start')
+			row.prop(GeomMeshFile, 'frame_end')
+		if GeomMeshFile.animation not in {'NONE'}:
+			layout.prop(GeomMeshFile, 'add_velocity')
+		layout.prop(GeomMeshFile, 'apply_transforms')
 
 		layout.separator()
-
 		split= layout.split()
 		col= split.column()
 		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
+
+		layout.separator()
+		layout.prop(GeomMeshFile, 'proxy_attach_mode', text="Attach mode")
+		layout.prop(GeomMeshFile, 'add_suffix')
 
 
 def GetRegClasses():
