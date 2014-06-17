@@ -211,8 +211,8 @@ PluginParams = (
         'type' : 'ENUM',
         'items' : (
             ('NONE',    "None",        "Don\'t attach proxy"),
-            ('NEW',     "New object",  "Attach proxy to new object"),
-            ('THIS',    "This object", "Attach proxy to this object"),
+            ('NEW',     "New Object",  "Attach proxy to new object"),
+            ('THIS',    "This Object", "Attach proxy to this object"),
             ('REPLACE', "Replace",     "Replace this object with proxy"),
         ),
         'skip' : True,
@@ -232,14 +232,6 @@ PluginParams = (
         'type' : 'BOOL',
         'skip' : True,
         'default' : True
-    },
-    {
-        'attr' : 'animation',
-        'name' : "Animation",
-        'desc' : "Animated proxy",
-        'type' : 'BOOL',
-        'skip' : True,
-        'default' : False
     },
     {
         'attr' : 'dirpath',
@@ -267,16 +259,17 @@ PluginParams = (
         'default' :  ""
     },
     {
-        'attr' : 'animation_range',
-        'name' : "Animation range",
-        'desc' : "Animation range type",
+        'attr' : 'animation',
+        'name' : "Animation",
+        'desc' : "Export animation ",
         'type' : 'ENUM',
         'items' : (
+            ('NONE',   "None", "No animation"),
             ('MANUAL', "Manual", "Set manually"),
             ('SCENE',  "Scene",  "Get from scene")
         ),
         'skip' : True,
-        'default' : 'SCENE'
+        'default' : 'NONE'
     },
     {
         'attr' : 'frame_start',
@@ -311,7 +304,7 @@ PluginWidget = """
             { "name" : "file" }
         ]
     },
-    
+
     {   "layout" : "SEPARATOR" },
 
     {   "layout" : "ROW",
@@ -321,7 +314,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SEPARATOR" },
-    
+
     {   "layout" : "SPLIT",
         "splits" : [
             {   "layout" : "COLUMN",
