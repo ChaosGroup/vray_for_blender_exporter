@@ -275,7 +275,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                 break
 
         # Remove temp export file
-        # os.remove(vrsceneFilepath)
+        os.remove(vrsceneFilepath)
 
         if err:
             self.report({'ERROR'}, "Error generating VRayProxy! Check system console!")
