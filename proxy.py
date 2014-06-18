@@ -76,6 +76,8 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
         cmd.append('%i-%i' % (frames[0], frames[1]))
     cmd.append(vrmeshFilepath)
 
+    debug.PrintInfo("Calling: %s" % " ".join(cmd))
+
     err = subprocess.call(cmd)
     if err:
         return "Error generating vrmesh file!"
@@ -273,12 +275,14 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                 break
 
         # Remove temp export file
-        os.remove(vrsceneFilepath)
+        # os.remove(vrsceneFilepath)
 
         if err:
             self.report({'ERROR'}, "Error generating VRayProxy! Check system console!")
             debug.PrintError(err)
             return {'CANCELLED'}
+
+        self.report({'INFO'}, "Done creating proxy: %s" % vrmeshFilepath)
 
         return {'FINISHED'}
 
