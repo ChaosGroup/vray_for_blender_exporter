@@ -72,7 +72,7 @@ VRayNodeTypeIcon = {
 ##     ## ######## ##    ##  #######
 
 class VRayNodeCategory(nodeitems_utils.NodeCategory):
-    pass
+    split_items = 15
 
 
 def BuildItemsList(nodeType, subType=None):
@@ -436,6 +436,7 @@ def LoadDynamicNodes():
 ##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
 ##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
 ##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
+
 
 def register():
     LoadDynamicNodes()
