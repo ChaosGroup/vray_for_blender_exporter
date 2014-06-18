@@ -112,6 +112,9 @@ def Run(bus):
             p.setDisplayVFB(False) # Disable VFB
             p.setAutoclose(True)   # Exit on render end
 
+    if VRayExporter.gen_run_file:
+        p.setGenRunFile(True)
+
     p.run()
 
     if imageToBlender or engine.is_preview:

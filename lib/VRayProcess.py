@@ -110,6 +110,8 @@ class VRayProcess:
         # crop
         self.isPreview = False
 
+        self.gen_run_file = False
+
     def setVRayStandalone(self, filepath):
         self.filepath = filepath
 
@@ -171,6 +173,9 @@ class VRayProcess:
     def setPreview(self, v):
         self.isPreview = v
 
+    def setGenRunFile(self, v):
+        self.gen_run_file = v
+
     def getCommandLine(self):
         cmd = [self.filepath]
         cmd.append('-verboseLevel=%s' % self.verboseLevel)
@@ -210,30 +215,32 @@ class VRayProcess:
         if not self.isPreview:
             commandLine = " ".join(cmd)
 
-            baseFile = self.sceneFile
-            if bpy.data.filepath:
-                baseFile = bpy.data.filepath
-
-            sceneFileName = bpy.path.display_name_from_filepath(baseFile)
-            runExt        = "bat" if sys.platform == 'win32' else "sh"
-            cmdSep        = "^" if sys.platform == 'win32' else "\\"
-
-            runFilename = "render_%s.%s" % (sceneFileName, runExt)
-            runFilepath = os.path.join(os.path.dirname(baseFile), runFilename)
-
-            debug.PrintInfo("Generating %s..." % runFilename)
             debug.PrintInfo("Command Line: %s" % commandLine)
 
-            fileCmdLine = ""
-            for c in cmd:
-                fileCmdLine += c + " %s\n" % cmdSep
+            if self.gen_run_file:
+                baseFile = self.sceneFile
+                if bpy.data.filepath:
+                    baseFile = bpy.data.filepath
 
-            with open(runFilepath, 'w') as f:
-                f.write(fileCmdLine)
-                f.write("\n")
+                sceneFileName = bpy.path.display_name_from_filepath(baseFile)
+                runExt        = "bat" if sys.platform == 'win32' else "sh"
+                cmdSep        = "^" if sys.platform == 'win32' else "\\"
 
-            if sys.platform not in {'win32'}:
-                os.chmod(runFilepath, 0o744)
+                runFilename = "render_%s.%s" % (sceneFileName, runExt)
+                runFilepath = os.path.join(os.path.dirname(baseFile), runFilename)
+
+                debug.PrintInfo("Generating %s..." % runFilename)
+
+                fileCmdLine = ""
+                for c in cmd:
+                    fileCmdLine += c + " %s\n" % cmdSep
+
+                with open(runFilepath, 'w') as f:
+                    f.write(fileCmdLine)
+                    f.write("\n")
+
+                if sys.platform not in {'win32'}:
+                    os.chmod(runFilepath, 0o744)
 
         if self.autorun:
             self.process = subprocess.Popen(cmd)

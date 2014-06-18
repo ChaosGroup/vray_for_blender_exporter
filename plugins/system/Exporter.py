@@ -338,6 +338,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
+    gen_run_file = bpy.props.BoolProperty(
+        name        = "Generate Run File",
+        description = "Generate script for render",
+        default     = False
+    )
+
 
 def GetRegClasses():
     return (

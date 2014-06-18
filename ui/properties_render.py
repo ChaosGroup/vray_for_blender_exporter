@@ -445,6 +445,9 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'debug')
+		if wide_ui:
+			col = split.column()
+		col.prop(VRayExporter, 'gen_run_file')
 
 		if sys.platform == "linux":
 			split = layout.split()
