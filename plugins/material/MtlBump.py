@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.lib import ExportUtils
+
 
 TYPE = 'MATERIAL'
 ID   = 'MtlBump'
