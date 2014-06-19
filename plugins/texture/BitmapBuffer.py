@@ -215,14 +215,13 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     image = node.texture.image
     if not image:
         debug.PrintError('Node "%s": Image is not set!' % node.name)
-        return None
+    else:
+        filepath = BlenderUtils.GetFullFilepath(image.filepath, holder=image)
 
-    filepath = BlenderUtils.GetFullFilepath(image.filepath, holder=image)
+        if VRayDR.on:
+            if VRayDR.assetSharing == 'SHARE':
+                filepath = PathUtils.CopyDRAsset(bus, filepath)
 
-    if VRayDR.on:
-        if VRayDR.assetSharing == 'SHARE':
-            filepath = PathUtils.CopyDRAsset(bus, filepath)
-
-    overrideParams['file'] = filepath
+        overrideParams['file'] = filepath
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
