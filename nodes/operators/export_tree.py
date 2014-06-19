@@ -31,6 +31,8 @@ from vb30.nodes import export as NodesExport
 from vb30.lib import BlenderUtils, PathUtils, LibUtils
 from vb30.lib import VRayStream
 
+from vb30 import debug
+
 
 class VRAY_OT_export_nodetree(bpy.types.Operator):
     bl_idname      = "vray.export_nodetree"
@@ -56,6 +58,8 @@ class VRAY_OT_export_nodetree(bpy.types.Operator):
         fileName = "%s.vrscene" % LibUtils.CleanString(ntree.name)
 
         outputFilepath = os.path.normpath(os.path.join(exportPath, fileName))
+
+        debug.PrintInfo('Exporting "%s" to: "%s"' % (ntree.name, outputFilepath))
 
         bus = {
             'output' : VRayStream.VRaySimplePluginExporter(outputFilepath),
