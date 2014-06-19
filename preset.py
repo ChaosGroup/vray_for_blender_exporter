@@ -28,11 +28,13 @@ import bpy
 
 from vb30.plugins import PLUGINS, PLUGINS_ID
 
+from vb30.vray_tools.VRaySceneParser import ParseVrscene
+
 from vb30.lib import VRayStream
 from vb30.lib import ExportUtils, SysUtils, LibUtils, PathUtils, BlenderUtils
 
-from vb30.nodes import importing
-from vb30.vray_tools.VRaySceneParser import ParseVrscene
+from vb30.nodes import importing as NodesImport
+from vb30.nodes import tools     as NodesTools
 
 from vb30 import debug
 
@@ -68,6 +70,8 @@ PresetTypePlugins = {
 ##     ## ######## ##    ##  #######     ########  ##     ##  ######  ########
 
 class VRayPresetMenuBase(bpy.types.Menu):
+    preset_operator = None
+
     def path_menu(self, searchpaths):
         filter_ext = lambda ext: ext.lower() == ".vrscene"
 
@@ -86,7 +90,7 @@ class VRayPresetMenuBase(bpy.types.Menu):
         files.sort()
 
         for f, filepath in files:
-            props = self.layout.operator("vray.preset_apply",
+            props = self.layout.operator(self.preset_operator,
                                          text=bpy.path.display_name(f),
                                          translate=False)
 
@@ -115,10 +119,7 @@ class VRayPresetMenuBase(bpy.types.Menu):
 ##     ## ##        ##        ##          ##
 ##     ## ##        ##        ########    ##
 
-class VRayPresetApply(bpy.types.Operator):
-    bl_idname = "vray.preset_apply"
-    bl_label = "Apply V-Ray preset"
-
+class VRayPresetExecuteBase:
     filepath = bpy.props.StringProperty(
         subtype = 'FILE_PATH',
         options = {'SKIP_SAVE'},
@@ -129,6 +130,9 @@ class VRayPresetApply(bpy.types.Operator):
         description = "ID name of the menu this was called from",
         options     = {'SKIP_SAVE'},
     )
+
+    def _execute(self, context, vrsceneDict):
+        return {'FINISHED'}
 
     def execute(self, context):
         filepath = self.filepath
@@ -143,6 +147,14 @@ class VRayPresetApply(bpy.types.Operator):
 
         vrsceneDict = ParseVrscene(filepath)
 
+        return self._execute(context, vrsceneDict)
+
+
+class VRayPresetApply(VRayPresetExecuteBase, bpy.types.Operator):
+    bl_idname = "vray.preset_apply"
+    bl_label = "Apply V-Ray preset"
+
+    def _execute(self, context, vrsceneDict):
         for pluginDesc in vrsceneDict:
             pluginID    = pluginDesc['ID']
             pluginName  = pluginDesc['Name']
@@ -159,7 +171,7 @@ class VRayPresetApply(bpy.types.Operator):
             propGroup = getattr(context.scene.vray, pluginID)
 
             for attrName in pluginAttrs:
-                attrDesc  = importing.getParamDesc(pluginModule.PluginParams, attrName)
+                attrDesc  = NodesImport.getParamDesc(pluginModule.PluginParams, attrName)
                 if attrDesc is None:
                     continue
 
@@ -168,6 +180,32 @@ class VRayPresetApply(bpy.types.Operator):
                     attrValue = str(attrValue)
 
                 setattr(propGroup, attrName, attrValue)
+
+        return {'FINISHED'}
+
+
+class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
+    bl_idname = "vray.preset_node_apply"
+    bl_label = "Apply V-Ray node preset"
+
+    def _execute(self, context, vrsceneDict):
+        space = context.space_data
+        ntree = space.edit_tree
+
+        # Get fake output node
+        assetDesc = NodesImport.getPluginByName(vrsceneDict, "Asset")
+
+        # Get material desc
+        maName = assetDesc['Attributes']['material']
+        maDesc = NodesImport.getPluginByName(vrsceneDict, maName)
+
+        outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
+
+        maNode = NodesImport.createNode(ntree, outputNode, vrsceneDict, maDesc)
+
+        ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
+
+        NodesTools.rearrangeTree(ntree, outputNode)
 
         return {'FINISHED'}
 
@@ -276,7 +314,7 @@ class VRayPresetAddBase:
 class VRayPresetMenuGlobal(VRayPresetMenuBase):
     bl_label      = "Global Presets"
     preset_subdir = "global"
-
+    preset_operator = "vray.preset_apply"
 
 class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
     bl_idname      = "vray.preset_add_global"
@@ -290,6 +328,7 @@ class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
 class VRayPresetMenuGI(VRayPresetMenuBase):
     bl_label      = "GI Presets"
     preset_subdir = "gi"
+    preset_operator = "vray.preset_apply"
 
 
 class VRayPresetAddGI(VRayPresetAddBase, bpy.types.Operator):
@@ -304,6 +343,21 @@ class VRayPresetAddGI(VRayPresetAddBase, bpy.types.Operator):
 class VRayPresetMenuIM(VRayPresetMenuBase):
     bl_label        = "Irradiance Map Presets"
     preset_subdir   = "im"
+    preset_operator = "vray.preset_apply"
+
+
+class VRayPresetMenuNodeBase(VRayPresetMenuBase):
+    preset_operator = "vray.preset_node_apply"
+
+
+class VRayPresetMenuNodeTexture(VRayPresetMenuNodeBase):
+    bl_label        = "Texture"
+    preset_subdir   = "texture"
+
+
+class VRayPresetMenuNodeMaterial(VRayPresetMenuNodeBase):
+    bl_label        = "Material"
+    preset_subdir   = "material"
 
 
 ########  ########     ###    ##      ##
@@ -332,6 +386,19 @@ def WidgetPresetGI(layout):
     PresetBase(layout, 'VRayPresetMenuGI', "vray.preset_add_gi")
 
 
+class VRayNodeTemplatesSubMenus(bpy.types.Menu):
+    bl_idname = "VRayNodeTemplatesSubMenus"
+    bl_label  = "Templates"
+
+    def draw(self, context):
+        self.layout.menu("VRayPresetMenuNodeMaterial", icon='MATERIAL')
+        self.layout.menu("VRayPresetMenuNodeTexture",  icon='TEXTURE')
+
+
+def VRayNodeTemplatesMenu(self, context):
+    self.layout.menu("VRayNodeTemplatesSubMenus", icon='NODETREE')
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -351,6 +418,11 @@ def GetRegClasses():
         VRayPresetMenuIM,
 
         VRayPresetApply,
+        VRayPresetApplyNode,
+
+        VRayPresetMenuNodeTexture,
+        VRayPresetMenuNodeMaterial,
+        VRayNodeTemplatesSubMenus,
     )
 
 
@@ -358,7 +430,11 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
+    bpy.types.NODE_MT_add.append(VRayNodeTemplatesMenu)
+
 
 def unregister():
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
+
+    bpy.types.NODE_MT_add.remove(VRayNodeTemplatesMenu)
