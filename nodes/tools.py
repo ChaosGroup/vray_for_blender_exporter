@@ -25,7 +25,7 @@
 from .utils import GetConnectedNode
 
 
-NODE_LEVEL_WIDTH = 350.0
+NODE_LEVEL_WIDTH = 200.0
 
 
 def getNodeHeight(n):
@@ -60,6 +60,7 @@ def rearrangeTree(ntree, n, depth=0):
         levelNodes = tree[level]
         levelHeigth = 0
 
+        # Calculate full level height
         for node in levelNodes:
             levelHeigth += getNodeHeight(node)
 
@@ -68,6 +69,7 @@ def rearrangeTree(ntree, n, depth=0):
 
         for node in levelNodes:
             node.location.x = n.location.x - (level * NODE_LEVEL_WIDTH)
+
             node.location.y = levelTop - levelHeightHalf
 
             levelTop -= getNodeHeight(node)
