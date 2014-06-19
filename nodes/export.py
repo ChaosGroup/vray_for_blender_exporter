@@ -321,7 +321,9 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
         if linkedOnly:
             return None
         else:
-            return nodeSocket.value
+            if hasattr(nodeSocket, 'value'):
+                return nodeSocket.value
+            return None
 
     connectedNode   = GetConnectedNode(nodetree, nodeSocket)
     connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
