@@ -241,7 +241,7 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
 
     bitmapTexture = bitmatBuffer.texture
 
-    imageFilepath = pluginDesc['Attributes']['file']
+    imageFilepath = pluginDesc['Attributes'].get('file', "")
 
     # TODO: Search for missing textures under file location
     #
