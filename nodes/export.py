@@ -393,7 +393,7 @@ def WriteNode(bus, nodetree, node, linkedOnly=False):
     for nodeSocket in node.inputs:
         vrayAttr = nodeSocket.vray_attr
 
-        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=linkedOnly)
+        socketParams[vrayAttr] = WriteConnectedNode(bus, nodetree, nodeSocket)
 
     pluginModule = PLUGINS[vrayType][vrayPlugin]
 

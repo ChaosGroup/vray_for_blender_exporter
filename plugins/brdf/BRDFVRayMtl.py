@@ -300,6 +300,7 @@ PluginParams = (
     },
     {
         'attr' : 'fog_color_tex',
+        'name' : "Fog Color",
         'desc' : "The absorption (fog) color texture",
         'type' : 'TEXTURE',
         'default' : (1, 1, 1),

@@ -22,41 +22,18 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
+# Compatibility with vb25
 
-from vb30.ui import classes
-
-
-class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
-	bl_label   = "Render Elements"
-	bl_options = {'HIDE_HEADER'}
-
-	def draw(self, context):
-		layout = self.layout
-
-		VRayScene = context.scene.vray
-
-		split = layout.split()
-		row = split.row(align=True)
-		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Node Tree")
-		if not VRayScene.ntree:
-			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
-
-		layout.separator()
-		layout.operator("vray.convert_scene")
-
-
-def GetRegClasses():
-	return (
-		VRayPanelRenderElements,
-	)
+from . import props
+from . import convert
+from . import operators
 
 
 def register():
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
+    props.register()
+    operators.register()
 
 
 def unregister():
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
+    props.unregister()
+    operators.unregister()

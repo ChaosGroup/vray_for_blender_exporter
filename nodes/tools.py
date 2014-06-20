@@ -73,3 +73,8 @@ def rearrangeTree(ntree, n, depth=0):
             node.location.y = levelTop - levelHeightHalf
 
             levelTop -= getNodeHeight(node)
+
+
+def deselectNodes(ntree):
+    for node in ntree.nodes:
+        node.select = False

@@ -24,39 +24,40 @@
 
 import bpy
 
-from vb30.ui import classes
+from . import convert
+
+from vb30 import debug
 
 
-class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
-	bl_label   = "Render Elements"
-	bl_options = {'HIDE_HEADER'}
+class VRayOperatorConvertMaterial(bpy.types.Operator):
+    bl_idname      = "vray.convert_scene"
+    bl_label       = "Convert To Nodes"
+    bl_description = "Convert scene to nodes"
 
-	def draw(self, context):
-		layout = self.layout
+    def execute(self, context):
+        debug.PrintInfo('Executing operator: "%s"' % self.bl_label)
 
-		VRayScene = context.scene.vray
+        try:
+            convert.ConvertScene(context.scene)
+        except Exception as e:
+            debug.ExceptionInfo(e)
+            self.report({'ERROR'}, "%s" % e)
+            return {'CANCELLED'}
 
-		split = layout.split()
-		row = split.row(align=True)
-		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Node Tree")
-		if not VRayScene.ntree:
-			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
-
-		layout.separator()
-		layout.operator("vray.convert_scene")
+        return {'FINISHED'}
 
 
 def GetRegClasses():
-	return (
-		VRayPanelRenderElements,
-	)
+    return (
+        VRayOperatorConvertMaterial,
+    )
 
 
 def register():
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-	for regClass in GetRegClasses():
-		bpy.utils.unregister_class(regClass)
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

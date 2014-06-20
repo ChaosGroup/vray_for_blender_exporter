@@ -128,9 +128,6 @@ def caller_name(skip=2):
 
 
 def ExceptionInfo(e):
-    if not IsDebugMode():
-        return
-
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     print("Exception => '%s': %s" % (type(e).__name__, e))
