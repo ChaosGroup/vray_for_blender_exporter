@@ -38,6 +38,8 @@
 #   [ ] Material override
 #
 
+import base64
+
 import bpy
 import mathutils
 
@@ -264,8 +266,14 @@ def _createVRayTree(name, vrayTreeType):
     return nt
 
 
-def _createVRayNode(ntree, vrayNodeType):
-    return ntree.nodes.new('VRayNode%s' % vrayNodeType)
+def _createVRayNode(ntree, vrayNodeType, nodeName=None):
+    if nodeName is not None:
+        if nodeName in ntree.nodes:
+            return ntree.nodes[nodeName]
+    node = ntree.nodes.new('VRayNode%s' % vrayNodeType)
+    if nodeName is not None:
+        node.name = nodeName
+    return node
 
 
 def _connectNodes(ntree, outputNode, outputSocketName, inputNode, inputSocketName):
@@ -276,6 +284,10 @@ def _connectNodes(ntree, outputNode, outputSocketName, inputNode, inputSocketNam
     else:
         # Fallback to some default output socket name
         outSockName = NodesImport.getOutputSocket(outputNode.vray_plugin)
+
+    if inputSocketName not in inputNode.inputs:
+        debug.PrintError("Can't find input socket: %s.%s" % (inputNode.name, inputSocketName))
+        return
 
     ntree.links.new(
         outputNode.outputs[outSockName],
@@ -297,7 +309,7 @@ def TransferProperties(node, pluginID, oldPropGroup):
 
             inputSock = _findSocketCaseInsensitive(node, attrSockName)
             if not inputSock:
-                print("Can't find socket to attribute: %s.%s" % (pluginID, attrName))
+                debug.PrintError("Can't find socket to attribute: %s.%s" % (pluginID, attrName))
             else:
                 inputSock.value = attrValue
 
@@ -317,6 +329,14 @@ class TextureToNode:
     def createNode(self, ntree):
         pass
 
+
+ ######  #### ##    ##  ######   ##       ########
+##    ##  ##  ###   ## ##    ##  ##       ##
+##        ##  ####  ## ##        ##       ##
+ ######   ##  ## ## ## ##   #### ##       ######
+      ##  ##  ##  #### ##    ##  ##       ##
+##    ##  ##  ##   ### ##    ##  ##       ##
+ ######  #### ##    ##  ######   ######## ########
 
 class SingleTexture(TextureToNode):
     def __init__(self, texture, output='TEXTURE', blend_mode='NONE', stencil=False, mult=1.0, invert=False):
@@ -350,6 +370,8 @@ class SingleTexture(TextureToNode):
             tex.inputs['Input'].value = self.texture
 
         else:
+            VRaySlot = self.texture.vray_slot
+
             if self.texture.type == 'IMAGE':
                 # TODO:
                 btm = _createVRayNode(ntree, "BitmapBuffer")
@@ -365,11 +387,70 @@ class SingleTexture(TextureToNode):
 
                 TransferProperties(tex, texType, oldPropGroup)
 
-        # Mapping
-        mappingType = self.texture.texture_coords
+            # Mapping
+            uvwgen = None
+            mappingType = self.texture.vray.texture_coords
+
+            # Always generate UV channel
+            nameHash = "".join([str(s) for s in (
+                VRaySlot.uv_layer,
+                VRaySlot.offset[0],
+                VRaySlot.offset[1],
+                VRaySlot.scale[0],
+                VRaySlot.scale[1],
+                VRaySlot.texture_rot,
+                VRayTexture.mirror_u,
+                VRayTexture.mirror_v,
+                VRayTexture.tile_u,
+                VRayTexture.tile_v,
+            )])
+
+            # Very simple stupid short name hash
+            nameHash = bytes(str(int(hash(nameHash) / -10000000000)), 'ascii')
+            nameHash = base64.b64encode(nameHash, altchars=b'pS')
+
+            name = "UV@%s" % nameHash.decode('ascii').replace('=','')
+
+            uvwgen = _createVRayNode(ntree, "UVWGenMayaPlace2dTexture", nodeName=name)
+            uvwgen.UVWGenMayaPlace2dTexture.uv_set_name = VRaySlot.uv_layer
+            uvwgen.UVWGenMayaPlace2dTexture.mirror_u = VRayTexture.mirror_u
+            uvwgen.UVWGenMayaPlace2dTexture.mirror_v = VRayTexture.mirror_v
+            uvwgen.inputs['Repeat U'].value = VRayTexture.tile_u
+            uvwgen.inputs['Repeat V'].value = VRayTexture.tile_v
+            uvwgen.inputs['Rotate UV'].value = VRaySlot.texture_rot
+            uvwgen.inputs['Translate Frame U Tex'].value = VRaySlot.offset[0]
+            uvwgen.inputs['Translate Frame V Tex'].value = VRaySlot.offset[1]
+
+            # Add additional generators
+            uvwgenAdd = None
+            if mappingType == 'ORCO':
+                pass
+
+            elif mappingType == 'WORLD':
+                pass
+
+            if uvwgen:
+                _connectNodes(ntree,
+                    uvwgen, 'Mapping',
+                    tex,    'Mapping'
+                )
+
+                if uvwgenAdd:
+                    _connectNodes(ntree,
+                        uvwgenAdd, 'Mapping',
+                        uvwgen,    'Mapping'
+                    )
 
         return tex
 
+
+##     ## #### ##     ##
+###   ###  ##   ##   ##
+#### ####  ##    ## ##
+## ### ##  ##     ###
+##     ##  ##    ## ##
+##     ##  ##   ##   ##
+##     ## #### ##     ##
 
 class MixTexture(TextureToNode):
     def __init__(self, color1, color2, mix_map, blend_mode='NONE', output='TEXTURE'):
@@ -413,6 +494,14 @@ class MixTexture(TextureToNode):
 
         return texMix
 
+
+##          ###    ##    ## ######## ########  ######## ########
+##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
+##        ##   ##    ####   ##       ##     ## ##       ##     ##
+##       ##     ##    ##    ######   ########  ######   ##     ##
+##       #########    ##    ##       ##   ##   ##       ##     ##
+##       ##     ##    ##    ##       ##    ##  ##       ##     ##
+######## ##     ##    ##    ######## ##     ## ######## ########
 
 class LayeredTexture(TextureToNode):
     def __init__(self, textures, blend_modes, output='TEXTURE'):
@@ -470,7 +559,7 @@ def CreateTextureNodes(ntree, node, textures):
 
         if attrName in textures:
             tex = textures[attrName]
-            print('Found texture "%s" for attr "%s"' % (tex, attrName))
+            debug.PrintInfo('Found texture "%s" for attr "%s"' % (tex, attrName))
 
             texNode = tex.createNode(ntree)
 
@@ -494,6 +583,11 @@ def PreprocessTextures(ma, influence):
 
         VRayTexture = tex.vray
         VRaySlot    = tex.vray_slot
+
+        # Convert mapping here if needed
+        # This will support both vb25's 'master' and 'dev/animation'
+        if not VRaySlot.uv_layer:
+            VRaySlot.uv_layer = ts.uv_layer
 
         debug.PrintInfo('  Texture "%s" {%s:%s}' % (tex.name, tex.type, VRayTexture.type))
 
