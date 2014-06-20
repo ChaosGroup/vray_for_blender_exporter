@@ -22,8 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import os
-import sys
 import math
 
 import bpy
@@ -1014,6 +1012,38 @@ def register():
         subtype= 'NONE',
         options= {'HIDDEN'},
         default= ""
+    ))
+
+    setattr(bpy.types.VRayTexture, 'tile_u', FloatProperty(
+        name        = "Tile U",
+        description = "Tile in U",
+        min         = 0.0,
+        max         = 1000.0,
+        soft_min    = 0.001,
+        soft_max    = 20.0,
+        default     = 1.0
+    ))
+
+    setattr(bpy.types.VRayTexture, 'mirror_u', BoolProperty(
+        name= "Mirror U",
+        description= "Mirror in U",
+        default= False
+    ))
+
+    setattr(bpy.types.VRayTexture, 'tile_v', FloatProperty(
+        name        = "Tile V",
+        description = "Tile in V",
+        min         = 0.0,
+        max         = 1000.0,
+        soft_min    = 0.001,
+        soft_max    = 20.0,
+        default     = 1.0
+    ))
+
+    setattr(bpy.types.VRayTexture, 'mirror_v', BoolProperty(
+        name= "Mirror V",
+        description= "Mirror in V",
+        default= False
     ))
 
 
