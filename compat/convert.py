@@ -43,7 +43,11 @@ import mathutils
 
 from vb30.plugins import PLUGINS_ID
 
-from vb30.nodes import tools as NodeTools
+from vb30.nodes import tools as NodesTools
+from vb30.nodes import importing as NodesImport
+
+from vb30.nodes.sockets import AddInput, AddOutput
+
 from vb30.lib import BlenderUtils
 from vb30.lib import AttributeUtils
 
@@ -73,6 +77,27 @@ ObjectMaterialOverrides = (
     'MtlWrapper',
     'MtlOverride',
 )
+
+OutputToSocket = {
+    'TEXTURE'       : "Output",
+    'FLOAT_TEXTURE' : "Out Intensity",
+}
+
+BlendModeToIndex = {
+    'NONE' : '0',
+    'OVER' : '1',
+    'IN' : '2',
+    'OUT' : '3',
+    'ADD' : '4',
+    'SUBTRACT' : '5',
+    'MULTIPLY' : '6',
+    'DIFFERENCE' : '7',
+    'LIGHTEN' : '8',
+    'DARKEN' : '9',
+    'SATURATE' : '10',
+    'DESATUREATE' : '11',
+    'ILLUMINATE' : '12',
+}
 
 
 def _getBrdfInfluence(ma):
@@ -243,8 +268,19 @@ def _createVRayNode(ntree, vrayNodeType):
     return ntree.nodes.new('VRayNode%s' % vrayNodeType)
 
 
-def _connectNodes(ntree, outputNode, outputSocket, inputNode, inputSocket):
-    ntree.links.new(outputNode.outputs[outputSocket], inputNode.inputs[inputSocket])
+def _connectNodes(ntree, outputNode, outputSocketName, inputNode, inputSocketName):
+    outSockName = None
+    outSock     = _findSocketCaseInsensitive(outputNode, outputSocketName, fromInputs=False)
+    if outSock:
+        outSockName = outSock.name
+    else:
+        # Fallback to some default output socket name
+        outSockName = NodesImport.getOutputSocket(outputNode.vray_plugin)
+
+    ntree.links.new(
+        outputNode.outputs[outSockName],
+        inputNode.inputs[inputSocketName]
+    )
 
 
 def TransferProperties(node, pluginID, oldPropGroup):
@@ -260,22 +296,25 @@ def TransferProperties(node, pluginID, oldPropGroup):
             attrSockName = AttributeUtils.GetNameFromAttr(attrName)
 
             inputSock = _findSocketCaseInsensitive(node, attrSockName)
-            inputSock.value = attrValue
+            if not inputSock:
+                print("Can't find socket to attribute: %s.%s" % (pluginID, attrName))
+            else:
+                inputSock.value = attrValue
 
         else:
             setattr(propGroup, 'attrName', attrValue)
 
 
-######## ######## ##     ## ######## ##     ## ########  ######## 
-   ##    ##        ##   ##     ##    ##     ## ##     ## ##       
-   ##    ##         ## ##      ##    ##     ## ##     ## ##       
-   ##    ######      ###       ##    ##     ## ########  ######   
-   ##    ##         ## ##      ##    ##     ## ##   ##   ##       
-   ##    ##        ##   ##     ##    ##     ## ##    ##  ##       
-   ##    ######## ##     ##    ##     #######  ##     ## ######## 
+######## ######## ##     ## ######## ##     ## ########  ########
+   ##    ##        ##   ##     ##    ##     ## ##     ## ##
+   ##    ##         ## ##      ##    ##     ## ##     ## ##
+   ##    ######      ###       ##    ##     ## ########  ######
+   ##    ##         ## ##      ##    ##     ## ##   ##   ##
+   ##    ##        ##   ##     ##    ##     ## ##    ##  ##
+   ##    ######## ##     ##    ##     #######  ##     ## ########
 
 class TextureToNode:
-    def createNode(self, ntree, fromNode, fromSocket):
+    def createNode(self, ntree):
         pass
 
 
@@ -288,14 +327,48 @@ class SingleTexture(TextureToNode):
         self.mult       = mult
         self.invert     = invert
 
+    def info(self):
+        print('Single Texture: %s' % self.texture)
+        print('  Output: %s' % self.output)
+        print('  Blend Mode: %s' % self.blend_mode)
+        print('  Stencil: %s' % self.stencil)
+        print('  Mult: %s' % self.mult)
+        print('  Invert: %s' % self.invert)
+
     def __str__(self):
-        # print('Single Texture: %s' % self.texture)
-        # print('  Output: %s' % self.output)
-        # print('  Blend Mode: %s' % self.blend_mode)
-        # print('  Stencil: %s' % self.stencil)
-        # print('  Mult: %s' % self.mult)
-        # print('  Invert: %s' % self.invert)
         return 'Single Texture'
+
+    def createNode(self, ntree):
+        tex = None
+
+        if type(self.texture) is mathutils.Color:
+            tex = _createVRayNode(ntree, "TexAColor")
+            tex.inputs['Color'].value = self.texture
+
+        elif type(self.texture) in {float, int}:
+            tex = _createVRayNode(ntree, "TexFloatToColor")
+            tex.inputs['Input'].value = self.texture
+
+        else:
+            if self.texture.type == 'IMAGE':
+                # TODO:
+                btm = _createVRayNode(ntree, "BitmapBuffer")
+                tex = _createVRayNode(ntree, "TexBitmap")
+
+            elif self.texture.type == 'VRAY':
+                VRayTexture = self.texture.vray
+                texType = VRayTexture.type
+
+                oldPropGroup = getattr(VRayTexture, texType)
+
+                tex = _createVRayNode(ntree, texType)
+
+                TransferProperties(tex, texType, oldPropGroup)
+
+        # Mapping
+        mappingType = self.texture.texture_coords
+
+        return tex
 
 
 class MixTexture(TextureToNode):
@@ -306,13 +379,39 @@ class MixTexture(TextureToNode):
         self.blend_mode = blend_mode
         self.output  = output
 
+    def info(self):
+        print('Mix Texture:')
+        print('  Color1: %s' % self.color1)
+        print('  Color2: %s' % self.color2)
+        print('  Mix: %s' % self.mix_map)
+        print('  Output: %s' % self.output)
+
     def __str__(self):
-        # print('Mix Texture:')
-        # print('  Color1: %s' % self.color1)
-        # print('  Color2: %s' % self.color2)
-        # print('  Mix: %s' % self.mix_map)
-        # print('  Output: %s' % self.output)
         return 'Mix Texture'
+
+    def createNode(self, ntree):
+        texMix = _createVRayNode(ntree, "TexMix")
+
+        color1  = self.color1.createNode(ntree)
+        color2  = self.color2.createNode(ntree)
+        mix_map = self.mix_map.createNode(ntree)
+
+        _connectNodes(ntree,
+            color1, OutputToSocket[self.color1.output],
+            texMix, 'Source A'
+        )
+
+        _connectNodes(ntree,
+            color2, OutputToSocket[self.color2.output],
+            texMix, 'Source B'
+        )
+
+        _connectNodes(ntree,
+            mix_map, OutputToSocket[self.mix_map.output],
+            texMix, 'Mix Map'
+        )
+
+        return texMix
 
 
 class LayeredTexture(TextureToNode):
@@ -321,16 +420,38 @@ class LayeredTexture(TextureToNode):
         self.blend_modes = blend_modes
         self.output      = output
 
+    def info(self):
+        print('Layered Texture')
+        for i in range(len(self.textures)):
+            print('  Texture: %s'    % self.textures[i])
+            print('  Blend Mode: %s' % self.blend_modes[i])
+
     def __str__(self):
-        # print('Layered Texture')
-        # for i in range(len(self.textures)):
-        #     print('  Texture: %s'    % self.textures[i])
-        #     print('  Blend Mode: %s' % self.blend_modes[i])
         return 'Layered Texture'
 
-    def createNode(self, ntree, fromNode, fromSocket):
-        n = _createVRayNode(ntree, "TexLayered")
-        pass
+    def createNode(self, ntree):
+        texLayeredNode = _createVRayNode(ntree, "TexLayered")
+
+        for i,tex in enumerate(reversed(self.textures)):
+            # Get and/or create layered socket
+            humanIndex = i + 1
+            texSockName = "Texture %i" % humanIndex
+            if not texSockName in texLayeredNode.inputs:
+                AddInput(texLayeredNode, 'VRaySocketTexLayered', texSockName)
+
+            # Create node
+            texNode = tex.createNode(ntree)
+
+            # Connect to layered
+            _connectNodes(ntree,
+                texNode, OutputToSocket[tex.output],
+                texLayeredNode, texSockName
+            )
+
+            # Set blend mode
+            texLayeredNode.inputs[texSockName].value = BlendModeToIndex[tex.blend_mode]
+
+        return texLayeredNode
 
 
 def CreateTextureNodes(ntree, node, textures):
@@ -340,14 +461,24 @@ def CreateTextureNodes(ntree, node, textures):
 
     for attrDesc in pluginDesc.PluginParams:
         attrName = attrDesc['attr']
+        attrSockName = AttributeUtils.GetNameFromAttr(attrName)
+
+        inputSocket = _findSocketCaseInsensitive(node, attrSockName)
 
         if attrDesc['type'] not in AttributeUtils.InputTypes:
             continue
 
         if attrName in textures:
             tex = textures[attrName]
-            print('Found texture "%s" for attr "%s"' % (
-                tex, attrName))
+            print('Found texture "%s" for attr "%s"' % (tex, attrName))
+
+            texNode = tex.createNode(ntree)
+
+            _connectNodes(
+                ntree,
+                texNode, OutputToSocket[tex.output],
+                node,    inputSocket.name
+            )
 
 
 def PreprocessTextures(ma, influence):
@@ -565,6 +696,13 @@ def ConvertMaterial(scene, ob, ma, textures):
 
         CreateTextureNodes(nt, baseBRDF, textures)
 
+        if brdfType == 'BRDFVRayMtl':
+            if 'reflect' not in textures:
+                baseBRDF.inputs['Reflect'].value = oldPropGroup.reflect_color
+            if 'refract' not in textures:
+                baseBRDF.inputs['Refract'].value = oldPropGroup.refract_color
+            baseBRDF.inputs['Fog Color'].value = oldPropGroup.fog_color
+
         if not mainBRDF:
             mainBRDF = baseBRDF
         else:
@@ -577,8 +715,8 @@ def ConvertMaterial(scene, ob, ma, textures):
             mainBRDF, 'BRDF',
             brdfTo,   'BRDF')
 
-        NodeTools.rearrangeTree(nt, outputNode)
-        NodeTools.deselectNodes(nt)
+        NodesTools.rearrangeTree(nt, outputNode)
+        NodesTools.deselectNodes(nt)
 
         VRayMaterial.ntree = nt
 
@@ -655,7 +793,7 @@ def ConvertObject(scene, ob):
 
             pass
 
-        NodeTools.rearrangeTree(nt, outputNode)
+        NodesTools.rearrangeTree(nt, outputNode)
 
         VRayObject.ntree = nt
 

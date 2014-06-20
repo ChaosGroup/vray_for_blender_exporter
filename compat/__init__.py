@@ -24,15 +24,16 @@
 
 # Compatibility with vb25
 
-from . import plugins
+from . import props
+from . import convert
 from . import operators
 
 
 def register():
-    plugins.add_properties()
+    props.register()
     operators.register()
 
 
 def unregister():
-    plugins.remove_properties()
+    props.unregister()
     operators.unregister()
