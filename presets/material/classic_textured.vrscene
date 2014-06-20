@@ -1,0 +1,255 @@
+
+UVWGenMayaPlace2dTexture NTClassic_TextureNChannel__Named_ {
+	coverage_u_tex=1;
+	coverage_v_tex=1;
+	mirror_u=0;
+	mirror_v=0;
+	noise_u_tex=0;
+	noise_v_tex=0;
+	nsamples=1;
+	offset_u_tex=0;
+	offset_v_tex=0;
+	repeat_u_tex=1;
+	repeat_v_tex=1;
+	rotate_frame_tex=0;
+	rotate_uv_tex=0;
+	stagger=0;
+	translate_frame_u_tex=0;
+	translate_frame_v_tex=0;
+	uvw_channel=0;
+	wrap_u=1;
+	wrap_v=1;
+}
+
+BitmapBuffer NTClassic_TextureNImage_File {
+	allow_negative_colors=1;
+	color_space=2;
+	filter_blur=1;
+	filter_type=1;
+	frame_number=0;
+	frame_offset=0;
+	frame_sequence=0;
+	gamma=1;
+	ifl_end_condition=0;
+	ifl_playback_rate=1;
+	ifl_start_frame=0;
+	interpolation=0;
+	load_file=1;
+	maya_compatible=0;
+	use_data_window=1;
+}
+
+TexBitmap NTClassic_TextureNImage_Texture {
+	alpha_from_intensity=0;
+	alpha_mult=1;
+	alpha_offset=0;
+	bitmap=NTClassic_TextureNImage_File;
+	color_mult=Color(1,1,1);
+	color_offset=Color(0,0,0);
+	compatibility_with=0;
+	h=1;
+	invert=0;
+	invert_alpha=1;
+	jitter=0;
+	nouvw_color=Color(0.5,0.5,0.5);
+	placement_type=0;
+	tile_u=1;
+	tile_v=1;
+	u=0;
+	un_noise_phase=0;
+	uv_noise_amount=1;
+	uv_noise_animate=1;
+	uv_noise_levels=1;
+	uv_noise_on=0;
+	uv_noise_size=1;
+	uvwgen=NTClassic_TextureNChannel__Named_;
+	v=0;
+	w=1;
+}
+
+BitmapBuffer NTClassic_TextureNImage_File_001 {
+	allow_negative_colors=1;
+	color_space=2;
+	filter_blur=1;
+	filter_type=1;
+	frame_number=0;
+	frame_offset=0;
+	frame_sequence=0;
+	gamma=1;
+	ifl_end_condition=0;
+	ifl_playback_rate=1;
+	ifl_start_frame=0;
+	interpolation=0;
+	load_file=1;
+	maya_compatible=0;
+	use_data_window=1;
+}
+
+TexBitmap NTClassic_TextureNImage_Texture_001 {
+	alpha_from_intensity=0;
+	alpha_mult=1;
+	alpha_offset=0;
+	bitmap=NTClassic_TextureNImage_File_001;
+	color_mult=Color(1,1,1);
+	color_offset=Color(0,0,0);
+	compatibility_with=0;
+	h=1;
+	invert=0;
+	invert_alpha=1;
+	jitter=0;
+	nouvw_color=Color(0.5,0.5,0.5);
+	placement_type=0;
+	tile_u=1;
+	tile_v=1;
+	u=0;
+	un_noise_phase=0;
+	uv_noise_amount=1;
+	uv_noise_animate=1;
+	uv_noise_levels=1;
+	uv_noise_on=0;
+	uv_noise_size=1;
+	uvwgen=NTClassic_TextureNChannel__Named_;
+	v=0;
+	w=1;
+}
+
+BRDFVRayMtl NTClassic_TextureNVRayMtl {
+	anisotropy=0;
+	anisotropy_axis=2;
+	anisotropy_derivation=0;
+	anisotropy_rotation=0;
+	brdf_type=1;
+	diffuse=NTClassic_TextureNImage_Texture::color;
+	dispersion=50;
+	dispersion_on=0;
+	environment_priority=0;
+	fog_bias=0;
+	fog_color=Color(1,1,1);
+	fog_color_tex=Color(1,1,1);
+	fog_mult=1;
+	fog_unit_scale_on=1;
+	fresnel=0;
+	fresnel_ior=1.6;
+	fresnel_ior_lock=1;
+	hilight_glossiness=1;
+	hilight_glossiness_lock=1;
+	hilight_soften=0;
+	opacity=1;
+	option_cutoff=0.001;
+	option_double_sided=1;
+	option_energy_mode=0;
+	option_fix_dark_edges=1;
+	option_glossy_rays_as_gi=1;
+	option_reflect_on_back=0;
+	option_use_irradiance_map=1;
+	refl_imap_color_thresh=0.25;
+	refl_imap_max_rate=1;
+	refl_imap_min_rate=-1;
+	refl_imap_norm_thresh=0.4;
+	refl_imap_samples=20;
+	refl_interpolation_on=0;
+	reflect=NTClassic_TextureNImage_Texture_001::color;
+	reflect_affect_alpha=0;
+	reflect_depth=5;
+	reflect_dim_distance=1.04858e+06;
+	reflect_dim_distance_falloff=0;
+	reflect_dim_distance_on=0;
+	reflect_exit_color=Color(0,0,0);
+	reflect_glossiness=1;
+	reflect_subdivs=8;
+	reflect_trace=1;
+	refr_imap_color_thresh=0.25;
+	refr_imap_max_rate=1;
+	refr_imap_min_rate=-1;
+	refr_imap_norm_thresh=0.4;
+	refr_imap_samples=20;
+	refr_interpolation_on=0;
+	refract=Color(0,0,0);
+	refract_affect_alpha=0;
+	refract_affect_shadows=0;
+	refract_depth=5;
+	refract_exit_color=Color(0,0,0);
+	refract_exit_color_on=0;
+	refract_glossiness=1;
+	refract_ior=1.6;
+	refract_subdivs=8;
+	refract_trace=1;
+	roughness=0;
+	self_illumination=Color(0,0,0);
+	self_illumination_gi=1;
+	translucency=0;
+	translucency_color=Color(1,1,1);
+	translucency_light_mult=1;
+	translucency_scatter_coeff=0;
+	translucency_scatter_dir=0.5;
+	translucency_thickness=1.04858e+06;
+}
+
+MtlSingleBRDF NTClassic_TextureNSingle {
+	allow_negative_colors=0;
+	brdf=NTClassic_TextureNVRayMtl;
+	double_sided=1;
+	filter=Color(1,1,1);
+}
+
+BitmapBuffer NTClassic_TextureNImage_File_002 {
+	allow_negative_colors=1;
+	color_space=2;
+	filter_blur=1;
+	filter_type=1;
+	frame_number=0;
+	frame_offset=0;
+	frame_sequence=0;
+	gamma=1;
+	ifl_end_condition=0;
+	ifl_playback_rate=1;
+	ifl_start_frame=0;
+	interpolation=0;
+	load_file=1;
+	maya_compatible=0;
+	use_data_window=1;
+}
+
+TexBitmap NTClassic_TextureNImage_Texture_002 {
+	alpha_from_intensity=0;
+	alpha_mult=1;
+	alpha_offset=0;
+	bitmap=NTClassic_TextureNImage_File_002;
+	color_mult=Color(1,1,1);
+	color_offset=Color(0,0,0);
+	compatibility_with=0;
+	h=1;
+	invert=0;
+	invert_alpha=1;
+	jitter=0;
+	nouvw_color=Color(0.5,0.5,0.5);
+	placement_type=0;
+	tile_u=1;
+	tile_v=1;
+	u=0;
+	un_noise_phase=0;
+	uv_noise_amount=1;
+	uv_noise_animate=1;
+	uv_noise_levels=1;
+	uv_noise_on=0;
+	uv_noise_size=1;
+	uvwgen=NTClassic_TextureNChannel__Named_;
+	v=0;
+	w=1;
+}
+
+MtlBump NTClassic_TextureNBump {
+	base_mtl=NTClassic_TextureNSingle;
+	bump_delta_scale=1;
+	bump_shadows=0;
+	bump_tex_float=NTClassic_TextureNImage_Texture_002::out_intensity;
+	bump_tex_mult=1;
+	bump_tex_mult_tex=0.1;
+	compute_bump_for_shadows=1;
+	map_type=0;
+	maya_compatible=0;
+}
+
+Node Asset {
+	material=NTClassic_TextureNBump;
+}
