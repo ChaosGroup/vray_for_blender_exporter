@@ -25,9 +25,6 @@
 import bpy
 
 from vb30.ui      import classes
-from vb30.lib     import LibUtils
-from vb30.plugins import PLUGINS
-
 
 
 def GetRegClasses():

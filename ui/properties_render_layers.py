@@ -25,7 +25,8 @@
 import bpy
 
 from vb30.ui import classes
-
+from vb30.lib import LibUtils
+from vb30.plugins import PLUGINS
 
 class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
 	bl_label   = "Render Elements"
@@ -42,11 +43,20 @@ class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
 		if not VRayScene.ntree:
 			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
 
-		layout.separator()
-		layout.operator("vray.convert_scene")
+
+class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
+	bl_label   = "Tools"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		layout = self.layout
+
+		box = layout.box()
+		box.label("Migration")
+		box.operator("vray.convert_scene", icon='NODETREE')
 
 
-class VRAY_SP_ntrees(classes.VRayScenePanel):
+class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 	bl_label   = "Node Trees"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -62,7 +72,7 @@ class VRAY_SP_ntrees(classes.VRayScenePanel):
 		box.operator("vray.export_nodetree", text="Export Selected Nodetree", icon='NODETREE')
 
 
-class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
+class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -102,12 +112,15 @@ class VRAY_SP_lights_tweaker(classes.VRayScenePanel):
 					sub.prop(lightPropGroup, 'enabled', text="")
 					sub.prop(lightPropGroup, 'color',   text="")
 					sub.prop(lightPropGroup, 'intensity', text="")
-					sub.prop(lightPropGroup, 'subdivs',   text="")
+					if hasattr(lightPropGroup, 'subdivs'):
+						sub.prop(lightPropGroup, 'subdivs', text="")
+					if hasattr(lightPropGroup, 'shadowSubdivs'):
+						sub.prop(lightPropGroup, 'shadowSubdivs', text="")
 		else:
 			col.label(text="Nothing in bpy.data.lamps...")
 
 
-class VRAY_SP_includer(classes.VRayScenePanel):
+class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 	bl_label   = "Include *.vrscene"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -152,9 +165,10 @@ class VRAY_SP_includer(classes.VRayScenePanel):
 def GetRegClasses():
 	return (
 		VRayPanelRenderElements,
-		VRAY_SP_ntrees,
-		VRAY_SP_lights_tweaker,
-		VRAY_SP_includer,
+		VRayPanelMiscTools,
+		VRayPanelNodeTrees,
+		VRayPanelLightLister,
+		VRayPanelIncluder,
 	)
 
 
