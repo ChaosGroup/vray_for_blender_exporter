@@ -41,8 +41,11 @@
 import bpy
 import mathutils
 
+from vb30.plugins import PLUGINS_ID
+
 from vb30.nodes import tools as NodeTools
 from vb30.lib import BlenderUtils
+from vb30.lib import AttributeUtils
 
 from vb30 import debug
 from pprint import pprint
@@ -58,12 +61,6 @@ class ConvertException(Exception):
    ##       ##    ##        ##             ##
    ##       ##    ##        ##       ##    ##
    ##       ##    ##        ########  ######
-
-MaterialOverrides = (
-    'MtlOverride',
-    'MtlWrapper',
-    'MtlRenderStats',
-)
 
 OverrideInputSocket = {
     'MtlRenderStats' : "Base Mtl",
@@ -228,6 +225,14 @@ def _getBrdfInfluence(ma):
 ##     ##    ##     ##  ##       ##    ##
  #######     ##    #### ########  ######
 
+def _findSocketCaseInsensitive(node, socketName, fromInputs=True):
+    sockets = node.inputs if fromInputs else node.outputs
+    for socket in sockets:
+        if socket.name.lower() == socketName.lower():
+            return socket
+    return None
+
+
 def _createVRayTree(name, vrayTreeType):
     nt = bpy.data.node_groups.new(name, type='VRayNodeTree%s' % vrayTreeType)
     nt.use_fake_user = True
@@ -240,6 +245,25 @@ def _createVRayNode(ntree, vrayNodeType):
 
 def _connectNodes(ntree, outputNode, outputSocket, inputNode, inputSocket):
     ntree.links.new(outputNode.outputs[outputSocket], inputNode.inputs[inputSocket])
+
+
+def TransferProperties(node, pluginID, oldPropGroup):
+    pluginDesc = PLUGINS_ID[pluginID]
+    propGroup  = getattr(node, pluginID)
+
+    for attrDesc in pluginDesc.PluginParams:
+        attrName = attrDesc['attr']
+
+        attrValue = getattr(oldPropGroup, attrName)
+
+        if attrDesc['type'] in AttributeUtils.InputTypes:
+            attrSockName = AttributeUtils.GetNameFromAttr(attrName)
+
+            inputSock = _findSocketCaseInsensitive(node, attrSockName)
+            inputSock.value = attrValue
+
+        else:
+            setattr(propGroup, 'attrName', attrValue)
 
 
 ######## ######## ##     ## ######## ##     ## ########  ######## 
@@ -265,12 +289,13 @@ class SingleTexture(TextureToNode):
         self.invert     = invert
 
     def __str__(self):
-        print('Single Texture: %s' % self.texture)
-        print('  Output: %s' % self.output)
-        print('  Blend Mode: %s' % self.blend_mode)
-        print('  Stencil: %s' % self.stencil)
-        print('  Mult: %s' % self.mult)
-        print('  Invert: %s' % self.invert)
+        # print('Single Texture: %s' % self.texture)
+        # print('  Output: %s' % self.output)
+        # print('  Blend Mode: %s' % self.blend_mode)
+        # print('  Stencil: %s' % self.stencil)
+        # print('  Mult: %s' % self.mult)
+        # print('  Invert: %s' % self.invert)
+        return 'Single Texture'
 
 
 class MixTexture(TextureToNode):
@@ -282,11 +307,12 @@ class MixTexture(TextureToNode):
         self.output  = output
 
     def __str__(self):
-        print('Mix Texture:')
-        print('  Color1: %s' % self.color1)
-        print('  Color2: %s' % self.color2)
-        print('  Mix: %s' % self.mix_map)
-        print('  Output: %s' % self.output)
+        # print('Mix Texture:')
+        # print('  Color1: %s' % self.color1)
+        # print('  Color2: %s' % self.color2)
+        # print('  Mix: %s' % self.mix_map)
+        # print('  Output: %s' % self.output)
+        return 'Mix Texture'
 
 
 class LayeredTexture(TextureToNode):
@@ -296,14 +322,32 @@ class LayeredTexture(TextureToNode):
         self.output      = output
 
     def __str__(self):
-        print('Layered Texture')
-        for i in range(self.textures):
-            print('  Texture: %s'    % self.textures[i])
-            print('  Blend Mode: %s' % self.blend_modes[i])
+        # print('Layered Texture')
+        # for i in range(len(self.textures)):
+        #     print('  Texture: %s'    % self.textures[i])
+        #     print('  Blend Mode: %s' % self.blend_modes[i])
+        return 'Layered Texture'
 
     def createNode(self, ntree, fromNode, fromSocket):
         n = _createVRayNode(ntree, "TexLayered")
         pass
+
+
+def CreateTextureNodes(ntree, node, textures):
+    pluginID = node.vray_plugin
+
+    pluginDesc = PLUGINS_ID[pluginID]
+
+    for attrDesc in pluginDesc.PluginParams:
+        attrName = attrDesc['attr']
+
+        if attrDesc['type'] not in AttributeUtils.InputTypes:
+            continue
+
+        if attrName in textures:
+            tex = textures[attrName]
+            print('Found texture "%s" for attr "%s"' % (
+                tex, attrName))
 
 
 def PreprocessTextures(ma, influence):
@@ -362,8 +406,8 @@ def ProcessTextures(ma):
 
     textures  = PreprocessTextures(ma, influence)
     if textures:
-        print("Raw texture list:")
-        pprint(textures)
+        # print("Raw texture list:")
+        # pprint(textures)
 
         # First check simple situations
         #
@@ -402,13 +446,14 @@ def ProcessTextures(ma):
                 del slotTextures[hasStencil-1]
                 del slotTextures[hasStencil]
 
-        print("Raw texture list after prepass:")
-        pprint(textures)
+        # print("Raw texture list after prepass:")
+        # pprint(textures)
 
         # Finally blend into texlayered
         for slotType in textures.keys():
             slotTextures = textures[slotType]
             if type(slotTextures) is not list:
+                processedTextures[slotType] = [slotTextures]
                 continue
 
             layered_tex = []
@@ -423,8 +468,8 @@ def ProcessTextures(ma):
                 output=slotOutputType,
             )
 
-        print("Grouped texture list:")
-        pprint(processedTextures)
+        # print("Grouped texture list:")
+        # pprint(processedTextures)
 
     return processedTextures
 
@@ -453,6 +498,7 @@ def ConvertMaterial(scene, ob, ma, textures):
 
         materialTop = _createVRayNode(nt, 'MtlSingleBRDF')
         brdfTo      = materialTop
+        mainBRDF    = None
 
         if VRayMaterial.round_edges:
             mtlRoundEdges = _createVRayNode(nt, 'MtlRoundEdges')
@@ -478,7 +524,10 @@ def ConvertMaterial(scene, ob, ma, textures):
         if VRayMaterial.Mtl2Sided.use:
             pass
 
-        for ovrName in MaterialOverrides:
+        if VRayMaterial.MtlOverride.use:
+            pass
+
+        for ovrName in {'MtlWrapper', 'MtlRenderStats'}:
             ovrPropGroup = getattr(VRayMaterial, ovrName)
             ovrUse = getattr(ovrPropGroup, 'use')
             if not ovrUse:
@@ -493,20 +542,37 @@ def ConvertMaterial(scene, ob, ma, textures):
 
             materialTop = ovrNode
 
-        # Connect last to the output
+        # Connect last material to the output
         _connectNodes(nt,
             materialTop, 'Material',
             outputNode,  'Material')
 
+        # BRDFs
+        #
         if 'normal' in textures:
-            bumpNode = _createVRayNode(nt, 'BRDFBump')
+            mainBRDF = _createVRayNode(nt, 'BRDFBump')
+            # TODO: Create and connect bump texures
 
-            topBRDF = bumpNode
+        # Finally generate main BRDF node and connect top brdf
+        # if needed
+        brdfType = VRayMaterial.type
 
-        # Finally generate main BRDF node
-        mainBRDF = _createVRayNode(nt, VRayMaterial.type)
+        baseBRDF = _createVRayNode(nt, brdfType)
 
-        # Connect last BRDF to last material
+        oldPropGroup = getattr(VRayMaterial, brdfType)
+
+        TransferProperties(baseBRDF, brdfType, oldPropGroup)
+
+        CreateTextureNodes(nt, baseBRDF, textures)
+
+        if not mainBRDF:
+            mainBRDF = baseBRDF
+        else:
+            _connectNodes(nt,
+                baseBRDF, 'BRDF',
+                mainBRDF, 'Base Brdf')
+
+        # Connect last BRDF to the last material
         _connectNodes(nt,
             mainBRDF, 'BRDF',
             brdfTo,   'BRDF')
