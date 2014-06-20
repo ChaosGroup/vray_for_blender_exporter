@@ -42,6 +42,9 @@ class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
 		if not VRayScene.ntree:
 			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
 
+		layout.separator()
+		layout.operator("vray.convert_scene")
+
 
 def GetRegClasses():
 	return (
