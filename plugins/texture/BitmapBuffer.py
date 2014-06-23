@@ -44,7 +44,7 @@ PluginParams = (
             ('1',  "Mip-Map", "Mip-map filtering"),
             ('2',  "Area",    "Summed area filtering"),
         ),
-        'default' : '1',
+        'default' : '0',
     },
     {
         'attr' : 'filter_blur',
@@ -171,7 +171,47 @@ PluginParams = (
         'skip' : True,
         'default' : "",
     },
+    {
+        'attr' : 'use_input_gamma',
+        'desc' : "Use \"Input Gamma\" parameter from \"Color Mapping\" as \"Gamma\"",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
 )
+
+PluginWidget = """
+{ "widgets": [
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "color_space" },
+            { "name" : "filter_type" },
+            { "name" : "filter_blur" }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "psd_group_name" },
+                    { "name" : "psd_alpha_name" }
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "attrs" : [
+                    { "name" : "use_input_gamma" },
+                    { "name" : "allow_negative_colors" },
+                    { "name" : "use_data_window" }
+                ]
+            }
+        ]
+    }
+]}
+"""
 
 
 def nodeDraw(context, layout, node):
@@ -189,7 +229,8 @@ def gui(context, layout, BitmapBuffer, node):
     if node.texture.image:
         if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
             layout.template_preview(node.texture)
-        layout.prop(node.texture.image, 'filepath')
+        layout.separator()
+        layout.template_image(node.texture, 'image', node.texture.image_user)
     else:
         layout.template_ID(node.texture, 'image', open='image.open')
     layout.separator()
@@ -202,6 +243,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     VRayScene = scene.vray
     VRayDR    = VRayScene.VRayDR
+
+    SettingsColorMapping = VRayScene.SettingsColorMapping
 
     node = bus['context'].get('node')
     if not node:
@@ -223,5 +266,36 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
                 filepath = PathUtils.CopyDRAsset(bus, filepath)
 
         overrideParams['file'] = filepath
+
+        # NOTE: Sync with C++ also
+        #
+        overrideParams['gamma'] = SettingsColorMapping.input_gamma if BitmapBuffer.use_input_gamma else BitmapBuffer.gamma
+
+        if image.source == 'SEQUENCE':
+            imageUser = node.texture.image_user
+
+            seqFrame  = 0
+            seqOffset = imageUser.frame_offset
+            seqLength = imageUser.frame_duration
+            seqStart  = imageUser.frame_start
+            seqEnd    = seqLength - seqStart + 1
+
+            if imageUser.use_cyclic:
+                seqFrame = ((scene.frame_current - seqStart) % seqLength) + 1
+            else:
+                if scene.frame_current < seqStart:
+                    seqFrame = seqStart
+                elif scene.frame_current > seqEnd:
+                    seqFrame = seqEnd
+                else:
+                    seqFrame = seqStart + scene.frame_current - 1
+
+            if seqOffset < 0:
+                if (seqFrame - abs(seqOffset)) < 0:
+                    seqFrame += seqLength
+
+            overrideParams['frame_sequence'] = True
+            overrideParams['frame_offset'] = seqOffset
+            overrideParams['frame_number'] = seqFrame
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
