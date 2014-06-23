@@ -238,7 +238,7 @@ def gui(context, layout, BitmapBuffer, node):
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
 
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+def writeDatablock(bus, pluginModule, pluginName, BitmapBuffer, overrideParams):
     scene = bus['scene']
 
     VRayScene = scene.vray
@@ -298,4 +298,4 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             overrideParams['frame_offset'] = seqOffset
             overrideParams['frame_number'] = seqFrame
 
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, BitmapBuffer, overrideParams)
