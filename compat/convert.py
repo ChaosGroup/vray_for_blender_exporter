@@ -25,12 +25,12 @@
 # TODO:
 #
 # Material:
-#   [ ] Basic material types
+#   [x] Basic material types
 #   [ ] Bump
-#   [ ] Textures
-#   [ ] Texture blend / stencil
-#   [ ] Detect displacement
-#   [ ]
+#   [x] Textures
+#   [x] Texture blend / stencil
+#   [x] Detect displacement
+#   [-] Material override
 #
 # Object:
 #   [ ] Displacement
@@ -47,6 +47,8 @@ from vb30.plugins import PLUGINS_ID
 
 from vb30.nodes import tools as NodesTools
 from vb30.nodes import importing as NodesImport
+from vb30.nodes import export as NodesExport
+from vb30.nodes import utils as NodesUtils
 
 from vb30.nodes.sockets import AddInput, AddOutput
 
@@ -252,12 +254,59 @@ def _getBrdfInfluence(ma):
 ##     ##    ##     ##  ##       ##    ##
  #######     ##    #### ########  ######
 
+def _getTextureFromTextures(textures, key):
+    # XXX: Check why it could be list
+    return textures[key][0] if type(textures[key]) is list else textures[key]
+
+
+def _getParamString(*args):
+    return "".join([str(s) for s in args])
+
+
+# Very simple stupid short name hash
+def _getStringHash(s):
+    s = bytes(str(int(hash(s) / -(10000000000))), 'ascii')
+    s = base64.b64encode(s, altchars=b'pS')
+    return s.decode('ascii').replace('=','')
+
+
 def _findSocketCaseInsensitive(node, socketName, fromInputs=True):
     sockets = node.inputs if fromInputs else node.outputs
     for socket in sockets:
         if socket.name.lower() == socketName.lower():
             return socket
     return None
+
+
+def _createGroupMaterial(ntree, ma):
+    if not ma.vray.ntree:
+        return None
+
+    maOutput = NodesUtils.GetNodeByType(ma.vray.ntree, 'VRayNodeOutputMaterial')
+    if not maOutput:
+        return None
+
+    mtlNode = NodesUtils.GetConnectedNode(ma.vray.ntree, maOutput.inputs['Material'])
+    if not mtlNode:
+        return None
+
+    # Create group node
+    maGroupNode = ntree.nodes.new('ShaderNodeGroup')
+    maGroupNode.node_tree = ma.vray.ntree
+
+    # Add output to material tree
+    maGroupOutput = maGroupNode.node_tree.nodes.new('NodeGroupOutput')
+    maGroupOutput.location.x += NodesTools.NODE_LEVEL_WIDTH
+    maGroupOutput.location.y += 50
+
+    # Create and link output material socket
+    maGroupNode.node_tree.outputs.new('VRaySocketMtl', 'Material')
+    maGroupNode.node_tree.links.new(
+        mtlNode.outputs['Material'],
+        maGroupOutput.inputs['Material']
+    )
+
+    return maGroupNode
 
 
 def _createVRayTree(name, vrayTreeType):
@@ -315,6 +364,34 @@ def TransferProperties(node, pluginID, oldPropGroup):
 
         else:
             setattr(propGroup, 'attrName', attrValue)
+
+
+def _getBumpAmount(ma):
+    for ts in ma.texture_slots:
+        if not (ts and ts.texture):
+            continue
+        tex = ts.texture
+        if tex.type not in {'IMAGE', 'VRAY'}:
+            continue
+        if tex.vray_slot.map_normal:
+            return tex.vray_slot.BRDFBump.bump_tex_mult
+    return 0.05
+
+
+def _getDisplacementAmount(ob):
+    for ms in ob.material_slots:
+        if not (ms and ms.material):
+            continue
+        ma = ms.material
+        for ts in ma.texture_slots:
+            if not (ts and ts.texture):
+                continue
+            tex = ts.texture
+            if tex.type not in {'IMAGE', 'VRAY'}:
+                continue
+            if tex.vray_slot.map_displacement:
+                return tex.vray_slot.GeomDisplacedMesh.displacement_amount
+    return 0.05
 
 
 ######## ######## ##     ## ######## ##     ## ########  ########
@@ -392,7 +469,7 @@ class SingleTexture(TextureToNode):
             mappingType = self.texture.vray.texture_coords
 
             # Always generate UV channel
-            nameHash = "".join([str(s) for s in (
+            pluginHash = _getParamString(
                 VRaySlot.uv_layer,
                 VRaySlot.offset[0],
                 VRaySlot.offset[1],
@@ -403,13 +480,9 @@ class SingleTexture(TextureToNode):
                 VRayTexture.mirror_v,
                 VRayTexture.tile_u,
                 VRayTexture.tile_v,
-            )])
+            )
 
-            # Very simple stupid short name hash
-            nameHash = bytes(str(int(hash(nameHash) / -10000000000)), 'ascii')
-            nameHash = base64.b64encode(nameHash, altchars=b'pS')
-
-            name = "UV@%s" % nameHash.decode('ascii').replace('=','')
+            name = "UV@%s" % _getStringHash(pluginHash)
 
             uvwgen = _createVRayNode(ntree, "UVWGenMayaPlace2dTexture", nodeName=name)
             uvwgen.UVWGenMayaPlace2dTexture.uv_set_name = VRaySlot.uv_layer
@@ -694,7 +767,7 @@ def ProcessTextures(ma):
             )
 
         # print("Grouped texture list:")
-        # pprint(processedTextures)
+        # print(processedTextures)
 
     return processedTextures
 
@@ -714,7 +787,11 @@ def ConvertMaterial(scene, ob, ma, textures):
     # NOT the output, but the last Mtl node
     materialNode = None
 
-    if not VRayMaterial.ntree:
+    if VRayMaterial.ntree:
+        outputNode = NodesUtils.GetNodeByType(VRayMaterial.ntree, 'VRayNodeOutputMaterial')
+        materialNode = NodesUtils.GetConnectedNode(VRayMaterial.ntree, outputNode.inputs['Material'])
+
+    else:
         debug.PrintInfo("Converting material: %s" % ma.name)
 
         nt = _createVRayTree(ma.name, 'Material')
@@ -747,7 +824,35 @@ def ConvertMaterial(scene, ob, ma, textures):
             materialTop = mtlMaterialID
 
         if VRayMaterial.Mtl2Sided.use:
-            pass
+            mtl2Sided = _createVRayNode(nt, 'Mtl2Sided')
+            mtl2Sided.Mtl2Sided.force_1sided = VRayMaterial.Mtl2Sided.force_1sided
+            mtl2Sided.inputs['Translucency'].value = [VRayMaterial.Mtl2Sided.translucency_slider]*3
+
+            backMat = None
+            if VRayMaterial.Mtl2Sided.back:
+                backMaName = VRayMaterial.Mtl2Sided.back
+                if backMaName in bpy.data.materials:
+                    backMa  = bpy.data.materials[backMaName]
+                    backTex = ProcessTextures(backMa)
+
+                    ConvertMaterial(scene, ob, backMa, backTex)
+
+                    backMat = _createGroupMaterial(nt, backMa)
+
+            _connectNodes(nt,
+                materialTop, 'Material',
+                mtl2Sided,   'Front')
+
+            if backMat:
+                _connectNodes(nt,
+                    backMat,   'Material',
+                    mtl2Sided, 'Back')
+            else:
+                _connectNodes(nt,
+                    materialTop, 'Material',
+                    mtl2Sided,   'Back')
+
+            materialTop = mtl2Sided
 
         if VRayMaterial.MtlOverride.use:
             pass
@@ -768,6 +873,7 @@ def ConvertMaterial(scene, ob, ma, textures):
             materialTop = ovrNode
 
         # Connect last material to the output
+        materialNode = materialTop
         _connectNodes(nt,
             materialTop, 'Material',
             outputNode,  'Material')
@@ -775,8 +881,21 @@ def ConvertMaterial(scene, ob, ma, textures):
         # BRDFs
         #
         if 'normal' in textures:
+            norTex = _getTextureFromTextures(textures, 'normal')
+
             mainBRDF = _createVRayNode(nt, 'BRDFBump')
-            # TODO: Create and connect bump texures
+            mainBRDF.inputs['Bump Amount Texture'].value = _getBumpAmount(ma)
+
+            bumpTexNode = norTex.createNode(nt)
+
+            _connectNodes(nt,
+                bumpTexNode, 'Color',
+                mainBRDF,    'Color Texture'
+            )
+            _connectNodes(nt,
+                bumpTexNode, 'Out Intensity',
+                mainBRDF,    'Float Texture'
+            )
 
         # Finally generate main BRDF node and connect top brdf
         # if needed
@@ -862,14 +981,11 @@ def ConvertObject(scene, ob):
     if not VRayObject.ntree and needNodeTree:
         nt = _createVRayTree(ob.name, 'Object')
 
-        outputNode      = _createVRayNode(nt, 'ObjectOutput')
-        blenderMaterial = _createVRayNode(nt, 'BlenderOutputMaterial')
+        outputNode = _createVRayNode(nt, 'ObjectOutput')
 
-        blenderGeometry = None
-        if not VRayData.override:
-            blenderGeometry = _createVRayNode(nt, 'BlenderOutputGeometry')
-        else:
-            debug.PrintInfo("  Found geometry override '%s'" % VRayData.override_type)
+        # MATERIAL
+        #
+        blenderMaterial = _createVRayNode(nt, 'BlenderOutputMaterial')
 
         for ovrName in ObjectMaterialOverrides:
             ovrPropGroup = getattr(VRayObject, ovrName)
@@ -878,14 +994,71 @@ def ConvertObject(scene, ob):
                 continue
             pass
 
-        if hasDisplacement:
-            displaceNodeType = 'GeomDisplacedMesh'
-            if VRayObject.GeomStaticSmoothedMesh.use:
-                displaceNodeType = 'GeomStaticSmoothedMesh'
+        _connectNodes(nt,
+            blenderMaterial, 'Material',
+            outputNode,      'Material'
+        )
 
-            displaceNode = _createVRayNode(nt, displaceNodeType)
+        # GEOMETRY
+        #
 
-            pass
+        # Infinite plane or VRayProxy
+        if VRayData.override:
+            debug.PrintInfo("  Found geometry override '%s'" % VRayData.override_type)
+
+            if VRayData.override_type == 'VRAYPLANE':
+                blenderGeometry = _createVRayNode(nt, 'GeomPlane')
+            else:
+                blenderGeometry = _createVRayNode(nt, 'GeomMeshFile')
+                blenderGeometry.GeomMeshFile.file = VRayData.GeomMeshFile.file
+
+        # Displacemnt and / or subdivision
+        else:
+            blenderGeometry = _createVRayNode(nt, 'BlenderOutputGeometry')
+
+            if hasDisplacement:
+                displaceNodeType = 'GeomDisplacedMesh'
+                if VRayObject.GeomStaticSmoothedMesh.use:
+                    displaceNodeType = 'GeomStaticSmoothedMesh'
+
+                dispTex    = _getTextureFromTextures(textures, 'displacement')
+                dispAmount = _getDisplacementAmount(ob)
+
+                displaceNode = _createVRayNode(nt, displaceNodeType)
+
+                displacePropGroup = getattr(displaceNode, displaceNodeType)
+                setattr(displacePropGroup, 'displacement_amount', dispAmount)
+
+                dispTexNode = dispTex.createNode(nt)
+
+                # Connect textures
+                _connectNodes(nt,
+                    dispTexNode,  'Color',
+                    displaceNode, 'Color'
+                )
+                _connectNodes(nt,
+                    dispTexNode,  'Out Intensity',
+                    displaceNode, 'Float'
+                )
+
+                # Connect geometry
+                _connectNodes(nt,
+                    blenderGeometry,  'Geometry',
+                    displaceNode,     'Mesh'
+                )
+
+                # Set displace as last geometry node
+                blenderGeometry = displaceNode
+
+            else:
+                if VRayObject.GeomStaticSmoothedMesh.use:
+                    pass
+
+        if blenderGeometry:
+            _connectNodes(nt,
+                blenderGeometry, 'Geometry',
+                outputNode,      'Geometry'
+            )
 
         NodesTools.rearrangeTree(nt, outputNode)
 

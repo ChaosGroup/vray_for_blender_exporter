@@ -28,6 +28,302 @@ import bpy
 from bpy.props import *
 
 
+class GeomStaticSmoothedMeshCompat(bpy.types.PropertyGroup):
+    use= BoolProperty(
+        name= "Override displacement settings",
+        description= "Override material displacement settings",
+        default= False
+    )
+
+    use_globals= BoolProperty(
+        name= "Use globals",
+        description= "If true, the global displacement quality settings will be used",
+        default= True
+    )
+
+    view_dep= BoolProperty(
+        name= "View dependent",
+        description= "Determines if view-dependent tesselation is used",
+        default= True
+    )
+
+    edge_length= FloatProperty(
+        name= "Edge length",
+        description= "Determines the approximate edge length for the sub-triangles",
+        min= 0.0,
+        max= 100.0,
+        soft_min= 0.0,
+        soft_max= 10.0,
+        precision= 3,
+        default= 4
+    )
+
+    max_subdivs= IntProperty(
+        name= "Max subdivs",
+        description= "Determines the maximum subdivisions for a triangle of the original mesh",
+        min= 0,
+        max= 2048,
+        soft_min= 0,
+        soft_max= 1024,
+        default= 256
+    )
+
+    static_subdiv= BoolProperty(
+        name= "Static subdivision",
+        description= "True if the resulting triangles of the subdivision algorithm will be inserted into the rayserver as static geometry",
+        default= False
+    )
+
+
+class GeomDisplacedMeshCompat(bpy.types.PropertyGroup):
+    use= BoolProperty(
+        name= "Override displacement settings",
+        description= "Override material displacement settings",
+        default= False
+    )
+
+    type= EnumProperty(
+        name= "Type",
+        description= "Displacement type",
+        items= (
+            ('2D',  "2D",     "2D displacement."),
+            ('NOR', "Normal", "Normal displacement."),
+            ('3D',  "Vector", "Vector displacement.")
+        ),
+        default= 'NOR'
+    )
+
+    amount_type= EnumProperty(
+        name= "Amount type",
+        description= "Displacement amount type",
+        items= (
+            ('MULT', "Multiply", "Multiply material amount."),
+            ('OVER', "Override", "Override material amount.")
+        ),
+        default= 'OVER'
+    )
+
+    displacement_amount= FloatProperty(
+        name= "Amount",
+        description= "Displacement amount",
+        min= -100.0,
+        max= 100.0,
+        soft_min= -1.0,
+        soft_max= 1.0,
+        precision= 5,
+        default= 0.02
+    )
+
+    amount_mult= FloatProperty(
+        name= "Mult",
+        description= "Displacement amount multiplier",
+        min= 0.0,
+        max= 100.0,
+        soft_min= 0.0,
+        soft_max= 2.0,
+        precision= 3,
+        default= 1.0
+    )
+
+    displacement_shift= FloatProperty(
+        name="Shift",
+        description="",
+        min=-100.0,
+        max=100.0,
+        soft_min=-1.0,
+        soft_max=1.0,
+        precision=4,
+        default=0.0
+    )
+
+    water_level= FloatProperty(
+        name="Water level",
+        description="",
+        min=-1000.0, max=1000.0, soft_min=-1.0, soft_max=1.0,
+        default=-1.0
+    )
+
+    use_globals= BoolProperty(
+        name= "Use globals",
+        description= "If true, the global displacement quality settings will be used",
+        default= True
+    )
+
+    view_dep= BoolProperty(
+        name= "View dependent",
+        description= "Determines if view-dependent tesselation is used",
+        default= True
+    )
+
+    edge_length= FloatProperty(
+        name= "Edge length",
+        description= "Determines the approximate edge length for the sub-triangles",
+        min= 0.0,
+        max= 100.0,
+        soft_min= 0.0,
+        soft_max= 10.0,
+        precision= 3,
+        default= 4
+    )
+
+    max_subdivs= IntProperty(
+        name= "Max subdivs",
+        description= "Determines the maximum subdivisions for a triangle of the original mesh",
+        min= 0,
+        max= 2048,
+        soft_min= 0,
+        soft_max= 1024,
+        default= 256
+    )
+
+    keep_continuity= BoolProperty(
+        name= "Keep continuity",
+        description= "If true, the plugin will attempt to keep the continuity of the displaced surface",
+        default= False
+    )
+
+    map_channel= IntProperty(
+        name= "Map channel",
+        description= "The mapping channel to use for vector and 2d displacement",
+        min= 0,
+        max= 100,
+        soft_min= 0,
+        soft_max= 10,
+        default= 1
+    )
+
+    use_bounds= BoolProperty(
+        name= "Use bounds",
+        description= "If true, the min/max values for the displacement texture are specified by the min_bound and max_bound parameters; if false, these are calculated automatically",
+        default= False
+    )
+
+    # min_bound= FloatVectorProperty(
+    #   name= "Min bound",
+    #   description= "The lowest value for the displacement texture",
+    #   subtype= 'COLOR',
+    #   min= 0.0,
+    #   max= 1.0,
+    #   soft_min= 0.0,
+    #   soft_max= 1.0,
+    #   default= (0,0,0)
+    # )
+
+    # max_bound= FloatVectorProperty(
+    #   name= "Max bound",
+    #   description= "The biggest value for the displacement texture",
+    #   subtype= 'COLOR',
+    #   min= 0.0,
+    #   max= 1.0,
+    #   soft_min= 0.0,
+    #   soft_max= 1.0,
+    #   default= (1,1,1)
+    # )
+
+    min_bound= FloatProperty(
+        name= "Min bound",
+        description= "The lowest value for the displacement texture",
+        min= -1.0,
+        max=  1.0,
+        soft_min= -1.0,
+        soft_max=  1.0,
+        default= 0.0
+    )
+
+    max_bound= FloatProperty(
+        name= "Max bound",
+        description= "The biggest value for the displacement texture",
+        min= -1.0,
+        max=  1.0,
+        soft_min= -1.0,
+        soft_max=  1.0,
+        default= 1.0
+    )
+
+    resolution= IntProperty(
+        name= "Resolution",
+        description= "Resolution at which to sample the displacement map for 2d displacement",
+        min= 1,
+        max= 100000,
+        soft_min= 1,
+        soft_max= 2048,
+        default= 256
+    )
+
+    precision= IntProperty(
+        name= "Precision",
+        description= "Increase for curved surfaces to avoid artifacts",
+        min= 0,
+        max= 100,
+        soft_min= 0,
+        soft_max= 10,
+        default= 8
+    )
+
+    tight_bounds= BoolProperty(
+        name= "Tight bounds",
+        description= "When this is on, initialization will be slower, but tighter bounds will be computed for the displaced triangles making rendering faster",
+        default= False
+    )
+
+    filter_texture= BoolProperty(
+        name= "Filter texture",
+        description= "Filter the texture for 2d displacement",
+        default= False
+    )
+
+    filter_blur= FloatProperty(
+        name= "Blur",
+        description= "The amount of UV space to average for filtering purposes. A value of 1.0 will average the whole texture",
+        min= 0.0,
+        max= 100.0,
+        soft_min= 0.0,
+        soft_max= 10.0,
+        precision= 3,
+        default= 0.001
+    )
+
+
+class BRDFBumpCompat(bpy.types.PropertyGroup):
+    map_type= EnumProperty(
+        name= "Map type",
+        description= "Normal map type",
+        items= (
+            ('EXPLICIT', "Explicit Normal",   "."),
+            ('FROMBUMP', "From Bump",         "."),
+            ('WORLD',    "Normal (world)",    "."),
+            ('CAMERA',   "Normal (camera)",   "."),
+            ('OBJECT',   "Normal (object)",   "."),
+            ('TANGENT',  "Normal (tangent)" , "."),
+            ('BUMP',     "Bump",              "."),
+        ),
+        default= 'BUMP'
+    )
+
+    bump_tex_mult= FloatProperty(
+        name= "Amount",
+        description= "Bump amount",
+        min= -100.0,
+        max=  100.0,
+        soft_min= -0.2,
+        soft_max=  0.2,
+        precision= 4,
+        default= 0.02
+    )
+
+    bump_shadows= BoolProperty(
+        name= "Bump shadows",
+        description= "Offset the surface shading point, in addition to the normal",
+        default= False
+    )
+
+    compute_bump_for_shadows= BoolProperty(
+        name= "Transparent bump shadows",
+        description= "True to compute bump mapping for shadow rays in case the material is transparent; false to skip the bump map for shadow rays (faster rendering)",
+        default= True
+    )
+
+
 class VRaySlot(bpy.types.PropertyGroup):
     uv_layer = StringProperty(
         name        = "UV Map",
@@ -807,8 +1103,19 @@ class VRaySlot(bpy.types.PropertyGroup):
     )
 
 
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
+
 def register():
     bpy.utils.register_class(VRaySlot)
+    bpy.utils.register_class(BRDFBumpCompat)
+    bpy.utils.register_class(GeomDisplacedMeshCompat)
+    bpy.utils.register_class(GeomStaticSmoothedMeshCompat)
 
     setattr(bpy.types.VRayMesh, 'override', bpy.props.BoolProperty(
         name        = "Override",
@@ -1047,5 +1354,58 @@ def register():
     ))
 
 
+    setattr(bpy.types.Mtl2Sided, 'control', EnumProperty(
+        name= "Control",
+        description= "Translucency type",
+        items= (
+            ('SLIDER',  "Slider",  ""),
+            ('COLOR',   "Color",   ""),
+            ('TEXTURE', "Texture", "")
+        ),
+        default= 'SLIDER'
+    ))
+
+    setattr(bpy.types.Mtl2Sided, 'translucency_color', FloatVectorProperty(
+        name= "Translucency color",
+        description= "Translucency between front and back",
+        subtype= 'COLOR',
+        min= 0.0,
+        max= 1.0,
+        soft_min= 0.0,
+        soft_max= 1.0,
+        default= (0.5,0.5,0.5)
+    ))
+
+    setattr(bpy.types.Mtl2Sided, 'translucency_slider', FloatProperty(
+        name= "Translucency",
+        description= "Translucency between front and back",
+        min= 0.0,
+        max= 1.0,
+        soft_min= 0.0,
+        soft_max= 1.0,
+        precision= 3,
+        default= 0.5
+    ))
+
+    setattr(bpy.types.VRaySlot, 'BRDFBump', PointerProperty(
+        type = BRDFBumpCompat
+    ))
+
+    setattr(bpy.types.VRaySlot, 'GeomDisplacedMesh', PointerProperty(
+        type = GeomDisplacedMeshCompat
+    ))
+
+    setattr(bpy.types.VRayObject, 'GeomDisplacedMesh', PointerProperty(
+        type = GeomDisplacedMeshCompat
+    ))
+
+    setattr(bpy.types.VRayObject, 'GeomStaticSmoothedMesh', PointerProperty(
+        type=  GeomStaticSmoothedMeshCompat,
+    ))
+
+
 def unregister():
     bpy.utils.unregister_class(VRaySlot)
+    bpy.utils.unregister_class(BRDFBumpCompat)
+    bpy.utils.unregister_class(GeomDisplacedMeshCompat)
+    bpy.utils.unregister_class(GeomStaticSmoothedMeshCompat)
