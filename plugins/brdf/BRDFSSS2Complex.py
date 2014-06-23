@@ -316,6 +316,7 @@ PluginWidget = """
             },
             {   "layout" : "COLUMN",
                 "attrs" : [
+                    { "name" : "trace_reflections" },
                     { "name" : "refraction_depth" },
                     { "name" : "reflection_depth" }
                 ]
