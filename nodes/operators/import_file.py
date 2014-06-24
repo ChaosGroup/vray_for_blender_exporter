@@ -92,6 +92,7 @@ def ImportMaterials(context, filePath, baseMaterial):
         pluginDesc = NodesImport.getPluginByName(vrsceneDict, maName)
 
         ntree = bpy.data.node_groups.new(maName, type='VRayNodeTreeMaterial')
+        ntree.use_fake_user = True
 
         outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
 
