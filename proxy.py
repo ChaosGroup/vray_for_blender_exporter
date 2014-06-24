@@ -158,8 +158,15 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
         bm = bmesh.new()
         bm.from_mesh(mesh)
         bm.to_mesh(context.object.data)
-
         context.object.data.update()
+
+        if meshData['uv_sets']:
+            for uvName in meshData['uv_sets']:
+                bpy.ops.mesh.uv_texture_add()
+
+                index = context.object.data.uv_layers.active_index
+                uvLayer = context.object.data.uv_layers[index]
+                uvLayer.name = uvName
 
         # Remove temp
         bm.free()
