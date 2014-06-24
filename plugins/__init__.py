@@ -576,41 +576,6 @@ class VRayScene(bpy.types.PropertyGroup):
 	)
 
 
-class IncluderList(bpy.types.PropertyGroup):
-	scene= bpy.props.StringProperty(
-		name= "Filepath",
-		subtype= 'FILE_PATH',
-		description= "Path to a *.vrscene file"
-	)
-
-	use= bpy.props.BoolProperty(
-		name= "",
-		description= "Use scene",
-		default= True
-	)
-
-
-class Includer(bpy.types.PropertyGroup):
-	use = bpy.props.BoolProperty(
-		name        = "Use Includer",
-		description = "Add additional *.vrscene files",
-		default     = False
-	)
-
-	nodes= bpy.props.CollectionProperty(
-		name= "Scene Name",
-		type=  IncluderList,
-		description= "Custom name scene"
-	)
-
-	nodes_selected= bpy.props.IntProperty(
-		name= "Scene Index",
-		default= -1,
-		min= -1,
-		max= 100
-	)
-
-
 ######## ##     ## ########
 ##       ##     ## ##     ##
 ##       ##     ## ##     ##
@@ -766,9 +731,6 @@ class VRayDR(bpy.types.PropertyGroup):
 
 def GetRegClasses():
 	return (
-		IncluderList,
-		Includer,
-
 		VRayRenderNode,
 		VRayDR,
 
@@ -865,12 +827,6 @@ def register():
 		name = "Distributed rendering",
 		type =  VRayDR,
 		description = "Distributed rendering settings"
-	)
-
-	VRayScene.Includer = bpy.props.PointerProperty(
-		name = "Includes",
-		type =  Includer,
-		description = "Include additional *.vrscene files"
 	)
 
 	# Add global settings to 'VRayExporterPreferences'
