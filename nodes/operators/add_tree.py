@@ -46,8 +46,9 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
         VRayLight = context.object.data.vray
 
         nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
-        nt.nodes.new('VRayNode%s' % self.lightType)
         nt.use_fake_user = True
+
+        nt.nodes.new('VRayNode%s' % self.lightType)
 
         VRayLight.ntree = nt
 
@@ -63,8 +64,9 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
         VRayScene = context.scene.vray
 
         nt = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
-        nt.nodes.new('VRayNodeRenderChannels')
         nt.use_fake_user = True
+
+        nt.nodes.new('VRayNodeRenderChannels')
 
         VRayScene.ntree = nt
 
