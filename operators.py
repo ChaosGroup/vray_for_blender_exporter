@@ -124,83 +124,6 @@ class VRAY_OT_lens_shift(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-#### ##    ##  ######  ##       ##     ## ########  ######## ########
- ##  ###   ## ##    ## ##       ##     ## ##     ## ##       ##     ##
- ##  ####  ## ##       ##       ##     ## ##     ## ##       ##     ##
- ##  ## ## ## ##       ##       ##     ## ##     ## ######   ########
- ##  ##  #### ##       ##       ##     ## ##     ## ##       ##   ##
- ##  ##   ### ##    ## ##       ##     ## ##     ## ##       ##    ##
-#### ##    ##  ######  ########  #######  ########  ######## ##     ##
-
-class VRAY_OT_includer_add(bpy.types.Operator):
-	bl_idname=      'vray.includer_add'
-	bl_label=       "Add Include"
-	bl_description= "Add Include *.vrsene"
-
-	def execute(self, context):
-		vs= context.scene.vray
-		module= vs.Includer
-
-		module.nodes.add()
-		module.nodes[-1].name= "Include Scene"
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_includer_remove(bpy.types.Operator):
-	bl_idname=      'vray.includer_remove'
-	bl_label=       "Remove Include"
-	bl_description= "Remove Include *.vrsene"
-
-	def execute(self, context):
-		vs= context.scene.vray
-		module= vs.Includer
-
-		if module.nodes_selected >= 0:
-		   module.nodes.remove(module.nodes_selected)
-		   module.nodes_selected-= 1
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_includer_up(bpy.types.Operator):
-	bl_idname=      'vray.includer_up'
-	bl_label=       "Up Include"
-	bl_description= "Up Include *.vrsene"
-
-	def execute(self, context):
-		vs= context.scene.vray
-		module= vs.Includer
-
-		if module.nodes_selected <= 0:
-			return {'CANCELLED'}
-
-		module.nodes.move(module.nodes_selected,
-								 module.nodes_selected - 1)
-		module.nodes_selected-= 1
-
-		return {'FINISHED'}
-
-
-class VRAY_OT_includer_down(bpy.types.Operator):
-	bl_idname=      'vray.includer_down'
-	bl_label=       "Down Include"
-	bl_description= "Down Include *.vrsene"
-
-	def execute(self, context):
-		vs= context.scene.vray
-		module= vs.Includer
-
-		if module.nodes_selected <= 0:
-			return {'CANCELLED'}
-
-		module.nodes.move(module.nodes_selected,
-								 module.nodes_selected + 1)
-		module.nodes_selected+= 1
-
-		return {'FINISHED'}
-
-
 ########  ########
 ##     ## ##     ##
 ##     ## ##     ##
@@ -487,10 +410,6 @@ def GetRegClasses():
 	return (
 		VRAY_OT_update,
 		VRAY_OT_lens_shift,
-		VRAY_OT_includer_add,
-		VRAY_OT_includer_remove,
-		VRAY_OT_includer_up,
-		VRAY_OT_includer_down,
 		VRAY_OT_node_add,
 		VRAY_OT_node_del,
 		VRAY_OT_dr_nodes_load,
