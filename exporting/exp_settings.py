@@ -37,7 +37,6 @@ def ExportSettings(bus):
     VRayScene       = scene.vray
     VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
 
-    Includer       = VRayScene.Includer
     VRayExporter   = VRayScene.Exporter
     VRayDR         = VRayScene.VRayDR
 
@@ -58,6 +57,9 @@ def ExportSettings(bus):
 
             if pluginName in {'SettingsEXR',
                               'SettingsVFB'}:
+                continue
+
+            if pluginName in {'Includer'}:
                 continue
 
             pluginModule = PLUGINS[pluginType][pluginName]
