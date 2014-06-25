@@ -36,7 +36,7 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 
 		split = self.layout.split()
 		row = split.row(align=True)
-		row.prop_search(VRayObject, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+		row.prop_search(VRayObject, 'ntree', bpy.data, 'node_groups', text="Object Tree")
 		if not VRayObject.ntree:
 			row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 

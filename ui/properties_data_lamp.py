@@ -95,7 +95,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         layout.separator()
         split = self.layout.split()
         row = split.row(align=True)
-        row.prop_search(VRayLight, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+        row.prop_search(VRayLight, 'ntree', bpy.data, 'node_groups', text="Lamp Tree")
         if not VRayLight.ntree:
             row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
