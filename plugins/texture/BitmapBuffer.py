@@ -196,18 +196,31 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "psd_group_name" },
-                    { "name" : "psd_alpha_name" }
+                    { "name" : "use_input_gamma" },
+                    {
+                        "name" : "gamma",
+                        "active" : {
+                            "prop" : "use_input_gamma",
+                            "condition" : "0"
+                        }
+                    }
                 ]
             },
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "use_input_gamma" },
                     { "name" : "allow_negative_colors" },
                     { "name" : "use_data_window" }
                 ]
             }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "align" : false,
+        "attrs" : [
+            { "name" : "psd_group_name", "label" : "PSD Group" },
+            { "name" : "psd_alpha_name", "label" : "PSD Alpha" }
         ]
     }
 ]}
