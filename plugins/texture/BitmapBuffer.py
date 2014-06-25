@@ -246,8 +246,6 @@ def gui(context, layout, BitmapBuffer, node):
             layout.template_ID(node.texture, 'image', open='image.open')
         layout.separator()
 
-    DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
-
 
 def writeDatablock(bus, pluginModule, pluginName, BitmapBuffer, overrideParams):
     scene = bus['scene']
