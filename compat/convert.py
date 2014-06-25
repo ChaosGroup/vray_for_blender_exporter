@@ -26,15 +26,16 @@
 #
 # Material:
 #   [x] Basic material types
-#   [ ] Bump
+#   [x] Bump
 #   [x] Textures
 #   [x] Texture blend / stencil
 #   [x] Detect displacement
-#   [-] Material override
+#   [+] Material override
+#   [ ] Object/world mapping
 #
 # Object:
-#   [ ] Displacement
-#   [ ] Geometry override
+#   [x] Displacement
+#   [x] Geometry override
 #   [ ] Material override
 #
 
