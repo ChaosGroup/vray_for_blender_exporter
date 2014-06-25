@@ -236,17 +236,15 @@ def nodeDraw(context, layout, node):
 
 
 def gui(context, layout, BitmapBuffer, node):
-    if not node.texture:
-        return
-
-    if node.texture.image:
-        if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
-            layout.template_preview(node.texture)
+    if node.texture:
+        if node.texture.image:
+            if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+                layout.template_preview(node.texture)
+            layout.separator()
+            layout.template_image(node.texture, 'image', node.texture.image_user)
+        else:
+            layout.template_ID(node.texture, 'image', open='image.open')
         layout.separator()
-        layout.template_image(node.texture, 'image', node.texture.image_user)
-    else:
-        layout.template_ID(node.texture, 'image', open='image.open')
-    layout.separator()
 
     DrawUtils.Draw(context, layout, BitmapBuffer, PluginParams)
 
