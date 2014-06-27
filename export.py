@@ -82,10 +82,6 @@ def Export(bus, scene, engine, isPreview=False):
             scene.frame_step
         )
 
-    if o.isPreviewRender():
-        o.write('MAIN', "\n")
-        o.write('MAIN', SysUtils.GetVRsceneTemplate("preview.vrscene"))
-
     if VRayExporter.draft:
         o.write('MAIN', "\n")
         o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
