@@ -52,7 +52,6 @@ def register():
     plugins.register()
     operators.register()
     ui.register()
-    engine.register()
     nodes.register()
     proxy.register()
     keymap.register()
@@ -61,13 +60,16 @@ def register():
 
     compat.register()
 
+    # NOTE: Register engine at the end,
+    # to be sure all used data is registered.
+    engine.register()
+
 
 def unregister():
     engine.Shutdown()
 
     plugins.unregister()
     operators.unregister()
-    engine.unregister()
     nodes.unregister()
     proxy.unregister()
     ui.unregister()
@@ -76,3 +78,5 @@ def unregister():
     preset.unregister()
 
     compat.unregister()
+
+    engine.unregister()
