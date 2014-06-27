@@ -39,7 +39,7 @@ class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
 
 		split = layout.split()
 		row = split.row(align=True)
-		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Node Tree")
+		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Channels Tree")
 		if not VRayScene.ntree:
 			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
 
