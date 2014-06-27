@@ -173,3 +173,10 @@ def IsRTEngine(bus):
     if bus["scene"].vray.RTEngine.enabled:
         return True
     return False
+
+
+def GetPreviewBlend():
+    userPreview = os.path.join(BlenderUtils.GetUserConfigDir(), "preview.blend")
+    if os.path.exists(userPreview):
+        return userPreview
+    return os.path.join(GetExporterPath(), "preview", "preview.blend")

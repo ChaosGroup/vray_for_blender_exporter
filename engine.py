@@ -62,7 +62,7 @@ class VRayRendererPreview(VRayRendererBase):
     bl_label  = "V-Ray (With Material Preview)"
 
     bl_use_preview      =  True
-    bl_preview_filepath = os.path.join(SysUtils.GetExporterPath(), "preview", "preview.blend")
+    bl_preview_filepath = SysUtils.GetPreviewBlend()
 
 
 def GetRegClasses():
