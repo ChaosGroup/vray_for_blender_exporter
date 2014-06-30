@@ -96,6 +96,8 @@ def Export(bus, scene, engine, isPreview=False):
                 o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
             o.write('MAIN', '\n')
 
+    exp_settings.ExportLightLinker(bus)
+
     return err
 
 

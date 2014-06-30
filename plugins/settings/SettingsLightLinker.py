@@ -22,6 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import BlenderUtils
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsLightLinker'
 NAME = 'Settings Light Linker'
@@ -53,6 +57,7 @@ def write(bus):
         return
 
     scene = bus['scene']
+    o     = bus['output']
 
     ignored_lights = []
     ignored_shadow_lights = []
@@ -70,17 +75,20 @@ def write(bus):
         exclude = set()
         if hasExclude:
             for ob in lightSettings['exclude']:
-                exclude.add(utils.get_name(ob, prefix='OB'))
+                exclude.add(BlenderUtils.GetObjectName(ob, prefix='OB'))
 
         # If include then add all others that are not in the list
         if hasInclude:
-            for ob in utils.GeometryObjectIt(scene):
+            for ob in BlenderUtils.GeometryObjectIt(scene):
                 if ob not in lightSettings['include']:
-                    exclude.add(utils.get_name(ob, prefix='OB'))
+                    exclude.add(BlenderUtils.GetObjectName(ob, prefix='OB'))
 
         ignored_lights.append("List(%s,%s)" % (light, ",".join(exclude)))
 
-    ofile.write("\n{ID} {ID} {{".format(ID=ID))
-    ofile.write("\n\tignored_lights=List(%s);" % ",".join(ignored_lights))
-    # ofile.write("\n\tignored_shadow_lights=List(%s);\n" % ignored_shadow_lights)
-    ofile.write("\n}\n")
+    o.write(TYPE, "\nSettingsLightLinker SettingsLightLinker {")
+    o.write(TYPE, "\n\tignored_lights=List(")
+    o.write(TYPE, ",".join(ignored_lights))
+    o.write(TYPE, ");")
+    o.write(TYPE, "\n}\n")
+
+    return ID

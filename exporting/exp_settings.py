@@ -59,7 +59,7 @@ def ExportSettings(bus):
                               'SettingsVFB'}:
                 continue
 
-            if pluginName in {'Includer'}:
+            if pluginName in {'Includer', 'SettingsLightLinker'}:
                 continue
 
             pluginModule = PLUGINS[pluginType][pluginName]
@@ -95,3 +95,7 @@ def ExportSettings(bus):
                 continue
 
             ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+
+
+def ExportLightLinker(bus):
+    PLUGINS['SETTINGS']['SettingsLightLinker'].write(bus)

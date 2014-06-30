@@ -39,6 +39,12 @@ ObjectPrefix = {
 NonGeometryTypes = {'LAMP','CAMERA','SPEAKER','ARMATURE','LATTICE','EMPTY'}
 
 
+def GeometryObjectIt(scene):
+    for ob in scene.objects:
+        if ob.type not in NonGeometryTypes:
+            yield ob
+
+
 def SceneLampIt(scene, obType=None):
     for ob in scene.objects:
         if ob.type == 'LAMP':
