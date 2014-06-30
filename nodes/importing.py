@@ -457,6 +457,10 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
             if attrDesc['type'] in AttributeUtils.OutputTypes:
                 continue
 
+            # XXX: Resolve
+            if attrDesc['type'] in {'TRANSFORM', 'MATRIX'}:
+                continue
+
             if attrDesc['type'] not in AttributeUtils.InputTypes:
                 # Attribute is not mappable, so simply set it's value
                 if attrDesc['type'] == 'ENUM':
