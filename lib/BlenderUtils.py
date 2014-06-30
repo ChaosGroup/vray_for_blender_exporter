@@ -29,6 +29,7 @@ import tempfile
 import bpy
 
 from . import LibUtils
+from . import PathUtils
 
 
 ObjectPrefix = {
@@ -187,7 +188,7 @@ def GetObjectName(ob, prefix=None):
         prefix = ObjectPrefix.get(ob.type, 'OB')
     name = prefix + ob.name
     if ob.library:
-        name = 'LI' + paths.GetFilename(ob.library.filepath) + name
+        name = 'LI' + PathUtils.GetFilename(ob.library.filepath) + name
     return LibUtils.CleanString(name)
 
 
