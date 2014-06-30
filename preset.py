@@ -100,7 +100,7 @@ class VRayPresetMenuBase(bpy.types.Menu):
     def draw(self, context):
         presetPaths = {
             os.path.join(SysUtils.GetExporterPath(), "presets", self.preset_subdir),
-            os.path.join(BlenderUtils.GetUserConfigDir(), "presets", self.preset_subdir),
+            os.path.join(SysUtils.GetUserConfigDir(), "presets", self.preset_subdir),
         }
 
         paths = []
@@ -251,7 +251,7 @@ class VRayPresetAddBase:
         preset_menu_class = getattr(bpy.types, self.preset_menu)
         preset_type = preset_menu_class.preset_subdir
 
-        presetSubdir = PathUtils.CreateDirectory(os.path.join(BlenderUtils.GetUserConfigDir(), "presets"))
+        presetSubdir = PathUtils.CreateDirectory(os.path.join(SysUtils.GetUserConfigDir(), "presets"))
         exportPath   = PathUtils.CreateDirectory(os.path.join(presetSubdir, preset_type))
 
         presetName = preset_menu_class.bl_label if self.remove_active else self.name

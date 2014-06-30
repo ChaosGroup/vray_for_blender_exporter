@@ -33,8 +33,6 @@ import bpy
 
 from vb30 import debug
 
-from . import BlenderUtils
-
 
 def GetUsername():
     if sys.platform == 'win32':
@@ -152,11 +150,18 @@ def GetExporterPath():
     return None
 
 
+def GetUserConfigDir():
+    userConfigDirpath = os.path.join(bpy.utils.user_resource('CONFIG'), "vrayblender")
+    if not os.path.exists(userConfigDirpath):
+        os.makedirs(userConfigDirpath)
+    return userConfigDirpath
+
+
 def GetVRsceneTemplate(filename):
     templatesDir = os.path.join(GetExporterPath(), "templates")
     templateFilepath = os.path.join(templatesDir, filename)
 
-    templateFilepathUser = os.path.join(BlenderUtils.GetUserConfigDir(), "templates", "%s.user" % filename)
+    templateFilepathUser = os.path.join(GetUserConfigDir(), "templates", "%s.user" % filename)
 
     if os.path.exists(templateFilepathUser):
         templateFilepath = templateFilepathUser
@@ -167,16 +172,16 @@ def GetVRsceneTemplate(filename):
     return open(templateFilepath, 'r').read()
 
 
+def GetPreviewBlend():
+    userPreview = os.path.join(GetUserConfigDir(), "preview.blend")
+    if os.path.exists(userPreview):
+        return userPreview
+    return os.path.join(GetExporterPath(), "preview", "preview.blend")
+
+
 def IsRTEngine(bus):
     if bus["engine"].bl_idname == 'VRAY_RENDER_RT':
         return True
     if bus["scene"].vray.RTEngine.enabled:
         return True
     return False
-
-
-def GetPreviewBlend():
-    userPreview = os.path.join(BlenderUtils.GetUserConfigDir(), "preview.blend")
-    if os.path.exists(userPreview):
-        return userPreview
-    return os.path.join(GetExporterPath(), "preview", "preview.blend")

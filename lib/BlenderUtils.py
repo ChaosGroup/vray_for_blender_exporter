@@ -251,13 +251,6 @@ def GetCameraFOV(camera):
     return fov, orthoWidth
 
 
-def GetUserConfigDir():
-    userConfigDirpath = os.path.join(bpy.utils.user_resource('CONFIG'), "vrayblender")
-    if not os.path.exists(userConfigDirpath):
-        os.makedirs(userConfigDirpath)
-    return userConfigDirpath
-
-
 def ObjectOnVisibleLayers(scene, ob):
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
