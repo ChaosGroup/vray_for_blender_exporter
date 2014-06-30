@@ -149,6 +149,8 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		col.prop(SettingsOutput, 'img_noAlpha')
 		col.prop(SettingsOutput, 'img_separateAlpha')
 		col.prop(SettingsOutput, 'relements_separateFolders')
+		if SettingsOutput.img_format in {'EXR', 'VRST'}:
+			col.prop(SettingsOutput, 'relements_separateFiles')
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')

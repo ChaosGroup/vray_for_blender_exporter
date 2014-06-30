@@ -303,6 +303,13 @@ PluginParams = (
         'skip' : True,
         'default' : 'JPG',
     },
+    {
+        'attr' : 'relements_separateFiles',
+        'name' : "Separate Files",
+        'desc' : "Save render channels in separate files",
+        'type' : 'BOOL',
+        'skip' : True,
+    }
 )
 
 PluginWidget = """
@@ -361,5 +368,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
             if o.isPreviewRender():
                 overrideParams['img_file_needFrameNumber'] = False
+
+            if propGroup.img_format in {'EXR', 'VRST'}:
+                if not propGroup.relements_separateFiles:
+                    overrideParams['img_rawFile'] = True
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
