@@ -23,8 +23,11 @@
 #
 
 import os
+import binascii
+import struct
 
 import bpy
+import mathutils
 
 from vb30.plugins import PLUGINS_ID
 from vb30.lib     import AttributeUtils
@@ -485,8 +488,74 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
             if attrDesc['type'] in AttributeUtils.OutputTypes:
                 continue
 
-            # XXX: Resolve
-            if attrDesc['type'] in {'TRANSFORM', 'MATRIX'}:
+            if attrDesc['type'] == 'MATRIX':
+                mNode = ntree.nodes.new('VRayNodeMatrix')
+
+                m = mathutils.Matrix()
+                m.identity()
+
+                if type(attrValue) in {list, tuple}:
+                    for c in range(3):
+                        for r in range(3):
+                            m[c][r] = attrValue[r][c]
+
+                else:
+                    tmArray = struct.unpack("fffffffff", binascii.unhexlify(bytes(attrValue, 'ascii')))
+                    i = 0
+                    for c in range(3):
+                        for r in range(3):
+                            m[c][r] = tmArray[i]
+                            i += 1
+
+                _tmp, rotate, scale = m.decompose()
+                rotate = rotate.to_euler('XYZ')
+
+                tmNode.rotate = (rotate[0], rotate[1], rotate[2])
+                tmNode.scale  = (scale[0],  scale[1],  scale[2])
+
+                ntree.links.new(
+                    mNode.outputs['Matrix'],
+                    n.inputs[attrSocketName]
+                )
+
+                continue
+
+            if attrDesc['type'] == 'TRANSFORM':
+                tmNode = ntree.nodes.new('VRayNodeTransform')
+
+                m = mathutils.Matrix()
+                m.identity()
+
+                if type(attrValue) in {list, tuple}:
+                    tmM    = attrValue[0]
+                    tmOffs = attrValue[1]
+
+                    for c in range(3):
+                        for r in range(3):
+                            m[c][r] = tmM[r][c]
+                    for c in range(3):
+                        m[c][3] = tmOffs[c]
+
+                else:
+                    tmArray = struct.unpack("fffffffffddd", binascii.unhexlify(bytes(attrValue, 'ascii')))
+                    i = 0
+                    for c in range(3):
+                        for r in range(3):
+                            m[c][r] = tmArray[i]
+                            i += 1
+
+                offset, rotate, scale = m.decompose()
+                rotate = rotate.to_euler('XYZ')
+
+                tmNode.offset = (offset[0], offset[1], offset[2])
+                tmNode.rotate = (rotate[0], rotate[1], rotate[2])
+                tmNode.scale  = (scale[0],  scale[1],  scale[2])
+
+                ntree.links.new(
+                    tmNode.outputs['Transform'],
+                    n.inputs[attrSocketName]
+                )
+
                 continue
 
             if attrDesc['type'] not in AttributeUtils.InputTypes:
