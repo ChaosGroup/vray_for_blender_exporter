@@ -82,6 +82,15 @@ def getSocketName(pluginParams, attrName):
     return attrDesc.get('name', AttributeUtils.GetNameFromAttr(attrDesc['attr']))
 
 
+def FindAndCreateNode(vrsceneDict, pluginName, ntree, prevNode):
+    if not pluginName:
+        return None
+    pluginDesc = getPluginByName(vrsceneDict, pluginName)
+    if not pluginDesc:
+        return None
+    return createNode(ntree, prevNode, vrsceneDict, pluginDesc)
+
+
 ######## ######## ##     ##       ##          ###    ##    ## ######## ########  ######## ########
    ##    ##        ##   ##        ##         ## ##    ##  ##  ##       ##     ## ##       ##     ##
    ##    ##         ## ##         ##        ##   ##    ####   ##       ##     ## ##       ##     ##
@@ -246,10 +255,17 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
 
     imageFilepath = pluginDesc['Attributes'].get('file', "")
 
-    # TODO: Search for missing textures under file location
-    #
     if not os.path.exists(imageFilepath):
         debug.PrintError("Couldn't find file: %s" % imageFilepath)
+        debug.PrintError("Trying to search under import diretory...")
+
+        importSettings = getPluginByName(vrsceneDict, "Import Settings")
+        if importSettings:
+            importDir = importSettings['Attributes']['dirpath']
+            imageFilepath = os.path.join(importDir, os.path.basename(imageFilepath))
+
+    if not os.path.exists(imageFilepath):
+        debug.PrintError("Unable to find file: %s" % imageFilepath)
     else:
         imageBlockName = bpy.path.display_name_from_filepath(imageFilepath)
         imageFilepath = imageFilepath.replace("\\", "/")

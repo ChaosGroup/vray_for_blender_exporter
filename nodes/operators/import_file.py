@@ -37,6 +37,97 @@ from vb30.vray_tools.VrmatParser     import ParseVrmat
 from vb30 import debug
 
 
+def ImportMaterialWithDisplacement(context, filePath):
+    debug.PrintInfo('Importing materials from "%s"' % filePath)
+
+    vrsceneDict = {}
+
+    if filePath.endswith(".vrscene"):
+        vrsceneDict = ParseVrscene(filePath)
+    else:
+        vrsceneDict = ParseVrmat(filePath)
+
+    nodeNames = []
+    for pluginDesc in vrsceneDict:
+        pluginID    = pluginDesc['ID']
+        pluginName  = pluginDesc['Name']
+
+        if pluginID == 'Node':
+            nodeNames.append(pluginName)
+
+    for nodeName in nodeNames:
+        debug.PrintInfo("Importing material from Node: %s" % nodeName)
+
+        nodePluginDesc = NodesImport.getPluginByName(vrsceneDict, nodeName)
+
+        # Import material
+        #
+        maName   = nodePluginDesc['Attributes']['material']
+
+        maPluginDesc = NodesImport.getPluginByName(vrsceneDict, maName)
+
+        maNtree = bpy.data.node_groups.new(maName, type='VRayNodeTreeMaterial')
+        maNtree.use_fake_user = True
+
+        maOutputNode = maNtree.nodes.new('VRayNodeOutputMaterial')
+
+        maNode = NodesImport.createNode(maNtree, maOutputNode, vrsceneDict, maPluginDesc)
+
+        maNtree.links.new(
+            maNode.outputs['Material'],
+            maOutputNode.inputs['Material']
+        )
+
+        NodesTools.rearrangeTree(maNtree, maOutputNode)
+
+        # Check geometry for displacement
+        #
+        geomName = nodePluginDesc['Attributes']['geometry']
+
+        geomPluginDesc = NodesImport.getPluginByName(vrsceneDict, geomName)
+
+        if geomPluginDesc['ID'] == 'GeomDisplacedMesh':
+            colorTexName = geomPluginDesc['Attributes'].get("displacement_tex_color")
+            floatTexName = geomPluginDesc['Attributes'].get("displacement_tex_float")
+
+            if colorTexName or floatTexName:
+                # Create node tree with displace name
+                dispNtree = bpy.data.node_groups.new(geomPluginDesc['Name'], type='VRayNodeTreeMaterial')
+                dispNtree.use_fake_user = True
+
+                # Add group output to displace tree
+                dispGroupOutput = dispNtree.nodes.new('NodeGroupOutput')
+
+                # Import texture nodes
+                colorTexNode = NodesImport.FindAndCreateNode(vrsceneDict, colorTexName, dispNtree, dispGroupOutput)
+                floatTexNode = NodesImport.FindAndCreateNode(vrsceneDict, floatTexName, dispNtree, dispGroupOutput)
+
+                # Add/connect output sockets
+                if colorTexName:
+                    dispNtree.outputs.new('VRaySocketColor', 'Color')
+                    dispNtree.links.new(
+                        colorTexNode.outputs['Output'],
+                        dispGroupOutput.inputs['Color']
+                    )
+                if floatTexName:
+                    dispNtree.outputs.new('VRaySocketFloat', 'Float')
+                    dispNtree.links.new(
+                        floatTexNode.outputs['Output'],
+                        dispGroupOutput.inputs['Float']
+                    )
+
+                NodesTools.rearrangeTree(dispNtree, dispGroupOutput)
+
+                # Create a group node in current material tree
+                # to show user that we have displacement
+                dispGroupNode = maNtree.nodes.new('ShaderNodeGroup')
+                dispGroupNode.node_tree = dispNtree
+                dispGroupNode.location.x = 0
+                dispGroupNode.location.y = 100
+
+    return {'FINISHED'}
+
+
 def ImportMaterials(context, filePath, baseMaterial):
     debug.PrintInfo('Importing materials from "%s"' % filePath)
 
@@ -165,11 +256,14 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
             ('STANDARD', "Standart", "Use \"VRayMtl\", \"VRMat\" as base"),
             ('MULTI',    "Multi",    "Use \"Multi\" as base"),
             ('WRAPPED',  "Wrapped",  "Use \"Wrapper\", \"Render Stats\", etc. as base"),
+            ('NODE',     "Node",     "Use \"Node\" as base (will also create displacement texture groups)"),
         ),
         default = 'STANDARD',
     )
 
     def execute(self, context):
+        if self.base_material == 'NODE':
+            return ImportMaterialWithDisplacement(context, self.filepath)
         return ImportMaterials(context, self.filepath, self.base_material)
 
 
