@@ -28,6 +28,7 @@ import bpy
 
 from vb30.plugins import PLUGINS_ID
 from vb30.lib     import AttributeUtils
+from vb30.lib     import PathUtils
 
 from vb30 import debug
 
@@ -258,6 +259,10 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
     if not os.path.exists(imageFilepath):
         debug.PrintError("Couldn't find file: %s" % imageFilepath)
         debug.PrintError("Trying to search under import diretory...")
+
+        # NOTE: Windows style filepath could be stored here
+        # Convert to UNIX slashes
+        imageFilepath = PathUtils.UnifyPath(imageFilepath)
 
         importSettings = getPluginByName(vrsceneDict, "Import Settings")
         if importSettings:
