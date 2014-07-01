@@ -74,6 +74,10 @@ VRayNodeTypeIcon = {
 class VRayNodeCategory(nodeitems_utils.NodeCategory):
     split_items = 15
 
+    @classmethod
+    def poll(cls, context):
+        return context.scene.render.engine in classes.VRayEngines
+
 
 def BuildItemsList(nodeType, subType=None):
     return [ nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label) for t in VRayNodeTypes[nodeType] ]
