@@ -1013,16 +1013,16 @@ class VRAY_RP_displace(classes.VRayRenderPanel):
 		SettingsDefaultDisplacement= VRayScene.SettingsDefaultDisplacement
 
 		split= layout.split()
-		col= split.column()
+		col= split.column(align=True)
 		col.prop(SettingsDefaultDisplacement, 'amount')
 		col.prop(SettingsDefaultDisplacement, 'edgeLength')
 		col.prop(SettingsDefaultDisplacement, 'maxSubdivs')
 		if wide_ui:
-			col= split.column()
+			col= split.column(align=True)
+		col.prop(SettingsDefaultDisplacement, 'override_on')
 		col.prop(SettingsDefaultDisplacement, 'viewDependent')
 		col.prop(SettingsDefaultDisplacement, 'tightBounds')
 		col.prop(SettingsDefaultDisplacement, 'relative')
-		col.prop(SettingsDefaultDisplacement, 'override_on')
 
 
 ########  ########
