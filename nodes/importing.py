@@ -193,7 +193,7 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
 
     brdfLayeredNode = ntree.nodes.new('VRayNodeBRDFLayered')
 
-    if brdfs and weights:
+    if brdfs:
         for i,brdf in enumerate(brdfs):
             humanIndex = i + 1
 
@@ -210,7 +210,10 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
             weightSocket = brdfLayeredNode.inputs[weightSockName]
 
             processSocket(brdfLayeredNode, brdfSocket,   brdf)
-            processSocket(brdfLayeredNode, weightSocket, weights[i])
+
+            # NOTE: 'weights' could be optional
+            if weights:
+                processSocket(brdfLayeredNode, weightSocket, weights[i])
 
     for attrName in pluginDesc['Attributes']:
         # Skip lists
