@@ -52,6 +52,7 @@ PLUGINS = {
 	'UVWGEN':          {},
 	'SYSTEM':          {},
 	'EFFECT':          {},
+	'UTILITIES':       {},
 }
 
 
@@ -857,6 +858,7 @@ def register():
 	LoadPluginAttributes(PLUGINS['TEXTURE'],       VRayTexture)
 	LoadPluginAttributes(PLUGINS['UVWGEN'],        VRayTexture)
 
+	LoadPluginAttributes(PLUGINS['UTILITIES'],       VRayScene)
 	LoadPluginAttributes(PLUGINS['SYSTEM'],          VRayScene)
 	LoadPluginAttributes(PLUGINS['SETTINGS_GLOBAL'], VRayScene)
 
