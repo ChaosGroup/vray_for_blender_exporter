@@ -37,7 +37,13 @@ from vb30.vray_tools.VrmatParser     import ParseVrmat
 from vb30 import debug
 
 
-def ImportMaterialWithDisplacement(context, filePath):
+def CreateMaterial(maName, ntree, use_fake_user=True):
+    ma = bpy.data.materials.new(maName)
+    ma.use_fake_user = use_fake_user
+    ma.vray.ntree = ntree
+
+
+def ImportMaterialWithDisplacement(context, filePath, use_fake_user=True):
     debug.PrintInfo('Importing materials from "%s"' % filePath)
 
     vrsceneDict = {}
@@ -62,9 +68,13 @@ def ImportMaterialWithDisplacement(context, filePath):
 
         # Import material
         #
-        maName   = nodePluginDesc['Attributes']['material']
+        maName = nodePluginDesc['Attributes']['material']
+        if maName in bpy.data.node_groups:
+            continue
 
         maPluginDesc = NodesImport.getPluginByName(vrsceneDict, maName)
+        if not maPluginDesc:
+            continue
 
         maNtree = bpy.data.node_groups.new(maName, type='VRayNodeTreeMaterial')
         maNtree.use_fake_user = True
@@ -86,7 +96,7 @@ def ImportMaterialWithDisplacement(context, filePath):
 
         geomPluginDesc = NodesImport.getPluginByName(vrsceneDict, geomName)
 
-        if geomPluginDesc['ID'] == 'GeomDisplacedMesh':
+        if geomPluginDesc and geomPluginDesc['ID'] == 'GeomDisplacedMesh':
             colorTexName = geomPluginDesc['Attributes'].get("displacement_tex_color")
             floatTexName = geomPluginDesc['Attributes'].get("displacement_tex_float")
 
@@ -125,10 +135,13 @@ def ImportMaterialWithDisplacement(context, filePath):
                 dispGroupNode.location.x = 0
                 dispGroupNode.location.y = 100
 
+        # Finally create a material
+        CreateMaterial(maName, maNtree, use_fake_user)
+
     return {'FINISHED'}
 
 
-def ImportMaterials(context, filePath, baseMaterial):
+def ImportMaterials(context, filePath, baseMaterial, use_fake_user=True):
     debug.PrintInfo('Importing materials from "%s"' % filePath)
 
     vrsceneDict = {}
@@ -192,6 +205,9 @@ def ImportMaterials(context, filePath, baseMaterial):
         ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
 
         NodesTools.rearrangeTree(ntree, outputNode)
+
+        # Finally create a material
+        CreateMaterial(maName, ntree, use_fake_user)
 
     return {'FINISHED'}
 
@@ -261,10 +277,15 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
         default = 'STANDARD',
     )
 
+    use_fake_user = bpy.props.BoolProperty(
+        name    = 'Set "Fake User" Flag',
+        default = True,
+    )
+
     def execute(self, context):
         if self.base_material == 'NODE':
-            return ImportMaterialWithDisplacement(context, self.filepath)
-        return ImportMaterials(context, self.filepath, self.base_material)
+            return ImportMaterialWithDisplacement(context, self.filepath, self.use_fake_user)
+        return ImportMaterials(context, self.filepath, self.base_material, self.use_fake_user)
 
 
 class VRayOperatorImportSettings(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
