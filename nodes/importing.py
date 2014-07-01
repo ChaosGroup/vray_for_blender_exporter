@@ -289,6 +289,10 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
         if hasattr(propGroup, attrName):
             if attrDesc['type'] == 'ENUM':
                 attrValue = str(attrValue)
+                if not AttributeUtils.ValueInEnumItems(attrDesc, attrValue):
+                    debug.PrintError("Unsupported ENUM value '%s' for attribute: %s.%s" %
+                        (attrValue, 'BitmapBuffer', attrName))
+                    continue
             setattr(propGroup, attrName, attrValue)
 
     return bitmatBuffer
@@ -490,8 +494,9 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                 if attrDesc['type'] == 'ENUM':
                     attrValue = str(attrValue)
 
-                    possibleValues = (item[0] for item in attrDesc['items'])
-                    if attrValue not in possibleValues:
+                    if not AttributeUtils.ValueInEnumItems(attrDesc, attrValue):
+                        debug.PrintError("Unsupported ENUM value '%s' for attribute: %s.%s" %
+                            (attrValue, pluginID, attrName))
                         attrValue = None
 
                 if attrValue is not None:

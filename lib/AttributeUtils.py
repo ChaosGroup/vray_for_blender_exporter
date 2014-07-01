@@ -147,6 +147,13 @@ def GetNameFromAttr(attr):
     return attr_name.title()
 
 
+def ValueInEnumItems(attrDesc, enumValue):
+    for item in attrDesc['items']:
+        if item[0] == enumValue:
+            return True
+    return False
+
+
 # This will generate Blender's Property based on attribute description
 # and add it to 'classMembers' dict.
 #
