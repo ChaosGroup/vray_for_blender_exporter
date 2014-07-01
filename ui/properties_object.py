@@ -122,10 +122,125 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 		col.prop(GeomVRayPattern, 'render_pattern_object')
 
 
+class VRayObjectPanelWrapper(classes.VRayObjectPanel, bpy.types.Panel):
+	bl_label = "Wrapper"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		ob= context.object
+		plugin= ob.vray.MtlWrapper
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+		self.layout.prop(plugin, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > classes.narrowui
+
+		ob= context.object
+		plugin= ob.vray.MtlWrapper
+
+		layout= self.layout
+		layout.active= plugin.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop(plugin, 'generate_gi')
+		col.prop(plugin, 'receive_gi')
+		if wide_ui:
+			col= split.column()
+		col.prop(plugin, 'generate_caustics')
+		col.prop(plugin, 'receive_caustics')
+
+		split= layout.split()
+		col= split.column()
+		col.prop(plugin, 'gi_quality_multiplier')
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Matte properties")
+
+		split= layout.split()
+		colL= split.column()
+		colL.prop(plugin, 'matte_surface')
+		if wide_ui:
+			colR= split.column()
+		else:
+			colR= colL
+		colR.prop(plugin, 'alpha_contribution')
+		if plugin.matte_surface:
+			colR.prop(plugin, 'reflection_amount')
+			colR.prop(plugin, 'refraction_amount')
+			colR.prop(plugin, 'gi_amount')
+			colR.prop(plugin, 'no_gi_on_other_mattes')
+
+			colL.prop(plugin, 'affect_alpha')
+			colL.prop(plugin, 'shadows')
+			if plugin.shadows:
+				colL.prop(plugin, 'shadow_tint_color')
+				colL.prop(plugin, 'shadow_brightness')
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Miscellaneous")
+
+		split= layout.split()
+		col= split.column()
+		col.prop(plugin, 'gi_surface_id')
+		col.prop(plugin, 'trace_depth')
+		if wide_ui:
+			col= split.column()
+		col.prop(plugin, 'matte_for_secondary_rays')
+
+		layout.prop(plugin, 'generate_render_elements')
+
+
+class VRayObjectPanelRenderStats(classes.VRayObjectPanel, bpy.types.Panel):
+	bl_label = "Render"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		ob= context.object
+		plugin= ob.vray.MtlRenderStats
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+		self.layout.prop(plugin, 'use', text="")
+
+	def draw(self, context):
+		wide_ui= context.region.width > classes.narrowui
+
+		ob= context.object
+		VRayObject= ob.vray
+		plugin= VRayObject.MtlRenderStats
+
+		layout= self.layout
+		layout.active= plugin.use
+
+		split= layout.split()
+		col= split.column()
+		col.prop(plugin, 'visibility', text="Visible")
+
+		split= layout.split()
+		col= split.column()
+		col.label(text="Visible to:")
+
+		split= layout.split()
+		sub= split.column()
+		sub.active= plugin.visibility
+		sub.prop(plugin, 'camera_visibility', text="Camera")
+		sub.prop(plugin, 'gi_visibility', text="GI")
+		sub.prop(plugin, 'shadows_visibility', text="Shadows")
+		if wide_ui:
+			sub= split.column()
+			sub.active= plugin.visibility
+		sub.prop(plugin, 'reflections_visibility', text="Reflections")
+		sub.prop(plugin, 'refractions_visibility', text="Refractions")
+
+
 def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
 		VRAY_OBP_VRayPattern,
+
+		VRayObjectPanelWrapper,
+		VRayObjectPanelRenderStats,
 	)
 
 
