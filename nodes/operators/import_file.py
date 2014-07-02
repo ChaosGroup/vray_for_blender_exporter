@@ -127,6 +127,7 @@ def ImportMaterialWithDisplacement(context, filePath, use_fake_user=True):
                     )
 
                 NodesTools.rearrangeTree(dispNtree, dispGroupOutput)
+                NodesTools.deselectNodes(dispNtree)
 
                 # Create a group node in current material tree
                 # to show user that we have displacement
@@ -137,6 +138,7 @@ def ImportMaterialWithDisplacement(context, filePath, use_fake_user=True):
 
         # Finally create a material
         CreateMaterial(maName, maNtree, use_fake_user)
+        NodesTools.deselectNodes(maNtree)
 
     return {'FINISHED'}
 
@@ -205,6 +207,7 @@ def ImportMaterials(context, filePath, baseMaterial, use_fake_user=True):
         ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
 
         NodesTools.rearrangeTree(ntree, outputNode)
+        NodesTools.deselectNodes(ntree)
 
         # Finally create a material
         CreateMaterial(maName, ntree, use_fake_user)
