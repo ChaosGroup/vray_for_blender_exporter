@@ -250,6 +250,6 @@ MtlBump NTClassic_TextureNBump {
 	maya_compatible=0;
 }
 
-Node Asset {
+Asset Material {
 	material=NTClassic_TextureNBump;
 }
