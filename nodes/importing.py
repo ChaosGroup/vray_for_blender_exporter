@@ -72,6 +72,13 @@ def getPluginByName(vrsceneDict, pluginName):
     return None
 
 
+def getPluginByType(vrsceneDict, pluginID):
+    for pluginDesc in vrsceneDict:
+        if pluginDesc['ID'] == pluginID:
+            return pluginDesc
+    return None
+
+
 def getParamDesc(pluginParams, attrName):
     for paramDesc in pluginParams:
         if paramDesc['attr'] == attrName:
