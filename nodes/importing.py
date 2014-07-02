@@ -86,6 +86,14 @@ def getSocketName(pluginParams, attrName):
     return attrDesc.get('name', AttributeUtils.GetNameFromAttr(attrDesc['attr']))
 
 
+def getOutputSocketByAttr(node, attrName):
+    for sock in node.outputs:
+        if hasattr(sock, 'vray_attr'):
+            if sock.vray_attr == attrName:
+                return sock
+    return getOutputSocket(node.vray_type)
+
+
 def FindAndCreateNode(vrsceneDict, pluginName, ntree, prevNode):
     if not pluginName:
         return None
@@ -476,6 +484,13 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
         for attrName in pluginAttrs:
             attrValue = pluginAttrs[attrName]
 
+            # NOTE: Fixes vrscene exported from other applications using deprecated 'bump_tex'
+            # attribute
+            fixBump = False
+            if attrName == 'bump_tex':
+                fixBump  = True
+                attrName = 'bump_tex_color'
+
             attrDesc  = getParamDesc(pluginModule.PluginParams, attrName)
             if attrDesc is None:
                 # XXX: This could happen when loading VISMATS; error message disabled here...
@@ -607,6 +622,12 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                         connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)
                         if connectedNode:
                             ntree.links.new(connectedNode.outputs[inPluginOutputSocketName], n.inputs[attrSocketName])
+
+                            if fixBump:
+                                ntree.links.new(
+                                    getOutputSocketByAttr(connectedNode, 'out_intensity'),
+                                    n.inputs['Float Texture']
+                                )
 
                 # Attr is not linked - set socket default value
                 else:
