@@ -192,6 +192,9 @@ class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
         space = context.space_data
         ntree = space.edit_tree
 
+        # Deselect before import
+        NodesTools.deselectNodes(ntree)
+
         # Get fake asset node
         assetDesc = NodesImport.getPluginByType(vrsceneDict, "Asset")
         assetType = assetDesc['Name']
