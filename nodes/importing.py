@@ -272,32 +272,33 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
 
     bitmapTexture = bitmatBuffer.texture
 
-    imageFilepath = pluginDesc['Attributes'].get('file', "")
+    imageFilepath = pluginDesc['Attributes'].get('file')
 
-    if not os.path.exists(imageFilepath):
-        debug.PrintError("Couldn't find file: %s" % imageFilepath)
-        debug.PrintError("Trying to search under import diretory...")
+    if imageFilepath is not None:
+        if not os.path.exists(imageFilepath):
+            debug.PrintError("Couldn't find file: %s" % imageFilepath)
+            debug.PrintError("Trying to search under import diretory...")
 
-        # NOTE: Windows style filepath could be stored here
-        # Convert to UNIX slashes
-        imageFilepath = PathUtils.UnifyPath(imageFilepath)
+            # NOTE: Windows style filepath could be stored here
+            # Convert to UNIX slashes
+            imageFilepath = PathUtils.UnifyPath(imageFilepath)
 
-        importSettings = getPluginByName(vrsceneDict, "Import Settings")
-        if importSettings:
-            importDir = importSettings['Attributes']['dirpath']
-            imageFilepath = os.path.join(importDir, os.path.basename(imageFilepath))
+            importSettings = getPluginByName(vrsceneDict, "Import Settings")
+            if importSettings:
+                importDir = importSettings['Attributes']['dirpath']
+                imageFilepath = os.path.join(importDir, os.path.basename(imageFilepath))
 
-    if not os.path.exists(imageFilepath):
-        debug.PrintError("Unable to find file: %s" % imageFilepath)
-    else:
-        imageBlockName = bpy.path.display_name_from_filepath(imageFilepath)
-        imageFilepath = imageFilepath.replace("\\", "/")
-
-        if imageBlockName in bpy.data.images:
-            bitmapTexture.image = bpy.data.images[imageBlockName]
+        if not os.path.exists(imageFilepath):
+            debug.PrintError("Unable to find file: %s" % imageFilepath)
         else:
-            bitmapTexture.image = bpy.data.images.load(imageFilepath)
-            bitmapTexture.image.name = imageBlockName
+            imageBlockName = bpy.path.display_name_from_filepath(imageFilepath)
+            imageFilepath = imageFilepath.replace("\\", "/")
+
+            if imageBlockName in bpy.data.images:
+                bitmapTexture.image = bpy.data.images[imageBlockName]
+            else:
+                bitmapTexture.image = bpy.data.images.load(imageFilepath)
+                bitmapTexture.image.name = imageBlockName
 
     for attrName in pluginDesc['Attributes']:
         attrDesc  = getParamDesc(pluginModule.PluginParams, attrName)
