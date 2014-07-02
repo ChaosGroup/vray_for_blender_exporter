@@ -192,20 +192,32 @@ class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
         space = context.space_data
         ntree = space.edit_tree
 
-        # Get fake output node
-        assetDesc = NodesImport.getPluginByName(vrsceneDict, "Asset")
+        # Get fake asset node
+        assetDesc = NodesImport.getPluginByType(vrsceneDict, "Asset")
+        assetType = assetDesc['Name']
 
-        # Get material desc
-        maName = assetDesc['Attributes']['material']
-        maDesc = NodesImport.getPluginByName(vrsceneDict, maName)
+        # Import template
+        lastNode = None
 
-        outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
+        if assetType == 'Material':
+            maName = assetDesc['Attributes']['material']
+            maDesc = NodesImport.getPluginByName(vrsceneDict, maName)
 
-        maNode = NodesImport.createNode(ntree, outputNode, vrsceneDict, maDesc)
+            outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
+            lastNode   = outputNode
 
-        ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
+            maNode = NodesImport.createNode(ntree, outputNode, vrsceneDict, maDesc)
 
-        NodesTools.rearrangeTree(ntree, outputNode)
+            ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
+
+        elif assetType == 'Texture':
+            texName = assetDesc['Attributes']['texture']
+            texDesc = NodesImport.getPluginByName(vrsceneDict, texName)
+
+            lastNode = NodesImport.createNode(ntree, None, vrsceneDict, texDesc)
+
+        if lastNode:
+            NodesTools.rearrangeTree(ntree, lastNode)
 
         return {'FINISHED'}
 
