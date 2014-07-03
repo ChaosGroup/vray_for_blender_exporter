@@ -27,6 +27,8 @@ import os
 import bpy
 
 from .. import tree_defaults
+from .. import tools as NodeTools
+
 
 class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_light"
@@ -49,6 +51,7 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
         nt.use_fake_user = True
 
         nt.nodes.new('VRayNode%s' % self.lightType)
+        NodesTools.deselectNodes(nt)
 
         VRayLight.ntree = nt
 
@@ -98,6 +101,8 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
         nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
         nt.links.new(blenderGeometry.outputs['Geometry'], outputNode.inputs['Geometry'])
 
+        NodesTools.deselectNodes(nt)
+
         VRayObject.ntree = nt
 
         return {'FINISHED'}
@@ -121,6 +126,8 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         envNode.location.y = outputNode.location.y + 200
 
         nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])
+
+        NodesTools.deselectNodes(nt)
 
         VRayWorld.ntree = nt
 
