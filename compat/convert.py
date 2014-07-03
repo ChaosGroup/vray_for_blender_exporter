@@ -21,23 +21,6 @@
 #
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
-#
-# TODO:
-#
-# Material:
-#   [x] Basic material types
-#   [x] Bump
-#   [x] Textures
-#   [x] Texture blend / stencil
-#   [x] Detect displacement
-#   [+] Material override
-#   [ ] Object/world mapping
-#
-# Object:
-#   [x] Displacement
-#   [x] Geometry override
-#   [ ] Material override
-#
 
 import base64
 
@@ -58,8 +41,6 @@ from vb30.lib import AttributeUtils
 
 from vb30 import debug
 from pprint import pprint
-
-from . import convert_cycles
 
 
 class ConvertException(Exception):
