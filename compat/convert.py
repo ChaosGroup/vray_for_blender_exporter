@@ -513,9 +513,13 @@ class SingleTexture(TextureToNode):
             VRaySlot = self.texture.vray_slot
 
             if self.texture.type == 'IMAGE':
-                # TODO:
                 btm = _createVRayNode(ntree, "BitmapBuffer")
                 tex = _createVRayNode(ntree, "TexBitmap")
+
+                _connectNodes(ntree,
+                    btm, 'Bitmap',
+                    tex, 'Bitmap'
+                )
 
             elif self.texture.type == 'VRAY':
                 texType = VRayTexture.type

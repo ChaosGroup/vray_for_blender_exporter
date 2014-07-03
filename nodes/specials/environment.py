@@ -67,16 +67,11 @@ class VRayNodeEnvironment(bpy.types.Node):
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    def draw_buttons(self, context, layout):
-        layout.prop(self, 'gi_tex')
-        layout.prop(self, 'reflect_tex')
-        layout.prop(self, 'refract_tex')
-
     def init(self, context):
-        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex', (0.0, 0.0, 0.0))
-        AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
-        AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
-        AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
+        AddInput(self, 'VRaySocketColor',    "Background", 'bg_tex', (0.0, 0.0, 0.0))
+        AddInput(self, 'VRaySocketColorUse', "GI",         'gi_tex')
+        AddInput(self, 'VRaySocketColorUse', "Reflection", 'reflect_tex')
+        AddInput(self, 'VRaySocketColorUse', "Refraction", 'refract_tex')
 
         AddOutput(self, 'VRaySocketObject', "Environment")
 
