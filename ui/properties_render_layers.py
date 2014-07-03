@@ -64,9 +64,12 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		col = box.split().column(align=True)
 		col.prop(VRayQuickSettings, 'max_aa_subdivs')
 
+		VRayConverter = VRayScene.VRayConverter
+
 		box = layout.box()
 		box.label("Migration")
 		box.operator("vray.convert_scene", icon='NODETREE')
+		box.prop(VRayConverter, 'convert_from_internal')
 
 
 class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
