@@ -43,6 +43,7 @@ PluginParams = (
             ('0',  "None",    "None"),
             ('1',  "Mip-Map", "Mip-map filtering"),
             ('2',  "Area",    "Summed area filtering"),
+            ('3',  "VRayImage", "Filter for VRayImage"),
         ),
         'default' : '0',
     },
@@ -89,6 +90,7 @@ PluginParams = (
             ('0', "Bilinear", ""),
             ('1', "Bicubic", ""),
             ('2', "Quadratic", ""),
+            ('3', "Auto", ""),
         ),
         'default' : '0',
     },
@@ -275,9 +277,6 @@ def writeDatablock(bus, pluginModule, pluginName, BitmapBuffer, overrideParams):
                 filepath = PathUtils.CopyDRAsset(bus, filepath)
 
         overrideParams['file'] = filepath
-
-        # NOTE: Sync with C++ also
-        #
         overrideParams['gamma'] = SettingsColorMapping.input_gamma if BitmapBuffer.use_input_gamma else BitmapBuffer.gamma
 
         if image.source == 'SEQUENCE':
