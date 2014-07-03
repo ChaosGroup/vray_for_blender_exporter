@@ -509,6 +509,7 @@ class SingleTexture(TextureToNode):
             tex.inputs['Input'].value = self.texture
 
         else:
+            VRayTexture = self.texture.vray
             VRaySlot = self.texture.vray_slot
 
             if self.texture.type == 'IMAGE':
@@ -517,7 +518,6 @@ class SingleTexture(TextureToNode):
                 tex = _createVRayNode(ntree, "TexBitmap")
 
             elif self.texture.type == 'VRAY':
-                VRayTexture = self.texture.vray
                 texType = VRayTexture.type
 
                 oldPropGroup = getattr(VRayTexture, texType)
