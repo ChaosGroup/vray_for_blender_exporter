@@ -374,6 +374,13 @@ class VRayObject(bpy.types.PropertyGroup):
 		description = "V-Ray node tree",
 	)
 
+	dupliGroupIDOverride = bpy.props.IntProperty(
+		name        = "Dupli Group ID Override",
+		description = "Override \"Object ID\" for the whole Dupli Group. -1 - means no override",
+		min         = -1,
+		default     = -1
+	)
+
 
 ##     ## ########  ######  ##     ##
 ###   ### ##       ##    ## ##     ##
@@ -735,6 +742,7 @@ def GetRegClasses():
 		VRayRenderNode,
 		VRayDR,
 
+		VRayAsset,
 		VRayCamera,
 		VRayFur,
 		VRayLight,
@@ -828,6 +836,12 @@ def register():
 		name = "Distributed rendering",
 		type =  VRayDR,
 		description = "Distributed rendering settings"
+	)
+
+	VRayObject.VRayAsset = bpy.props.PointerProperty(
+		name = "VRayAsset",
+		type =  VRayAsset,
+		description = "VRayAsset settings"
 	)
 
 	# Add global settings to 'VRayExporterPreferences'

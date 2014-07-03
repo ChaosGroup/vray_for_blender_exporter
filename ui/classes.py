@@ -205,7 +205,7 @@ class VRayObjectPanel(VRayPanel):
     bl_region_type = 'WINDOW'
     bl_context     = 'object'
 
-    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE'}
 
     @classmethod
     def poll(cls, context):

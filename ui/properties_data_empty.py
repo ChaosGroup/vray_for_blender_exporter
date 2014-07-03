@@ -41,30 +41,34 @@ class VRAY_DP_empty(classes.VRayDataPanel):
         
         VRayObject = context.object.vray
 
-        box = layout.box()
+        layout.prop(VRayObject, 'dupliGroupIDOverride', text="Dupli ID Override")
 
-        box.prop(VRayObject, 'overrideWithScene')
+        # NOTE: Plugin not yet ready
 
-        if VRayObject.overrideWithScene:
-            split = box.split()
-            col = split.column()
-            col.prop(VRayObject, 'sceneFilepath')
-            col.prop(VRayObject, 'sceneDirpath')
+        # box = layout.box()
+        # box.prop(VRayObject, 'overrideWithScene')
+
+        # if VRayObject.overrideWithScene:
+        #     VRayAsset = VRayObject.VRayAsset
+        #     split = box.split()
+        #     col = split.column()
+        #     col.prop(VRayAsset, 'sceneFilepath')
+        #     col.prop(VRayAsset, 'sceneDirpath')
             
-            split = box.split()
-            col = split.column()
-            col.prop(VRayObject, 'sceneReplace')
-            col.prop(VRayObject, 'sceneUseTransform')
+        #     split = box.split()
+        #     col = split.column()
+        #     col.prop(VRayAsset, 'sceneReplace')
+        #     col.prop(VRayAsset, 'sceneUseTransform')
             
-            split = box.split()
-            col = split.column()
-            col.prop(VRayObject, 'sceneAddNodes')
-            col.prop(VRayObject, 'sceneAddMaterials')
-            col.prop(VRayObject, 'sceneAddLights')
-            if wide_ui:
-                col = split.column()
-            col.prop(VRayObject, 'sceneAddCameras')
-            col.prop(VRayObject, 'sceneAddEnvironment')
+        #     split = box.split()
+        #     col = split.column()
+        #     col.prop(VRayAsset, 'sceneAddNodes')
+        #     col.prop(VRayAsset, 'sceneAddMaterials')
+        #     col.prop(VRayAsset, 'sceneAddLights')
+        #     if wide_ui:
+        #         col = split.column()
+        #     col.prop(VRayAsset, 'sceneAddCameras')
+        #     col.prop(VRayAsset, 'sceneAddEnvironment')
 
 
 def register():
