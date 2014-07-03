@@ -311,7 +311,7 @@ def convert_bi():
                 VRaySlot = slot.texture.vray_slot
                 VRayTexture = slot.texture.vray
 
-                VRaySlot.blend_mode = self.CONVERT_BLEND_TYPE[slot.blend_type]
+                VRaySlot.blend_mode = CONVERT_BLEND_TYPE[slot.blend_type]
 
                 if slot.use_map_emit:
                     VRayMaterial.type = 'BRDFLight'
