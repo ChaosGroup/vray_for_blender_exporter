@@ -37,7 +37,12 @@ class VRayOperatorConvertMaterial(bpy.types.Operator):
     def execute(self, context):
         debug.PrintInfo('Executing operator: "%s"' % self.bl_label)
 
+        VRayScene = context.scene.vray
+        VRayConverter = VRayScene.VRayConverter
+
         try:
+            if VRayConverter.convert_from_internal:
+                convert.convert_bi()
             convert.ConvertScene(context.scene)
         except Exception as e:
             debug.ExceptionInfo(e)

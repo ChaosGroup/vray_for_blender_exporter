@@ -59,6 +59,9 @@ from vb30.lib import AttributeUtils
 from vb30 import debug
 from pprint import pprint
 
+from . import convert_cycles
+
+
 class ConvertException(Exception):
     pass
 
@@ -70,6 +73,8 @@ class ConvertException(Exception):
    ##       ##    ##        ##             ##
    ##       ##    ##        ##       ##    ##
    ##       ##    ##        ########  ######
+
+TexTypes = {'IMAGE', 'VRAY'}
 
 OverrideInputSocket = {
     'MtlRenderStats' : "Base Mtl",
@@ -255,6 +260,81 @@ def _getBrdfInfluence(ma):
 ##     ##    ##     ##  ##       ##    ##
  #######     ##    #### ########  ######
 
+def convert_bi():
+    CONVERT_BLEND_TYPE= {
+        'MIX':          'OVER',
+        'SCREEN':       'OVER',
+        'DIVIDE':       'OVER',
+        'HUE':          'OVER',
+        'VALUE':        'OVER',
+        'COLOR':        'OVER',
+        'SOFT LIGHT':   'OVER',
+        'LINEAR LIGHT': 'OVER',
+        'OVERLAY':      'OVER',
+        'ADD':          'ADD',
+        'SUBTRACT':     'SUBTRACT',
+        'MULTIPLY':     'MULTIPLY',
+        'DIFFERENCE':   'DIFFERENCE',
+        'DARKEN':       'DARKEN',
+        'LIGHTEN':      'LIGHTEN',
+        'SATURATION':   'SATURATE',
+    }
+
+    for ma in bpy.data.materials:
+        debug.PrintInfo("Converting from Blender Internal: %s" % ma.name)
+
+        rm = ma.raytrace_mirror
+        rt = ma.raytrace_transparency
+
+        VRayMaterial = ma.vray
+        BRDFVRayMtl  = VRayMaterial.BRDFVRayMtl
+
+        BRDFVRayMtl.diffuse = ma.diffuse_color
+
+        if ma.emit > 0.0:
+            VRayMaterial.type= 'BRDFLight'
+
+        if rm.use:
+            BRDFVRayMtl.reflect_color = tuple([rm.reflect_factor]*3)
+            BRDFVRayMtl.reflect_glossiness = rm.gloss_factor
+            BRDFVRayMtl.reflect_subdivs = rm.gloss_samples
+            BRDFVRayMtl.reflect_depth = rm.depth
+            BRDFVRayMtl.option_cutoff = rm.gloss_threshold
+            BRDFVRayMtl.anisotropy = 1.0 - rm.gloss_anisotropic
+
+            if rm.fresnel > 0.0:
+                BRDFVRayMtl.fresnel = True
+                BRDFVRayMtl.fresnel_ior = rm.fresnel
+
+        for slot in ma.texture_slots:
+            if slot and slot.texture and slot.texture.type in TexTypes:
+                VRaySlot = slot.texture.vray_slot
+                VRayTexture = slot.texture.vray
+
+                VRaySlot.blend_mode = self.CONVERT_BLEND_TYPE[slot.blend_type]
+
+                if slot.use_map_emit:
+                    VRayMaterial.type = 'BRDFLight'
+
+                    VRaySlot.map_diffuse = True
+
+                if slot.use_map_normal:
+                    VRaySlot.map_normal = True
+                    VRaySlot.BRDFBump.bump_tex_mult = slot.normal_factor
+
+                if slot.use_map_color_diffuse:
+                    VRaySlot.map_diffuse  = True
+                    VRaySlot.diffuse_mult = slot.diffuse_color_factor
+
+                if slot.use_map_raymir:
+                    VRaySlot.map_reflect  = True
+                    VRaySlot.reflect_mult = slot.raymir_factor
+
+                if slot.use_map_alpha:
+                    VRaySlot.map_opacity  = True
+                    VRaySlot.opacity_mult = slot.alpha_factor
+
+
 def _getTextureFromTextures(textures, key):
     # XXX: Check why it could be list
     return textures[key][0] if type(textures[key]) is list else textures[key]
@@ -372,7 +452,7 @@ def _getBumpAmount(ma):
         if not (ts and ts.texture):
             continue
         tex = ts.texture
-        if tex.type not in {'IMAGE', 'VRAY'}:
+        if tex.type not in TexTypes:
             continue
         if tex.vray_slot.map_normal:
             return tex.vray_slot.BRDFBump.bump_tex_mult
@@ -388,7 +468,7 @@ def _getDisplacementAmount(ob):
             if not (ts and ts.texture):
                 continue
             tex = ts.texture
-            if tex.type not in {'IMAGE', 'VRAY'}:
+            if tex.type not in TexTypes:
                 continue
             if tex.vray_slot.map_displacement:
                 return tex.vray_slot.GeomDisplacedMesh.displacement_amount
@@ -652,7 +732,7 @@ def PreprocessTextures(ma, influence):
             continue
 
         tex = ts.texture
-        if tex.type not in {'IMAGE', 'VRAY'}:
+        if tex.type not in TexTypes:
             continue
 
         VRayTexture = tex.vray
@@ -991,6 +1071,9 @@ def ConvertObject(scene, ob):
         for ovrName in ObjectMaterialOverrides:
             ovrPropGroup = getattr(VRayObject, ovrName)
             ovrUse = getattr(ovrPropGroup, 'use')
+
+            # NOTE: MtlWrapper and MtlOverride could be left on node
+            # as is
             if not ovrUse:
                 continue
             pass
@@ -1079,3 +1162,46 @@ def ConvertScene(scene):
         if ob.type in BlenderUtils.NonGeometryTypes:
             continue
         ConvertObject(scene, ob)
+
+
+##     ## #### 
+##     ##  ##  
+##     ##  ##  
+##     ##  ##  
+##     ##  ##  
+##     ##  ##  
+ #######  #### 
+
+class VRayConverter(bpy.types.PropertyGroup):
+    convert_from_internal = bpy.props.BoolProperty(
+        name = "From Internal",
+        default = False
+    )
+
+
+########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
+##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
+##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
+########  ######   ##   ####  ##   ######     ##    ########  ##     ##    ##     ##  ##     ## ## ## ##
+##   ##   ##       ##    ##   ##        ##    ##    ##   ##   #########    ##     ##  ##     ## ##  ####
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##    ##  ##     ##    ##     ##  ##     ## ##   ###
+##     ## ########  ######   ####  ######     ##    ##     ## ##     ##    ##    ####  #######  ##    ##
+
+def GetRegClasses():
+    return (
+        VRayConverter,
+    )
+
+
+def register():
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
+
+    setattr(bpy.types.VRayScene, 'VRayConverter', bpy.props.PointerProperty(
+        type = VRayConverter,
+    ))
+
+
+def unregister():
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

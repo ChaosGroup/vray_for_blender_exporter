@@ -21,21 +21,3 @@
 #
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
-
-# Compatibility with vb25
-
-from . import props
-from . import convert
-from . import operators
-
-
-def register():
-    props.register()
-    convert.register()
-    operators.register()
-
-
-def unregister():
-    props.unregister()
-    convert.unregister()
-    operators.unregister()
