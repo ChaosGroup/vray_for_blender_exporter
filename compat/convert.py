@@ -764,6 +764,9 @@ def ProcessTextures(ma):
                 return i
         return None
 
+    if ma.node_tree:
+        return {}
+
     processedTextures = {}
 
     influence = _getBrdfInfluence(ma)
@@ -846,6 +849,233 @@ def ProcessTextures(ma):
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
+def _ShaderTreeHasBump(nt):
+    return False
+
+
+def _ShaderTreeHasDisplace(nt):
+    return False
+
+def _ConvertToTexSampler(maNode, n):
+    pass
+
+
+NodeTypeMapping = {
+    'ShaderNodeOutputMaterial' : {
+        'type' : 'OutputMaterial',
+        'sockets' : {},
+    },
+
+    # BRDF
+    # XXX: Or use BRDFVRayMtl for all?
+    'ShaderNodeBsdfDiffuse' : {
+        'type' : 'BRDFDiffuse',
+        'sockets' : {
+            'Color' : 'Color',
+            'Roughness' : 'Roughness',
+        }
+    },
+    'ShaderNodeBsdfGlass' : {
+        'type' : 'BRDFGlass',
+        'sockets' : {
+            'Color' : 'Color Tex',
+            'IOR'   : 'Ior Tex',
+        }
+    },
+    'ShaderNodeBsdfAnisotropic' : {
+        'type' : 'BRDFVRayMtl',
+        'sockets' : {
+            'Color'      : 'Diffuse',
+            'Roughness'  : 'Roughness',
+            'Anisotropy' : 'Anisotropy',
+            'Rotation'   : 'Anisotropy Rotation',
+        }
+    },
+    'ShaderNodeBsdfGlossy' : {
+        'type' : 'BRDFVRayMtl',
+        'sockets' : {
+            'Color' : 'Diffuse',
+            'Roughness' : 'Roughness',
+        }
+    },
+    'ShaderNodeMixShader' : {
+        'type' : 'BRDFLayered',
+        'sockets' : {
+            'Fac',
+            'Shader'
+        },
+    },
+
+    # Textures
+    'ShaderNodeTexChecker' : {
+        'type' : 'TexChecker',
+        'sockets' : {},
+    },
+    'ShaderNodeValToRGB'   : {
+        'type' : 'TexRemap',
+        'sockets' : {
+            'Color',
+        },
+    },
+    'ShaderNodeTangent' : {
+        'type' : 'TexSampler',
+        'sockets' : {},
+        'convert' : _ConvertToTexSampler,
+    },
+}
+
+SocketOutputMapping = {
+    'NodeSocketShader' : {
+        'type' : 'VRaySocketBRDF',
+        'name' : 'BRDF',
+    },
+    'NodeSocketColor' : {
+        'type' : 'VRaySocketColor',
+        'name' : 'Output',
+    },
+    'NodeSocketFloatFactor' : {
+        'type' : 'VRaySocketFloat',
+        'name' : 'Output',
+    },
+    'NodeSocketFloat' : {
+        'type' : 'VRaySocketFloat',
+        'name' : 'Output',
+    },
+    'NodeSocketVector' : {
+        'type' : 'VRaySocketVector',
+        'name' : 'Output',
+    },
+}
+
+
+def ExportSocket(maNtree, maNode, inSock, vrayNode, nt, connect=True):
+    debug.PrintInfo("Input socket '%s' type is '%s'." %
+        (inSock.name, inSock.bl_idname))
+
+    if inSock.name not in NodeTypeMapping[maNode.bl_idname]['sockets']:
+        debug.PrintError("Input socket '%s' of type '%s' is not supported!" %
+            (inSock.name, inSock.bl_idname))
+        return None
+
+    if not inSock.is_linked:
+        vrayInSock = vrayNode.inputs[NodeTypeMapping[maNode.bl_idname]['sockets'][inSock.name]]
+        value      = maNode.inputs[inSock.name].default_value
+
+        # NOTE: We don't support 4 value color
+        if hasattr(value, '__len__') and len(value) == 4:
+            vrayInSock.value = (value[0],value[1],value[2])
+        else:
+            vrayInSock.value = value
+
+    else:
+        conNode = NodesUtils.GetConnectedNode(maNtree, inSock)
+        conSock = NodesUtils.GetConnectedSocket(maNtree, inSock)
+
+        if conSock.bl_idname not in SocketOutputMapping:
+            debug.PrintError("Input socket '%s' of type '%s' can't be converted!" %
+                (inSock.name, inSock.bl_idname))
+            return None
+
+        conVRayNode = ConvertNode(maNtree, conNode, nt)
+
+        if connect:
+            _connectNodes(nt,
+                conVRayNode, SocketOutputMapping[conSock.bl_idname]['name'],
+                vrayNode,    NodeTypeMapping[maNode.bl_idname]['sockets'][inSock.name],
+            )
+
+        return conVRayNode
+
+
+def ConvertNode(maNtree, maNode, nt):
+    if maNode.bl_idname not in NodeTypeMapping:
+        debug.PrintError("Node '%s' of type '%s' is not supported!" %
+            (maNode.name, maNode.bl_idname))
+        return None
+
+    vrayNodeType = NodeTypeMapping[maNode.bl_idname]['type']
+    vrayNode = _createVRayNode(nt, vrayNodeType)
+
+    convertFunc = NodeTypeMapping[maNode.bl_idname].get('convert')
+
+    if maNode.bl_idname == 'ShaderNodeMixShader':
+        # NOTE: If current node is 'ShaderNodeMixShader' and
+        # we have a 'Fac' socket linked - connect 'out_intensity'
+        # attribute of the correspondent node
+
+        facNode   = ExportSocket(maNtree, maNode, maNode.inputs[0], None, nt, False)
+        brdf1Node = ExportSocket(maNtree, maNode, maNode.inputs[1], None, nt, False)
+        brdf2Node = ExportSocket(maNtree, maNode, maNode.inputs[2], None, nt, False)
+
+        if facNode:
+            _connectNodes(nt,
+                facNode, 'Out Intensity',
+                vrayNode, 'Weight 1'
+            )
+
+        if brdf1Node:
+            _connectNodes(nt,
+                brdf1Node, 'BSDF',
+                vrayNode, 'BRDF 1'
+            )
+
+        if brdf2Node:
+            _connectNodes(nt,
+                brdf2Node, 'BSDF',
+                vrayNode, 'BRDF 2'
+            )
+
+    elif convertFunc:
+        convertFunc(maNode, nt)
+
+    else:
+        for inSock in maNode.inputs:
+            ExportSocket(maNtree, maNode, inSock, vrayNode, nt)
+
+    if maNode.bl_idname == 'ShaderNodeValToRGB':
+        nodeRamp = maNode.color_ramp
+        vrayRamp = vrayNode.texture.color_ramp
+
+        elementsToCreate = len(nodeRamp.elements) - 2
+        for i in range(elementsToCreate):
+            vrayRamp.elements.new(0.0)
+
+        for i,rampElement in enumerate(nodeRamp.elements):
+            el = vrayRamp.elements[i]
+            el.color    = rampElement.color
+            el.position = rampElement.position
+
+        # vrayNode.inputs['Input Value'].value = nodeRamp.inputs['']
+
+    return vrayNode
+
+
+def ConvertNodeMaterial(scene, ob, ma):
+    debug.PrintInfo("Converting node material: %s" % ma.name)
+
+    materialNode = None
+
+    maNtree = ma.node_tree
+    nt      = _createVRayTree(ma.name, 'Material')
+
+    ntOutput   = _createVRayNode(nt, 'OutputMaterial')
+    ntMaterial = _createVRayNode(nt, 'MtlSingleBRDF')
+    _connectNodes(nt, ntMaterial, 'Material', ntOutput, 'Material')
+
+    maNtreeOutput = NodesUtils.GetNodeByType(maNtree, 'ShaderNodeOutputMaterial')
+    maShader      = NodesUtils.GetConnectedNode(maNtree, maNtreeOutput.inputs['Surface'])
+
+    vrayNode = ConvertNode(maNtree, maShader, nt)
+    _connectNodes(nt, vrayNode, 'BRDF', ntMaterial, 'BRDF')
+
+    NodesTools.rearrangeTree(nt, ntOutput)
+    NodesTools.deselectNodes(nt)
+
+    ma.vray.ntree = nt
+
+    return ntMaterial
+
+
 def ConvertMaterial(scene, ob, ma, textures):
     VRayMaterial = ma.vray
 
@@ -858,6 +1088,9 @@ def ConvertMaterial(scene, ob, ma, textures):
         materialNode = NodesUtils.GetConnectedNode(VRayMaterial.ntree, outputNode.inputs['Material'])
 
     else:
+        if ma.node_tree:
+            return ConvertNodeMaterial(scene, ob, ma)
+
         debug.PrintInfo("Converting material: %s" % ma.name)
 
         nt = _createVRayTree(ma.name, 'Material')
