@@ -63,10 +63,10 @@ def AddOutput(node, socketType, socketName, attrName=None):
         createdSocket.vray_attr = attrName
 
 
-class VRaySocketUse():
+class VRaySocketUse:
     use = bpy.props.BoolProperty(
         name        = "Use",
-        description = "Usr socket",
+        description = "Use socket",
         default     = True
     )
 
@@ -325,6 +325,53 @@ class VRaySocketColorNoValue(bpy.types.NodeSocket):
 
     def draw(self, context, layout, node, text):
         layout.label(text)
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
+class VRaySocketColorUse(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketColorUse'
+    bl_label  = 'Color socket with use flag'
+
+    value = bpy.props.FloatVectorProperty(
+        name = "Color",
+        description = "Color",
+        subtype = 'COLOR',
+        min = 0.0,
+        max = 1.0,
+        soft_min = 0.0,
+        soft_max = 1.0,
+        default = (1.0, 1.0, 1.0)
+    )
+
+    use = bpy.props.BoolProperty(
+        name        = "Use",
+        description = "Use socket",
+        default     = False
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        if self.is_linked or self.is_output:
+            split = layout.split(percentage=0.2)
+            split.active = self.use
+            split.prop(self, 'use', text="")
+            split.label(text)
+        else:
+            row = layout.row(align=False)
+            row.active = self.use
+            row.prop(self, 'use', text="")
+            rowCol = row.row()
+            rowCol.scale_x = 0.3
+            rowCol.prop(self, 'value', text="")
+            row.label(text=text)
 
     def draw_color(self, context, node):
         return (1.000, 0.819, 0.119, 1.000)
@@ -627,6 +674,7 @@ def GetRegClasses():
         VRaySocketFloatNoValue,
         VRaySocketColor,
         VRaySocketColorNoValue,
+        VRaySocketColorUse,
         VRaySocketVector,
         VRaySocketCoords,
         VRaySocketBRDF,
