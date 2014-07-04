@@ -566,7 +566,7 @@ class SingleTexture(TextureToNode):
             uvLayer = VRaySlot.uv_layer
             if not uvLayer:
                 if self.slot:
-                    uvLayer = slot.uv_layer
+                    uvLayer = self.slot.uv_layer
 
             # Always generate UV channel
             pluginHash = _getParamString(
