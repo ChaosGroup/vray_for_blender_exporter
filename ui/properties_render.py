@@ -1135,6 +1135,7 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(VRayBake, 'flip_derivs')
+		col.prop(VRayBake, 'square_resolution')
 
 
  ######     ###    ##     ##  ######  ######## ####  ######   ######

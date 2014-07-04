@@ -26,7 +26,7 @@ import bpy
 import mathutils
 
 from vb30.lib import ExportUtils
-from vb30.lib import LibUtils
+from vb30.lib import BlenderUtils
 from vb30.debug import Debug
 
 
@@ -172,6 +172,13 @@ PluginParams = (
         'skip' : True,
         'default' : "",
     },
+    {
+        'attr' : 'square_resolution',
+        'desc' : "Set square resolution",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
 )
 
 
@@ -186,19 +193,19 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         Debug("Bake object is not set!", msgType='ERROR')
         return
 
-    bakeObject = LibUtils.GetSceneObject(scene, propGroup.bake_node)
+    bakeObject = BlenderUtils.GetSceneObject(scene, propGroup.bake_node)
     if not bakeObject:
         Debug("Bake object \"%s\" not found!" % propGroup.bake_node, msgType='ERROR')
         return
 
     o.set('SETTINGS', 'UVWGenChannel', 'UVWbakeView')
     o.writeHeader()
-    o.writeAttribute('uvw_channel', propGroup.uv_channel)
-    o.writeAttribute('uvw_transform', mathutils.Matrix.Identity(4))
+    o.writeAttibute('uvw_channel', propGroup.uv_channel)
+    o.writeAttibute('uvw_transform', mathutils.Matrix.Identity(4))
     o.writeFooter()
 
     overrideParams.update({
-        'bake_node' : LibUtils.GetObjectName(bakeObject),
+        'bake_node' : BlenderUtils.GetObjectName(bakeObject),
         'bake_uvwgen' : "UVWbakeView",
     })
 

@@ -325,7 +325,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     VRayScene = scene.vray
     VRayExporter = VRayScene.Exporter
-
+    BakeView     = VRayScene.BakeView
     img_width  = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
     img_height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
 
@@ -341,6 +341,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             if VRayScene.VRayStereoscopicSettings.use and not CameraStereoscopic.use:
                 if VRayScene.VRayStereoscopicSettings.adjust_resolution:
                     img_width *= 2
+
+    if BakeView.use:
+        if BakeView.square_resolution:
+            img_height = img_width
 
     overrideParams['img_width']  = img_width
     overrideParams['img_height'] = img_height

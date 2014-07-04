@@ -43,6 +43,7 @@ def ExportCamera(bus):
         'SettingsCamera',
         'CameraPhysical',
         'RenderView',
+        'BakeView',
         'CameraStereoscopic',
         'VRayStereoscopicSettings',
     )
@@ -56,6 +57,8 @@ def ExportCamera(bus):
         elif pluginName == 'CameraStereoscopic':
             PLUGINS_ID['CameraStereoscopic'].write(bus)
             continue
+        elif pluginName == 'BakeView':
+            propGroup = getattr(VRayScene, pluginName)
         else:
             propGroup = getattr(VRayCamera, pluginName)
 
