@@ -264,16 +264,7 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
 ##     ##  ##     ##    ##     ## ##     ## ##              ##     ## ##     ## ##       ##       ##       ##    ##
 ########  ####    ##    ##     ## ##     ## ##              ########   #######  ##       ##       ######## ##     ##
 
-def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
-    pluginModule = PLUGINS_ID.get('BitmapBuffer')
-
-    bitmatBuffer = ntree.nodes.new('VRayNodeBitmapBuffer')
-    propGroup = bitmatBuffer.BitmapBuffer
-
-    bitmapTexture = bitmatBuffer.texture
-
-    imageFilepath = pluginDesc['Attributes'].get('file')
-
+def LoadImage(imageFilepath, importDir, bitmapTexture, makeRelative=False):
     if imageFilepath is not None:
         if not os.path.exists(imageFilepath):
             debug.PrintError("Couldn't find file: %s" % imageFilepath)
@@ -283,9 +274,7 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
             # Convert to UNIX slashes
             imageFilepath = PathUtils.UnifyPath(imageFilepath)
 
-            importSettings = getPluginByName(vrsceneDict, "Import Settings")
-            if importSettings:
-                importDir = importSettings['Attributes']['dirpath']
+            if importDir:
                 imageFilepath = os.path.join(importDir, os.path.basename(imageFilepath))
 
         if not os.path.exists(imageFilepath):
@@ -299,6 +288,26 @@ def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
             else:
                 bitmapTexture.image = bpy.data.images.load(imageFilepath)
                 bitmapTexture.image.name = imageBlockName
+
+            if makeRelative:
+                bitmapTexture.image.filepath = bpy.path.relpath(bitmapTexture.image.filepath)
+
+
+def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
+    pluginModule = PLUGINS_ID.get('BitmapBuffer')
+
+    bitmatBuffer = ntree.nodes.new('VRayNodeBitmapBuffer')
+    propGroup = bitmatBuffer.BitmapBuffer
+
+    bitmapTexture = bitmatBuffer.texture
+
+    imageFilepath = pluginDesc['Attributes'].get('file')
+
+    importSettings = getPluginByName(vrsceneDict, "Import Settings")
+    if importSettings:
+        importDir = importSettings['Attributes']['dirpath']
+
+    LoadImage(imageFilepath, importDir, bitmapTexture)
 
     for attrName in pluginDesc['Attributes']:
         attrDesc  = getParamDesc(pluginModule.PluginParams, attrName)
