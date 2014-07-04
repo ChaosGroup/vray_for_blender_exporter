@@ -491,11 +491,12 @@ class TextureToNode:
  ######  #### ##    ##  ######   ######## ########
 
 class SingleTexture(TextureToNode):
-    def __init__(self, texture, output='TEXTURE', blend_mode='NONE', stencil=False, mult=1.0, invert=False):
+    def __init__(self, texture, output='TEXTURE', slot=None, blend_mode='NONE', stencil=False, mult=1.0, invert=False):
         self.texture    = texture
         self.output     = output
         self.blend_mode = blend_mode
         self.stencil    = stencil
+        self.slot       = slot
         self.mult       = mult
         self.invert     = invert
 
@@ -561,6 +562,11 @@ class SingleTexture(TextureToNode):
             # Mapping
             uvwgen = None
             mappingType = self.texture.vray.texture_coords
+
+            uvLayer = VRaySlot.uv_layer
+            if not uvLayer:
+                if slot:
+                    uvLayer = slot.uv_layer
 
             # Always generate UV channel
             pluginHash = _getParamString(
@@ -775,6 +781,7 @@ def PreprocessTextures(ma, influence):
 
             textures[inf].append(SingleTexture(
                 texture=tex,
+                slot=ts,
                 output=influence[inf]['type'],
                 blend_mode=VRaySlot.blend_mode,
                 mult=getattr(VRaySlot, slotMult, 1.0),
