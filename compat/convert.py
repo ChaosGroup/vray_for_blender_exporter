@@ -23,6 +23,7 @@
 #
 
 import base64
+import os
 
 import bpy
 import mathutils
@@ -64,8 +65,6 @@ OverrideInputSocket = {
 }
 
 ObjectMaterialOverrides = (
-    'MtlRenderStats',
-    'MtlWrapper',
     'MtlOverride',
 )
 
@@ -241,6 +240,17 @@ def _getBrdfInfluence(ma):
 ##     ##    ##     ##  ##       ##    ##
  #######     ##    #### ########  ######
 
+def CopyRamp(nodeRamp, vrayRamp):
+    elementsToCreate = len(nodeRamp.elements) - 2
+    for i in range(elementsToCreate):
+        vrayRamp.elements.new(0.0)
+
+    for i,rampElement in enumerate(nodeRamp.elements):
+        el = vrayRamp.elements[i]
+        el.color    = rampElement.color
+        el.position = rampElement.position
+
+
 def convert_bi():
     CONVERT_BLEND_TYPE= {
         'MIX':          'OVER',
@@ -406,12 +416,15 @@ def _connectNodes(ntree, outputNode, outputSocketName, inputNode, inputSocketNam
     )
 
 
-def TransferProperties(node, pluginID, oldPropGroup):
+def TransferProperties(node, pluginID, oldPropGroup, skipAttrs={}):
     pluginDesc = PLUGINS_ID[pluginID]
     propGroup  = getattr(node, pluginID)
 
     for attrDesc in pluginDesc.PluginParams:
         attrName = attrDesc['attr']
+
+        if attrName in skipAttrs:
+            continue
 
         attrValue = getattr(oldPropGroup, attrName)
 
@@ -516,6 +529,15 @@ class SingleTexture(TextureToNode):
                 btm = _createVRayNode(ntree, "BitmapBuffer")
                 tex = _createVRayNode(ntree, "TexBitmap")
 
+                if self.texture.image and self.texture.image.filepath:
+                    makeRel       = self.texture.image.filepath.startswith("//")
+                    imageFilepath = bpy.path.abspath(self.texture.image.filepath)
+
+                    NodesImport.LoadImage(
+                        imageFilepath, os.path.dirname(bpy.data.filepath), btm.texture,
+                        makeRelative=makeRel
+                    )
+
                 _connectNodes(ntree,
                     btm, 'Bitmap',
                     tex, 'Bitmap'
@@ -527,8 +549,14 @@ class SingleTexture(TextureToNode):
                 oldPropGroup = getattr(VRayTexture, texType)
 
                 tex = _createVRayNode(ntree, texType)
+                skipAttrs = {}
 
-                TransferProperties(tex, texType, oldPropGroup)
+                if texType == 'TexGradRamp':
+                    # Load ramp info manually
+                    skipAttrs = {'positions', 'colors'}
+                    CopyRamp(self.texture.color_ramp, tex.texture.color_ramp)
+
+                TransferProperties(tex, texType, oldPropGroup, skipAttrs)
 
             # Mapping
             uvwgen = None
@@ -1033,17 +1061,7 @@ def ConvertNode(maNtree, maNode, nt):
             ExportSocket(maNtree, maNode, inSock, vrayNode, nt)
 
     if maNode.bl_idname == 'ShaderNodeValToRGB':
-        nodeRamp = maNode.color_ramp
-        vrayRamp = vrayNode.texture.color_ramp
-
-        elementsToCreate = len(nodeRamp.elements) - 2
-        for i in range(elementsToCreate):
-            vrayRamp.elements.new(0.0)
-
-        for i,rampElement in enumerate(nodeRamp.elements):
-            el = vrayRamp.elements[i]
-            el.color    = rampElement.color
-            el.position = rampElement.position
+        CopyRamp(maNode.color_ramp, vrayNode.texture.color_ramp)
 
         # vrayNode.inputs['Input Value'].value = nodeRamp.inputs['']
 
@@ -1078,6 +1096,7 @@ def ConvertNodeMaterial(scene, ob, ma):
 
 def ConvertMaterial(scene, ob, ma, textures):
     VRayMaterial = ma.vray
+    VRayConverter = scene.vray.VRayConverter
 
     # This is the last node of the material
     # NOT the output, but the last Mtl node
@@ -1089,6 +1108,8 @@ def ConvertMaterial(scene, ob, ma, textures):
 
     else:
         if ma.node_tree:
+            if not VRayConverter.convert_from_internal:
+                return None
             return ConvertNodeMaterial(scene, ob, ma)
 
         debug.PrintInfo("Converting material: %s" % ma.name)
@@ -1250,7 +1271,7 @@ def ConvertObject(scene, ob):
     VRayData   = ob.data.vray
 
     needNodeTree    = False
-    hasDisplacement = False
+    hasDisplacement = None
 
     for ms in ob.material_slots:
         if not (ms and ms.material):
@@ -1323,7 +1344,7 @@ def ConvertObject(scene, ob):
                 if VRayObject.GeomStaticSmoothedMesh.use:
                     displaceNodeType = 'GeomStaticSmoothedMesh'
 
-                dispTex    = _getTextureFromTextures(textures, 'displacement')
+                dispTex    = hasDisplacement
                 dispAmount = _getDisplacementAmount(ob)
 
                 displaceNode = _createVRayNode(nt, displaceNodeType)
