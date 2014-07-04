@@ -27,7 +27,7 @@ import os
 import bpy
 
 from .. import tree_defaults
-from .. import tools as NodeTools
+from .. import tools as NodesTools
 
 
 class VRAY_OT_add_nodetree_light(bpy.types.Operator):
