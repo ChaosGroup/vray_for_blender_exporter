@@ -350,6 +350,15 @@ def _findSocketCaseInsensitive(node, socketName, fromInputs=True):
     return None
 
 
+def _findSocketByAttr(node, attrName, fromInputs=True):
+    sockets = node.inputs if fromInputs else node.outputs
+    for socket in sockets:
+        if hasattr(socket, 'vray_attr'):
+            if socket.vray_attr == attrName:
+                return socket
+    return None
+
+
 def _createGroupMaterial(ntree, ma):
     if not ma.vray.ntree:
         return None
@@ -429,9 +438,7 @@ def TransferProperties(node, pluginID, oldPropGroup, skipAttrs={}):
         attrValue = getattr(oldPropGroup, attrName)
 
         if attrDesc['type'] in AttributeUtils.InputTypes:
-            attrSockName = AttributeUtils.GetNameFromAttr(attrName)
-
-            inputSock = _findSocketCaseInsensitive(node, attrSockName)
+            inputSock = _findSocketByAttr(node, attrName)
             if not inputSock:
                 debug.PrintError("Can't find socket to attribute: %s.%s" % (pluginID, attrName))
             else:
@@ -467,6 +474,17 @@ def _getDisplacementAmount(ob):
             if tex.vray_slot.map_displacement:
                 return tex.vray_slot.GeomDisplacedMesh.displacement_amount
     return 0.05
+
+
+def SetVRayNodeAttrValue(vrayNode, attrName, attrValue):
+    sock = _findSocketByAttr(vrayNode, attrName)
+    if sock:
+        sock.value = attrValue
+    else:
+        if hasattr(vrayNode, 'vray_plugin'):
+            propGroup = getattr(vrayNode, vrayNode.vray_plugin)
+            if hasattr(propGroup, attrName):
+                setattr(propGroup, attrName, attrValue)
 
 
 ######## ######## ##     ## ######## ##     ## ########  ########
@@ -883,19 +901,64 @@ def ProcessTextures(ma):
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-def _ShaderTreeHasBump(nt):
+def _ShaderTreeHasBump(maNtree):
     return False
 
 
-def _ShaderTreeHasDisplace(nt):
+def _ShaderTreeHasDisplace(maNtree):
     return False
 
 
-def _ConvertToTexSampler(maNtree, maNode, vrayTree, vrayNode):
-    pass
+def _ConvertGeneric(maNtree, maNode, vrayTree, vrayNode):
+    for inSock in maNode.inputs:
+        ExportSocket(maNtree, maNode, inSock, vrayNode, vrayTree)
 
 
-def _ConvertToTexBitmap(maNtree, maNode, vrayTree, vrayNode):
+def _ConvertShaderNodeMixShader(maNtree, maNode, vrayTree, vrayNode):
+    # NOTE: If 'Weight' is linked, connect 'out_intensity'
+    # attribute of the connected node. If 'Weight' node doesn't
+    # have 'out_intensity' attribute add TexOutput
+    facNode   = ExportSocket(maNtree, maNode, maNode.inputs[0], None, vrayTree, False)
+
+    # NOTE: Reverse nodes here
+    brdf1Node = ExportSocket(maNtree, maNode, maNode.inputs[2], None, vrayTree, False)
+    brdf2Node = ExportSocket(maNtree, maNode, maNode.inputs[1], None, vrayTree, False)
+
+    if not facNode:
+        vrayNode.inputs['Weight 1'].value = maNode.inputs[0].default_value
+    else:
+        outIntensitySock = _findSocketByAttr(facNode, 'out_intensity', fromInputs=False)
+        if not outIntensitySock:
+            texOutput = _createVRayNode(vrayTree, 'TexOutput')
+            _connectNodes(vrayTree,
+                facNode, 'Output',
+                texOutput, 'Texmap'
+            )
+            facNode = texOutput
+
+        _connectNodes(vrayTree,
+            facNode, 'Out Intensity',
+            vrayNode, 'Weight 1'
+        )
+
+    if brdf1Node:
+        _connectNodes(vrayTree,
+            brdf1Node, 'BSDF',
+            vrayNode, 'BRDF 1'
+        )
+
+    if brdf2Node:
+        _connectNodes(vrayTree,
+            brdf2Node, 'BSDF',
+            vrayNode, 'BRDF 2'
+        )
+
+
+def _ConvertShaderNodeTangent(maNtree, maNode, vrayTree, vrayNode):
+    _ConvertGeneric(maNtree, maNode, vrayTree, vrayNode)
+
+
+def _ConvertShaderNodeTexImage(maNtree, maNode, vrayTree, vrayNode):
     btm = _createVRayNode(vrayTree, 'BitmapBuffer')
 
     if maNode.image and maNode.image.filepath:
@@ -911,6 +974,23 @@ def _ConvertToTexBitmap(maNtree, maNode, vrayTree, vrayNode):
         btm,      'Bitmap',
         vrayNode, 'Bitmap'
     )
+
+
+def _ConvertShaderNodeBsdfGlossy(maNtree, maNode, vrayTree, vrayNode):
+    _ConvertGeneric(maNtree, maNode, vrayTree, vrayNode)
+
+    SetVRayNodeAttrValue(vrayNode, 'reflect_glossiness', 1.0 - maNode.inputs['Roughness'].default_value)
+
+
+def _ConvertShaderNodeValToRGB(maNtree, maNode, vrayTree, vrayNode):
+    _ConvertGeneric(maNtree, maNode, vrayTree, vrayNode)
+
+    CopyRamp(maNode.color_ramp, vrayNode.texture.color_ramp)
+
+
+def _ConvertShaderNodeSubsurfaceScattering(maNtree, maNode, vrayTree, vrayNode):
+    _ConvertGeneric(maNtree, maNode, vrayTree, vrayNode)
+    pass
 
 
 NodeTypeMapping = {
@@ -949,7 +1029,8 @@ NodeTypeMapping = {
         'sockets' : {
             'Color' : 'Diffuse',
             'Roughness' : 'Roughness',
-        }
+        },
+       'convert' : _ConvertShaderNodeBsdfGlossy,
     },
     'ShaderNodeMixShader' : {
         'type' : 'BRDFLayered',
@@ -957,6 +1038,22 @@ NodeTypeMapping = {
             'Fac',
             'Shader'
         },
+        'convert' : _ConvertShaderNodeMixShader,
+    },
+    'ShaderNodeEmission' : {
+        'type' : 'BRDFLight',
+        'sockets' : {
+            'Color' : 'Color',
+            'Strength' : 'Color Multiplier',
+        },
+    },
+    'ShaderNodeSubsurfaceScattering' : {
+        'type' : 'BRDFSSS2Complex',
+        'sockets' : {
+            'Color'  : 'Overall Color',
+            'Radius' : 'Scatter Radius Mult',
+        },
+       'convert' : _ConvertShaderNodeSubsurfaceScattering,
     },
 
     # Textures
@@ -964,21 +1061,28 @@ NodeTypeMapping = {
         'type' : 'TexChecker',
         'sockets' : {},
     },
+    'ShaderNodeFresnel' : {
+        'type' : 'TexFresnel',
+        'sockets' : {
+            'IOR' : 'Fresnel Ior Tex',
+        },
+    },
     'ShaderNodeValToRGB'   : {
         'type' : 'TexRemap',
         'sockets' : {
             'Color',
         },
+        'convert' : _ConvertShaderNodeValToRGB,
     },
     'ShaderNodeTangent' : {
         'type' : 'TexSampler',
         'sockets' : {},
-        'convert' : _ConvertToTexSampler,
+        'convert' : _ConvertShaderNodeTangent,
     },
     'ShaderNodeTexImage' : {
         'type'    : 'TexBitmap',
         'sockets' : {},
-        'convert' : _ConvertToTexBitmap,
+        'convert' : _ConvertShaderNodeTexImage,
     }
 }
 
@@ -1007,12 +1111,12 @@ SocketOutputMapping = {
 
 
 def ExportSocket(maNtree, maNode, inSock, vrayNode, nt, connect=True):
-    debug.PrintInfo("Input socket '%s' type is '%s'." %
-        (inSock.name, inSock.bl_idname))
+    # debug.PrintInfo("Input socket '%s.%s' type is '%s'." %
+    #     (maNode.name, inSock.name, inSock.bl_idname))
 
     if inSock.name not in NodeTypeMapping[maNode.bl_idname]['sockets']:
-        debug.PrintError("Input socket '%s' of type '%s' is not supported!" %
-            (inSock.name, inSock.bl_idname))
+        debug.PrintError("Input socket '%s.%s' of type '%s' is not supported!" %
+            (maNode.name, inSock.name, inSock.bl_idname))
         return None
 
     if not inSock.is_linked:
@@ -1056,44 +1160,10 @@ def ConvertNode(maNtree, maNode, nt):
 
     convertFunc = NodeTypeMapping[maNode.bl_idname].get('convert')
 
-    if maNode.bl_idname == 'ShaderNodeMixShader':
-        # NOTE: If current node is 'ShaderNodeMixShader' and
-        # we have a 'Fac' socket linked - connect 'out_intensity'
-        # attribute of the correspondent node
-
-        facNode   = ExportSocket(maNtree, maNode, maNode.inputs[0], None, nt, False)
-        brdf1Node = ExportSocket(maNtree, maNode, maNode.inputs[1], None, nt, False)
-        brdf2Node = ExportSocket(maNtree, maNode, maNode.inputs[2], None, nt, False)
-
-        if facNode:
-            _connectNodes(nt,
-                facNode, 'Out Intensity',
-                vrayNode, 'Weight 1'
-            )
-
-        if brdf1Node:
-            _connectNodes(nt,
-                brdf1Node, 'BSDF',
-                vrayNode, 'BRDF 1'
-            )
-
-        if brdf2Node:
-            _connectNodes(nt,
-                brdf2Node, 'BSDF',
-                vrayNode, 'BRDF 2'
-            )
-
-    elif convertFunc:
+    if convertFunc:
         convertFunc(maNtree, maNode, nt, vrayNode)
-
     else:
-        for inSock in maNode.inputs:
-            ExportSocket(maNtree, maNode, inSock, vrayNode, nt)
-
-    if maNode.bl_idname == 'ShaderNodeValToRGB':
-        CopyRamp(maNode.color_ramp, vrayNode.texture.color_ramp)
-
-        # vrayNode.inputs['Input Value'].value = nodeRamp.inputs['']
+        _ConvertGeneric(maNtree, maNode, nt, vrayNode)
 
     return vrayNode
 
@@ -1114,7 +1184,8 @@ def ConvertNodeMaterial(scene, ob, ma):
     maShader      = NodesUtils.GetConnectedNode(maNtree, maNtreeOutput.inputs['Surface'])
 
     vrayNode = ConvertNode(maNtree, maShader, nt)
-    _connectNodes(nt, vrayNode, 'BRDF', ntMaterial, 'BRDF')
+    if vrayNode:
+        _connectNodes(nt, vrayNode, 'BRDF', ntMaterial, 'BRDF')
 
     NodesTools.rearrangeTree(nt, ntOutput)
     NodesTools.deselectNodes(nt)
