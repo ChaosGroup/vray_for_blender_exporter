@@ -41,7 +41,7 @@ class VRayOperatorConvertMaterial(bpy.types.Operator):
         VRayConverter = VRayScene.VRayConverter
 
         try:
-            if VRayConverter.convert_from_internal:
+            if VRayConverter.convert_from == 'INTERNAL':
                 convert.convert_bi()
             convert.ConvertScene(context.scene)
         except Exception as e:
