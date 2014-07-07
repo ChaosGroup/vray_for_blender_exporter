@@ -594,6 +594,11 @@ class SingleTexture(TextureToNode):
             uvwgen.inputs['Translate Frame U Tex'].value = VRaySlot.offset[0]
             uvwgen.inputs['Translate Frame V Tex'].value = VRaySlot.offset[1]
 
+            _connectNodes(ntree,
+                uvwgen, 'Mapping',
+                tex,    'Mapping'
+            )
+
             # Add additional generators
             uvwgenAdd = None
             if mappingType == 'ORCO':
@@ -602,17 +607,11 @@ class SingleTexture(TextureToNode):
             elif mappingType == 'WORLD':
                 pass
 
-            if uvwgen:
+            if uvwgenAdd:
                 _connectNodes(ntree,
-                    uvwgen, 'Mapping',
-                    tex,    'Mapping'
+                    uvwgenAdd, 'Mapping',
+                    uvwgen,    'Mapping'
                 )
-
-                if uvwgenAdd:
-                    _connectNodes(ntree,
-                        uvwgenAdd, 'Mapping',
-                        uvwgen,    'Mapping'
-                    )
 
         return tex
 
@@ -1233,6 +1232,10 @@ def ConvertMaterial(scene, ob, ma, textures):
         oldPropGroup = getattr(VRayMaterial, brdfType)
 
         TransferProperties(baseBRDF, brdfType, oldPropGroup)
+
+        # Manual tweaks
+        if brdfType == 'BRDFVRayMtl':
+            baseBRDF.inputs['Fog Color'].value = VRayMaterial.BRDFVRayMtl.fog_color
 
         CreateTextureNodes(nt, baseBRDF, textures)
 
