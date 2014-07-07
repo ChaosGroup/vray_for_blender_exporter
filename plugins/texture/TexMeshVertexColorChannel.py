@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.lib import BlenderUtils
+
 
 TYPE = 'TEXTURE'
 ID   = 'TexMeshVertexColorChannel'
@@ -88,19 +90,26 @@ PluginWidget = """
 def nodeDraw(context, layout, TexMeshVertexColorChannel):
     ob = context.object
 
-    if ob.type not in {'MESH'}:
+    if ob.type in BlenderUtils.NonGeometryTypes:
         layout.label(text="Invalid Context!")
         layout.label(text="Only Mesh data is supported!")
         return
 
+    hasUvChannles = hasattr(ob.data, 'uv_textures')
+    hasColorSets  = hasattr(ob.data, 'vertex_colors')
+
     layout.prop(TexMeshVertexColorChannel, 'channelIndex')
-    layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
+
+    if hasUvChannles and hasColorSets:
+        layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
 
     if TexMeshVertexColorChannel.data_select == '0':
-        layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                           ob.data, 'uv_textures',
-                           text="")
+        if hasUvChannles:
+            layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                               ob.data, 'uv_textures',
+                               text="")
     else:
-        layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                           ob.data, 'vertex_colors',
-                           text="")
+        if hasColorSets:
+            layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                               ob.data, 'vertex_colors',
+                               text="")
