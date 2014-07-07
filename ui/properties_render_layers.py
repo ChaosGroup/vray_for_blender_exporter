@@ -57,11 +57,13 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		box.label("Quick Settings:")
 		box.row().prop(VRayQuickSettings, 'presets', expand=True)
 		box.separator()
-		col = box.split().column(align=True)
+		column = box.column()
+		column.active = VRayQuickSettings.presets != 'NONE'
+		col = column.column(align=True)
 		col.prop(VRayQuickSettings, 'gi_quality',      slider=True)
 		col.prop(VRayQuickSettings, 'shading_quality', slider=True)
 		col.prop(VRayQuickSettings, 'aa_quality',      slider=True)
-		col = box.split().column(align=True)
+		col = column.column(align=True)
 		col.prop(VRayQuickSettings, 'max_aa_subdivs')
 
 		VRayConverter = VRayScene.VRayConverter

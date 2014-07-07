@@ -53,6 +53,9 @@ def recalculateValue(self, context):
     SettingsLightCache    = VRayScene.SettingsLightCache
     SettingsIrradianceMap = VRayScene.SettingsIrradianceMap
 
+    if self.presets == 'NONE':
+        return
+
     # GI Quality
     #
     brute_force_subdivs = GetValueInRange(self.gi_quality, brute_force_min, brute_force_max)
@@ -82,7 +85,10 @@ def recalculatePreset(self, context):
     VRayScene = context.scene.vray
     SettingsGI = VRayScene.SettingsGI
 
-    if self.presets == 'EXTERIOR':
+    if self.presets == 'NONE':
+        return
+
+    elif self.presets == 'EXTERIOR':
         SettingsGI.on = True
         SettingsGI.primary_engine   = '2'
         SettingsGI.secondary_engine = '2'
@@ -123,12 +129,14 @@ class VRayQuickSettings(bpy.types.PropertyGroup):
         name = "Presets",
         description = "",
         items = (
+            ('NONE',     "None",       ""),
             ('EXTERIOR', "Arch. Ext.", "For architectural exteriors without too much bounced light"),
             ('INTERIOR', "Arch. Int.", "For architectural interiors where light bounces are important"),
             ('VFX',      "VFX",        "For VFX-style scenes which may not need global illumination"),
             ('STUDIO',   "Studio",     "For product design visualizations"),
         ),
         update = recalculatePreset,
+        default = 'NONE'
     )
 
     gi_quality = bpy.props.FloatProperty(
