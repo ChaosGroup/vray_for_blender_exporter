@@ -890,8 +890,27 @@ def _ShaderTreeHasBump(nt):
 def _ShaderTreeHasDisplace(nt):
     return False
 
-def _ConvertToTexSampler(maNode, n):
+
+def _ConvertToTexSampler(maNtree, maNode, vrayTree, vrayNode):
     pass
+
+
+def _ConvertToTexBitmap(maNtree, maNode, vrayTree, vrayNode):
+    btm = _createVRayNode(vrayTree, 'BitmapBuffer')
+
+    if maNode.image and maNode.image.filepath:
+        makeRel       = maNode.image.filepath.startswith("//")
+        imageFilepath = bpy.path.abspath(maNode.image.filepath)
+
+        NodesImport.LoadImage(
+            imageFilepath, os.path.dirname(bpy.data.filepath), btm.texture,
+            makeRelative=makeRel
+        )
+
+    _connectNodes(vrayTree,
+        btm,      'Bitmap',
+        vrayNode, 'Bitmap'
+    )
 
 
 NodeTypeMapping = {
@@ -956,6 +975,11 @@ NodeTypeMapping = {
         'sockets' : {},
         'convert' : _ConvertToTexSampler,
     },
+    'ShaderNodeTexImage' : {
+        'type'    : 'TexBitmap',
+        'sockets' : {},
+        'convert' : _ConvertToTexBitmap,
+    }
 }
 
 SocketOutputMapping = {
@@ -1060,7 +1084,7 @@ def ConvertNode(maNtree, maNode, nt):
             )
 
     elif convertFunc:
-        convertFunc(maNode, nt)
+        convertFunc(maNtree, maNode, nt, vrayNode)
 
     else:
         for inSock in maNode.inputs:
@@ -1114,9 +1138,9 @@ def ConvertMaterial(scene, ob, ma, textures):
 
     else:
         if ma.node_tree:
-            if not VRayConverter.convert_from_internal:
-                return None
-            return ConvertNodeMaterial(scene, ob, ma)
+            if VRayConverter.convert_from == 'CYCLES':
+                return ConvertNodeMaterial(scene, ob, ma)
+            return None
 
         debug.PrintInfo("Converting material: %s" % ma.name)
 
@@ -1422,9 +1446,14 @@ def ConvertScene(scene):
  #######  #### 
 
 class VRayConverter(bpy.types.PropertyGroup):
-    convert_from_internal = bpy.props.BoolProperty(
-        name = "From Internal",
-        default = False
+    convert_from = bpy.props.EnumProperty(
+        name = "Convert From",
+        items = (
+            ('VB25',     "V-Ray/Blender 2.x", ""),
+            ('INTERNAL', "Blender Internal",  ""),
+            ('CYCLES',   "Cycles",            ""),
+        ),
+        default = 'VB25'
     )
 
 

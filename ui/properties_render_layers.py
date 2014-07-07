@@ -71,7 +71,7 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		box = layout.box()
 		box.label("Migration")
 		box.operator("vray.convert_scene", icon='NODETREE')
-		box.prop(VRayConverter, 'convert_from_internal')
+		box.prop(VRayConverter, 'convert_from')
 
 
 class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
