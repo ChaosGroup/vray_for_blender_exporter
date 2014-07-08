@@ -28,21 +28,25 @@ import bpy
 def AddMaterialNodeTree(ma):
     VRayMaterial = ma.vray
 
-    nt = bpy.data.node_groups.new(ma.name, type='VRayNodeTreeMaterial')
-    nt.use_fake_user = True
+    if VRayMaterial.ntree:
+        VRayMaterial.ntree = VRayMaterial.ntree.copy()
 
-    outputNode = nt.nodes.new('VRayNodeOutputMaterial')
+    else:
+        nt = bpy.data.node_groups.new(ma.name, type='VRayNodeTreeMaterial')
+        nt.use_fake_user = True
 
-    singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
-    singleMaterial.location.x  = outputNode.location.x - 250
-    singleMaterial.location.y += 50
+        outputNode = nt.nodes.new('VRayNodeOutputMaterial')
 
-    brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
-    brdfVRayMtl.location.x  = singleMaterial.location.x - 250
-    brdfVRayMtl.location.y += 100
+        singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
+        singleMaterial.location.x  = outputNode.location.x - 250
+        singleMaterial.location.y += 50
 
-    nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
+        brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
+        brdfVRayMtl.location.x  = singleMaterial.location.x - 250
+        brdfVRayMtl.location.y += 100
 
-    nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
+        nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
 
-    VRayMaterial.ntree = nt
+        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
+
+        VRayMaterial.ntree = nt
