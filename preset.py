@@ -499,6 +499,9 @@ class VRayNodeExportAsset(bpy.types.Operator):
         ntree        = context.space_data.edit_tree
         selectedNode = context.selected_nodes[0]
 
+        if selectedNode.bl_idname == 'VRayNodeOutputMaterial':
+            selectedNode = NodesExport.GetConnectedNode(ntree, selectedNode.inputs['Material'])
+
         # Export node and subtree
         pluginName = NodesExport.WriteNode(bus, ntree, selectedNode)
 
