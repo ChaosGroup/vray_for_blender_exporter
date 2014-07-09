@@ -59,6 +59,8 @@ def ExportSettings(bus):
                 # Used plugins for now
                 'SettingsCurrentFrame',
                 'SettingsLightTree',
+                # Causes crash right now
+                'SettingsEXR',
             }:
                 continue
 
