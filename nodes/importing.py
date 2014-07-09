@@ -210,9 +210,13 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
             if plOutput is None:
                 plOutput = getOutputSocket(pl['ID'])
 
-            inNode = createNode(ntree, thisNode, vrsceneDict, pl)
-            if inNode:
-                ntree.links.new(inNode.outputs[plOutput], socket)
+            collValue = CollapseToValue(pl, toType='FLOAT')
+            if collValue is not None:
+                socket.value = FixValue(collValue)
+            else:
+                inNode = createNode(ntree, thisNode, vrsceneDict, pl)
+                if inNode:
+                    ntree.links.new(inNode.outputs[plOutput], socket)
         else:
             socket.value = attrValue
 
@@ -340,16 +344,21 @@ CollapsibleTypes = {
 }
 
 
-def CollapseToValue(pluginDesc):
+def CollapseToValue(pluginDesc, toType=None):
     pluginID    = pluginDesc['ID']
     pluginAttrs = pluginDesc['Attributes']
 
+    if pluginID not in CollapsibleTypes:
+        return None
+
+    value = None
+
     if pluginID == 'TexAColor':
         color = pluginAttrs['texture']
-        # 'color' is mapped, nothing to do
-        if type(color) is str:
-            return None
-        return color
+        # NOTE: If 'color' is str it means it's mapped
+        # so we couldn't collapse
+        if type(color) is not str:
+            value = color
 
     elif pluginID == 'TexCombineColor':
         color   = pluginAttrs['color']
@@ -357,15 +366,29 @@ def CollapseToValue(pluginDesc):
 
         texture_multiplier = pluginAttrs['texture_multiplier']
 
-        # 'texture' is mapped, nothing to do
-        if type(texture) is str:
-            return None
+        # NOTE: If 'texture' is str it means it's mapped
+        # so we couldn't collapse
+        if type(color) is str:
+            # TODO: Finish 'texture_multiplier'
+            value = color
 
-        # TODO: Finish value calculations
+    if toType is not None:
+        if toType == 'FLOAT':
+            v = 0
+            nItems = len(value)
+            for val in value:
+                v += val / nItems
+            value = v
 
-        return 0.0
+    return value
 
-    return None
+
+def FixValue(attrValue):
+    # Fix for color attribute
+    if type(attrValue) in [list, tuple]:
+        if len(attrValue) == 4:
+            attrValue = attrValue[:3]
+    return attrValue
 
 
 def FillRamp(vrsceneDict, ramp, colors, positions):
@@ -629,31 +652,27 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                     else:
                         connectedPluginID = connectedPlugin['ID']
 
-                        # TODO:
-                        # 1. Check if connected pluginID is in collapseable type
-                        # 2. Check if it doesn't have any input connections
-                        # 3. Collapse to value
+                        collapsedValue = CollapseToValue(connectedPlugin)
+                        if collapsedValue is not None:
+                            attrSocket.value = FixValue(collapsedValue)
 
-                        inPluginOutputSocketName = AttributeUtils.GetNameFromAttr(inPluginOutput) if inPluginOutput else getOutputSocket(connectedPluginID)
+                        else:
+                            inPluginOutputSocketName = AttributeUtils.GetNameFromAttr(inPluginOutput) if inPluginOutput else getOutputSocket(connectedPluginID)
 
-                        connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)
-                        if connectedNode:
-                            ntree.links.new(connectedNode.outputs[inPluginOutputSocketName], n.inputs[attrSocketName])
+                            connectedNode = createNode(ntree, n, vrsceneDict, connectedPlugin)
+                            if connectedNode:
+                                ntree.links.new(connectedNode.outputs[inPluginOutputSocketName], n.inputs[attrSocketName])
 
-                            if fixBump:
-                                ntree.links.new(
-                                    getOutputSocketByAttr(connectedNode, 'out_intensity'),
-                                    n.inputs['Float Texture']
-                                )
+                                if fixBump:
+                                    ntree.links.new(
+                                        getOutputSocketByAttr(connectedNode, 'out_intensity'),
+                                        n.inputs['Float Texture']
+                                    )
 
                 # Attr is not linked - set socket default value
                 else:
                     attrSocket = n.inputs[attrSocketName]
-
-                    # Fix for color attribute
-                    if type(attrValue) in [list, tuple]:
-                        if len(attrValue) == 4:
-                            attrValue = attrValue[:3]
+                    attrValue  = FixValue(attrValue)
 
                     attrSocket.value = attrValue
 
