@@ -68,8 +68,8 @@ def path_sep_to_unix(filepath):
     return filepath
 
 
-def Quotes(path):
-    if sys.platform == 'win32':
+def Quotes(path, force=False):
+    if not force and sys.platform == 'win32':
         return path
     return '"%s"' % (path)
 
