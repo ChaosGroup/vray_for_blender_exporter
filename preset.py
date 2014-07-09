@@ -212,12 +212,16 @@ class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
             maName = assetDesc['Attributes']['material']
             maDesc = NodesImport.getPluginByName(vrsceneDict, maName)
 
-            outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
-            lastNode   = outputNode
+            maNode = NodesImport.createNode(ntree, None, vrsceneDict, maDesc)
 
-            maNode = NodesImport.createNode(ntree, outputNode, vrsceneDict, maDesc)
+            # NOTE: Depends on how user saves the preset
+            if 'Material' not in maNode.outputs:
+                lastNode = maNode
 
-            ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
+            else:
+                outputNode = ntree.nodes.new('VRayNodeOutputMaterial')
+                ntree.links.new(maNode.outputs['Material'], outputNode.inputs['Material'])
+                lastNode = outputNode
 
         elif assetType == 'Texture':
             texName = assetDesc['Attributes']['texture']
