@@ -35,6 +35,7 @@ from vb30.lib import ExportUtils, SysUtils, LibUtils, PathUtils, BlenderUtils
 
 from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
+from vb30.nodes import export    as NodesExport
 
 from vb30 import debug
 
@@ -107,6 +108,11 @@ class VRayPresetMenuBase(bpy.types.Menu):
         for path in presetPaths:
             if os.path.exists(path):
                 paths.append(path)
+
+        if hasattr(self, 'menu_item_save') and self.menu_item_save:
+            op = self.layout.operator('vray.export_asset', text="Save Selected", icon='FILE_TICK')
+            op.asset_type = self.preset_subdir
+            self.layout.separator()
 
         self.path_menu(paths)
 
@@ -368,11 +374,13 @@ class VRayPresetMenuNodeBase(VRayPresetMenuBase):
 class VRayPresetMenuNodeTexture(VRayPresetMenuNodeBase):
     bl_label        = "Texture"
     preset_subdir   = "texture"
+    menu_item_save  = True
 
 
 class VRayPresetMenuNodeMaterial(VRayPresetMenuNodeBase):
     bl_label        = "Material"
     preset_subdir   = "material"
+    menu_item_save  = True
 
 
 ########  ########     ###    ##      ##
@@ -414,6 +422,90 @@ def VRayNodeTemplatesMenu(self, context):
     self.layout.menu("VRayNodeTemplatesSubMenus", icon='NODETREE')
 
 
+   ###     ######   ######  ######## ########
+  ## ##   ##    ## ##    ## ##          ##
+ ##   ##  ##       ##       ##          ##
+##     ##  ######   ######  ######      ##
+#########       ##       ## ##          ##
+##     ## ##    ## ##    ## ##          ##
+##     ##  ######   ######  ########    ##
+
+class VRayNodeExportAsset(bpy.types.Operator):
+    bl_idname      = "vray.export_asset"
+    bl_label       = "Export Node Asset"
+    bl_description = ""
+
+    asset_name = bpy.props.StringProperty(
+        name        = "Name",
+        description = "Name of the asset, used to make the path name",
+        maxlen      =  64,
+        options     = {'SKIP_SAVE'},
+        default     = ""
+    )
+
+    asset_type = bpy.props.EnumProperty(
+        name        = "Type",
+        description = "Type of the asset, used to make menu name",
+        items = (
+            ('texture',  "Texture",  ""),
+            ('material', "Material", ""),
+        ),
+        default = "texture"
+    )
+
+    def draw(self, context):
+        self.layout.prop(self, 'asset_name')
+        self.layout.prop(self, 'asset_type')
+
+    def invoke(self, context, event):
+        if len(context.selected_nodes) > 1:
+            self.report({'ERROR'}, "Select only one last node!")
+            return {'CANCELLED'}
+
+        return context.window_manager.invoke_props_dialog(self)
+
+    def execute(self, context):
+        if not self.asset_name:
+            self.report({'ERROR'}, "Asset name is not set!")
+            return {'CANCELLED'}
+
+        userNodeAssetPath = PathUtils.CreateDirectory(os.path.join(SysUtils.GetUserConfigDir(), "presets", self.asset_type))
+
+        fileName = "%s.vrscene" % LibUtils.CleanString(bpy.path.display_name(self.asset_name))
+
+        outputFilepath = os.path.normpath(os.path.join(userNodeAssetPath, fileName))
+
+        # Create exporter (output)
+        o = VRayStream.VRaySimplePluginExporter(outputFilepath)
+
+        bus = {
+            'output' : o,
+            'scene'  : context.scene,
+            'cache' : {
+                'plugins' : set(),
+                'mesh'    : set(),
+            },
+            'context' : {
+                'node' : None,
+            },
+        }
+
+        # Get selected nodes
+        ntree        = context.space_data.edit_tree
+        selectedNode = context.selected_nodes[0]
+
+        # Export node and subtree
+        pluginName = NodesExport.WriteNode(bus, ntree, selectedNode)
+
+        # Write fake Asset node
+        o.set('MAIN', 'Asset', self.asset_type.capitalize())
+        o.writeHeader()
+        o.writeAttibute(self.asset_type, pluginName)
+        o.writeFooter()
+
+        return {'FINISHED'}
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -438,6 +530,8 @@ def GetRegClasses():
         VRayPresetMenuNodeTexture,
         VRayPresetMenuNodeMaterial,
         VRayNodeTemplatesSubMenus,
+
+        VRayNodeExportAsset,
     )
 
 
