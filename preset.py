@@ -469,7 +469,8 @@ class VRayNodeExportAsset(bpy.types.Operator):
             self.report({'ERROR'}, "Asset name is not set!")
             return {'CANCELLED'}
 
-        userNodeAssetPath = PathUtils.CreateDirectory(os.path.join(SysUtils.GetUserConfigDir(), "presets", self.asset_type))
+        presetsPath       = PathUtils.CreateDirectory(os.path.join(SysUtils.GetUserConfigDir(), "presets"))
+        userNodeAssetPath = PathUtils.CreateDirectory(os.path.join(presetsPath, self.asset_type))
 
         fileName = "%s.vrscene" % LibUtils.CleanString(bpy.path.display_name(self.asset_name))
 
