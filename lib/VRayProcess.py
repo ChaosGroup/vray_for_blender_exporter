@@ -231,9 +231,10 @@ class VRayProcess:
 
                 debug.PrintInfo("Generating %s..." % runFilename)
 
-                fileCmdLine = ""
-                for c in cmd:
-                    fileCmdLine += c + " %s\n" % cmdSep
+                cmdJoin = " %s\n" % cmdSep
+
+                fileCmdLine  = "%s %s\n" % (PathUtils.Quotes(cmd[0], force=True), cmdSep)
+                fileCmdLine += cmdJoin.join(cmd[1:])
 
                 with open(runFilepath, 'w') as f:
                     f.write(fileCmdLine)
