@@ -1250,6 +1250,75 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'showProgress')
 
 
+
+class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
+	bl_label = "Lens Effects"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		VRayScene = context.scene.vray
+		SettingsVFB = VRayScene.SettingsVFB
+		self.layout.prop(SettingsVFB, 'use', text="")
+
+	def draw(self, context):
+		wide_ui = context.region.width > classes.narrowui
+		layout = self.layout
+
+		VRayScene = context.scene.vray
+		SettingsVFB = VRayScene.SettingsVFB
+
+		layout.active = SettingsVFB.use
+
+		layout.prop(SettingsVFB, 'bloom_on', text="Bloom")
+		split = layout.split()
+		split.active = SettingsVFB.bloom_on
+		col = split.column()
+		col.prop(SettingsVFB, 'bloom_mode', text="Mode")
+		col.prop(SettingsVFB, 'bloom_fill_edges', text="Fill Edges")
+		col.prop(SettingsVFB, 'bloom_weight', text="Weight")
+		col.prop(SettingsVFB, 'bloom_size', text="Size")
+		col.prop(SettingsVFB, 'bloom_shape', text="Shape")
+		if wide_ui:
+			col = split.column()
+		col.prop(SettingsVFB, 'bloom_mask_intensity_on', text="Mask Intensity")
+		col.prop(SettingsVFB, 'bloom_mask_intensity', text="Intensity")
+		col.prop(SettingsVFB, 'bloom_mask_objid_on', text="Use Object ID")
+		col.prop(SettingsVFB, 'bloom_mask_objid', text="Object ID")
+		col.prop(SettingsVFB, 'bloom_mask_mtlid_on', text="Use Material ID")
+		col.prop(SettingsVFB, 'bloom_mask_mtlid', text="Material ID")
+
+		layout.prop(SettingsVFB, 'glare_on', text="Glare")
+		split = layout.split()
+		split.active = SettingsVFB.glare_on
+		col = split.column()
+		col.prop(SettingsVFB, 'glare_mode', text="Mode")
+		col.prop(SettingsVFB, 'glare_type', text="Type")
+		col.prop(SettingsVFB, 'glare_fill_edges', text="Fill Edges")
+		col.prop(SettingsVFB, 'glare_weight', text="Weight")
+		col.prop(SettingsVFB, 'glare_size', text="Size")
+		col.prop(SettingsVFB, 'glare_diffraction_on', text="Use Diffraction")
+		col.prop(SettingsVFB, 'glare_cam_blades_on', text="Use Blades")
+		col.prop(SettingsVFB, 'glare_cam_num_blades', text="Num. Blades")
+		col.prop(SettingsVFB, 'glare_cam_rotation', text="Rotation")
+		col.prop(SettingsVFB, 'glare_cam_fnumber', text="F-Number")
+		if wide_ui:
+			col = split.column()
+		col.prop(SettingsVFB, 'glare_mask_intensity_on', text="Mask Intensity")
+		col.prop(SettingsVFB, 'glare_mask_intensity', text="Intensity")
+		col.prop(SettingsVFB, 'glare_mask_objid_on', text="Use Object ID")
+		col.prop(SettingsVFB, 'glare_mask_objid', text="Object ID")
+		col.prop(SettingsVFB, 'glare_mask_mtlid_on', text="Use Material ID")
+		col.prop(SettingsVFB, 'glare_mask_mtlid', text="Material ID")
+		col.prop(SettingsVFB, 'glare_image_path', text="Image Path")
+		col.prop(SettingsVFB, 'glare_use_obstacle_image', text="Use Obstacle Image")
+		col.prop(SettingsVFB, 'glare_obstacle_image_path', text="Obstacle Path")
+
+		layout.label("Misc")
+		split = layout.split()
+		col = split.column()
+		col.prop(SettingsVFB, 'interactive')
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -1278,6 +1347,7 @@ def GetRegClasses():
 		VRAY_RP_displace,
 		VRAY_RP_dr,
 		VRAY_RP_bake,
+		VRAY_RP_SettingsVFB,
 		VRAY_RP_SettingsSystem,
 		VRAY_RP_VRayStereoscopicSettings,
 	)

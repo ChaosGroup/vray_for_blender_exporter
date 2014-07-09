@@ -55,10 +55,10 @@ def ExportSettings(bus):
                               'SettingsEnvironment'}:
                 continue
 
-            if pluginName in {'SettingsEXR',
-                              'SettingsVFB'}:
+            if pluginName in {'SettingsEXR'}:
                 continue
 
+            # NOTE: This plugins will be exported manually
             if pluginName in {'Includer', 'SettingsLightLinker'}:
                 continue
 

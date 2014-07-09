@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsVFB'
 NAME = 'SettingsVFB'
@@ -226,9 +229,29 @@ PluginParams = (
         'type' : 'BOOL',
         'default' : False,
     },
+    {
+        'attr' : 'use',
+        'name' : "Use",
+        'desc' : "Use Lens Effects",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
 )
 
 PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene  = bus['scene']
+
+    VRayScene = scene.vray
+    SettingsVFB = VRayScene.SettingsVFB
+
+    if not SettingsVFB.use:
+        return
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
