@@ -45,21 +45,21 @@ def ExportSettings(bus):
 
     for pluginType in {'SETTINGS', 'SETTINGS_GLOBAL'}:
         for pluginName in PLUGINS[pluginType]:
-            if pluginName in {'BakeView',
-                              'VRayStereoscopicSettings',
-                              'SettingsPtexBaker',
-                              'SettingsVertexBaker',
-                              'SettingsCurrentFrame',
-                              'SettingsLightTree',
-                              'SettingsVRST',
-                              'SettingsEnvironment'}:
-                continue
-
-            if pluginName in {'SettingsEXR'}:
-                continue
-
-            # NOTE: This plugins will be exported manually
-            if pluginName in {'Includer', 'SettingsLightLinker'}:
+            if pluginName in {
+                # TODO: These plugins have to be implemented
+                'SettingsPtexBaker',
+                'SettingsVertexBaker',
+                # These plugins will be exported manually
+                'Includer',
+                'SettingsLightLinker',
+                'SettingsEnvironment',
+                # These plugins are exported from camera export
+                'BakeView',
+                'VRayStereoscopicSettings',
+                # Used plugins for now
+                'SettingsCurrentFrame',
+                'SettingsLightTree',
+            }:
                 continue
 
             pluginModule = PLUGINS[pluginType][pluginName]
