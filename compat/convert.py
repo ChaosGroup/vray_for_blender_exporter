@@ -1127,7 +1127,11 @@ def ExportSocket(maNtree, maNode, inSock, vrayNode, nt, connect=True):
         if hasattr(value, '__len__') and len(value) == 4:
             vrayInSock.value = (value[0],value[1],value[2])
         else:
-            vrayInSock.value = value
+            try:
+                vrayInSock.value = value
+            except TypeError as e:
+                debug.PrintError("Can't set value '%s' for socket '%s' of '%s'!" %
+                    (value, vrayNode.bl_idname, vrayInSock.name))
 
     else:
         conNode = NodesUtils.GetConnectedNode(maNtree, inSock)
