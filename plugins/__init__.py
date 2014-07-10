@@ -32,6 +32,7 @@ import bpy
 from vb30.debug import Debug
 from vb30.lib   import ClassUtils
 from vb30.lib   import SysUtils
+from vb30.lib   import PluginUtils
 
 
 PLUGINS_DIRS = []
@@ -761,6 +762,7 @@ def register():
 	global PLUGINS
 	global PLUGINS_ID
 
+	PluginUtils.LoadPluginDesc()
 	LoadPlugins(PLUGINS, PLUGINS_ID)
 
 	for regClass in GetRegClasses():
