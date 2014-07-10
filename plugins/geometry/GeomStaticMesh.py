@@ -167,12 +167,14 @@ PluginParams = (
     },
     {
         'attr' : 'smooth_uv_borders',
+        'name' : "Smooth UV Borders",
         'desc' : "true to smooth UVs at mesh borders when rendering this mesh as a subdivision surface",
         'type' : 'BOOL',
         'default' : True,
     },
     {
         'attr' : 'smooth_uv',
+        'name' : "Smooth UV",
         'desc' : "true to smooth UVs when rendering this mesh as a subdivision surface",
         'type' : 'BOOL',
         'default' : True,
@@ -248,6 +250,13 @@ PluginWidget = """
             { "name" : "osd_preserve_map_borders" },
             { "name" : "osd_preserve_geometry_borders" },
             { "name" : "osd_subdiv_uvs" }
+        ]
+    },
+
+    {   "layout" : "COLUMN",
+        "attrs" : [
+            { "name" : "smooth_uv" },
+            { "name" : "smooth_uv_borders" }
         ]
     }
 ]}
