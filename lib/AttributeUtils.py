@@ -211,7 +211,8 @@ def GenerateAttribute(classMembers, attrDesc):
         attrArgs['default'] = ""
 
     elif attrDesc['type'] in {'ENUM'}:
-        attrArgs['items'] = attrDesc['items']
+        # NOTE: JSON parser returns lists but need tuples
+        attrArgs['items'] = (tuple(item) for item in attrDesc['items'])
 
     if 'options' in attrDesc:
         options = set()
