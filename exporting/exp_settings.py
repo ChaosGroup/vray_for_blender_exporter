@@ -24,27 +24,79 @@
 
 import bpy
 
-from vb30.plugins import PLUGINS
+from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30.lib     import ExportUtils
 
 
 # Exports global render settings
 # Must be called once before the object export
 #
-def ExportSettings(bus):
+ImageFormatPlugins = {
+    'SettingsPNG',
+    'SettingsJPEG',
+    'SettingsTIFF',
+    'SettingsTGA',
+    'SettingsSGI',
+    'SettingsEXR',
+    'SettingsVRST',
+}
+
+def ExportSettingsPlugin(bus, pluginType, pluginName):
     scene = bus['scene']
 
-    VRayScene       = scene.vray
     VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
 
+    VRayScene = scene.vray
     VRayExporter   = VRayScene.Exporter
     VRayDR         = VRayScene.VRayDR
-
     SettingsOutput = VRayScene.SettingsOutput
     SettingsGI     = VRayScene.SettingsGI
 
+    pluginModule = PLUGINS_ID[pluginName]
+
+    propGroup      = None
+    overrideParams = {}
+
+    if pluginName == 'SettingsRegionsGenerator':
+        propGroup = getattr(VRayScene, pluginName)
+
+        overrideParams = {
+            'xc' : propGroup.xc,
+            'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
+        }
+    elif pluginName.startswith('Filter'):
+        return
+    elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
+        propGroup = getattr(VRayScene, pluginName)
+
+        if SettingsGI.primary_engine != '4':
+            return
+
+        if VRayExporter.spherical_harmonics == 'BAKE':
+            if pluginName == 'SphericalHarmonicsRenderer':
+                return
+        else:
+            if pluginName == 'SphericalHarmonicsExporter':
+                return
+    else:
+        propGroup = getattr(VRayScene, pluginName)
+
+    if not propGroup:
+        return
+
+    ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+
+
+def ExportSettings(bus):
+    scene = bus['scene']
+
     for pluginType in {'SETTINGS', 'SETTINGS_GLOBAL'}:
         for pluginName in PLUGINS[pluginType]:
+            # NOTE: We will export them later to be sure
+            # they go after SettingsOutput
+            if pluginName in ImageFormatPlugins:
+                continue
+
             if pluginName in {
                 # TODO: These plugins have to be implemented
                 'SettingsPtexBaker',
@@ -59,45 +111,13 @@ def ExportSettings(bus):
                 # Used plugins for now
                 'SettingsCurrentFrame',
                 'SettingsLightTree',
-                # Causes crash right now
-                'SettingsEXR',
-                'SettingsVRST',
             }:
                 continue
 
-            pluginModule = PLUGINS[pluginType][pluginName]
+            ExportSettingsPlugin(bus, pluginType, pluginName)
 
-            propGroup      = None
-            overrideParams = {}
-
-            if pluginName == 'SettingsRegionsGenerator':
-                propGroup = getattr(VRayScene, pluginName)
-
-                overrideParams = {
-                    'xc' : propGroup.xc,
-                    'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
-                }
-            elif pluginName.startswith('Filter'):
-                continue
-            elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
-                propGroup = getattr(VRayScene, pluginName)
-
-                if SettingsGI.primary_engine != '4':
-                    continue
-
-                if VRayExporter.spherical_harmonics == 'BAKE':
-                    if pluginName == 'SphericalHarmonicsRenderer':
-                        continue
-                else:
-                    if pluginName == 'SphericalHarmonicsExporter':
-                        continue
-            else:
-                propGroup = getattr(VRayScene, pluginName)
-
-            if not propGroup:
-                continue
-
-            ExportUtils.WritePlugin(bus, pluginModule, pluginName, propGroup, overrideParams)
+    for pluginName in ImageFormatPlugins:
+        ExportSettingsPlugin(bus, pluginType, pluginName)
 
 
 def ExportLightLinker(bus):
