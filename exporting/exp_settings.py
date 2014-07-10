@@ -61,6 +61,7 @@ def ExportSettings(bus):
                 'SettingsLightTree',
                 # Causes crash right now
                 'SettingsEXR',
+                'SettingsVRST',
             }:
                 continue
 
