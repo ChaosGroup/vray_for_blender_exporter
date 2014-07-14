@@ -401,18 +401,20 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.label(text="Options:")
 		split = layout.split()
 		col = split.column()
-		col.prop(VRayExporter, 'autorun')
+		col.prop(VRayExporter, 'use_smoke')
 		if wide_ui:
 			col = split.column()
-		col.prop(VRayExporter, 'use_smoke')
 		col.prop(VRayExporter, 'use_hair')
+
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayExporter, 'instancer_dupli_group')
 
 		split = layout.split()
 		col = split.column()
 		sub = col.row()
 		sub.active = VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}
 		sub.prop(VRayExporter, 'frames_to_export')
-		col.prop(VRayExporter, 'instancer_dupli_group')
 
 		layout.separator()
 		layout.label(text="V-Ray Frame Buffer:")
@@ -447,6 +449,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.label(text="Run:")
 		split = layout.split()
 		col = split.column()
+		col.prop(VRayExporter, 'autorun')
 		col.prop(VRayExporter, 'debug')
 		if wide_ui:
 			col = split.column()
