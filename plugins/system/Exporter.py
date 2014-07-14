@@ -344,6 +344,11 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
+    instancer_dupli_group = bpy.props.BoolProperty(
+        name = "Use Instancer For DupliGroup",
+        default = False
+    )
+
 
 def GetRegClasses():
     return (

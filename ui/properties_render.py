@@ -412,6 +412,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		sub = col.row()
 		sub.active = VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}
 		sub.prop(VRayExporter, 'frames_to_export')
+		col.prop(VRayExporter, 'instancer_dupli_group')
 
 		layout.separator()
 		layout.label(text="V-Ray Frame Buffer:")
@@ -443,7 +444,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'output_unique', text="Unique Filename")
 
 		layout.separator()
-		layout.label(text="Advanced:")
+		layout.label(text="Run:")
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'debug')
