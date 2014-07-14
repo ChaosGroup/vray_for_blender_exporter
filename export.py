@@ -96,8 +96,6 @@ def Export(bus, scene, engine, isPreview=False):
                 o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
             o.write('MAIN', '\n')
 
-    exp_settings.ExportLightLinker(bus)
-
     return err
 
 
@@ -166,8 +164,6 @@ def ExportAndRun(engine, scene):
         'skipObjects'        : set(),
         'environment_volume' : set(),
         'gizmos'             : set(),
-
-        'lightlinker' : {},
 
         'preview'    : engine.is_preview,
 

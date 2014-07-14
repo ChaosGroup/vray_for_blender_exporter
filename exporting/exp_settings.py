@@ -103,7 +103,6 @@ def ExportSettings(bus):
                 'SettingsVertexBaker',
                 # These plugins will be exported manually
                 'Includer',
-                'SettingsLightLinker',
                 'SettingsEnvironment',
                 # These plugins are exported from camera export
                 'BakeView',
@@ -118,7 +117,3 @@ def ExportSettings(bus):
 
     for pluginName in ImageFormatPlugins:
         ExportSettingsPlugin(bus, pluginType, pluginName)
-
-
-def ExportLightLinker(bus):
-    PLUGINS['SETTINGS']['SettingsLightLinker'].write(bus)

@@ -129,15 +129,6 @@ def ExportLamp(bus):
         socketParams
     )
 
-    if VRayLamp.use_include_exclude:
-        bus['lightlinker'][lamp_name] = {}
-
-        if VRayLamp.use_include:
-            bus['lightlinker'][lamp_name]['include'] = BlenderUtils.GetObjectList(VRayLamp.include_objects, VRayLamp.include_groups)
-
-        if VRayLamp.use_exclude:
-            bus['lightlinker'][lamp_name]['exclude'] = BlenderUtils.GetObjectList(VRayLamp.exclude_objects, VRayLamp.exclude_groups)
-
 
 @debug.TimeIt
 def ExportLights(bus):
