@@ -25,7 +25,7 @@ BitmapBuffer NTClassic_TextureNImage_File {
 	allow_negative_colors=1;
 	color_space=2;
 	filter_blur=1;
-	filter_type=1;
+	filter_type=0;
 	frame_number=0;
 	frame_offset=0;
 	frame_sequence=0;
@@ -71,7 +71,7 @@ BitmapBuffer NTClassic_TextureNImage_File_001 {
 	allow_negative_colors=1;
 	color_space=2;
 	filter_blur=1;
-	filter_type=1;
+	filter_type=0;
 	frame_number=0;
 	frame_offset=0;
 	frame_sequence=0;
@@ -196,7 +196,7 @@ BitmapBuffer NTClassic_TextureNImage_File_002 {
 	allow_negative_colors=1;
 	color_space=2;
 	filter_blur=1;
-	filter_type=1;
+	filter_type=0;
 	frame_number=0;
 	frame_offset=0;
 	frame_sequence=0;
