@@ -434,6 +434,7 @@ def LoadDynamicNodes():
     # Add manually defined classes
     VRayNodeTypes['BRDF'].append(bpy.types.VRayNodeBRDFLayered)
     VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexLayered)
+    VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexMulti)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

@@ -83,46 +83,59 @@ class VRaySocketTexLayered(bpy.types.NodeSocket):
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
 
-class VRAY_OT_node_add_texlayered_sockets(bpy.types.Operator):
+class VRayNodeAddCustomSocket:
+    vray_socket_type = None
+
+    def execute(self, context):
+        node = context.node
+
+        humanIndex = len(node.inputs) + 1
+        sockName = "%s %i" % (self.vray_socket_name, humanIndex)
+
+        AddInput(node, self.vray_socket_type, sockName)
+
+        if hasattr(self, 'set_default'):
+            self.set_default(node.inputs[sockName])
+
+        return {'FINISHED'}
+
+
+class VRayNodeDelCustomSocket:
+    def execute(self, context):
+        node     = context.node
+        nSockets = len(node.inputs)
+        if not nSockets:
+            return {'FINISHED'}
+        for i in range(nSockets-1, 0, -1):
+            humanIndex = i + 1
+            sockName   = "%s %i" % (self.vray_socket_name, humanIndex)
+            if sockName not in node.inputs:
+                break
+            s = node.inputs[sockName]
+            if not s.is_linked:
+                node.inputs.remove(s)
+                break
+        return {'FINISHED'}
+
+
+class VRAY_OT_node_add_texlayered_sockets(VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_add_texlayered_sockets'
     bl_label       = "Add TexLayered Socket"
     bl_description = "Adds TexLayered sockets"
 
-    def execute(self, context):
-        node = context.node
-
-        newIndex = len(node.inputs) + 1
-        sockName = "Texture %i" % newIndex
-
-        AddInput(node, 'VRaySocketTexLayered', sockName)
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketTexLayered'
+        self.vray_socket_name = "Texture"
 
 
-class VRAY_OT_node_del_texlayered_sockets(bpy.types.Operator):
+class VRAY_OT_node_del_texlayered_sockets(VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_del_texlayered_sockets'
     bl_label       = "Remove TexLayered Socket"
     bl_description = "Removes TexLayered socket (only not linked sockets will be removed)"
 
-    def execute(self, context):
-        node = context.node
-
-        nSockets = len(node.inputs)
-
-        if not nSockets:
-            return {'FINISHED'}
-
-        for i in range(nSockets-1, 0, -1):
-            humanIndex = i + 1
-            texSockName = "Texture %i" % humanIndex
-            if texSockName not in node.inputs:
-                break
-            s = node.inputs[texSockName]
-            if not s.is_linked:
-                node.inputs.remove(s)
-                break
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketTexLayered'
+        self.vray_socket_name = "Texture"
 
 
 ##    ##  #######  ########  ########  ######
@@ -132,6 +145,15 @@ class VRAY_OT_node_del_texlayered_sockets(bpy.types.Operator):
 ##  #### ##     ## ##     ## ##             ##
 ##   ### ##     ## ##     ## ##       ##    ##
 ##    ##  #######  ########  ########  ######
+
+
+######## ######## ##     ##    ##          ###    ##    ## ######## ########  ######## ########  
+   ##    ##        ##   ##     ##         ## ##    ##  ##  ##       ##     ## ##       ##     ## 
+   ##    ##         ## ##      ##        ##   ##    ####   ##       ##     ## ##       ##     ## 
+   ##    ######      ###       ##       ##     ##    ##    ######   ########  ######   ##     ## 
+   ##    ##         ## ##      ##       #########    ##    ##       ##   ##   ##       ##     ## 
+   ##    ##        ##   ##     ##       ##     ##    ##    ##       ##    ##  ##       ##     ## 
+   ##    ######## ##     ##    ######## ##     ##    ##    ######## ##     ## ######## ########  
 
 class VRayNodeTexLayered(bpy.types.Node):
     bl_idname = 'VRayNodeTexLayered'
@@ -194,6 +216,99 @@ class VRayNodeTexLayered(bpy.types.Node):
         row.operator('vray.node_del_texlayered_sockets', icon="ZOOMOUT", text="")
 
 
+######## ######## ##     ##    ##     ## ##     ## ##       ######## #### 
+   ##    ##        ##   ##     ###   ### ##     ## ##          ##     ##  
+   ##    ##         ## ##      #### #### ##     ## ##          ##     ##  
+   ##    ######      ###       ## ### ## ##     ## ##          ##     ##  
+   ##    ##         ## ##      ##     ## ##     ## ##          ##     ##  
+   ##    ##        ##   ##     ##     ## ##     ## ##          ##     ##  
+   ##    ######## ##     ##    ##     ##  #######  ########    ##    #### 
+
+class VRaySocketTexMulti(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketTexMulti'
+    bl_label  = 'TexMulti Socket'
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    value = bpy.props.IntProperty(
+        name = "ID",
+        description = "ID",
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.prop(self, 'value', text="")
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
+class VRayNodeTexMultiAddSocket(VRayNodeAddCustomSocket, bpy.types.Operator):
+    bl_idname      = 'vray.node_add_texmulti_socket'
+    bl_label       = "Add TexMulti Socket"
+    bl_description = "Adds TexMulti sockets"
+
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketTexMulti'
+        self.vray_socket_name = "Texture"
+
+    def set_default(self, nodeSock):
+        nodeSock.value = len(nodeSock.node.inputs)
+
+
+class VRayNodeTexMultiDelSocket(VRayNodeDelCustomSocket, bpy.types.Operator):
+    bl_idname      = 'vray.node_del_texmulti_socket'
+    bl_label       = "Remove TexMulti Socket"
+    bl_description = "Removes TexMulti socket (only not linked sockets will be removed)"
+
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketTexMulti'
+        self.vray_socket_name = "Texture"
+
+
+class VRayNodeTexMulti(bpy.types.Node):
+    bl_idname = 'VRayNodeTexMulti'
+    bl_label  = 'Multi ID'
+    bl_icon   = 'TEXTURE'
+
+    vray_type   = 'TEXTURE'
+    vray_plugin = 'TexMulti'
+
+    mode = bpy.props.EnumProperty(
+        name = "Mode",
+        description = "The mode for the texture",
+        items = (
+            ('0', "Face Material ID", ""),
+            ('1', "Object ID",        ""),
+        ),
+        default = '0'
+    )
+
+    def init(self, context):
+        AddOutput(self, 'VRaySocketColor', "Output")
+
+        AddInput(self, 'VRaySocketColor', "Default")
+
+        for i in range(3):
+            humanIndex = i + 1
+            texSockName = "Texture %i" % humanIndex
+            AddInput(self, 'VRaySocketTexMulti', texSockName, default=humanIndex)
+
+    def draw_buttons(self, context, layout):
+        split = layout.split()
+        col = split.column()
+        col.prop(self, 'mode')
+
+        split = layout.split()
+        row = split.row(align=True)
+        row.operator('vray.node_add_texmulti_socket', icon="ZOOMIN", text="Add")
+        row.operator('vray.node_del_texmulti_socket', icon="ZOOMOUT", text="")
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -209,6 +324,11 @@ def GetRegClasses():
 
         VRaySocketTexLayered,
         VRayNodeTexLayered,
+
+        VRaySocketTexMulti,
+        VRayNodeTexMultiAddSocket,
+        VRayNodeTexMultiDelSocket,
+        VRayNodeTexMulti,
     )
 
 
