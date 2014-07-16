@@ -84,7 +84,7 @@ class VRaySocketTexLayered(bpy.types.NodeSocket):
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
 
-class VRAY_OT_node_add_texlayered_sockets(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
+class VRayNodeTexLayeredAddSocket(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_add_texlayered_sockets'
     bl_label       = "Add TexLayered Socket"
     bl_description = "Adds TexLayered sockets"
@@ -94,7 +94,7 @@ class VRAY_OT_node_add_texlayered_sockets(SocketOperators.VRayNodeAddCustomSocke
         self.vray_socket_name = "Texture"
 
 
-class VRAY_OT_node_del_texlayered_sockets(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
+class VRayNodeTexLayeredDelSocket(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_del_texlayered_sockets'
     bl_label       = "Remove TexLayered Socket"
     bl_description = "Removes TexLayered socket (only not linked sockets will be removed)"
@@ -285,10 +285,9 @@ class VRayNodeTexMulti(bpy.types.Node):
 
 def GetRegClasses():
     return (
-        VRAY_OT_node_add_texlayered_sockets,
-        VRAY_OT_node_del_texlayered_sockets,
-
         VRaySocketTexLayered,
+        VRayNodeTexLayeredAddSocket,
+        VRayNodeTexLayeredDelSocket,
         VRayNodeTexLayered,
 
         VRaySocketTexMulti,
