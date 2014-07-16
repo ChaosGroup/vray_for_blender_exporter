@@ -26,10 +26,7 @@ import bpy
 
 from ..        import tree
 from ..sockets import AddInput, AddOutput
-
-
-def GetSocketName(index):
-    return "Effect %i" % index
+from ..operators import sockets as SocketOperators
 
 
  #######  ########  ######## ########     ###    ########  #######  ########   ######
@@ -40,41 +37,24 @@ def GetSocketName(index):
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
 
-class VRayEffectsHolderAddSockets(bpy.types.Operator):
+class VRayNodeEffectsHolderAddSocket(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_effects_add'
     bl_label       = "Add Effect Socket"
-    bl_description = "Adds effect sockets"
+    bl_description = "Adds Effect sockets"
 
-    def execute(self, context):
-        node = context.node
-
-        newIndex = len(node.inputs) + 1
-
-        AddInput(node, 'VRaySocketEffect', GetSocketName(newIndex))
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketEffect'
+        self.vray_socket_name = "Effect"
 
 
-class VRayEffectsHolderDelSockets(bpy.types.Operator):
+class VRayNodeEffectsHolderDelSocket(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_effects_del'
     bl_label       = "Remove Effect Socket"
-    bl_description = "Removes empty effect socket"
+    bl_description = "Removes Effect socket (only not linked sockets will be removed)"
 
-    def execute(self, context):
-        node = context.node
-
-        nSockets = len(node.inputs)
-
-        if not nSockets:
-            return {'FINISHED'}
-
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
-            if not s.is_linked:
-                node.inputs.remove(s)
-                break
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketEffect'
+        self.vray_socket_name = "Effect"
 
 
 ##    ##  #######  ########  ########  ######
@@ -94,7 +74,7 @@ class VRayNodeEffectsHolder(bpy.types.Node):
     vray_plugin = 'NONE'
 
     def init(self, context):
-        AddInput(self, 'VRaySocketEffect', GetSocketName(1))
+        AddInput(self, 'VRaySocketEffect', "Effect 1")
         AddOutput(self, 'VRaySocketObject', "Effects")
 
     def draw_buttons(self, context, layout):
@@ -114,9 +94,8 @@ class VRayNodeEffectsHolder(bpy.types.Node):
 
 def GetRegClasses():
     return (
-        VRayEffectsHolderAddSockets,
-        VRayEffectsHolderDelSockets,
-
+        VRayNodeEffectsHolderAddSocket,
+        VRayNodeEffectsHolderDelSocket,
         VRayNodeEffectsHolder,
     )
 

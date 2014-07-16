@@ -26,6 +26,7 @@ import bpy
 
 from ..        import tree
 from ..sockets import AddInput, AddOutput
+from ..operators import sockets as SocketOperators
 
 
  #######  ########  ######## ########     ###    ########  #######  ########   ######
@@ -36,42 +37,24 @@ from ..sockets import AddInput, AddOutput
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
 
-class VRAY_OT_node_add_render_channel_sockets(bpy.types.Operator):
+class VRayNodeRenderChannelsAddSocket(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_add_render_channel_sockets'
     bl_label       = "Add Render Channel Socket"
     bl_description = "Adds Render Channel sockets"
 
-    def execute(self, context):
-        node = context.node
-
-        newIndex = len(node.inputs)+ 1
-        sockName = "Channel %i" % newIndex
-
-        AddInput(node, 'VRaySocketRenderChannel', sockName)
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketRenderChannel'
+        self.vray_socket_name = "Channel"
 
 
-class VRAY_OT_node_del_render_channel_sockets(bpy.types.Operator):
+class VRayNodeRenderChannelsDelSocket(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_del_render_channel_sockets'
     bl_label       = "Remove Render Channel Socket"
     bl_description = "Removes Render Channel socket (only not linked sockets will be removed)"
 
-    def execute(self, context):
-        node = context.node
-
-        nSockets = len(node.inputs)
-
-        if not nSockets:
-            return {'FINISHED'}
-
-        for i in range(nSockets-1, -1, -1):
-            s = node.inputs[i]
-            if not s.is_linked:
-                node.inputs.remove(s)
-                break
-
-        return {'FINISHED'}
+    def __init__(self):
+        self.vray_socket_type = 'VRaySocketRenderChannel'
+        self.vray_socket_name = "Channel"
 
 
 ##    ##  #######  ########  ########  ######
@@ -147,8 +130,8 @@ class VRayNodeRenderChannels(bpy.types.Node):
 
 def GetRegClasses():
     return (
-        VRAY_OT_node_add_render_channel_sockets,
-        VRAY_OT_node_del_render_channel_sockets,
+        VRayNodeRenderChannelsAddSocket,
+        VRayNodeRenderChannelsDelSocket,
         VRayNodeRenderChannels,
     )
 

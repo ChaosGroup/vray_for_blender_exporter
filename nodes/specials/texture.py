@@ -26,6 +26,7 @@ import bpy
 
 from ..        import tree
 from ..sockets import AddInput, AddOutput
+from ..operators import sockets as SocketOperators
 
 
  ######   #######   ######  ##    ## ######## ########  ######
@@ -83,42 +84,7 @@ class VRaySocketTexLayered(bpy.types.NodeSocket):
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
 
-class VRayNodeAddCustomSocket:
-    vray_socket_type = None
-
-    def execute(self, context):
-        node = context.node
-
-        humanIndex = len(node.inputs) + 1
-        sockName = "%s %i" % (self.vray_socket_name, humanIndex)
-
-        AddInput(node, self.vray_socket_type, sockName)
-
-        if hasattr(self, 'set_default'):
-            self.set_default(node.inputs[sockName])
-
-        return {'FINISHED'}
-
-
-class VRayNodeDelCustomSocket:
-    def execute(self, context):
-        node     = context.node
-        nSockets = len(node.inputs)
-        if not nSockets:
-            return {'FINISHED'}
-        for i in range(nSockets-1, 0, -1):
-            humanIndex = i + 1
-            sockName   = "%s %i" % (self.vray_socket_name, humanIndex)
-            if sockName not in node.inputs:
-                break
-            s = node.inputs[sockName]
-            if not s.is_linked:
-                node.inputs.remove(s)
-                break
-        return {'FINISHED'}
-
-
-class VRAY_OT_node_add_texlayered_sockets(VRayNodeAddCustomSocket, bpy.types.Operator):
+class VRAY_OT_node_add_texlayered_sockets(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_add_texlayered_sockets'
     bl_label       = "Add TexLayered Socket"
     bl_description = "Adds TexLayered sockets"
@@ -128,7 +94,7 @@ class VRAY_OT_node_add_texlayered_sockets(VRayNodeAddCustomSocket, bpy.types.Ope
         self.vray_socket_name = "Texture"
 
 
-class VRAY_OT_node_del_texlayered_sockets(VRayNodeDelCustomSocket, bpy.types.Operator):
+class VRAY_OT_node_del_texlayered_sockets(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_del_texlayered_sockets'
     bl_label       = "Remove TexLayered Socket"
     bl_description = "Removes TexLayered socket (only not linked sockets will be removed)"
@@ -247,7 +213,7 @@ class VRaySocketTexMulti(bpy.types.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
-class VRayNodeTexMultiAddSocket(VRayNodeAddCustomSocket, bpy.types.Operator):
+class VRayNodeTexMultiAddSocket(SocketOperators.VRayNodeAddCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_add_texmulti_socket'
     bl_label       = "Add TexMulti Socket"
     bl_description = "Adds TexMulti sockets"
@@ -256,11 +222,11 @@ class VRayNodeTexMultiAddSocket(VRayNodeAddCustomSocket, bpy.types.Operator):
         self.vray_socket_type = 'VRaySocketTexMulti'
         self.vray_socket_name = "Texture"
 
-    def set_default(self, nodeSock):
-        nodeSock.value = len(nodeSock.node.inputs)
+    def set_value(self, nodeSock, value):
+        nodeSock.value = value
 
 
-class VRayNodeTexMultiDelSocket(VRayNodeDelCustomSocket, bpy.types.Operator):
+class VRayNodeTexMultiDelSocket(SocketOperators.VRayNodeDelCustomSocket, bpy.types.Operator):
     bl_idname      = 'vray.node_del_texmulti_socket'
     bl_label       = "Remove TexMulti Socket"
     bl_description = "Removes TexMulti socket (only not linked sockets will be removed)"
