@@ -242,11 +242,11 @@ def nodeDraw(context, layout, MtlVRmat):
     row.prop(MtlVRmat, 'mtlname', text="")
     row.operator("vray.get_vrscene_material_name", text="", icon='IMASEL')
 
-    layout.separator()
-    split = layout.split()
-    row = split.row(align=True)
-    row.operator("vray.material_ntree_load", text="Load", icon='FILE_FOLDER')
-    row.operator("vray.material_ntree_save", text="Save", icon='FILE_TICK')
+    # layout.separator()
+    # split = layout.split()
+    # row = split.row(align=True)
+    # row.operator("vray.material_ntree_load", text="Load", icon='FILE_FOLDER')
+    # row.operator("vray.material_ntree_save", text="Save", icon='FILE_TICK')
 
 
 def GetRegClasses():
