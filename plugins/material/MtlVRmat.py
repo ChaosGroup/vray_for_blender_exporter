@@ -34,6 +34,8 @@ from vb30.vray_tools.VrmatParser     import GetXMLMaterialsNames, ParseVrmat
 from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
 
+from vb30.debug import Debug
+
 
 TYPE = 'MATERIAL'
 ID   = 'MtlVRmat'
@@ -121,18 +123,22 @@ class VRayGetMaterialName(bpy.types.Operator):
     node = None
 
     def execute(self, context):
-        if not self.node:
+        if not context.node:
+            Debug.PrintError("No active node!")
             return {'CANCELLED'}
 
-        if self.node.bl_idname != "VRayNodeMtlVRmat":
+        if context.node.bl_idname != "VRayNodeMtlVRmat":
+            Debug.PrintError("Selected node is not of type VRayNodeMtlVRmat!")
             return {'CANCELLED'}
 
-        MtlVRmat = self.node.MtlVRmat
+        MtlVRmat = context.node.MtlVRmat
         if not MtlVRmat.filename:
+            Debug.PrintError("Filepath is not set!")
             return {'CANCELLED'}
 
         filePath = os.path.normpath(bpy.path.abspath(MtlVRmat.filename))
         if not os.path.exists(filePath):
+            Debug.PrintError("File doesn't exist!")
             return {'CANCELLED'}
 
         if filePath.endswith(".vrscene"):
@@ -162,24 +168,24 @@ class VRayMaterialExpand(bpy.types.Operator):
     def execute(self, context):
         node = context.node
         if not node:
-            print("No active node!")
+            Debug.PrintError("No active node!")
             return {'CANCELLED'}
         if node.bl_idname != "VRayNodeMtlVRmat":
-            print("Selected node is not of type VRayNodeMtlVRmat!")
+            Debug.PrintError("Selected node is not of type VRayNodeMtlVRmat!")
             return {'CANCELLED'}
 
         MtlVRmat = node.MtlVRmat
         if not MtlVRmat.filename:
-            print("Filepath is not set!")
+            Debug.PrintError("Filepath is not set!")
             return {'CANCELLED'}
 
         if not MtlVRmat.mtlname:
-            print("Material is not chosen!")
+            Debug.PrintError("Material is not chosen!")
             return {'CANCELLED'}
 
         filePath = os.path.normpath(bpy.path.abspath(MtlVRmat.filename))
         if not os.path.exists(filePath):
-            print("File doesn't exist!")
+            Debug.PrintError("File doesn't exist!")
             return {'CANCELLED'}
 
         namePrefix  = ""
@@ -213,10 +219,7 @@ class VRayMaterialExpand(bpy.types.Operator):
             print("Requested material is not found!")
             return {'CANCELLED'}
 
-        # XXX: The most stupid way to get active node tree!
-        # Find out the proper one...
-        #
-        ntree = context.area.spaces[0].node_tree
+        ntree = context.space_data.edit_tree
 
         # Now lets start creating nodes
         #
