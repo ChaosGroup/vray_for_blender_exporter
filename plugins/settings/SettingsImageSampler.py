@@ -258,15 +258,29 @@ PluginWidget = """
                 "align" : true,
                 "attrs" : [
                     { "name" : "dmc_minSubdivs" },
-                    { "name" : "dmc_maxSubdivs" },
-                    { "name" : "dmc_threshold" }
+                    { "name" : "dmc_maxSubdivs" }
                 ]
             },
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
                     { "name" : "dmc_show_samples" },
-                    { "name" : "dmc_per_pixel_filtering" },
+                    { "name" : "dmc_per_pixel_filtering" }
+                ]
+            }
+        ]
+    },
+
+    {   "layout" : "SPLIT",
+        "show" : { "prop" : "type", "condition" : "1" },
+        "splits" : [
+            {   "layout" : "COLUMN",
+                "attrs" : [
+                    { "name" : "dmc_threshold", "active" : { "prop" : "use_dmc_treshhold", "condition" : "0" }}
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "attrs" : [
                     { "name" : "use_dmc_treshhold" }
                 ]
             }
