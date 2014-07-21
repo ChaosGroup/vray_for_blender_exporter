@@ -42,6 +42,7 @@ PluginParams = (
     },
     {
         'attr' : 'max_velocity',
+        'name' : "Max. Velocity",
         'desc' : "",
         'type' : 'FLOAT',
         'default' : 1,
