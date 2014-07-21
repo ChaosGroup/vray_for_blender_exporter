@@ -22,6 +22,9 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsImageSampler'
 NAME = 'Image Sampler'
@@ -317,3 +320,15 @@ PluginWidget = """
     }
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+
+    VRayScene = scene.vray
+    SettingsDMCSampler = VRayScene.SettingsDMCSampler
+
+    if propGroup.use_dmc_treshhold:
+        overrideParams['dmc_threshold'] = SettingsDMCSampler.adaptive_threshold
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
