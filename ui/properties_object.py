@@ -25,6 +25,7 @@
 import bpy
 
 from vb30.ui import classes
+from vb30.plugins import PLUGINS_ID
 
 
 class VRAY_OBP_context_node(classes.VRayObjectPanel):
@@ -234,6 +235,41 @@ class VRayObjectPanelRenderStats(classes.VRayObjectPanel, bpy.types.Panel):
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
 
+class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
+	bl_label = "User Attributes"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+
+	def draw(self, context):
+		layout = self.layout
+		ob = context.object
+
+		Node = ob.vray.Node
+
+		row = layout.row()
+		row.template_list('VRayListUserAttributes',
+			"",
+			Node, 'user_attributes',
+			Node, 'user_attributes_selected',
+			rows = 4)
+
+		col = row.column()
+		sub = col.row()
+		subsub = sub.column(align=True)
+		subsub.operator('vray.user_attribute_add', text="", icon='ZOOMIN')
+		subsub.operator('vray.user_attribute_del', text="", icon='ZOOMOUT')
+
+		if Node.user_attributes_selected >= 0 and len(Node.user_attributes):
+			user_attribute = Node.user_attributes[Node.user_attributes_selected]
+
+			layout.separator()
+			layout.prop(user_attribute, 'name')
+			layout.prop(user_attribute, 'value_type')
+			layout.prop(user_attribute, PLUGINS_ID['Node'].gUserAttributeTypeToValue[user_attribute.value_type], text="Value")
+
+
 def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
@@ -241,6 +277,8 @@ def GetRegClasses():
 
 		VRayObjectPanelWrapper,
 		VRayObjectPanelRenderStats,
+
+		VRayObjectPanelUserAttributes,
 	)
 
 
