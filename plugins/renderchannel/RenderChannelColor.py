@@ -62,6 +62,7 @@ ColorChannelNamesMenu = (
     ('131', "Bump Normal", ""),
     ('132', "Samplerate", ""),
     ('133', "SSS", ""),
+    ('115', "Material ID", ""),
 )
 
 PluginParams = (
