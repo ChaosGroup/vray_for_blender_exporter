@@ -27,6 +27,7 @@ from . import selector
 from . import environment
 from . import brdf
 from . import texture
+from . import material
 from . import effects
 from . import renderchannels
 from . import inputlist
@@ -39,6 +40,7 @@ def register():
     environment.register()
     brdf.register()
     texture.register()
+    material.register()
     effects.register()
     renderchannels.register()
     inputlist.register()
@@ -51,6 +53,7 @@ def unregister():
     environment.unregister()
     brdf.unregister()
     texture.unregister()
+    material.unregister()
     effects.unregister()
     renderchannels.unregister()
     inputlist.unregister()
