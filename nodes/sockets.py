@@ -174,6 +174,34 @@ class VRaySocketInt(bpy.types.NodeSocket):
         return (0.1, 0.4, 0.4, 1.00)
 
 
+class VRaySocketIntNoValue(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketIntNoValue'
+    bl_label  = 'Integer socket'
+
+    value = bpy.props.IntProperty(
+        name = "Value",
+        description = "Value",
+        min = -1024,
+        max =  1024,
+        soft_min = -100,
+        soft_max =  100,
+        default = 1
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (0.1, 0.4, 0.4, 1.00)
+
+
 ######## ##        #######     ###    ########
 ##       ##       ##     ##   ## ##      ##
 ##       ##       ##     ##  ##   ##     ##
@@ -669,6 +697,7 @@ def GetRegClasses():
         VRaySocketGeom,
         VRaySocketObject,
         VRaySocketInt,
+        VRaySocketIntNoValue,
         VRaySocketFloat,
         VRaySocketFloatColor,
         VRaySocketFloatNoValue,
