@@ -270,6 +270,19 @@ class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 			layout.prop(user_attribute, PLUGINS_ID['Node'].gUserAttributeTypeToValue[user_attribute.value_type], text="Value")
 
 
+class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
+	bl_label   = "Advanced"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+
+	def draw(self, context):
+		VRayObject = context.object.vray
+
+		self.layout.prop(VRayObject, 'use_instancer')
+
+
 def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
@@ -279,6 +292,7 @@ def GetRegClasses():
 		VRayObjectPanelRenderStats,
 
 		VRayObjectPanelUserAttributes,
+		VRayObjectPanelAdvanced,
 	)
 
 
