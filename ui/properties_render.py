@@ -486,8 +486,8 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		cm= context.scene.vray.SettingsColorMapping
 
 		split= layout.split()
-		col= split.column()
-		col.prop(cm, 'type')
+		col= split.column(align=True)
+		col.prop(cm, 'type', text="")
 		if cm.type == '6':
 			col.prop(cm, "dark_mult",   text="Multiplier")
 			col.prop(cm, "bright_mult", text="Burn")
@@ -500,7 +500,7 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		col.prop(cm, "gamma")
 		col.prop(cm, "input_gamma")
 		if wide_ui:
-			col= split.column()
+			col= split.column(align=True)
 		col.prop(cm, "affect_background")
 		col.prop(cm, "subpixel_mapping")
 		col.prop(cm, "adaptation_only")
