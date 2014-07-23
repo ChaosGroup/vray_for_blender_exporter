@@ -169,6 +169,26 @@ class VRAY_OT_del_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpRenameToMaterialName(bpy.types.Operator):
+    bl_idname      = "vray.nodetree_rename_to_material"
+    bl_label       = "Rename To Material"
+    bl_description = "Rename node tree with material name"
+
+    def execute(self, context):
+        slot = context.material_slot
+        if not slot.material:
+            return {'CANCELLED'}
+
+        ma = slot.material
+        nt = ma.vray.ntree
+        if not nt:
+            return {'CANCELLED'}
+
+        nt.name = ma.name
+
+        return {'FINISHED'}
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -186,6 +206,8 @@ def GetRegClasses():
         VRAY_OT_add_world_nodetree,
 
         VRAY_OT_del_nodetree,
+
+        VRayOpRenameToMaterialName,
     )
 
 
