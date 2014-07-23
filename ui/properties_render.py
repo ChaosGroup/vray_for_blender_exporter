@@ -409,6 +409,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'instancer_dupli_group')
+		col.prop(VRayExporter, 'instancer_particles')
 
 		split = layout.split()
 		col = split.column()

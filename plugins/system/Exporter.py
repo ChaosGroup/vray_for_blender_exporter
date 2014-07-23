@@ -349,6 +349,11 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    instancer_particles = bpy.props.BoolProperty(
+        name = "Use Instancer For Particles",
+        default = True
+    )
+
 
 def GetRegClasses():
     return (
