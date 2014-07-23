@@ -76,7 +76,7 @@ PluginParams = (
         'attr' : 'color_mapping',
         'desc' : "Color Mapping",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'consider_for_aa',
@@ -89,7 +89,7 @@ PluginParams = (
         'attr' : 'filtering',
         'desc' : "Filtering",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'alias',
