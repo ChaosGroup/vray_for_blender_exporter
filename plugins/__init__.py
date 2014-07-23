@@ -441,32 +441,24 @@ class VRayLight(bpy.types.PropertyGroup):
 		default= 5000
 	)
 
-	use_include_exclude= bpy.props.BoolProperty(
+	include_exclude= bpy.props.EnumProperty(
 		name= "Use Include / Exclude",
-		description= "Use Include / Exclude",
-		default= False
+		items = (
+			('0', "None", ""),
+			('1', "Exclude", ""),
+			('2', "Include", ""),
+		),
+		default= '0'
 	)
 
-	use_include= bpy.props.BoolProperty(
-		name= "Use Include",
-		description= "Use include",
-		default= False
-	)
-
-	include_objects= bpy.props.StringProperty(
-		name= "Include objects",
-		description= "Include objects"
-	)
-
-	include_groups= bpy.props.StringProperty(
-		name= "Include groups",
-		description= "Include groups"
-	)
-
-	use_exclude= bpy.props.BoolProperty(
-		name= "Use Exclude",
-		description= "Use exclude",
-		default= False
+	illumination_shadow= bpy.props.EnumProperty(
+		name= "Include / Exclude Type",
+		items = (
+			('0', "Illumination", ""),
+			('1', "Shadow Casting", ""),
+			('2', "Both", ""),
+		),
+		default = '0'
 	)
 
 	exclude_objects= bpy.props.StringProperty(

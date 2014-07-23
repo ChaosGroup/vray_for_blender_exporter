@@ -158,30 +158,22 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
     bl_label   = "Include / Exclude"
     bl_options = {'DEFAULT_CLOSED'}
 
-    def draw_header(self, context):
-        VRayLamp = context.lamp.vray
-        self.layout.prop(VRayLamp, 'use_include_exclude', text="")
+    COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
 
     def draw(self, context):
-        layout = self.layout
+        wide_ui= context.region.width > classes.narrowui
+        layout= self.layout
 
-        VRayLamp = context.lamp.vray
+        VRayLamp= context.lamp.vray
 
-        layout.active = VRayLamp.use_include_exclude
+        layout.prop(VRayLamp, 'include_exclude', text="Type")
 
-        layout.prop(VRayLamp, 'use_include')
-        split= layout.split()
-        split.active = VRayLamp.use_include
-        col= split.column()
-        col.prop_search(VRayLamp, 'include_objects',  context.scene, 'objects', text="")
-        col.prop_search(VRayLamp, 'include_groups',   bpy.data,      'groups',  text="")
-
-        layout.prop(VRayLamp, 'use_exclude')
-        split= layout.split()
-        split.active = VRayLamp.use_exclude
-        col= split.column()
-        col.prop_search(VRayLamp, 'exclude_objects',  context.scene, 'objects', text="")
-        col.prop_search(VRayLamp, 'exclude_groups',   bpy.data,      'groups',  text="")
+        split = layout.split()
+        split.active = VRayLamp.include_exclude != '0'
+        col = split.column()
+        # col.prop(VRayLamp, 'illumination_shadow', text="From")
+        col.prop_search(VRayLamp, 'exclude_objects',  context.scene, 'objects', text="Object")
+        col.prop_search(VRayLamp, 'exclude_groups',   bpy.data,      'groups',  text="Group")
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
