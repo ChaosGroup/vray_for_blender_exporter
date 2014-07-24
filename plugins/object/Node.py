@@ -66,7 +66,8 @@ class VRayUserAttributeOpPromote(bpy.types.Operator):
 
         activeAttrValue = getattr(activeAttribute, attrValueName)
 
-        for ob in filter(lambda x: x != activeObject, selectedObjects):
+        selectionFilter = lambda x: hasattr(x, 'vray') and hasattr(x.vray, 'Node') and x != activeObject
+        for ob in filter(selectionFilter, selectedObjects):
             Node = ob.vray.Node
 
             attr = None
