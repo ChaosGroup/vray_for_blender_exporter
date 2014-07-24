@@ -41,11 +41,10 @@ def InitExporter(bus, isAnimation=False):
             drSharePath = bpy.path.abspath(VRayDR.shared_dir)
 
     exporter = _vray_for_blender.init(
-        scene   = scene.as_pointer(),
         engine  = engine.as_pointer(),
         context = bpy.context.as_pointer(),
-
-        useNodes = True,
+        scene   = scene.as_pointer(),
+        data    = bpy.data.as_pointer(),
 
         objectFile   = o.fileManager.getFileByPluginType('OBJECT'),
         geometryFile = o.fileManager.getFileByPluginType('GEOMETRY'),
