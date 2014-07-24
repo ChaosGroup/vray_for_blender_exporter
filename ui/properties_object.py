@@ -261,13 +261,30 @@ class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 		subsub.operator('vray.user_attribute_add', text="", icon='ZOOMIN')
 		subsub.operator('vray.user_attribute_del', text="", icon='ZOOMOUT')
 
-		if Node.user_attributes_selected >= 0 and len(Node.user_attributes):
-			user_attribute = Node.user_attributes[Node.user_attributes_selected]
+		selectedItem     = Node.user_attributes_selected
+		haveSelectedItem = selectedItem >= 0 and len(Node.user_attributes)
+		if haveSelectedItem:
+			user_attribute = Node.user_attributes[selectedItem]
 
 			layout.separator()
 			layout.prop(user_attribute, 'name')
 			layout.prop(user_attribute, 'value_type')
 			layout.prop(user_attribute, PLUGINS_ID['Node'].gUserAttributeTypeToValue[user_attribute.value_type], text="Value")
+
+			box = layout.box()
+			box.label("Promote Attribute To Selection")
+			box.prop(Node, 'user_attributes_rnd_use')
+			box_split = box.split()
+			box_split.active = Node.user_attributes_rnd_use
+			if user_attribute.value_type == '0':
+				sub = box_split.row(align=True)
+				sub.prop(Node, 'user_attributes_int_rnd_min')
+				sub.prop(Node, 'user_attributes_int_rnd_max')
+			elif user_attribute.value_type == '1':
+				sub = box_split.row(align=True)
+				sub.prop(Node, 'user_attributes_float_rnd_min')
+				sub.prop(Node, 'user_attributes_float_rnd_max')
+			box.operator('vray.user_attribute_promote')
 
 
 class VRayObjectPanelAdvanced(classes.VRayObjectPanel):

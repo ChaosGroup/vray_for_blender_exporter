@@ -22,7 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import random
+
 import bpy
+import mathutils
 
 
 TYPE = 'OBJECT'
@@ -37,6 +40,72 @@ gUserAttributeTypeToValue = {
     '2' : "value_color",
     '3' : "value_string"
 }
+
+
+class VRayUserAttributeOpPromote(bpy.types.Operator):
+    bl_idname      = 'vray.user_attribute_promote'
+    bl_label       = "Promote"
+    bl_description = "Promote user attribute to selected objects"
+
+    def execute(self, context):
+        activeObject    = context.active_object
+        selectedObjects = context.selected_objects
+
+        activeNode = activeObject.vray.Node
+        activeAttrIndex = activeNode.user_attributes_selected
+
+        activeAttrCount = len(activeNode.user_attributes)
+        if not activeAttrIndex >= 0 or not activeAttrCount:
+            return {'CANCELLED'}
+
+        activeAttribute = activeNode.user_attributes[activeAttrIndex]
+
+        attrName = activeAttribute.name
+        attrType = activeAttribute.value_type
+        attrValueName = gUserAttributeTypeToValue[attrType]
+
+        activeAttrValue = getattr(activeAttribute, attrValueName)
+
+        for ob in filter(lambda x: x != activeObject, selectedObjects):
+            Node = ob.vray.Node
+
+            attr = None
+            if attrName in Node.user_attributes:
+                attr = Node.user_attributes[attrName]
+                # NOTE: Type could be changed
+                attr.value_type = attrType
+            else:
+                attr = Node.user_attributes.add()
+                attr.name       = attrName
+                attr.value_type = attrType
+
+            if not activeNode.user_attributes_rnd_use:
+                setattr(attr, attrValueName, activeAttrValue)
+
+            else:
+                if activeAttribute.value_type == '3':
+                    attr.value_string = activeAttribute.value_string
+                else:
+                    newValue = None
+                    if activeAttribute.value_type == '0':
+                        newValue = random.randrange(activeNode.user_attributes_int_rnd_min,
+                            activeNode.user_attributes_int_rnd_max)
+                    elif activeAttribute.value_type == '1':
+                        random.random()
+                        randFloat = random.random()
+                        randRange = activeNode.user_attributes_float_rnd_max - activeNode.user_attributes_float_rnd_min
+                        newValue = activeNode.user_attributes_float_rnd_min + randFloat * randRange
+                    elif activeAttribute.value_type == '2':
+                        random.random()
+                        randR = random.random()
+                        random.random()
+                        randG = random.random()
+                        random.random()
+                        randB = random.random()
+                        newValue = mathutils.Color((randR, randG, randB))
+                    setattr(attr, attrValueName, newValue)
+
+        return {'FINISHED'}
 
 
 class VRayUserAttributeItem(bpy.types.PropertyGroup):
@@ -94,6 +163,12 @@ class VRayNode(bpy.types.PropertyGroup):
         max = 100
     )
 
+    user_attributes_rnd_use = bpy.props.BoolProperty(name="Randomize", default=False)
+    user_attributes_float_rnd_min = bpy.props.FloatProperty(name="Min", default=0.0)
+    user_attributes_float_rnd_max = bpy.props.FloatProperty(name="Max", default=1.0)
+    user_attributes_int_rnd_min = bpy.props.IntProperty(name="Min", default=0)
+    user_attributes_int_rnd_max = bpy.props.IntProperty(name="Max", default=100)
+
 
 class VRayUserAttributeAdd(bpy.types.Operator):
     bl_idname      = 'vray.user_attribute_add'
@@ -137,6 +212,7 @@ def GetRegClasses():
         VRayUserAttributeDel,
         VRayListUserAttributes,
         VRayNode,
+        VRayUserAttributeOpPromote,
     )
 
 
