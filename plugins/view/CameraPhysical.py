@@ -352,16 +352,14 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     VRayCamera = camera.data.vray
 
-    fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle
-
-    aspect = scene.render.resolution_x / scene.render.resolution_y
-    if aspect < 1.0:
-        fov = fov * aspect
+    fov, orthoWidth = BlenderUtils.GetCameraFOV(camera)
 
     overrideParams.update({
         'fov' : fov,
 
         'focus_distance' : BlenderUtils.GetCameraDofDistance(camera),
+        'specify_focus'  : True,
+
         'lens_shift'     : GetLensShift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 
         'horizontal_offset' : -camera.data.shift_x,
