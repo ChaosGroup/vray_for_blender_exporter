@@ -202,15 +202,14 @@ class VRAY_DP_physical_camera(classes.VRayCameraPanel):
 			col= split.column(align=True)
 
 		col.prop(CameraPhysical, 'exposure')
-		if CameraPhysical.exposure:
-			col.prop(CameraPhysical, 'f_number')
-			col.prop(CameraPhysical, 'shutter_speed')
-			if CameraPhysical.type == 'CINEMATIC':
-				col.prop(CameraPhysical, 'shutter_angle')
-				col.prop(CameraPhysical, 'shutter_offset')
-			elif CameraPhysical.type == 'VIDEO':
-				col.prop(CameraPhysical, 'latency')
-			col.prop(CameraPhysical, 'ISO')
+		col.prop(CameraPhysical, 'f_number')
+		col.prop(CameraPhysical, 'shutter_speed')
+		if CameraPhysical.type == 'CINEMATIC':
+			col.prop(CameraPhysical, 'shutter_angle')
+			col.prop(CameraPhysical, 'shutter_offset')
+		elif CameraPhysical.type == 'VIDEO':
+			col.prop(CameraPhysical, 'latency')
+		col.prop(CameraPhysical, 'ISO')
 
 		split= layout.split()
 		col= split.column()
