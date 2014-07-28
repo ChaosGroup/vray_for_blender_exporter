@@ -354,10 +354,14 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     fov, orthoWidth = BlenderUtils.GetCameraFOV(camera)
 
+    focus_distance = BlenderUtils.GetCameraDofDistance(camera)
+    if focus_distance < 0.001:
+        focus_distance = 5.0
+
     overrideParams.update({
         'fov' : fov,
 
-        'focus_distance' : BlenderUtils.GetCameraDofDistance(camera),
+        'focus_distance' : focus_distance,
         'specify_focus'  : True,
 
         'lens_shift'     : GetLensShift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
