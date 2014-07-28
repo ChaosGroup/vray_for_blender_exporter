@@ -166,6 +166,7 @@ PluginParams = (
     },
     {
         'attr' : 'multiple_views',
+        'name' : "Use Camera Path",
         'desc' : "When this option is on, V-Ray will calculate the light cache samples for the entire camera path, instead of just the current view, in the same way as this is done for the Fly-through mode",
         'type' : 'BOOL',
         'default' : False,
