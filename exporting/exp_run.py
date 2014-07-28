@@ -56,6 +56,7 @@ def Run(bus):
     p.setVerboseLevel(VRayExporter.verboseLevel)
     p.setShowProgress(VRayExporter.showProgress)
     p.setDisplaySRGB(VRayExporter.display_srgb)
+    p.setDisplayVFB(VRayExporter.display)
 
     # TODO: Rewrite into 'SettingsOutput'
     if scene.render.use_border:
