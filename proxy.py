@@ -227,11 +227,10 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         o = VRayStream.VRaySimplePluginExporter(outputFile=vrsceneFile)
 
         exporter = _vray_for_blender.init(
-            scene   = sce.as_pointer(),
             engine  = 0,
             context = bpy.context.as_pointer(),
-
-            useNodes = True,
+            scene   = sce.as_pointer(),
+            data    = bpy.data.as_pointer(),
 
             objectFile   = o.output,
             geometryFile = o.output,
@@ -242,6 +241,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             isAnimation = frames is not None,
             frameStart  = frameStart,
             frameStep   = frameStep,
+
+            drSharePath = "",
         )
 
         _vray_for_blender.setFrame(frameStart)
