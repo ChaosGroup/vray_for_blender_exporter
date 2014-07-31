@@ -104,7 +104,8 @@ def Export(bus, scene, engine, isPreview=False):
     td = datetime.timedelta(seconds=te)
     d  = datetime.datetime(1,1,1) + td
 
-    debug.PrintMsg("Export done [%.2i:%.2i:%.2i]" % (d.hour, d.minute, d.second))
+    if not bus['preview']:
+        debug.PrintMsg("Export done [%.2i:%.2i:%.2i]" % (d.hour, d.minute, d.second))
 
     return err
 
