@@ -34,6 +34,8 @@
 #
 
 import os
+import time
+import datetime
 
 import bpy
 
@@ -62,6 +64,8 @@ def Export(bus, scene, engine, isPreview=False):
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
+
+    ts = time.time()
 
     o.write('MAIN', "\n")
     o.write('MAIN', SysUtils.GetVRsceneTemplate("defaults.vrscene"))
@@ -95,6 +99,12 @@ def Export(bus, scene, engine, isPreview=False):
                 filepath = BlenderUtils.GetFullFilepath(includeFile.scene)
                 o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
             o.write('MAIN', '\n')
+
+    te = time.time() - ts
+    td = datetime.timedelta(seconds=te)
+    d  = datetime.datetime(1,1,1) + td
+
+    debug.PrintMsg("Export done [%.2i:%.2i:%.2i]" % (d.hour, d.minute, d.second))
 
     return err
 
