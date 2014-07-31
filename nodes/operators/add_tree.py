@@ -70,6 +70,7 @@ class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
         nt.use_fake_user = True
 
         nt.nodes.new('VRayNodeRenderChannels')
+        NodesTools.deselectNodes(nt)
 
         VRayScene.ntree = nt
 

@@ -24,6 +24,8 @@
 
 import bpy
 
+from . import tools as NodesTools
+
 
 def AddMaterialNodeTree(ma):
     VRayMaterial = ma.vray
@@ -50,3 +52,5 @@ def AddMaterialNodeTree(ma):
         nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
 
         VRayMaterial.ntree = nt
+
+    NodesTools.deselectNodes(VRayMaterial.ntree)
