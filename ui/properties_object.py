@@ -235,6 +235,40 @@ class VRayObjectPanelRenderStats(classes.VRayObjectPanel, bpy.types.Panel):
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
 
+class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
+	bl_label = "Clipper"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		VRayClipper = context.object.vray.VRayClipper
+
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+		self.layout.prop(VRayClipper, 'enabled', text="")
+
+	def draw(self, context):
+		layout  = self.layout
+		wide_ui = context.region.width > classes.narrowui
+
+		VRayClipper = context.object.vray.VRayClipper
+
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayClipper, 'affect_light')
+		col.prop(VRayClipper, 'clip_lights')
+
+		col.prop(VRayClipper, 'only_camera_rays')
+		col.prop(VRayClipper, 'use_obj_mtl')
+
+		row = layout.row(align=True)
+		row.prop(VRayClipper, 'exclusion_mode', text="")
+		row.prop_search(VRayClipper, 'exclusion_nodes', bpy.data, 'groups', text="")
+
+		layout.prop(VRayClipper, 'set_material_id')
+		col = layout.column()
+		col.active = VRayClipper.set_material_id
+		col.prop(VRayClipper, 'material_id')
+
+
 class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 	bl_label = "User Attributes"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -304,6 +338,8 @@ def GetRegClasses():
 	return (
 		VRAY_OBP_context_node,
 		VRAY_OBP_VRayPattern,
+
+		VRayObjectPanelVRayClipper,
 
 		VRayObjectPanelWrapper,
 		VRayObjectPanelRenderStats,
