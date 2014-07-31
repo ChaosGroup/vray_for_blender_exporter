@@ -64,6 +64,13 @@ def IsDebugMode():
 
 # Log message
 #
+def PrintMsg(message):
+    sys.stdout.write("%s: %s\n" % (
+        Color("V-Ray For Blender", 'green'), message),
+    )
+    sys.stdout.flush()
+
+
 def PrintInfo(message, msgType='INFO'):
     sys.stdout.write("%s: %s\n" % (
         Color("V-Ray For Blender", 'green'),
@@ -146,9 +153,10 @@ def TimeIt(method):
         result = method(*args, **kw)
         te = time.time() - ts
         td = datetime.timedelta(seconds=te)
+        d  = datetime.datetime(1,1,1) + td
         if IsDebugMode():
             sys.stdout.write(Color("V-Ray For Blender", 'green'))
-            sys.stdout.write(": %s() done [%s].\n" % (method.__name__, str(td)))
+            sys.stdout.write(": %s() done [%.2i:%.2i:%.2i]\n" % (method.__name__, d.hour, d.minute, d.second))
             sys.stdout.flush()
         return result
     return timed
