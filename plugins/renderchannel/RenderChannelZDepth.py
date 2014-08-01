@@ -70,8 +70,13 @@ PluginParams = (
 def nodeDraw(context, layout, propGroup):
     layout.prop(propGroup, 'name')
 
-    layout.prop(propGroup, 'depth_black', text="Black Dist.")
-    layout.prop(propGroup, 'depth_white', text="White Dist.")
-    layout.prop(propGroup, 'depth_from_camera')
-    layout.prop(propGroup, 'depth_clamp')
-    layout.prop(propGroup, 'filtering')
+    split = layout.split()
+    col = split.column(align=True)
+    col.prop(propGroup, 'depth_black', text="Black Distance")
+    col.prop(propGroup, 'depth_white', text="White Distance")
+
+    split = layout.split()
+    col = split.column()
+    col.prop(propGroup, 'depth_from_camera')
+    col.prop(propGroup, 'depth_clamp')
+    col.prop(propGroup, 'filtering')
