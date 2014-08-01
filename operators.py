@@ -37,6 +37,7 @@ from bpy.props import *
 import vb30.proxy
 
 from vb30.lib     import LibUtils, BlenderUtils, PathUtils, SysUtils
+from vb30.lib     import ColorUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30 import debug
 
@@ -382,7 +383,7 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 			if self.use_temperature:
 				temperature= self.temperature
 
-			setattr(data_pointer, attr, tuple(kelvin_to_rgb(temperature)))
+			setattr(data_pointer, attr, tuple(ColorUtils.KelvinToRBG(temperature)))
 
 		return {'FINISHED'}
 
