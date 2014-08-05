@@ -341,3 +341,9 @@ def AddEvent(event, func):
 def DelEvent(event, func):
     if func in event:
         event.remove(func)
+
+
+def SelectObject(ob):
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.scene.objects.active = ob
+    ob.select = True
