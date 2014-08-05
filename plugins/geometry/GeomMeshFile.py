@@ -213,7 +213,7 @@ PluginParams = (
             ('NONE',    "None",        "Don\'t attach proxy"),
             ('NEW',     "New Object",  "Attach proxy to new object"),
             ('THIS',    "This Object", "Attach proxy to this object"),
-            ('REPLACE', "Replace",     "Replace this object with proxy"),
+            ('REPLACE', "Replace This", "Replace this object with proxy"),
         ),
         'skip' : True,
         'default' : 'NONE'
