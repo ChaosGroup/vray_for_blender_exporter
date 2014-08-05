@@ -37,6 +37,8 @@ import _vray_for_blender
 from vb30.lib import BlenderUtils, PathUtils, LibUtils, SysUtils
 from vb30.lib import VRayStream
 
+from vb30.nodes import tools as NodesTools
+
 from vb30.vray_tools import VRayProxy
 from vb30 import debug
 
@@ -106,6 +108,75 @@ def ExportMeshSample(o, ob):
     return nodeName
 
 
+def LoadProxyPreviewMesh(ob, filepath, anim_type, anim_offset, anim_speed, anim_frame):
+    meshFile = VRayProxy.MeshFile(filepath)
+
+    result = meshFile.readFile()
+    if result is not None:
+        return "Error parsing VRayProxy file!"
+
+    meshData = meshFile.getPreviewMesh(
+        anim_type,
+        anim_offset,
+        anim_speed,
+        anim_frame
+    )
+
+    if meshData is None:
+        return "Can't find preview voxel!"
+
+    mesh = bpy.data.meshes.new("VRayProxyPreview")
+    mesh.from_pydata(meshData['vertices'], [], meshData['faces'])
+    mesh.update()
+
+    # Replace object mesh
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bm.to_mesh(ob.data)
+    ob.data.update()
+
+    if meshData['uv_sets']:
+        for uvName in meshData['uv_sets']:
+            bpy.ops.mesh.uv_texture_add()
+
+            index = ob.data.uv_layers.active_index
+            uvLayer = ob.data.uv_layers[index]
+            uvLayer.name = uvName
+
+    # Remove temp
+    bm.free()
+    bpy.data.meshes.remove(mesh)
+
+
+def CreateProxyNodetree(ob, proxyFilepath):
+    VRayObject = ob.vray
+    if VRayObject.ntree:
+        return "Node tree already exists!"
+
+    nt = bpy.data.node_groups.new(ob.name, type='VRayNodeTreeObject')
+    nt.use_fake_user = True
+
+    outputNode = nt.nodes.new('VRayNodeObjectOutput')
+
+    proxyGeometry   = nt.nodes.new('VRayNodeGeomMeshFile')
+    blenderMaterial = nt.nodes.new('VRayNodeBlenderOutputMaterial')
+
+    blenderMaterial.location.x = outputNode.location.x - 200
+    blenderMaterial.location.y = outputNode.location.y + 30
+
+    proxyGeometry.location.x = outputNode.location.x - 200
+    proxyGeometry.location.y = outputNode.location.y - 150
+
+    nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
+    nt.links.new(proxyGeometry.outputs['Geometry'],   outputNode.inputs['Geometry'])
+
+    NodesTools.deselectNodes(nt)
+
+    proxyGeometry.GeomMeshFile.file = proxyFilepath
+
+    VRayObject.ntree = nt
+
+
  #######  ########   ##        ########  ########  ######## ##     ## #### ######## ##      ##
 ##     ## ##     ## ####       ##     ## ##     ## ##       ##     ##  ##  ##       ##  ##  ##
 ##     ## ##     ##  ##        ##     ## ##     ## ##       ##     ##  ##  ##       ##  ##  ##
@@ -120,8 +191,7 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
     bl_description = "Loads mesh preview from vrmesh file"
 
     def execute(self, context):
-        GeomMeshFile = context.node.GeomMeshFile
-
+        GeomMeshFile  = context.node.GeomMeshFile
         proxyFilepath = bpy.path.abspath(GeomMeshFile.file)
 
         if not proxyFilepath:
@@ -129,48 +199,20 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
             return {'FINISHED'}
 
         if not os.path.exists(proxyFilepath):
-            self.report({'ERROR'}, "Proxy filepath does not exist!")
             return {'FINISHED'}
 
-        meshFile = VRayProxy.MeshFile(proxyFilepath)
-
-        result = meshFile.readFile()
-        if result is not None:
-            self.report({'ERROR'}, "Error parsing VRayProxy file!")
-            return {'FINISHED'}
-
-        meshData = meshFile.getPreviewMesh(
+        err = LoadProxyPreviewMesh(
+            context.object,
+            proxyFilepath,
             GeomMeshFile.anim_type,
             GeomMeshFile.anim_offset,
             GeomMeshFile.anim_speed,
             context.scene.frame_current-1
         )
 
-        if meshData is None:
-            self.report({'ERROR'}, "Can't find preview voxel!")
-            return {'FINISHED'}
-
-        mesh = bpy.data.meshes.new("VRayProxyPreview")
-        mesh.from_pydata(meshData['vertices'], [], meshData['faces'])
-        mesh.update()
-
-        # Replace object mesh
-        bm = bmesh.new()
-        bm.from_mesh(mesh)
-        bm.to_mesh(context.object.data)
-        context.object.data.update()
-
-        if meshData['uv_sets']:
-            for uvName in meshData['uv_sets']:
-                bpy.ops.mesh.uv_texture_add()
-
-                index = context.object.data.uv_layers.active_index
-                uvLayer = context.object.data.uv_layers[index]
-                uvLayer.name = uvName
-
-        # Remove temp
-        bm.free()
-        bpy.data.meshes.remove(mesh)
+        if err is not None:
+            self.report({'ERROR'}, err)
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 
@@ -196,7 +238,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         selection = bpy.context.selected_objects
         oneObject = len(selection)
 
-        GeomMeshFile= ob.data.vray.GeomMeshFile
+        GeomMeshFile = ob.data.vray.GeomMeshFile
 
         # Create output path
         outputDirpath = BlenderUtils.GetFullFilepath(GeomMeshFile.dirpath)
@@ -223,7 +265,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         useVelocity = GeomMeshFile.add_velocity
 
         # Export objects meshes and generate nodes name list
-        nodeNames = set()
+        obPluginNames = []
         o = VRayStream.VRaySimplePluginExporter(outputFile=vrsceneFile)
 
         exporter = _vray_for_blender.init(
@@ -262,7 +304,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                     nodeName = ExportMeshSample(o, ob)
                     _vray_for_blender.clearCache()
                 sce.frame_set(frame_current)
-            nodeNames.add(nodeName)
+            obPluginNames.append([ob, nodeName])
         o.done()
         vrsceneFile.close()
 
@@ -271,7 +313,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
 
         # Launch the generator tool
         err = None
-        for nodeName in nodeNames:
+        for ob, nodeName in obPluginNames:
             vrmeshName = LibUtils.CleanString(ob.name)
             if oneObject and GeomMeshFile.filename:
                 vrmeshName = GeomMeshFile.filename
@@ -282,6 +324,42 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             if err is not None:
                 break
 
+            if GeomMeshFile.proxy_attach_mode != 'NONE':
+                attachOb = ob
+
+                if GeomMeshFile.proxy_attach_mode == 'NEW':
+                    newName = 'VRayProxy%s' % ob.name
+                    newMesh = bpy.data.meshes.new(newName)
+                    attachOb = bpy.data.objects.new(newName, newMesh)
+
+                    context.scene.objects.link(attachOb)
+
+                BlenderUtils.SelectObject(attachOb)
+
+                if GeomMeshFile.proxy_attach_mode == 'NEW':
+                    for slot in ob.material_slots:
+                        if slot and slot.material:
+                            attachOb.data.materials.append(slot.material)
+                            attachOb.material_slots[-1].link     = 'OBJECT'
+                            attachOb.material_slots[-1].material = slot.material
+
+                if GeomMeshFile.apply_transforms:
+                    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+                else:
+                    attachOb.matrix_world = ob.matrix_world
+
+                CreateProxyNodetree(attachOb, vrmeshFilepath)
+
+                if GeomMeshFile.proxy_attach_mode in {'NEW', 'REPLACE'}:
+                    LoadProxyPreviewMesh(
+                        attachOb,
+                        vrmeshFilepath,
+                        GeomMeshFile.anim_type,
+                        GeomMeshFile.anim_offset,
+                        GeomMeshFile.anim_speed,
+                        context.scene.frame_current-1
+                    )
+
         # Remove temp export file
         os.remove(vrsceneFilepath)
 
@@ -290,7 +368,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             debug.PrintError(err)
             return {'CANCELLED'}
 
-        self.report({'INFO'}, "Done creating proxy: %s" % vrmeshFilepath)
+        self.report({'INFO'}, "Done creating proxy!")
 
         return {'FINISHED'}
 
