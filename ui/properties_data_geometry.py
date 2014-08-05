@@ -30,9 +30,7 @@ from vb30.ui import classes
 def GetContextData(context):
 	if context.active_object.type == 'MESH':
 		return context.mesh
-	else:
-		return context.curve
-	return data
+	return context.curve
 
 
 class VRAY_DP_tools(classes.VRayGeomPanel):
@@ -70,7 +68,7 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 		col.operator('vray.create_proxy', icon='OUTLINER_OB_MESH')
 
 		layout.separator()
-		layout.prop(GeomMeshFile, 'proxy_attach_mode', text="Attach mode")
+		layout.prop(GeomMeshFile, 'proxy_attach_mode', text="Attach Mode")
 		layout.prop(GeomMeshFile, 'add_suffix')
 
 
