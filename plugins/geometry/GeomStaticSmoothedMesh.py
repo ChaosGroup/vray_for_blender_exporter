@@ -114,8 +114,8 @@ PluginParams = (
     {
         'attr' : 'view_dep',
         'desc' : "If use_globals is false, this determines if view-dependent tesselation is used",
-        'type' : 'INT',
-        'default' : 1,
+        'type' : 'BOOL',
+        'default' : True,
     },
     {
         'attr' : 'edge_length',
@@ -214,7 +214,6 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "active" : { "prop" : "use_globals" },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
