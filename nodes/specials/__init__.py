@@ -32,6 +32,7 @@ from . import effects
 from . import renderchannels
 from . import inputlist
 from . import transform
+from . import debug
 
 
 def register():
@@ -45,6 +46,7 @@ def register():
     renderchannels.register()
     inputlist.register()
     transform.register()
+    debug.register()
 
 
 def unregister():
@@ -58,3 +60,4 @@ def unregister():
     renderchannels.unregister()
     inputlist.unregister()
     transform.unregister()
+    debug.unregister()

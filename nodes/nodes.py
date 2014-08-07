@@ -199,6 +199,7 @@ def GetCategories():
             items = [
                 nodeitems_utils.NodeItem("NodeFrame"),
                 nodeitems_utils.NodeItem("NodeReroute"),
+                nodeitems_utils.NodeItem("VRayNodeDebugSwitch"),
             ],
             icon = 'VIEW3D_VEC'
         ),
