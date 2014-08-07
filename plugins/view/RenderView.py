@@ -236,7 +236,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if 'fov' not in overrideParams:
         overrideParams['fov'] = fov
     if 'transform' not in overrideParams:
-        overrideParams['transform'] = ca.matrix_world
+        overrideParams['transform'] = ca.matrix_world.normalized()
     if 'orthographic' not in overrideParams:
         overrideParams['orthographic'] = ca.data.type == 'ORTHO'
     overrideParams['orthographicWidth'] = orthoWidth
