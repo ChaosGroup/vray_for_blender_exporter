@@ -248,6 +248,9 @@ def gui(context, layout, BitmapBuffer, node):
             layout.template_ID(node.texture, 'image', open='image.open')
         layout.separator()
 
+    # NOTE: PluginWidget will go after
+    layout.label("V-Ray Settings:")
+
 
 def writeDatablock(bus, pluginModule, pluginName, BitmapBuffer, overrideParams):
     scene = bus['scene']
