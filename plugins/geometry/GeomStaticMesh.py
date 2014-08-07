@@ -231,6 +231,8 @@ PluginWidget = """
         "attrs" : [
             { "name" : "primary_visibility" },
             { "name" : "dynamic_geometry" },
+            { "name" : "smooth_uv" },
+            { "name" : "smooth_uv_borders" },
             { "name" : "environment_geometry" }
         ]
     },
@@ -250,13 +252,6 @@ PluginWidget = """
             { "name" : "osd_preserve_map_borders" },
             { "name" : "osd_preserve_geometry_borders" },
             { "name" : "osd_subdiv_uvs" }
-        ]
-    },
-
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "smooth_uv" },
-            { "name" : "smooth_uv_borders" }
         ]
     }
 ]}
