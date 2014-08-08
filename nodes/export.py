@@ -348,7 +348,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
     return None
 
 
-def WriteNodePy(bus, nodetree, node, linkedOnly=False):
+def WriteNode(bus, nodetree, node, linkedOnly=False):
     # Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
@@ -411,21 +411,6 @@ def WriteNodePy(bus, nodetree, node, linkedOnly=False):
     )
 
     return result
-
-
-def WriteNodeCpp(bus, nodetree, node, fromSocket=None, _linkedOnly_=False):
-    return _vray_for_blender.exportNode(
-        nodetree.as_pointer(),
-        node.as_pointer(),
-        fromSocket.as_pointer()
-    )
-
-
-def WriteNode(bus, nodetree, node, fromSocket=None, linkedOnly=False):
-    if True:
-        WriteNodeCpp(bus, nodetree, node, fromSocket)
-    else:
-        WriteNodePy(bus, nodetree, node, linkedOnly)
 
 
 ##     ##    ###    ######## ######## ########  ####    ###    ##
