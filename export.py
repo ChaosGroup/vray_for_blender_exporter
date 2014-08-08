@@ -145,6 +145,8 @@ def ExportEx(bus):
     o.setFileManager(fm)
     o.setPreview(engine.is_preview)
 
+    bus['exporter'] = exp_init.InitExporter(bus)
+
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...

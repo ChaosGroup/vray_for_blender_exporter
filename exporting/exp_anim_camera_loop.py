@@ -76,7 +76,7 @@ def ExportCameraLoop(bus):
 
         # Since hide from view affect object properties we have to export in
         # animation mode 
-        bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
+        exp_init.InitAnimation(bus, isAnimation=True)
 
         for i, camera in enumerate(cameras):
             # Setup camera
@@ -95,8 +95,6 @@ def ExportCameraLoop(bus):
             exp_scene.ExportScene(bus, exportNodes=True, exportMeshes=(frame==1))
 
     else:
-        bus['exporter'] = exp_init.InitExporter(bus)
-
         # Export objects as usual
         exp_scene.ExportScene(bus)
 
@@ -110,5 +108,3 @@ def ExportCameraLoop(bus):
             o.setFrame(frame)
 
             exp_camera.ExportCamera(bus)
-
-    exp_init.ShutdownExporter(bus)

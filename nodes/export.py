@@ -328,7 +328,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
     connectedNode   = GetConnectedNode(nodetree, nodeSocket)
     connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
     if connectedNode:
-        vrayPlugin = WriteNode(bus, nodetree, connectedNode, linkedOnly=linkedOnly)
+        vrayPlugin = WriteNode(bus, nodetree, connectedNode, fromSocket=nodeSocket, linkedOnly=linkedOnly)
 
         if connectedSocket.vray_attr and connectedSocket.vray_attr not in {'NONE'}:
             # XXX: use as a workaround
@@ -348,7 +348,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
     return None
 
 
-def WriteNode(bus, nodetree, node, linkedOnly=False):
+def WriteNodePy(bus, nodetree, node, linkedOnly=False):
     # Debug("Processing node: %s..." % node.name)
 
     # Write some nodes in a special way
@@ -411,6 +411,21 @@ def WriteNode(bus, nodetree, node, linkedOnly=False):
     )
 
     return result
+
+
+def WriteNodeCpp(bus, nodetree, node, fromSocket=None, _linkedOnly_=False):
+    return _vray_for_blender.exportNode(
+        nodetree.as_pointer(),
+        node.as_pointer(),
+        fromSocket.as_pointer()
+    )
+
+
+def WriteNode(bus, nodetree, node, fromSocket=None, linkedOnly=False):
+    if True:
+        WriteNodeCpp(bus, nodetree, node, fromSocket)
+    else:
+        WriteNodePy(bus, nodetree, node, linkedOnly)
 
 
 ##     ##    ###    ######## ######## ########  ####    ###    ##
