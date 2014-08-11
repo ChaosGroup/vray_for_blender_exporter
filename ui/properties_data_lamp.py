@@ -177,7 +177,7 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
         split = layout.split()
         split.active = VRayLamp.include_exclude != '0'
         col = split.column()
-        # col.prop(VRayLamp, 'illumination_shadow', text="From")
+        col.prop(VRayLamp, 'illumination_shadow', text="From")
         col.prop_search(VRayLamp, 'exclude_objects',  context.scene, 'objects', text="Object")
         col.prop_search(VRayLamp, 'exclude_groups',   bpy.data,      'groups',  text="Group")
 
