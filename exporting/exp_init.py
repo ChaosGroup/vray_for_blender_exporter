@@ -56,7 +56,9 @@ def InitExporter(bus):
         scene   = scene.as_pointer(),
         data    = bpy.data.as_pointer(),
 
+        mainFile     = o.fileManager.getFileByPluginType('MAIN'),
         objectFile   = o.fileManager.getFileByPluginType('OBJECT'),
+        envFile      = o.fileManager.getFileByPluginType('WORLD'),
         geometryFile = o.fileManager.getFileByPluginType('GEOMETRY'),
         lightsFile   = o.fileManager.getFileByPluginType('LIGHT'),
         materialFile = o.fileManager.getFileByPluginType('MATERIAL'),
