@@ -27,7 +27,17 @@ import _vray_for_blender
 import bpy
 
 
-def InitExporter(bus, isAnimation=False):
+def InitAnimation(bus, isAnimation=False):
+    o = bus['output']
+
+    _vray_for_blender.initAnimation(
+        isAnimation,
+        o.frameStart,
+        o.frameStep
+    )
+
+
+def InitExporter(bus):
     scene  = bus['scene']
     engine = bus['engine']
     o      = bus['output']
@@ -46,15 +56,13 @@ def InitExporter(bus, isAnimation=False):
         scene   = scene.as_pointer(),
         data    = bpy.data.as_pointer(),
 
+        mainFile     = o.fileManager.getFileByPluginType('MAIN'),
         objectFile   = o.fileManager.getFileByPluginType('OBJECT'),
+        envFile      = o.fileManager.getFileByPluginType('WORLD'),
         geometryFile = o.fileManager.getFileByPluginType('GEOMETRY'),
         lightsFile   = o.fileManager.getFileByPluginType('LIGHT'),
         materialFile = o.fileManager.getFileByPluginType('MATERIAL'),
         textureFile  = o.fileManager.getFileByPluginType('TEXTURE'),
-
-        isAnimation = isAnimation,
-        frameStart  = o.frameStart,
-        frameStep   = o.frameStep,
 
         drSharePath = drSharePath,
     )

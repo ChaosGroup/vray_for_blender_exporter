@@ -35,8 +35,7 @@ def ExportCameraOnly(bus):
     scene = bus['scene']
     o     = bus['output']
 
-    # Init exporter
-    bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
+    exp_init.InitAnimation(bus, isAnimation=True)
 
     # Store current frame
     selected_frame = scene.frame_current
@@ -66,8 +65,6 @@ def ExportCameraOnly(bus):
 
         f += o.frameStep
 
-    exp_init.ShutdownExporter(bus)
-
     # Restore selected frame
     scene.frame_set(selected_frame)
 
@@ -78,8 +75,7 @@ def ExportFullNotMeshes(bus):
     scene = bus['scene']
     o     = bus['output']
 
-    # Init exporter
-    bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
+    exp_init.InitAnimation(bus, isAnimation=True)
 
     # Store current frame
     selected_frame = scene.frame_current
@@ -109,8 +105,6 @@ def ExportFullNotMeshes(bus):
 
         f += o.frameStep
 
-    exp_init.ShutdownExporter(bus)
-
     # Restore selected frame
     scene.frame_set(selected_frame)
 
@@ -125,7 +119,7 @@ def ExportFullRange(bus):
     err = None
 
     # Init exporter
-    bus['exporter'] = exp_init.InitExporter(bus, isAnimation=True)
+    exp_init.InitAnimation(bus, isAnimation=True)
 
     # Store current frame
     selected_frame = scene.frame_current
@@ -144,8 +138,6 @@ def ExportFullRange(bus):
 
     # Restore selected frame
     scene.frame_set(selected_frame)
-
-    exp_init.ShutdownExporter(bus)
 
     return err
 

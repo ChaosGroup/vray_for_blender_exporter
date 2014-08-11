@@ -35,9 +35,15 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 	def draw(self, context):
 		VRayObject = context.object.vray
 
-		split = self.layout.split()
-		row = split.row(align=True)
-		row.prop_search(VRayObject, 'ntree', bpy.data, 'node_groups', text="Object Tree")
+		split = self.layout.split(percentage=0.3)
+		col = split.column()
+		col.label("Object Tree:")
+		col = split.column()
+		row = col.row(align=True)
+		if VRayObject.ntree:
+			renameOp = row.operator("vray.nodetree_rename_to", icon='SYNTAX_OFF', text="")
+			renameOp.to_data = 'OBJECT'
+		row.prop_search(VRayObject, 'ntree', bpy.data, 'node_groups', text="")
 		if not VRayObject.ntree:
 			row.operator("vray.add_nodetree_object", icon='ZOOMIN', text="")
 

@@ -54,9 +54,7 @@ def ExportSingleFrame(bus):
         err = exp_anim_full.ExportFullRange(bus)
 
     else:
-        bus['exporter'] = exp_init.InitExporter(bus)
         _vray_for_blender.setFrame(scene.frame_current)
         err = exp_scene.ExportScene(bus)
-        exp_init.ShutdownExporter(bus)
 
     return err

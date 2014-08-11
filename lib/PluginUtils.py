@@ -70,3 +70,9 @@ def GetPluginWidget(pluginID):
         # TODO: Finish plugins this way and refactor this
         return json.dumps(PLUGINS_DESC[pluginID]['Widget'])
     return {}
+
+
+def PluginName(pluginName):
+    if pluginName[0].isdigit():
+        pluginName = "PL%s" % pluginName
+    return pluginName

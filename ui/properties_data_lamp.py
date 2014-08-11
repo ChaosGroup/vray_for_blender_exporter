@@ -93,9 +93,15 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         lightPropGroup = getattr(VRayLight, lightPluginName)
 
         layout.separator()
-        split = self.layout.split()
-        row = split.row(align=True)
-        row.prop_search(VRayLight, 'ntree', bpy.data, 'node_groups', text="Lamp Tree")
+        split = layout.split(percentage=0.3)
+        col = split.column()
+        col.label("Lamp Tree:")
+        col = split.column()
+        row = col.row(align=True)
+        if VRayLight.ntree:
+            renameOp = row.operator("vray.nodetree_rename_to", icon='SYNTAX_OFF', text="")
+            renameOp.to_data = 'LAMP'
+        row.prop_search(VRayLight, 'ntree', bpy.data, 'node_groups', text="")
         if not VRayLight.ntree:
             row.operator("vray.add_nodetree_light", icon='ZOOMIN', text="").lightType=lightPluginName
 
