@@ -328,7 +328,7 @@ def WriteConnectedNode(bus, nodetree, nodeSocket, linkedOnly=False):
     connectedNode   = GetConnectedNode(nodetree, nodeSocket)
     connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
     if connectedNode:
-        vrayPlugin = WriteNode(bus, nodetree, connectedNode, fromSocket=nodeSocket, linkedOnly=linkedOnly)
+        vrayPlugin = WriteNode(bus, nodetree, connectedNode, linkedOnly=linkedOnly)
 
         if connectedSocket.vray_attr and connectedSocket.vray_attr not in {'NONE'}:
             # XXX: use as a workaround
