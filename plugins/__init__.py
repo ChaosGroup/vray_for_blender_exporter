@@ -461,9 +461,9 @@ class VRayLight(bpy.types.PropertyGroup):
 		items = (
 			('0', "Illumination", ""),
 			('1', "Shadow Casting", ""),
-			('2', "Both", ""),
+			('2', "Illumination / Shadow", ""),
 		),
-		default = '0'
+		default = '2'
 	)
 
 	exclude_objects= bpy.props.StringProperty(
