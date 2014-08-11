@@ -46,7 +46,8 @@ def RenderMaterialPanel(mat, context, layout):
     col = split.column()
     row = col.row(align=True)
     if VRayMaterial.ntree:
-        row.operator("vray.nodetree_rename_to_material", icon='SYNTAX_OFF', text="")
+        renameOp = row.operator("vray.nodetree_rename_to", icon='SYNTAX_OFF', text="")
+        renameOp.to_data = 'MATERIAL'
     row.prop_search(VRayMaterial, 'ntree', bpy.data, 'node_groups', text="")
     if not VRayMaterial.ntree:
         row.operator("vray.add_material_nodetree", icon='ZOOMIN', text="")

@@ -170,22 +170,40 @@ class VRAY_OT_del_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRayOpRenameToMaterialName(bpy.types.Operator):
-    bl_idname      = "vray.nodetree_rename_to_material"
-    bl_label       = "Rename To Material"
-    bl_description = "Rename node tree with material name"
+class VRayOpRenameTo(bpy.types.Operator):
+    bl_idname      = "vray.nodetree_rename_to"
+    bl_label       = "Rename Node Tree"
+    bl_description = "Rename node tree"
+
+    to_data = bpy.props.EnumProperty(
+        items = (
+            ('MATERIAL', "Material", ""),
+            ('OBJECT',   "Object",   ""),
+            ('LAMP',     "Lamp",     ""),
+        ),
+        default = 'MATERIAL'
+    )
 
     def execute(self, context):
-        slot = context.material_slot
-        if not slot.material:
+        data = None
+        nt   = None
+
+        if self.to_data == 'MATERIAL':
+            slot = context.material_slot
+            if not slot.material:
+                return {'CANCELLED'}
+            data = slot.material
+
+        elif self.to_data == 'OBJECT':
+            data = context.active_object
+
+        elif self.to_data == 'LAMP':
+            data = context.active_object.data
+
+        if not data:
             return {'CANCELLED'}
 
-        ma = slot.material
-        nt = ma.vray.ntree
-        if not nt:
-            return {'CANCELLED'}
-
-        nt.name = ma.name
+        data.vray.ntree.name = data.name
 
         return {'FINISHED'}
 
@@ -208,7 +226,7 @@ def GetRegClasses():
 
         VRAY_OT_del_nodetree,
 
-        VRayOpRenameToMaterialName,
+        VRayOpRenameTo,
     )
 
 
