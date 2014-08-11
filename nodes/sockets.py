@@ -405,6 +405,52 @@ class VRaySocketColorUse(bpy.types.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
+class VRaySocketColorMult(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketColorMult'
+    bl_label  = 'Color socket with multiplier'
+
+    value = bpy.props.FloatVectorProperty(
+        name = "Color",
+        description = "Color",
+        subtype = 'COLOR',
+        min = 0.0,
+        max = 1.0,
+        soft_min = 0.0,
+        soft_max = 1.0,
+        default = (1.0, 1.0, 1.0)
+    )
+
+    multiplier = bpy.props.FloatProperty(
+        name        = "Multiplier",
+        description = "Color / texture multiplier",
+        min         = 0.0,
+        default     = 1.0
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        if self.is_linked:
+            split = layout.split(percentage=0.2)
+            split.prop(self, 'multiplier', text="")
+            split.label(text)
+        else:
+            row = layout.row(align=False)
+            row.prop(self, 'multiplier', text="")
+            rowCol = row.row()
+            rowCol.scale_x = 0.3
+            rowCol.prop(self, 'value', text="")
+            row.label(text=text)
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
 ##     ## ########  ######  ########  #######  ########
 ##     ## ##       ##    ##    ##    ##     ## ##     ##
 ##     ## ##       ##          ##    ##     ## ##     ##
@@ -704,6 +750,7 @@ def GetRegClasses():
         VRaySocketColor,
         VRaySocketColorNoValue,
         VRaySocketColorUse,
+        VRaySocketColorMult,
         VRaySocketVector,
         VRaySocketCoords,
         VRaySocketBRDF,

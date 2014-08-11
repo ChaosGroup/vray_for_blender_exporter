@@ -25,7 +25,7 @@
 import bpy
 
 from ..        import tree
-from ..sockets import AddInput, AddOutput
+from ..sockets import AddInput, AddOutput, VRaySocketColorMult
 
 
 class VRayNodeWorldOutput(bpy.types.Node):
@@ -41,47 +41,118 @@ class VRayNodeWorldOutput(bpy.types.Node):
         AddInput(self, 'VRaySocketObject', "Effects")
 
 
+
+class VRaySocketEnvironment(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketEnvironment'
+    bl_label  = 'Environment socket'
+
+    value = bpy.props.FloatVectorProperty(
+        name = "Color",
+        description = "Color",
+        subtype = 'COLOR',
+        min = 0.0,
+        max = 1.0,
+        soft_min = 0.0,
+        soft_max = 1.0,
+        default = (1.0, 1.0, 1.0)
+    )
+
+    multiplier = bpy.props.FloatProperty(
+        name        = "Multiplier",
+        description = "Color / texture multiplier",
+        min         = 0.0,
+        default     = 1.0
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        if self.is_linked:
+            split = layout.split(percentage=0.2)
+            split.prop(self, 'multiplier', text=text)
+        else:
+            row = layout.row(align=False)
+            row.prop(self, 'multiplier', text=text)
+            rowCol = row.row()
+            rowCol.scale_x = 0.3
+            rowCol.prop(self, 'value', text="")
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
+class VRaySocketEnvironmentOverride(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketEnvironmentOverride'
+    bl_label  = 'Environment override socket'
+
+    value = bpy.props.FloatVectorProperty(
+        name = "Color",
+        description = "Color",
+        subtype = 'COLOR',
+        min = 0.0,
+        max = 1.0,
+        soft_min = 0.0,
+        soft_max = 1.0,
+        default = (1.0, 1.0, 1.0)
+    )
+
+    use = bpy.props.BoolProperty(
+        name        = "Use",
+        description = "Use override",
+        default     = False
+    )
+
+    multiplier = bpy.props.FloatProperty(
+        name        = "Multiplier",
+        description = "Color / texture multiplier",
+        min         = 0.0,
+        default     = 1.0
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        if self.is_linked:
+            split = layout.split(percentage=0.2)
+            split.active = self.use
+            split.prop(self, 'use', text="")
+            split.prop(self, 'multiplier', text=text)
+        else:
+            row = layout.row(align=False)
+            row.active = self.use
+            row.prop(self, 'use', text="")
+            row.prop(self, 'multiplier', text=text)
+            rowCol = row.row()
+            rowCol.scale_x = 0.3
+            rowCol.prop(self, 'value', text="")
+
+    def draw_color(self, context, node):
+        return (1.000, 0.819, 0.119, 1.000)
+
+
 class VRayNodeEnvironment(bpy.types.Node):
     bl_idname = 'VRayNodeEnvironment'
     bl_label  = 'Environment'
     bl_icon   = 'WORLD'
 
-    gi_tex = bpy.props.BoolProperty(
-        name        = "Override GI",
-        description = "Override environment for GI",
-        default     = False
-    )
-
-    reflect_tex = bpy.props.BoolProperty(
-        name        = "Override Reflect",
-        description = "Override environment for reflection",
-        default     = False
-    )
-
-    refract_tex = bpy.props.BoolProperty(
-        name        = "Override Refract",
-        description = "Override environment for refraction",
-        default     = False
-    )
-
     vray_type   = 'NONE'
     vray_plugin = 'NONE'
 
-    def draw_buttons(self, context, layout):
-        layout.prop(self, 'gi_tex')
-        layout.prop(self, 'reflect_tex')
-        layout.prop(self, 'refract_tex')
-
     def init(self, context):
-        AddInput(self, 'VRaySocketColor', "Background", 'bg_tex', (0.0, 0.0, 0.0))
-
-        AddInput(self, 'VRaySocketColor', "GI",         'gi_tex')
-        AddInput(self, 'VRaySocketColor', "Reflection", 'reflect_tex')
-        AddInput(self, 'VRaySocketColor', "Refraction", 'refract_tex')
-
-        # AddInput(self, 'VRaySocketColorUse', "GI",         'gi_tex')
-        # AddInput(self, 'VRaySocketColorUse', "Reflection", 'reflect_tex')
-        # AddInput(self, 'VRaySocketColorUse', "Refraction", 'refract_tex')
+        AddInput(self, 'VRaySocketEnvironment',         "Background", 'bg_tex', (0.0, 0.0, 0.0))
+        AddInput(self, 'VRaySocketEnvironmentOverride', "GI",         'gi_tex')
+        AddInput(self, 'VRaySocketEnvironmentOverride', "Reflection", 'reflect_tex')
+        AddInput(self, 'VRaySocketEnvironmentOverride', "Refraction", 'refract_tex')
 
         AddOutput(self, 'VRaySocketObject', "Environment")
 
@@ -96,6 +167,8 @@ class VRayNodeEnvironment(bpy.types.Node):
 
 def GetRegClasses():
     return (
+        VRaySocketEnvironment,
+        VRaySocketEnvironmentOverride,
         VRayNodeWorldOutput,
         VRayNodeEnvironment,
     )
