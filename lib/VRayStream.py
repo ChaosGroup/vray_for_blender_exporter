@@ -33,6 +33,7 @@ import sys
 from vb30.debug import Debug
 
 from . import LibUtils, PathUtils, SysUtils, BlenderUtils
+from . import PluginUtils
 
 
 PluginTypeToFile = {
@@ -622,7 +623,7 @@ class VRaySimplePluginExporter:
         if not self.pluginAttrs:
             return
 
-        p = "\n%s %s {" % (self.pluginID, self.pluginName)
+        p = "\n%s %s {" % (self.pluginID, PluginUtils.PluginName(self.pluginName))
         for attrName in sorted(self.pluginAttrs.keys()):
             p += "\n\t%s=%s;" % (attrName, self.pluginAttrs[attrName])
         p += "\n}\n"
