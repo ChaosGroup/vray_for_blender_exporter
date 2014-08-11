@@ -22,17 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-# Exporter workflow:
-#   - Export "Environment" with Python and "Effects" with Python and C++ Python API
-#     and prepare exclude lists for further exclusion from 'Nodes'
-#   - Export lights with Python
-#   - Export geometry, objects and particles/dupli with C++
-#   - Export material nodetrees with C++
-#   - Export "Render Elements" with Python
-#   - Start static/animation render
-#   - Load image back for "Preview" renderer or if "Image To Blender" is turned on
-#
-
 import os
 import time
 import datetime
