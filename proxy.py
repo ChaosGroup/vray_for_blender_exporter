@@ -274,15 +274,13 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             scene   = sce.as_pointer(),
             data    = bpy.data.as_pointer(),
 
+            mainFile     = o.output,
             objectFile   = o.output,
+            envFile      = o.output,
             geometryFile = o.output,
             lightsFile   = o.output,
             materialFile = o.output,
             textureFile  = o.output,
-
-            isAnimation = frames is not None,
-            frameStart  = frameStart,
-            frameStep   = frameStep,
 
             drSharePath = "",
         )
