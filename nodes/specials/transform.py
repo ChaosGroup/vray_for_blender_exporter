@@ -40,6 +40,7 @@ class VRayNodeTransform(bpy.types.Node):
     rotate = bpy.props.FloatVectorProperty(
         name        = "Rotation",
         description = "Rotation",
+        precision   = 3,
         size        = 3,
         unit        = 'ROTATION',
         default     = (0.0, 0.0, 0.0)
@@ -49,6 +50,7 @@ class VRayNodeTransform(bpy.types.Node):
         name        = "Offset",
         description = "Offset",
         size        = 3,
+        precision   = 3,
         unit        = 'LENGTH',
         default     = (0.0, 0.0, 0.0)
     )
@@ -57,6 +59,7 @@ class VRayNodeTransform(bpy.types.Node):
         name        = "Scale",
         description = "Scale",
         size        = 3,
+        precision   = 3,
         unit        = 'AREA',
         default     = (1.0, 1.0, 1.0)
     )
@@ -113,6 +116,7 @@ class VRayNodeMatrix(bpy.types.Node):
         name        = "Rotation",
         description = "Rotation",
         size        = 3,
+        precision   = 3,
         unit        = 'ROTATION',
         default     = (0.0, 0.0, 0.0)
     )
@@ -121,6 +125,7 @@ class VRayNodeMatrix(bpy.types.Node):
         name        = "Scale",
         description = "Scale",
         size        = 3,
+        precision   = 3,
         unit        = 'AREA',
         default     = (1.0, 1.0, 1.0)
     )

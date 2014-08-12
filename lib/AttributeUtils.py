@@ -195,6 +195,7 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'VECTOR'}:
         if 'subtype' not in attrDesc:
             attrArgs['subtype'] = 'TRANSLATION'
+        attrArgs['precision'] = 3
 
     elif attrDesc['type'] in {'FLOAT', 'FLOAT_TEXTURE'}:
         attrArgs['precision'] = attrDesc.get('precision', 3)
