@@ -73,10 +73,9 @@ class VRaySocketEnvironment(bpy.types.NodeSocket):
 
     def draw(self, context, layout, node, text):
         if self.is_linked:
-            split = layout.split(percentage=0.2)
-            split.prop(self, 'multiplier', text=text)
+            layout.prop(self, 'multiplier', text=text)
         else:
-            row = layout.row(align=False)
+            row = layout.row(align=True)
             row.prop(self, 'multiplier', text=text)
             rowCol = row.row()
             rowCol.scale_x = 0.3
@@ -123,12 +122,13 @@ class VRaySocketEnvironmentOverride(bpy.types.NodeSocket):
 
     def draw(self, context, layout, node, text):
         if self.is_linked:
-            split = layout.split(percentage=0.2)
-            split.active = self.use
-            split.prop(self, 'use', text="")
-            split.prop(self, 'multiplier', text=text)
+            split = layout.split()
+            row = split.row(align=True)
+            row.active = self.use
+            row.prop(self, 'use', text="")
+            row.prop(self, 'multiplier', text=text)
         else:
-            row = layout.row(align=False)
+            row = layout.row(align=True)
             row.active = self.use
             row.prop(self, 'use', text="")
             row.prop(self, 'multiplier', text=text)
