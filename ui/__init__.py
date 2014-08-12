@@ -70,7 +70,7 @@ def unregister():
     from vb30.ui import properties_scene
     from vb30.ui import properties_texture
     from vb30.ui import properties_world
-    
+
     classes.unregister()
 
     properties_data_geometry.unregister()

@@ -228,8 +228,27 @@ class VRayRenderPanel(VRayPanel):
     bl_context     = 'render'
 
     @classmethod
+    def poll_group(cls, context):
+        VRayExporter = context.scene.vray.Exporter
+        if not VRayExporter.ui_render_grouping:
+            return True
+
+        activeGroup = VRayExporter.ui_render_context
+        if cls.__name__ in cls.bl_panel_groups[activeGroup]:
+            return True
+
+        return False
+
+    @classmethod
     def poll(cls, context):
-        return PollEngine(cls, context)
+        enginePoll = PollEngine(cls, context)
+        groupPoll  = cls.poll_group(context)
+
+        customPoll = True
+        if hasattr(cls, 'poll_custom'):
+            customPoll = cls.poll_custom(context)
+
+        return enginePoll and groupPoll and customPoll
 
 
 class VRayRenderLayersPanel(VRayPanel):

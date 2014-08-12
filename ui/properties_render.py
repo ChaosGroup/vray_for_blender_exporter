@@ -32,6 +32,80 @@ from vb30.ui  import classes
 from vb30     import plugins, preset
 
 
+PanelGroups = {
+	'0' : (
+		'VRAY_RP_render',
+		'VRAY_RP_bake',
+		'VRAY_RP_RTEngine',
+		'VRAY_RP_SettingsCaustics',
+		'VRAY_RP_VRayStereoscopicSettings',
+		'VRAY_RP_dimensions',
+		'VRAY_RP_output',
+	),
+	'1' : (
+		'VRAY_RP_Globals',
+		'VRAY_RP_displace',
+		'VRAY_RP_cm',
+	),
+	'2' : (
+		'VRAY_RP_gi',
+		'VRAY_RP_GI_sh',
+		'VRAY_RP_GI_im',
+		'VRAY_RP_GI_bf',
+		'VRAY_RP_GI_lc',
+	),
+	'3' : (
+		'VRAY_RP_aa',
+		'VRAY_RP_dmc',
+	),
+	'4' : (
+		'VRAY_RP_exporter',
+		'VRAY_RP_dr',
+		'VRAY_RP_SettingsSystem',
+		'VRAY_RP_SettingsVFB',
+	),
+}
+
+
+def GetRenderIcon(vrayExporter):
+	renderIcon = 'RENDER_ANIMATION'
+	if vrayExporter.animation_mode == 'NONE':
+		renderIcon = 'VRAY_LOGO_MONO'
+	elif vrayExporter.animation_mode == 'CAMERA_LOOP':
+		renderIcon = 'CAMERA_DATA'
+	return renderIcon
+
+
+class VRayRenderPanelContext(classes.VRayRenderPanel):
+	bl_label   = ""
+	bl_options = {'HIDE_HEADER'}
+	bl_panel_groups = PanelGroups
+
+	@classmethod
+	def poll_group(cls, context):
+		VRayExporter = context.scene.vray.Exporter
+		if not VRayExporter.ui_render_grouping:
+			return False
+		return True
+
+	def draw(self, context):
+		layout = self.layout
+		scene  = context.scene
+		rd     = scene.render
+
+		VRayScene = scene.vray
+		VRayExporter = VRayScene.Exporter
+
+		split = layout.split()
+		row = split.row(align=True)
+		row.operator('render.render', text="Render", icon=GetRenderIcon(VRayExporter))
+		row.prop(rd, "use_lock_interface", text="")
+		layout.separator()
+
+		layout.prop(VRayExporter, 'ui_render_context', expand=True)
+		layout.separator()
+
+
 ########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
 ##     ##  ##  ###   ### ##       ###   ## ##    ##  ##  ##     ## ###   ## ##    ##
 ##     ##  ##  #### #### ##       ####  ## ##        ##  ##     ## ####  ## ##
@@ -42,6 +116,7 @@ from vb30     import plugins, preset
 
 class VRAY_RP_dimensions(classes.VRayRenderPanel):
 	bl_label = "Dimensions"
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout = self.layout
@@ -100,6 +175,7 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 
 class VRAY_RP_output(classes.VRayRenderPanel):
 	bl_label = "Output"
+	bl_panel_groups = PanelGroups
 
 	def draw_header(self, context):
 		VRayExporter= context.scene.vray.Exporter
@@ -168,6 +244,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 
 class VRAY_RP_render(classes.VRayRenderPanel):
 	bl_label = "Render"
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout = self.layout
@@ -179,16 +256,11 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		VRayExporter    = VRayScene.Exporter
 		SettingsOptions = VRayScene.SettingsOptions
 
-		render_icon = 'RENDER_ANIMATION'
-		if VRayExporter.animation_mode == 'NONE':
-			render_icon = 'RENDER_STILL'
-		elif VRayExporter.animation_mode == 'CAMERA_LOOP':
-			render_icon = 'CAMERA_DATA'
-
-		split = layout.split()
-		row = split.row(align=True)
-		row.operator('render.render', text="Render", icon=render_icon)
-		row.prop(rd, "use_lock_interface", text="")
+		if not VRayExporter.ui_render_grouping:
+			split = layout.split()
+			row = split.row(align=True)
+			row.operator('render.render', text="Render", icon=GetRenderIcon(VRayExporter))
+			row.prop(rd, "use_lock_interface", text="")
 
 		layout.prop(VRayExporter, 'animation_mode', text="Animation")
 		layout.separator()
@@ -229,15 +301,14 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 
 class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 	bl_label = "Realtime Engine"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		rtengineOn     = context.scene.vray.RTEngine.enabled
 		rtengineChosen = context.scene.render.engine == 'VRAY_RENDER_RT'
 
-		useRTEgine = rtengineOn or rtengineChosen
-
-		return useRTEgine and classes.VRayRenderPanel.poll(context)
+		return rtengineOn or rtengineChosen
 
 	def draw(self, context):
 		VRayScene = context.scene.vray
@@ -253,17 +324,18 @@ class VRAY_RP_RTEngine(classes.VRayRenderPanel):
 ##    ##    ##    ##       ##     ## ##       ##     ## ##    ## ##    ## ##     ## ##     ##  ##  ##    ##
 ##          ##    ##       ##     ## ##       ##     ## ##       ##       ##     ## ##     ##  ##  ##
  ######     ##    ######   ########  ######   ##     ##  ######  ##       ##     ## ########   ##  ##
-      ##    ##    ##       ##   ##   ##       ##     ##       ## ##       ##     ## ##         ##  ##
+	  ##    ##    ##       ##   ##   ##       ##     ##       ## ##       ##     ## ##         ##  ##
 ##    ##    ##    ##       ##    ##  ##       ##     ## ##    ## ##    ## ##     ## ##         ##  ##    ##
  ######     ##    ######## ##     ## ########  #######   ######   ######   #######  ##        ####  ######
 
 class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 	bl_label = "Stereoscopic"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		VRayStereoscopicSettings = context.scene.vray.VRayStereoscopicSettings
-		return VRayStereoscopicSettings.use and classes.VRayRenderPanel.poll(context)
+		return VRayStereoscopicSettings.use
 
 	def draw(self, context):
 		wide_ui= context.region.width > classes.narrowui
@@ -312,6 +384,7 @@ class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 class VRAY_RP_Globals(classes.VRayRenderPanel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout= self.layout
@@ -389,6 +462,7 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 class VRAY_RP_exporter(classes.VRayRenderPanel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout= self.layout
@@ -429,6 +503,10 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.prop(SettingsOutput, 'frame_stamp_enabled', text="Frame Stamp")
 		if SettingsOutput.frame_stamp_enabled:
 			layout.prop(SettingsOutput, 'frame_stamp_text', text="")
+
+		layout.separator()
+		layout.label(text="Interface:")
+		layout.prop(VRayExporter, 'ui_render_grouping')
 
 		layout.separator()
 		layout.label(text="Export:")
@@ -478,6 +556,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 class VRAY_RP_cm(classes.VRayRenderPanel):
 	bl_label = "Color Mapping"
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout= self.layout
@@ -520,6 +599,7 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 
 class VRAY_RP_aa(classes.VRayRenderPanel):
 	bl_label = "Image Sampler"
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		VRayScene = context.scene.vray
@@ -548,6 +628,7 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 
 class VRAY_RP_dmc(classes.VRayRenderPanel):
 	bl_label = "DMC Sampler"
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		VRayScene = context.scene.vray
@@ -566,11 +647,12 @@ class VRAY_RP_dmc(classes.VRayRenderPanel):
 
 class VRAY_RP_gi(classes.VRayRenderPanel):
 	bl_label = "Global Illumination"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		return SettingsGI.on and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on
 
 	def draw(self, context):
 		layout= self.layout
@@ -590,10 +672,10 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 		if wide_ui:
 			col= split.column()
 		col.label(text="Post-processing:")
-		sub= col.column()
+		sub= col.column(align=True)
 		sub.prop(SettingsGI, "saturation")
 		sub.prop(SettingsGI, "contrast")
-		sub.prop(SettingsGI, "contrast_base")
+		sub.prop(SettingsGI, "contrast_base", text="Contr. Base")
 
 		layout.label(text="Primary engine:")
 		if wide_ui:
@@ -618,18 +700,18 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 				col= split.column()
 			col.prop(SettingsGI, "secondary_engine", text="")
 
-
 		layout.separator()
 
 		layout.prop(SettingsGI, 'ao_on', text="Ambient occlusion")
 		if SettingsGI.ao_on:
 			split= layout.split()
 			col= split.column()
-			col.prop(SettingsGI, 'ao_amount', slider= True)
+			col.prop(SettingsGI, 'ao_amount', text="Amount", slider=True)
 			if wide_ui:
 				col= split.column()
-			col.prop(SettingsGI, 'ao_radius')
-			col.prop(SettingsGI, 'ao_subdivs')
+			sub = col.column(align=True)
+			sub.prop(SettingsGI, 'ao_radius', text="Radius")
+			sub.prop(SettingsGI, 'ao_subdivs', text="Subdivs")
 
 		layout.separator()
 
@@ -647,17 +729,18 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 ##    ## ##     ## ##     ##        ##     ##   ## ##   ##     ## ###   ### ##     ## ###   ##  ##  ##    ## ##    ##
 ##       ##     ## ##     ##        ##     ##  ##   ##  ##     ## #### #### ##     ## ####  ##  ##  ##       ##
  ######  ########  #########        ######### ##     ## ########  ## ### ## ##     ## ## ## ##  ##  ##        ######
-      ## ##        ##     ##        ##     ## ######### ##   ##   ##     ## ##     ## ##  ####  ##  ##             ##
+	  ## ##        ##     ##        ##     ## ######### ##   ##   ##     ## ##     ## ##  ####  ##  ##             ##
 ##    ## ##        ##     ## ###    ##     ## ##     ## ##    ##  ##     ## ##     ## ##   ###  ##  ##    ## ##    ##
  ######  ##        ##     ## ###    ##     ## ##     ## ##     ## ##     ##  #######  ##    ## ####  ######   ######
 
 class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 	bl_label = "Spherical Harmonics"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		return SettingsGI.on and SettingsGI.primary_engine == '4' and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and SettingsGI.primary_engine == '4'
 
 	def draw(self, context):
 		layout= self.layout
@@ -671,13 +754,12 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 		layout.separator()
 
 		if SettingsGI.spherical_harmonics == 'RENDER':
-			SphericalHarmonicsRenderer= SettingsGI.SphericalHarmonicsRenderer
+			SphericalHarmonicsRenderer= VRayScene.SphericalHarmonicsRenderer
 
-			split= layout.split()
-			col= split.column()
-			col.prop(SphericalHarmonicsRenderer, 'file_name')
-			col.prop(SphericalHarmonicsRenderer, 'precalc_light_per_frame')
+			layout.prop(SphericalHarmonicsRenderer, 'file_name')
+			layout.separator()
 
+			layout.prop(SphericalHarmonicsRenderer, 'precalc_light_per_frame')
 			layout.separator()
 
 			split= layout.split()
@@ -695,11 +777,10 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 				col.prop(SphericalHarmonicsRenderer, 'filter_strength', slider= True)
 
 		else:
-			SphericalHarmonicsExporter= SettingsGI.SphericalHarmonicsExporter
+			SphericalHarmonicsExporter= VRayScene.SphericalHarmonicsExporter
 
 			layout.prop(SphericalHarmonicsExporter, 'file_name')
 			layout.prop(SphericalHarmonicsExporter, 'file_format')
-
 			layout.separator()
 
 			split= layout.split()
@@ -736,11 +817,12 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
 
 class VRAY_RP_GI_im(classes.VRayRenderPanel):
 	bl_label = "Irradiance Map"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
-		return SettingsGI.on and SettingsGI.primary_engine == '0' and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and SettingsGI.primary_engine == '0'
 
 	def draw(self, context):
 		layout= self.layout
@@ -874,12 +956,13 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 
 class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 	bl_label = "Brute Force"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
 		showPanel = (SettingsGI.primary_engine == '2' or SettingsGI.secondary_engine == '2') and SettingsGI.primary_engine != '4'
-		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and showPanel
 
 	def draw(self, context):
 		layout= self.layout
@@ -908,12 +991,13 @@ class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 
 class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 	bl_label = "Light Cache"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsGI = context.scene.vray.SettingsGI
 		showPanel = (SettingsGI.primary_engine == '3' or SettingsGI.secondary_engine == '3') and SettingsGI.primary_engine != '4'
-		return SettingsGI.on and showPanel and classes.VRayRenderPanel.poll(context)
+		return SettingsGI.on and showPanel
 
 	def draw(self, context):
 		layout= self.layout
@@ -1003,11 +1087,12 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 
 class VRAY_RP_displace(classes.VRayRenderPanel):
 	bl_label = "Displace / Subdivision"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		VRayExporter = context.scene.vray.Exporter
-		return VRayExporter.use_displace and classes.VRayRenderPanel.poll(context)
+		return VRayExporter.use_displace
 
 	def draw(self, context):
 		layout= self.layout
@@ -1039,11 +1124,12 @@ class VRAY_RP_displace(classes.VRayRenderPanel):
 
 class VRAY_RP_dr(classes.VRayRenderPanel):
 	bl_label = "Distributed Rendering"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		VRayDR = context.scene.vray.VRayDR
-		return VRayDR.on and classes.VRayRenderPanel.poll(context)
+		return VRayDR.on
 
 	def draw(self, context):
 		layout = self.layout
@@ -1115,11 +1201,12 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 class VRAY_RP_bake(classes.VRayRenderPanel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		VRayBake = context.scene.vray.BakeView
-		return VRayBake.use and classes.VRayRenderPanel.poll(context)
+		return VRayBake.use
 
 	def draw(self, context):
 		wide_ui = context.region.width > classes.narrowui
@@ -1152,11 +1239,12 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 
 class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 	bl_label = "Caustics"
+	bl_panel_groups = PanelGroups
 
 	@classmethod
-	def poll(cls, context):
+	def poll_custom(cls, context):
 		SettingsCaustics = context.scene.vray.SettingsCaustics
-		return SettingsCaustics.on and classes.VRayRenderPanel.poll(context)
+		return SettingsCaustics.on
 
 	def draw(self, context):
 		VRayScene = context.scene.vray
@@ -1169,13 +1257,14 @@ class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 ##    ##  ##  ##  ##    ##    ##    ##       ###   ###
 ##         ####   ##          ##    ##       #### ####
  ######     ##     ######     ##    ######   ## ### ##
-      ##    ##          ##    ##    ##       ##     ##
+	  ##    ##          ##    ##    ##       ##     ##
 ##    ##    ##    ##    ##    ##    ##       ##     ##
  ######     ##     ######     ##    ######## ##     ##
 
 class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 	bl_label   = "System"
 	bl_options = {'DEFAULT_CLOSED'}
+	bl_panel_groups = PanelGroups
 
 	def draw(self, context):
 		layout= self.layout
@@ -1258,6 +1347,7 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 	bl_label = "Lens Effects"
 	bl_options = {'DEFAULT_CLOSED'}
+	bl_panel_groups = PanelGroups
 
 	def draw_header(self, context):
 		VRayScene = context.scene.vray
@@ -1333,9 +1423,12 @@ class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 
 def GetRegClasses():
 	return (
+		VRayRenderPanelContext,
+
+		VRAY_RP_render,
 		VRAY_RP_dimensions,
 		VRAY_RP_output,
-		VRAY_RP_render,
+
 		VRAY_RP_Globals,
 		VRAY_RP_RTEngine,
 		VRAY_RP_SettingsCaustics,

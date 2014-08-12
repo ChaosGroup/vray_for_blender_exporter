@@ -146,6 +146,18 @@ PluginParams = (
         'type' : 'INT',
         'default' : 8,
     },
+
+    {
+        'attr' : 'spherical_harmonics',
+        'desc' : "Bake or render spherical harmonics",
+        'type' : 'ENUM',
+        'items' : (
+            ('BAKE',   "Bake",   ""),
+            ('RENDER', "Render", ""),
+        ),
+        'skip' : True,
+        'default' : 'BAKE',
+    },
 )
 
 PluginWidget = """

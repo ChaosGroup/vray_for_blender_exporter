@@ -349,6 +349,24 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    ui_render_grouping = bpy.props.BoolProperty(
+        name = "Group Render Panels",
+        default = False
+    )
+
+    ui_render_context = bpy.props.EnumProperty(
+        name = "Render Context Panels",
+        description = "Show render panels group",
+        items = (
+            ('0', "Render", ""),
+            ('1', "Globals", ""),
+            ('2', "GI", ""),
+            ('3', "DMC", ""),
+            ('4', "System", ""),
+        ),
+        default = '0'
+    )
+
 
 def GetRegClasses():
     return (
