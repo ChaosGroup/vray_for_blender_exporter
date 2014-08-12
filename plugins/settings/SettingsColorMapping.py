@@ -28,15 +28,6 @@ NAME = 'Color Mapping'
 DESC = ""
 
 
-def SyncWithPreferences():
-    pass
-
-
-def updatePreviewColorMapping(self, context):
-    if bpy.context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
-        open(getColorMappingFilepath(), 'w').write(getColorMappingData(context.scene))
-
-
 PluginParams = (
     {
         'attr' : 'type',
@@ -129,3 +120,14 @@ PluginWidget = """
 { "widgets": [
 ]}
 """
+
+
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    import bpy
+    from vb30.lib import ExportUtils
+
+    if bus['preview']:
+        # Use color mapping settings from current scene not from preview scene
+        propGroup = bpy.context.scene.vray.SettingsColorMapping
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
