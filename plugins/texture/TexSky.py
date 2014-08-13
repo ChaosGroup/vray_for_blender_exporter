@@ -114,14 +114,6 @@ PluginParams = (
         'default' : False,
     },
     {
-        'attr' : 'auto_sun',
-        'name' : "Find Sun Automatically",
-        'desc' : "Attach Sun automatically and take settings from it",
-        'type' : 'BOOL',
-        'skip' : True,
-        'default' : True,
-    },
-    {
         'attr' : 'sun',
         'desc' : "If specified, all parameters are taken from the sun; otherwise, the sky parameters are used",
         'type' : 'PLUGIN',
@@ -135,7 +127,6 @@ PluginWidget = """
     {   "layout" : "COLUMN",
         "align" : false,
         "attrs" : [
-            { "name" : "auto_sun" },
             { "name" : "sun_dir_only" },
             { "name" : "invisible", "label" : "Sun Invisible" }
         ]
