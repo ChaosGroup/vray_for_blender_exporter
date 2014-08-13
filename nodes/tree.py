@@ -28,7 +28,9 @@ from vb30.lib import BlenderUtils
 from vb30.ui import classes
 
 
-class VRayData():
+class VRayNodeTree(bpy.types.NodeTree):
+    bl_update_event = True
+
     @classmethod
     def poll(cls, context):
         return context.scene.render.engine in classes.VRayEngines
@@ -42,20 +44,20 @@ class VRayData():
 ##     ## ##     ##    ##    ##       ##    ##   ##  ##     ## ##
 ##     ## ##     ##    ##    ######## ##     ## #### ##     ## ########
 
-class VRayNodeTree(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeMaterial(VRayNodeTree):
     bl_label  = "V-Ray Node Tree"
     bl_idname = 'VRayNodeTreeMaterial'
     bl_icon   = 'VRAY_MATERIAL'
 
-    # Return a node tree from the context to be used in the editor
+    bl_update_preview = True
+
     @classmethod
     def get_from_context(cls, context):
         ob = context.active_object
         if ob and ob.type not in {'LAMP', 'CAMERA'}:
             ma = ob.active_material
-            if ma != None:
-                if ma.vray.ntree:
-                    return ma.vray.ntree, None, None
+            if ma and ma.vray.ntree:
+                return ma.vray.ntree, None, None
         return (None, None, None)
 
 
@@ -67,7 +69,7 @@ class VRayNodeTree(bpy.types.NodeTree, VRayData):
 ##  ##  ## ##     ## ##    ##  ##       ##     ##
  ###  ###   #######  ##     ## ######## ########
 
-class VRayNodeTreeWorld(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeWorld(VRayNodeTree):
     bl_label  = "V-Ray World Node Tree"
     bl_idname = 'VRayNodeTreeWorld'
     bl_icon   = 'VRAY_WORLD'
@@ -90,7 +92,7 @@ class VRayNodeTreeWorld(bpy.types.NodeTree, VRayData):
 ##     ## ##     ## ##    ## ##       ##    ##    ##
  #######  ########   ######  ########  ######     ##
 
-class VRayNodeTreeObject(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeObject(VRayNodeTree):
     bl_label  = "V-Ray Object Node Tree"
     bl_idname = 'VRayNodeTreeObject'
     bl_icon   = 'VRAY_OBJECT'
@@ -112,7 +114,7 @@ class VRayNodeTreeObject(bpy.types.NodeTree, VRayData):
 ##        ##  ##    ##  ##     ##    ##
 ######## ####  ######   ##     ##    ##
 
-class VRayNodeTreeLight(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeLight(VRayNodeTree):
     bl_label  = "V-Ray Light Node Tree"
     bl_idname = 'VRayNodeTreeLight'
     bl_icon   = 'VRAY_LIGHT'
@@ -134,7 +136,7 @@ class VRayNodeTreeLight(bpy.types.NodeTree, VRayData):
 ##    ## ##    ## ##       ##   ### ##
  ######   ######  ######## ##    ## ########
 
-class VRayNodeTreeScene(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeScene(VRayNodeTree):
     bl_label  = "V-Ray Scene Node Tree"
     bl_idname = 'VRayNodeTreeScene'
     bl_icon   = 'VRAY_RENDER_LAYERS'
@@ -154,7 +156,7 @@ class VRayNodeTreeScene(bpy.types.NodeTree, VRayData):
 ##       ##     ##  ##     ##    ##     ## ##    ##
 ######## ########  ####    ##     #######  ##     ##
 
-class VRayNodeTreeEditor(bpy.types.NodeTree, VRayData):
+class VRayNodeTreeEditor(VRayNodeTree):
     bl_label  = "V-Ray Node Tree Editor"
     bl_idname = 'VRayNodeTreeEditor'
     bl_icon   = 'NODETREE'
@@ -188,7 +190,7 @@ class VRayNodeTreeEditor(bpy.types.NodeTree, VRayData):
 
 def GetRegClasses():
     return (
-        VRayNodeTree,
+        VRayNodeTreeMaterial,
         VRayNodeTreeObject,
         VRayNodeTreeLight,
         VRayNodeTreeWorld,
