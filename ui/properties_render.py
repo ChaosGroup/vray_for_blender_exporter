@@ -482,10 +482,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		split = layout.split()
 		col = split.column()
-		col.prop(VRayExporter, 'instancer_dupli_group')
-
-		split = layout.split()
-		col = split.column()
 		sub = col.row()
 		sub.active = VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}
 		sub.prop(VRayExporter, 'frames_to_export')

@@ -339,6 +339,11 @@ class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
 
 		self.layout.prop(VRayObject, 'use_instancer')
 
+		split = self.layout.split()
+		row = split.row()
+		row.active = not VRayObject.use_instancer
+		row.prop(VRayObject, 'dupliGroupIDOverride', text="Dupli / Part Object ID Override")
+
 
 def GetRegClasses():
 	return (

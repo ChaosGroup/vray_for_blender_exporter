@@ -383,7 +383,7 @@ class VRayObject(bpy.types.PropertyGroup):
 	)
 
 	use_instancer = bpy.props.BoolProperty(
-		name = "Use Instancer For Particles",
+		name = "Use Instancer For Dupli / Particles",
 		default = True
 	)
 

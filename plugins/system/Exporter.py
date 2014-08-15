@@ -344,11 +344,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
-    instancer_dupli_group = bpy.props.BoolProperty(
-        name = "Use Instancer For DupliGroup",
-        default = False
-    )
-
     ui_render_grouping = bpy.props.BoolProperty(
         name = "Group Render Panels",
         default = False

@@ -38,10 +38,8 @@ class VRAY_DP_empty(classes.VRayDataPanel):
     def draw(self, context):
         wide_ui = context.region.width > classes.narrowui
         layout  = self.layout
-        
-        VRayObject = context.object.vray
 
-        layout.prop(VRayObject, 'dupliGroupIDOverride', text="Dupli ID Override")
+        VRayObject = context.object.vray
 
         # NOTE: Plugin not yet ready
 
