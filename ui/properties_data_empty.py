@@ -41,32 +41,31 @@ class VRAY_DP_empty(classes.VRayDataPanel):
 
         VRayObject = context.object.vray
 
-        # NOTE: Plugin not yet ready
-
-        # box = layout.box()
-        # box.prop(VRayObject, 'overrideWithScene')
-
-        # if VRayObject.overrideWithScene:
-        #     VRayAsset = VRayObject.VRayAsset
-        #     split = box.split()
-        #     col = split.column()
-        #     col.prop(VRayAsset, 'sceneFilepath')
-        #     col.prop(VRayAsset, 'sceneDirpath')
+        box = layout.box()
+        box.label("In progress...")
+        box.active = False
+        box.prop(VRayObject, 'overrideWithScene')
+        if VRayObject.overrideWithScene:
+            VRayAsset = VRayObject.VRayAsset
+            split = box.split()
+            col = split.column()
+            col.prop(VRayAsset, 'sceneFilepath')
+            col.prop(VRayAsset, 'sceneDirpath')
             
-        #     split = box.split()
-        #     col = split.column()
-        #     col.prop(VRayAsset, 'sceneReplace')
-        #     col.prop(VRayAsset, 'sceneUseTransform')
+            split = box.split()
+            col = split.column()
+            col.prop(VRayAsset, 'sceneReplace')
+            col.prop(VRayAsset, 'sceneUseTransform')
             
-        #     split = box.split()
-        #     col = split.column()
-        #     col.prop(VRayAsset, 'sceneAddNodes')
-        #     col.prop(VRayAsset, 'sceneAddMaterials')
-        #     col.prop(VRayAsset, 'sceneAddLights')
-        #     if wide_ui:
-        #         col = split.column()
-        #     col.prop(VRayAsset, 'sceneAddCameras')
-        #     col.prop(VRayAsset, 'sceneAddEnvironment')
+            split = box.split()
+            col = split.column()
+            col.prop(VRayAsset, 'sceneAddNodes')
+            col.prop(VRayAsset, 'sceneAddMaterials')
+            col.prop(VRayAsset, 'sceneAddLights')
+            if wide_ui:
+                col = split.column()
+            col.prop(VRayAsset, 'sceneAddCameras')
+            col.prop(VRayAsset, 'sceneAddEnvironment')
 
 
 def register():
