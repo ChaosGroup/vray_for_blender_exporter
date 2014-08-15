@@ -135,8 +135,8 @@ class VRayFilePaths:
             self.exportFilename  = "preview"
             self.exportDirectory = PathUtils.GetPreviewDir()
             self.imgDirectory    = PathUtils.GetPreviewDir()
-            self.imgFilename     = "preview.png"
-            self.imgLoadFilename = "preview.png"
+            self.imgFilename     = "preview.exr"
+            self.imgLoadFilename = "preview.exr"
 
         else:
             VRayScene = scene.vray
