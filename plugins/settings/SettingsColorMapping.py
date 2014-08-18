@@ -28,6 +28,12 @@ NAME = 'Color Mapping'
 DESC = ""
 
 
+def UpdateSystemGamma(self, context):
+    if self.sync_with_gamma:
+        view_settings = context.scene.view_settings
+        view_settings.gamma = 1.0 / self.gamma
+
+
 PluginParams = (
     {
         'attr' : 'type',
@@ -68,6 +74,7 @@ PluginParams = (
         'attr' : 'gamma',
         'desc' : "Gamma correction for the output image regardless of the color mapping mode",
         'type' : 'FLOAT',
+        'update' : UpdateSystemGamma,
         'default' : 1,
     },
     {
@@ -113,6 +120,14 @@ PluginParams = (
         'type' : 'FLOAT',
         'skip' : True,
         'default' : 1,
+    },
+    {
+        'attr' : 'sync_with_gamma',
+        'desc' : "Set Blender's \"Color Management\" Gamma to (1.0 / gamma)",
+        'type' : 'BOOL',
+        'update' : UpdateSystemGamma,
+        'skip' : True,
+        'default' : False,
     },
 )
 

@@ -584,6 +584,8 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		if cm.clamp_output:
 			col.prop(cm, "clamp_level")
 
+		layout.prop(cm, 'sync_with_gamma')
+
 
 #### ##     ##    ###     ######   ########     ######     ###    ##     ## ########  ##       ######## ########
  ##  ###   ###   ## ##   ##    ##  ##          ##    ##   ## ##   ###   ### ##     ## ##       ##       ##     ##
