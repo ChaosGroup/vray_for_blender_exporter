@@ -25,6 +25,7 @@
 import bpy
 
 from vb30.lib import BlenderUtils
+from vb30 import debug
 
 
 def SelectNtreeInEditor(context, ntreeName):
@@ -167,8 +168,35 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpRestoreNtreeTextures(bpy.types.Operator):
+    bl_idname = "vray.restore_ntree_textures"
+    bl_label = "Restore Textures"
+
+    def execute(self, context):
+        for nt in bpy.data.node_groups:
+            debug.PrintInfo("Checking tree: %s..." % nt.name)
+            for n in nt.nodes:
+                if not hasattr(n, 'texture'):
+                    continue
+                if n.texture:
+                    debug.PrintInfo("Texture presents: %s [\"%s\"]" % (n.texture.name, n.name))
+                    continue
+                if not n.texture_name:
+                    debug.PrintError("Outdated node version: %s" % n.name)
+                    continue
+                texName = n.texture_name
+                if not texName in bpy.data.textures:
+                    debug.PrintInfo("Texture not found: %s" % texName)
+                n.texture = bpy.data.textures[texName]
+                debug.PrintInfo("Texture restored: %s [\"%s\"]" % (texName, n.name))
+
+        return {'FINISHED'}
+
+
 def GetRegClasses():
     return (
+        VRayOpRestoreNtreeTextures,
+
         VRayOpBitmapBufferToImageEditor,
         VRayOpSelectNtreeInEditor,
 

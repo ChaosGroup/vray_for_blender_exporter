@@ -74,6 +74,10 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box.separator()
 		box.operator("vray.export_nodetree", text="Export Selected Nodetree", icon='NODETREE')
 
+		box = self.layout.box()
+		box.label("Tools")
+		box.operator("vray.restore_ntree_textures", text="Restore Textures")
+
 
 class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 	bl_label   = "Lights"
