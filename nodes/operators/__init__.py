@@ -29,17 +29,21 @@ def register():
     from . import add_tree
     from . import import_file
     from . import export_tree
+    from . import misc
 
     add_tree.register()
     import_file.register()
     export_tree.register()
+    misc.register()
 
 
 def unregister():
     from . import add_tree
     from . import import_file
     from . import export_tree
+    from . import misc
 
     add_tree.unregister()
     import_file.unregister()
     export_tree.unregister()
+    misc.unregister()

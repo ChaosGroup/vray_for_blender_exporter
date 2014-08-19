@@ -24,10 +24,27 @@
 
 import bpy
 
+addon_keymaps = []
+
 
 def register():
-    pass
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc:
+        km = kc.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
+        km.keymap_items.new("vray.show_node_image", 'LEFTMOUSE', 'DOUBLE_CLICK')
+        addon_keymaps.append(km)
+
+        km = kc.keymaps.new(name='Window')
+        kmi = km.keymap_items.new('wm.call_menu', 'N', 'PRESS', shift=True, ctrl=True)
+        kmi.properties.name = "vray.show_ntree_menu"
+
+        addon_keymaps.append(km)
 
 
 def unregister():
-    pass
+    wm = bpy.context.window_manager
+    for km in addon_keymaps:
+        wm.keyconfigs.addon.keymaps.remove(km)
+
+    addon_keymaps.clear()
