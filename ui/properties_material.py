@@ -40,7 +40,7 @@ def RenderMaterialPanel(mat, context, layout):
 
     layout.separator()
 
-    classes.NtreeWidget(layout, VRayMaterial, "Shading Tree", "vray.add_material_nodetree", 'MATERIAL')
+    classes.NtreeWidget(layout, VRayMaterial, "Shading Tree", "vray.add_nodetree_material", 'MATERIAL')
 
     if not classes.TreeHasNodes(VRayMaterial.ntree):
         return

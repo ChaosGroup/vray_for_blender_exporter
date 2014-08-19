@@ -109,13 +109,13 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRAY_OT_add_world_nodetree(bpy.types.Operator):
-    bl_idname      = "vray.add_world_nodetree"
+class VRAY_OT_add_nodetree_world(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_world"
     bl_label       = "Add World Nodetree"
     bl_description = ""
 
     def execute(self, context):
-        VRayWorld = context.world.vray
+        VRayWorld = context.scene.world.vray
 
         nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
         nt.use_fake_user = True
@@ -135,8 +135,8 @@ class VRAY_OT_add_world_nodetree(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRAY_OT_add_material_nodetree(bpy.types.Operator):
-    bl_idname      = "vray.add_material_nodetree"
+class VRAY_OT_add_nodetree_material(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_material"
     bl_label       = "Use Nodes"
     bl_description = ""
 
@@ -231,8 +231,8 @@ def GetRegClasses():
         VRAY_OT_add_nodetree_scene,
         VRAY_OT_add_nodetree_light,
         VRAY_OT_add_nodetree_object,
-        VRAY_OT_add_material_nodetree,
-        VRAY_OT_add_world_nodetree,
+        VRAY_OT_add_nodetree_material,
+        VRAY_OT_add_nodetree_world,
 
         VRAY_OT_del_nodetree,
 

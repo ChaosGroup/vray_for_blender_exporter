@@ -50,7 +50,7 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         layout.separator()
         layout.prop(VRayWorld, 'global_light_level', slider=True)
 
-        classes.NtreeWidget(layout, VRayWorld, "World Tree", "vray.add_world_nodetree", 'WORLD')
+        classes.NtreeWidget(layout, VRayWorld, "World Tree", "vray.add_nodetree_world", 'WORLD')
 
         if not classes.TreeHasNodes(VRayWorld.ntree):
             return
