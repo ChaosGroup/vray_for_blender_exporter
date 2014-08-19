@@ -33,6 +33,8 @@ from vb30.lib import VRayStream
 
 from vb30 import debug
 
+import _vray_for_blender
+
 
 class VRAY_OT_export_nodetree(bpy.types.Operator):
     bl_idname      = "vray.export_nodetree"
@@ -61,21 +63,35 @@ class VRAY_OT_export_nodetree(bpy.types.Operator):
 
         debug.PrintInfo('Exporting "%s" to: "%s"' % (ntree.name, outputFilepath))
 
-        bus = {
-            'output' : VRayStream.VRaySimplePluginExporter(outputFilepath),
-            'scene'  : context.scene,
-            'cache' : {
-                'plugins' : set(),
-                'mesh'    : set(),
-            },
-            'context' : {
-                'node' : None,
-            },
-        }
+        o = VRayStream.VRaySimplePluginExporter(outputFilepath)
 
-        for socket in outputNode.inputs:
-            if socket.is_linked:
-                NodesExport.WriteConnectedNode(bus, ntree, socket)
+        exporter = _vray_for_blender.init(
+            engine  = 0,
+            context = bpy.context.as_pointer(),
+            scene   = bpy.context.scene.as_pointer(),
+            data    = bpy.data.as_pointer(),
+
+            mainFile     = o.output,
+            objectFile   = o.output,
+            envFile      = o.output,
+            geometryFile = o.output,
+            lightsFile   = o.output,
+            materialFile = o.output,
+            textureFile  = o.output,
+
+            drSharePath = "",
+        )
+
+        for sock in outputNode.inputs:
+            conNode = NodesExport.GetConnectedNode(ntree, sock)
+            if conNode:
+                _vray_for_blender.exportNode(
+                    ntree.as_pointer(),
+                    conNode.as_pointer(),
+                    sock.as_pointer()
+                )
+
+        _vray_for_blender.exit(exporter)
 
         return {'FINISHED'}
 
