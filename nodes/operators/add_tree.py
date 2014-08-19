@@ -180,9 +180,13 @@ class VRayOpRenameTo(bpy.types.Operator):
             ('MATERIAL', "Material", ""),
             ('OBJECT',   "Object",   ""),
             ('LAMP',     "Lamp",     ""),
+            ('SCENE',    "Scene",    ""),
+            ('WORLD',    "World",    ""),
         ),
         default = 'MATERIAL'
     )
+
+    ntree = bpy.props.StringProperty()
 
     def execute(self, context):
         data = None
@@ -199,6 +203,12 @@ class VRayOpRenameTo(bpy.types.Operator):
 
         elif self.to_data == 'LAMP':
             data = context.active_object.data
+
+        elif self.to_data == 'SCENE':
+            data = context.scene
+
+        elif self.to_data == 'WORLD':
+            data = context.world
 
         if not data:
             return {'CANCELLED'}
