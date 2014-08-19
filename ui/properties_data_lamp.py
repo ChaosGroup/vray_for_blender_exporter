@@ -93,7 +93,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         lightPropGroup = getattr(VRayLight, lightPluginName)
 
         layout.separator()
-        classes.NtreeWidget(layout, VRayMaterial, "Lamp Tree", "vray.add_nodetree_light", 'LAMP')
+        classes.NtreeWidget(layout, VRayLight, "Lamp Tree", "vray.add_nodetree_light", 'LAMP')
 
         layout.separator()
         classes.DrawPluginUI(context, layout, VRayLight, lightPropGroup, lightPluginName, PLUGINS['LIGHT'][lightPluginName])
