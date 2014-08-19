@@ -132,6 +132,19 @@ class VRayPieShowNtree(bpy.types.Menu):
         ShowNtreeItems(self.layout.menu_pie())
 
 
+class VRayPieAddNtree(bpy.types.Menu):
+    bl_label = "Add Node Tree"
+    bl_idname = "vray.add_ntree_pie"
+
+    def draw(self, context):
+        pie = self.layout.menu_pie()
+        pie.operator("vray.add_nodetree_material", text="Material",        icon='MATERIAL')
+        pie.operator("vray.add_nodetree_object",   text="Object",          icon='OBJECT_DATA')
+        pie.operator("vray.add_nodetree_light",    text="Lamp",            icon='LAMP')
+        pie.operator("vray.add_nodetree_world",    text="Environment",     icon='WORLD')
+        pie.operator("vray.add_nodetree_scene",    text="Render Channels", icon='SCENE_DATA')
+
+
 class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
     bl_idname = "vray.show_node_image"
     bl_label = "Show Bitmap Buffer Image"
@@ -162,6 +175,7 @@ def GetRegClasses():
         VRayOpShowNtree,
         VRayMenuShowNtree,
         VRayPieShowNtree,
+        VRayPieAddNtree,
     )
 
 
