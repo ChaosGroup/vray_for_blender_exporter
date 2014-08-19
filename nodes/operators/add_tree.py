@@ -26,6 +26,8 @@ import os
 
 import bpy
 
+from vb30.lib import LibUtils
+
 from .. import tree_defaults
 from .. import tools as NodesTools
 
@@ -35,22 +37,16 @@ class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_label       = "Add Light Nodetree"
     bl_description = ""
 
-    lightType = bpy.props.StringProperty(
-        name = "Light Type",
-        description = "Light type",
-        default = ""
-    )
-
     def execute(self, context):
-        if not self.lightType:
-            return {'CANCELLED'}
+        lamp = context.object.data
+        VRayLight = lamp.vray
 
-        VRayLight = context.object.data.vray
-
-        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeLight')
+        nt = bpy.data.node_groups.new(lamp.name, type='VRayNodeTreeLight')
         nt.use_fake_user = True
 
-        nt.nodes.new('VRayNode%s' % self.lightType)
+        lightPluginName = LibUtils.GetLightPluginName(lamp)
+
+        nt.nodes.new('VRayNode%s' % lightPluginName)
         NodesTools.deselectNodes(nt)
 
         VRayLight.ntree = nt
