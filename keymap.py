@@ -32,7 +32,11 @@ def register():
     kc = wm.keyconfigs.addon
     if kc:
         km = kc.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
-        km.keymap_items.new("vray.show_node_image", 'LEFTMOUSE', 'DOUBLE_CLICK')
+        kmi = km.keymap_items.new("vray.show_node_image", 'LEFTMOUSE', 'DOUBLE_CLICK')
+
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'F', 'PRESS')
+        kmi.properties.name = "vray.show_ntree_pie"
+
         addon_keymaps.append(km)
 
         km = kc.keymaps.new(name='Window')

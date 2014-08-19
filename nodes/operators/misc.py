@@ -109,17 +109,27 @@ class VRayOpShowNtree(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def ShowNtreeItems(layout):
+    layout.operator("vray.show_ntree", text="Material",        icon='MATERIAL'   ).data = 'MATERIAL'
+    layout.operator("vray.show_ntree", text="Object",          icon='OBJECT_DATA').data = 'OBJECT'
+    layout.operator("vray.show_ntree", text="Environment",     icon='WORLD'      ).data = 'WORLD'
+    layout.operator("vray.show_ntree", text="Render Channels", icon='SCENE_DATA' ).data = 'SCENE'
+
+
 class VRayMenuShowNtree(bpy.types.Menu):
     bl_label = "Show Node Tree In Editor"
     bl_idname = "vray.show_ntree_menu"
 
     def draw(self, context):
-        layout = self.layout
+        ShowNtreeItems(self.layout)
 
-        layout.operator("vray.show_ntree", text="Material",        icon='MATERIAL'   ).data = 'MATERIAL'
-        layout.operator("vray.show_ntree", text="Object",          icon='OBJECT_DATA').data = 'OBJECT'
-        layout.operator("vray.show_ntree", text="Environment",     icon='WORLD'      ).data = 'WORLD'
-        layout.operator("vray.show_ntree", text="Render Channels", icon='SCENE_DATA' ).data = 'SCENE'
+
+class VRayPieShowNtree(bpy.types.Menu):
+    bl_label = "Show Node Tree In Editor"
+    bl_idname = "vray.show_ntree_pie"
+
+    def draw(self, context):
+        ShowNtreeItems(self.layout.menu_pie())
 
 
 class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
@@ -150,7 +160,8 @@ def GetRegClasses():
         VRayOpSelectNtreeInEditor,
 
         VRayOpShowNtree,
-        VRayMenuShowNtree
+        VRayMenuShowNtree,
+        VRayPieShowNtree,
     )
 
 
