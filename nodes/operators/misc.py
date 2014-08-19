@@ -111,7 +111,7 @@ class VRayOpShowNtree(bpy.types.Operator):
 
 def ShowNtreeItems(layout):
     layout.operator("vray.show_ntree", text="Material",        icon='MATERIAL'   ).data = 'MATERIAL'
-    layout.operator("vray.show_ntree", text="Object",          icon='OBJECT_DATA').data = 'OBJECT'
+    layout.operator("vray.show_ntree", text="Object / Lamp",   icon='OBJECT_DATA').data = 'OBJECT'
     layout.operator("vray.show_ntree", text="Environment",     icon='WORLD'      ).data = 'WORLD'
     layout.operator("vray.show_ntree", text="Render Channels", icon='SCENE_DATA' ).data = 'SCENE'
 
