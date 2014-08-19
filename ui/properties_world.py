@@ -50,12 +50,7 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         layout.separator()
         layout.prop(VRayWorld, 'global_light_level', slider=True)
 
-        layout.separator()
-        split = layout.split()
-        row = split.row(align=True)
-        row.prop_search(VRayWorld, 'ntree', bpy.data, 'node_groups', text="World Tree")
-        if not VRayWorld.ntree:
-            row.operator("vray.add_world_nodetree", icon='ZOOMIN', text="")
+        classes.NtreeWidget(layout, VRayWorld, "World Tree", "vray.add_world_nodetree", 'WORLD')
 
         if not classes.TreeHasNodes(VRayWorld.ntree):
             return

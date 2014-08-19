@@ -28,21 +28,6 @@ from vb30.ui import classes
 from vb30.lib import LibUtils
 from vb30.plugins import PLUGINS
 
-class VRayPanelRenderElements(classes.VRayRenderLayersPanel):
-	bl_label   = "Render Elements"
-	bl_options = {'HIDE_HEADER'}
-
-	def draw(self, context):
-		layout = self.layout
-
-		VRayScene = context.scene.vray
-
-		split = layout.split()
-		row = split.row(align=True)
-		row.prop_search(VRayScene, 'ntree', bpy.data, 'node_groups', text="Channels Tree")
-		if not VRayScene.ntree:
-			row.operator("vray.add_nodetree_scene", icon='ZOOMIN', text="")
-
 
 class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 	bl_label   = "Tools"
@@ -182,7 +167,6 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 
 def GetRegClasses():
 	return (
-		VRayPanelRenderElements,
 		VRayPanelMiscTools,
 		VRayPanelNodeTrees,
 		VRayPanelLightLister,

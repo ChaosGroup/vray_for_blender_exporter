@@ -148,6 +148,28 @@ def DrawNodePanel(context, layout, node, PLUGINS):
         DrawPluginUI(context, layout, node, propGroup, node.vray_plugin, vrayPlugin)
 
 
+def NtreeWidget(layout, propGroup, label, addOp, addOpContext):
+    split = layout.split(percentage=0.3)
+
+    col = split.column()
+    col.label("%s:" % label)
+
+    col = split.column()
+    row = col.row(align=True)
+
+    if propGroup.ntree:
+        op = row.operator("vray.nodetree_rename_to", icon='SYNTAX_OFF', text="")
+        op.to_data = addOpContext
+        op.ntree   = propGroup.ntree.name
+
+        # op = row.operator("vray.select_ntree_in_editor", icon='UI', text="")
+        # op.ntree = propGroup.ntree.name
+
+    row.prop_search(propGroup, 'ntree', bpy.data, 'node_groups', text="")
+    if not propGroup.ntree:
+        row.operator(addOp, icon='ZOOMIN', text="")
+
+
 ########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
 ##     ##   ## ##   ##    ## ##          ##    ## ##         ## ##   ##    ## ##    ## ##       ##    ##
 ##     ##  ##   ##  ##       ##          ##       ##        ##   ##  ##       ##       ##       ##

@@ -24,16 +24,41 @@
 
 import bpy
 
-from vb30.ui      import classes
+from vb30.ui import classes
+
+
+# Based on SCENE_PT_scene
+#
+class VRayPanelScene(classes.VRayScenePanel):
+	bl_label = "Scene"
+
+	def draw(self, context):
+		layout = self.layout
+
+		scene = context.scene
+		VRayScene = scene.vray
+
+		layout.prop(scene, "camera")
+		layout.prop(scene, "background_set", text="Background")
+		layout.prop(scene, "active_clip", text="Active Clip")
+
+		classes.NtreeWidget(layout, VRayScene, "Channels Tree", "vray.add_nodetree_scene", 'SCENE')
 
 
 def GetRegClasses():
-	return ()
+	return (
+		VRayPanelScene,
+	)
 
 
 def register():
+	for regClass in GetRegClasses():
+		bpy.utils.register_class(regClass)
+
 	from bl_ui import properties_scene
 	for member in dir(properties_scene):
+		if member in {'SCENE_PT_scene'}:
+			continue
 		subclass = getattr(properties_scene, member)
 		try:
 			for compatEngine in classes.VRayEngines:
@@ -42,8 +67,6 @@ def register():
 			pass
 	del properties_scene
 
-	for regClass in GetRegClasses():
-		bpy.utils.register_class(regClass)
 
 
 def unregister():
