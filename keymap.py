@@ -37,6 +37,9 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
         kmi.properties.name = "vray.show_ntree_pie"
 
+        # kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True)
+        # kmi.properties.name = "vray.add_ntree_pie"
+
         addon_keymaps.append(km)
 
         km = kc.keymaps.new(name='Window')
