@@ -76,7 +76,9 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 
 		box = self.layout.box()
 		box.label("Tools")
-		box.operator("vray.restore_ntree_textures", text="Restore Textures")
+		box_row = box.row()
+		box_row.operator("vray.restore_ntree_textures", text="Restore Textures", icon='FILE_REFRESH')
+		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
 
 
 class VRayPanelLightLister(classes.VRayRenderLayersPanel):
