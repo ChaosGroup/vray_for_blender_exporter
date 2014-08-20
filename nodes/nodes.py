@@ -214,8 +214,12 @@ def GetCategories():
 ##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
  ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######
 
+def CreateFakeName():
+    return ".VRayFakeTexture@%s" % LibUtils.GetUUID()
+
+
 def CreateRampTexture(self):
-    texName = ".Ramp@%s" % LibUtils.GetUUID()
+    texName = CreateFakeName()
 
     self.texture = bpy.data.textures.new(texName, 'NONE')
     self.texture.use_color_ramp = True
@@ -224,7 +228,7 @@ def CreateRampTexture(self):
 
 
 def CreateBitmapTexture(self):
-    texName = ".Bitmap@%s" % LibUtils.GetUUID()
+    texName = CreateFakeName()
 
     self.texture = bpy.data.textures.new(texName, 'IMAGE')
     self.texture.use_fake_user  = True
