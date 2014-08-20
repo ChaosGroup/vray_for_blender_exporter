@@ -80,9 +80,15 @@ def GetRegionWidthFromContext(context):
     return 1024
 
 
-def PollEngine(cls, context):
-    rd = context.scene.render
-    return rd.engine in cls.COMPAT_ENGINES
+def PollBase(cls, context):
+    poll_engine = context.scene.render.engine in cls.COMPAT_ENGINES
+    poll_custom = True
+    if hasattr(cls, 'poll_custom'):
+        poll_custom = cls.poll_custom(context)
+    poll_group = True
+    if hasattr(cls, 'poll_group'):
+        poll_group = cls.poll_group(context)
+    return poll_engine and poll_custom and poll_group
 
 
 ########  ########     ###    ##      ##
@@ -181,15 +187,15 @@ def NtreeWidget(layout, propGroup, label, addOp, addOpContext):
 class VRayPanel(bpy.types.Panel):
     COMPAT_ENGINES = VRayEngines
 
+    @classmethod
+    def poll(cls, context):
+        return PollBase(cls, context)
+
 
 class VRayDataPanel(VRayPanel):
     bl_space_type  = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context     = 'data'
-
-    @classmethod
-    def poll(cls, context):
-        return PollEngine(cls, context)
 
 
 class VRayGeomPanel(VRayDataPanel):
@@ -197,19 +203,19 @@ class VRayGeomPanel(VRayDataPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
+        return context.object and context.object.type not in cls.incompatTypes and PollBase(cls, context)
 
 
 class VRayCameraPanel(VRayDataPanel):
     @classmethod
     def poll(cls, context):
-        return context.camera and PollEngine(cls, context)
+        return context.camera and PollBase(cls, context)
 
 
 class VRayLampPanel(VRayDataPanel):
     @classmethod
     def poll(cls, context):
-        return context.lamp and PollEngine(cls, context)
+        return context.lamp and PollBase(cls, context)
 
 
 class VRayMaterialPanel(VRayPanel):
@@ -219,7 +225,7 @@ class VRayMaterialPanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.material and PollEngine(cls, context)
+        return context.material and PollBase(cls, context)
 
 
 class VRayObjectPanel(VRayPanel):
@@ -231,7 +237,7 @@ class VRayObjectPanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.object and context.object.type not in cls.incompatTypes and PollEngine(cls, context)
+        return context.object and context.object.type not in cls.incompatTypes and PollBase(cls, context)
 
 
 class VRayParticlePanel(VRayPanel):
@@ -241,7 +247,7 @@ class VRayParticlePanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.particle_system and PollEngine(cls, context)
+        return context.particle_system and PollBase(cls, context)
 
 
 class VRayRenderPanel(VRayPanel):
@@ -261,17 +267,6 @@ class VRayRenderPanel(VRayPanel):
 
         return False
 
-    @classmethod
-    def poll(cls, context):
-        enginePoll = PollEngine(cls, context)
-        groupPoll  = cls.poll_group(context)
-
-        customPoll = True
-        if hasattr(cls, 'poll_custom'):
-            customPoll = cls.poll_custom(context)
-
-        return enginePoll and groupPoll and customPoll
-
 
 class VRayRenderLayersPanel(VRayPanel):
     bl_space_type  = 'PROPERTIES'
@@ -280,7 +275,7 @@ class VRayRenderLayersPanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return PollEngine(cls, context)
+        return PollBase(cls, context)
 
 
 class VRayScenePanel(VRayPanel):
@@ -290,7 +285,7 @@ class VRayScenePanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return PollEngine(cls, context)
+        return PollBase(cls, context)
 
 
 class VRayTexturePanel(VRayPanel):
@@ -300,7 +295,7 @@ class VRayTexturePanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.texture and PollEngine(cls, context)
+        return context.texture and PollBase(cls, context)
 
 
 class VRayWorldPanel(VRayPanel):
@@ -310,7 +305,7 @@ class VRayWorldPanel(VRayPanel):
 
     @classmethod
     def poll(cls, context):
-        return context.world and PollEngine(cls, context)
+        return context.world and PollBase(cls, context)
 
 
 ##       ####  ######  ########

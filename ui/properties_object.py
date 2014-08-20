@@ -26,11 +26,16 @@ import bpy
 
 from vb30.ui import classes
 from vb30.plugins import PLUGINS_ID
+from vb30.lib import BlenderUtils
 
 
 class VRAY_OBP_context_node(classes.VRayObjectPanel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
+
+	@classmethod
+	def poll_custom(cls, context):
+		return context.object.type not in BlenderUtils.NonGeometryTypes
 
 	def draw(self, context):
 		VRayObject = context.object.vray
@@ -43,8 +48,8 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 	bl_options = {'DEFAULT_CLOSED'}
 
 	@classmethod
-	def poll(cls, context):
-		return classes.VRayObjectPanel.poll(context) and context.scene.vray.Exporter.experimental
+	def poll_custom(cls, context):
+		return context.scene.vray.Exporter.experimental
 
 	def draw_header(self, context):
 		ob = context.object

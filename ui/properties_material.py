@@ -56,9 +56,8 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
     bl_options = {'HIDE_HEADER'}
 
     @classmethod
-    def poll(cls, context):
-        engine = context.scene.render.engine
-        return (context.material or context.object) and classes.PollEngine(cls, context)
+    def poll_custom(cls, context):
+        return (context.material or context.object)
 
     def draw(self, context):
         layout = self.layout
@@ -110,11 +109,10 @@ class VRAY_MP_preview_material(classes.VRayMaterialPanel):
     COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
     @classmethod
-    def poll(cls, context):
+    def poll_custom(cls, context):
         if not context.material:
             return False
-        engine = context.scene.render.engine
-        return (context.material or context.object) and classes.PollEngine(cls, context)
+        return context.material or context.object
 
     def draw(self, context):
         layout = self.layout
