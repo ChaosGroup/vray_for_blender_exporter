@@ -42,12 +42,6 @@ def register():
 
         addon_keymaps.append(km)
 
-        km = kc.keymaps.new(name='Window')
-        kmi = km.keymap_items.new('wm.call_menu', 'N', 'PRESS', shift=True, ctrl=True)
-        kmi.properties.name = "vray.show_ntree_menu"
-
-        addon_keymaps.append(km)
-
 
 def unregister():
     wm = bpy.context.window_manager
