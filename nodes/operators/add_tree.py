@@ -27,6 +27,7 @@ import os
 import bpy
 
 from vb30.lib import LibUtils
+from vb30.lib import BlenderUtils
 
 from .. import tree_defaults
 from .. import tools as NodesTools
@@ -35,72 +36,54 @@ from .. import tools as NodesTools
 class VRAY_OT_add_nodetree_light(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_light"
     bl_label       = "Add Light Nodetree"
-    bl_description = ""
+    bl_description = "Add light nodetree"
 
     def execute(self, context):
-        lamp = context.object.data
-        VRayLight = lamp.vray
-
-        nt = bpy.data.node_groups.new(lamp.name, type='VRayNodeTreeLight')
-        nt.use_fake_user = True
-
-        lightPluginName = LibUtils.GetLightPluginName(lamp)
-
-        nt.nodes.new('VRayNode%s' % lightPluginName)
-        NodesTools.deselectNodes(nt)
-
-        VRayLight.ntree = nt
-
+        tree_defaults.AddLampNodeTree(context.object.data)
+        bpy.ops.vray.show_ntree(data='OBJECT')
         return {'FINISHED'}
 
 
 class VRAY_OT_add_nodetree_scene(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_scene"
     bl_label       = "Add Scene Nodetree"
-    bl_description = ""
+    bl_description = "Add scene nodetree"
 
     def execute(self, context):
-        VRayScene = context.scene.vray
-
-        nt = bpy.data.node_groups.new(context.scene.name, type='VRayNodeTreeScene')
-        nt.use_fake_user = True
-
-        nt.nodes.new('VRayNodeRenderChannels')
-        NodesTools.deselectNodes(nt)
-
-        VRayScene.ntree = nt
-
+        tree_defaults.AddSceneNodeTree(context.scene)
+        bpy.ops.vray.show_ntree(data='SCENE')
         return {'FINISHED'}
 
 
 class VRAY_OT_add_nodetree_object(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_object"
     bl_label       = "Add Object Nodetree"
-    bl_description = ""
+    bl_description = "Add object nodetree"
 
     def execute(self, context):
-        VRayObject = context.object.vray
+        tree_defaults.AddObjectNodeTree(context.object)
+        bpy.ops.vray.show_ntree(data='OBJECT')
+        return {'FINISHED'}
 
-        nt = bpy.data.node_groups.new(context.object.name, type='VRayNodeTreeObject')
-        nt.use_fake_user = True
 
-        outputNode = nt.nodes.new('VRayNodeObjectOutput')
+class VRAY_OT_add_nodetree_object_lamp(bpy.types.Operator):
+    bl_idname      = "vray.add_nodetree_object_lamp"
+    bl_label       = "Add Object / Lamp Nodetree"
+    bl_description = "Add object / lamp nodetree"
 
-        blenderGeometry = nt.nodes.new('VRayNodeBlenderOutputGeometry')
-        blenderMaterial = nt.nodes.new('VRayNodeBlenderOutputMaterial')
+    def execute(self, context):
+        ob = context.object
 
-        blenderMaterial.location.x = outputNode.location.x - 200
-        blenderMaterial.location.y = outputNode.location.y + 30
+        if ob.type in BlenderUtils.NonGeometryTypes:
+            if ob.type == 'LAMP':
+                tree_defaults.AddLampNodeTree(ob.data)
+            else:
+                self.report({'ERROR'}, "Object type doesn't support node tree!")
+                return {'CANCELLED'}
+        else:
+            tree_defaults.AddObjectNodeTree(ob)
 
-        blenderGeometry.location.x = outputNode.location.x - 200
-        blenderGeometry.location.y = outputNode.location.y - 150
-
-        nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
-        nt.links.new(blenderGeometry.outputs['Geometry'], outputNode.inputs['Geometry'])
-
-        NodesTools.deselectNodes(nt)
-
-        VRayObject.ntree = nt
+        bpy.ops.vray.show_ntree(data='OBJECT')
 
         return {'FINISHED'}
 
@@ -108,36 +91,47 @@ class VRAY_OT_add_nodetree_object(bpy.types.Operator):
 class VRAY_OT_add_nodetree_world(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_world"
     bl_label       = "Add World Nodetree"
-    bl_description = ""
+    bl_description = "Add world nodetree"
 
     def execute(self, context):
-        VRayWorld = context.scene.world.vray
-
-        nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
-        nt.use_fake_user = True
-
-        outputNode = nt.nodes.new('VRayNodeWorldOutput')
-        envNode = nt.nodes.new('VRayNodeEnvironment')
-
-        envNode.location.x = outputNode.location.x - 200
-        envNode.location.y = outputNode.location.y + 200
-
-        nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])
-
-        NodesTools.deselectNodes(nt)
-
-        VRayWorld.ntree = nt
-
+        tree_defaults.AddWorldNodeTree(context.scene.world)
+        bpy.ops.vray.show_ntree(data='WORLD')
         return {'FINISHED'}
 
 
 class VRAY_OT_add_nodetree_material(bpy.types.Operator):
     bl_idname      = "vray.add_nodetree_material"
-    bl_label       = "Use Nodes"
-    bl_description = ""
+    bl_label       = "Add Material Nodetree"
+    bl_description = "Add material nodetree"
 
     def execute(self, context):
-        tree_defaults.AddMaterialNodeTree(context.material)
+        if hasattr(context, 'material') and context.material:
+            tree_defaults.AddMaterialNodeTree(context.material)
+
+        elif hasattr(context, 'active_object') and context.active_object:
+            ob = context.active_object
+
+            if ob.type in BlenderUtils.NonGeometryTypes:
+                self.report({'ERROR'}, "Object type doesn't support materials!")
+                return {'CANCELLED'}
+
+            empty_slot = None
+            for s in ob.material_slots:
+                if not s.material:
+                    self.report({'INFO'}, "New material is added to existing slot")
+                    empty_slot = s
+                    break
+
+            if not empty_slot:
+                self.report({'INFO'}, "New material is added to new slot")
+                bpy.ops.object.material_slot_add()
+                empty_slot = ob.material_slots[-1]
+
+            new_ma = bpy.data.materials.new("Material")
+            tree_defaults.AddMaterialNodeTree(new_ma)
+            empty_slot.material = new_ma
+
+        bpy.ops.vray.show_ntree(data='MATERIAL')
 
         return {'FINISHED'}
 
@@ -227,6 +221,7 @@ def GetRegClasses():
         VRAY_OT_add_nodetree_scene,
         VRAY_OT_add_nodetree_light,
         VRAY_OT_add_nodetree_object,
+        VRAY_OT_add_nodetree_object_lamp,
         VRAY_OT_add_nodetree_material,
         VRAY_OT_add_nodetree_world,
 

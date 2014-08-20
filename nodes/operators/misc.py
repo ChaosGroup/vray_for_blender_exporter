@@ -72,6 +72,8 @@ class VRayOpShowNtree(bpy.types.Operator):
         default = 'MATERIAL'
     )
 
+    ntree_name = bpy.props.StringProperty()
+
     def execute(self, context):
         ntree = None
 
@@ -83,13 +85,17 @@ class VRayOpShowNtree(bpy.types.Operator):
 
         if self.data == 'MATERIAL':
             if not ob:
+                self.report({'ERROR_INVALID_CONTEXT'}, "No active object!")
+                return {'CANCELLED'}
+            if ob.type in BlenderUtils.NonGeometryTypes:
+                self.report({'ERROR_INVALID_CONTEXT'}, "Selected object type doesn't support materials!")
                 return {'CANCELLED'}
             if not len(ob.material_slots):
+                self.report({'ERROR_INVALID_CONTEXT'}, "Object doesn't have any material slots!")
                 return {'CANCELLED'}
             ma = ob.material_slots[ob.active_material_index].material
-            if not ma:
-                return {'CANCELLED'}
-            ntree = ma.vray.ntree
+            if ma:
+                ntree = ma.vray.ntree
 
         elif self.data == 'OBJECT':
             if ob.type in BlenderUtils.NonGeometryTypes:
@@ -104,8 +110,15 @@ class VRayOpShowNtree(bpy.types.Operator):
         elif self.data == 'SCENE':
             ntree = context.scene.vray.ntree
 
-        if ntree:
-            SelectNtreeInEditor(context, ntree.name)
+        if not ntree:
+            if self.ntree_name and self.ntree_name in bpy.data.node_groups:
+                ntree = bpy.data.node_groups[self.ntree_name]
+
+        if not ntree:
+            self.report({'ERROR'}, "Node tree not found!")
+            return {'CANCELLED'}
+
+        SelectNtreeInEditor(context, ntree.name)
 
         return {'FINISHED'}
 
@@ -139,11 +152,10 @@ class VRayPieAddNtree(bpy.types.Menu):
 
     def draw(self, context):
         pie = self.layout.menu_pie()
-        pie.operator("vray.add_nodetree_material", text="Material",        icon='MATERIAL')
-        pie.operator("vray.add_nodetree_object",   text="Object",          icon='OBJECT_DATA')
-        pie.operator("vray.add_nodetree_light",    text="Lamp",            icon='LAMP')
-        pie.operator("vray.add_nodetree_world",    text="Environment",     icon='WORLD')
-        pie.operator("vray.add_nodetree_scene",    text="Render Channels", icon='SCENE_DATA')
+        pie.operator("vray.add_nodetree_material",    text="Material",        icon='MATERIAL')
+        pie.operator("vray.add_nodetree_object_lamp", text="Object / Lamp",   icon='OBJECT_DATA')
+        pie.operator("vray.add_nodetree_world",       text="Environment",     icon='WORLD')
+        pie.operator("vray.add_nodetree_scene",       text="Render Channels", icon='SCENE_DATA')
 
 
 class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
@@ -193,8 +205,46 @@ class VRayOpRestoreNtreeTextures(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpRemoveFakeTextures(bpy.types.Operator):
+    bl_idname = "vray.remove_fake_textures"
+    bl_label = "Clean Up Fake Data"
+
+    def execute(self, context):
+        node_textures = []
+        for nt in bpy.data.node_groups:
+            debug.PrintInfo("Checking tree: %s..." % nt.name)
+            for n in nt.nodes:
+                if not hasattr(n, 'texture'):
+                    continue
+
+                if n.texture:
+                    debug.PrintInfo("Texture found: %s [\"%s\"]" % (n.texture.name, n.name))
+
+                    if not n.texture_name:
+                        debug.PrintInfo("Restoring texture name: %s [\"%s\"]" % (n.texture.name, n.name))
+                        n.texture_name = n.texture.name
+
+                    node_textures.append(n.texture)
+
+        textures_to_remove = []
+        for tex in bpy.data.textures:
+            if not tex.name.startswith((".Ramp@", ".Bitmap@", ".VRayFakeTexture@")):
+                continue
+            if tex not in node_textures:
+                tex.use_fake_user = False
+                textures_to_remove.append(tex)
+
+        for tex in textures_to_remove:
+            debug.PrintInfo("Removing: %s..." % tex.name)
+            bpy.data.textures.remove(tex)
+
+        return {'FINISHED'}
+
+
+
 def GetRegClasses():
     return (
+        VRayOpRemoveFakeTextures,
         VRayOpRestoreNtreeTextures,
 
         VRayOpBitmapBufferToImageEditor,

@@ -24,7 +24,79 @@
 
 import bpy
 
+from vb30.lib import LibUtils
+
 from . import tools as NodesTools
+
+
+def AddWorldNodeTree(world):
+    VRayWorld = world.vray
+
+    nt = bpy.data.node_groups.new("World", type='VRayNodeTreeWorld')
+    nt.use_fake_user = True
+
+    outputNode = nt.nodes.new('VRayNodeWorldOutput')
+    envNode = nt.nodes.new('VRayNodeEnvironment')
+
+    envNode.location.x = outputNode.location.x - 200
+    envNode.location.y = outputNode.location.y + 200
+
+    nt.links.new(envNode.outputs['Environment'], outputNode.inputs['Environment'])
+
+    NodesTools.deselectNodes(nt)
+
+    VRayWorld.ntree = nt
+
+
+def AddLampNodeTree(lamp):
+    VRayLight = lamp.vray
+
+    nt = bpy.data.node_groups.new(lamp.name, type='VRayNodeTreeLight')
+    nt.use_fake_user = True
+
+    lightPluginName = LibUtils.GetLightPluginName(lamp)
+
+    nt.nodes.new('VRayNode%s' % lightPluginName)
+    NodesTools.deselectNodes(nt)
+
+    VRayLight.ntree = nt
+
+
+def AddSceneNodeTree(sce):
+    VRayScene = sce.vray
+
+    nt = bpy.data.node_groups.new(sce.name, type='VRayNodeTreeScene')
+    nt.use_fake_user = True
+
+    nt.nodes.new('VRayNodeRenderChannels')
+    NodesTools.deselectNodes(nt)
+
+    VRayScene.ntree = nt
+
+
+def AddObjectNodeTree(ob):
+    VRayObject = ob.vray
+
+    nt = bpy.data.node_groups.new(ob.name, type='VRayNodeTreeObject')
+    nt.use_fake_user = True
+
+    outputNode = nt.nodes.new('VRayNodeObjectOutput')
+
+    blenderGeometry = nt.nodes.new('VRayNodeBlenderOutputGeometry')
+    blenderMaterial = nt.nodes.new('VRayNodeBlenderOutputMaterial')
+
+    blenderMaterial.location.x = outputNode.location.x - 200
+    blenderMaterial.location.y = outputNode.location.y + 30
+
+    blenderGeometry.location.x = outputNode.location.x - 200
+    blenderGeometry.location.y = outputNode.location.y - 150
+
+    nt.links.new(blenderMaterial.outputs['Material'], outputNode.inputs['Material'])
+    nt.links.new(blenderGeometry.outputs['Geometry'], outputNode.inputs['Geometry'])
+
+    NodesTools.deselectNodes(nt)
+
+    VRayObject.ntree = nt
 
 
 def AddMaterialNodeTree(ma):
