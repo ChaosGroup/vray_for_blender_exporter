@@ -63,6 +63,7 @@ ColorChannelNamesMenu = (
     ('132', "Samplerate", ""),
     ('133', "SSS", ""),
     ('115', "Material ID", ""),
+    ('100', "Atmosphere", ""),
 )
 
 PluginParams = (
@@ -97,7 +98,7 @@ PluginParams = (
         'desc' : "",
         'type' : 'ENUM',
         'items' : ColorChannelNamesMenu,
-        'default' : '1',
+        'default' : '101',
     },
 )
 
