@@ -129,19 +129,15 @@ def LoadProxyPreviewMesh(ob, filepath, anim_type, anim_offset, anim_speed, anim_
     mesh.from_pydata(meshData['vertices'], [], meshData['faces'])
     mesh.update()
 
+    if meshData['uv_sets']:
+        for uvName in meshData['uv_sets']:
+            mesh.uv_textures.new(uvName)
+
     # Replace object mesh
     bm = bmesh.new()
     bm.from_mesh(mesh)
     bm.to_mesh(ob.data)
     ob.data.update()
-
-    if meshData['uv_sets']:
-        for uvName in meshData['uv_sets']:
-            bpy.ops.mesh.uv_texture_add()
-
-            index = ob.data.uv_layers.active_index
-            uvLayer = ob.data.uv_layers[index]
-            uvLayer.name = uvName
 
     # Remove temp
     bm.free()
