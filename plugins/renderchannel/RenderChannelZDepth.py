@@ -50,7 +50,7 @@ PluginParams = (
         'attr' : 'filtering',
         'desc' : "Filtering",
         'type' : 'BOOL',
-        'default' : False,
+        'default' : True,
     },
     {
         'attr' : 'depth_black',
