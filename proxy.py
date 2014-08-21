@@ -322,7 +322,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                 attachOb = ob
 
                 if GeomMeshFile.proxy_attach_mode == 'NEW':
-                    newName = 'VRayProxy%s' % ob.name
+                    newName = '%s@VRayProxy' % ob.name
                     newMesh = bpy.data.meshes.new(newName)
                     attachOb = bpy.data.objects.new(newName, newMesh)
 
