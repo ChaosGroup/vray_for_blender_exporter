@@ -370,6 +370,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'OBJECT'
     )
 
+    use_alt_d_instances = bpy.props.BoolProperty(
+        name = "Alt-D Instances",
+        description = "Treat Alt-D geometry as full instances",
+        default = False
+    )
+
 
 def GetRegClasses():
     return (

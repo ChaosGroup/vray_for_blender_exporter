@@ -476,9 +476,10 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'use_smoke')
+		col.prop(VRayExporter, 'use_hair')
 		if wide_ui:
 			col = split.column()
-		col.prop(VRayExporter, 'use_hair')
+		col.prop(VRayExporter, 'use_alt_d_instances')
 
 		split = layout.split()
 		col = split.column()
