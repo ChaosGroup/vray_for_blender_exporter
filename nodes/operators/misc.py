@@ -197,8 +197,9 @@ class VRayOpRestoreNtreeTextures(bpy.types.Operator):
                     debug.PrintError("Outdated node version: %s" % n.name)
                     continue
                 texName = n.texture_name
-                if not texName in bpy.data.textures:
+                if texName not in bpy.data.textures:
                     debug.PrintInfo("Texture not found: %s" % texName)
+                    continue
                 n.texture = bpy.data.textures[texName]
                 debug.PrintInfo("Texture restored: %s [\"%s\"]" % (texName, n.name))
 
