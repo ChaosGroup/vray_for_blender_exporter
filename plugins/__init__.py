@@ -591,32 +591,27 @@ class VRayScene(bpy.types.PropertyGroup):
 ##        #######  ##     ##
 
 class VRayFur(bpy.types.PropertyGroup):
-	width= bpy.props.FloatProperty(
-		name= "Width",
-		description= "Hair thin",
-		min= 0.0,
-		max= 100.0,
-		soft_min= 0.0,
-		soft_max= 0.01,
-		precision= 5,
-		default= 0.001
+	width = bpy.props.FloatProperty(
+		name        = "Width",
+		description = "Hair thickness",
+		min         = 0.0,
+		max         = 100.0,
+		soft_min    = 0.0001,
+		soft_max    = 0.01,
+		precision   = 5,
+		default     = 0.001
 	)
 
-	make_thinner= bpy.props.BoolProperty(
-		name= "Make thinner",
-		description= "Make hair thiner to the end [experimental]",
-		default= False
+	widths_in_pixels = bpy.props.BoolProperty(
+		name        = "Width In Pixels",
+		description = "If true, the widths parameter is in pixels, otherwise it is in world units",
+		default     = False
 	)
 
-	thin_start= bpy.props.IntProperty(
-		name= "Thin start segment",
-		description= "Make hair thiner to the end",
-		subtype= 'PERCENTAGE',
-		min= 0,
-		max= 100,
-		soft_min= 0,
-		soft_max= 100,
-		default= 70
+	make_thinner = bpy.props.BoolProperty(
+		name        = "Make thinner",
+		description = "Make hair thiner to the end",
+		default     = False
 	)
 
 

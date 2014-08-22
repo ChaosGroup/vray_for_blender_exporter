@@ -49,11 +49,8 @@ class VRAY_PP_hair(classes.VRayParticlePanel):
 		split= layout.split()
 		col= split.column()
 		col.prop(VRayFur, 'width')
-		# if wide_ui:
-		# 	col= split.column()
-		# col.prop(VRayFur, 'make_thinner')
-		# if VRayFur.make_thinner:
-		# 	col.prop(VRayFur, 'thin_start', text= "Segment", slider= True)
+		col.prop(VRayFur, 'widths_in_pixels')
+		col.prop(VRayFur, 'make_thinner')
 
 
 def GetRegClasses():
