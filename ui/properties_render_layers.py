@@ -76,6 +76,12 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 
 		box = self.layout.box()
 		box.label("Tools")
+
+		box_row = box.row(align=True)
+		box_row.operator("vray.switch_material_slot", text="Switch Slots To", icon='MATERIAL')
+		box_row.prop(VRayExporter, 'op_switch_slots_switch_to', text="")
+
+		box.separator()
 		box_row = box.row()
 		box_row.operator("vray.restore_ntree_textures", text="Restore Textures", icon='FILE_REFRESH')
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')

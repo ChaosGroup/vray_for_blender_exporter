@@ -362,6 +362,14 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = '0'
     )
 
+    op_switch_slots_switch_to = bpy.props.EnumProperty(
+        items = (
+            ('OBJECT', "Object", ""),
+            ('DATA',   "Data",   ""),
+        ),
+        default = 'OBJECT'
+    )
+
 
 def GetRegClasses():
     return (

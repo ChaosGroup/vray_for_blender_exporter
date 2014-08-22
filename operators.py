@@ -407,6 +407,38 @@ class VRAY_OT_add_sky(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+##     ## ####  ######   ######
+###   ###  ##  ##    ## ##    ##
+#### ####  ##  ##       ##
+## ### ##  ##   ######  ##
+##     ##  ##        ## ##
+##     ##  ##  ##    ## ##    ##
+##     ## ####  ######   ######
+
+class VRayOpSwitchSlotsObject(bpy.types.Operator):
+	bl_idname      = "vray.switch_material_slot"
+	bl_label       = "Switch Material Slots"
+	bl_description = "Switch all object's material slots to DATA / OBJECT"
+
+	def execute(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		switch_to = VRayExporter.op_switch_slots_switch_to
+
+		from_slot = 'OBJECT' if switch_to == 'DATA' else 'DATA'
+
+		for ob in context.scene.objects:
+			if not ob.type == 'MESH':
+				continue
+			for s in ob.material_slots:
+				ma = s.material
+				if s.link == from_slot:
+					s.link = switch_to
+					s.material = ma
+
+		return {'FINISHED'}
+
+
 def GetRegClasses():
 	return (
 		VRAY_OT_update,
@@ -419,6 +451,8 @@ def GetRegClasses():
 		VRAY_OT_flip_resolution,
 		VRAY_OT_set_kelvin_color,
 		VRAY_OT_add_sky,
+
+		VRayOpSwitchSlotsObject,
 	)
 
 
