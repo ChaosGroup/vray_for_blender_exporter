@@ -350,13 +350,28 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene  = bus['scene']
     camera = bus['camera']
 
+    VRayScene = scene.vray
+
     VRayCamera = camera.data.vray
+    StereoSettings = VRayScene.VRayStereoscopicSettings
 
     fov, orthoWidth = BlenderUtils.GetCameraFOV(camera)
 
     focus_distance = BlenderUtils.GetCameraDofDistance(camera)
     if focus_distance < 0.001:
         focus_distance = 5.0
+
+    horizontal_offset = -camera.data.shift_x
+    vertical_offset   = -camera.data.shift_y
+
+    imageAspect = scene.render.resolution_x / scene.render.resolution_y
+    if imageAspect < 1.0:
+        offset_fix = 1.0 / imageAspect
+        horizontal_offset *= offset_fix
+        vertical_offset   *= offset_fix
+
+    if StereoSettings.use:
+        vertical_offset /= 2.0
 
     overrideParams.update({
         'fov' : fov,
@@ -366,8 +381,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
         'lens_shift'     : GetLensShift(camera) if propGroup.auto_lens_shift else propGroup.lens_shift,
 
-        'horizontal_offset' : -camera.data.shift_x,
-        'vertical_offset'   : -camera.data.shift_y,
+        'horizontal_offset' : horizontal_offset,
+        'vertical_offset'   : vertical_offset,
     })
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
