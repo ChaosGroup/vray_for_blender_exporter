@@ -217,8 +217,8 @@ class VRayProcess:
         if self.rtEngine is not None:
             cmd.append('-rtEngine=%i'      % self.rtEngine)
             cmd.append('-rtTimeOut=%.3f'   % self.rtTimeOut)
-            # cmd.append('-rtNoise=%.3f'     % self.rtNoise)
-            # cmd.append('-rtSampleLevel=%i' % self.rtSampleLevel)
+            cmd.append('-rtNoise=%.3f'     % self.rtNoise)
+            cmd.append('-rtSampleLevel=%i' % self.rtSampleLevel)
 
         cmd.append('-sceneFile=%s' % PathUtils.Quotes(self.sceneFile))
 
