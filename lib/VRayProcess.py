@@ -85,7 +85,7 @@ class VRayProcess:
         self.noFrameNumbers = 0
 
         # Realtime engine
-        self.rtEngine = 0
+        self.rtEngine = None
         self.rtNoise = 0.001
         self.rtSampleLevel = 0
         self.rtTimeOut = 0.0
@@ -176,6 +176,17 @@ class VRayProcess:
     def setGenRunFile(self, v):
         self.gen_run_file = v
 
+    def setRtEngine(self, RTEngine, SettingsRTEngine):
+        DEVICE = {
+            '0' : 1,
+            '4' : 5,
+        }
+
+        self.rtEngine = DEVICE[RTEngine.use_opencl]
+        self.rtNoise       = SettingsRTEngine.noise_threshold
+        self.rtSampleLevel = SettingsRTEngine.max_sample_level
+        self.rtTimeOut     = SettingsRTEngine.max_render_time
+
     def getCommandLine(self):
         cmd = [self.filepath]
         cmd.append('-verboseLevel=%s' % self.verboseLevel)
@@ -202,6 +213,12 @@ class VRayProcess:
 
         if self.frames:
             cmd.append('-frames=%s' % self.frames)
+
+        if self.rtEngine is not None:
+            cmd.append('-rtEngine=%i'      % self.rtEngine)
+            cmd.append('-rtTimeOut=%.3f'   % self.rtTimeOut)
+            # cmd.append('-rtNoise=%.3f'     % self.rtNoise)
+            # cmd.append('-rtSampleLevel=%i' % self.rtSampleLevel)
 
         cmd.append('-sceneFile=%s' % PathUtils.Quotes(self.sceneFile))
 

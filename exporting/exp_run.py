@@ -42,6 +42,7 @@ def Run(bus):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
     VRayDR       = VRayScene.VRayDR
+    RTEngine     = VRayScene.RTEngine
 
     vrayCmd = SysUtils.GetVRayStandalonePath()
     if not vrayCmd:
@@ -57,6 +58,10 @@ def Run(bus):
     p.setShowProgress(VRayExporter.showProgress)
     p.setDisplaySRGB(VRayExporter.display_srgb)
     p.setDisplayVFB(VRayExporter.display)
+    p.setAutoclose(VRayExporter.autoclose)
+
+    if RTEngine.enabled:
+        p.setRtEngine(RTEngine, VRayScene.SettingsRTEngine)
 
     # TODO: Rewrite into 'SettingsOutput'
     if scene.render.use_border:

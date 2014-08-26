@@ -70,8 +70,5 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.update({
-        'enabled' : True if bus['scene'].render.engine == 'VRAY_RENDER_RT' else propGroup.enabled,
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
+    # NOTE: We will use command line switches
+    return None
