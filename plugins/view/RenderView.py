@@ -209,6 +209,8 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
     ca    = bus['camera']
 
+    scene, ca = BlenderUtils.GetSceneAndCamera(bus)
+
     VRayScene = scene.vray
     VRayBake  = VRayScene.BakeView
 

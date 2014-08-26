@@ -29,6 +29,8 @@ from .lib import BlenderUtils
 from .nodes.tree_defaults import AddMaterialNodeTree
 from . import engine
 
+import _vray_for_blender
+
 
 @bpy.app.handlers.persistent
 def dr_nodes_store(e):
@@ -51,12 +53,29 @@ def new_material_ntree(ma):
     bpy.ops.vray.show_ntree(data='MATERIAL', ntree_name=ma.vray.ntree.name)
 
 
+@bpy.app.handlers.persistent
+def update_world_preview(ob):
+    if not ob.type == 'CAMERA':
+        return
+    sce = bpy.context.scene
+    world = sce.world
+    if not world:
+        return
+    ntree = world.vray.ntree
+    if not ntree:
+        return
+
+    _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_WORLD)
+
+
 def register():
     BlenderUtils.AddEvent(bpy.app.handlers.save_post, dr_nodes_store)
     BlenderUtils.AddEvent(bpy.app.handlers.load_post, dr_nodes_restore)
     BlenderUtils.AddEvent(bpy.app.handlers.exit,      event_shutdown)
 
     BlenderUtils.AddEvent(bpy.app.handlers.new_material, new_material_ntree)
+
+    BlenderUtils.AddEvent(bpy.app.handlers.object_update, update_world_preview)
 
 
 def unregister():
@@ -65,3 +84,5 @@ def unregister():
     BlenderUtils.DelEvent(bpy.app.handlers.exit,      event_shutdown)
 
     BlenderUtils.DelEvent(bpy.app.handlers.new_material, new_material_ntree)
+
+    BlenderUtils.DelEvent(bpy.app.handlers.object_update, update_world_preview)

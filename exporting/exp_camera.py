@@ -22,7 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
 from vb30.lib     import ExportUtils
+from vb30.lib     import BlenderUtils
 from vb30.plugins import PLUGINS_ID
 
 from vb30 import debug
@@ -32,6 +35,9 @@ from vb30 import debug
 def ExportCamera(bus):
     scene  = bus['scene']
     camera = bus['camera']
+    engine = bus['engine']
+
+    scene, camera = BlenderUtils.GetSceneAndCamera(bus)
 
     VRayScene  = scene.vray
     VRayCamera = camera.data.vray

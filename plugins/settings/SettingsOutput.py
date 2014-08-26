@@ -377,4 +377,11 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
                 if not propGroup.relements_separateFiles:
                     overrideParams['img_rawFile'] = True
 
+    # NOTE: When loading preview image for World
+    # image alpha will be replaced with black color.
+    # We don't want this, so simply use JPEG,
+    # that doesn't have alpha channel
+    if o.isPreviewRender():
+        overrideParams['img_noAlpha'] = True
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

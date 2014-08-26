@@ -39,6 +39,10 @@ ObjectPrefix = {
 
 NonGeometryTypes = {'LAMP','CAMERA','SPEAKER','ARMATURE','LATTICE','EMPTY'}
 
+NC_WORLD    = 0
+NC_MATERIAL = 1
+NC_LAMP     = 3
+
 
 def GeometryObjectIt(scene):
     for ob in scene.objects:
@@ -347,3 +351,22 @@ def SelectObject(ob):
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.scene.objects.active = ob
     ob.select = True
+
+
+def IsPreviewWorld(scene):
+    return scene.layers[7]
+
+
+def GetSceneAndCamera(bus):
+    scene  = bus['scene']
+    camera = bus['camera']
+    engine = bus['engine']
+
+    # Use camera from current scene for world preview
+    if engine and engine.is_preview:
+        if IsPreviewWorld(scene):
+            scene = bpy.context.scene
+            if scene.camera:
+                camera = scene.camera
+
+    return scene, camera

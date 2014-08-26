@@ -29,6 +29,17 @@ from vb30.lib     import DrawUtils
 from vb30.plugins import PLUGINS
 
 
+
+class VRayPanelWorldPreview(classes.VRayWorldPanel):
+    bl_label = "Preview"
+    bl_options = {'HIDE_HEADER'}
+
+    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
+
+    def draw(self, context):
+        self.layout.template_preview(context.world)
+
+
 class VRAY_WP_context_world(classes.VRayWorldPanel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
@@ -63,6 +74,7 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
 
 def GetRegClasses():
     return (
+        VRayPanelWorldPreview,
         VRAY_WP_context_world,
     )
 

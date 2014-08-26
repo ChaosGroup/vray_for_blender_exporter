@@ -74,6 +74,8 @@ class VRayNodeTreeWorld(VRayNodeTree):
     bl_idname = 'VRayNodeTreeWorld'
     bl_icon   = 'VRAY_WORLD'
 
+    bl_update_preview = True
+
     @classmethod
     def get_from_context(cls, context):
         if hasattr(context.scene, 'world'):

@@ -347,8 +347,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if not propGroup.use:
         return
 
-    scene  = bus['scene']
-    camera = bus['camera']
+    scene, camera = BlenderUtils.GetSceneAndCamera(bus)
 
     VRayScene = scene.vray
 
