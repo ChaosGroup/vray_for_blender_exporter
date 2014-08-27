@@ -11226,6 +11226,7 @@ KELVIN_COLOR_TABLE = {
     11997 : (0.575272,0.970175,1.45455),
     11998 : (0.575247,0.970168,1.45458),
     11999 : (0.575223,0.970161,1.45462),
+    12000 : (0.575197,0.970154,1.45465),
 }
 
 
@@ -11234,6 +11235,6 @@ KELVIN_COLOR_TABLE = {
 def KelvinToRBG(temperature):
     if temperature < 800:
         return mathutils.Color((1.0e-6,0.0,0.0))
-    if temperature > 11999:
+    if temperature > 12000:
         return mathutils.Color((0.0,0.0,0.0))
     return mathutils.Color(KELVIN_COLOR_TABLE[temperature])
