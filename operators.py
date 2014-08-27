@@ -335,9 +335,8 @@ class VRAY_OT_set_kelvin_color(bpy.types.Operator):
 	temperature= IntProperty(
 		name= "Temperature",
 		description= "Kelvin temperature",
-		min= 1000,
-		max= 40000,
-		step= 100,
+		min= 800,
+		max= 12000,
 		default= 5000
 	)
 
