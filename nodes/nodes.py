@@ -90,6 +90,7 @@ def GetCategories():
             "Blender",
             items = [
                 nodeitems_utils.NodeItem("ShaderNodeNormal", label="Normal"),
+                nodeitems_utils.NodeItem("ShaderNodeVectorCurve", label="Curves"),
                 nodeitems_utils.NodeItem("ShaderNodeGroup", label="Group"),
                 nodeitems_utils.NodeItem("NodeGroupInput", label="Group Input"),
                 nodeitems_utils.NodeItem("NodeGroupOutput", label="Group Output"),
