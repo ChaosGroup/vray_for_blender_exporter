@@ -209,7 +209,14 @@ PluginWidget = """
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    scene = bus['scene']
+
+    VRayExporter = scene.vray.Exporter
+
     if propGroup.num_passes_auto:
         overrideParams['num_passes'] = bpy.context.scene.render.threads
+
+    if VRayExporter.draft:
+        overrideParams['subdivs'] = propGroup.subdivs / 10.0
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

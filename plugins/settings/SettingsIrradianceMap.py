@@ -246,10 +246,15 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
     o     = bus['output']
 
+    VRayExporter = scene.vray.Exporter
+
     if propGroup.min_rate > propGroup.max_rate:
         debug.PrintInfo('Irradiance Map "Min. Rate" is more then "Max. Rate"!')
 
         overrideParams['min_rate'] = propGroup.max_rate
         overrideParams['max_rate'] = propGroup.min_rate
+
+    if VRayExporter.draft:
+        overrideParams['subdivs'] = propGroup.subdivs / 5.0
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
