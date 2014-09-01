@@ -416,12 +416,6 @@ PluginWidget = """
             { "name" : "tex_resolution" },
             { "name" : "tex_adaptive" }
         ]
-    },
-
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "objectID" }
-        ]
     }
 ]}
 """
