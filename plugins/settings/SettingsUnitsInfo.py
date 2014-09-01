@@ -22,6 +22,11 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
+from vb30.lib import ExportUtils
+
+
 TYPE = 'SETTINGS'
 ID   = 'SettingsUnitsInfo'
 NAME = 'SettingsUnitsInfo'
@@ -60,16 +65,10 @@ PluginWidget = """
 """
 
 
-# def write(bus):
-#     ofile=  bus['files']['scene']
-#     scene=  bus['scene']
+def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
+    unit_settings = bpy.context.scene.unit_settings
 
-#     VRayScene= scene.vray
-#     SettingsUnitsInfo= VRayScene.SettingsUnitsInfo
-    
-#     ofile.write("\nSettingsUnitsInfo SettingsUnitsInfo {")
-#     # ofile.write("\n\tmeters_scale=%i;" % SettingsUnitsInfo.meters_scale)
-#     ofile.write("\n\tmeters_scale=%.4f;" % scene.unit_settings.scale_length)
-#     # ofile.write("\n\tphotometric_scale=%.4f;" % SettingsUnitsInfo.photometric_scale)
-#     ofile.write("\n\tphotometric_scale= 0.01;")
-#     ofile.write("\n}\n")
+    if unit_settings.system != 'NONE':
+        overrideParams['meters_scale'] = unit_settings.scale_length
+
+    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
