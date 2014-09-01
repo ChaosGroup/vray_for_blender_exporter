@@ -345,4 +345,16 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if propGroup.use_dmc_treshhold:
         overrideParams['dmc_threshold'] = SettingsDMCSampler.adaptive_threshold
 
+    if propGroup.progressive_minSubdivs > propGroup.progressive_maxSubdivs:
+        overrideParams['progressive_minSubdivs'] = propGroup.progressive_maxSubdivs
+        overrideParams['progressive_maxSubdivs'] = propGroup.progressive_minSubdivs
+
+    if propGroup.dmc_minSubdivs > propGroup.dmc_maxSubdivs:
+        overrideParams['dmc_minSubdivs'] = propGroup.dmc_maxSubdivs
+        overrideParams['dmc_maxSubdivs'] = propGroup.dmc_minSubdivs
+
+    if propGroup.subdivision_minRate > propGroup.subdivision_maxRate:
+        overrideParams['subdivision_minRate'] = propGroup.subdivision_maxRate
+        overrideParams['subdivision_maxRate'] = propGroup.subdivision_minRate
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
