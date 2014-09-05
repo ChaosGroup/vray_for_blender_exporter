@@ -64,7 +64,7 @@ PluginParams = (
         'desc' : "Render file directory (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
         'type' : 'STRING',
         'subtype' : 'DIR_PATH',
-        'default' : "//render/%F/",
+        'default' : "//render/",
     },
     {
         'attr' : 'img_file_needFrameNumber',
