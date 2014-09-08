@@ -56,3 +56,17 @@ def GetNodeByType(ntree, nodeType):
         if n.bl_idname == nodeType:
             return n
     return None
+
+
+def CopyRamp(ramp, rampCopy):
+    # Create ramp elements
+    # Ramp already has 2 elements
+    elementsToCreate = len(ramp.elements) - 2
+    for i in range(elementsToCreate):
+        # We will setup proper position later
+        rampCopy.elements.new(0.0)
+
+    for i,rampElement in enumerate(ramp.elements):
+        el = rampCopy.elements[i]
+        el.color    = rampElement.color
+        el.position = rampElement.position

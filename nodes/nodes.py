@@ -37,6 +37,7 @@ from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils, LibU
 from vb30.ui      import classes
 
 from .        import tree
+from .        import utils as NodeUtils
 from .sockets import AddInput, AddOutput
 
 
@@ -336,8 +337,29 @@ def VRayNodeInit(self, context):
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         CreateRampTexture(self)
+        NodeUtils.CopyRamp(node.texture.color_ramp, self.texture.color_ramp)
+
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         CreateBitmapTexture(self)
+
+    vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+
+    propGroup     = getattr(node, self.vray_plugin)
+    propGroupCopy = getattr(self, self.vray_plugin)
+
+    for attrDesc in vrayPlugin.PluginParams:
+        attrName = attrDesc['attr']
+
+        # NOTE: Not all attributes has property
+        if not hasattr(propGroup, attrName):
+            continue
+
+        setattr(propGroupCopy, attrName, getattr(propGroup, attrName))
+
+    for inSock in self.inputs:
+        if not hasattr(inSock, 'value'):
+            continue
+        inSock.value = node.inputs[inSock.name].value
 
 
 def VRayNodeFree(self):
