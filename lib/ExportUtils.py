@@ -103,7 +103,17 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
                     # Ensure slash at the end of directory path
                     value = os.path.normpath(value) + os.sep
 
-                value = PathUtils.CreateDirectoryFromFilepath(value)
+                # NOTE: Additional check for some plugins with 'autosave'
+                # options. Create directories only if 'autosave' is on
+                needCreateDir = True
+                if pluginName in {'SettingsCaustics',
+                                  'SettingsIrradianceMap',
+                                  'SettingsLightCache'}:
+                    if not getattr(propGroup, 'auto_save'):
+                        needCreateDir = False
+
+                if needCreateDir:
+                    value = PathUtils.CreateDirectoryFromFilepath(value)
 
             value = '"%s"' % value
 
