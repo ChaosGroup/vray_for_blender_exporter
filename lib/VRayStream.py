@@ -53,6 +53,10 @@ PluginTypeToFile = {
     'WORLD'           : 'environment',
 }
 
+NoAttrPlugins = {
+    'FilterCatmullRom',
+}
+
 
 ########     ###    ######## ##     ##  ######
 ##     ##   ## ##      ##    ##     ## ##    ##
@@ -535,7 +539,7 @@ class VRayPluginExporter:
             return
 
         # No attributes are collected for write
-        if not self.pluginAttrs:
+        if not self.pluginAttrs and self.pluginID not in NoAttrPlugins:
             return
 
         p = "\n%s %s {" % (self.pluginID, self.pluginName)

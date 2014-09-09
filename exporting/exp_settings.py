@@ -51,6 +51,7 @@ def ExportSettingsPlugin(bus, pluginType, pluginName):
     VRayDR         = VRayScene.VRayDR
     SettingsOutput = VRayScene.SettingsOutput
     SettingsGI     = VRayScene.SettingsGI
+    SettingsImageSampler = VRayScene.SettingsImageSampler
 
     pluginModule = PLUGINS_ID[pluginName]
 
@@ -64,8 +65,12 @@ def ExportSettingsPlugin(bus, pluginType, pluginName):
             'xc' : propGroup.xc,
             'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
         }
+
     elif pluginName.startswith('Filter'):
-        return
+        propGroup = getattr(VRayScene, pluginName)
+        if SettingsImageSampler.filter_type != pluginName:
+            return
+
     elif pluginName in {'SphericalHarmonicsExporter', 'SphericalHarmonicsRenderer'}:
         propGroup = getattr(VRayScene, pluginName)
 
