@@ -362,6 +362,11 @@ class VRayAsset(bpy.types.PropertyGroup):
 
 
 class VRayObject(bpy.types.PropertyGroup):
+	data_updated = bpy.props.IntProperty(
+		options = {'HIDDEN', 'SKIP_SAVE'},
+		default = False
+	)
+
 	overrideWithScene = bpy.props.BoolProperty(
 		name        = "Override With VRScene Asset",
 		description = "Override with *.vrscene asset",
@@ -609,7 +614,7 @@ class VRayFur(bpy.types.PropertyGroup):
 	)
 
 	make_thinner = bpy.props.BoolProperty(
-		name        = "Make thinner",
+		name        = "Make Thinner",
 		description = "Make hair thiner to the end",
 		default     = False
 	)
