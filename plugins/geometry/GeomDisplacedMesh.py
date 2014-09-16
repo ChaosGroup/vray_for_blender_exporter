@@ -80,6 +80,7 @@ PluginParams = (
     },
     {
         'attr' : 'view_dep',
+        'name' : "View Dependent",
         'desc' : "If use_globals is false, this determines if view-dependent tesselation is used",
         'type' : 'BOOL',
         'default' : True,
@@ -242,7 +243,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "active" : { "prop" : "use_globals" },
+        "active" : { "prop" : "use_globals", "condition" : 0 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
