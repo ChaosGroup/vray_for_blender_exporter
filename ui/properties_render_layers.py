@@ -60,13 +60,13 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 
 
 class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
-	bl_label   = "Node Trees"
+	bl_label   = "Node Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
 
-		self.layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows = 4)
+		self.layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows=10)
 		self.layout.operator("vray.del_nodetree", text="Delete Selected Nodetree", icon="ZOOMOUT")
 
 		box = self.layout.box()
@@ -156,7 +156,7 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 
 		layout.active= module.use
 
-		row.template_list("VRayListUse", "", module, 'nodes', module, 'nodes_selected', rows = 4)
+		row.template_list("VRayListUse", "", module, 'nodes', module, 'nodes_selected', rows=5)
 
 		col= row.column()
 		sub= col.row()
@@ -177,12 +177,53 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 			layout.prop(render_node, 'scene')
 
 
+class VRayPanelExportSets(classes.VRayRenderLayersPanel):
+	bl_label   = "Export Sets"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		layout = self.layout
+
+		VRayScene = context.scene.vray
+		VRayExporter  = VRayScene.Exporter
+		ExportSets    = VRayScene.ExportSets
+
+		def renderExportSetItem(layout, item):
+			layout.prop(item, 'name')
+			layout.separator()
+			layout.prop(item, 'dirpath')
+			layout.prop(item, 'filename')
+			layout.prop_search(item,     'group',
+							   bpy.data, 'groups',
+							   text="Group")
+			layout.prop(item, 'use_animation')
+			if item.use_animation == 'MANUAL':
+				row = layout.row()
+				row.prop(item, 'frame_start')
+				row.prop(item, 'frame_end')
+			layout.separator()
+
+		classes.DrawListWidget(layout, VRayScene, 'ExportSets', 'VRayListUse',
+			"Export Set", renderExportSetItem)
+
+		layout.separator()
+		expLayout = layout.box().column()
+		expLayout.label("Export:")
+		expLayout.active = len(ExportSets.list_items) and ExportSets.list_item_selected >= 0
+		expLayout.prop(ExportSets, 'generate_preview')
+		expLayout.separator()
+		row = expLayout.row(align=True)
+		row.operator("vray.expset_export_selected", text="Selected")
+		row.operator("vray.expset_export_all",      text="All")
+
+
 def GetRegClasses():
 	return (
 		VRayPanelMiscTools,
 		VRayPanelNodeTrees,
 		VRayPanelLightLister,
 		VRayPanelIncluder,
+		VRayPanelExportSets,
 	)
 
 
