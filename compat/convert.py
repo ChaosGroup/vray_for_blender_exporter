@@ -1376,6 +1376,8 @@ def ConvertMaterial(scene, ob, ma, textures):
 def ConvertObject(scene, ob):
     debug.PrintInfo("Converting object: %s" % ob.name)
 
+    VRayConverter = scene.vray.VRayConverter
+
     VRayObject = ob.vray
     VRayData   = ob.data.vray
 
@@ -1390,11 +1392,15 @@ def ConvertObject(scene, ob):
 
         textures = ProcessTextures(ma)
 
-        ConvertMaterial(scene, ob, ma, textures)
+        if VRayConverter.convert_materials:
+            ConvertMaterial(scene, ob, ma, textures)
 
         if 'displacement' in textures:
             debug.PrintInfo("  Found displacement")
             hasDisplacement = textures['displacement']
+
+    if not VRayConverter.convert_objects:
+        return
 
     # Check if we need node tree from override materials
     for ovrName in ObjectMaterialOverrides:
@@ -1521,6 +1527,16 @@ def ConvertScene(scene):
  #######  #### 
 
 class VRayConverter(bpy.types.PropertyGroup):
+    convert_materials = bpy.props.BoolProperty(
+        name = "Convert Materials",
+        default = True
+    )
+
+    convert_objects = bpy.props.BoolProperty(
+        name = "Convert Geometry Properties",
+        default = True
+    )
+
     convert_from = bpy.props.EnumProperty(
         name = "Convert From",
         items = (

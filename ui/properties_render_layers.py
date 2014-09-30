@@ -54,9 +54,12 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		VRayConverter = VRayScene.VRayConverter
 
 		box = layout.box()
-		box.label("Migration")
-		box.operator("vray.convert_scene", icon='NODETREE')
+		box.label("Migration:")
 		box.prop(VRayConverter, 'convert_from')
+		brow = box.row()
+		brow.prop(VRayConverter, 'convert_objects', text="Object Properties")
+		brow.prop(VRayConverter, 'convert_materials', text="Materials")
+		box.operator("vray.convert_scene", icon='NODETREE')
 
 
 class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
