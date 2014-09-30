@@ -346,7 +346,7 @@ class VRayExporter(bpy.types.PropertyGroup):
 
     ui_render_grouping = bpy.props.BoolProperty(
         name = "Group Render Panels",
-        default = False
+        default = True
     )
 
     ui_render_context = bpy.props.EnumProperty(
