@@ -112,7 +112,7 @@ def ExportSettings(bus):
                 # These plugins are exported from camera export
                 'BakeView',
                 'VRayStereoscopicSettings',
-                # Used plugins for now
+                # Unused plugins for now
                 'SettingsCurrentFrame',
                 'SettingsLightTree',
             }:
