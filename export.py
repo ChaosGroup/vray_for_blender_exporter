@@ -59,6 +59,10 @@ def Export(bus, scene, engine, isPreview=False):
     o.write('MAIN', "\n")
     o.write('MAIN', SysUtils.GetVRsceneTemplate("defaults.vrscene"))
 
+    if VRayExporter.draft:
+        o.write('MAIN', "\n")
+        o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
+
     exp_settings.ExportSettings(bus)
     exp_channels.ExportRenderElements(bus)
 
@@ -74,10 +78,6 @@ def Export(bus, scene, engine, isPreview=False):
             scene.frame_end,
             scene.frame_step
         )
-
-    if VRayExporter.draft:
-        o.write('MAIN', "\n")
-        o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
 
     if VRayScene.Includer.use:
         if VRayScene.Includer.use:
