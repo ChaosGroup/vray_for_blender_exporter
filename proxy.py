@@ -43,7 +43,7 @@ from vb30.vray_tools import VRayProxy
 from vb30 import debug
 
 
-def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, applyTm=False, useVelocity=False):
+def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=None):
     ply2vrmeshBin  = "ply2vrmesh{arch}{ext}"
     ply2vrmeshArch = ""
 
@@ -67,8 +67,14 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
 
     cmd = [ply2vrmesh]
     cmd.append(vrsceneFilepath)
-    cmd.append('-vrsceneNodeName')
-    cmd.append(nodeName)
+    if previewFaces:
+        cmd.append('-previewFaces')
+        cmd.append('%i' % previewFaces)
+    if previewOnly:
+        cmd.append('-vrscenePreview')
+    if nodeName:
+        cmd.append('-vrsceneNodeName')
+        cmd.append(nodeName)
     if useVelocity:
         cmd.append('-vrsceneVelocity')
     if applyTm:
@@ -76,7 +82,8 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames=None, app
     if frames is not None:
         cmd.append('-vrsceneFrames')
         cmd.append('%i-%i' % (frames[0], frames[1]))
-    cmd.append(vrmeshFilepath)
+    if vrmeshFilepath is not None:
+        cmd.append(vrmeshFilepath)
 
     debug.PrintInfo("Calling: %s" % " ".join(cmd))
 
@@ -181,6 +188,68 @@ def CreateProxyNodetree(ob, proxyFilepath):
 ##     ## ##        ####       ##        ##    ##  ##         ## ##    ##  ##       ##  ##  ##
  #######  ##         ##        ##        ##     ## ########    ###    #### ########  ###  ###
 
+def LoadVRayScenePreviewMesh(vrsceneFilepath, scene, ob):
+    sceneFilepath = bpy.path.abspath(vrsceneFilepath)
+    if not os.path.exists(sceneFilepath):
+        return "Scene file doesn't exists!"
+
+    sceneDirpath, sceneFullFilename = os.path.split(sceneFilepath)
+
+    sceneFileName, sceneFileExt = os.path.splitext(sceneFullFilename)
+
+    proxyFilepath = os.path.join(sceneDirpath, "%s.vrmesh" % sceneFileName)
+    if not os.path.exists(proxyFilepath):
+        return "Preview proxy file doesn't exists!"
+
+    err = LoadProxyPreviewMesh(
+        ob,
+        proxyFilepath,
+        '0', # TODO
+        0,   # TODO
+        1.0, # TODO
+        scene.frame_current-1
+    )
+
+    return err
+
+
+class VRayOpRotateToFlip(bpy.types.Operator):
+    bl_idname      = "vray.rotate_to_flip"
+    bl_label       = "Rotate Object"
+    bl_description = "Rotate object to flip axis"
+
+    def execute(self, context):
+        ob = context.object
+
+        bpy.ops.transform.rotate(value=1.5708,
+            axis=(1, 0, 0),
+            constraint_axis=(True, False, False),
+            constraint_orientation='GLOBAL',
+            mirror=False,
+            proportional='DISABLED'
+        )
+
+        return {'FINISHED'}
+
+
+class VRayOpVRayScenePreviewLoad(bpy.types.Operator):
+    bl_idname      = "vray.vrayscene_load_preview"
+    bl_label       = "Load VRayScene Preview"
+    bl_description = "Loads *.vrscene preview from vrmesh file"
+
+    def execute(self, context):
+        ob = context.object
+        filepath = ob.vray.VRayAsset.sceneFilepath
+
+        err = LoadVRayScenePreviewMesh(filepath, context.scene, ob)
+
+        if err is not None:
+            self.report({'ERROR'}, err)
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 class VRAY_OT_proxy_load_preview(bpy.types.Operator):
     bl_idname      = "vray.proxy_load_preview"
     bl_label       = "Load Preview"
@@ -220,6 +289,26 @@ class VRAY_OT_proxy_load_preview(bpy.types.Operator):
 ##     ## ##         ##        ##       ##   ##   ##       #########    ##    ##
 ##     ## ##        ####       ##    ## ##    ##  ##       ##     ##    ##    ##
  #######  ##         ##         ######  ##     ## ######## ##     ##    ##    ########
+
+class VRayOpVRayScenePreviewGenerate(bpy.types.Operator):
+    bl_idname      = "vray.vrayscene_generate_preview"
+    bl_label       = "Generate VRayScene Preview"
+    bl_description = "Generate *.vrscene preview into vrmesh file"
+
+    def execute(self, context):
+        sce = context.scene
+        ob  = context.object
+
+        sceneFilepath = bpy.path.abspath(ob.vray.VRayAsset.sceneFilepath)
+        if not sceneFilepath:
+            self.report({'ERROR'}, "Scene filepath is not set!")
+            return {'FINISHED'}
+
+        LaunchPly2Vrmesh(sceneFilepath, previewOnly=True, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
+        LoadVRayScenePreviewMesh(sceneFilepath, context.scene, ob)
+
+        return {'FINISHED'}
+
 
 class VRAY_OT_create_proxy(bpy.types.Operator):
     bl_idname      = "vray.create_proxy"
@@ -379,6 +468,10 @@ def GetRegClasses():
     return (
         VRAY_OT_proxy_load_preview,
         VRAY_OT_create_proxy,
+
+        VRayOpVRayScenePreviewLoad,
+        VRayOpVRayScenePreviewGenerate,
+        VRayOpRotateToFlip,
     )
 
 
