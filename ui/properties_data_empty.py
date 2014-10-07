@@ -27,50 +27,9 @@ import bpy
 from vb30.ui import classes
 
 
-class VRAY_DP_empty(classes.VRayDataPanel):
-    bl_label   = "Override"
-    bl_options = {'DEFAULT_CLOSED'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.object and context.object.type == 'EMPTY' and classes.VRayDataPanel.poll(context)
-
-    def draw(self, context):
-        wide_ui = context.region.width > classes.narrowui
-        layout  = self.layout
-
-        VRayObject = context.object.vray
-
-        box = layout.box()
-        box.label("In progress...")
-        box.active = False
-        box.prop(VRayObject, 'overrideWithScene')
-        if VRayObject.overrideWithScene:
-            VRayAsset = VRayObject.VRayAsset
-            split = box.split()
-            col = split.column()
-            col.prop(VRayAsset, 'sceneFilepath')
-            col.prop(VRayAsset, 'sceneDirpath')
-            
-            split = box.split()
-            col = split.column()
-            col.prop(VRayAsset, 'sceneReplace')
-            col.prop(VRayAsset, 'sceneUseTransform')
-            
-            split = box.split()
-            col = split.column()
-            col.prop(VRayAsset, 'sceneAddNodes')
-            col.prop(VRayAsset, 'sceneAddMaterials')
-            col.prop(VRayAsset, 'sceneAddLights')
-            if wide_ui:
-                col = split.column()
-            col.prop(VRayAsset, 'sceneAddCameras')
-            col.prop(VRayAsset, 'sceneAddEnvironment')
-
-
 def register():
-    bpy.utils.register_class(VRAY_DP_empty)
+    pass
 
 
 def unregister():
-    bpy.utils.unregister_class(VRAY_DP_empty)
+    pass
