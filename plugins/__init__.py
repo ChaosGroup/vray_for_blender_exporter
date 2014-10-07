@@ -360,6 +360,13 @@ class VRayAsset(bpy.types.PropertyGroup):
 		default     = False
 	)
 
+	maxPreviewFaces = bpy.props.IntProperty(
+		name    = "Max. Preview Faces",
+		min     = 100,
+		max     = 1000000,
+		default = 200
+	)
+
 
 class VRayObject(bpy.types.PropertyGroup):
 	data_updated = bpy.props.IntProperty(
