@@ -270,6 +270,51 @@ class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
 		col.prop(VRayClipper, 'material_id')
 
 
+class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
+	bl_label   = "Scene Asset"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw_header(self, context):
+		VRayObject = context.object.vray
+
+		self.layout.label(text="", icon='VRAY_LOGO_MONO')
+		self.layout.prop(VRayObject, 'overrideWithScene', text="")
+
+	def draw(self, context):
+		wide_ui = context.region.width > classes.narrowui
+		layout  = self.layout
+
+		VRayObject = context.object.vray
+		VRayAsset  = VRayObject.VRayAsset
+
+		layout.active = VRayObject.overrideWithScene
+
+		layout.label("Filepath:")
+		layout.prop(VRayAsset, 'sceneFilepath', text="")
+		layout.separator()
+
+		split = layout.split()
+		col = split.column()
+		col.prop(VRayAsset, 'sceneUseTransform')
+		# col.prop(VRayAsset, 'flipAxis')
+		if wide_ui:
+			col = split.column()
+		col.prop(VRayAsset, 'sceneAddNodes')
+		col.prop(VRayAsset, 'sceneAddLights')
+
+		# col.prop(VRayAsset, 'sceneAddMaterials')
+		# col.prop(VRayAsset, 'sceneAddCameras')
+		# col.prop(VRayAsset, 'sceneAddEnvironment')
+
+		layout.separator()
+		layout.label("Preview Mesh:")
+		layout.prop(VRayAsset, 'maxPreviewFaces')
+		row = layout.row(align=True)
+		row.operator('vray.vrayscene_generate_preview', icon='OUTLINER_OB_MESH', text="Generate")
+		row.operator('vray.vrayscene_load_preview',     icon='EDITMODE_HLT',     text="Load")
+		row.operator('vray.rotate_to_flip',             icon='FILE_REFRESH',     text="Rotate")
+
+
 class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 	bl_label = "User Attributes"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -345,6 +390,7 @@ def GetRegClasses():
 		VRAY_OBP_context_node,
 		VRAY_OBP_VRayPattern,
 
+		VRayObjectPanelVRayScene,
 		VRayObjectPanelVRayClipper,
 
 		VRayObjectPanelWrapper,
