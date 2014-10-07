@@ -214,6 +214,7 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 		expLayout.label("Export:")
 		expLayout.active = len(ExportSets.list_items) and ExportSets.list_item_selected >= 0
 		expLayout.prop(ExportSets, 'generate_preview')
+		expLayout.prop(ExportSets, 'max_preview_faces')
 		expLayout.separator()
 		row = expLayout.row(align=True)
 		row.operator("vray.expset_export_selected", text="Selected")
