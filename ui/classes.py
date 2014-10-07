@@ -176,6 +176,37 @@ def NtreeWidget(layout, propGroup, label, addOp, addOpContext):
         row.operator(addOp, icon='ZOOMIN', text="")
 
 
+def DrawListWidget(layout, parentPropGroup, listAttrName, listType, defItemName, itemRenderFunc):
+    listPropGroup = getattr(parentPropGroup, listAttrName)
+
+    row = layout.row()
+    row.template_list(listType, "",
+        listPropGroup, 'list_items',
+        listPropGroup, 'list_item_selected',
+        rows=5)
+
+    col = row.column()
+    sub = col.row()
+    subsub = sub.column(align=True)
+    op = subsub.operator('vray.ui_list_item_add', icon="ZOOMIN", text="")
+    op.list_attr     = listAttrName
+    op.def_item_name = defItemName
+    sub= col.row()
+    op = subsub.operator('vray.ui_list_item_del', icon="ZOOMOUT", text="")
+    op.list_attr = listAttrName
+    subsub = sub.column(align=True)
+    op = subsub.operator("vray.ui_list_item_up",   icon='MOVE_UP_VEC',   text="")
+    op.list_attr = listAttrName
+    op = subsub.operator("vray.ui_list_item_down", icon='MOVE_DOWN_VEC', text="")
+    op.list_attr = listAttrName
+
+    if listPropGroup.list_item_selected >= 0 and len(listPropGroup.list_items) > 0:
+        listItem = listPropGroup.list_items[listPropGroup.list_item_selected]
+
+        layout.separator()
+        itemRenderFunc(layout, listItem)
+
+
 ########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
 ##     ##   ## ##   ##    ## ##          ##    ## ##         ## ##   ##    ## ##    ## ##       ##    ##
 ##     ##  ##   ##  ##       ##          ##       ##        ##   ##  ##       ##       ##       ##
@@ -316,6 +347,86 @@ class VRayWorldPanel(VRayPanel):
 ##        ##  ##    ##    ##
 ######## ####  ######     ##
 
+class VRayOpListBase:
+    list_attr     = bpy.props.StringProperty()
+    def_item_name = bpy.props.StringProperty()
+
+
+class VRayOpListItemNew(VRayOpListBase, bpy.types.Operator):
+    bl_idname      = 'vray.ui_list_item_add'
+    bl_label       = "Add Item"
+    bl_description = "Add list item"
+
+    def execute(self, context):
+        VRayScene = context.scene.vray
+        listAttr = getattr(VRayScene, self.list_attr)
+        listAttr.list_items.add()
+        listAttr.list_items[-1].name = self.def_item_name
+        return {'FINISHED'}
+
+
+class VRayOpListItemDel(VRayOpListBase, bpy.types.Operator):
+    bl_idname      = 'vray.ui_list_item_del'
+    bl_label       = "Delete Item"
+    bl_description = "Delete list item"
+
+    def execute(self, context):
+        VRayScene = context.scene.vray
+        listAttr = getattr(VRayScene, self.list_attr)
+
+        if listAttr.list_item_selected >= 0:
+           listAttr.list_items.remove(listAttr.list_item_selected)
+           listAttr.list_item_selected -= 1
+
+        if len(listAttr.list_items):
+            if listAttr.list_item_selected < 0:
+               listAttr.list_item_selected = 0
+        else:
+            listAttr.list_item_selected = -1
+
+        return {'FINISHED'}
+
+
+class VRayOpListItemUp(VRayOpListBase, bpy.types.Operator):
+    bl_idname      = 'vray.ui_list_item_up'
+    bl_label       = "Move Item Up"
+    bl_description = "Move list item up"
+
+    def execute(self, context):
+        VRayScene = context.scene.vray
+        listAttr = getattr(VRayScene, self.list_attr)
+
+        if listAttr.list_item_selected <= 0:
+            return {'CANCELLED'}
+
+        listAttr.list_items.move(listAttr.list_item_selected,
+                                 listAttr.list_item_selected-1)
+        listAttr.list_item_selected -= 1
+
+        return {'FINISHED'}
+
+
+class VRayOpListItemDown(VRayOpListBase, bpy.types.Operator):
+    bl_idname      = 'vray.ui_list_item_down'
+    bl_label       = "Move Item Down"
+    bl_description = "Move list item down"
+
+    def execute(self, context):
+        VRayScene = context.scene.vray
+        listAttr = getattr(VRayScene, self.list_attr)
+
+        if listAttr.list_item_selected < 0:
+            return {'CANCELLED'}
+        if listAttr.list_item_selected >= len(listAttr.list_items)-1:
+            return {'CANCELLED'}
+
+        listAttr.list_items.move(listAttr.list_item_selected,
+                                 listAttr.list_item_selected+1)
+        listAttr.list_item_selected += 1
+
+        return {'FINISHED'}
+
+
 # The draw_item function is called for each item of the collection that is visible in the list.
 #   data is the RNA object containing the collection,
 #   item is the current drawn item of the collection,
@@ -329,7 +440,7 @@ class VRayWorldPanel(VRayPanel):
 class VRayListUse(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(item.name)
-        layout.prop(item, 'use')
+        layout.prop(item, 'use', text="")
 
 
 class VRayList(bpy.types.UIList):
@@ -379,6 +490,11 @@ def GetRegClasses():
         VRayListUse,
         VRayListDR,
         VRayList,
+
+        VRayOpListItemNew,
+        VRayOpListItemDel,
+        VRayOpListItemUp,
+        VRayOpListItemDown,
     )
 
 
