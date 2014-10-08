@@ -376,6 +376,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    subsurf_to_osd = bpy.props.BoolProperty(
+        name        = "Subsurf To OpenSubdiv",
+        description = "Automatically convert Subsurf modifier (if last in stack) to V-Ray's OpenSubdiv subdivision",
+        default     = False
+    )
+
 
 def GetRegClasses():
     return (

@@ -480,6 +480,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(VRayExporter, 'use_alt_d_instances')
+		col.prop(VRayExporter, 'subsurf_to_osd')
 
 		split = layout.split()
 		col = split.column()
