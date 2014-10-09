@@ -67,28 +67,10 @@ def GetOutputNode(ntree):
 ######## ##     ## ##         #######  ##     ##    ##
 
 def WriteConnectedNode(_unused_, nodetree, nodeSocket):
-    connectedNode   = GetConnectedNode(nodetree, nodeSocket)
-    connectedSocket = GetConnectedSocket(nodetree, nodeSocket)
+    connectedNode = GetConnectedNode(nodetree, nodeSocket)
     if connectedNode:
-        vrayPlugin = _vray_for_blender.exportNode(
+        return _vray_for_blender.exportNode(
             nodetree.as_pointer(),
             connectedNode.as_pointer(),
             nodeSocket.as_pointer()
         )
-
-        if connectedSocket.vray_attr and connectedSocket.vray_attr not in {'NONE'}:
-            # XXX: use as a workaround
-            # TODO: get plugin desc and check if the attr is output,
-            # but skip uvwgen anyway.
-            #
-            if connectedSocket.vray_attr not in {'uvwgen', 'bitmap'}:
-                vrayPlugin = "%s::%s" % (vrayPlugin, connectedSocket.vray_attr)
-
-                if connectedNode.bl_idname == 'VRayNodeTexMayaFluid':
-                    vrayPlugin = vrayPlugin.replace("::out_flame",   "@Flame")
-                    vrayPlugin = vrayPlugin.replace("::out_density", "@Density")
-                    vrayPlugin = vrayPlugin.replace("::out_fuel",    "@Fuel")
-
-        return vrayPlugin
-
-    return None
