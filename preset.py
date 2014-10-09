@@ -237,7 +237,7 @@ class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
             if len(chanNames):
                 channContainer = ntree.nodes.new('VRayNodeRenderChannels')
 
-                for i,chanName in enumerate(chanNames):
+                for i,chanName in enumerate(reversed(chanNames)):
                     chanSockName = "Channel %i" % i
                     NodesSockets.AddInput(channContainer, 'VRaySocketRenderChannel', chanSockName)
 
