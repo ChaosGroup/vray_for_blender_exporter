@@ -36,8 +36,11 @@ from vb30.lib import ExportUtils, SysUtils, LibUtils, PathUtils, BlenderUtils
 from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
 from vb30.nodes import export    as NodesExport
+from vb30.nodes import sockets   as NodesSockets
 
 from vb30 import debug
+
+import _vray_for_blender
 
 
  ######  ######## ######## ######## #### ##    ##  ######    ######
@@ -229,6 +232,22 @@ class VRayPresetApplyNode(VRayPresetExecuteBase, bpy.types.Operator):
 
             lastNode = NodesImport.createNode(ntree, None, vrsceneDict, texDesc)
 
+        elif assetType == 'Channel':
+            chanNames = assetDesc['Attributes']['channel']
+            if len(chanNames):
+                channContainer = ntree.nodes.new('VRayNodeRenderChannels')
+
+                for i,chanName in enumerate(chanNames):
+                    chanSockName = "Channel %i" % i
+                    NodesSockets.AddInput(channContainer, 'VRaySocketRenderChannel', chanSockName)
+
+                    chanDesc = NodesImport.getPluginByName(vrsceneDict, chanName)
+                    chanNode = NodesImport.createNode(ntree, None, vrsceneDict, chanDesc)
+
+                    ntree.links.new(chanNode.outputs['Channel'], channContainer.inputs[chanSockName])
+
+                lastNode = channContainer
+
         if lastNode:
             NodesTools.rearrangeTree(ntree, lastNode)
 
@@ -387,6 +406,12 @@ class VRayPresetMenuNodeMaterial(VRayPresetMenuNodeBase):
     menu_item_save  = True
 
 
+class VRayPresetMenuNodeRenderChannel(VRayPresetMenuNodeBase):
+    bl_label        = "Render Channel"
+    preset_subdir   = "channel"
+    menu_item_save  = True
+
+
 ########  ########     ###    ##      ##
 ##     ## ##     ##   ## ##   ##  ##  ##
 ##     ## ##     ##  ##   ##  ##  ##  ##
@@ -420,6 +445,7 @@ class VRayNodeTemplatesSubMenus(bpy.types.Menu):
     def draw(self, context):
         self.layout.menu("VRayPresetMenuNodeMaterial", icon='MATERIAL')
         self.layout.menu("VRayPresetMenuNodeTexture",  icon='TEXTURE')
+        self.layout.menu("VRayPresetMenuNodeRenderChannel", icon='SCENE_DATA')
 
 
 def VRayNodeTemplatesMenu(self, context):
@@ -453,6 +479,7 @@ class VRayNodeExportAsset(bpy.types.Operator):
         items = (
             ('texture',  "Texture",  ""),
             ('material', "Material", ""),
+            ('channel',  "Render Channel", ""),
         ),
         default = "texture"
     )
@@ -483,33 +510,53 @@ class VRayNodeExportAsset(bpy.types.Operator):
         # Create exporter (output)
         o = VRayStream.VRaySimplePluginExporter(outputFilepath)
 
-        bus = {
-            'output' : o,
-            'scene'  : context.scene,
-            'cache' : {
-                'plugins' : set(),
-                'mesh'    : set(),
-            },
-            'context' : {
-                'node' : None,
-            },
-        }
+        exporter = _vray_for_blender.init(
+            engine  = 0,
+            context = bpy.context.as_pointer(),
+            scene   = bpy.context.scene.as_pointer(),
+            data    = bpy.data.as_pointer(),
+
+            mainFile     = o.output,
+            objectFile   = o.output,
+            envFile      = o.output,
+            geometryFile = o.output,
+            lightsFile   = o.output,
+            materialFile = o.output,
+            textureFile  = o.output,
+
+            drSharePath = "",
+        )
 
         # Get selected nodes
         ntree        = context.space_data.edit_tree
         selectedNode = context.selected_nodes[0]
 
-        if selectedNode.bl_idname == 'VRayNodeOutputMaterial':
-            selectedNode = NodesExport.GetConnectedNode(ntree, selectedNode.inputs['Material'])
+        if selectedNode.bl_idname == 'VRayNodeRenderChannels':
+            pluginNames = []
 
-        # Export node and subtree
-        pluginName = NodesExport.WriteNode(bus, ntree, selectedNode)
+            for inSock in selectedNode.inputs:
+                pluginNames.append(NodesExport.WriteConnectedNode(None, ntree, inSock))
+
+            pluginName = "List(%s)" % ",".join(pluginNames)
+
+        else:
+            if selectedNode.bl_idname == 'VRayNodeOutputMaterial':
+                selectedNode = NodesExport.GetConnectedNode(ntree, selectedNode.inputs['Material'])
+
+            pluginName = _vray_for_blender.exportNode(
+                ntree.as_pointer(),
+                selectedNode.as_pointer(),
+                None
+            )
 
         # Write fake Asset node
         o.set('MAIN', 'Asset', self.asset_type.capitalize())
         o.writeHeader()
         o.writeAttibute(self.asset_type, pluginName)
         o.writeFooter()
+        o.done()
+
+        _vray_for_blender.exit(exporter)
 
         return {'FINISHED'}
 
@@ -535,6 +582,7 @@ def GetRegClasses():
         VRayPresetApply,
         VRayPresetApplyNode,
 
+        VRayPresetMenuNodeRenderChannel,
         VRayPresetMenuNodeTexture,
         VRayPresetMenuNodeMaterial,
         VRayNodeTemplatesSubMenus,
