@@ -109,10 +109,3 @@ def nodeDraw(context, layout, propGroup):
     layout.prop(propGroup, 'color_mapping')
     layout.prop(propGroup, 'consider_for_aa')
     layout.prop(propGroup, 'filtering')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    if not propGroup.name:
-        overrideParams['name'] = ColorChannelNames[propGroup.alias].replace(" ", "")
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

@@ -87,14 +87,3 @@ def nodeDraw(context, layout, propGroup):
     layout.prop(propGroup, 'type')
     layout.prop(propGroup, 'color_mapping')
     layout.prop(propGroup, 'consider_for_aa')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    o = bus['output']
-
-    o.set(TYPE, 'RenderChannelColor', pluginName)
-    o.writeHeader()
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
-    o.writeFooter()
-
-    return pluginName

@@ -89,17 +89,3 @@ def gui(context, layout, SphereFade):
     col.prop(SphereFade, 'empty_color')
     col.prop(SphereFade, 'affect_alpha')
     col.prop(SphereFade, 'falloff')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams): 
-    gizmos = LibUtils.GetAsList(overrideParams['gizmos'])
-
-    for key in overrideParams:
-        if re.match("^gizmos\d+", key):
-            gizmos.append(overrideParams[key])
-
-    gizmos = filter(None, gizmos)
-
-    overrideParams['gizmos'] = "List(%s)" % ",".join(gizmos)
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

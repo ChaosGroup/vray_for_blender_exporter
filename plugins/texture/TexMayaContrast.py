@@ -27,7 +27,7 @@ import bpy
 
 TYPE = 'TEXTURE'
 ID   = 'TexMayaContrast'
-NAME = 'MayaContrast'
+NAME = 'Maya Contrast'
 DESC = ""
 
 PluginParams = (

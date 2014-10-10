@@ -138,11 +138,3 @@ PluginParams = (
 
 def nodeDraw(context, layout, UVWGenChannel):
     layout.prop(UVWGenChannel, 'uvw_channel')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.update({
-        'uvw_transform' : mathutils.Matrix.Identity(4),
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

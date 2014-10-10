@@ -104,11 +104,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.update({
-        'world_width' : overrideParams['pixel_width'],
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

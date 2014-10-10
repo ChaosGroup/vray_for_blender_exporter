@@ -77,28 +77,3 @@ def nodeDraw(context, layout, SphereFadeGizmo):
         layout.prop(SphereFadeGizmo, 'radius')
 
     layout.prop(SphereFadeGizmo, 'invert')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    if not propGroup.object:
-        return None
-
-    if propGroup.object not in bpy.context.scene.objects:
-        return None
-
-    ob = bpy.context.scene.objects[propGroup.object]
-
-    if ob.type not in {'EMPTY'}:
-        return None
-
-    tm = mathutils.Matrix.Translation(ob.matrix_world.translation)
-    
-    scaVec = ob.matrix_world.to_scale()
-    sca = (scaVec[0] + scaVec[1] + scaVec[2]) / 3.0
-
-    drawSize = ob.empty_draw_size * sca
-
-    overrideParams['radius']    = drawSize
-    overrideParams['transform'] = tm
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

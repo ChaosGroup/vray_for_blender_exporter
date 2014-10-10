@@ -413,27 +413,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    bus['environment_volume'].add(pluginName)
-
-    gizmos = overrideParams['gizmos']
-    gizmosList = []
-
-    if type(gizmos) is list:
-        gizmosList.extend(gizmos)
-    else:
-        gizmosList.append(gizmos)
-
-    gizmosList = filter(None, gizmosList)
-
-    overrideParams.update({
-        'color' : mathutils.Color((0.0,0.0,0.0)),
-        'color_mult' : 1.0,
-        'emission' : mathutils.Color((0.0,0.0,0.0)),
-        'emission_mult' : 1.0,
-        'gizmos' : "List(%s)" % ",".join(gizmosList),
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

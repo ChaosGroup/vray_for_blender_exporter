@@ -254,21 +254,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def writeDatablock(bus, pluginName, PluginParams, GeomStaticSmoothedMesh, mappedParams):
-    scene = bus['scene']
-    ob    = bus['node']['object']
-
-    mesh = mappedParams.get('mesh', None)
-
-    if not mesh:
-        Debug("Object \"%s\" Displacement: 'mesh' is not connected!" % ob.name, msgType='ERROR')
-        return None
-
-    ofile.write("\n%s %s {" % (ID, pluginName))
-    ofile.write("\n\tmesh=%s;" % mesh)
-    ExportUtils.WritePluginParams(bus, ofile, ID, pluginName, GeomStaticSmoothedMesh, mappedParams, PluginParams)
-    ofile.write("\n}\n")
-
-    return pluginName

@@ -268,23 +268,3 @@ def nodeDraw(context, layout, UVWGenMayaPlace2dTexture):
     col = split.column(align=True)
     col.prop(UVWGenMayaPlace2dTexture, 'mirror_u')
     col.prop(UVWGenMayaPlace2dTexture, 'mirror_v')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    o = bus['output']
-
-    rotate_frame_tex = mappedParams['rotate_frame_tex']
-    if type(rotate_frame_tex) is float:
-        rotate_frame_tex_value = math.radians(rotate_frame_tex)
-    else:
-        rotate_frame_tex_value = rotate_frame_tex
-
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-    o.writeHeader()
-    o.writeAttibute("rotate_frame_tex", rotate_frame_tex_value)
-
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
-
-    o.writeFooter()
-
-    return pluginName

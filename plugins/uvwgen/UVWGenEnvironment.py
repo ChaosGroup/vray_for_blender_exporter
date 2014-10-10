@@ -142,11 +142,3 @@ PluginParams = (
 
 def nodeDraw(context, layout, UVWGenEnvironment):
     layout.prop(UVWGenEnvironment, 'mapping_type')
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    overrideParams.update({
-        'mapping_type' : '"%s"' % propGroup.mapping_type,
-    })
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

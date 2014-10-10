@@ -22,12 +22,6 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
-import mathutils
-
-from vb30.lib import ExportUtils
-
-
 TYPE = 'EFFECT'
 ID   = 'PhxShaderSimVol'
 NAME = 'Phoenix Shader'
@@ -35,26 +29,10 @@ DESC = ""
 
 PluginParams = (
     {
-        'attr' : 'simulation',
+        'attr' : 'phoenix_sim',
+        'name' : "Phoenix Data",
         'desc' : "",
-        'skip' : True,
         'type' : 'PLUGIN',
         'default' : "",
     },
 )
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    o     = bus['output']
-
-    sims = [
-        overrideParams['simulation'],
-    ]
-
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-    o.writeHeader()
-    o.writeAttibute('phoenix_sim', "List(%s)" % ",".join(sims))
-    o.writeFooter()
-
-    return pluginName

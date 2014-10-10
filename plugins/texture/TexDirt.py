@@ -264,33 +264,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    scene = bus['scene']
-    o     = bus['output']
-
-    radiusResult = propGroup.radius
-
-    if 'radius' in mappedParams:
-        if type(mappedParams['radius']) is float:
-            radiusResult = mappedParams['radius']
-        else:
-            radiusTexName = pluginName + "Radius"
-            radiusResult = radiusTexName + "::product"
-
-            o.set('TEXTURE', 'TexFloatOp', radiusTexName)
-            o.writeHeader()
-            o.writeAttibute("float_a", mappedParams['radius'])
-            o.writeAttibute("float_b", propGroup.radius)
-            o.writeFooter()
-
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-    o.writeHeader()
-    o.writeAttibute("radius", radiusResult)
-
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
-
-    o.writeFooter()
-
-    return pluginName

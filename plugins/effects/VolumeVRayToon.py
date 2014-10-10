@@ -140,8 +140,8 @@ PluginParams = (
     },
     {
         'attr' : 'excludeList',
-        'name' : "List",
-        'desc' : "",        
+        'name' : "Exclude List",
+        'desc' : "",
         'type' : 'PLUGIN',
         'skip' : True,
         'default' : "",
@@ -163,31 +163,3 @@ def gui(context, layout, VolumeVRayToon):
     col.prop(VolumeVRayToon, 'hideInnerEdges')
     col.prop(VolumeVRayToon, 'doSecondaryRays')
     col.prop(VolumeVRayToon, 'compensateExposure')
-
-
-# XXX: exclude lights
-#
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    o = bus['output']
-
-    bus['volumes'].add(pluginName)
-
-    excludeList = [ LibUtils.GetObjectName(ob) for ob in overrideParams['excludeList'] ]
-
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-    o.writeHeader()
-    
-    o.writeAttibute('excludeList', "List(%s)" % ",".join(excludeList))
-
-    # XXX: When size is in pixels lineWidth_tex value is ignored
-    #
-    if type(overrideParams['lineWidth_tex']) is str:
-        o.writeAttibute('lineWidth_tex', overrideParams['lineWidth_tex'])
-    else:
-        o.writeAttibute('lineWidth', overrideParams['lineWidth_tex'])
-    
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, overrideParams)
-
-    o.writeFooter()
-
-    return pluginName

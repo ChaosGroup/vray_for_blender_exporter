@@ -161,36 +161,3 @@ PluginWidget = """
     }
 ]}
 """
-
-
-def FindSun(scene):
-    for ob in (ob for ob in scene.objects if ob.type == 'LAMP'):
-        if ob.data.type == 'SUN' and ob.data.vray.direct_type == 'SUN':
-            return ob
-    return None
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, mappedParams):
-    scene = bus['scene']
-    o     = bus['output']
-
-    sunObject = mappedParams.get('sun', None)
-    if sunObject:
-        if type(sunObject) is list:
-            sunObject = sunObject[0]
-    else:
-        if propGroup.auto_sun:
-            sunObject = FindSun(scene)
-
-    o.set(pluginModule.TYPE, pluginModule.ID, pluginName)
-
-    o.writeHeader()
-
-    if sunObject:
-        o.writeAttibute("sun", BlenderUtils.GetObjectName(sunObject))
-
-    ExportUtils.WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams)
-
-    o.writeFooter()
-
-    return pluginName

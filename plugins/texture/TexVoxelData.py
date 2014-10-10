@@ -73,33 +73,3 @@ PluginParams = (
         'default' : "",
     },
 )
-
-
-def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
-    scene = bus['scene']
-    o     = bus['output']
-
-    domainObject = overrideParams.get('domain', None)
-    if domainObject is None:
-        return None
-    
-    if type(domainObject) is list:
-        domainObject = domainObject[0]
-
-    if not domainObject:
-        return None
-
-    smd = BlenderUtils.GetSmokeModifier(domainObject)
-    if not smd:
-        return None
-
-    _vray_for_blender.exportSmoke(
-        bpy.context.as_pointer(),     # Context
-        domainObject.as_pointer(),    # Object
-        smd.as_pointer(),             # SmokeModifierData
-        int(propGroup.interpolation), # Interpolation type
-        pluginName,                   # Result plugin name
-        o.fileManager.getFileByPluginType('GEOMETRY')   # Output file
-    )
-
-    return pluginName
