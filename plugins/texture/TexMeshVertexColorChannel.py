@@ -90,26 +90,22 @@ PluginWidget = """
 def nodeDraw(context, layout, TexMeshVertexColorChannel):
     ob = context.object
 
-    if ob.type in BlenderUtils.NonGeometryTypes:
-        layout.label(text="Invalid Context!")
-        layout.label(text="Only Mesh data is supported!")
-        return
-
-    hasUvChannles = hasattr(ob.data, 'uv_textures')
-    hasColorSets  = hasattr(ob.data, 'vertex_colors')
-
     layout.prop(TexMeshVertexColorChannel, 'channelIndex')
+    layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
 
-    if hasUvChannles and hasColorSets:
-        layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
+    if ob and ob.type in BlenderUtils.NonGeometryTypes:
+        hasUvChannles = hasattr(ob.data, 'uv_textures')
+        hasColorSets  = hasattr(ob.data, 'vertex_colors')
 
-    if TexMeshVertexColorChannel.data_select == '0':
-        if hasUvChannles:
-            layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                               ob.data, 'uv_textures',
-                               text="")
+        if TexMeshVertexColorChannel.data_select == '0':
+            if hasUvChannles:
+                layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                                   ob.data, 'uv_textures',
+                                   text="")
+        else:
+            if hasColorSets:
+                layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
+                                   ob.data, 'vertex_colors',
+                                   text="")
     else:
-        if hasColorSets:
-            layout.prop_search(TexMeshVertexColorChannel, 'channel_name',
-                               ob.data, 'vertex_colors',
-                               text="")
+        layout.prop(TexMeshVertexColorChannel, 'channel_name', text="Name")
