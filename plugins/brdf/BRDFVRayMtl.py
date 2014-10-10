@@ -523,6 +523,12 @@ PluginWidget = """
     },
 
     {   "layout" : "ROW",
+        "attrs" : [
+            { "name" : "hilight_glossiness_lock" }
+        ]
+    },
+
+    {   "layout" : "ROW",
         "align" : true,
         "attrs" : [
             { "name" : "fresnel" },
