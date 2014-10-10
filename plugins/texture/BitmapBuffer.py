@@ -66,7 +66,7 @@ PluginParams = (
     },
     {
         'attr' : 'gamma',
-        'desc' : "",
+        'desc' : 'Texture gamma when "Color Space" is set to "Gamma corrected"',
         'type' : 'FLOAT',
         'default' : 1.0,
     },
@@ -178,7 +178,7 @@ PluginParams = (
         'desc' : "Use \"Input Gamma\" parameter from \"Color Mapping\" as \"Gamma\"",
         'type' : 'BOOL',
         'skip' : True,
-        'default' : False,
+        'default' : True,
     },
 )
 
@@ -188,6 +188,13 @@ PluginWidget = """
         "align" : false,
         "attrs" : [
             { "name" : "color_space" },
+            {
+                "name" : "gamma",
+                "active" : {
+                    "prop" : "color_space",
+                    "condition" : "1"
+                }
+            },
             { "name" : "filter_type" },
             { "name" : "filter_blur" }
         ]
@@ -198,14 +205,7 @@ PluginWidget = """
             {   "layout" : "COLUMN",
                 "align" : true,
                 "attrs" : [
-                    { "name" : "use_input_gamma" },
-                    {
-                        "name" : "gamma",
-                        "active" : {
-                            "prop" : "use_input_gamma",
-                            "condition" : "0"
-                        }
-                    }
+                    { "name" : "use_input_gamma" }
                 ]
             },
             {   "layout" : "COLUMN",
@@ -250,63 +250,3 @@ def gui(context, layout, BitmapBuffer, node):
 
     # NOTE: PluginWidget will go after
     layout.label("V-Ray Settings:")
-
-
-def writeDatablock(bus, pluginModule, pluginName, BitmapBuffer, overrideParams):
-    scene = bus['scene']
-
-    VRayScene = scene.vray
-    VRayDR    = VRayScene.VRayDR
-
-    SettingsColorMapping = VRayScene.SettingsColorMapping
-
-    node = bus['context'].get('node')
-    if not node:
-        debug.PrintError('Incorrect node context!')
-        return None
-
-    if not node.texture:
-        debug.PrintError('Incorrect node texture!')
-        return None
-
-    image = node.texture.image
-    if not image:
-        debug.PrintError('Node "%s": Image is not set!' % node.name)
-    else:
-        filepath = BlenderUtils.GetFullFilepath(image.filepath, holder=image)
-
-        if VRayDR.on:
-            if VRayDR.assetSharing == 'SHARE':
-                filepath = PathUtils.CopyDRAsset(bus, filepath)
-
-        overrideParams['file'] = filepath
-        overrideParams['gamma'] = SettingsColorMapping.input_gamma if BitmapBuffer.use_input_gamma else BitmapBuffer.gamma
-
-        if image.source == 'SEQUENCE':
-            imageUser = node.texture.image_user
-
-            seqFrame  = 0
-            seqOffset = imageUser.frame_offset
-            seqLength = imageUser.frame_duration
-            seqStart  = imageUser.frame_start
-            seqEnd    = seqLength - seqStart + 1
-
-            if imageUser.use_cyclic:
-                seqFrame = ((scene.frame_current - seqStart) % seqLength) + 1
-            else:
-                if scene.frame_current < seqStart:
-                    seqFrame = seqStart
-                elif scene.frame_current > seqEnd:
-                    seqFrame = seqEnd
-                else:
-                    seqFrame = seqStart + scene.frame_current - 1
-
-            if seqOffset < 0:
-                if (seqFrame - abs(seqOffset)) < 0:
-                    seqFrame += seqLength
-
-            overrideParams['frame_sequence'] = True
-            overrideParams['frame_offset'] = seqOffset
-            overrideParams['frame_number'] = seqFrame
-
-    return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, BitmapBuffer, overrideParams)
