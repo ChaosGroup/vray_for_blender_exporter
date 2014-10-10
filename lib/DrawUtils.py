@@ -96,7 +96,7 @@ def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, a
 
     if active is not None:
         prop      = active['prop']
-        condition = bool(int(active.get('condition', True)))
+        condition = active.get('condition', True)
 
         container = layout.row()
         container.active = getattr(propGroup, prop) == condition
