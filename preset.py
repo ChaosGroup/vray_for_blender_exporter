@@ -412,6 +412,12 @@ class VRayPresetMenuNodeRenderChannel(VRayPresetMenuNodeBase):
     menu_item_save  = True
 
 
+class VRayPresetMenuNodeEffects(VRayPresetMenuNodeBase):
+    bl_label        = "Effects"
+    preset_subdir   = "effects"
+    menu_item_save  = True
+
+
 ########  ########     ###    ##      ##
 ##     ## ##     ##   ## ##   ##  ##  ##
 ##     ## ##     ##  ##   ##  ##  ##  ##
@@ -446,6 +452,7 @@ class VRayNodeTemplatesSubMenus(bpy.types.Menu):
         self.layout.menu("VRayPresetMenuNodeMaterial", icon='MATERIAL')
         self.layout.menu("VRayPresetMenuNodeTexture",  icon='TEXTURE')
         self.layout.menu("VRayPresetMenuNodeRenderChannel", icon='SCENE_DATA')
+        self.layout.menu("VRayPresetMenuNodeEffects", icon='GHOST_ENABLED')
 
 
 def VRayNodeTemplatesMenu(self, context):
@@ -480,6 +487,7 @@ class VRayNodeExportAsset(bpy.types.Operator):
             ('texture',  "Texture",  ""),
             ('material', "Material", ""),
             ('channel',  "Render Channel", ""),
+            ('effects',  "Effects", ""),
         ),
         default = "texture"
     )
@@ -582,6 +590,7 @@ def GetRegClasses():
         VRayPresetApply,
         VRayPresetApplyNode,
 
+        VRayPresetMenuNodeEffects,
         VRayPresetMenuNodeRenderChannel,
         VRayPresetMenuNodeTexture,
         VRayPresetMenuNodeMaterial,
