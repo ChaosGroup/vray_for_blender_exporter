@@ -206,8 +206,6 @@ PluginParams = (
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     o = bus['output']
-    scene = bus['scene']
-    ca    = bus['camera']
 
     scene, ca = BlenderUtils.GetSceneAndCamera(bus)
 
@@ -224,7 +222,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     CameraStereoscopic = VRayCamera.CameraStereoscopic
     VRayStereoscopicSettings = VRayScene.VRayStereoscopicSettings
 
-    fov, orthoWidth = BlenderUtils.GetCameraFOV(ca)
+    fov, orthoWidth = BlenderUtils.GetCameraFOV(scene, ca)
 
     overrideParams['use_scene_offset'] = SysUtils.IsRTEngine(bus)
     overrideParams['clipping'] = RenderView.clip_near or RenderView.clip_far

@@ -239,8 +239,7 @@ def GetCameraDofDistance(ca):
     return dofDistance
 
 
-def GetCameraFOV(camera):
-    scene      = bpy.context.scene
+def GetCameraFOV(scene, camera):
     VRayCamera = camera.data.vray
 
     fov = VRayCamera.fov if VRayCamera.override_fov else camera.data.angle

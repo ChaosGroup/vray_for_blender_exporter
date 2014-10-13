@@ -354,7 +354,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     VRayCamera = camera.data.vray
     StereoSettings = VRayScene.VRayStereoscopicSettings
 
-    fov, orthoWidth = BlenderUtils.GetCameraFOV(camera)
+    fov, orthoWidth = BlenderUtils.GetCameraFOV(scene, camera)
 
     focus_distance = BlenderUtils.GetCameraDofDistance(camera)
     if focus_distance < 0.001:
