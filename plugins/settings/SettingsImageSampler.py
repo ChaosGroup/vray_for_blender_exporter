@@ -276,7 +276,7 @@ PluginWidget = """
         "splits" : [
             {   "layout" : "COLUMN",
                 "attrs" : [
-                    { "name" : "dmc_threshold", "active" : { "prop" : "use_dmc_treshhold", "condition" : "0" }}
+                    { "name" : "dmc_threshold", "active" : { "prop" : "use_dmc_treshhold", "condition" : false }}
                 ]
             },
             {   "layout" : "COLUMN",
