@@ -122,8 +122,15 @@ PluginParams = (
         'default' : 1,
     },
     {
+        'attr' : 'use_input_gamma',
+        'desc' : "Use global \"Input Gamma\" for textures",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : False,
+    },
+    {
         'attr' : 'sync_with_gamma',
-        'desc' : "Set Blender's \"Color Management\" Gamma to (1.0 / gamma)",
+        'desc' : "Set Blender's \"Color Management\" Gamma to (1.0 / ColorMapping.Gamma)",
         'type' : 'BOOL',
         'update' : UpdateSystemGamma,
         'skip' : True,

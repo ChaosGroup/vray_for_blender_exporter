@@ -218,6 +218,9 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 
 		classes.DrawPluginUIAuto(context, layout, imgFormatPropGroup, formatPropGroupName)
 
+		if SettingsOutput.img_format in {'EXR', 'VRST'}:
+			layout.prop(SettingsOutput, 'img_deepFile')
+
 		layout.separator()
 
 		split= layout.split()
@@ -575,18 +578,27 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 			col.prop(cm, "bright_mult")
 			col.prop(cm, "dark_mult")
 		col.prop(cm, "gamma")
-		col.prop(cm, "input_gamma")
 		if wide_ui:
 			col= split.column(align=True)
 		col.prop(cm, "affect_background")
 		col.prop(cm, "subpixel_mapping")
 		col.prop(cm, "adaptation_only")
 		col.prop(cm, "linearWorkflow")
-		col.prop(cm, "clamp_output")
-		if cm.clamp_output:
-			col.prop(cm, "clamp_level")
 
-		layout.prop(cm, 'sync_with_gamma')
+		split= layout.split()
+		col= split.column()
+		col.prop(cm, "use_input_gamma")
+		sub = col.column()
+		sub.active = cm.use_input_gamma
+		sub.prop(cm, "input_gamma")
+		if wide_ui:
+			col= split.column()
+		col.prop(cm, "clamp_output")
+		sub = col.column()
+		sub.active = cm.clamp_output
+		sub.prop(cm, "clamp_level")
+
+		layout.prop(cm, 'sync_with_gamma', text="Sync With CM Gamma")
 
 
 #### ##     ##    ###     ######   ########     ######     ###    ##     ## ########  ##       ######## ########

@@ -96,6 +96,7 @@ PluginParams = (
     },
     {
         'attr' : 'img_deepFile',
+        'name' : "Deep Image",
         'desc' : "If true, V-Ray will will generate deep image file (valid for vrst and exr)",
         'type' : 'BOOL',
         'default' : False,
