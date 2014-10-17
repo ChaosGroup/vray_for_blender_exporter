@@ -773,8 +773,6 @@ def register():
 		if jsonPluginName not in PLUGINS_ID:
 			jsonPlugin = PluginUtils.PLUGINS_DESC[jsonPluginName]
 
-			print("JSON plugin: %s" % jsonPluginName)
-
 			DynPluginType = type(
 				# Name
 				"JSON%s" % jsonPluginName,
