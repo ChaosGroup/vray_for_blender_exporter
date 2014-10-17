@@ -49,6 +49,8 @@ def LoadPluginDesc():
         pluginID     = pluginDesc.get('ID')
         pluginParams = pluginDesc.get('Parameters')
         pluginName   = pluginDesc.get('Name')
+        pluginType   = pluginDesc.get('Type')
+        plugiIDDesc  = pluginDesc.get('Description', "")
         plguinWidget = pluginDesc.get('Widget', {})
 
         PLUGINS_DESC[pluginID] = {
@@ -56,6 +58,15 @@ def LoadPluginDesc():
             'Name'       : pluginName,
             'Parameters' : pluginParams,
             'Widget'     : plguinWidget,
+
+            # To match plugin interface
+            # XXX: Refactor
+            'TYPE' : pluginType,
+            'ID'   : pluginID,
+            'NAME' : pluginName,
+            'DESC' : plugiIDDesc,
+            'PluginParams' : pluginParams,
+            'PluginWidget' : plguinWidget,
         }
 
 
