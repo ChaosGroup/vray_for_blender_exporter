@@ -194,7 +194,7 @@ def RenderWidget(context, propGroup, layout, widget):
 def RenderTemplate(context, layout, propGroup, pluginModule):
     jsonTemplate = pluginModule.PluginWidget
 
-    widgetDesc = json.loads(jsonTemplate)
+    widgetDesc = jsonTemplate if type(jsonTemplate) is dict else json.loads(jsonTemplate)
 
     for widget in widgetDesc['widgets']:
         RenderWidget(context, propGroup, layout, widget)

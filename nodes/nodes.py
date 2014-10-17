@@ -242,6 +242,7 @@ def VRayNodeDraw(self, context, layout):
         return
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
+    propGroup  = getattr(self, self.vray_plugin)
 
     # Draw node properties using 'nodeDraw'
     #
@@ -251,7 +252,11 @@ def VRayNodeDraw(self, context, layout):
         if self.vray_plugin in {'BitmapBuffer', 'TexGradRamp', 'TexRemap'}:
             vrayPlugin.nodeDraw(context, layout, self)
         else:
-            vrayPlugin.nodeDraw(context, layout, getattr(self, self.vray_plugin))
+            vrayPlugin.nodeDraw(context, layout, propGroup)
+
+    elif hasattr(vrayPlugin, 'Widget') and 'node_widgets' in vrayPlugin.Widget:
+        for widget in vrayPlugin.Widget['node_widgets']:
+            DrawUtils.RenderWidget(context, propGroup, layout, widget)
 
 
 def VRayNodeDrawSide(self, context, layout):
