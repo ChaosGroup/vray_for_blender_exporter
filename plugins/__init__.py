@@ -769,6 +769,24 @@ def register():
 	PluginUtils.LoadPluginDesc()
 	LoadPlugins(PLUGINS, PLUGINS_ID)
 
+	for jsonPluginName in PluginUtils.PLUGINS_DESC:
+		if jsonPluginName not in PLUGINS_ID:
+			jsonPlugin = PluginUtils.PLUGINS_DESC[jsonPluginName]
+
+			print("JSON plugin: %s" % jsonPluginName)
+
+			DynPluginType = type(
+				# Name
+				"JSON%s" % jsonPluginName,
+				# Inheritance
+				(object,),
+				# Attributes
+				jsonPlugin
+			)
+
+			PLUGINS[jsonPlugin['TYPE']][jsonPlugin['ID']] = DynPluginType
+			PLUGINS_ID[jsonPlugin['ID']] = DynPluginType
+
 	for regClass in GetRegClasses():
 		bpy.utils.register_class(regClass)
 
