@@ -114,8 +114,8 @@ PluginParams = (
         'type' : 'ENUM',
         'items' : (
             ('0', "Single Frame", ""),
-            ('1', "From File", ""),
-            ('2', "Fly-Through", ""),
+            ('1', "Fly-Through", ""),
+            ('2', "From File", ""),
             ('3', "Progressive Path Tracing", "")
         ),
         'default' : '0',

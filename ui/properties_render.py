@@ -1022,7 +1022,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		col= split.column()
 		col.prop(module, "mode", text="Mode")
 
-		if not module.mode == '1':
+		if not module.mode == '2':
 			layout.label(text="Calculation parameters:")
 			if wide_ui:
 				split= layout.split(percentage=0.6)
@@ -1080,7 +1080,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 		split= layout.split(percentage=0.3)
 		colL= split.column()
 		colR= split.column()
-		if module.mode == '1':
+		if module.mode == '2':
 			colL.label(text="Map file name:")
 			colR.prop(module,"file", text="")
 		else:
