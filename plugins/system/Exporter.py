@@ -26,11 +26,25 @@ import bpy
 import sys
 
 from vb30 import version
+from vb30.lib import SysUtils
 
 TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
 NAME = 'Exporter'
 DESC = "Exporter configuration"
+
+
+class VRayExporterSetBinary(bpy.types.Operator):
+    bl_idname      = "vray.select_vray_std"
+    bl_label       = "Use V-Ray Standalone"
+    bl_description = "Use V-Ray Standalone"
+
+    bin_path = bpy.props.StringProperty()
+
+    def execute(self, context):
+        VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+        VRayPreferences.vray_binary = self.bin_path
+        return {'FINISHED'}
 
 
 class VRayExporterPreferences(bpy.types.AddonPreferences):
@@ -55,8 +69,23 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
 
         layout.prop(self, "detect_vray")
         if not self.detect_vray:
+            vrayStds = SysUtils.GetVRayStandalones()
+            if vrayStds:
+                pathBox = layout.box()
+                pathBox.label("V-Ray Standalone is found in:")
+                for vrayStd in vrayStds:
+                    vrayExePath = vrayStds[vrayStd]
+
+                    split = pathBox.split(percentage=0.3)
+                    col = split.column()
+                    col.label(vrayStd)
+
+                    col = split.column()
+                    op = col.operator('vray.select_vray_std', text=vrayExePath, icon='FILE_TICK')
+                    op.bin_path = vrayExePath
+
             vrayBin = "vray.exe" if sys.platform == 'win32' else "vray"
-            layout.label('Select "vray" binary (do NOT use relative path here!):')
+            layout.label('You could manually select "%s" binary, please, note NOT to use relative path here:' % vrayBin)
 
             split = layout.split(percentage=0.2, align=True)
             split.column().label("Filepath:")
@@ -387,6 +416,7 @@ def GetRegClasses():
     return (
         VRayExporter,
         VRayExporterPreferences,
+        VRayExporterSetBinary,
     )
 
 

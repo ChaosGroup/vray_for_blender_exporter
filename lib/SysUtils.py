@@ -52,6 +52,62 @@ def GetArch():
     return 'x86_64'
 
 
+def GetVRayStandalones():
+    VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+
+    vrayExe   = "vray.exe" if sys.platform == 'win32' else "vray"
+    splitChar = ';'        if sys.platform == 'win32' else ':'
+
+    vrayPaths = {}
+
+    def getPaths(pathStr):
+        if pathStr:
+            return pathStr.strip().replace('\"','').split(splitChar)
+        return []
+
+    for var in reversed(sorted(os.environ.keys())):
+        envVar = os.getenv(var)
+        if not envVar:
+            continue
+
+        if var.startswith('VRAY_PATH') or var == 'PATH':
+            for path in getPaths(envVar):
+                vrayExePath = os.path.join(path, vrayExe)
+                if os.path.exists(vrayExePath):
+                    vrayPaths[var] = vrayExePath
+
+        elif '_MAIN_' in var:
+            if var.startswith('VRAY_FOR_MAYA'):
+                for path in getPaths(envVar):
+                    vrayExePath = os.path.join(path, "bin", vrayExe)
+                    if os.path.exists(vrayExePath):
+                        vrayPaths[var] = vrayExePath
+
+            elif var.startswith('VRAY30_RT_FOR_3DSMAX'):
+                for path in getPaths(envVar):
+                    vrayExePath = os.path.join(path, vrayExe)
+                    if os.path.exists(vrayExePath):
+                        vrayPaths[var] = vrayExePath
+
+    if sys.platform in {'darwin'}:
+        import glob
+
+        instLogFilepath = "/var/log/chaos_installs"
+        if os.path.exists(instLogFilepath):
+            instLog = open(instLogFilepath, 'r').readlines()
+            for l in instLog:
+                if 'V-Ray Standalone' in l and '[UN]' not in l:
+                    installName, path = l.strip().split('=')
+
+                    path = os.path.normpath(os.path.join(path.strip(), '..', '..', '..', "bin"))
+
+                    possiblePaths = glob.glob('%s/*/*/vray' % path)
+                    if len(possiblePaths):
+                        vrayPaths[installName] = possiblePaths[0]
+
+    return vrayPaths
+
+
 def GetVRayStandalonePath():
     VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
 
