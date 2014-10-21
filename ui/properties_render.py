@@ -1180,6 +1180,7 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			layout.separator()
 
 		layout.prop(VRayDR, 'port', text="Port")
+		layout.prop(VRayDR, 'limitHosts')
 		layout.separator()
 
 		split= layout.split()

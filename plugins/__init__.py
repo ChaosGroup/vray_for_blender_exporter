@@ -733,6 +733,13 @@ class VRayDR(bpy.types.PropertyGroup):
 		default     = False
 	)
 
+	limitHosts = bpy.props.IntProperty(
+		name        = "Limit Hosts",
+		description = "Limit the number of render hosts used for distributed rendering to the first N idle hosts",
+		min         = 0,
+		default     = 0
+	)
+
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##

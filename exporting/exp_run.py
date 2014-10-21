@@ -97,6 +97,7 @@ def Run(bus):
             p.setRenderhosts([n.address for n in VRayDR.nodes if n.use])
             p.setPortNumber(VRayDR.port)
             p.setTransferAssets(transferAssets)
+            p.setLimitHosts(VRayDR.limitHosts)
 
     if VRayExporter.animation_mode == 'NONE':
         p.setFrames(scene.frame_current)

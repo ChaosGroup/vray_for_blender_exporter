@@ -167,6 +167,9 @@ class VRayProcess:
     def setPortNumber(self, n):
         self.portNumber = n
 
+    def setLimitHosts(self, n):
+        self.limitHosts = n
+
     def setTransferAssets(self, v):
         self.transferAssets = v
 
@@ -200,6 +203,7 @@ class VRayProcess:
             cmd.append('-renderhost=%s' % self.renderhost)
             cmd.append('-portNumber=%i' % self.portNumber)
             cmd.append('-transferAssets=%i' % self.transferAssets)
+            cmd.append('-limitHosts=%i' % self.limitHosts)
 
         if self.numThreads:
             cmd.append('-numThreads=%s' % self.numThreads)
