@@ -63,7 +63,7 @@ PluginParams = (
         'attr' : 'adaptive_min_samples',
         'desc' : "The minimum number of samples that must be made before the early termination algorithm is used",
         'type' : 'INT',
-        'default' : 8,
+        'default' : 16,
     },
     {
         'attr' : 'subdivs_mult',
