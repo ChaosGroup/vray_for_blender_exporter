@@ -367,6 +367,42 @@ class VRayAsset(bpy.types.PropertyGroup):
 		default = 200
 	)
 
+	anim_type = bpy.props.EnumProperty(
+		name        = "Animation",
+		description = "Animation playback type",
+		items = (
+			('0', "Loop", ""),
+			('1', "Once", ""),
+			('2', "Ping-Pong", ""),
+			('3', "Still", ""),
+		),
+		default = '0'
+	)
+
+	anim_speed = bpy.props.FloatProperty(
+		name        = "Speed",
+		description = "Animation playback speed",
+		default = 1.0
+	)
+
+	anim_offset = bpy.props.FloatProperty(
+		name        = "Offset",
+		description = "Animation initial frame offset",
+		default = 0.0
+	)
+
+	anim_start = bpy.props.IntProperty(
+		name        = "Start",
+		description = "Specifies the first frame of the animation sequence",
+		default = 0
+	)
+
+	anim_length = bpy.props.IntProperty(
+		name        = "Length",
+		description = "Specifies the length of the animation sequence",
+		default = 0
+	)
+
 
 class VRayObject(bpy.types.PropertyGroup):
 	data_updated = bpy.props.IntProperty(
