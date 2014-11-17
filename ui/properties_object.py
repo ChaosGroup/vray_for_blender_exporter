@@ -307,6 +307,17 @@ class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
 		# col.prop(VRayAsset, 'sceneAddEnvironment')
 
 		layout.separator()
+		layout.prop(VRayAsset, 'anim_type')
+		split = layout.split()
+		col = split.column(align=True)
+		col.prop(VRayAsset, 'anim_speed')
+		col.prop(VRayAsset, 'anim_offset')
+		if wide_ui:
+			col = split.column(align=True)
+		col.prop(VRayAsset, 'anim_start')
+		col.prop(VRayAsset, 'anim_length')
+
+		layout.separator()
 		layout.label("Preview Mesh:")
 		layout.prop(VRayAsset, 'maxPreviewFaces')
 		row = layout.row(align=True)
