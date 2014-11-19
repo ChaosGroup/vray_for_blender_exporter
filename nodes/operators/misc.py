@@ -214,6 +214,21 @@ class VRayOpRestoreNtreeTextures(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpRestoreNtreeMaterials(bpy.types.Operator):
+    bl_idname = "vray.restore_ntree_materials"
+    bl_label = "Restore Materials"
+
+    def execute(self, context):
+        for ma in bpy.data.materials:
+            VRayMaterial = ma.vray
+            if VRayMaterial.ntree:
+                continue
+            if ma.name in bpy.data.node_groups:
+                VRayMaterial.ntree = bpy.data.node_groups[ma.name]
+
+        return {'FINISHED'}
+
+
 class VRayOpRemoveFakeTextures(bpy.types.Operator):
     bl_idname = "vray.remove_fake_textures"
     bl_label = "Clean Up Fake Data"
@@ -255,6 +270,7 @@ def GetRegClasses():
     return (
         VRayOpRemoveFakeTextures,
         VRayOpRestoreNtreeTextures,
+        VRayOpRestoreNtreeMaterials,
 
         VRayOpBitmapBufferToImageEditor,
         VRayOpSelectNtreeInEditor,
