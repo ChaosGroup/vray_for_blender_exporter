@@ -80,7 +80,7 @@ class VRayNodeRenderChannels(bpy.types.Node):
             ('0', "Best Coverage", ""),
             ('1', "Closest To Camera", ""),
         ),
-        default = '0'
+        default = '1'
     )
 
     deep_merge_mode = bpy.props.EnumProperty(
