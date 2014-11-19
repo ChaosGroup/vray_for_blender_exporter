@@ -218,8 +218,6 @@ PluginParams = (
 )
 
 PluginWidget = """
-    {   "layout" : "SEPARATOR" },
-
     {   "layout" : "SEPARATOR",
         "label" : "Common Properties" },
 
