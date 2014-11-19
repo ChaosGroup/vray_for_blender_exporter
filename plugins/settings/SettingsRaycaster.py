@@ -65,8 +65,8 @@ PluginParams = (
         'default' : False,
     },
     {
-        'attr' : 'embreeHighPrec',
-        'desc' : "Enable/disable high precision intersection",
+        'attr' : 'embreeHair',
+        'desc' : "Enable/disable the Embree ray caster for hair",
         'type' : 'BOOL',
         'default' : False,
     },
