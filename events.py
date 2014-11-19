@@ -68,6 +68,11 @@ def update_world_preview(ob):
     _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_WORLD)
 
 
+@bpy.app.handlers.persistent
+def update_material_preview(sce):
+    _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
+
+
 def register():
     BlenderUtils.AddEvent(bpy.app.handlers.save_post, dr_nodes_store)
     BlenderUtils.AddEvent(bpy.app.handlers.load_post, dr_nodes_restore)
@@ -76,6 +81,8 @@ def register():
     BlenderUtils.AddEvent(bpy.app.handlers.new_material, new_material_ntree)
 
     BlenderUtils.AddEvent(bpy.app.handlers.object_update, update_world_preview)
+
+    BlenderUtils.AddEvent(bpy.app.handlers.frame_change_post, update_material_preview)
 
 
 def unregister():
@@ -86,3 +93,5 @@ def unregister():
     BlenderUtils.DelEvent(bpy.app.handlers.new_material, new_material_ntree)
 
     BlenderUtils.DelEvent(bpy.app.handlers.object_update, update_world_preview)
+
+    BlenderUtils.DelEvent(bpy.app.handlers.frame_change_post, update_material_preview)
