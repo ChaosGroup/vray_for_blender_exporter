@@ -1119,6 +1119,11 @@ def ExportSocket(maNtree, maNode, inSock, vrayNode, nt, connect=True):
             (maNode.name, inSock.name, inSock.bl_idname))
         return None
 
+    if not vrayNode:
+        debug.PrintError("FIXME: Input socket '%s.%s' of type '%s'" %
+            (maNode.name, inSock.name, inSock.bl_idname))
+        return None
+
     if not inSock.is_linked:
         vrayInSock = vrayNode.inputs[NodeTypeMapping[maNode.bl_idname]['sockets'][inSock.name]]
         value      = maNode.inputs[inSock.name].default_value
@@ -1143,8 +1148,7 @@ def ExportSocket(maNtree, maNode, inSock, vrayNode, nt, connect=True):
             return None
 
         conVRayNode = ConvertNode(maNtree, conNode, nt)
-
-        if connect:
+        if conVRayNode and connect:
             _connectNodes(nt,
                 conVRayNode, SocketOutputMapping[conSock.bl_idname]['name'],
                 vrayNode,    NodeTypeMapping[maNode.bl_idname]['sockets'][inSock.name],
