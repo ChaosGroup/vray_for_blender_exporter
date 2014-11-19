@@ -62,6 +62,8 @@ PluginParams = (
     },
 )
 
+PluginWidget = '{ "widgets": [] }'
+
 
 def nodeDraw(context, layout, SphereFadeGizmo):
     layout.prop_search(SphereFadeGizmo,   'object',
