@@ -1324,7 +1324,7 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 		split.active = SettingsRaycaster.embreeUse
 		col = split.column()
 		col.prop(SettingsRaycaster, 'embreeUseMB', text="Use For Motion Blur")
-		col.prop(SettingsRaycaster, 'embreeHighPrec', text="High Precision")
+		col.prop(SettingsRaycaster, 'embreeHair', text="Use For Hair")
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsRaycaster, 'embreeLowMemory', text="Low Memory")
