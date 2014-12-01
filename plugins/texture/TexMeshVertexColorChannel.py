@@ -93,7 +93,7 @@ def nodeDraw(context, layout, TexMeshVertexColorChannel):
     layout.prop(TexMeshVertexColorChannel, 'channelIndex')
     layout.prop(TexMeshVertexColorChannel, 'data_select', expand=True)
 
-    if ob and ob.type in BlenderUtils.NonGeometryTypes:
+    if ob and ob.type not in BlenderUtils.NonGeometryTypes:
         hasUvChannles = hasattr(ob.data, 'uv_textures')
         hasColorSets  = hasattr(ob.data, 'vertex_colors')
 
