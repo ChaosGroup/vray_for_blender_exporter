@@ -97,9 +97,15 @@ PluginParams = (
     },
     {
         'attr' : 'adaptation_only',
-        'desc' : "When this parameter is on, the color mapping will not be applied to the final image, however V-Ray will proceed with all its calculations as though color mapping is applied (e.g. the noise levels will be corrected accordingly)",
-        'type' : 'BOOL',
-        'default' : False,
+        'name' : "Mode",
+        'desc' : "Specifies whether color mapping and gamma are applied to the image",
+        'type' : 'ENUM',
+        'items' : (
+            ('0', "Color Mapping & Gamma", "Both \"Color Mapping\" and \"Gamma\" are applied"),
+            ('1', "Don't Affect Colors",   "Nothing is applied"),
+            ('2', "Color Mapping Only",    "Only color mapping is applied"),
+        ),
+        'default' : '0',
     },
     {
         'attr' : 'linearWorkflow',

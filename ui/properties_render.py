@@ -565,6 +565,8 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 
 		cm= context.scene.vray.SettingsColorMapping
 
+		layout.prop(cm, 'adaptation_only')
+
 		split= layout.split()
 		col= split.column(align=True)
 		col.prop(cm, 'type', text="")
@@ -582,7 +584,6 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 			col= split.column(align=True)
 		col.prop(cm, "affect_background")
 		col.prop(cm, "subpixel_mapping")
-		col.prop(cm, "adaptation_only")
 		col.prop(cm, "linearWorkflow")
 
 		split= layout.split()
