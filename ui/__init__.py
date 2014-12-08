@@ -39,6 +39,7 @@ def register():
     from vb30.ui import properties_scene
     from vb30.ui import properties_texture
     from vb30.ui import properties_world
+    from vb30.ui import menus
 
     classes.register()
 
@@ -54,6 +55,7 @@ def register():
     properties_scene.register()
     properties_texture.register()
     properties_world.register()
+    menus.register()
 
 
 def unregister():
@@ -70,6 +72,7 @@ def unregister():
     from vb30.ui import properties_scene
     from vb30.ui import properties_texture
     from vb30.ui import properties_world
+    from vb30.ui import menus
 
     classes.unregister()
 
@@ -85,3 +88,4 @@ def unregister():
     properties_scene.unregister()
     properties_texture.unregister()
     properties_world.unregister()
+    menus.unregister()
