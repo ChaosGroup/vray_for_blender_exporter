@@ -42,6 +42,12 @@ def register():
 
         addon_keymaps.append(km)
 
+        km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu', 'F3', 'PRESS')
+        kmi.properties.name = "vray.active_camera"
+
+        addon_keymaps.append(km)
+
 
 def unregister():
     wm = bpy.context.window_manager

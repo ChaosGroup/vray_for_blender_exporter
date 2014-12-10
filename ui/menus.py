@@ -37,13 +37,18 @@ class VRayOpSetCamera(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def VRayMenuActiveCamera(self, context):
-    self.layout.separator()
+class VRayMenuActiveCamera(bpy.types.Menu):
+    bl_idname = "vray.active_camera"
+    bl_label = "Set Active Camera"
 
-    for ob in bpy.context.scene.objects:
-        if not ob.type in {'CAMERA'}:
-            continue
-        self.layout.operator('vray.set_camera', text=ob.name, icon='CAMERA_DATA').camera = ob
+    def draw(self, context):
+        for ob in context.scene.objects:
+            if not ob.type in {'CAMERA'}:
+                continue
+            menuItemName = ob.name
+            if ob == context.scene.camera:
+                menuItemName += " *"
+            self.layout.operator('vray.set_camera', text=menuItemName, icon='CAMERA_DATA').camera = ob
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -57,6 +62,7 @@ def VRayMenuActiveCamera(self, context):
 def GetRegClasses():
     return (
         VRayOpSetCamera,
+        VRayMenuActiveCamera,
     )
 
 
@@ -64,11 +70,7 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    bpy.types.VIEW3D_MT_object_specials.append(VRayMenuActiveCamera)
-
 
 def unregister():
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
-
-    bpy.types.VIEW3D_MT_object_specials.remove(VRayMenuActiveCamera)
