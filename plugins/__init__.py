@@ -403,6 +403,19 @@ class VRayAsset(bpy.types.PropertyGroup):
 		default = 0
 	)
 
+	use_hide_objects = bpy.props.BoolProperty(
+		name        = "Hide Objects",
+		description = "Hide specified objects",
+		default     = False
+	)
+
+	hidden_objects = bpy.props.StringProperty(
+		name        = "Hidden Objects",
+		description = "Semicolon separated list of plugin names to hide",
+		default     = ""
+	)
+
+
 
 class VRayObject(bpy.types.PropertyGroup):
 	data_updated = bpy.props.IntProperty(

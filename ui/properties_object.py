@@ -318,6 +318,12 @@ class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
 		col.prop(VRayAsset, 'anim_length')
 
 		layout.separator()
+		layout.prop(VRayAsset, 'use_hide_objects')
+		col = layout.column()
+		col.active = VRayAsset.use_hide_objects
+		col.prop(VRayAsset, 'hidden_objects')
+
+		layout.separator()
 		layout.label("Preview Mesh:")
 		layout.prop(VRayAsset, 'maxPreviewFaces')
 		row = layout.row(align=True)
