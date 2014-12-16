@@ -370,7 +370,8 @@ PluginWidget = """
                 "align" : true,
                 "attrs" : [
                     { "name" : "shadows" },
-                    { "name" : "shadowBias" }
+                    { "name" : "shadowBias" },
+                    { "name" : "shadowRadius", "label" : "Radius" }
                 ]
             },
             {   "layout" : "COLUMN",

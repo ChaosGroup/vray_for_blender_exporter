@@ -350,10 +350,20 @@ PluginWidget = """
             },
             {   "layout" : "COLUMN",
                 "align" : true,
+                "show" : { "prop" : "shadowShape", "condition" : "0" },
                 "attrs" : [
                     { "name" : "shadowShape", "label" : "" },
-                    { "name" : "shadowRadius1" },
-                    { "name" : "shadowRadius2" }
+                    { "name" : "shadowRadius", "label" : "U-Size" },
+                    { "name" : "shadowRadius1", "label" : "V-Size" },
+                    { "name" : "shadowRadius2", "label" : "W-Size"}
+                ]
+            },
+            {   "layout" : "COLUMN",
+                "align" : true,
+                "show" : { "prop" : "shadowShape", "condition" : "1" },
+                "attrs" : [
+                    { "name" : "shadowShape", "label" : "" },
+                    { "name" : "shadowRadius", "label" : "Radius" }
                 ]
             }
         ]
