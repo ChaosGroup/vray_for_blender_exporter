@@ -42,13 +42,21 @@ class VRayMenuActiveCamera(bpy.types.Menu):
     bl_label = "Set Active Camera"
 
     def draw(self, context):
+        self.layout.operator('vray.flip_resolution', icon='FILE_REFRESH')
+        self.layout.separator()
+
+        haveCameras = False
         for ob in context.scene.objects:
             if not ob.type in {'CAMERA'}:
                 continue
+            haveCameras = True
             menuItemName = ob.name
             if ob == context.scene.camera:
                 menuItemName += " *"
             self.layout.operator('vray.set_camera', text=menuItemName, icon='CAMERA_DATA').camera = ob
+        if not haveCameras:
+            self.layout.label("No camera objects found...")
+
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
