@@ -415,6 +415,15 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 		col.prop(SettingsOptions, 'light_doShadows')
 		col.prop(SettingsOptions, 'light_onlyGI')
 
+		split = layout.split()
+		col = split.column()
+		col.prop(SettingsOptions, 'probabilistic_lights_on')
+		if wide_ui:
+			col = split.column()
+		sub = col.column()
+		sub.active = SettingsOptions.probabilistic_lights_on
+		sub.prop(SettingsOptions, 'num_probabilistic_lights', text="")
+
 		layout.label(text="GI:")
 		split= layout.split()
 		col= split.column()

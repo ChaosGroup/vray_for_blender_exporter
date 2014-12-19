@@ -259,6 +259,20 @@ PluginParams = (
         'type' : 'FLOAT',
         'default' : 20,
     },
+    {
+        'attr' : 'probabilistic_lights_on',
+        'name' : "Probabilistic Lights",
+        'desc' : "Enable probabilistic lights",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
+        'attr' : 'num_probabilistic_lights',
+        'name' : "Num. Probabilistic Lights",
+        'desc' : "The number of probabilistic lights to use when \"Probabilistic Lights\" is enabled",
+        'type' : 'INT',
+        'default' : 8,
+    },
 
     {
         'attr' : 'mtl_override',
