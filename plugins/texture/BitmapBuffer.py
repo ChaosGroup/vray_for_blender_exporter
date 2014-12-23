@@ -197,7 +197,14 @@ PluginWidget = """
             },
             { "name" : "interpolation" },
             { "name" : "filter_type" },
-            { "name" : "filter_blur" }
+            {
+                "name" : "filter_blur",
+                "active" : {
+                    "prop" : "filter_type",
+                    "condition" : "0",
+                    "condition_invert" : true
+                }
+            }
         ]
     },
 
