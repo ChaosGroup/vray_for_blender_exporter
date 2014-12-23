@@ -77,8 +77,11 @@ def ShowContainer(layout, show, propGroup):
     if show is not None:
         showProp      = show['prop']
         showCondition = show.get('condition', True)
-
-        if not getattr(propGroup, showProp) == showCondition:
+        showConditionInv = show.get('condition_invert', False)
+        doShow = getattr(propGroup, showProp) == showCondition
+        if showConditionInv:
+            doShow = not doShow
+        if not doShow:
             return False
     return True
 
@@ -87,8 +90,13 @@ def SetActive(layout, active, propGroup):
     if active is not None:
         prop      = active['prop']
         condition = active.get('condition', True)
+        condInvert = active.get('condition_invert', False)
 
-        layout.active = getattr(propGroup, prop) == condition
+        isActive = getattr(propGroup, prop) == condition
+        if condInvert:
+            isActive = not isActive
+
+        layout.active = isActive
 
 
 def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, active=None):
@@ -97,9 +105,14 @@ def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, a
     if active is not None:
         prop      = active['prop']
         condition = active.get('condition', True)
+        condInvert = active.get('condition_invert', False)
+
+        isActive = getattr(propGroup, prop) == condition
+        if condInvert:
+            isActive = not isActive
 
         container = layout.row()
-        container.active = getattr(propGroup, prop) == condition
+        container.active = isActive
 
     if text is not None:
         container.prop(propGroup, attr, slider=slider, expand=expand, text=text)
