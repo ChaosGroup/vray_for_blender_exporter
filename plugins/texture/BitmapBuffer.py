@@ -195,6 +195,7 @@ PluginWidget = """
                     "condition" : "1"
                 }
             },
+            { "name" : "interpolation" },
             { "name" : "filter_type" },
             { "name" : "filter_blur" }
         ]
