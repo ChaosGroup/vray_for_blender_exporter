@@ -286,7 +286,5 @@ def register():
 
 
 def unregister():
-    del bpy.types.VRayScene.ExportSets
-
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
