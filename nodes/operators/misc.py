@@ -173,8 +173,9 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
 
     def execute(self, context):
         node = context.active_node
+        ob   = context.active_object
 
-        if not node:
+        if not (node and node.texture):
             return {'CANCELLED'}
 
         if node.bl_idname in {'VRayNodeBitmapBuffer'}:
@@ -184,6 +185,16 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
                         if space.type == 'IMAGE_EDITOR':
                             space.image = node.texture.image
                     break
+
+        if ob:
+            mesh = ob.data
+            if mesh.uv_textures:
+                try:
+                    for f in mesh.polygons:
+                        mesh.uv_textures.active.data[f.index].image = node.texture.image
+                except:
+                    # Don't mess with errors...
+                    pass
 
         return {'FINISHED'}
 
