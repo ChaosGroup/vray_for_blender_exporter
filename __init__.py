@@ -68,13 +68,15 @@ def register():
 def unregister():
     engine.Shutdown()
 
+    # Remove events first
+    events.unregister()
+
     plugins.unregister()
     operators.unregister()
     nodes.unregister()
     proxy.unregister()
     ui.unregister()
     keymap.unregister()
-    events.unregister()
     preset.unregister()
 
     compat.unregister()
