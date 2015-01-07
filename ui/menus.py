@@ -41,7 +41,7 @@ class VRayOpSetCamera(bpy.types.Operator):
 
 class VRayMenuActiveCamera(bpy.types.Menu):
     bl_idname = "vray.active_camera"
-    bl_label = "Set Active Camera"
+    bl_label = "Camera Tools"
 
     def draw(self, context):
         self.layout.operator('vray.flip_resolution', icon='FILE_REFRESH')
