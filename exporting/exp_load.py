@@ -23,6 +23,7 @@
 #
 
 import time
+import os
 
 from vb30 import debug
 
@@ -44,6 +45,9 @@ def LoadImage(scene, engine, o, p):
 
     imageFile = pm.getImgLoadFilepath()
 
+    # There was some version that was always adding frame number
+    imageFilePreviewCompat = imageFile.replace("preview.exr", "preview.000%i.exr" % scene.frame_current)
+
     resolution_x = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
     resolution_y = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
 
@@ -54,9 +58,12 @@ def LoadImage(scene, engine, o, p):
             result = engine.begin_result(0, 0, resolution_x, resolution_y)
             layer = result.layers[0]
             try:
-                layer.load_from_file(imageFile)
-            except:
-                debug.Debug("Error loading file!", msgType='ERROR')
+                if os.path.exists(imageFile):
+                    layer.load_from_file(imageFile)
+                elif engine.is_preview and os.path.exists(imageFilePreviewCompat):
+                    layer.load_from_file(imageFilePreviewCompat)
+            except Exception as e:
+                debug.Debug("Error loading file! [%s]" % e, msgType='ERROR')
             engine.end_result(result)
             break
         time.sleep(0.1)
