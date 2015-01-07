@@ -34,6 +34,8 @@ class VRayOpSetCamera(bpy.types.Operator):
     def execute(self, context):
         if self.camera:
             context.scene.camera = self.camera
+            if context.area.spaces[0].region_3d.view_perspective not in {'CAMERA'}:
+                bpy.ops.view3d.viewnumpad(type='CAMERA')
         return {'FINISHED'}
 
 
