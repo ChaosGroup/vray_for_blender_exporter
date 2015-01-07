@@ -243,6 +243,7 @@ def nodeDraw(context, layout, node):
         return
 
     layout.template_ID(node.texture, 'image', open='image.open')
+    layout.label("Double click to show in editor and on object's active UV Map")
 
 
 def gui(context, layout, BitmapBuffer, node):
