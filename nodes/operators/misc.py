@@ -188,7 +188,7 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
 
         if ob:
             mesh = ob.data
-            if mesh.uv_textures:
+            if hasattr(mesh, 'uv_textures') and mesh.uv_textures:
                 try:
                     for f in mesh.polygons:
                         mesh.uv_textures.active.data[f.index].image = node.texture.image
