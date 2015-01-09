@@ -40,6 +40,7 @@ def register():
     from vb30.ui import properties_texture
     from vb30.ui import properties_world
     from vb30.ui import menus
+    from vb30.ui import draw_callbacks
 
     classes.register()
 
@@ -56,6 +57,7 @@ def register():
     properties_texture.register()
     properties_world.register()
     menus.register()
+    draw_callbacks.register()
 
 
 def unregister():
@@ -73,6 +75,7 @@ def unregister():
     from vb30.ui import properties_texture
     from vb30.ui import properties_world
     from vb30.ui import menus
+    from vb30.ui import draw_callbacks
 
     classes.unregister()
 
@@ -89,3 +92,4 @@ def unregister():
     properties_texture.unregister()
     properties_world.unregister()
     menus.unregister()
+    draw_callbacks.unregister()
