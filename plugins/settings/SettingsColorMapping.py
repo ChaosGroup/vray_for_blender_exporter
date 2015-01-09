@@ -142,6 +142,14 @@ PluginParams = (
         'skip' : True,
         'default' : False,
     },
+    {
+        'attr' : 'preview_use_scene_cm',
+        'name' : "Use For Preview",
+        'desc' : "Use current scene \"Color Mapping\" settings",
+        'type' : 'BOOL',
+        'skip' : True,
+        'default' : True,
+    },
 )
 
 PluginWidget = """
@@ -154,8 +162,10 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     import bpy
     from vb30.lib import ExportUtils
 
-    if bus['preview']:
+    current_scene_cm = bpy.context.scene.vray.SettingsColorMapping
+
+    if bus['preview'] and current_scene_cm.preview_use_scene_cm:
         # Use color mapping settings from current scene not from preview scene
-        propGroup = bpy.context.scene.vray.SettingsColorMapping
+        propGroup = current_scene_cm
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)

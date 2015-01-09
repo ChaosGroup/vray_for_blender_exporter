@@ -609,6 +609,7 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
 		sub.prop(cm, "clamp_level")
 
 		layout.prop(cm, 'sync_with_gamma', text="Sync With CM Gamma")
+		layout.prop(cm, 'preview_use_scene_cm')
 
 
 #### ##     ##    ###     ######   ########     ######     ###    ##     ## ########  ##       ######## ########
