@@ -72,6 +72,10 @@ def GetLightPluginName(lamp):
     return LampSubtypeToPlugin[getattr(lamp.vray, LampSubType[lamp.type])]
 
 
+def GetLightPropGroup(lamp):
+    return getattr(lamp.vray, GetLightPluginName(lamp))
+
+
 def GetAsList(value):
     l = []
     if type(value) is list:
