@@ -445,7 +445,7 @@ def TransferProperties(node, pluginID, oldPropGroup, skipAttrs={}):
                 inputSock.value = attrValue
 
         else:
-            setattr(propGroup, 'attrName', attrValue)
+            setattr(propGroup, attrName, attrValue)
 
 
 def _getBumpAmount(ma):
@@ -1336,12 +1336,9 @@ def ConvertMaterial(scene, ob, ma, textures):
 
         TransferProperties(baseBRDF, brdfType, oldPropGroup)
 
-        # Manual tweaks
-        if brdfType == 'BRDFVRayMtl':
-            baseBRDF.inputs['Fog Color'].value = VRayMaterial.BRDFVRayMtl.fog_color
-
         CreateTextureNodes(nt, baseBRDF, textures)
 
+        # Manual tweaks
         if brdfType == 'BRDFVRayMtl':
             if 'reflect' not in textures:
                 baseBRDF.inputs['Reflect'].value = oldPropGroup.reflect_color
