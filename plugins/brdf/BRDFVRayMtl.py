@@ -222,6 +222,7 @@ PluginParams = (
     },
     {
         'attr' : 'refract_ior',
+        'name' : "Refract IOR",
         'desc' : "The IOR for refractions",
         'type' : 'FLOAT_TEXTURE',
         'default' : 1.6,
