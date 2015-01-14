@@ -214,6 +214,15 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = True
     )
 
+    default_mapping = bpy.props.EnumProperty(
+        name = "Default Mapping",
+        description = "Defaul mapping type for procedural texture nodes without \"Mapping\" socket linked",
+        items = (
+            ('0', "Object", "Object mapping"),
+            ('1', "Box",    "Box projection"),
+        ),
+        default = '0'
+    )
 
     ########  ######## ##    ## ########  ######## ########      ######  ######## ######## ######## #### ##    ##  ######    ######
     ##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ##

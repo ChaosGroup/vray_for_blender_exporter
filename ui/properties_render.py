@@ -494,6 +494,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_alt_d_instances')
 		col.prop(VRayExporter, 'subsurf_to_osd')
 
+		layout.prop(VRayExporter, 'default_mapping')
+
 		split = layout.split()
 		col = split.column()
 		sub = col.row()
