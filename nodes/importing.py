@@ -654,6 +654,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
 
                         collapsedValue = CollapseToValue(connectedPlugin)
                         if collapsedValue is not None:
+                            attrSocket = n.inputs[attrSocketName]
                             attrSocket.value = FixValue(collapsedValue)
 
                         else:
