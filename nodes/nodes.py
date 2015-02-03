@@ -271,7 +271,7 @@ def VRayNodeInit(self, context):
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
-    AddDefaultInputsOutputs(self, vrayPlugin)
+    NodeUtils.AddDefaultInputsOutputs(self, vrayPlugin)
 
     if self.vray_type == 'TEXTURE':
         # Some plugins already have properly defined outputs
