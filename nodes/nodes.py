@@ -114,7 +114,7 @@ def GetCategories():
             'VRAY_TEXTURE',
             "Textures",
             items = [
-                nodeitems_utils.NodeItem("VRayNodeMetaImageTexture", label="Image Texture"),
+                nodeitems_utils.NodeItem("VRayNodeMetaImageTexture"),
             ] + BuildItemsList('TEXTURE'),
             icon  = 'TEXTURE'
         ),
