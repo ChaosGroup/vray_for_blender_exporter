@@ -115,16 +115,33 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
         )
 
         box = layout.box()
-        box.label("Mapping Settings:")
-        uvPluginDesc = PluginUtils.PLUGINS_ID['UVWGenMayaPlace2dTexture']
+        box.label("Texture Settings:")
+        texPluginDesc = PluginUtils.PLUGINS_ID['TexBitmap']
         classes.DrawPluginUI(
             context,
             box,
-            self.UVWGenMayaPlace2dTexture,
-            self.UVWGenMayaPlace2dTexture,
-            'UVWGenMayaPlace2dTexture',
-            uvPluginDesc
+            self,
+            self.TexBitmap,
+            'TexBitmap',
+            texPluginDesc
         )
+
+        box = layout.box()
+        box.label("Mapping Settings:")
+        box.row().prop(self, 'mapping_type', expand=True)
+        box.separator()
+        mappingPluginID = get_mapping_plugin_id(self)
+        if mappingPluginID:
+            mapPluginDesc = PluginUtils.PLUGINS_ID[mappingPluginID]
+
+            classes.DrawPluginUI(
+                context,
+                box,
+                self,
+                getattr(self, mappingPluginID),
+                mappingPluginID,
+                mapPluginDesc
+            )
 
 
 def GetRegClasses():
@@ -134,7 +151,11 @@ def GetRegClasses():
 
 
 def register():
-    for pluginID in {'BitmapBuffer', 'TexBitmap', 'UVWGenMayaPlace2dTexture', 'UVWGenProjection'}:
+    for pluginID in {'BitmapBuffer',
+                     'TexBitmap',
+                     'UVWGenMayaPlace2dTexture',
+                     'UVWGenObject',
+                     'UVWGenProjection'}:
         pluginDesc = PluginUtils.PLUGINS_ID[pluginID]
 
         PluginUtils.AddAttributes(pluginDesc, VRayNodeMetaImageTexture)
