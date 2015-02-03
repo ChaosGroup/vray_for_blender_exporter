@@ -1,5 +1,5 @@
 #
-# V-Ray/Blender
+# V-Ray For Blender
 #
 # http://chaosgroup.com
 #
@@ -22,40 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-__all__ = [ 'export', 'importing' ]
-
 
 def register():
-    from . import meta
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-
-    operators.register()
-
-    tree.register()
-    sockets.register()
-
-    specials.register()
-    meta.register()
-    nodes.register()
+    from . import image_texture
+    image_texture.register()
 
 
 def unregister():
-    from . import meta
-    from . import sockets
-    from . import specials
-    from . import nodes
-    from . import operators
-    from . import tree
-
-    meta.unregister()
-    nodes.unregister()
-    specials.unregister()
-
-    sockets.unregister()
-    tree.unregister()
-
-    operators.unregister()
+    from . import image_texture
+    image_texture.unregister()
