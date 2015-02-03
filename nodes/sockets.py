@@ -27,6 +27,13 @@ import bpy
 from vb30.debug import Debug
 
 
+def CheckLinkedSockets(node_sockets):
+    for sock in node_sockets:
+        if sock.is_linked:
+            return True
+    return False
+
+
 def AddInput(node, socketType, socketName, attrName=None, default=None):
     if socketName in node.inputs:
         return
