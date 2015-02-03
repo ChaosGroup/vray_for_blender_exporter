@@ -29,8 +29,8 @@ import TexCommonParams
 
 TYPE = 'TEXTURE'
 ID   = 'TexBitmap'
-NAME = 'Image Texture'
-DESC = ""
+NAME = 'Bitmap Texture'
+DESC = "Image file texture"
 
 PluginParams = list(TexCommonParams.PluginParams)
 

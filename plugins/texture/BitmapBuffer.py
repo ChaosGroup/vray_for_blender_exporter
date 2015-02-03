@@ -30,8 +30,8 @@ from vb30 import debug
 
 TYPE = 'TEXTURE'
 ID   = 'BitmapBuffer'
-NAME = 'Image File'
-DESC = "Image File"
+NAME = 'Bitmap Buffer'
+DESC = "Image file buffer"
 
 PluginParams = (
     {
@@ -243,7 +243,9 @@ def nodeDraw(context, layout, node):
         return
 
     layout.template_ID(node.texture, 'image', open='image.open')
-    layout.label("Double click to show in editor and on object's active UV Map")
+    col = layout.column(align=True)
+    col.label("Double click to show in editor")
+    col.label("and on object's active UV Map.")
 
 
 def gui(context, layout, BitmapBuffer, node):
