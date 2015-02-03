@@ -33,7 +33,7 @@ from .. import sockets as SocketUtils
 
 class VRayNodeMetaImageTexture(bpy.types.Node):
     bl_idname = 'VRayNodeMetaImageTexture'
-    bl_label  = 'Image Texture'
+    bl_label  = 'Image File Texture'
     bl_icon   = 'TEXTURE'
 
     vray_type   = bpy.props.StringProperty(default='TEXTURE')
