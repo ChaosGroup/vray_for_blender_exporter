@@ -31,6 +31,31 @@ from .. import utils as NodeUtils
 from .. import sockets as SocketUtils
 
 
+def get_mapping_plugin_id(self):
+    if self.mapping_type == 'UV':
+        return 'UVWGenMayaPlace2dTexture'
+    elif self.mapping_type == 'PROJECTION':
+        return 'UVWGenProjection'
+    elif self.mapping_type == 'OBJECT':
+        return 'UVWGenObject'
+    return None
+
+
+def add_mapping_input_sockets(self):
+    mappingPluginID = get_mapping_plugin_id(self)
+    if mappingPluginID:
+        NodeUtils.AddDefaultInputs(self, PluginUtils.PLUGINS_ID[mappingPluginID])
+
+
+def mapping_type_update(self, context):
+    if SocketUtils.CheckLinkedSockets(self.inputs):
+        print("Linked input sockets found! Please, unlink sockets and repeat the action.")
+    else:
+        for sock in self.inputs:
+            self.inputs.remove(sock)
+        add_mapping_input_sockets(self)
+
+
 class VRayNodeMetaImageTexture(bpy.types.Node):
     bl_idname = 'VRayNodeMetaImageTexture'
     bl_label  = 'Image File Texture'
@@ -45,14 +70,18 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
             ('PROJECTION', "Projection", "Generated mapping"),
             ('OBJECT',     "Object",     "Object mapping"),
         ),
+        update = mapping_type_update,
         default = 'UV'
     )
 
+
     def init(self, context):
         NodeUtils.CreateBitmapTexture(self)
-        NodeUtils.AddDefaultInputs(self, PluginUtils.PLUGINS_ID['UVWGenMayaPlace2dTexture'])
-        NodeUtils.AddDefaultOutputs(self, PluginUtils.PLUGINS_ID['TexBitmap'])
+
+        add_mapping_input_sockets(self)
+
         SocketUtils.AddOutput(self, 'VRaySocketColor', "Output")
+        NodeUtils.AddDefaultOutputs(self, PluginUtils.PLUGINS_ID['TexBitmap'])
 
 
     def draw_buttons(self, context, layout):
@@ -65,14 +94,7 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
         box.label("Mapping Settings:")
         box.row().prop(self, 'mapping_type', expand=True)
 
-        mappingPluginID = None
-        if self.mapping_type == 'UV':
-            mappingPluginID = 'UVWGenMayaPlace2dTexture'
-        elif self.mapping_type == 'PROJECTION':
-            mappingPluginID = 'UVWGenProjection'
-        elif self.mapping_type == 'OBJECT':
-            mappingPluginID = 'UVWGenObject'
-
+        mappingPluginID = get_mapping_plugin_id(self)
         if mappingPluginID:
             mapPluginDesc = PluginUtils.PLUGINS_ID[mappingPluginID]
             if hasattr(mapPluginDesc, 'nodeDraw'):
