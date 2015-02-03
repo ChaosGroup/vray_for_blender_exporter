@@ -22,7 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
 from vb30.lib import LibUtils
+from vb30.lib import AttributeUtils
+
+from . import sockets as SocketUtils
 
 
 def GetNodeName(ntree, node):
@@ -70,3 +75,72 @@ def CopyRamp(ramp, rampCopy):
         el = rampCopy.elements[i]
         el.color    = rampElement.color
         el.position = rampElement.position
+
+
+def CreateFakeName():
+    return ".VRayFakeTexture@%s" % LibUtils.GetUUID()
+
+
+def CreateFakeTextureAttribute(cls):
+    setattr(cls, 'texture', bpy.props.PointerProperty(
+        name = "Texture",
+        type = bpy.types.Texture,
+        description = "Fake texture for internal usage",
+    ))
+
+    # NOTE: We will store associated texture name for further possible
+    # refactor to find the texture used by this datablock simply by name
+    # and restore pointers
+    #
+    setattr(cls, 'texture_name', bpy.props.StringProperty(
+        name = "Texture Name",
+        options = {'HIDDEN'},
+        description = "Associated texture name",
+        default = 'NONE'
+    ))
+
+
+def CreateRampTexture(self):
+    texName = CreateFakeName()
+
+    self.texture = bpy.data.textures.new(texName, 'NONE')
+    self.texture.use_color_ramp = True
+    self.texture.use_fake_user  = True
+    self.texture_name = texName
+
+
+def CreateBitmapTexture(self):
+    texName = CreateFakeName()
+
+    self.texture = bpy.data.textures.new(texName, 'IMAGE')
+    self.texture.use_fake_user  = True
+    self.texture_name = texName
+
+
+def AddDefaultInputs(self, vrayPlugin):
+    for attr in vrayPlugin.PluginParams:
+        attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+
+        attr_options = attr.get('option', {})
+
+        if attr['type'] in AttributeUtils.InputTypes:
+            TypeToSocket = AttributeUtils.TypeToSocket
+            if self.vray_type == 'LIGHT' or 'LINKED_ONLY' in attr_options:
+                TypeToSocket = AttributeUtils.TypeToSocketNoValue
+
+            SocketUtils.AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
+
+
+def AddDefaultOutputs(self, vrayPlugin):
+    for attr in vrayPlugin.PluginParams:
+        attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+
+        attr_options = attr.get('option', {})
+
+        if attr['type'] in AttributeUtils.OutputTypes:
+            SocketUtils.AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
+
+
+def AddDefaultInputsOutputs(self, vrayPlugin):
+    AddDefaultInputs(self, vrayPlugin)
+    AddDefaultOutputs(self, vrayPlugin)

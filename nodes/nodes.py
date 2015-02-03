@@ -113,7 +113,9 @@ def GetCategories():
         VRayNodeCategory(
             'VRAY_TEXTURE',
             "Textures",
-            items = BuildItemsList('TEXTURE'),
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeMetaImageTexture", label="Image Texture"),
+            ] + BuildItemsList('TEXTURE'),
             icon  = 'TEXTURE'
         ),
         VRayNodeCategory(
@@ -216,26 +218,6 @@ def GetCategories():
 ##    ## ##       ##     ## ##    ## ##    ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
  ######  ######## ##     ##  ######   ######     ##     ## ########    ##    ##     ##  #######  ########   ######
 
-def CreateFakeName():
-    return ".VRayFakeTexture@%s" % LibUtils.GetUUID()
-
-
-def CreateRampTexture(self):
-    texName = CreateFakeName()
-
-    self.texture = bpy.data.textures.new(texName, 'NONE')
-    self.texture.use_color_ramp = True
-    self.texture.use_fake_user  = True
-    self.texture_name = texName
-
-
-def CreateBitmapTexture(self):
-    texName = CreateFakeName()
-
-    self.texture = bpy.data.textures.new(texName, 'IMAGE')
-    self.texture.use_fake_user  = True
-    self.texture_name = texName
-
 
 def VRayNodeDraw(self, context, layout):
     if not hasattr(self, 'vray_type') or not hasattr(self, 'vray_plugin'):
@@ -288,22 +270,8 @@ def VRayNodeInit(self, context):
         return
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
-    bpyType    = getattr(bpy.types, self.vray_plugin)
 
-    for attr in vrayPlugin.PluginParams:
-        attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
-
-        attr_options = attr.get('option', {})
-
-        if attr['type'] in AttributeUtils.InputTypes:
-            TypeToSocket = AttributeUtils.TypeToSocket
-            if self.vray_type == 'LIGHT' or 'LINKED_ONLY' in attr_options:
-                TypeToSocket = AttributeUtils.TypeToSocketNoValue
-
-            AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
-
-        if attr['type'] in AttributeUtils.OutputTypes:
-            AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
+    AddDefaultInputsOutputs(self, vrayPlugin)
 
     if self.vray_type == 'TEXTURE':
         # Some plugins already have properly defined outputs
@@ -327,25 +295,25 @@ def VRayNodeInit(self, context):
     elif self.vray_type == 'RENDERCHANNEL':
         AddOutput(self, 'VRaySocketRenderChannelOutput', "Channel")
 
+    if self.vray_plugin == 'LightMesh':
+        AddOutput(self, 'VRaySocketGeom', "Light")
+
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
         if not self.texture:
-            CreateRampTexture(self)
-
-    elif self.vray_plugin == 'LightMesh':
-        AddOutput(self, 'VRaySocketGeom', "Light")
+            NodeUtils.CreateRampTexture(self)
 
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         if not self.texture:
-            CreateBitmapTexture(self)
+            NodeUtils.CreateBitmapTexture(self)
 
 
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
-        CreateRampTexture(self)
+        NodeUtils.CreateRampTexture(self)
         NodeUtils.CopyRamp(node.texture.color_ramp, self.texture.color_ramp)
 
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
-        CreateBitmapTexture(self)
+        NodeUtils.CreateBitmapTexture(self)
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
@@ -439,22 +407,7 @@ def LoadDynamicNodes():
             )
 
             if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
-                setattr(DynNodeClass, 'texture', bpy.props.PointerProperty(
-                    name = "Texture",
-                    type = bpy.types.Texture,
-                    description = "Fake texture for internal usage",
-                ))
-
-                # NOTE: We will store associated texture name for further possible
-                # refactor to find the texture used by this datablock simply by name
-                # and restore pointers
-                #
-                setattr(DynNodeClass, 'texture_name', bpy.props.StringProperty(
-                    name = "Texture Name",
-                    options = {'HIDDEN'},
-                    description = "Associated texture name",
-                    default = 'NONE'
-                ))
+                NodeUtils.CreateFakeTextureAttribute(DynNodeClass)
 
             bpy.utils.register_class(DynNodeClass)
 

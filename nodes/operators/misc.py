@@ -178,7 +178,7 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
         if not (node and hasattr(node, 'texture') and node.texture):
             return {'CANCELLED'}
 
-        if node.bl_idname in {'VRayNodeBitmapBuffer'}:
+        if node.bl_idname in {'VRayNodeBitmapBuffer', 'VRayNodeMetaImageTexture'}:
             for area in context.screen.areas:
                 if area.type == 'IMAGE_EDITOR':
                     for space in area.spaces:
