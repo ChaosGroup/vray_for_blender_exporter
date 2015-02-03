@@ -266,5 +266,6 @@ def nodeDraw(context, layout, UVWGenMayaPlace2dTexture):
 
     split = layout.split()
     col = split.column(align=True)
-    col.prop(UVWGenMayaPlace2dTexture, 'mirror_u')
-    col.prop(UVWGenMayaPlace2dTexture, 'mirror_v')
+    row = col.row()
+    row.prop(UVWGenMayaPlace2dTexture, 'mirror_u')
+    row.prop(UVWGenMayaPlace2dTexture, 'mirror_v')
