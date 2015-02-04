@@ -45,6 +45,8 @@ def add_mapping_input_sockets(self):
     mappingPluginID = get_mapping_plugin_id(self)
     if mappingPluginID:
         NodeUtils.AddDefaultInputs(self, PluginUtils.PLUGINS_ID[mappingPluginID])
+    else:
+        SocketUtils.AddInput(self, 'VRaySocketCoords', "Mapping")
 
 
 def mapping_type_update(self, context):
@@ -69,6 +71,8 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
             ('UV',         "UV",         "UV mapping"),
             ('PROJECTION', "Projection", "Generated mapping"),
             ('OBJECT',     "Object",     "Object mapping"),
+            # Leave this always last
+            ('MANUAL',     "Manual",     "Attach mapping node manually"),
         ),
         update = mapping_type_update,
         default = 'UV'
