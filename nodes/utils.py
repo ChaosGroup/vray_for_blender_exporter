@@ -81,8 +81,8 @@ def CreateFakeName():
     return ".VRayFakeTexture@%s" % LibUtils.GetUUID()
 
 
-def CreateFakeTextureAttribute(cls):
-    setattr(cls, 'texture', bpy.props.PointerProperty(
+def CreateFakeTextureAttribute(cls, attrName='texture'):
+    setattr(cls, attrName, bpy.props.PointerProperty(
         name = "Texture",
         type = bpy.types.Texture,
         description = "Fake texture for internal usage",
@@ -92,7 +92,7 @@ def CreateFakeTextureAttribute(cls):
     # refactor to find the texture used by this datablock simply by name
     # and restore pointers
     #
-    setattr(cls, 'texture_name', bpy.props.StringProperty(
+    setattr(cls, '%s_name' % attrName, bpy.props.StringProperty(
         name = "Texture Name",
         options = {'HIDDEN'},
         description = "Associated texture name",
@@ -100,21 +100,25 @@ def CreateFakeTextureAttribute(cls):
     ))
 
 
-def CreateRampTexture(self):
+def CreateRampTexture(self, attrName='texture'):
     texName = CreateFakeName()
 
-    self.texture = bpy.data.textures.new(texName, 'NONE')
-    self.texture.use_color_ramp = True
-    self.texture.use_fake_user  = True
-    self.texture_name = texName
+    tex = bpy.data.textures.new(texName, 'NONE')
+    tex.use_color_ramp = True
+    tex.use_fake_user = True
+
+    setattr(self, attrName, tex)
+    setattr(self, '%s_name' % attrName, texName)
 
 
-def CreateBitmapTexture(self):
+def CreateBitmapTexture(self, c='texture'):
     texName = CreateFakeName()
 
-    self.texture = bpy.data.textures.new(texName, 'IMAGE')
-    self.texture.use_fake_user  = True
-    self.texture_name = texName
+    tex = bpy.data.textures.new(texName, 'IMAGE')
+    tex.use_fake_user = True
+
+    setattr(self, attrName, tex)
+    setattr(self, '%s_name' % attrName, texName)
 
 
 def AddDefaultInputs(self, vrayPlugin):

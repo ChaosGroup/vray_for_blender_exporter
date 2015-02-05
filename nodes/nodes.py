@@ -306,6 +306,12 @@ def VRayNodeInit(self, context):
         if not self.texture:
             NodeUtils.CreateBitmapTexture(self)
 
+    elif self.bl_idname == 'VRayNodeTexSoftbox':
+        NodeUtils.CreateRampTexture(self, 'ramp_grad_vert')
+        NodeUtils.CreateRampTexture(self, 'ramp_grad_horiz')
+        NodeUtils.CreateRampTexture(self, 'ramp_grad_rad')
+        NodeUtils.CreateRampTexture(self, 'ramp_frame')
+
 
 def VRayNodeCopy(self, node):
     if self.vray_plugin in {'TexGradRamp', 'TexRemap'}:
@@ -408,6 +414,12 @@ def LoadDynamicNodes():
 
             if pluginName in  {'TexGradRamp', 'TexRemap', 'BitmapBuffer'}:
                 NodeUtils.CreateFakeTextureAttribute(DynNodeClass)
+
+            if pluginName == 'TexSoftbox':
+                NodeUtils.CreateFakeTextureAttribute(DynNodeClass, 'ramp_grad_vert')
+                NodeUtils.CreateFakeTextureAttribute(DynNodeClass, 'ramp_grad_horiz')
+                NodeUtils.CreateFakeTextureAttribute(DynNodeClass, 'ramp_grad_rad')
+                NodeUtils.CreateFakeTextureAttribute(DynNodeClass, 'ramp_frame')
 
             bpy.utils.register_class(DynNodeClass)
 
