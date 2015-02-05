@@ -154,7 +154,7 @@ def nodeDraw(context, layout, VolumeVRayToon):
     layout.prop(VolumeVRayToon, 'excludeType', text="List")
 
 
-def gui(context, layout, VolumeVRayToon):
+def gui(context, layout, VolumeVRayToon, node):
     split = layout.split()
     col = split.column()
     col.prop(VolumeVRayToon, 'normalThreshold')

@@ -114,12 +114,7 @@ def DrawPluginUIAuto(context, layout, propGroup, pluginID):
 
 def DrawPluginUI(context, layout, propGroupHolder, propGroup, pluginType, vrayPlugin):
     if hasattr(vrayPlugin, 'gui'):
-        # XXX: The only way to use images by now
-        # Remove after Blender fix
-        if pluginType in {'BitmapBuffer', 'TexGradRamp', 'TexRemap'}:
-            vrayPlugin.gui(context, layout, propGroup, propGroupHolder)
-        else:
-            vrayPlugin.gui(context, layout, propGroup)
+        vrayPlugin.gui(context, layout, propGroup, propGroupHolder)
     if hasattr(vrayPlugin, 'PluginWidget'):
         DrawUtils.RenderTemplate(context, layout, propGroup, vrayPlugin)
     else:

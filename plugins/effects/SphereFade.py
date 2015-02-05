@@ -83,7 +83,7 @@ def nodeDraw(context, layout, propGroup):
     row.operator('vray.node_list_socket_del', icon="ZOOMOUT", text="")
 
 
-def gui(context, layout, SphereFade):
+def gui(context, layout, SphereFade, node):
     split = layout.split()
     col = split.column()
     col.prop(SphereFade, 'empty_color')

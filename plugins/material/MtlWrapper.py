@@ -208,7 +208,7 @@ PluginParams = (
 )
 
 
-def gui(context, layout, MtlWrapper):
+def gui(context, layout, MtlWrapper, node):
     contextType = GetContextType(context)
     regionWidth = GetRegionWidthFromContext(context)
 
