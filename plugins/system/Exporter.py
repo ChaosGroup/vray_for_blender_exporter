@@ -218,8 +218,9 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Default Mapping",
         description = "Defaul mapping type for procedural texture nodes without \"Mapping\" socket linked",
         items = (
-            ('0', "Object", "Object mapping"),
-            ('1', "Box",    "Box projection"),
+            ('0', "Object",  "Object mapping"),
+            ('1', "Box",     "Box projection"),
+            ('2', "Channel", "Default channel"),
         ),
         default = '0'
     )
