@@ -485,6 +485,9 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.label(text="Options:")
+		layout.prop(VRayExporter, 'data_format')
+
+		layout.separator()
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'use_smoke')
@@ -494,8 +497,10 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_alt_d_instances')
 		col.prop(VRayExporter, 'subsurf_to_osd')
 
-		layout.prop(VRayExporter, 'default_mapping')
+		layout.separator()
+		layout.prop(VRayExporter, 'default_mapping', text="Def. Mapping")
 
+		layout.separator()
 		split = layout.split()
 		col = split.column()
 		sub = col.row()

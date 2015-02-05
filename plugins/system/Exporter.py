@@ -421,6 +421,17 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
+    data_format = bpy.props.EnumProperty(
+        name = "Export Format",
+        description = "Export data format",
+        items = (
+            ('ZIP',   "ZIP",        "Compress list data"),
+            ('HEX',   "HEX",        "Export list data in hex format"),
+            # ('ASCII', "Plain Text", "Export as plain text"),
+        ),
+        default = 'ZIP'
+    )
+
 
 def GetRegClasses():
     return (
