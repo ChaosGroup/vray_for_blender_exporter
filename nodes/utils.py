@@ -111,7 +111,7 @@ def CreateRampTexture(self, attrName='texture'):
     setattr(self, '%s_name' % attrName, texName)
 
 
-def CreateBitmapTexture(self, c='texture'):
+def CreateBitmapTexture(self, attrName='texture'):
     texName = CreateFakeName()
 
     tex = bpy.data.textures.new(texName, 'IMAGE')
