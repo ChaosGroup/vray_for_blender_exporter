@@ -38,6 +38,8 @@ def get_mapping_plugin_id(self):
         return 'UVWGenProjection'
     elif self.mapping_type == 'OBJECT':
         return 'UVWGenObject'
+    elif self.mapping_type == 'ENVIRONMENT':
+        return 'UVWGenEnvironment'
     return None
 
 
@@ -71,6 +73,7 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
             ('UV',         "UV",         "UV mapping"),
             ('PROJECTION', "Projection", "Generated mapping"),
             ('OBJECT',     "Object",     "Object mapping"),
+            ('ENVIRONMENT',"Environment","Environment mapping"),
             # Leave this always last
             ('MANUAL',     "Manual",     "Attach mapping node manually"),
         ),
@@ -159,6 +162,7 @@ def register():
                      'TexBitmap',
                      'UVWGenMayaPlace2dTexture',
                      'UVWGenObject',
+                     'UVWGenEnvironment',
                      'UVWGenProjection'}:
         pluginDesc = PluginUtils.PLUGINS_ID[pluginID]
 
