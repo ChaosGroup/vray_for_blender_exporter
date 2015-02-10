@@ -69,8 +69,16 @@ class VRaySocketTexLayered(bpy.types.NodeSocket):
         default = '1'
     )
 
+    blend = bpy.props.FloatProperty(
+        name = "Blend",
+        description = "Texture blend amount",
+        default = 1.0
+    )
+
     def draw(self, context, layout, node, text):
-        layout.prop(self, 'value', text="")
+        row = layout.row(align=True)
+        row.prop(self, 'value', text="")
+        row.prop(self, 'blend', text="")
 
     def draw_color(self, context, node):
         return (1.000, 0.819, 0.119, 1.000)
