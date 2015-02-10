@@ -148,3 +148,22 @@ def AddDefaultOutputs(self, vrayPlugin):
 def AddDefaultInputsOutputs(self, vrayPlugin):
     AddDefaultInputs(self, vrayPlugin)
     AddDefaultOutputs(self, vrayPlugin)
+
+
+def CreateNode(ntree, nodeType, nodeName=None, unique=True):
+    nodeLabel = nodeName
+
+    if nodeName is None:
+        nodeName = LibUtils.GetUUID()
+
+    if nodeName in ntree.nodes:
+        if not unique:
+            return ntree.nodes[nodeName]
+        else:
+            nodeName = LibUtils.GetUUID() + nodeName
+
+    node = ntree.nodes.new(nodeType)
+    node.name  = nodeName
+    node.label = nodeLabel
+
+    return node
