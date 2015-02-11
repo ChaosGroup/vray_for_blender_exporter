@@ -55,7 +55,6 @@ ColorChannelNamesMenu = (
     ('124', "Background", ""),
     ('125', "Alpha", ""),
     ('126', "Color", ""),
-    ('127', "Wire Color", ""),
     ('128', "Matte Shadow", ""),
     ('129', "Total Lightning", ""),
     ('130', "Raw Total Lightning", ""),
