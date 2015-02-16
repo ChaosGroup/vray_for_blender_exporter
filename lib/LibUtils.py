@@ -149,6 +149,7 @@ def GetFormatVariablesDict(values):
         (r'%T_h', "Hour (12-hour clock)", t.strftime("%I%p")),
         (r'%T_M', "Minute", str(t.minute)),
         (r'%T_S', "Second", str(t.second)),
+        (r'%T_d', "Day", str(t.day)),
         (r'%T_m', "Month (abbreviated name)", t.strftime("%b")),
         (r'%T_y', "Year", str(t.year)),
     )
