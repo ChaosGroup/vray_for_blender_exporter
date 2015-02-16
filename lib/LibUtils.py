@@ -22,6 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import datetime
 import struct
 import uuid
 
@@ -137,12 +138,35 @@ def FormatValue(t, subtype=None, quotes=False, ascii=False):
 # This funciton will substitue special format sequences with
 # the correspondent values
 #
+def GetFormatVariablesDict(values):
+    t = datetime.datetime.now()
+
+    return (
+        (r'%C',   "Camera Name", CleanString(values.get('camera_name', "")) if values else "CameraName"),
+        (r'%S',   "Scene Name", CleanString(values.get('scene_name', "")) if values else "SceneName"),
+        (r'%F',   "Blendfile Name", CleanString(values.get('blend_name', "render"), stripSigns=False) if values else "FileName"),
+        (r'%T_H', "Hour (24-hour clock)", str(t.hour)),
+        (r'%T_h', "Hour (12-hour clock)", t.strftime("%I%p")),
+        (r'%T_M', "Minute", str(t.minute)),
+        (r'%T_S', "Second", str(t.second)),
+        (r'%T_m', "Month (abbreviated name)", t.strftime("%b")),
+        (r'%T_y', "Year", str(t.year)),
+    )
+
+
+def FormatVariablesDesc():
+    FormatVariablesDict = GetFormatVariablesDict(None)
+
+    format_vars = ["%s - %s" % (v[0], v[1]) for v in FormatVariablesDict]
+
+    format_help = "Variables: "
+    format_help += "; ".join(format_vars)
+
+    return format_help
+
+
 def FormatName(s, values):
-    substDict = {
-        r'%C' : CleanString(values.get('camera_name', "")),
-        r'%S' : CleanString(values.get('scene_name', "")),
-        r'%F' : CleanString(values.get('blend_name', "render"), stripSigns=False),
-    }
-    for key in substDict:
-        s = s.replace(key, substDict[key])
+    FormatVariablesDict = GetFormatVariablesDict(values)
+    for v in FormatVariablesDict:
+        s = s.replace(v[0], v[2])
     return s

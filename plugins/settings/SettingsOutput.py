@@ -55,13 +55,13 @@ PluginParams = (
     },
     {
         'attr' : 'img_file',
-        'desc' : "Render file name (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
+        'desc' : "Render file name (%s)" % LibUtils.FormatVariablesDesc(),
         'type' : 'STRING',
         'default' : "%F_%C",
     },
     {
         'attr' : 'img_dir',
-        'desc' : "Render file directory (Variables: %C - camera name; %S - scene name; %F - blendfile name)",
+        'desc' : "Render file directory (%s)" % LibUtils.FormatVariablesDesc(),
         'type' : 'STRING',
         'subtype' : 'DIR_PATH',
         'default' : "//render/",
