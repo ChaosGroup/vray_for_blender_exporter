@@ -40,10 +40,7 @@ def GetPluginsDescDir():
 def LoadPluginDesc():
     descDirpath = pathlib.Path(GetPluginsDescDir())
 
-    for filePath in descDirpath.iterdir():
-        if not filePath.name.endswith('.json'):
-            continue
-
+    for filePath in descDirpath.glob("*/*.json"):
         pluginDesc = json.loads(filePath.open().read())
 
         pluginID     = pluginDesc.get('ID')
