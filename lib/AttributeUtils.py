@@ -43,6 +43,10 @@ SkippedTypes = {
     'LIST',
     'INT_LIST',
     'FLOAT_LIST',
+    'VECTOR_LIST',
+    'COLOR_LIST',
+    'MAPCHANNEL_LIST',
+    'TRANSFORM_LIST',
     'TRANSFORM_TEXTURE',
 }
 
