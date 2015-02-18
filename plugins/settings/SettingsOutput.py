@@ -57,7 +57,7 @@ PluginParams = (
         'attr' : 'img_file',
         'desc' : "Render file name (%s)" % LibUtils.FormatVariablesDesc(),
         'type' : 'STRING',
-        'default' : "%F_%C",
+        'default' : "$F_$C",
     },
     {
         'attr' : 'img_dir',
