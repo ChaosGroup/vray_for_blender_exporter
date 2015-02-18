@@ -22,6 +22,7 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import re
 import datetime
 import struct
 import uuid
@@ -139,19 +140,10 @@ def FormatValue(t, subtype=None, quotes=False, ascii=False):
 # the correspondent values
 #
 def GetFormatVariablesDict(values):
-    t = datetime.datetime.now()
-
     return (
-        (r'%C',   "Camera Name", CleanString(values.get('camera_name', "")) if values else "CameraName"),
-        (r'%S',   "Scene Name", CleanString(values.get('scene_name', "")) if values else "SceneName"),
-        (r'%F',   "Blendfile Name", CleanString(values.get('blend_name', "render"), stripSigns=False) if values else "FileName"),
-        (r'%T_H', "Hour (24-hour clock)", str(t.hour)),
-        (r'%T_h', "Hour (12-hour clock)", t.strftime("%I%p")),
-        (r'%T_M', "Minute", t.strftime("%M")),
-        (r'%T_S', "Second", t.strftime("%S")),
-        (r'%T_d', "Day", str(t.day)),
-        (r'%T_m', "Month (abbreviated name)", t.strftime("%b")),
-        (r'%T_y', "Year", str(t.year)),
+        (r'$C', "Camera Name", CleanString(values.get('camera_name', "")) if values else "CameraName"),
+        (r'$S', "Scene Name", CleanString(values.get('scene_name', "")) if values else "SceneName"),
+        (r'$F', "Blendfile Name", CleanString(values.get('blend_name', "render"), stripSigns=False) if values else "FileName"),
     )
 
 
@@ -162,6 +154,7 @@ def FormatVariablesDesc():
 
     format_help = "Variables: "
     format_help += "; ".join(format_vars)
+    format_help += "; Any time variable (see Python's \"datetime\" module help)"
 
     return format_help
 
@@ -170,4 +163,12 @@ def FormatName(s, values):
     FormatVariablesDict = GetFormatVariablesDict(values)
     for v in FormatVariablesDict:
         s = s.replace(v[0], v[2])
+
+    t = datetime.datetime.now()
+    for v in re.findall("%\w", s):
+        try:
+            s = s.replace(v, t.strftime(v))
+        except:
+            pass
+
     return s
