@@ -44,6 +44,7 @@ from vb30 import keymap
 from vb30 import ui
 from vb30 import events
 from vb30 import compat
+from vb30 import utils
 
 
 def register():
@@ -57,7 +58,7 @@ def register():
     keymap.register()
     events.register()
     preset.register()
-
+    utils.register()
     compat.register()
 
     # NOTE: Register engine at the end,
@@ -78,7 +79,7 @@ def unregister():
     ui.unregister()
     keymap.unregister()
     preset.unregister()
-
+    utils.unregister()
     compat.unregister()
 
     engine.unregister()
