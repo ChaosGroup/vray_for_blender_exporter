@@ -46,6 +46,10 @@ def ExportObjects(bus, exportNodes=True, exportMeshes=None):
     hideFromView = BlenderUtils.GetCameraHideLists(camera)
     _vray_for_blender.setHideFromView(bus['exporter'], hideFromView)
 
+    # In DR we export to a single file so we must force mesh re-export
+    if VRayScene.VRayDR.on:
+        exportMeshes = True
+
     # Finally export stuff
     exportGeometry = exportMeshes if exportMeshes is not None else VRayExporter.auto_meshes
 
