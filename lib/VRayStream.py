@@ -153,12 +153,6 @@ class VRayFilePaths:
             # Blend-file name without extension
             blendfile_name = PathUtils.GetFilename(bpy.data.filepath, ext=False) if bpy.data.filepath else "default"
 
-            substrDict = {
-                'blend_name'  : blendfile_name,
-                'camera_name' : scene.camera.name,
-                'scene_name'  : scene.name,
-            }
-
             # Default export directory is system's %TMP%
             default_dir = PathUtils.GetTmpDirectory()
 
@@ -199,7 +193,7 @@ class VRayFilePaths:
                         img_dir = default_dir
 
                     output_filepath = bpy.path.abspath(img_dir)
-                    output_filepath = LibUtils.FormatName(output_filepath, substrDict)
+                    output_filepath = LibUtils.FormatName(output_filepath)
 
                 # Render output dir
                 self.imgDirectory = PathUtils.CreateDirectory(output_filepath)
@@ -210,7 +204,7 @@ class VRayFilePaths:
                 file_name = "render"
                 if SettingsOutput.img_file:
                     file_name = SettingsOutput.img_file
-                    file_name = LibUtils.FormatName(file_name, substrDict)
+                    file_name = LibUtils.FormatName(file_name)
                     load_file_name = file_name
                 self.imgFilename = "%s.%s" % (file_name, ext)
 
