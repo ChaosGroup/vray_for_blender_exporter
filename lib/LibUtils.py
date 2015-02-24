@@ -32,6 +32,8 @@ import mathutils
 
 import _vray_for_blender
 
+from . import PathUtils
+
 
 LampSubType = {
     'AREA'  :  None,
@@ -139,30 +141,48 @@ def FormatValue(t, subtype=None, quotes=False, ascii=False):
 # This funciton will substitue special format sequences with
 # the correspondent values
 #
-def GetFormatVariablesDict(values):
-    return (
-        (r'$C', "Camera Name", CleanString(values.get('camera_name', "")) if values else "CameraName"),
-        (r'$S', "Scene Name", CleanString(values.get('scene_name', "")) if values else "SceneName"),
-        (r'$F', "Blendfile Name", CleanString(values.get('blend_name', "render"), stripSigns=False) if values else "FileName"),
-    )
+def GetDefFormatDict():
+    blendFileName = None
+    sceneName     = None
+    cameraName    = None
+
+    # During registration bpy.data is not yet ready
+    if type(bpy.data) is bpy.types.BlendData:
+        scene = bpy.context.scene
+
+        # Blend-file name without extension
+        blendFileName = PathUtils.GetFilename(bpy.data.filepath, ext=False) if bpy.data.filepath else "default"
+
+        blendFileName = CleanString(blendFileName, stripSigns=False)
+        sceneName     = CleanString(scene.name)
+        cameraName    = CleanString(scene.camera.name) if scene.camera else None
+
+    formatDict = {
+        '$C': ("Camera Name", cameraName if cameraName else "CameraName"),
+        '$S': ("Scene Name", sceneName),
+        '$F': ("Blendfile Name", blendFileName),
+    }
+
+    return formatDict
 
 
 def FormatVariablesDesc():
-    FormatVariablesDict = GetFormatVariablesDict(None)
+    FormatVariablesDict = GetDefFormatDict()
 
-    format_vars = ["%s - %s" % (v[0], v[1]) for v in FormatVariablesDict]
+    format_vars = ["%s - %s" % (v, FormatVariablesDict[v][0]) for v in FormatVariablesDict]
 
-    format_help = "Variables: "
-    format_help += "; ".join(format_vars)
+    format_help = "; ".join(format_vars)
     format_help += "; Any time variable (see Python's \"datetime\" module help)"
 
     return format_help
 
 
-def FormatName(s, values):
-    FormatVariablesDict = GetFormatVariablesDict(values)
-    for v in FormatVariablesDict:
-        s = s.replace(v[0], v[2])
+def FormatName(s, formatDict=None):
+    if not formatDict:
+        formatDict = GetDefFormatDict()
+
+    for v in formatDict:
+        s = s.replace(v, formatDict[v][1])
 
     t = datetime.datetime.now()
     for v in re.findall("%\w", s):
@@ -172,3 +192,11 @@ def FormatName(s, values):
             pass
 
     return s
+
+
+def GetPropGroup(parentID, propGroupPath):
+    path = propGroupPath.split(".")
+    propGroup = parentID
+    for p in path:
+        propGroup = getattr(propGroup, p)
+    return propGroup
