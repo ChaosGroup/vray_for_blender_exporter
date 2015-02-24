@@ -31,40 +31,7 @@ from vb30.lib import LibUtils
 from vb30.ui  import classes
 from vb30     import plugins, preset
 
-
-PanelGroups = {
-	'0' : (
-		'VRAY_RP_render',
-		'VRAY_RP_bake',
-		'VRAY_RP_RTEngine',
-		'VRAY_RP_SettingsCaustics',
-		'VRAY_RP_VRayStereoscopicSettings',
-		'VRAY_RP_dimensions',
-		'VRAY_RP_output',
-	),
-	'1' : (
-		'VRAY_RP_Globals',
-		'VRAY_RP_displace',
-		'VRAY_RP_cm',
-	),
-	'2' : (
-		'VRAY_RP_gi',
-		'VRAY_RP_GI_sh',
-		'VRAY_RP_GI_im',
-		'VRAY_RP_GI_bf',
-		'VRAY_RP_GI_lc',
-	),
-	'3' : (
-		'VRAY_RP_aa',
-		'VRAY_RP_dmc',
-	),
-	'4' : (
-		'VRAY_RP_exporter',
-		'VRAY_RP_dr',
-		'VRAY_RP_SettingsSystem',
-		'VRAY_RP_SettingsVFB',
-	),
-}
+from vb30.ui.classes import PanelGroups
 
 
 def GetRenderIcon(vrayExporter):
@@ -94,13 +61,15 @@ class VRayRenderPanelContext(classes.VRayRenderPanel):
 		rd     = scene.render
 
 		VRayScene = scene.vray
+		VRayBake     = VRayScene.BakeView
 		VRayExporter = VRayScene.Exporter
 
-		split = layout.split()
-		row = split.row(align=True)
-		row.operator('render.render', text="Render", icon=GetRenderIcon(VRayExporter))
-		row.prop(rd, "use_lock_interface", text="")
-		layout.separator()
+		if not VRayBake.use:
+			split = layout.split()
+			row = split.row(align=True)
+			row.operator('render.render', text="Render", icon=GetRenderIcon(VRayExporter))
+			row.prop(rd, "use_lock_interface", text="")
+			layout.separator()
 
 		layout.prop(VRayExporter, 'ui_render_context', expand=True)
 		layout.separator()
@@ -1234,11 +1203,6 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
 
-	@classmethod
-	def poll_custom(cls, context):
-		VRayBake = context.scene.vray.BakeView
-		return VRayBake.use
-
 	def draw(self, context):
 		wide_ui = context.region.width > classes.narrowui
 
@@ -1474,7 +1438,6 @@ def GetRegClasses():
 		VRAY_RP_GI_lc,
 		VRAY_RP_displace,
 		VRAY_RP_dr,
-		VRAY_RP_bake,
 		VRAY_RP_SettingsVFB,
 		VRAY_RP_SettingsSystem,
 		VRAY_RP_VRayStereoscopicSettings,
