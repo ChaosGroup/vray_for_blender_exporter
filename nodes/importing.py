@@ -35,6 +35,8 @@ from vb30.lib     import PathUtils
 
 from vb30 import debug
 
+from . import utils as NodeUtils
+
 from .sockets import AddInput, AddOutput
 from .utils   import GetConnectedNode
 
@@ -122,7 +124,7 @@ def createNodeTexLayered(ntree, n, vrsceneDict, pluginDesc):
     textures    = pluginDesc['Attributes']['textures']
     blend_modes = pluginDesc['Attributes']['blend_modes']
 
-    texLayeredNode = ntree.nodes.new('VRayNodeTexLayered')
+    texLayeredNode = NodeUtils.CreateNode(ntree, 'VRayNodeTexLayered', pluginDesc['Name'])
 
     for i,tex in enumerate(reversed(textures)):
         humanIndex = i + 1
@@ -223,7 +225,7 @@ def createNodeBRDFLayered(ntree, n, vrsceneDict, pluginDesc):
     brdfs   = pluginDesc['Attributes'].get('brdfs')
     weights = pluginDesc['Attributes'].get('weights')
 
-    brdfLayeredNode = ntree.nodes.new('VRayNodeBRDFLayered')
+    brdfLayeredNode = NodeUtils.CreateNode(ntree, 'VRayNodeBRDFLayered', pluginDesc['Name'])
 
     if brdfs:
         for i,brdf in enumerate(brdfs):
@@ -300,7 +302,7 @@ def LoadImage(imageFilepath, importDir, bitmapTexture, makeRelative=False):
 def createNodeBitmapBuffer(ntree, n, vrsceneDict, pluginDesc):
     pluginModule = PLUGINS_ID.get('BitmapBuffer')
 
-    bitmatBuffer = ntree.nodes.new('VRayNodeBitmapBuffer')
+    bitmatBuffer = NodeUtils.CreateNode(ntree, 'VRayNodeBitmapBuffer', pluginDesc['Name'])
     propGroup = bitmatBuffer.BitmapBuffer
 
     bitmapTexture = bitmatBuffer.texture
@@ -441,7 +443,7 @@ def FillRamp(vrsceneDict, ramp, colors, positions):
 
 def createNodeTexGradRamp(ntree, prevNode, vrsceneDict, pluginDesc):
     pluginModule = PLUGINS_ID.get('TexGradRamp')
-    texGradRamp  = ntree.nodes.new('VRayNodeTexGradRamp')
+    texGradRamp  = NodeUtils.CreateNode(ntree, 'VRayNodeTexGradRamp', pluginDesc['Name'])
     propGroup    = texGradRamp.TexGradRamp
 
     attributes   = pluginDesc['Attributes']
@@ -457,7 +459,7 @@ def createNodeTexGradRamp(ntree, prevNode, vrsceneDict, pluginDesc):
 
 def createNodeTexRemap(ntree, prevNode, vrsceneDict, pluginDesc):
     pluginModule = PLUGINS_ID.get('TexRemap')
-    texTexRemap  = ntree.nodes.new('VRayNodeTexRemap')
+    texTexRemap  = NodeUtils.CreateNode(ntree, 'VRayNodeTexRemap', pluginDesc['Name'])
     propGroup    = texTexRemap.TexRemap
 
     attributes   = pluginDesc['Attributes']
@@ -511,8 +513,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
             debug.PrintError("Plugin '%s' is not yet supported! This shouldn't happen! Please, report this!" % pluginID)
             return None
 
-        n = ntree.nodes.new('VRayNode%s' % pluginID)
-        n.name = pluginName
+        n = NodeUtils.CreateNode(ntree, 'VRayNode%s' % pluginID, pluginName)
 
         # This property group holds all plugin settings
         #
@@ -544,7 +545,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                 continue
 
             if attrDesc['type'] == 'MATRIX':
-                mNode = ntree.nodes.new('VRayNodeMatrix')
+                mNode = NodeUtils.CreateNode(ntree, 'VRayNodeMatrix')
 
                 m = mathutils.Matrix()
                 m.identity()
@@ -576,7 +577,7 @@ def createNode(ntree, prevNode, vrsceneDict, pluginDesc):
                 continue
 
             if attrDesc['type'] == 'TRANSFORM':
-                tmNode = ntree.nodes.new('VRayNodeTransform')
+                tmNode = NodeUtils.CreateNode(ntree, 'VRayNodeTransform')
 
                 m = mathutils.Matrix()
                 m.identity()
