@@ -85,7 +85,7 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row.prop(VRayExporter, 'op_switch_slots_switch_to', text="")
 
 		box.separator()
-		box_row = box.row()
+		box_row = box.column()
 		box_row.operator("vray.restore_ntree_textures", text="Restore Textures", icon='FILE_REFRESH')
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
 
@@ -206,8 +206,8 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 				row.prop(item, 'frame_end')
 			layout.separator()
 
-		classes.DrawListWidget(layout, VRayScene, 'ExportSets', 'VRayListUse',
-			"Export Set", renderExportSetItem)
+		classes.DrawListWidget(layout, context.scene, 'vray.ExportSets', 'VRayListUse',
+			"Export Set", itemRenderFunc=renderExportSetItem)
 
 		layout.separator()
 		expLayout = layout.box().column()

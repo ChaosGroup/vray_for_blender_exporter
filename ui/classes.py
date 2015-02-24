@@ -24,6 +24,7 @@
 
 import bpy
 
+from vb30.lib import LibUtils
 from vb30.lib import DrawUtils
 from vb30     import plugins
 
@@ -41,6 +42,40 @@ VRayEngines = {
     'VRAY_RENDER_PREVIEW',
     'VRAY_RENDER_RT',
     'VRAY_RENDERER'
+}
+
+PanelGroups = {
+    '0' : (
+        'VRAY_RP_render',
+        'VRayPanelBake',
+        'VRAY_RP_RTEngine',
+        'VRAY_RP_SettingsCaustics',
+        'VRAY_RP_VRayStereoscopicSettings',
+        'VRAY_RP_dimensions',
+        'VRAY_RP_output',
+    ),
+    '1' : (
+        'VRAY_RP_Globals',
+        'VRAY_RP_displace',
+        'VRAY_RP_cm',
+    ),
+    '2' : (
+        'VRAY_RP_gi',
+        'VRAY_RP_GI_sh',
+        'VRAY_RP_GI_im',
+        'VRAY_RP_GI_bf',
+        'VRAY_RP_GI_lc',
+    ),
+    '3' : (
+        'VRAY_RP_aa',
+        'VRAY_RP_dmc',
+    ),
+    '4' : (
+        'VRAY_RP_exporter',
+        'VRAY_RP_dr',
+        'VRAY_RP_SettingsSystem',
+        'VRAY_RP_SettingsVFB',
+    ),
 }
 
 narrowui = 200
@@ -171,8 +206,8 @@ def NtreeWidget(layout, propGroup, label, addOp, addOpContext):
         row.operator(addOp, icon='ZOOMIN', text="")
 
 
-def DrawListWidget(layout, parentPropGroup, listAttrName, listType, defItemName, itemRenderFunc):
-    listPropGroup = getattr(parentPropGroup, listAttrName)
+def DrawListWidget(layout, parentID, propGroupPath, listType, defItemName, itemAddOp='DEFAULT', itemRenderFunc=None):
+    listPropGroup = LibUtils.GetPropGroup(parentID, propGroupPath)
 
     row = layout.row()
     row.template_list(listType, "",
@@ -183,23 +218,32 @@ def DrawListWidget(layout, parentPropGroup, listAttrName, listType, defItemName,
     col = row.column()
     sub = col.row()
     subsub = sub.column(align=True)
-    op = subsub.operator('vray.ui_list_item_add', icon="ZOOMIN", text="")
-    op.list_attr     = listAttrName
-    op.def_item_name = defItemName
+    if itemAddOp in {'DEFAULT'}:
+        op = subsub.operator('vray.ui_list_item_add', icon="ZOOMIN", text="")
+        op.list_parent   = parentID
+        op.list_attr     = propGroupPath
+        op.def_item_name = defItemName
+    else:
+        subsub.operator(itemAddOp, icon="ZOOMIN", text="")
+
     sub= col.row()
     op = subsub.operator('vray.ui_list_item_del', icon="ZOOMOUT", text="")
-    op.list_attr = listAttrName
+    op.list_parent = parentID
+    op.list_attr   = propGroupPath
     subsub = sub.column(align=True)
     op = subsub.operator("vray.ui_list_item_up",   icon='MOVE_UP_VEC',   text="")
-    op.list_attr = listAttrName
+    op.list_parent = parentID
+    op.list_attr   = propGroupPath
     op = subsub.operator("vray.ui_list_item_down", icon='MOVE_DOWN_VEC', text="")
-    op.list_attr = listAttrName
+    op.list_parent = parentID
+    op.list_attr   = propGroupPath
 
-    if listPropGroup.list_item_selected >= 0 and len(listPropGroup.list_items) > 0:
-        listItem = listPropGroup.list_items[listPropGroup.list_item_selected]
+    if itemRenderFunc:
+        if listPropGroup.list_item_selected >= 0 and len(listPropGroup.list_items) > 0:
+            listItem = listPropGroup.list_items[listPropGroup.list_item_selected]
 
-        layout.separator()
-        itemRenderFunc(layout, listItem)
+            layout.separator()
+            itemRenderFunc(layout, listItem)
 
 
 ########     ###     ######  ########     ######  ##          ###     ######   ######  ########  ######
@@ -343,6 +387,7 @@ class VRayWorldPanel(VRayPanel):
 ######## ####  ######     ##
 
 class VRayOpListBase:
+    list_parent   = bpy.props.PointerProperty(type=bpy.types.ID)
     list_attr     = bpy.props.StringProperty()
     def_item_name = bpy.props.StringProperty()
 
@@ -353,10 +398,10 @@ class VRayOpListItemNew(VRayOpListBase, bpy.types.Operator):
     bl_description = "Add list item"
 
     def execute(self, context):
-        VRayScene = context.scene.vray
-        listAttr = getattr(VRayScene, self.list_attr)
+        listAttr = LibUtils.GetPropGroup(self.list_parent, self.list_attr)
         listAttr.list_items.add()
         listAttr.list_items[-1].name = self.def_item_name
+        listAttr.list_item_selected = len(listAttr.list_items) - 1
         return {'FINISHED'}
 
 
@@ -366,8 +411,7 @@ class VRayOpListItemDel(VRayOpListBase, bpy.types.Operator):
     bl_description = "Delete list item"
 
     def execute(self, context):
-        VRayScene = context.scene.vray
-        listAttr = getattr(VRayScene, self.list_attr)
+        listAttr = LibUtils.GetPropGroup(self.list_parent, self.list_attr)
 
         if listAttr.list_item_selected >= 0:
            listAttr.list_items.remove(listAttr.list_item_selected)
@@ -388,9 +432,7 @@ class VRayOpListItemUp(VRayOpListBase, bpy.types.Operator):
     bl_description = "Move list item up"
 
     def execute(self, context):
-        VRayScene = context.scene.vray
-        listAttr = getattr(VRayScene, self.list_attr)
-
+        listAttr = LibUtils.GetPropGroup(self.list_parent, self.list_attr)
         if listAttr.list_item_selected <= 0:
             return {'CANCELLED'}
 
@@ -407,9 +449,7 @@ class VRayOpListItemDown(VRayOpListBase, bpy.types.Operator):
     bl_description = "Move list item down"
 
     def execute(self, context):
-        VRayScene = context.scene.vray
-        listAttr = getattr(VRayScene, self.list_attr)
-
+        listAttr = LibUtils.GetPropGroup(self.list_parent, self.list_attr)
         if listAttr.list_item_selected < 0:
             return {'CANCELLED'}
         if listAttr.list_item_selected >= len(listAttr.list_items)-1:
