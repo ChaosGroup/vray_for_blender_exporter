@@ -321,6 +321,10 @@ def VRayNodeCopy(self, node):
     elif self.bl_idname == 'VRayNodeBitmapBuffer':
         NodeUtils.CreateBitmapTexture(self)
 
+        # Set the same image file
+        if node.texture.image:
+            self.texture.image = node.texture.image
+
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
     propGroup     = getattr(node, self.vray_plugin)

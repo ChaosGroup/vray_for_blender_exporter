@@ -91,6 +91,14 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
         NodeUtils.AddDefaultOutputs(self, PluginUtils.PLUGINS_ID['TexBitmap'])
 
 
+    def copy(self, node):
+        NodeUtils.CreateBitmapTexture(self)
+
+        # Set the same image file
+        if node.texture.image:
+            self.texture.image = node.texture.image
+
+
     def draw_buttons(self, context, layout):
         box = layout.box()
         box.label("Image Settings:")
