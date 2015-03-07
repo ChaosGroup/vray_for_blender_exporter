@@ -246,6 +246,7 @@ class VRayProcess:
                 sceneFileName = bpy.path.display_name_from_filepath(baseFile)
                 runExt        = "bat" if sys.platform == 'win32' else "sh"
                 cmdSep        = "^" if sys.platform == 'win32' else "\\"
+                allTheRest    = "%%*" if sys.platform == 'win32' else "$*"
 
                 runFilename = "render_%s.%s" % (sceneFileName, runExt)
                 runFilepath = os.path.join(os.path.dirname(baseFile), runFilename)
@@ -259,6 +260,7 @@ class VRayProcess:
 
                 with open(runFilepath, 'w') as f:
                     f.write(fileCmdLine)
+                    f.write(" %s\n%s" % (cmdSep, allTheRest))
                     f.write("\n")
 
                 if sys.platform not in {'win32'}:
