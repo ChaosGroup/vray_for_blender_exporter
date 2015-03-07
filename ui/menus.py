@@ -47,6 +47,10 @@ class VRayMenuActiveCamera(bpy.types.Menu):
         self.layout.operator('vray.flip_resolution', icon='FILE_REFRESH')
         self.layout.separator()
 
+        if context.active_object and context.active_object.type in {'CAMERA'}:
+            self.layout.operator('vray.set_camera', text="Selected", icon='CAMERA_DATA').camera = context.active_object
+            self.layout.separator()
+
         haveCameras = False
         for ob in context.scene.objects:
             if not ob.type in {'CAMERA'}:
