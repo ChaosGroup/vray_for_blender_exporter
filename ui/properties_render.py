@@ -73,6 +73,10 @@ class VRayRenderPanelContext(classes.VRayRenderPanel):
 
 		layout.prop(VRayExporter, 'ui_render_context', expand=True)
 		layout.separator()
+		if VRayExporter.ui_render_context == '2':
+			layout.prop(VRayScene.SettingsGI, 'on', text="Enable Global Illumination")
+		elif VRayExporter.ui_render_context == '4':
+			layout.prop(VRayScene.VRayDR, 'on', text="Enable Distributed Rendering")
 
 
 ########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
@@ -243,10 +247,8 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		split= layout.split()
 		col= split.column()
 		col.label(text="Modules:")
-		col.prop(VRayScene.SettingsGI, 'on', text="Global Illumination")
 		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
 		col.prop(VRayExporter, 'use_displace')
-		col.prop(VRayScene.VRayDR, 'on')
 		col.prop(VRayScene.BakeView, 'use', text="Bake")
 		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
 		col.prop(VRayScene.VRayStereoscopicSettings, 'use')
