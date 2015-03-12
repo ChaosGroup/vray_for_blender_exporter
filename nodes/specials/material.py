@@ -115,8 +115,8 @@ class VRayNodeMtlMulti(bpy.types.Node):
         AddInput(self, 'VRaySocketIntNoValue',   "Int Gen.",   'mtlid_gen',       1)
         AddInput(self, 'VRaySocketFloatNoValue', "Float Gen.", 'mtlid_gen_float', 1.0)
 
-        for i in range(3):
-            humanIndex = i + 1
+        for i in range(2):
+            humanIndex = i
             texSockName = "Material %i" % humanIndex
             AddInput(self, 'VRaySocketMtlMulti', texSockName, default=humanIndex)
 
