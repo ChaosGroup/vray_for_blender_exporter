@@ -370,6 +370,12 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
             drSharePath = "",
         )
 
+        _vray_for_blender.initAnimation(
+            True,
+            frameStart,
+            1
+        )
+
         _vray_for_blender.setFrame(frameStart)
 
         for ob in selection:
