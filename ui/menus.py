@@ -24,6 +24,16 @@
 
 import bpy
 
+class VRayOpSetView(bpy.types.Operator):
+    bl_idname = "vray.set_view"
+    bl_label = "Set View"
+
+    view_type = bpy.props.StringProperty(default='TOP')
+
+    def execute(self, context):
+        bpy.ops.view3d.viewnumpad(type=self.view_type, align_active=False)
+        return {'FINISHED'}
+
 
 class VRayOpSetCamera(bpy.types.Operator):
     bl_idname = "vray.set_camera"
@@ -45,6 +55,11 @@ class VRayMenuActiveCamera(bpy.types.Menu):
 
     def draw(self, context):
         self.layout.operator('vray.flip_resolution', icon='FILE_REFRESH')
+        self.layout.separator()
+
+        self.layout.operator('vray.set_view', text="Top").view_type='TOP'
+        self.layout.operator('vray.set_view', text="Left").view_type='LEFT'
+        self.layout.operator('vray.set_view', text="Front").view_type='FRONT'
         self.layout.separator()
 
         if context.active_object and context.active_object.type in {'CAMERA'}:
@@ -76,6 +91,7 @@ class VRayMenuActiveCamera(bpy.types.Menu):
 def GetRegClasses():
     return (
         VRayOpSetCamera,
+        VRayOpSetView,
         VRayMenuActiveCamera,
     )
 
