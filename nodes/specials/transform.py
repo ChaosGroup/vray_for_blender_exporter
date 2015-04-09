@@ -64,6 +64,12 @@ class VRayNodeTransform(bpy.types.Node):
         default     = (1.0, 1.0, 1.0)
     )
 
+    invert = bpy.props.BoolProperty(
+        name        = "Invert",
+        description = "Invert transform",
+        default     = False
+    )
+
     def _getConnectedObject(self):
         inputSocket = self.inputs['Object']
         if inputSocket.is_linked:
@@ -79,6 +85,7 @@ class VRayNodeTransform(bpy.types.Node):
 
     def draw_buttons(self, context, layout):
         inputSocket = self.inputs['Object']
+        layout.prop(self, 'invert')
         if not inputSocket.is_linked:
             layout.prop(self, 'rotate')
             layout.prop(self, 'offset')
@@ -100,6 +107,10 @@ class VRayNodeTransform(bpy.types.Node):
                    mathutils.Matrix.Scale(self.scale[2], 4, (0.0, 0.0, 1.0))
 
         tm = mat_offs * mat_rot * mat_sca
+
+        if self.invert:
+            # TODO
+            pass
 
         return tm
 
@@ -130,10 +141,17 @@ class VRayNodeMatrix(bpy.types.Node):
         default     = (1.0, 1.0, 1.0)
     )
 
+    invert = bpy.props.BoolProperty(
+        name        = "Invert",
+        description = "Invert matrix",
+        default     = False
+    )
+
     def init(self, context):
         AddOutput(self, 'VRaySocketTransform', "Matrix")
 
     def draw_buttons(self, context, layout):
+        layout.prop(self, 'invert')
         layout.prop(self, 'rotate')
         layout.prop(self, 'scale')
 
@@ -147,6 +165,10 @@ class VRayNodeMatrix(bpy.types.Node):
                    mathutils.Matrix.Scale(self.scale[2], 3, (0.0, 0.0, 1.0))
 
         tm = mat_rot * mat_sca
+
+        if self.invert:
+            # TODO
+            pass
 
         return tm
 
