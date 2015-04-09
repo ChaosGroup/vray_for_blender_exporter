@@ -74,7 +74,7 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node):
 
     GeomStaticMesh = bpy.props.PointerProperty(
         name = "GeomStaticMesh",
-        type =  bpy.types.GeomStaticMesh,
+        type =  bpy.types.VRayGeomStaticMesh,
         description = "GeomStaticMesh settings"
     )
 
