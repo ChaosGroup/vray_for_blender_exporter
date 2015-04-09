@@ -382,13 +382,15 @@ def LoadDynamicNodes():
             if pluginName in {'BRDFLayered', 'TexLayered'}:
                 continue
 
+            typeName = "VRay%s" % pluginName
+
             # Plugin was not registered by the plugin manager,
             # skip it then.
-            if not hasattr(bpy.types, pluginName):
+            if not hasattr(bpy.types, typeName):
                 continue
 
             vrayPlugin  = PLUGINS[pluginType][pluginName]
-            textureBpyType = getattr(bpy.types, pluginName)
+            textureBpyType = getattr(bpy.types, typeName)
             textureMenuType = getattr(vrayPlugin, 'MENU', None)
 
             DynNodeClassName = "VRayNode%s" % (pluginName)

@@ -1237,7 +1237,7 @@ def register():
     ))
 
 
-    setattr(bpy.types.BRDFVRayMtl, 'refract_color', FloatVectorProperty(
+    setattr(bpy.types.VRayBRDFVRayMtl, 'refract_color', FloatVectorProperty(
         name= "Refraction color",
         description= "Refraction color",
         subtype= 'COLOR',
@@ -1248,7 +1248,7 @@ def register():
         default= (0.0,0.0,0.0)
     ))
 
-    setattr(bpy.types.BRDFVRayMtl, 'reflect_color', FloatVectorProperty(
+    setattr(bpy.types.VRayBRDFVRayMtl, 'reflect_color', FloatVectorProperty(
         name= "Reflection color",
         description= "Reflection color",
         subtype= 'COLOR',
@@ -1259,7 +1259,7 @@ def register():
         default= (0.0,0.0,0.0)
     ))
 
-    setattr(bpy.types.BRDFVRayMtl, 'translucency_color', FloatVectorProperty(
+    setattr(bpy.types.VRayBRDFVRayMtl, 'translucency_color', FloatVectorProperty(
         name= "Translucency_color",
         description= "Filter color for the translucency effect",
         subtype= 'COLOR',
@@ -1271,19 +1271,19 @@ def register():
     ))
 
     setattr(bpy.types.VRayObject, 'MtlRenderStats', PointerProperty(
-        type = bpy.types.MtlRenderStats,
+        type = bpy.types.VRayMtlRenderStats,
     ))
 
     setattr(bpy.types.VRayObject, 'MtlWrapper', PointerProperty(
-        type = bpy.types.MtlWrapper,
+        type = bpy.types.VRayMtlWrapper,
     ))
 
     setattr(bpy.types.VRayObject, 'MtlRenderStats', PointerProperty(
-        type = bpy.types.MtlRenderStats,
+        type = bpy.types.VRayMtlRenderStats,
     ))
 
     setattr(bpy.types.VRayObject, 'MtlOverride', PointerProperty(
-        type = bpy.types.MtlOverride,
+        type = bpy.types.VRayMtlOverride,
     ))
 
     setattr(bpy.types.VRayTexture, 'texture_coords', EnumProperty(
@@ -1354,7 +1354,7 @@ def register():
     ))
 
 
-    setattr(bpy.types.Mtl2Sided, 'control', EnumProperty(
+    setattr(bpy.types.VRayMtl2Sided, 'control', EnumProperty(
         name= "Control",
         description= "Translucency type",
         items= (
@@ -1365,7 +1365,7 @@ def register():
         default= 'SLIDER'
     ))
 
-    setattr(bpy.types.Mtl2Sided, 'translucency_color', FloatVectorProperty(
+    setattr(bpy.types.VRayMtl2Sided, 'translucency_color', FloatVectorProperty(
         name= "Translucency color",
         description= "Translucency between front and back",
         subtype= 'COLOR',
@@ -1376,7 +1376,7 @@ def register():
         default= (0.5,0.5,0.5)
     ))
 
-    setattr(bpy.types.Mtl2Sided, 'translucency_slider', FloatProperty(
+    setattr(bpy.types.VRayMtl2Sided, 'translucency_slider', FloatProperty(
         name= "Translucency",
         description= "Translucency between front and back",
         min= 0.0,

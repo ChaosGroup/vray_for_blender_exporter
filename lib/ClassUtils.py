@@ -29,14 +29,14 @@ from vb30.debug import Debug, PrintDict
 from . import AttributeUtils
 
 
-def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
-    if not propGroupName:
-        propGroupName = pluginModule.ID
+def RegisterPluginPropertyGroup(dataPointer, pluginModule):
+    propGroupName = pluginModule.ID
+    typeName      = "VRay%s" % propGroupName
 
     DynPropGroup = None
 
-    if hasattr(bpy.types, propGroupName):
-        DynPropGroup = getattr(bpy.types, propGroupName)
+    if hasattr(bpy.types, typeName):
+        DynPropGroup = getattr(bpy.types, typeName)
 
     else:
         classMembers = dict()
@@ -49,7 +49,7 @@ def RegisterPluginPropertyGroup(dataPointer, pluginModule, propGroupName=None):
                 AttributeUtils.GenerateAttribute(classMembers, param)
 
         DynPropGroup = type(
-            propGroupName,
+            typeName,
             (bpy.types.PropertyGroup,),
             classMembers
         )
