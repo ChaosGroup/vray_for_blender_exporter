@@ -258,6 +258,9 @@ class VRayNodeTexMulti(bpy.types.Node):
         items = (
             ('0', "Face Material ID", ""),
             ('1', "Object ID",        ""),
+            ('2', "Random By Node Handle", ""),
+            ('3', "Random By Render ID", ""),
+            ('4', "Random By Node Name", ""),
         ),
         default = '0'
     )
