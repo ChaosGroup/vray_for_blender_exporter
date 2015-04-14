@@ -73,30 +73,53 @@ def Draw(context, layout, propGroup, PluginParams):
         DrawAttr(layout, propGroup, attrDesc['attr'])
 
 
+def EvalUiState(item, propGroup):
+    cond_prop   = item.get('prop')
+    cond_invert = item.get('invert', False)
+    cond_type   = item.get('condition', 'equal')
+    cond_value  = item.get('value', True)
+
+    prop_value = getattr(propGroup, cond_prop)
+
+    if type(cond_value) is int:
+        prop_value = int(prop_value)
+    elif type(cond_value) is bool:
+        prop_value = bool(prop_value)
+
+    cond = True
+    if cond_type == 'equal':
+        cond = prop_value == cond_value
+    elif cond_type == 'greater':
+        cond = prop_value > cond_value
+    elif cond_type == 'less':
+        cond = prop_value < cond_value
+    elif cond_type == 'greater_or_equal':
+        cond = prop_value >= cond_value
+    elif cond_type == 'less_or_equal':
+        cond = prop_value <= cond_value
+
+    if cond_invert:
+        cond = not cond
+
+    # print("%s == %s:%s => %s" % (
+    #     cond_prop,
+    #     cond_value,
+    #     prop_value,
+    #     cond
+    # ))
+
+    return cond
+
+
 def ShowContainer(layout, show, propGroup):
     if show is not None:
-        showProp      = show['prop']
-        showCondition = show.get('condition', True)
-        showConditionInv = show.get('condition_invert', False)
-        doShow = getattr(propGroup, showProp) == showCondition
-        if showConditionInv:
-            doShow = not doShow
-        if not doShow:
-            return False
+        return EvalUiState(show, propGroup)
     return True
 
 
 def SetActive(layout, active, propGroup):
     if active is not None:
-        prop      = active['prop']
-        condition = active.get('condition', True)
-        condInvert = active.get('condition_invert', False)
-
-        isActive = getattr(propGroup, prop) == condition
-        if condInvert:
-            isActive = not isActive
-
-        layout.active = isActive
+        layout.active = EvalUiState(active, propGroup)
 
 
 def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, active=None):
@@ -134,6 +157,7 @@ def RenderContainer(context, layout, item, align=False, label=None, propGroup=No
             container = layout.row(align=align)
     elif item == 'SEPARATOR':
         if label is not None:
+            layout.separator()
             layout.label(text="%s:" % label)
         else:
             layout.separator()
