@@ -327,7 +327,7 @@ PluginWidget = """
                 "align" : true,
                 "active" : {
                     "prop" : "anim_override",
-                    "condition" : true
+                    "value" : true
                 },
                 "attrs" : [
                     { "name" : "anim_speed", "label" : "Speed" },

@@ -244,7 +244,7 @@ PluginWidget = """
     {   "layout" : "SEPARATOR" },
 
     {   "layout" : "COLUMN",
-        "show" : { "prop" : "type", "condition" : "0" },
+        "show" : { "prop" : "type", "value" : 0 },
         "attrs" : [
             { "name" : "fixed_subdivs" },
             { "name" : "fixed_per_pixel_filtering" }
@@ -252,7 +252,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "show" : { "prop" : "type", "condition" : "1" },
+        "show" : { "prop" : "type", "value" : 1 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
@@ -272,11 +272,11 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "show" : { "prop" : "type", "condition" : "1" },
+        "show" : { "prop" : "type", "value" : 1 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "attrs" : [
-                    { "name" : "dmc_threshold", "active" : { "prop" : "use_dmc_treshhold", "condition" : false }}
+                    { "name" : "dmc_threshold", "active" : { "prop" : "use_dmc_treshhold", "value" : false }}
                 ]
             },
             {   "layout" : "COLUMN",
@@ -288,7 +288,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "show" : { "prop" : "type", "condition" : "2" },
+        "show" : { "prop" : "type", "value" : 2 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,

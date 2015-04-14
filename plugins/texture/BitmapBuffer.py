@@ -192,7 +192,7 @@ PluginWidget = """
                 "name" : "gamma",
                 "active" : {
                     "prop" : "color_space",
-                    "condition" : "1"
+                    "value" : 1
                 }
             },
             { "name" : "interpolation" },
@@ -201,8 +201,8 @@ PluginWidget = """
                 "name" : "filter_blur",
                 "active" : {
                     "prop" : "filter_type",
-                    "condition" : "0",
-                    "condition_invert" : true
+                    "value" : 0,
+                    "invert" : true
                 }
             }
         ]

@@ -115,7 +115,7 @@ PluginWidget = """
     {   "layout" : "SEPARATOR" },
 
     {   "layout" : "SPLIT",
-        "active" : { "prop" : "mode", "condition" : "0" },
+        "active" : { "prop" : "mode", "value" : 0 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
@@ -137,7 +137,7 @@ PluginWidget = """
 
     {   "layout" : "COLUMN",
         "attrs" : [
-            { "name" : "file", "active" : { "prop" : "mode", "condition" : "1" } }
+            { "name" : "file", "active" : { "prop" : "mode", "value" : 1 } }
         ]
     },
 

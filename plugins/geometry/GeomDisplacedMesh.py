@@ -243,7 +243,7 @@ PluginWidget = """
     },
 
     {   "layout" : "SPLIT",
-        "active" : { "prop" : "use_globals", "condition" : 0 },
+        "active" : { "prop" : "use_globals", "value" : 0 },
         "splits" : [
             {   "layout" : "COLUMN",
                 "align" : true,
