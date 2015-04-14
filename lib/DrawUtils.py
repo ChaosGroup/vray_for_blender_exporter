@@ -75,7 +75,6 @@ def Draw(context, layout, propGroup, PluginParams):
 
 def EvalUiState(item, propGroup):
     cond_prop   = item.get('prop')
-    cond_invert = item.get('invert', False)
     cond_type   = item.get('condition', 'equal')
     cond_value  = item.get('value', True)
 
@@ -89,6 +88,8 @@ def EvalUiState(item, propGroup):
     cond = True
     if cond_type == 'equal':
         cond = prop_value == cond_value
+    elif cond_type == 'not_equal':
+        cond = prop_value != cond_value
     elif cond_type == 'greater':
         cond = prop_value > cond_value
     elif cond_type == 'less':
@@ -97,9 +98,6 @@ def EvalUiState(item, propGroup):
         cond = prop_value >= cond_value
     elif cond_type == 'less_or_equal':
         cond = prop_value <= cond_value
-
-    if cond_invert:
-        cond = not cond
 
     # print("%s == %s:%s => %s" % (
     #     cond_prop,

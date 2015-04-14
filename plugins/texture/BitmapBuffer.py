@@ -202,7 +202,7 @@ PluginWidget = """
                 "active" : {
                     "prop" : "filter_type",
                     "value" : 0,
-                    "invert" : true
+                    "condition" : "not_equal"
                 }
             }
         ]
