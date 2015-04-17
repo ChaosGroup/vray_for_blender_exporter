@@ -165,6 +165,10 @@ def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in SkippedTypes:
         return
 
+    # TODO: Widget attributes
+    if attrDesc['type'].startswith('WIDGET_'):
+        return
+
     attrArgs = {
         'attr'        : attrDesc['attr'],
         'name'        : attrDesc.get('name', GetNameFromAttr(attrDesc['attr'])),
