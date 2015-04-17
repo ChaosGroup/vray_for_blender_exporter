@@ -107,8 +107,8 @@ class VRayRendererRT(VRayRendererBase):
     def view_update(self, context):
         self.debug("VRayRendererRT::view_update()")
         if not self.exporter:
-            self.exporter = _vray_for_blender_rt.init(self.as_pointer(),
-                bpy.context.user_preferences.as_pointer(),
+            self.exporter = _vray_for_blender_rt.init(context.as_pointer(),
+                self.as_pointer(),
                 context.blend_data.as_pointer(),
                 context.scene.as_pointer(),
                 context.region.as_pointer(),
