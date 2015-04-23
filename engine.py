@@ -101,9 +101,6 @@ class VRayRendererRT(VRayRendererBase):
         self.debug("VRayRendererRT::render()")
         super(VRayRendererRT, self).render(scene)
 
-    def bake(self, scene, obj, pass_type, pixel_array, num_pixels, depth, result):
-        self.debug("VRayRendererRT::bake()")
-
     def view_update(self, context):
         self.debug("VRayRendererRT::view_update()")
         if not self.exporter:
