@@ -40,7 +40,10 @@ class VRayPanelWorldPreview(classes.VRayWorldPanel):
         self.layout.template_preview(context.world)
 
 
-class VRAY_WP_context_world(classes.VRayWorldPanel):
+class VRAY_WP_context_world(classes.VRayPanel):
+    bl_space_type  = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context     = 'world'
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
 
@@ -56,20 +59,21 @@ class VRAY_WP_context_world(classes.VRayWorldPanel):
         elif world:
             layout.template_ID(space, "pin_id")
 
-        VRayWorld = context.world.vray
+        if context.world:
+            VRayWorld = context.world.vray
 
-        layout.separator()
-        layout.prop(VRayWorld, 'global_light_level', slider=True)
+            layout.separator()
+            layout.prop(VRayWorld, 'global_light_level', slider=True)
 
-        classes.NtreeWidget(layout, VRayWorld, "World Tree", "vray.add_nodetree_world", 'WORLD')
+            classes.NtreeWidget(layout, VRayWorld, "World Tree", "vray.add_nodetree_world", 'WORLD')
 
-        if not classes.TreeHasNodes(VRayWorld.ntree):
-            return
+            if not classes.TreeHasNodes(VRayWorld.ntree):
+                return
 
-        activeNode = VRayWorld.ntree.nodes[-1]
+            activeNode = VRayWorld.ntree.nodes[-1]
 
-        layout.separator()
-        classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
+            layout.separator()
+            classes.DrawNodePanel(context, self.layout, activeNode, PLUGINS)
 
 
 def GetRegClasses():
