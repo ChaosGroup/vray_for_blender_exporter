@@ -482,11 +482,12 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.label(text="V-Ray Frame Buffer:")
 		split = layout.split()
 		col = split.column()
-		col.prop(VRayExporter, 'display', text="Display")
+		col.prop(VRayExporter, 'display', text="Show VFB")
+		col.prop(VRayExporter, 'display_vfb_in_batch', text="Show VFB In Batch")
 		col.prop(VRayExporter, 'display_srgb', text="sRGB")
 		if wide_ui:
 			col = split.column()
-		col.prop(VRayExporter, 'autoclose')
+		col.prop(VRayExporter, 'autoclose', text="Close On Stop")
 
 		layout.prop(SettingsOutput, 'frame_stamp_enabled', text="Frame Stamp")
 		if SettingsOutput.frame_stamp_enabled:

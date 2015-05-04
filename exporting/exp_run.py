@@ -116,7 +116,8 @@ def Run(bus):
     if bpy.app.background or VRayExporter.wait:
         p.setWaitExit(True)
         if bpy.app.background:
-            p.setDisplayVFB(False) # Disable VFB
+            if not VRayExporter.display_vfb_in_batch:
+                p.setDisplayVFB(False) # Disable VFB
             p.setAutoclose(True)   # Exit on render end
 
     if VRayExporter.gen_run_file:

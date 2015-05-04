@@ -334,6 +334,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = True
     )
 
+    display_vfb_in_batch = bpy.props.BoolProperty(
+        name = "Display VFB In Batch Mode",
+        description = "Display VFB in background mode",
+        default = False
+    )
+
     detect_vray = bpy.props.BoolProperty(
         name = "Detect V-Ray",
         description = "Detect V-Ray binary location",
