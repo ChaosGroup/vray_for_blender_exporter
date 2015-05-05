@@ -124,16 +124,8 @@ def RenderItem(propGroup, layout, attr, text=None, slider=False, expand=False, a
     container = layout
 
     if active is not None:
-        prop      = active['prop']
-        condition = active.get('condition', True)
-        condInvert = active.get('condition_invert', False)
-
-        isActive = getattr(propGroup, prop) == condition
-        if condInvert:
-            isActive = not isActive
-
         container = layout.row()
-        container.active = isActive
+        container.active = EvalUiState(active, propGroup)
 
     if text is not None:
         container.prop(propGroup, attr, slider=slider, expand=expand, text=text)
