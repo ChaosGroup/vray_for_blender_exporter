@@ -269,7 +269,7 @@ class VRayDataPanel(VRayPanel):
 
 
 class VRayGeomPanel(VRayDataPanel):
-    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE', 'EMPTY'}
+    incompatTypes  = {'LAMP', 'CAMERA', 'SPEAKER', 'ARMATURE', 'EMPTY', 'META'}
 
     @classmethod
     def poll(cls, context):
