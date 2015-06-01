@@ -456,7 +456,11 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.label(text="Options:")
-		layout.prop(VRayExporter, 'data_format')
+		layout.prop(VRayExporter, 'backend')
+		layout.prop(VRayExporter, 'work_mode')
+
+		if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
+			layout.prop(VRayExporter, 'data_format')
 
 		layout.separator()
 		split = layout.split()

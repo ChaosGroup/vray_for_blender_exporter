@@ -433,9 +433,32 @@ class VRayExporter(bpy.types.PropertyGroup):
         items = (
             ('ZIP',   "ZIP",        "Compress list data"),
             ('HEX',   "HEX",        "Export list data in hex format"),
-            # ('ASCII', "Plain Text", "Export as plain text"),
+            ('ASCII', "Plain Text", "Export as plain text"),
         ),
         default = 'HEX'
+    )
+
+    backend = bpy.props.EnumProperty(
+        name = "V-Ray Backend",
+        description = "V-Ray backend",
+        items = (
+            ('FILE',   "V-Ray Standalone", ""),
+            ('CLOUD',  "V-Ray Cloud", ""),
+            ('ZMQ',    "V-Ray 0MQ Server", ""),
+            ('APPSDK', "V-Ray Application SDK", ""),
+        ),
+        default = 'APPSDK'
+    )
+
+    work_mode = bpy.props.EnumProperty(
+        name = "Render Mode",
+        description = "Render mode",
+        items = (
+            ('RENDER',        "Render", ""),
+            ('RENDER_EXPORT', "Render & Export", ""),
+            ('EXPORT_ONLY',   "Export Only", ""),
+        ),
+        default = 'RENDER'
     )
 
 
