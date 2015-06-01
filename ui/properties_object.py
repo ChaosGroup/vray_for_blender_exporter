@@ -394,12 +394,16 @@ class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
 	def draw(self, context):
 		VRayObject = context.object.vray
 
+		self.layout.label("Duplication / Particles:")
 		self.layout.prop(VRayObject, 'use_instancer')
 
 		split = self.layout.split()
 		row = split.row()
 		row.active = not VRayObject.use_instancer
 		row.prop(VRayObject, 'dupliGroupIDOverride', text="Dupli / Part Object ID Override")
+
+		self.layout.label("Animation:")
+		self.layout.prop(VRayObject, 'subframes')
 
 
 def GetRegClasses():

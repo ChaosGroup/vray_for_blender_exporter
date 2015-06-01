@@ -448,6 +448,14 @@ class VRayObject(bpy.types.PropertyGroup):
 		default = True
 	)
 
+	subframes = bpy.props.IntProperty(
+		name        = "Subframes",
+		description = "Export subframe data",
+		min         = 0,
+		max         = 64,
+		default     = 0
+	)
+
 
 ##     ## ########  ######  ##     ##
 ###   ### ##       ##    ## ##     ##

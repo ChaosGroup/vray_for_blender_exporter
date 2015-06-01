@@ -483,13 +483,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'default_mapping', text="Def. Mapping")
 
 		layout.separator()
-		split = layout.split()
-		col = split.column()
-		sub = col.row()
-		sub.active = VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}
-		sub.prop(VRayExporter, 'frames_to_export')
-
-		layout.separator()
 		layout.label(text="V-Ray Frame Buffer:")
 		split = layout.split()
 		col = split.column()

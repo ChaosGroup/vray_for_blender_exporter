@@ -152,14 +152,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = False
     )
 
-    frames_to_export = bpy.props.IntProperty(
-        name        = "Frames To Export",
-        description = "Export several frames for correct motion blur",
-        min         = 1,
-        soft_max    = 10,
-        default     = 1,
-    )
-
     use_hair = bpy.props.BoolProperty(
         name = "Export Hair",
         description = "Render hair",
