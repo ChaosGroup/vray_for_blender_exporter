@@ -28,7 +28,12 @@ import sys
 import bpy
 
 import _vray_for_blender
-import _vray_for_blender_rt
+
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
 
 from .lib import SysUtils
 from .    import export
@@ -37,12 +42,14 @@ from .    import export
 def Init():
     jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
     _vray_for_blender.start(jsonDirpath)
-    _vray_for_blender_rt.load(jsonDirpath)
+    if _has_rt:
+        _vray_for_blender_rt.load(jsonDirpath)
 
 
 def Shutdown():
     _vray_for_blender.free()
-    _vray_for_blender_rt.unload()
+    if _has_rt:
+        _vray_for_blender_rt.unload()
 
 
 class VRayRendererBase(bpy.types.RenderEngine):
@@ -127,11 +134,13 @@ class VRayRendererRT(VRayRendererBase):
 
 
 def GetRegClasses():
-    return (
+    reg_classes = [
         VRayRenderer,
         VRayRendererPreview,
-        VRayRendererRT,
-    )
+    ]
+    if _has_rt:
+        reg_classes.append(VRayRendererRT)
+    return reg_classes
 
 
 def register():
