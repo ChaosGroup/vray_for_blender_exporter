@@ -70,6 +70,38 @@ def AddOutput(node, socketType, socketName, attrName=None):
         createdSocket.vray_attr = attrName
 
 
+class VRaySocketMult:
+    multiplier = bpy.props.FloatProperty(
+        name        = "Multiplier",
+        description = "Multiplier",
+        subtype     = 'PERCENTAGE',
+        precision   = 0,
+        min         = 0.0,
+        max         = 100.0,
+        default     = 100.0
+    )
+
+    def draw(self, context, layout, node, text):
+        if self.is_output:
+            layout.label(text)
+        elif self.is_linked:
+            layout.prop(self, 'multiplier', text="%s Mult." % text)
+        else:
+            layout.prop(self, 'value', text=text)
+
+
+class VRaySocketColorMult(VRaySocketMult):
+    def draw(self, context, layout, node, text):
+        if self.is_output:
+            layout.label(text)
+        elif self.is_linked:
+            layout.prop(self, 'multiplier', text="%s Mult." % text)
+        else:
+            split = layout.split(percentage=0.4)
+            split.prop(self, 'value', text="")
+            split.label(text=text)
+
+
 class VRaySocketUse:
     use = bpy.props.BoolProperty(
         name        = "Use",
@@ -217,7 +249,7 @@ class VRaySocketIntNoValue(bpy.types.NodeSocket):
 ##       ##       ##     ## ##     ##    ##
 ##       ########  #######  ##     ##    ##
 
-class VRaySocketFloat(bpy.types.NodeSocket):
+class VRaySocketFloat(bpy.types.NodeSocket, VRaySocketMult):
     bl_idname = 'VRaySocketFloat'
     bl_label  = 'Float socket'
 
@@ -238,12 +270,6 @@ class VRaySocketFloat(bpy.types.NodeSocket):
         options = {'HIDDEN'},
         default = ""
     )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked or self.is_output:
-            layout.label(text)
-        else:
-            layout.prop(self, 'value', text=text)
 
     def draw_color(self, context, node):
         return (0.1, 0.4, 0.4, 1.00)
@@ -275,7 +301,7 @@ class VRaySocketFloatNoValue(bpy.types.NodeSocket):
 ##       ##       ##     ## ##     ##    ##       ##    ## ##     ## ##       ##     ## ##    ##
 ##       ########  #######  ##     ##    ##        ######   #######  ########  #######  ##     ##
 
-class VRaySocketFloatColor(bpy.types.NodeSocket):
+class VRaySocketFloatColor(bpy.types.NodeSocket, VRaySocketMult):
     bl_idname = 'VRaySocketFloatColor'
     bl_label  = 'Float color socket'
 
@@ -297,12 +323,6 @@ class VRaySocketFloatColor(bpy.types.NodeSocket):
         default = ""
     )
 
-    def draw(self, context, layout, node, text):
-        if self.is_linked or self.is_output:
-            layout.label(text)
-        else:
-            layout.prop(self, 'value', text=text)
-
     def draw_color(self, context, node):
         return (0.4, 0.4, 0.4, 1.00)
 
@@ -315,7 +335,7 @@ class VRaySocketFloatColor(bpy.types.NodeSocket):
 ##    ## ##     ## ##       ##     ## ##    ##
  ######   #######  ########  #######  ##     ##
 
-class VRaySocketColor(bpy.types.NodeSocket):
+class VRaySocketColor(bpy.types.NodeSocket, VRaySocketColorMult):
     bl_idname = 'VRaySocketColor'
     bl_label  = 'Color socket'
 
@@ -336,14 +356,6 @@ class VRaySocketColor(bpy.types.NodeSocket):
         options = {'HIDDEN'},
         default = ""
     )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked or self.is_output:
-            layout.label(text)
-        else:
-            split = layout.split(percentage=0.3)
-            split.prop(self, 'value', text="")
-            split.label(text=text)
 
     def draw_color(self, context, node):
         return (1.000, 0.819, 0.119, 1.000)
@@ -414,7 +426,7 @@ class VRaySocketColorUse(bpy.types.NodeSocket):
         return (1.000, 0.819, 0.119, 1.000)
 
 
-class VRaySocketColorMult(bpy.types.NodeSocket):
+class VRaySocketColorMult(bpy.types.NodeSocket, VRaySocketMult):
     bl_idname = 'VRaySocketColorMult'
     bl_label  = 'Color socket with multiplier'
 
@@ -429,32 +441,12 @@ class VRaySocketColorMult(bpy.types.NodeSocket):
         default = (1.0, 1.0, 1.0)
     )
 
-    multiplier = bpy.props.FloatProperty(
-        name        = "Multiplier",
-        description = "Color / texture multiplier",
-        min         = 0.0,
-        default     = 1.0
-    )
-
     vray_attr = bpy.props.StringProperty(
         name = "V-Ray Attribute",
         description = "V-Ray plugin attribute name",
         options = {'HIDDEN'},
         default = ""
     )
-
-    def draw(self, context, layout, node, text):
-        if self.is_linked:
-            split = layout.split(percentage=0.2)
-            split.prop(self, 'multiplier', text="")
-            split.label(text)
-        else:
-            row = layout.row(align=False)
-            row.prop(self, 'multiplier', text="")
-            rowCol = row.row()
-            rowCol.scale_x = 0.3
-            rowCol.prop(self, 'value', text="")
-            row.label(text=text)
 
     def draw_color(self, context, node):
         return (1.000, 0.819, 0.119, 1.000)
