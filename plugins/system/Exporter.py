@@ -407,12 +407,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'OBJECT'
     )
 
-    use_alt_d_instances = bpy.props.BoolProperty(
-        name = "Alt-D Instances",
-        description = "Treat Alt-D geometry as full instances",
-        default = False
-    )
-
     subsurf_to_osd = bpy.props.BoolProperty(
         name        = "Subsurf To OpenSubdiv",
         description = "Automatically convert Subsurf modifier (if last in stack) to V-Ray's OpenSubdiv subdivision",

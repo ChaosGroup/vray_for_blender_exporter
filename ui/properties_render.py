@@ -476,7 +476,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_hair')
 		if wide_ui:
 			col = split.column()
-		col.prop(VRayExporter, 'use_alt_d_instances')
 		col.prop(VRayExporter, 'subsurf_to_osd')
 
 		layout.separator()
