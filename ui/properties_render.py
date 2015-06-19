@@ -466,7 +466,9 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			layout.prop(VRayExporter, 'backend')
 			layout.prop(VRayExporter, 'work_mode')
 
-		if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
+			if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
+				layout.prop(VRayExporter, 'data_format')
+		else:
 			layout.prop(VRayExporter, 'data_format')
 
 		layout.separator()
