@@ -54,10 +54,10 @@ class VRayNodeObjectOutput(bpy.types.Node):
 
     def draw_buttons(self, context, layout):
         ob = context.active_object
-
-        layout.prop(ob, 'hide_render', text="Visible")
-        layout.prop(ob, 'pass_index', text="Object ID")
-        layout.prop(self, 'nsamples')
+        if ob:
+            layout.prop(ob, 'hide_render', text="Visible")
+            layout.prop(ob, 'pass_index', text="Object ID")
+            layout.prop(self, 'nsamples')
 
     def init(self, context):
         AddInput(self, 'VRaySocketMtl',  "Material", 'material')
