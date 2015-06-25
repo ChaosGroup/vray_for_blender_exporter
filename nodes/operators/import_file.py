@@ -36,6 +36,8 @@ from vb30.nodes import tools     as NodesTools
 from vb30.vray_tools.VRaySceneParser import ParseVrscene
 from vb30.vray_tools.VrmatParser     import ParseVrmat
 
+from vb30.ui import classes
+
 from vb30 import debug
 
 
@@ -310,8 +312,9 @@ class VRayOperatorImportSettings(bpy.types.Operator, io_utils.ImportHelper):
 
 
 def VRayMenuItems(self, context):
-    self.layout.operator(VRayOperatorImportMaterials.bl_idname, text="V-Ray: Import Materials (.vrscene/.vismat/.vrmat)")
-    self.layout.operator(VRayOperatorImportSettings.bl_idname,  text="V-Ray: Import Settings (.vrscene)")
+    if classes.PollEngine(context):
+        self.layout.operator(VRayOperatorImportMaterials.bl_idname, text="V-Ray: Import Materials (.vrscene/.vismat/.vrmat)")
+        self.layout.operator(VRayOperatorImportSettings.bl_idname,  text="V-Ray: Import Settings (.vrscene)")
 
 
 def GetRegClasses():
