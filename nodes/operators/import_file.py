@@ -24,6 +24,8 @@
 import bpy
 import bpy_extras
 
+from bpy_extras import io_utils
+
 from pprint import pprint
 
 from vb30.plugins import PLUGINS, PLUGINS_ID
@@ -254,7 +256,7 @@ def ImportSettings(context, filePath, pluginFilter=None):
 # ImportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 #
-class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class VRayOperatorImportMaterials(bpy.types.Operator, io_utils.ImportHelper):
     bl_idname      = "vray.import_materials"
     bl_label       = "Import Materials"
     bl_description = "Import materials from *.vrscene or *.vismat file"
@@ -291,7 +293,7 @@ class VRayOperatorImportMaterials(bpy.types.Operator, bpy_extras.io_utils.Import
         return ImportMaterials(context, self.filepath, self.base_material, self.use_fake_user)
 
 
-class VRayOperatorImportSettings(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+class VRayOperatorImportSettings(bpy.types.Operator, io_utils.ImportHelper):
     bl_idname      = "vray.import_settings"
     bl_label       = "Import Settings"
     bl_description = "Import settings from *.vrscene"
