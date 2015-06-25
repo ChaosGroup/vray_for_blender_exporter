@@ -77,7 +77,7 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.render.engine in classes.VRayEngines
+        return classes.PollTreeType(cls, context)
 
 
 def BuildItemsList(nodeType, subType=None):

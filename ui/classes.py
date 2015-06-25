@@ -126,6 +126,12 @@ def PollBase(cls, context):
     return poll_engine and poll_custom and poll_group
 
 
+def PollTreeType(cls, context):
+    is_vray      = context.scene.render.engine in VRayEngines
+    is_vray_tree = context.space_data.tree_type.startswith('VRayNodeTree')
+    return is_vray and is_vray_tree
+
+
 ########  ########     ###    ##      ##
 ##     ## ##     ##   ## ##   ##  ##  ##
 ##     ## ##     ##  ##   ##  ##  ##  ##
