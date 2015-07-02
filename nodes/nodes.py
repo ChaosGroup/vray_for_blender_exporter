@@ -101,7 +101,9 @@ def GetCategories():
         VRayNodeCategory(
             'VRAY_MATERIAL',
             "Material",
-            items = BuildItemsList('MATERIAL'),
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeMetaStandardMaterial"),
+            ] + BuildItemsList('MATERIAL'),
             icon  = 'MATERIAL'
         ),
         VRayNodeCategory(
