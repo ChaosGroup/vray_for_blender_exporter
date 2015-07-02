@@ -121,11 +121,14 @@ def CreateBitmapTexture(self, attrName='texture'):
     setattr(self, '%s_name' % attrName, texName)
 
 
-def AddDefaultInputs(self, vrayPlugin):
+def AddDefaultInputs(self, vrayPlugin, attrFilter=None):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
         attr_options = attr.get('option', {})
+
+        if attrFilter and attr['attr'] in attrFilter:
+            continue
 
         if attr['type'] in AttributeUtils.InputTypes:
             TypeToSocket = AttributeUtils.TypeToSocket
