@@ -67,7 +67,7 @@ class VRayNodeMetaStandardMaterial(bpy.types.Node):
         pass
 
     def draw_buttons(self, context, layout):
-        pass
+        layout.prop(self.BRDFVRayMtl, 'brdf_type', text="BRDF")
 
     def draw_buttons_ext(self, context, layout):
         plugin_labels = {
