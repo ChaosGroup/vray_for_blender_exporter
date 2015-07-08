@@ -1197,6 +1197,13 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'address')
 
+			split = layout.split()
+			col = split.column()
+			col.prop(render_node, 'port_override', text="Override Port")
+			col = split.column()
+			col.active = render_node.port_override
+			col.prop(render_node, 'port')
+
 
 ########     ###    ##    ## ########
 ##     ##   ## ##   ##   ##  ##
