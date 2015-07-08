@@ -710,6 +710,20 @@ class VRayRenderNode(bpy.types.PropertyGroup):
 		description= "Render node IP or hostname"
 	)
 
+	port_override = bpy.props.BoolProperty(
+		name= "Port Override",
+		description= "Override distributed rendering port for node",
+		default= False
+	)
+
+	port = bpy.props.IntProperty(
+		name= "Port",
+		description= "Distributed rendering port",
+		min= 0,
+		max= 65535,
+		default= 20204
+	)
+
 	use = bpy.props.BoolProperty(
 		name = "Use Node",
 		description = "Use render node",

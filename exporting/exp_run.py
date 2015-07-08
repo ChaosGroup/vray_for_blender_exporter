@@ -94,7 +94,13 @@ def Run(bus):
                     transferAssets = 2
 
             p.setDistributed(2 if VRayDR.renderOnlyOnNodes else 1)
-            p.setRenderhosts([n.address for n in VRayDR.nodes if n.use])
+
+            hosts = []
+            for n in VRayDR.nodes:
+                if n.use:
+                    hosts.append("%s:%s" % (n.address,n.port) if n.port_override else n.address)
+
+            p.setRenderhosts(hosts)
             p.setPortNumber(VRayDR.port)
             p.setTransferAssets(transferAssets)
             p.setLimitHosts(VRayDR.limitHosts)
