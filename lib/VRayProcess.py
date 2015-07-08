@@ -200,8 +200,8 @@ class VRayProcess:
 
         if self.distributed:
             cmd.append('-distributed=%i' % self.distributed)
-            cmd.append('-renderhost=%s' % self.renderhost)
             cmd.append('-portNumber=%i' % self.portNumber)
+            cmd.append('-renderhost=%s' % self.renderhost)
             cmd.append('-transferAssets=%i' % self.transferAssets)
             cmd.append('-limitHosts=%i' % self.limitHosts)
 
