@@ -495,7 +495,9 @@ class VRayList(bpy.types.UIList):
 
 class VRayListDR(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        layout.label("%s [%s]" % (item.name, item.address))
+        port_override = ":%s" % item.port if item.port_override else ""
+
+        layout.label("%s [%s%s]" % (item.name, item.address, port_override))
         layout.prop(item, 'use', text="")
 
 
