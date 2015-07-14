@@ -443,6 +443,12 @@ class VRayObject(bpy.types.PropertyGroup):
 		default     = -1
 	)
 
+	dupliShowEmitter = bpy.props.BoolProperty(
+		name        = "Show Dupli Emitter",
+		description = "Show dupli emitter",
+		default     = False
+	)
+
 	use_instancer = bpy.props.BoolProperty(
 		name = "Use Instancer For Dupli / Particles",
 		default = True

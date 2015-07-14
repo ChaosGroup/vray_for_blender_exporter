@@ -394,6 +394,9 @@ class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
 	def draw(self, context):
 		VRayObject = context.object.vray
 
+		self.layout.label("Duplication:")
+		self.layout.prop(VRayObject, 'dupliShowEmitter')
+
 		self.layout.label("Duplication / Particles:")
 		self.layout.prop(VRayObject, 'use_instancer')
 
