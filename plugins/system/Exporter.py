@@ -447,6 +447,18 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'RENDER'
     )
 
+    vfb_global_preset_file_use = bpy.props.BoolProperty(
+        name = "Use Global Preset File",
+        description = "Use VFB global preset file",
+        default = False
+    )
+
+    vfb_global_preset_file = bpy.props.StringProperty(
+        name = "Global Preset File",
+        subtype = 'FILE_PATH',
+        description = "VFB global preset file",
+    )
+
 
 def GetRegClasses():
     return (

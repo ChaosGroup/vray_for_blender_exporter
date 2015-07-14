@@ -36,6 +36,7 @@ import tempfile
 from vb30 import debug
 
 from . import PathUtils
+from . import BlenderUtils
 
 
 class VRayProcess:
@@ -265,6 +266,17 @@ class VRayProcess:
 
                 if sys.platform not in {'win32'}:
                     os.chmod(runFilepath, 0o744)
+
+        VRayExporter = bpy.context.scene.vray.Exporter
+
+        if not VRayExporter.vfb_global_preset_file_use:
+            vray_vfb_global_preset_vars = {'VRAY_VFB_GLOBAL_PRESET_FILE_USE', 'VRAY_VFB_GLOBAL_PRESET_FILE'}
+            for var in vray_vfb_global_preset_vars:
+                if var in os.environ:
+                    del os.environ[var]
+        else:
+            os.environ['VRAY_VFB_GLOBAL_PRESET_FILE_USE'] = "%i" % VRayExporter.vfb_global_preset_file_use
+            os.environ['VRAY_VFB_GLOBAL_PRESET_FILE'] = BlenderUtils.GetFullFilepath(VRayExporter.vfb_global_preset_file)
 
         if self.autorun:
             self.process = subprocess.Popen(cmd)

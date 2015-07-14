@@ -268,6 +268,13 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'draft')
 
 		layout.separator()
+		row = layout.row(align=True)
+		row.prop(VRayExporter, 'vfb_global_preset_file_use', text="VFB Preset File")
+		sub = row.row()
+		sub.active = VRayExporter.vfb_global_preset_file_use
+		sub.prop(VRayExporter, 'vfb_global_preset_file', text="")
+
+		layout.separator()
 		layout.prop(rd, "display_mode")
 
 
