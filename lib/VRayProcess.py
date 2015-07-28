@@ -183,6 +183,7 @@ class VRayProcess:
     def setRtEngine(self, RTEngine, SettingsRTEngine):
         DEVICE = {
             '0' : 1,
+            '1' : 3,
             '4' : 5,
         }
 
