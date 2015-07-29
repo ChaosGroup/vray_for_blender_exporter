@@ -463,12 +463,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'LOCAL'
     )
 
-    zmq_executable = bpy.props.StringProperty(
-        name = "ZMQ server executable path",
-        description = "The path to the zmq server executable.",
-        default = "",
-    )
-
     zmq_address = bpy.props.StringProperty(
         name = "Server Address",
         description = "ZMQ server address",
