@@ -130,10 +130,9 @@ class VRayRendererRT(VRayRendererBase):
         self.zmq_should_start = _has_rt and exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
 
         if self.zmq_should_start and not zmq_backend:
-
             executable_path = SysUtils.GetZmqPath()
-            if executable_path == "":
-                self.debug("No zmq executable path - can't start local zmq server!")
+            if not executable_path or not os.path.exists(executable_path):
+                self.debug("Can't find V-Ray ZMQ Server!")
             else:
                 port = str(context.scene.vray.Exporter.zmq_port)
                 zmq_backend = subprocess.Popen([executable_path, "-p", port])
