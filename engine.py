@@ -24,6 +24,7 @@
 
 import os
 import sys
+import subprocess
 
 import bpy
 
@@ -38,6 +39,10 @@ except:
 from .lib import SysUtils
 from .    import export
 
+""" This will hold handle to subprocess.Popen to the zmq server if
+it is started in local mode, and it should be terminated on Shutdown
+"""
+zmq_backend = None
 
 def Init():
     jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
@@ -50,6 +55,12 @@ def Shutdown():
     _vray_for_blender.free()
     if _has_rt:
         _vray_for_blender_rt.unload()
+
+    if _has_rt and zmq_backend:
+        try:
+            zmq_backend.terminate()
+        except:
+            pass
 
 
 class VRayRendererBase(bpy.types.RenderEngine):
@@ -84,6 +95,8 @@ class VRayRendererRT(VRayRendererBase):
     bl_use_preview      = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
+    zmq_should_start = False
+
     exporter = None
 
     def debug(self, msg):
@@ -109,7 +122,22 @@ class VRayRendererRT(VRayRendererBase):
         super(VRayRendererRT, self).render(scene)
 
     def view_update(self, context):
+        global zmq_backend
+
         self.debug("VRayRendererRT::view_update()")
+
+        exporter = context.scene.vray.Exporter
+        self.zmq_should_start = _has_rt and exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
+
+        if self.zmq_should_start and not zmq_backend:
+
+            executable_path = SysUtils.GetZmqPath()
+            if executable_path == "":
+                self.debug("No zmq executable path - can't start local zmq server!")
+            else:
+                port = str(context.scene.vray.Exporter.zmq_port)
+                zmq_backend = subprocess.Popen([executable_path, "-p", port])
+
         if not self.exporter:
             self.exporter = _vray_for_blender_rt.init(context.as_pointer(),
                 self.as_pointer(),

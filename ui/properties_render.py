@@ -473,9 +473,13 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			layout.prop(VRayExporter, 'backend')
 			layout.prop(VRayExporter, 'work_mode')
 
-			if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
-				layout.prop(VRayExporter, 'data_format')
-		else:
+			if VRayExporter.backend == 'ZMQ':
+				layout.prop(VRayExporter, 'backend_worker')
+				if VRayExporter.backend_worker == 'NETWORK':
+					layout.prop(VRayExporter, 'zmq_address')
+				layout.prop(VRayExporter, 'zmq_port')
+
+		if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
 			layout.prop(VRayExporter, 'data_format')
 
 		layout.separator()

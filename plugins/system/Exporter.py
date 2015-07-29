@@ -447,6 +447,30 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'RENDER'
     )
 
+    backend_worker = bpy.props.EnumProperty(
+        name = "ZMQ renderer mode",
+        description = "ZMQ renderer mode",
+        items = (
+            ('LOCAL',   "Local renderer",  ""),
+            ('NETWORK', "Remote renderer", ""),
+        ),
+        default = 'LOCAL'
+    )
+
+    zmq_address = bpy.props.StringProperty(
+        name = "Server Address",
+        description = "ZMQ server address",
+        default = "localhost"
+    )
+
+    zmq_port = bpy.props.IntProperty(
+        name = "Server Port",
+        description = "ZMQ server port",
+        min = 1000,
+        max = 65535,
+        default = 5555
+    )
+
     vfb_global_preset_file_use = bpy.props.BoolProperty(
         name = "Use Global Preset File",
         description = "Use VFB global preset file",

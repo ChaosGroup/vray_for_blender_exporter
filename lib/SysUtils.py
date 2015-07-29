@@ -241,3 +241,12 @@ def IsRTEngine(bus):
     if bus["scene"].vray.RTEngine.enabled:
         return True
     return False
+
+
+def GetZmqPath():
+    if sys.platform == 'win32':
+        return "C:/Program Files/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer.exe"
+    elif sys.platform == 'darwin':
+        return "/Applications/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
+    else:
+        return "/usr/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
