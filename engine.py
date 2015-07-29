@@ -39,6 +39,7 @@ except:
 from .lib import SysUtils
 from .    import export
 
+
 """ This will hold handle to subprocess.Popen to the zmq server if
 it is started in local mode, and it should be terminated on Shutdown
 """
@@ -127,7 +128,7 @@ class VRayRendererRT(VRayRendererBase):
         self.debug("VRayRendererRT::view_update()")
 
         exporter = context.scene.vray.Exporter
-        self.zmq_should_start = _has_rt and exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
+        self.zmq_should_start = exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
 
         if self.zmq_should_start and not zmq_backend:
             executable_path = SysUtils.GetZmqPath()
