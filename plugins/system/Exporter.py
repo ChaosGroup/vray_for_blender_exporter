@@ -428,12 +428,10 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "V-Ray Backend",
         description = "V-Ray backend",
         items = (
-            ('FILE',   "V-Ray Standalone", ""),
-            ('CLOUD',  "V-Ray Cloud", ""),
-            ('ZMQ',    "V-Ray 0MQ Server", ""),
-            ('APPSDK', "V-Ray Application SDK", ""),
+            ('FILE', "V-Ray Standalone", ""),
+            ('ZMQ',  "V-Ray Server (ZMQ)", ""),
         ),
-        default = 'APPSDK'
+        default = 'FILE'
     )
 
     work_mode = bpy.props.EnumProperty(
@@ -448,24 +446,24 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     backend_worker = bpy.props.EnumProperty(
-        name = "ZMQ renderer mode",
-        description = "ZMQ renderer mode",
+        name = "Server Mode",
+        description = "Server mode",
         items = (
-            ('LOCAL',   "Local renderer",  ""),
-            ('NETWORK', "Remote renderer", ""),
+            ('LOCAL',   "Local",  ""),
+            ('NETWORK', "Remote", ""),
         ),
         default = 'LOCAL'
     )
 
     zmq_address = bpy.props.StringProperty(
         name = "Server Address",
-        description = "ZMQ server address",
-        default = "localhost"
+        description = "Server address",
+        default = ""
     )
 
     zmq_port = bpy.props.IntProperty(
         name = "Server Port",
-        description = "ZMQ server port",
+        description = "Server port",
         min = 1000,
         max = 65535,
         default = 5555

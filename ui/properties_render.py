@@ -469,8 +469,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.label(text="Options:")
-		if _has_rt:
-			layout.prop(VRayExporter, 'backend')
+		if _has_rt and context.scene.render.engine == 'VRAY_RENDER_RT':
+			layout.prop(VRayExporter, 'backend', text="Renderer")
 			layout.prop(VRayExporter, 'work_mode')
 
 			if VRayExporter.backend == 'ZMQ':
@@ -479,10 +479,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 					layout.prop(VRayExporter, 'zmq_address')
 				layout.prop(VRayExporter, 'zmq_port')
 
-		if VRayExporter.work_mode in {'EXPORT_ONLY', 'RENDER_EXPORT'}:
-			layout.prop(VRayExporter, 'data_format')
+			layout.separator()
 
-		layout.separator()
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'use_smoke')
@@ -515,6 +513,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		layout.separator()
 		layout.label(text="Export:")
+		layout.prop(VRayExporter, 'data_format', text="Format")
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'output', text="Directory")
