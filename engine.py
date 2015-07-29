@@ -40,10 +40,11 @@ from .lib import SysUtils
 from .    import export
 
 
-""" This will hold handle to subprocess.Popen to the zmq server if
-it is started in local mode, and it should be terminated on Shutdown
-"""
+# This will hold handle to subprocess.Popen to the zmq server if
+# it is started in local mode, and it should be terminated on Shutdown()
+#
 zmq_backend = None
+
 
 def Init():
     jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
