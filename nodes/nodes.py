@@ -63,6 +63,14 @@ VRayNodeTypeIcon = {
     'RENDERCHANNEL' : 'SCENE_DATA',
 }
 
+_hidden_nodes = {
+    'GEOMETRY': {
+        'GeomMayaHair',
+        'GeomStaticMesh',
+        'VRayScene',
+    }
+}
+
 
 ##     ## ######## ##    ## ##     ##
 ###   ### ##       ###   ## ##     ##
@@ -77,11 +85,18 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.render.engine in classes.VRayEngines
+        return classes.PollTreeType(cls, context)
 
 
 def BuildItemsList(nodeType, subType=None):
-    return [ nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label) for t in VRayNodeTypes[nodeType] ]
+    node_items = []
+    for t in VRayNodeTypes[nodeType]:
+        if nodeType in _hidden_nodes:
+            vray_plugin = t.bl_rna.identifier.replace("VRayNode", "")
+            if vray_plugin in _hidden_nodes[nodeType]:
+                continue
+        node_items.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
+    return node_items
 
 
 def GetCategories():
@@ -101,7 +116,9 @@ def GetCategories():
         VRayNodeCategory(
             'VRAY_MATERIAL',
             "Material",
-            items = BuildItemsList('MATERIAL'),
+            items = [
+                nodeitems_utils.NodeItem("VRayNodeMetaStandardMaterial"),
+            ] + BuildItemsList('MATERIAL'),
             icon  = 'MATERIAL'
         ),
         VRayNodeCategory(

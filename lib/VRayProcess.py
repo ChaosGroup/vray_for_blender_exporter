@@ -36,6 +36,7 @@ import tempfile
 from vb30 import debug
 
 from . import PathUtils
+from . import BlenderUtils
 
 
 class VRayProcess:
@@ -182,6 +183,7 @@ class VRayProcess:
     def setRtEngine(self, RTEngine, SettingsRTEngine):
         DEVICE = {
             '0' : 1,
+            '1' : 3,
             '4' : 5,
         }
 
@@ -200,8 +202,8 @@ class VRayProcess:
 
         if self.distributed:
             cmd.append('-distributed=%i' % self.distributed)
-            cmd.append('-renderhost=%s' % self.renderhost)
             cmd.append('-portNumber=%i' % self.portNumber)
+            cmd.append('-renderhost=%s' % self.renderhost)
             cmd.append('-transferAssets=%i' % self.transferAssets)
             cmd.append('-limitHosts=%i' % self.limitHosts)
 
@@ -265,6 +267,17 @@ class VRayProcess:
 
                 if sys.platform not in {'win32'}:
                     os.chmod(runFilepath, 0o744)
+
+        VRayExporter = bpy.context.scene.vray.Exporter
+
+        if not VRayExporter.vfb_global_preset_file_use:
+            vray_vfb_global_preset_vars = {'VRAY_VFB_GLOBAL_PRESET_FILE_USE', 'VRAY_VFB_GLOBAL_PRESET_FILE'}
+            for var in vray_vfb_global_preset_vars:
+                if var in os.environ:
+                    del os.environ[var]
+        else:
+            os.environ['VRAY_VFB_GLOBAL_PRESET_FILE_USE'] = "%i" % VRayExporter.vfb_global_preset_file_use
+            os.environ['VRAY_VFB_GLOBAL_PRESET_FILE'] = BlenderUtils.GetFullFilepath(VRayExporter.vfb_global_preset_file)
 
         if self.autorun:
             self.process = subprocess.Popen(cmd)

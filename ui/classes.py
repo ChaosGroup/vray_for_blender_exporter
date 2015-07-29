@@ -126,6 +126,16 @@ def PollBase(cls, context):
     return poll_engine and poll_custom and poll_group
 
 
+def PollEngine(context):
+    return context.scene.render.engine in VRayEngines
+
+
+def PollTreeType(cls, context):
+    is_vray      = PollEngine(context)
+    is_vray_tree = context.space_data.tree_type.startswith('VRayNodeTree')
+    return is_vray and is_vray_tree
+
+
 ########  ########     ###    ##      ##
 ##     ## ##     ##   ## ##   ##  ##  ##
 ##     ## ##     ##  ##   ##  ##  ##  ##
@@ -485,7 +495,9 @@ class VRayList(bpy.types.UIList):
 
 class VRayListDR(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        layout.label("%s [%s]" % (item.name, item.address))
+        port_override = ":%s" % item.port if item.port_override else ""
+
+        layout.label("%s [%s%s]" % (item.name, item.address, port_override))
         layout.prop(item, 'use', text="")
 
 

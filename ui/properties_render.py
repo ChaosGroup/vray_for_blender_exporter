@@ -268,6 +268,13 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'draft')
 
 		layout.separator()
+		row = layout.row(align=True)
+		row.prop(VRayExporter, 'vfb_global_preset_file_use', text="VFB Preset File")
+		sub = row.row()
+		sub.active = VRayExporter.vfb_global_preset_file_use
+		sub.prop(VRayExporter, 'vfb_global_preset_file', text="")
+
+		layout.separator()
 		layout.prop(rd, "display_mode")
 
 
@@ -482,7 +489,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_hair')
 		if wide_ui:
 			col = split.column()
-		col.prop(VRayExporter, 'use_alt_d_instances')
 		col.prop(VRayExporter, 'subsurf_to_osd')
 
 		layout.separator()
@@ -1201,6 +1207,13 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 
 			layout.prop(render_node, 'name')
 			layout.prop(render_node, 'address')
+
+			split = layout.split()
+			col = split.column()
+			col.prop(render_node, 'port_override', text="Override Port")
+			col = split.column()
+			col.active = render_node.port_override
+			col.prop(render_node, 'port')
 
 
 ########     ###    ##    ## ########

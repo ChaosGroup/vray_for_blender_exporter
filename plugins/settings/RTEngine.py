@@ -44,7 +44,7 @@ PluginParams = (
         'type' : 'ENUM',
         'items' : (
             ('0', "CPU", ""),
-            # ('1', "GPU (Single)", ""),
+            ('1', "GPU (OpenCL)", ""),
             # ('2', "GPU (Multi)", ""),
             ('4', "GPU (CUDA)", ""),
         ),

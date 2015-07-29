@@ -25,9 +25,13 @@
 
 def register():
     from . import image_texture
+    from . import standard_material
     image_texture.register()
+    standard_material.register()
 
 
 def unregister():
     from . import image_texture
+    from . import standard_material
     image_texture.unregister()
+    standard_material.unregister()

@@ -111,17 +111,12 @@ def AddMaterialNodeTree(ma):
 
         outputNode = nt.nodes.new('VRayNodeOutputMaterial')
 
-        singleMaterial = nt.nodes.new('VRayNodeMtlSingleBRDF')
-        singleMaterial.location.x  = outputNode.location.x - 250
-        singleMaterial.location.y += 50
+        meta_node = nt.nodes.new('VRayNodeMetaStandardMaterial')
+        meta_node.location.x  = outputNode.location.x - 250
+        meta_node.location.y += 50
+        meta_node.width = 185
 
-        brdfVRayMtl = nt.nodes.new('VRayNodeBRDFVRayMtl')
-        brdfVRayMtl.location.x  = singleMaterial.location.x - 250
-        brdfVRayMtl.location.y += 100
-
-        nt.links.new(brdfVRayMtl.outputs['BRDF'], singleMaterial.inputs['BRDF'])
-
-        nt.links.new(singleMaterial.outputs['Material'], outputNode.inputs['Material'])
+        nt.links.new(meta_node.outputs['Material'], outputNode.inputs['Material'])
 
         VRayMaterial.ntree = nt
 

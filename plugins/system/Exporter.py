@@ -407,12 +407,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 'OBJECT'
     )
 
-    use_alt_d_instances = bpy.props.BoolProperty(
-        name = "Alt-D Instances",
-        description = "Treat Alt-D geometry as full instances",
-        default = False
-    )
-
     subsurf_to_osd = bpy.props.BoolProperty(
         name        = "Subsurf To OpenSubdiv",
         description = "Automatically convert Subsurf modifier (if last in stack) to V-Ray's OpenSubdiv subdivision",
@@ -475,6 +469,18 @@ class VRayExporter(bpy.types.PropertyGroup):
         min = 1000,
         max = 65535,
         default = 5555
+    )
+
+    vfb_global_preset_file_use = bpy.props.BoolProperty(
+        name = "Use Global Preset File",
+        description = "Use VFB global preset file",
+        default = False
+    )
+
+    vfb_global_preset_file = bpy.props.StringProperty(
+        name = "Global Preset File",
+        subtype = 'FILE_PATH',
+        description = "VFB global preset file",
     )
 
 

@@ -190,6 +190,8 @@ RegClasses = ()
 
 
 def register():
+    global handlers
+
     def vray_draw_handler_add(cb):
         handlers.append(bpy.types.SpaceView3D.draw_handler_add(cb, (), 'WINDOW', 'POST_PIXEL'))
 
@@ -200,6 +202,8 @@ def register():
 
 
 def unregister():
+    global handlers
+
     for regClass in RegClasses:
         bpy.utils.unregister_class(regClass)
 

@@ -38,6 +38,8 @@ from vb30.nodes import tools     as NodesTools
 from vb30.nodes import export    as NodesExport
 from vb30.nodes import sockets   as NodesSockets
 
+from vb30.ui import classes
+
 from vb30 import debug
 
 import _vray_for_blender
@@ -456,7 +458,8 @@ class VRayNodeTemplatesSubMenus(bpy.types.Menu):
 
 
 def VRayNodeTemplatesMenu(self, context):
-    self.layout.menu("VRayNodeTemplatesSubMenus", icon='NODETREE')
+    if classes.PollTreeType(None, context):
+        self.layout.menu("VRayNodeTemplatesSubMenus", icon='NODETREE')
 
 
    ###     ######   ######  ######## ########

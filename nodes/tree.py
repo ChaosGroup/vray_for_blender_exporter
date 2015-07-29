@@ -99,6 +99,8 @@ class VRayNodeTreeObject(VRayNodeTree):
     bl_idname = 'VRayNodeTreeObject'
     bl_icon   = 'VRAY_OBJECT'
 
+    bl_update_preview = True
+
     @classmethod
     def get_from_context(cls, context):
         ob = context.active_object

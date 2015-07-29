@@ -443,6 +443,12 @@ class VRayObject(bpy.types.PropertyGroup):
 		default     = -1
 	)
 
+	dupliShowEmitter = bpy.props.BoolProperty(
+		name        = "Show Dupli Emitter",
+		description = "Show dupli emitter",
+		default     = False
+	)
+
 	use_instancer = bpy.props.BoolProperty(
 		name = "Use Instancer For Dupli / Particles",
 		default = True
@@ -708,6 +714,20 @@ class VRayRenderNode(bpy.types.PropertyGroup):
 	address= bpy.props.StringProperty(
 		name= "IP/Hostname",
 		description= "Render node IP or hostname"
+	)
+
+	port_override = bpy.props.BoolProperty(
+		name= "Port Override",
+		description= "Override distributed rendering port for node",
+		default= False
+	)
+
+	port = bpy.props.IntProperty(
+		name= "Port",
+		description= "Distributed rendering port",
+		min= 0,
+		max= 65535,
+		default= 20204
 	)
 
 	use = bpy.props.BoolProperty(

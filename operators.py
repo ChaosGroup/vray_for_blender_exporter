@@ -190,13 +190,21 @@ class VRAY_OT_dr_nodes_load(bpy.types.Operator):
 
 				nodeSetup = l.split(":")
 
-				# For compatibility
+				# Initial format
 				if len(nodeSetup) == 2:
 					item.name, item.address = nodeSetup
-				else:
+				# "Use" added
+				elif len(nodeSetup) == 3:
 					item.name    = nodeSetup[0]
 					item.address = nodeSetup[1]
 					item.use     = int(nodeSetup[2])
+				# Port override added
+				elif len(nodeSetup) == 5:
+					item.name = nodeSetup[0]
+					item.address = nodeSetup[1]
+					item.use = int(nodeSetup[2])
+					item.port_override = int(nodeSetup[3])
+					item.port = int(nodeSetup[4])
 
 		VRayDR.nodes_selected = 0
 
@@ -216,7 +224,8 @@ class VRAY_OT_dr_nodes_save(bpy.types.Operator):
 
 		with open(nodesFilepath, 'w') as nodesFile:
 			for item in VRayDR.nodes:
-				nodesFile.write("%s:%s:%i\n" % (item.name, item.address, item.use))
+				item_data = "{item.name}:{item.address}:{item.use:d}:{item.port_override:d}:{item.port:d}".format(item=item)
+				nodesFile.write("%s\n" % item_data)
 
 		return {'FINISHED'}
 
