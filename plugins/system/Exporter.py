@@ -28,6 +28,12 @@ import sys
 from vb30 import version
 from vb30.lib import SysUtils
 
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
+
 TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
 NAME = 'Exporter'
@@ -427,11 +433,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     backend = bpy.props.EnumProperty(
         name = "V-Ray Backend",
         description = "V-Ray backend",
-        items = (
-            ('FILE', "V-Ray Standalone", ""),
-            ('ZMQ',  "V-Ray Server (ZMQ)", ""),
-        ),
-        default = 'FILE'
+        items = _vray_for_blender_rt.getExporterTypes() if _has_rt else (),
     )
 
     work_mode = bpy.props.EnumProperty(
