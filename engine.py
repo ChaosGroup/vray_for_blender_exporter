@@ -131,7 +131,7 @@ class VRayRendererRT(VRayRendererBase):
         exporter = context.scene.vray.Exporter
         self.zmq_should_start = exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
 
-        if self.zmq_should_start and not zmq_backend:
+        if self.zmq_should_start and not zmq_backend or zmq_backend and zmq_backend.poll() is not None:
             executable_path = SysUtils.GetZmqPath()
             if not executable_path or not os.path.exists(executable_path):
                 self.debug("Can't find V-Ray ZMQ Server!")
