@@ -46,7 +46,7 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
         attrName = attrDesc['attr']
         skip     = attrDesc.get('skip', False)
 
-        if skip:
+        if skip and attrDesc['attr'] not in mappedParams:
             continue
 
         # Skip output attributes
@@ -70,6 +70,11 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
             # This allows us to use None to skip
             # particular parameter export
             if value is None:
+                continue
+
+        if 'option' in attrDesc:
+            if 'EXPORT_AS_IS' in attrDesc['option']:
+                o.writeAttibute(attrName, value)
                 continue
 
         if value is None:
