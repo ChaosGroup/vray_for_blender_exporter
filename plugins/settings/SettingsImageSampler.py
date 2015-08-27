@@ -24,6 +24,7 @@
 
 from vb30.lib import ExportUtils
 from vb30.lib import PluginUtils
+from vb30.lib import BlenderUtils
 
 
 TYPE = 'SETTINGS'
@@ -55,5 +56,17 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if propGroup.subdivision_minRate > propGroup.subdivision_maxRate:
         overrideParams['subdivision_minRate'] = propGroup.subdivision_maxRate
         overrideParams['subdivision_maxRate'] = propGroup.subdivision_minRate
+
+    if propGroup.render_mask_mode == '2':
+        if not propGroup.render_mask_objects:
+            overrideParams['render_mask_mode'] = '0'
+        else:
+            overrideParams['render_mask_objects'] = "List(%s)" % ",".join(BlenderUtils.GetGroupObjectsNames(propGroup.render_mask_objects))
+    elif propGroup.render_mask_mode == '3':
+        if not propGroup.render_mask_object_ids:
+            overrideParams['render_mask_mode'] = '0'
+        else:
+            mask_object_ids = propGroup.render_mask_object_ids.split(";")
+            overrideParams['render_mask_object_ids'] = "ListInt(%s)" % ",".join(mask_object_ids)
 
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
