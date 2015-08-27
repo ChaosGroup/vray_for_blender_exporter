@@ -147,7 +147,7 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		split = layout.split()
 		col = split.column()
 		col.label(text="Render Mask:")
-		col.prop(SettingsImageSampler, 'render_mask_mode')
+		col.prop(SettingsImageSampler, 'render_mask_mode', text="Type")
 		if SettingsImageSampler.render_mask_mode == '2':
 			col.prop_search(SettingsImageSampler, 'render_mask_objects', bpy.data, 'groups')
 		elif SettingsImageSampler.render_mask_mode == '3':
