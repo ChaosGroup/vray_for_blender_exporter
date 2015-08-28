@@ -113,22 +113,16 @@ class VRayRendererRT(VRayRendererBase):
 
     def __del__(self):
         self.debug("VRayRendererRT::__del__()")
+        self._clean_up()
+
+    def _clean_up(self):
         if self.exporter:
             _vray_for_blender_rt.free(self.exporter)
+            self.exporter = None
 
-    def update(self, data, scene):
-        self.debug("VRayRendererRT::update()")
-
-    def render(self, scene):
-        self.debug("VRayRendererRT::render()")
-        super(VRayRendererRT, self).render(scene)
-
-    def view_update(self, context):
+    def _init_zmq(self, exporter):
         global zmq_backend
 
-        self.debug("VRayRendererRT::view_update()")
-
-        exporter = context.scene.vray.Exporter
         self.zmq_should_start = exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
 
         if self.zmq_should_start and not zmq_backend or zmq_backend and zmq_backend.poll() is not None:
@@ -136,8 +130,31 @@ class VRayRendererRT(VRayRendererBase):
             if not executable_path or not os.path.exists(executable_path):
                 self.debug("Can't find V-Ray ZMQ Server!")
             else:
-                port = str(context.scene.vray.Exporter.zmq_port)
+                port = str(exporter.zmq_port)
                 zmq_backend = subprocess.Popen([executable_path, "-p", port])
+
+    def update(self, data, scene):
+        self.debug("VRayRendererRT::update()")
+
+    def render(self, scene):
+        self.debug("VRayRendererRT::render()")
+        self._clean_up()
+        self._init_zmq(scene.vray.Exporter)
+        if not self.exporter:
+            self.exporter = _vray_for_blender_rt.init(0,
+                self.as_pointer(),
+                bpy.data.as_pointer(),
+                scene.as_pointer(),
+                0, 0, 0
+            )
+            if not _vray_for_blender_rt.export(self.exporter):
+                self._clean_up()
+                self.report({'ERROR'}, "Failed to load exporter")
+
+    def view_update(self, context):
+        self.debug("VRayRendererRT::view_update()")
+
+        self._init_zmq(context.scene.vray.Exporter)
 
         if not self.exporter:
             self.exporter = _vray_for_blender_rt.init(context.as_pointer(),
@@ -146,9 +163,12 @@ class VRayRendererRT(VRayRendererBase):
                 context.scene.as_pointer(),
                 context.region.as_pointer(),
                 context.space_data.as_pointer(),
-                context.region_data.as_pointer()
+                context.region_data.as_pointer(),
+                1
             )
-            _vray_for_blender_rt.export(self.exporter)
+            if not _vray_for_blender_rt.export(self.exporter):
+                self._clean_up()
+                self.report({'ERROR'}, "Failed to load exporter")
 
         if self.exporter:
             _vray_for_blender_rt.update(self.exporter)
