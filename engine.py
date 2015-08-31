@@ -147,9 +147,7 @@ class VRayRendererRT(VRayRendererBase):
                 scene.as_pointer(),
                 0, 0, 0
             )
-            if not _vray_for_blender_rt.export(self.exporter):
-                self._clean_up()
-                self.report({'ERROR'}, "Failed to load exporter")
+            _vray_for_blender_rt.export(self.exporter)
 
     def view_update(self, context):
         self.debug("VRayRendererRT::view_update()")
@@ -166,9 +164,7 @@ class VRayRendererRT(VRayRendererBase):
                 context.region_data.as_pointer(),
                 1
             )
-            if not _vray_for_blender_rt.export(self.exporter):
-                self._clean_up()
-                self.report({'ERROR'}, "Failed to load exporter")
+            _vray_for_blender_rt.export(self.exporter)
 
         if self.exporter:
             _vray_for_blender_rt.update(self.exporter)
