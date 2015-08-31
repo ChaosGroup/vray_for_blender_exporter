@@ -26,6 +26,8 @@ from vb30.lib import ExportUtils
 from vb30.lib import PluginUtils
 from vb30.lib import BlenderUtils
 
+import bpy
+
 
 TYPE = 'SETTINGS'
 ID   = 'SettingsImageSampler'
@@ -58,10 +60,20 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         overrideParams['subdivision_maxRate'] = propGroup.subdivision_minRate
 
     if propGroup.render_mask_mode == '2':
-        if not propGroup.render_mask_objects:
+        ob_names = []
+        if propGroup.render_mask_objects_selected:
+            for obb in bpy.context.scene.object_bases:
+                if obb.select:
+                    ob_names.append(BlenderUtils.GetObjectName(obb.object))
+        else:
+            if propGroup.render_mask_objects:
+                ob_names = BlenderUtils.GetGroupObjectsNames(propGroup.render_mask_objects)
+
+        if not ob_names:
             overrideParams['render_mask_mode'] = '0'
         else:
-            overrideParams['render_mask_objects'] = "List(%s)" % ",".join(BlenderUtils.GetGroupObjectsNames(propGroup.render_mask_objects))
+            overrideParams['render_mask_objects'] = "List(%s)" % ",".join(ob_names)
+
     elif propGroup.render_mask_mode == '3':
         if not propGroup.render_mask_object_ids:
             overrideParams['render_mask_mode'] = '0'

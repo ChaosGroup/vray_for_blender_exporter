@@ -149,7 +149,9 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		col.label(text="Render Mask:")
 		col.prop(SettingsImageSampler, 'render_mask_mode', text="Type")
 		if SettingsImageSampler.render_mask_mode == '2':
-			col.prop_search(SettingsImageSampler, 'render_mask_objects', bpy.data, 'groups')
+			col.prop(SettingsImageSampler, 'render_mask_objects_selected')
+			if not SettingsImageSampler.render_mask_objects_selected:
+				col.prop_search(SettingsImageSampler, 'render_mask_objects', bpy.data, 'groups')
 		elif SettingsImageSampler.render_mask_mode == '3':
 			col.prop(SettingsImageSampler, 'render_mask_object_ids')
 
