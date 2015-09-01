@@ -120,7 +120,7 @@ class VRayOpAddObjectProxy(bpy.types.Operator):
             return {'CANCELLED'}
 
         # Add new mesh object
-        name = 'VRayProxy@%s' % os.path.splitext(os.path.basename(filepath))[1]
+        name = 'VRayProxy@%s' % os.path.splitext(os.path.basename(filepath))[0]
 
         mesh = bpy.data.meshes.new(name)
         ob = bpy.data.objects.new(name, mesh)
