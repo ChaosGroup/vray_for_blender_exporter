@@ -66,6 +66,15 @@ class VRayOpSelectCamera(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpLockUnlockView(bpy.types.Operator):
+    bl_idname = "vray.camera_lock_unlock_view"
+    bl_label = "Lock / Unlock Camera To View"
+
+    def execute(self, context):
+        context.space_data.lock_camera = not context.space_data.lock_camera
+        return {'FINISHED'}
+
+
 class VRayMenuActiveCamera(bpy.types.Menu):
     bl_idname = "vray.active_camera"
     bl_label = "Camera Tools"
@@ -75,6 +84,7 @@ class VRayMenuActiveCamera(bpy.types.Menu):
         self.layout.separator()
 
         self.layout.operator('vray.select_camera', text="Select Active Camera", icon='CAMERA_DATA')
+        self.layout.operator('vray.camera_lock_unlock_view', icon='OUTLINER_OB_CAMERA')
         self.layout.separator()
 
         self.layout.operator('vray.set_view', text="Top", icon='MESH_CUBE').view_type='TOP'
@@ -208,6 +218,7 @@ def GetRegClasses():
         VRayOpAddObjectProxy,
         VRayOpAddObjectPlane,
         VRayOpSelectCamera,
+        VRayOpLockUnlockView,
         VRayMenuMesh,
         VRayMenuActiveCamera,
     )
