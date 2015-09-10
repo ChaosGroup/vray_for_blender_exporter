@@ -123,9 +123,12 @@ class VRayRendererRT(VRayRendererBase):
     def _init_zmq(self, exporter):
         global zmq_backend
 
-        self.zmq_should_start = exporter.backend == 'ZMQ' and exporter.backend_worker == 'LOCAL'
+        self.zmq_should_start = exporter.backend == 'ZMQ' and\
+                                exporter.backend_worker == 'LOCAL'
 
-        if self.zmq_should_start and not zmq_backend or zmq_backend and zmq_backend.poll() is not None:
+        if self.zmq_should_start and not zmq_backend or\
+            zmq_backend and zmq_backend.poll() is not None:
+
             executable_path = SysUtils.GetZmqPath()
             if not executable_path or not os.path.exists(executable_path):
                 self.debug("Can't find V-Ray ZMQ Server!")
@@ -138,15 +141,42 @@ class VRayRendererRT(VRayRendererBase):
 
     def render(self, scene):
         self.debug("VRayRendererRT::render()")
+
+        settings = scene.vray.Exporter
         self._clean_up()
-        self._init_zmq(scene.vray.Exporter)
-        if not self.exporter:
-            self.exporter = _vray_for_blender_rt.init(0,
-                self.as_pointer(),
-                bpy.data.as_pointer(),
-                scene.as_pointer(),
-                0, 0, 0
-            )
+        self._init_zmq(settings)
+
+        self.exporter = _vray_for_blender_rt.create(
+            False,
+            settings.animation_mode == 'FULL'
+        )
+
+        _vray_for_blender_rt.init(
+            self.exporter,
+            0,
+            self.as_pointer(),
+            bpy.data.as_pointer(),
+            scene.as_pointer(),
+            0, 0, 0
+        )
+
+        if settings.animation_mode == 'FULL':
+            frame = scene.frame_current
+            start_frame = frame
+
+            while frame <= scene.frame_end:
+                scene.frame_set(frame)
+                res = _vray_for_blender_rt.export(self.exporter)
+
+                if not res or self.test_break():
+                    self.report({'ERROR'}, 'Renderer interrupted!')
+                    self._clean_up()
+                    break
+
+                frame += scene.frame_step
+
+            scene.frame_set(start_frame)
+        else:
             _vray_for_blender_rt.export(self.exporter)
 
     def view_update(self, context):
@@ -155,18 +185,19 @@ class VRayRendererRT(VRayRendererBase):
         self._init_zmq(context.scene.vray.Exporter)
 
         if not self.exporter:
-            self.exporter = _vray_for_blender_rt.init(context.as_pointer(),
+            self.exporter = _vray_for_blender_rt.create(True, False)
+            _vray_for_blender_rt.init(
+                self.exporter,
+                context.as_pointer(),
                 self.as_pointer(),
                 context.blend_data.as_pointer(),
                 context.scene.as_pointer(),
                 context.region.as_pointer(),
                 context.space_data.as_pointer(),
                 context.region_data.as_pointer(),
-                1
             )
             _vray_for_blender_rt.export(self.exporter)
-
-        if self.exporter:
+        else:
             _vray_for_blender_rt.update(self.exporter)
 
     def view_draw(self, context):
