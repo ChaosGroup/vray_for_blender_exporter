@@ -146,18 +146,12 @@ class VRayRendererRT(VRayRendererBase):
         self._clean_up()
         self._init_zmq(settings)
 
-        self.exporter = _vray_for_blender_rt.create(
-            False,
-            settings.animation_mode == 'FULL'
-        )
-
-        _vray_for_blender_rt.init(
-            self.exporter,
+        self.exporter = _vray_for_blender_rt.init(
             0,
             self.as_pointer(),
             bpy.data.as_pointer(),
             scene.as_pointer(),
-            0, 0, 0
+            0, 0, 0, False
         )
 
         if settings.animation_mode == 'FULL':
@@ -185,9 +179,7 @@ class VRayRendererRT(VRayRendererBase):
         self._init_zmq(context.scene.vray.Exporter)
 
         if not self.exporter:
-            self.exporter = _vray_for_blender_rt.create(True, False)
-            _vray_for_blender_rt.init(
-                self.exporter,
+            self.exporter = _vray_for_blender_rt.init(
                 context.as_pointer(),
                 self.as_pointer(),
                 context.blend_data.as_pointer(),
@@ -195,6 +187,7 @@ class VRayRendererRT(VRayRendererBase):
                 context.region.as_pointer(),
                 context.space_data.as_pointer(),
                 context.region_data.as_pointer(),
+                True,
             )
             _vray_for_blender_rt.export(self.exporter)
         else:
