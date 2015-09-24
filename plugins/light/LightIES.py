@@ -22,14 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
-
-import LightIESMax
+from vb30.lib import PluginUtils
 
 TYPE = 'LIGHT'
 ID   = 'LightIES'
 NAME = 'IES'
 DESC = ""
 
-PluginParams = LightIESMax.PluginParams
-PluginWidget = LightIESMax.PluginWidget
+PluginParams = PluginUtils.GetPluginParams(ID)
+PluginWidget = PluginUtils.GetPluginWidget(ID)
