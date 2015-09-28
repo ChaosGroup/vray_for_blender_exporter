@@ -170,3 +170,9 @@ def CreateNode(ntree, nodeType, nodeName=None, unique=True):
     node.label = nodeLabel
 
     return node
+
+
+def getInputSocketByVRayAttr(node, attrName):
+    for sock in node.inputs:
+        if hasattr(sock, 'vray_attr') and sock.vray_attr == attrName:
+            return sock

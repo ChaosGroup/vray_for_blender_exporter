@@ -61,6 +61,11 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		brow.prop(VRayConverter, 'convert_materials', text="Materials")
 		box.operator("vray.convert_scene", icon='NODETREE')
 
+		box = layout.box()
+		box.label("Render Channels:")
+		box_row = box.column()
+		box_row.operator("vray.gen_random_mtl_ids")
+
 
 class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 	bl_label   = "Node Tools"

@@ -28,9 +28,13 @@ __all__ = []
 
 def register():
     from . import utils_bake
+    from . import utils_gen_material_id
     utils_bake.register()
+    utils_gen_material_id.register()
 
 
 def unregister():
     from . import utils_bake
+    from . import utils_gen_material_id
     utils_bake.unregister()
+    utils_gen_material_id.unregister()
