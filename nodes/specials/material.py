@@ -102,8 +102,8 @@ class VRayNodeMtlMulti(bpy.types.Node):
     bl_label  = 'Multi ID'
     bl_icon   = 'MATERIAL'
 
-    vray_type   = 'MATERIAL'
-    vray_plugin = 'MtlMulti'
+    vray_type   = bpy.props.StringProperty('MATERIAL')
+    vray_plugin = bpy.props.StringProperty('MtlMulti')
 
     wrap_id = bpy.props.BoolProperty(
         name        = "Wrap ID",
