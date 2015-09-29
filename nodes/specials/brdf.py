@@ -105,8 +105,8 @@ class VRayNodeBRDFLayered(bpy.types.Node):
     bl_label  = 'Layered'
     bl_icon   = 'TEXTURE_SHADED'
 
-    vray_type   = 'BRDF'
-    vray_plugin = 'BRDFLayered'
+    vray_type   = bpy.props.StringProperty(default='BRDF')
+    vray_plugin = bpy.props.StringProperty(default='BRDFLayered')
 
     additive_mode = bpy.props.BoolProperty(
         name        = "Additive Mode",
