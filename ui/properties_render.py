@@ -106,6 +106,7 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 
 		VRayScene = scene.vray
 		VRayExporter = VRayScene.Exporter
+		SettingsImageSampler = VRayScene.SettingsImageSampler
 
 		row = layout.row(align=True)
 		row.menu("RENDER_MT_presets", text=bpy.types.RENDER_MT_presets.bl_label)
@@ -142,6 +143,17 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 		subrow = sub.row(align=True)
 		subrow.prop(rd, "frame_map_old", text="Old")
 		subrow.prop(rd, "frame_map_new", text="New")
+
+		split = layout.split()
+		col = split.column()
+		col.label(text="Render Mask:")
+		col.prop(SettingsImageSampler, 'render_mask_mode', text="Type")
+		if SettingsImageSampler.render_mask_mode == '2':
+			col.prop(SettingsImageSampler, 'render_mask_objects_selected')
+			if not SettingsImageSampler.render_mask_objects_selected:
+				col.prop_search(SettingsImageSampler, 'render_mask_objects', bpy.data, 'groups')
+		elif SettingsImageSampler.render_mask_mode == '3':
+			col.prop(SettingsImageSampler, 'render_mask_object_ids')
 
 
  #######  ##     ## ######## ########  ##     ## ########

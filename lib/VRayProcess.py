@@ -279,6 +279,9 @@ class VRayProcess:
             os.environ['VRAY_VFB_GLOBAL_PRESET_FILE_USE'] = "%i" % VRayExporter.vfb_global_preset_file_use
             os.environ['VRAY_VFB_GLOBAL_PRESET_FILE'] = BlenderUtils.GetFullFilepath(VRayExporter.vfb_global_preset_file)
 
+        os.environ['VRAY_VFB_ALWAYS_ON_TOP'] = '1'
+        os.environ['VRAY_NO_CTRL_C_HANDLER'] = '1'
+
         if self.autorun:
             self.process = subprocess.Popen(cmd)
             if self.waitExit:

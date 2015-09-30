@@ -98,10 +98,17 @@ def EvalUiState(item, propGroup):
         cond = prop_value >= cond_value
     elif cond_type == 'less_or_equal':
         cond = prop_value <= cond_value
+    elif cond_type == 'in':
+        if type(cond_value) is list:
+            cond = prop_value in cond_value
+    elif cond_type == 'not_in':
+        if type(cond_value) is list:
+            cond = prop_value not in cond_value
 
-    # print("%s == %s:%s => %s" % (
+    # print("%s == %s [%s] : %s => %s" % (
     #     cond_prop,
     #     cond_value,
+    #     type(cond_value),
     #     prop_value,
     #     cond
     # ))
@@ -209,13 +216,18 @@ def RenderWidget(context, propGroup, layout, widget):
         # Attribute name
         attr = item['name']
 
-        # Optional stuff
-        label  = item.get('label', None)
-        active = item.get('active', None)
-        expand = IsRegionWide(context) and item.get('expand', False)
-        slider = item.get('slider', False)
+        attr_visible = True
+        if 'visible' in item:
+            attr_visible = EvalUiState(item['visible'], propGroup)
 
-        RenderItem(propGroup, container, attr, text=label, slider=slider, expand=expand, active=active)
+        if attr_visible:
+            # Optional stuff
+            label  = item.get('label', None)
+            active = item.get('active', None)
+            expand = IsRegionWide(context) and item.get('expand', False)
+            slider = item.get('slider', False)
+
+            RenderItem(propGroup, container, attr, text=label, slider=slider, expand=expand, active=active)
 
 
 def RenderTemplate(context, layout, propGroup, pluginModule):
