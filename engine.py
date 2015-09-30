@@ -94,7 +94,7 @@ class VRayRendererRT(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label  = "V-Ray (With Viewport Rendering)"
 
-    bl_use_preview      = True
+    bl_use_preview      = False
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
     zmq_should_start = False
