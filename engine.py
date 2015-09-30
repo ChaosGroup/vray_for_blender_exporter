@@ -58,7 +58,7 @@ def Shutdown():
     if _has_rt:
         _vray_for_blender_rt.unload()
 
-    if _has_rt and zmq_backend:
+    if zmq_backend:
         try:
             zmq_backend.terminate()
         except:
