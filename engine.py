@@ -64,6 +64,8 @@ def Shutdown():
         except:
             pass
 
+def open_file_wrapper(name):
+    return open(name, 'w')
 
 class VRayRendererBase(bpy.types.RenderEngine):
     def render(self, scene):
@@ -151,7 +153,7 @@ class VRayRendererRT(VRayRendererBase):
             self.as_pointer(),
             bpy.data.as_pointer(),
             scene.as_pointer(),
-            0, 0, 0, False
+            0, 0, 0, False, open_file_wrapper
         )
 
         if settings.animation_mode == 'FULL':
@@ -187,7 +189,7 @@ class VRayRendererRT(VRayRendererBase):
                 context.region.as_pointer(),
                 context.space_data.as_pointer(),
                 context.region_data.as_pointer(),
-                True,
+                True, open_file_wrapper
             )
             _vray_for_blender_rt.export(self.exporter)
         else:
