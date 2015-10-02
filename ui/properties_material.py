@@ -97,7 +97,7 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
 class VRAY_MP_preview(classes.VRayMaterialPanel):
     bl_label = "Preview"
 
-    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
+    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
 
     def draw(self, context):
         self.layout.template_preview(context.material, show_buttons=True)
