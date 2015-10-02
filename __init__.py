@@ -48,7 +48,7 @@ from vb30 import utils
 
 
 def register():
-    engine.Init()
+    engine.init()
 
     plugins.register()
     operators.register()
@@ -67,7 +67,7 @@ def register():
 
 
 def unregister():
-    engine.Shutdown()
+    engine.shutdown()
 
     # Remove events first
     events.unregister()
