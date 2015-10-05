@@ -43,11 +43,10 @@ _zmq_process = None
 class VRayRenderer(bpy.types.RenderEngine):
     bl_idname = 'VRAY_RENDER'
     bl_label  = "V-Ray"
-    bl_use_preview =  True
+    bl_use_preview = False
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
     renderer = None
-    renderer_rt = None
 
     def _debug(self, msg):
         if bpy.app.debug:
@@ -65,11 +64,7 @@ class VRayRenderer(bpy.types.RenderEngine):
         if self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
 
-        if self.renderer_rt is not None:
-            _vray_for_blender_rt.free(self.renderer_rt)
-
         self.renderer = None
-        self.renderer_rt = None
 
     def __init__(self):
         self._debug("__init__()")
@@ -94,17 +89,14 @@ class VRayRenderer(bpy.types.RenderEngine):
             # Start server if needed
             pass
 
-        if self.renderer_rt is not None:
-            # Decide whether to shutdown realtime exporter
-            pass
+        self._free()
 
-        if self.renderer is None:
-            self.renderer = _vray_for_blender_rt.init(
-                context=bpy.context.as_pointer(),
-                engine=self.as_pointer(),
-                data=data.as_pointer(),
-                scene=scene.as_pointer(),
-            )
+        self.renderer = _vray_for_blender_rt.init(
+            context=bpy.context.as_pointer(),
+            engine=self.as_pointer(),
+            data=data.as_pointer(),
+            scene=scene.as_pointer(),
+        )
 
         _vray_for_blender_rt.update(self.renderer)
 
@@ -116,7 +108,8 @@ class VRayRenderer(bpy.types.RenderEngine):
         else:
             pass
 
-        _vray_for_blender_rt.render(self.renderer)
+        if self.renderer:
+            _vray_for_blender_rt.render(self.renderer)
 
     # Interactive rendering
     #
@@ -124,26 +117,23 @@ class VRayRenderer(bpy.types.RenderEngine):
         self._debug("view_update()")
 
         vrayExporter = self._get_settings()
-        if 'APPSDK' in vrayExporter.backend or 'ZMQ' in vrayExporter.backend:
-            if self.renderer is not None:
-                # Decide whether to shutdown production exporter
-                pass
 
-            if self.renderer_rt is None:
-                self.renderer_rt = _vray_for_blender_rt.init_rt(
-                    context=context.as_pointer(),
-                    engine=self.as_pointer(),
-                    data=bpy.data.as_pointer(),
-                    scene=bpy.context.scene.as_pointer(),
-                )
+        if not self.renderer:
+            self.renderer = _vray_for_blender_rt.init_rt(
+                context=context.as_pointer(),
+                engine=self.as_pointer(),
+                data=bpy.data.as_pointer(),
+                scene=bpy.context.scene.as_pointer(),
+            )
 
-            _vray_for_blender_rt.view_update(self.renderer_rt)
+        if self.renderer:
+            _vray_for_blender_rt.view_update(self.renderer)
 
     def view_draw(self, context):
         # self._debug("view_draw()")
 
-        if self.renderer_rt is not None:
-            _vray_for_blender_rt.view_draw(self.renderer_rt)
+        if self.renderer:
+            _vray_for_blender_rt.view_draw(self.renderer)
 
 
 def init():
