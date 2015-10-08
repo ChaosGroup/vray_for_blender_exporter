@@ -475,13 +475,29 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.label(text="Options:")
-		layout.prop(VRayExporter, 'backend', text="Renderer")
-		layout.prop(VRayExporter, 'work_mode')
+
+		box = layout.box()
+		box.label("Renderer:")
+		box.prop(VRayExporter, 'backend', text="Type")
+		if VRayExporter.backend not in {'STD'}:
+			box.prop(VRayExporter, 'work_mode', text="Work Mode")
+
 		if VRayExporter.backend in {'ZMQ'}:
-			layout.prop(VRayExporter, 'backend_worker')
+			box.prop(VRayExporter, 'backend_worker')
 			if VRayExporter.backend_worker == 'NETWORK':
-				layout.prop(VRayExporter, 'zmq_address')
-			layout.prop(VRayExporter, 'zmq_port')
+				box.prop(VRayExporter, 'zmq_address')
+			box.prop(VRayExporter, 'zmq_port')
+
+		box = layout.box()
+		box.label("Final Rendering:")
+		box.prop(VRayExporter, 'rendering_mode', text="Render Mode")
+
+		box = layout.box()
+		box.label("Viewport Rendering:")
+		box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
+		box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
+		box.prop(VRayExporter, 'viewport_alpha')
+
 		layout.separator()
 
 		split = layout.split()
