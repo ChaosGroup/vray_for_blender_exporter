@@ -43,7 +43,7 @@ _zmq_process = None
 class VRayRenderer(bpy.types.RenderEngine):
     bl_idname = 'VRAY_RENDER'
     bl_label  = "V-Ray"
-    bl_use_preview = False
+    bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
     renderer = None
@@ -89,14 +89,13 @@ class VRayRenderer(bpy.types.RenderEngine):
             # Start server if needed
             pass
 
-        self._free()
-
-        self.renderer = _vray_for_blender_rt.init(
-            context=bpy.context.as_pointer(),
-            engine=self.as_pointer(),
-            data=data.as_pointer(),
-            scene=scene.as_pointer(),
-        )
+        if not self.renderer:
+            self.renderer = _vray_for_blender_rt.init(
+                context=bpy.context.as_pointer(),
+                engine=self.as_pointer(),
+                data=data.as_pointer(),
+                scene=scene.as_pointer(),
+            )
 
         _vray_for_blender_rt.update(self.renderer)
 

@@ -480,6 +480,44 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "VFB global preset file",
     )
 
+    rendering_mode = bpy.props.EnumProperty(
+        name = "Rendering Mode",
+        description = "Rendering mode",
+        items = (
+            ( "-1", "Production", "" ),
+            ( "0",  "RT CPU",     "" ),
+            ( "1",  "RT OpenCL",  "" ),
+            ( "4",  "RT CUDA",    "" )
+        ),
+        default = "-1"
+    )
+
+    viewport_rendering_mode = bpy.props.EnumProperty(
+        name = "Viewport Rendering Mode",
+        description = "Viewport rendering mode",
+        items = (
+            ( "0",  "RT CPU",     "" ),
+            ( "1",  "RT OpenCL",  "" ),
+            ( "4",  "RT CUDA",    "" )
+        ),
+        default = '0'
+    )
+
+    viewport_resolution = bpy.props.IntProperty(
+        name = "Viewport Resolution",
+        description = "Viewport resolution",
+        min = 10,
+        max = 100,
+        subtype = 'PERCENTAGE',
+        default = 100
+    )
+
+    viewport_alpha = bpy.props.BoolProperty(
+        name = "Show Alpha",
+        description = "how Alpha",
+        default = False
+    )
+
 
 def GetRegClasses():
     return (
