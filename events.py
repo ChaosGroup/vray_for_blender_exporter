@@ -44,7 +44,7 @@ def dr_nodes_restore(e):
 
 @bpy.app.handlers.persistent
 def event_shutdown(e):
-    engine.Shutdown()
+    engine.shutdown()
 
 
 @bpy.app.handlers.persistent

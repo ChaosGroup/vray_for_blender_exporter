@@ -90,14 +90,10 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
         elif mat:
             layout.template_ID(space, "pin_id")
 
-        if context.scene.render.engine != 'VRAY_RENDER_PREVIEW':
-            RenderMaterialPanel(mat, context, layout)
-
 
 class VRAY_MP_preview(classes.VRayMaterialPanel):
     bl_label = "Preview"
-
-    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         self.layout.template_preview(context.material, show_buttons=True)
@@ -105,8 +101,6 @@ class VRAY_MP_preview(classes.VRayMaterialPanel):
 
 class VRAY_MP_preview_material(classes.VRayMaterialPanel):
     bl_label = "Material"
-
-    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW'}
 
     @classmethod
     def poll_custom(cls, context):

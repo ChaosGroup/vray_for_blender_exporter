@@ -33,12 +33,6 @@ from vb30     import plugins, preset
 
 from vb30.ui.classes import PanelGroups
 
-_has_rt = True
-try:
-    import _vray_for_blender_rt
-except:
-    _has_rt = False
-
 
 def GetRenderIcon(vrayExporter):
 	renderIcon = 'RENDER_ANIMATION'
@@ -481,17 +475,14 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		SettingsOutput = VRayScene.SettingsOutput
 
 		layout.label(text="Options:")
-		if _has_rt and context.scene.render.engine == 'VRAY_RENDER_RT':
-			layout.prop(VRayExporter, 'backend', text="Renderer")
-			layout.prop(VRayExporter, 'work_mode')
-
-			if VRayExporter.backend == 'ZMQ':
-				layout.prop(VRayExporter, 'backend_worker')
-				if VRayExporter.backend_worker == 'NETWORK':
-					layout.prop(VRayExporter, 'zmq_address')
-				layout.prop(VRayExporter, 'zmq_port')
-
-			layout.separator()
+		layout.prop(VRayExporter, 'backend', text="Renderer")
+		layout.prop(VRayExporter, 'work_mode')
+		if VRayExporter.backend in {'ZMQ'}:
+			layout.prop(VRayExporter, 'backend_worker')
+			if VRayExporter.backend_worker == 'NETWORK':
+				layout.prop(VRayExporter, 'zmq_address')
+			layout.prop(VRayExporter, 'zmq_port')
+		layout.separator()
 
 		split = layout.split()
 		col = split.column()
