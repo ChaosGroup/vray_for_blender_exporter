@@ -88,12 +88,16 @@ def _check_zmq_process(port):
 class VRayRenderer(bpy.types.RenderEngine):
     bl_idname = 'VRAY_RENDER'
     bl_label  = "V-Ray"
-    bl_use_preview =  True
+    bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
     renderer = None
-    renderer_rt = None
     file_manager = None
+
+    def _debug(self, msg):
+        if bpy.app.debug:
+            sys.stderr.write("%s::%s\n" % (self.__class__.__name__, msg))
+            sys.stderr.flush()
 
     def _get_settings(self):
         # In case of preview "scene" argument will point
@@ -106,11 +110,7 @@ class VRayRenderer(bpy.types.RenderEngine):
         if self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
 
-        if self.renderer_rt is not None:
-            _vray_for_blender_rt.free(self.renderer_rt)
-
         self.renderer = None
-        self.renderer_rt = None
         if self.file_manager:
             self.file_manager.writeIncludes()
             self.file_manager.closeFiles()
@@ -136,11 +136,7 @@ class VRayRenderer(bpy.types.RenderEngine):
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
             _check_zmq_process(str(vrayExporter.zmq_port))
 
-        if self.renderer_rt is not None:
-            # Decide whether to shutdown realtime exporter
-            pass
-
-        if self.renderer is None:
+        if not self.renderer:
             self.file_manager = get_file_manager(vrayExporter, self, scene)
             self.renderer = _vray_for_blender_rt.init(
                 context=bpy.context.as_pointer(),
@@ -167,7 +163,8 @@ class VRayRenderer(bpy.types.RenderEngine):
         else:
             pass
 
-        _vray_for_blender_rt.render(self.renderer)
+        if self.renderer:
+            _vray_for_blender_rt.render(self.renderer)
 
     # Interactive rendering
     #
@@ -175,26 +172,23 @@ class VRayRenderer(bpy.types.RenderEngine):
         _debug("view_update()")
 
         vrayExporter = self._get_settings()
-        if 'APPSDK' in vrayExporter.backend or 'ZMQ' in vrayExporter.backend:
-            if self.renderer is not None:
-                # Decide whether to shutdown production exporter
-                pass
 
-            if self.renderer_rt is None:
-                self.renderer_rt = _vray_for_blender_rt.init_rt(
-                    context=context.as_pointer(),
-                    engine=self.as_pointer(),
-                    data=bpy.data.as_pointer(),
-                    scene=bpy.context.scene.as_pointer()
-                )
+        if not self.renderer:
+            self.renderer = _vray_for_blender_rt.init_rt(
+                context=context.as_pointer(),
+                engine=self.as_pointer(),
+                data=bpy.data.as_pointer(),
+                scene=bpy.context.scene.as_pointer(),
+            )
 
-            _vray_for_blender_rt.view_update(self.renderer_rt)
+        if self.renderer:
+            _vray_for_blender_rt.view_update(self.renderer)
 
     def view_draw(self, context):
         # _debug("view_draw()")
 
-        if self.renderer_rt is not None:
-            _vray_for_blender_rt.view_draw(self.renderer_rt)
+        if self.renderer:
+            _vray_for_blender_rt.view_draw(self.renderer)
 
 
 def init():
