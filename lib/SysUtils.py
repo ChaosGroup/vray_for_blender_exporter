@@ -245,7 +245,7 @@ def IsRTEngine(bus):
 
 def GetZmqPath():
     if sys.platform == 'win32':
-        return "C:/Program Files/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer.exe"
+        return "C:/Program Files/Chaos Group/V-Ray/VRayZmqServer/VRayZmqServer.exe"
     elif sys.platform == 'darwin':
         return "/Applications/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
     else:

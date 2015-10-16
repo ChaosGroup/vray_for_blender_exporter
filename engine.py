@@ -33,11 +33,56 @@ import _vray_for_blender_rt
 from vb30.lib import SysUtils
 from vb30 import export
 
+from vb30.lib.VRayStream import VRayExportFiles
+from vb30.lib.VRayStream import VRayFilePaths
+
 
 # This will hold handle to subprocess.Popen to the zmq server if
 # it is started in local mode, and it should be terminated on Shutdown()
 #
 _zmq_process = None
+
+def _debug(msg):
+    import inspect
+    if True:
+        sys.stderr.write("Python: %s::%s\n" % (inspect.stack()[1][3], msg))
+        sys.stderr.flush()
+
+def get_file_manager(exporter, engine, scene):
+    pm = VRayFilePaths()
+
+    # Setting user defined value here
+    # It could be overriden in 'initFromScene'
+    # depending on VRayDR settings
+    pm.setSeparateFiles(exporter.useSeparateFiles)
+
+    pm.initFromScene(engine, scene)
+    pm.printInfo()
+
+    fm = VRayExportFiles(pm)
+    fm.setOverwriteGeometry(exporter.auto_meshes)
+
+    try:
+        fm.init()
+    except Exception as e:
+        _debug(e)
+        return "Error initing files!"
+
+    return fm
+
+
+
+
+def _check_zmq_process(port):
+    global _zmq_process
+
+    if not _zmq_process or _zmq_process and _zmq_process.poll() is not None:
+        executable_path = SysUtils.GetZmqPath()
+
+        if not executable_path or not os.path.exists(executable_path):
+            _debug("Can't find V-Ray ZMQ Server!")
+        else:
+            _zmq_process = subprocess.Popen([executable_path, "-p", port])
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -47,6 +92,7 @@ class VRayRenderer(bpy.types.RenderEngine):
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
     renderer = None
+    file_manager = None
 
     def _debug(self, msg):
         if bpy.app.debug:
@@ -65,42 +111,52 @@ class VRayRenderer(bpy.types.RenderEngine):
             _vray_for_blender_rt.free(self.renderer)
 
         self.renderer = None
+        if self.file_manager:
+            self.file_manager.writeIncludes()
+            self.file_manager.closeFiles()
 
     def __init__(self):
-        self._debug("__init__()")
+        _debug("__init__()")
         self._free()
 
         vrayExporter = self._get_settings()
-        if vrayExporter.backend in {'ZMQ'}:
-            # Start server if needed
-            pass
+        if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
+            _check_zmq_process(str(vrayExporter.zmq_port))
 
     def __del__(self):
-        self._debug("__del__()")
+        _debug("__del__()")
         self._free()
 
     # Production rendering
     #
     def update(self, data, scene):
-        self._debug("update()")
+        _debug("update()")
 
         vrayExporter = self._get_settings()
-        if vrayExporter.backend in {'ZMQ'}:
-            # Start server if needed
-            pass
+        if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
+            _check_zmq_process(str(vrayExporter.zmq_port))
 
         if not self.renderer:
+            self.file_manager = get_file_manager(vrayExporter, self, scene)
             self.renderer = _vray_for_blender_rt.init(
                 context=bpy.context.as_pointer(),
                 engine=self.as_pointer(),
                 data=data.as_pointer(),
                 scene=scene.as_pointer(),
+
+                mainFile     = self.file_manager.getFileByPluginType('MAIN'),
+                objectFile   = self.file_manager.getFileByPluginType('OBJECT'),
+                envFile      = self.file_manager.getFileByPluginType('WORLD'),
+                geometryFile = self.file_manager.getFileByPluginType('GEOMETRY'),
+                lightsFile   = self.file_manager.getFileByPluginType('LIGHT'),
+                materialFile = self.file_manager.getFileByPluginType('MATERIAL'),
+                textureFile  = self.file_manager.getFileByPluginType('TEXTURE'),
             )
 
         _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
-        self._debug("render()")
+        _debug("render()")
 
         if self.is_preview:
             pass
@@ -113,7 +169,7 @@ class VRayRenderer(bpy.types.RenderEngine):
     # Interactive rendering
     #
     def view_update(self, context):
-        self._debug("view_update()")
+        _debug("view_update()")
 
         vrayExporter = self._get_settings()
 
@@ -129,7 +185,7 @@ class VRayRenderer(bpy.types.RenderEngine):
             _vray_for_blender_rt.view_update(self.renderer)
 
     def view_draw(self, context):
-        # self._debug("view_draw()")
+        # _debug("view_draw()")
 
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
