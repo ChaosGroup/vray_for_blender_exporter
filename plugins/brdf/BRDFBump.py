@@ -45,7 +45,7 @@ PluginParams = (
         'name' : "Bump Texture",
         'desc' : "Bump texture",
         'type' : 'FLOAT_TEXTURE',
-        'option' : ['LINKED_ONLY'],
+        'options' : ['LINKED_ONLY'],
         'default' : 1.0,
     },
     {
@@ -53,7 +53,7 @@ PluginParams = (
         'name' : "Normal Texture",
         'desc' : "Normal texture",
         'type' : 'TEXTURE',
-        'option' : ['LINKED_ONLY'],
+        'options' : ['LINKED_ONLY'],
         'default' : (0.0, 0.0, 0.0),
     },
     {

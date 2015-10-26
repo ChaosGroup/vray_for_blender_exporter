@@ -125,7 +125,7 @@ def AddDefaultInputs(self, vrayPlugin, attrFilter=None):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
-        attr_options = attr.get('option', {})
+        attr_options = attr.get('options', [])
 
         if attrFilter and attr['attr'] in attrFilter:
             continue
@@ -142,7 +142,7 @@ def AddDefaultOutputs(self, vrayPlugin):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
-        attr_options = attr.get('option', {})
+        attr_options = attr.get('options', {})
 
         if attr['type'] in AttributeUtils.OutputTypes:
             SocketUtils.AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
