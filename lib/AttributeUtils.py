@@ -225,8 +225,11 @@ def GenerateAttribute(classMembers, attrDesc):
 
     if 'options' in attrDesc:
         options = set()
-        for opt in attrDesc['options'].split():
-            options.add(opt)
+        for opt in attrDesc['options']:
+            # These options are not directly mapped into the Blender prop
+            # options
+            if opt not in {'LINKED_ONLY', 'EXPORT_AS_IS'}:
+                options.add(opt)
         attrArgs['options'] = options
 
     for optionalKey in {'size', 'precision', 'subtype'}:
