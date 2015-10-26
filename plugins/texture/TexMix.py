@@ -53,7 +53,7 @@ PluginParams.extend([
         'attr' : 'mix_map',
         'desc' : "Mix amount texture",
         'type' : 'TEXTURE',
-        'option' : ['LINKED_ONLY'],
+        'options' : ['LINKED_ONLY'],
         'default' : (0.5, 0.5, 0.5),
     },
     {

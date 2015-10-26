@@ -72,8 +72,8 @@ def WritePluginParams(bus, pluginModule, pluginName, propGroup, mappedParams):
             if value is None:
                 continue
 
-        if 'option' in attrDesc:
-            if 'EXPORT_AS_IS' in attrDesc['option']:
+        if 'options' in attrDesc:
+            if 'EXPORT_AS_IS' in attrDesc['options']:
                 o.writeAttibute(attrName, value)
                 continue
 

@@ -45,7 +45,7 @@ PluginParams = (
         'name' : "Mapping",
         'desc' : "Mapping generator",
         'type' : 'UVWGEN',
-        'options' : 'HIDDEN',
+        'options' : ['HIDDEN'],
         'default' : "",
     },
 )
