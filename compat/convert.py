@@ -1344,7 +1344,7 @@ def ConvertMaterial(scene, ob, ma, textures):
                 baseBRDF.inputs['Reflect'].value = oldPropGroup.reflect_color
             if 'refract' not in textures:
                 baseBRDF.inputs['Refract'].value = oldPropGroup.refract_color
-            baseBRDF.inputs['Fog Color'].value = oldPropGroup.fog_color
+            baseBRDF.inputs['Fog Color Tex'].value = oldPropGroup.fog_color
 
         if not mainBRDF:
             mainBRDF = baseBRDF
