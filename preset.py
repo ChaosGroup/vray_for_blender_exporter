@@ -326,6 +326,7 @@ class VRayPresetAddBase:
                 'output' : VRayStream.VRaySimplePluginExporter(outputFilepath),
                 'scene'  : context.scene,
                 'camera' : context.scene.camera,
+                'preview' : False,
             }
 
             pluginPresetIDs = None
