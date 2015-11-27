@@ -91,9 +91,6 @@ class VRayRenderer(bpy.types.RenderEngine):
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
-    renderer = None
-    file_manager = None
-
     def _debug(self, msg):
         if bpy.app.debug:
             sys.stderr.write("%s::%s\n" % (self.__class__.__name__, msg))
@@ -109,14 +106,18 @@ class VRayRenderer(bpy.types.RenderEngine):
     def _free(self):
         if self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
-
         self.renderer = None
+
         if self.file_manager:
             self.file_manager.writeIncludes()
             self.file_manager.closeFiles()
+        self.file_manager = None
 
     def __init__(self):
-        _debug("__init__()")
+        self.renderer = None
+        self.file_manager = None
+
+        self._debug("__init__()")
         self._free()
 
         vrayExporter = self._get_settings()
@@ -124,13 +125,13 @@ class VRayRenderer(bpy.types.RenderEngine):
             _check_zmq_process(str(vrayExporter.zmq_port))
 
     def __del__(self):
-        _debug("__del__()")
+        self._debug("__del__()")
         self._free()
 
     # Production rendering
     #
     def update(self, data, scene):
-        _debug("update()")
+        self._debug("update()")
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
@@ -156,7 +157,7 @@ class VRayRenderer(bpy.types.RenderEngine):
         _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
-        _debug("render()")
+        self._debug("render()")
 
         if self.is_preview:
             pass
@@ -169,7 +170,7 @@ class VRayRenderer(bpy.types.RenderEngine):
     # Interactive rendering
     #
     def view_update(self, context):
-        _debug("view_update()")
+        self._debug("view_update()")
 
         vrayExporter = self._get_settings()
 
