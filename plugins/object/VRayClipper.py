@@ -58,7 +58,7 @@ PluginParams = (
     },
     {
         'attr' : 'use_obj_mtl',
-        'name' : "Use Clipper Material",
+        'name' : "Use Object Material",
         'desc' : "When enabled, the clipper will use the material of each clipped object to fill in the resulting holes. When this is off, the material applied to the clipper object itself will be used",
         'type' : 'BOOL',
         'default' : False,
