@@ -503,6 +503,15 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = '0'
     )
 
+    viewport_jpeg_quality = bpy.props.IntProperty(
+        name = "Image quality",
+        description = "JPEG image quality",
+        min = 10,
+        max = 100,
+        subtype = 'PERCENTAGE',
+        default = 60
+    )
+
     viewport_resolution = bpy.props.IntProperty(
         name = "Viewport Resolution",
         description = "Viewport resolution",

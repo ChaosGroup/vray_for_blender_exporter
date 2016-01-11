@@ -488,6 +488,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box.prop(VRayExporter, 'zmq_address')
 			box.prop(VRayExporter, 'zmq_port')
 
+			box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
+
 		box = layout.box()
 		box.label("Final Rendering:")
 		box.prop(VRayExporter, 'rendering_mode', text="Render Mode")
