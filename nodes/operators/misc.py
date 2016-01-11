@@ -28,13 +28,17 @@ from vb30.lib import BlenderUtils
 from vb30 import debug
 
 
+def _redrawNodeEditor():
+    for area in bpy.context.screen.areas:
+        if area.type == 'NODE_EDITOR':
+            area.tag_redraw()
+
+
 def SelectNtreeInEditor(context, ntreeName):
     VRayExporter = context.scene.vray.Exporter
     VRayExporter.ntreeListIndex = bpy.data.node_groups.find(ntreeName)
 
-    for area in context.screen.areas:
-        if area.type == 'NODE_EDITOR':
-            area.tag_redraw()
+    _redrawNodeEditor()
 
 
 class VRayOpSelectNtreeInEditor(bpy.types.Operator):
@@ -276,6 +280,18 @@ class VRayOpRemoveFakeTextures(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpNtreeNodeMute(bpy.types.Operator):
+    bl_idname = "vray.ntree_node_mute"
+    bl_label = "Toggle Mute"
+
+    def execute(self, context):
+        if hasattr(context, 'active_node'):
+            node = context.active_node
+            if node:
+                node.mute = not node.mute
+                _redrawNodeEditor()
+        return {'FINISHED'}
+
 
 def GetRegClasses():
     return (
@@ -290,6 +306,8 @@ def GetRegClasses():
         VRayMenuShowNtree,
         VRayPieShowNtree,
         VRayPieAddNtree,
+
+        VRayOpNtreeNodeMute,
     )
 
 
