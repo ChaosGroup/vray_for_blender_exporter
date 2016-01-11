@@ -104,11 +104,11 @@ class VRayRenderer(bpy.types.RenderEngine):
         return bpy.context.scene.vray.Exporter
 
     def _free(self):
-        if self.renderer is not None:
+        if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
         self.renderer = None
 
-        if self.file_manager:
+        if hasattr(self, 'file_manager') and self.file_manager:
             self.file_manager.writeIncludes()
             self.file_manager.closeFiles()
         self.file_manager = None
