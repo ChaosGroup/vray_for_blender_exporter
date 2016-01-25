@@ -49,7 +49,6 @@ SkippedTypes = {
     'TRANSFORM_LIST',
     'TRANSFORM_TEXTURE',
     'PLUGIN_LIST',
-    'PLUGIN',
 }
 
 InputTypes = {
