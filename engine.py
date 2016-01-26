@@ -76,12 +76,17 @@ def get_file_manager(exporter, engine, scene):
 def _check_zmq_process(port):
     global _zmq_process
 
+
     if not _zmq_process or _zmq_process and _zmq_process.poll() is not None:
         executable_path = SysUtils.GetZmqPath()
 
         if not executable_path or not os.path.exists(executable_path):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
+            appsdkPath = os.environ['VRAY_ZMQSERVER_APPSDK_PATH']
+            os.environ['VRAY_PATH'] = os.path.dirname(appsdkPath)
+            os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + ':' + os.environ['VRAY_PATH']
+
             _zmq_process = subprocess.Popen([executable_path, "-p", port])
 
 
