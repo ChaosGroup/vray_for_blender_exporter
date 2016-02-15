@@ -85,7 +85,8 @@ def _check_zmq_process(port):
         else:
             appsdkPath = os.environ['VRAY_ZMQSERVER_APPSDK_PATH']
             os.environ['VRAY_PATH'] = os.path.dirname(appsdkPath)
-            os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + ':' + os.environ['VRAY_PATH']
+            if 'LD_LIBRARY_PATH' in os.environ:
+                os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + ':' + os.environ['VRAY_PATH']
 
             _zmq_process = subprocess.Popen([executable_path, "-p", port])
 
