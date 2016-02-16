@@ -95,6 +95,16 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
 
 
+class VRayPanelMaterials(classes.VRayRenderLayersPanel):
+	bl_label   = "Scene Materials"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		self.layout.template_list("VRayListMaterials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
+
+
 class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -228,6 +238,7 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 
 def GetRegClasses():
 	return (
+		VRayPanelMaterials,
 		VRayPanelMiscTools,
 		VRayPanelNodeTrees,
 		VRayPanelLightLister,

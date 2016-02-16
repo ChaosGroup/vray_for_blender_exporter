@@ -522,6 +522,14 @@ class VRayListNodeTrees(bpy.types.UIList):
         layout.label(text=item.name, translate=False)
 
 
+class VRayListMaterials(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        split = layout.split(percentage=0.1)
+
+        split.column().prop(item, 'diffuse_color', text="")
+        split.column().label(text=item.name, translate=False)
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -537,6 +545,7 @@ def GetRegClasses():
         VRayListUse,
         VRayListDR,
         VRayList,
+        VRayListMaterials,
 
         VRayOpListItemNew,
         VRayOpListItemDel,
