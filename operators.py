@@ -78,8 +78,10 @@ class VRAY_OT_update(bpy.types.Operator):
 			git = '"%s"' % git
 
 		cmds = (
-			"%s pull --rebase" % git,
-			"%s submodule foreach git pull --rebase origin master" % git
+			"%s fetch" % git,
+			"%s reset --hard origin/master" % git,
+			"%s submodule foreach git fetch" % git,
+			"%s submodule foreach git reset --hard origin/master" % git
 		)
 
 		os.chdir(exporterDir)
