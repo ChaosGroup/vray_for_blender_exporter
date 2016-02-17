@@ -99,8 +99,26 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 	bl_label   = "Scene Materials"
 	bl_options = {'DEFAULT_CLOSED'}
 
+	def getMaterial(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		listIndex = VRayExporter.materialListIndex if VRayExporter.materialListIndex >= 0 else 0
+		numMaterials = len(bpy.data.materials)
+
+		if numMaterials:
+			if listIndex >= numMaterials:
+				VRayExporter.materialListIndex = 0
+				listIndex = 0
+
+			return bpy.data.materials[listIndex]
+
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
+
+		if context.scene.render.engine in {'VRAY_RENDER_PREVIEW'}:
+			material = self.getMaterial(context)
+			if material:
+				self.layout.template_preview(material, show_buttons=True)
 
 		self.layout.template_list("VRayListMaterials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
 
