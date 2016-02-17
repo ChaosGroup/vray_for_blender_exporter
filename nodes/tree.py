@@ -184,9 +184,9 @@ class VRayNodeTreeEditor(VRayNodeTree):
         return (None, None, None)
 
 
-class VRayMaterialEditor(VRayNodeTree):
+class VRayNodeTreeMaterialEditor(VRayNodeTree):
     bl_label  = "V-Ray Material Editor"
-    bl_idname = 'VRayMaterialEditor'
+    bl_idname = 'VRayNodeTreeMaterialEditor'
     bl_icon   = 'MATERIAL'
 
     @classmethod
@@ -225,7 +225,7 @@ def GetRegClasses():
         VRayNodeTreeScene,
 
         VRayNodeTreeEditor,
-        VRayMaterialEditor,
+        VRayNodeTreeMaterialEditor,
     )
 
 
