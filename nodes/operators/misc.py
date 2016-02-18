@@ -293,6 +293,18 @@ class VRayOpNtreeNodeMute(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpNtreeSyncName(bpy.types.Operator):
+    bl_label = "Sync Node Tree Name"
+    bl_idname = "vray.sync_ntree_name"
+
+    material = bpy.props.PointerProperty(type=bpy.types.Material)
+
+    def execute(self, context):
+        if self.material:
+            self.material.vray.ntree.name = self.material.name
+        return {'FINISHED'}
+
+
 def GetRegClasses():
     return (
         VRayOpRemoveFakeTextures,
@@ -308,6 +320,7 @@ def GetRegClasses():
         VRayPieAddNtree,
 
         VRayOpNtreeNodeMute,
+        VRayOpNtreeSyncName,
     )
 
 

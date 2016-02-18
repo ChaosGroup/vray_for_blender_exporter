@@ -230,6 +230,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default     = -1,
     )
 
+    materialListShowPreview = bpy.props.BoolProperty(
+        name        = "Show preview",
+        description = "Show preview",
+        default     = True
+    )
+
     useSeparateFiles = bpy.props.BoolProperty(
         name        = "Separate Files",
         description = "Export plugins to separate files",

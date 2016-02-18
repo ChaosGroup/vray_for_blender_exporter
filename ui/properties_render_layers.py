@@ -114,12 +114,38 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
 
-		if context.scene.render.engine in {'VRAY_RENDER_PREVIEW'}:
-			material = self.getMaterial(context)
-			if material:
-				self.layout.template_preview(material, show_buttons=True)
+		expandIcon = 'TRIA_DOWN' if VRayExporter.materialListShowPreview else 'TRIA_RIGHT'
+
+		box = self.layout.box()
+		row = box.row(align=True)
+		row.prop(VRayExporter, 'materialListShowPreview', text="",  icon=expandIcon, emboss=False)
+		row.label(text="Expand Preview")
+
+		if VRayExporter.materialListShowPreview:
+			if context.scene.render.engine in {'VRAY_RENDER_PREVIEW'}:
+				material = self.getMaterial(context)
+				if material:
+					box.template_preview(material, show_buttons=True)
+
+		self.layout.operator('vray.new_material', text="New Material", icon='MATERIAL')
 
 		self.layout.template_list("VRayListMaterials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
+		self.layout.separator()
+
+		material = self.getMaterial(context)
+		if material:
+			split = self.layout.split()
+
+			col = split.column()
+			col.prop(material, 'name')
+
+			row = col.row(align=True)
+			row.label("Node Tree:")
+
+			op = row.operator("vray.sync_ntree_name", icon='SYNTAX_OFF', text="")
+			op.material = material
+
+			row.prop(material.vray, 'ntree', text="", icon='NODETREE')
 
 
 class VRayPanelLightLister(classes.VRayRenderLayersPanel):

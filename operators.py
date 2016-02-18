@@ -449,6 +449,31 @@ class VRayOpSwitchSlotsObject(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class VRayOpNewMaterial(bpy.types.Operator):
+	bl_idname      = "vray.new_material"
+	bl_label       = "Add New Material"
+	bl_description = "Add new material"
+
+	def execute(self, context):
+		from vb30.nodes import tree_defaults
+
+		ma = bpy.data.materials.new(name="Material")
+		ma.use_fake_user = True
+
+		tree_defaults.AddMaterialNodeTree(ma)
+
+		maIndex = 0
+		for i in range(len(bpy.data.materials)):
+			if bpy.data.materials[i] == ma:
+				break
+			maIndex += 1
+
+		VRayExporter = context.scene.vray.Exporter
+		VRayExporter.materialListIndex = maIndex
+
+		return {'FINISHED'}
+
+
 def GetRegClasses():
 	return (
 		VRAY_OT_update,
@@ -463,6 +488,7 @@ def GetRegClasses():
 		VRAY_OT_add_sky,
 
 		VRayOpSwitchSlotsObject,
+		VRayOpNewMaterial,
 	)
 
 
