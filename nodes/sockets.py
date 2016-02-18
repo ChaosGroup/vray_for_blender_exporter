@@ -25,7 +25,6 @@
 import bpy
 
 from vb30.debug import Debug
-from . import utils as NodeUtils
 
 
 def CheckLinkedSockets(node_sockets):
@@ -72,8 +71,14 @@ def AddOutput(node, socketType, socketName, attrName=None):
 
 
 def _is_connected_muted(socket):
+    def _get_connected_node(nodeSocket):
+        for l in nodeSocket.links:
+            if l.from_node:
+                return l.from_node
+        return None
+
     muted = False
-    conNode = NodeUtils.GetConnectedNode(None, socket)
+    conNode = _get_connected_node(socket)
     if conNode:
         muted = conNode.mute
     return muted
