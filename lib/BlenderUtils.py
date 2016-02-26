@@ -369,3 +369,57 @@ def GetSceneAndCamera(bus):
                 camera = scene.camera
 
     return scene, camera
+
+
+def generateVfbTheme(filepath):
+    import mathutils
+
+    def rgbToHex(color):
+        return '#%X%X%X' % (int(color[0] * 255), int(color[1] * 255), int(color[2] * 255))
+
+    currentTheme = bpy.context.user_preferences.themes[0]
+
+    themeUI   = currentTheme.user_interface
+    themeProp = currentTheme.properties
+
+    back   = rgbToHex(themeProp.space.back)
+    text   = rgbToHex(themeProp.space.text)
+    header = rgbToHex(themeProp.space.header)
+
+    buttonColorTuple = themeUI.wcol_tool.inner
+    buttonColor = mathutils.Color((buttonColorTuple[0], buttonColorTuple[1], buttonColorTuple[2]))
+
+    button = rgbToHex(buttonColor)
+
+    buttonColor.v *= 1.35
+    buttonHover = rgbToHex(buttonColor)
+
+    shadow = rgbToHex(themeUI.wcol_tool.outline)
+
+    pressed = rgbToHex(themeUI.wcol_radio.inner_sel)
+    hover   = rgbToHex(themeUI.wcol_tool.inner_sel)
+
+    rollout = rgbToHex(themeUI.wcol_box.inner)
+
+    themeDict = {}
+    themeDict['style'] = "3dsMaxQt"
+
+    themeDict['appWorkspace'] = header
+
+    themeDict['window']     = back
+    themeDict['windowText'] = text
+
+    themeDict['btnFace']        = button
+    themeDict['btnFacePressed'] = pressed
+    themeDict['btnFaceHover']   = buttonHover
+    themeDict['hover']          = hover
+
+    themeDict['rollout'] = rollout
+
+    themeDict['hiLight']    = shadow
+    themeDict['darkShadow'] = shadow
+
+    with open(filepath, 'w') as themeFile:
+        import json
+        json.dump(themeDict, themeFile, sort_keys=True, indent=4)
+        themeFile.write('\n')
