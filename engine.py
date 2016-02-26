@@ -124,7 +124,6 @@ class VRayRenderer(bpy.types.RenderEngine):
         self.file_manager = None
 
         self._debug("__init__()")
-        self._free()
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':

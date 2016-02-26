@@ -64,6 +64,13 @@ PluginParams = (
         'default' : False,
     },
     {
+        'attr' : 'use_obj_mesh',
+        'name' : "Use Object Mesh",
+        'desc' : "When enabled, the clipper will use the mesh of the clipper object to do the clipping. When this is off, clipping will be done by an infinite plane using clipper transform",
+        'type' : 'BOOL',
+        'default' : False,
+    },
+    {
         'attr' : 'set_material_id',
         'name' : 'Set Material ID',
         'desc' : "When enabled, you can specify a face material ID for the clipper object",
