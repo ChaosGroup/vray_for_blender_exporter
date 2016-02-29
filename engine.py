@@ -159,18 +159,20 @@ class VRayRenderer(bpy.types.RenderEngine):
                 textureFile  = self.file_manager.getFileByPluginType('TEXTURE'),
             )
 
-        _vray_for_blender_rt.update(self.renderer)
+        if vrayExporter.animation_mode == 'NONE':
+            _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
         self._debug("render()")
 
-        if self.is_preview:
-            pass
-        else:
-            pass
+        vrayExporter = self._get_settings()
 
         if self.renderer:
-            _vray_for_blender_rt.render(self.renderer)
+            if vrayExporter.animation_mode == 'NONE':
+                _vray_for_blender_rt.render(self.renderer)
+            else:
+                _vray_for_blender_rt.update(self.renderer)
+
 
     # Interactive rendering
     #
