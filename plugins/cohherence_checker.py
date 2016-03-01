@@ -55,103 +55,103 @@ def subset(A, B):
 
 	return True
 
+if __name__ == '__main__':
+	manual_check = []
+	missmatch_json = []
+	missing_json = []
+	passed = []
 
-manual_check = []
-missmatch_json = []
-missing_json = []
-passed = []
+	for f in fake_dirs:
+		try:
+			os.mkdir(f)
+		except:
+			pass
+	for f in fake_files:
+		try:
+			open(f, 'w+').write(' ')
+		except:
+			pass
 
-for f in fake_dirs:
-	try:
-		os.mkdir(f)
-	except:
-		pass
-for f in fake_files:
-	try:
-		open(f, 'w+').write(' ')
-	except:
-		pass
-
-for pl_dir in dirs:
-	for root, _, files in os.walk(pl_dir):
-		if root.find('__') != -1:
-				continue
-		for f in files:
-			if f.find('__') != -1:
-				continue
-
-			pyFile = os.path.join(root, f)
-			modName = os.path.basename(pyFile).replace('.py', '')
-			jsonFile = os.path.join('..', 'plugins_desc', pl_dir, '%s.json' % modName)
-			if not os.path.exists(jsonFile):
-				missing_json.append(pyFile)
-				# print('Missing json %s \t->\t %s' % (pyFile, jsonFile))
-				continue
-
-			pyJson = None
-			jsJson = ordered(json.loads(open(jsonFile, 'r').read())['Widget'])
-			# print('Checking %s' % pyFile)
-
-			lastE = None
-			while True:
-				try:
-					mod = SourceFileLoader(modName, pyFile).load_module()
-					if not hasattr(mod, 'PluginWidget'):
-						break
-					pyJson = ordered(json.loads(mod.PluginWidget))
-				except ImportError as e:
-					if e.name:
-						fakePy = '%s.py' % e.name
-						open(fakePy, 'w+').write(' ')
-						fake_files.append(fakePy)
-						# print('Making fake %s' % fakePy)
-					# else:
-					# 	print(e.args, '!', e.name, '!', e.path, pyFile)
-					if str(e) == str(lastE):
-						manual_check.append(pyFile)
-						break
-					lastE = e
+	for pl_dir in dirs:
+		for root, _, files in os.walk(pl_dir):
+			if root.find('__') != -1:
 					continue
-				except AttributeError as e:
+			for f in files:
+				if f.find('__') != -1:
+					continue
+
+				pyFile = os.path.join(root, f)
+				modName = os.path.basename(pyFile).replace('.py', '')
+				jsonFile = os.path.join('..', 'plugins_desc', pl_dir, '%s.json' % modName)
+				if not os.path.exists(jsonFile):
+					missing_json.append(pyFile)
+					# print('Missing json %s \t->\t %s' % (pyFile, jsonFile))
+					continue
+
+				pyJson = None
+				jsJson = ordered(json.loads(open(jsonFile, 'r').read())['Widget'])
+				# print('Checking %s' % pyFile)
+
+				lastE = None
+				while True:
+					try:
+						mod = SourceFileLoader(modName, pyFile).load_module()
+						if not hasattr(mod, 'PluginWidget'):
+							break
+						pyJson = ordered(json.loads(mod.PluginWidget))
+					except ImportError as e:
+						if e.name:
+							fakePy = '%s.py' % e.name
+							open(fakePy, 'w+').write(' ')
+							fake_files.append(fakePy)
+							# print('Making fake %s' % fakePy)
+						# else:
+						# 	print(e.args, '!', e.name, '!', e.path, pyFile)
+						if str(e) == str(lastE):
+							manual_check.append(pyFile)
+							break
+						lastE = e
+						continue
+					except AttributeError as e:
+						break
 					break
-				break
 
-			if not pyJson or subset(pyJson, jsJson):
-				passed.append(pyFile)
-			else:
-				missmatch_json.append(pyFile)
-				# print('Missmatch for for %s' % pyFile)
-				# print(json.dumps(jsJson, indent=2), json.dumps(pyJson, indent=2))
-
-
-print('Manual check these:')
-for m in manual_check:
-	print('\t', m)
-
-print('\nMissing json for these:')
-for m in missing_json:
-	print('\t', m)
-
-print('\nNon matching json for these:')
-for m in missmatch_json:
-	print('\t', m)
-
-print('\nFiles with no errors:')
-for m in passed:
-	print('\t', m)
+				if not pyJson or subset(pyJson, jsJson):
+					passed.append(pyFile)
+				else:
+					missmatch_json.append(pyFile)
+					# print('Missmatch for for %s' % pyFile)
+					# print(json.dumps(jsJson, indent=2), json.dumps(pyJson, indent=2))
 
 
+	print('Manual check these:')
+	for m in manual_check:
+		print('\t', m)
 
-shutil.move('textures', 'texture')
-fake_dirs.reverse()
-for f in fake_files:
-	try:
-		os.remove(f)
-	except:
-		pass
+	print('\nMissing json for these:')
+	for m in missing_json:
+		print('\t', m)
 
-for f in fake_dirs:
-	try:
-		shutil.rmtree(f)
-	except:
-		pass
+	print('\nNon matching json for these:')
+	for m in missmatch_json:
+		print('\t', m)
+
+	print('\nFiles with no errors:')
+	for m in passed:
+		print('\t', m)
+
+
+
+	shutil.move('textures', 'texture')
+	fake_dirs.reverse()
+	for f in fake_files:
+		try:
+			os.remove(f)
+		except:
+			pass
+
+	for f in fake_dirs:
+		try:
+			shutil.rmtree(f)
+		except:
+			pass
