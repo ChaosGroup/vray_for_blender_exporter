@@ -401,25 +401,26 @@ def generateVfbTheme(filepath):
 
     rollout = rgbToHex(themeUI.wcol_box.inner)
 
-    themeDict = {}
-    themeDict['style'] = "3dsMaxQt"
+    import xml.etree.ElementTree
+    from xml.etree.ElementTree import Element, SubElement, tostring
 
-    themeDict['appWorkspace'] = header
+    elVfb = Element("VFB")
+    elTheme = SubElement(elVfb, "Theme")
 
-    themeDict['window']     = back
-    themeDict['windowText'] = text
+    SubElement(elTheme, "style").text = "Standalone"
 
-    themeDict['btnFace']        = button
-    themeDict['btnFacePressed'] = pressed
-    themeDict['btnFaceHover']   = buttonHover
-    themeDict['hover']          = hover
+    SubElement(elTheme, "appWorkspace").text   = header
+    SubElement(elTheme, 'window').text         = back
+    SubElement(elTheme, 'windowText').text     = text
+    SubElement(elTheme, 'btnFace').text        = button
+    SubElement(elTheme, 'btnFacePressed').text = pressed
+    SubElement(elTheme, 'btnFaceHover').text   = buttonHover
+    SubElement(elTheme, 'hover').text          = hover
+    SubElement(elTheme, 'rollout').text        = rollout
+    SubElement(elTheme, 'hiLight').text        = shadow
+    SubElement(elTheme, 'darkShadow').text     = shadow
 
-    themeDict['rollout'] = rollout
+    tree = xml.etree.ElementTree.ElementTree(elVfb) 
 
-    themeDict['hiLight']    = shadow
-    themeDict['darkShadow'] = shadow
-
-    with open(filepath, 'w') as themeFile:
-        import json
-        json.dump(themeDict, themeFile, sort_keys=True, indent=4)
-        themeFile.write('\n')
+    with open(filepath, 'wb') as f:
+        tree.write(f, encoding='utf-8')
