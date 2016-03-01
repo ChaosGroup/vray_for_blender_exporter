@@ -59,6 +59,7 @@ def subset(A, B):
 manual_check = []
 missmatch_json = []
 missing_json = []
+passed = []
 
 for f in fake_dirs:
 	try:
@@ -116,7 +117,7 @@ for pl_dir in dirs:
 				break
 
 			if not pyJson or subset(pyJson, jsJson):
-				pass
+				passed.append(pyFile)
 			else:
 				missmatch_json.append(pyFile)
 				# print('Missmatch for for %s' % pyFile)
@@ -134,6 +135,11 @@ for m in missing_json:
 print('\nNon matching json for these:')
 for m in missmatch_json:
 	print('\t', m)
+
+print('\nFiles with no errors:')
+for m in passed:
+	print('\t', m)
+
 
 
 shutil.move('textures', 'texture')
