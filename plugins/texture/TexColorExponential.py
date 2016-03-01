@@ -29,7 +29,7 @@ TYPE = 'TEXTURE'
 ID   = 'TexColorExponential'
 
 NAME         = "Color Exponential"
-DESC         = "lfjkgdldsa"
+DESC         = "Color Exponential"
 PluginParams = PluginUtils.GetPluginParams(ID)
 PluginWidget = PluginUtils.GetPluginWidget(ID)
 

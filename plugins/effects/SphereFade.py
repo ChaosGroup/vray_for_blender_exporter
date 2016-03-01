@@ -34,33 +34,8 @@ ID   = 'SphereFade'
 NAME = 'Sphere Fade'
 DESC = ""
 
-PluginParams = (
-    {
-        'attr' : 'gizmos',
-        'name' : "Gizmo 1",
-        'desc' : "List of gizmos",
-        'type' : 'PLUGIN',
-        'default' : "",
-    },
-    {
-        'attr' : 'empty_color',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (0.5, 0.5, 0.5),
-    },
-    {
-        'attr' : 'affect_alpha',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'falloff',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 0.2,
-    },
-)
+
+PluginParams = PluginUtils.GetPluginParams(ID)
 
 
 def nodeDraw(context, layout, propGroup):
