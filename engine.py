@@ -80,7 +80,11 @@ def _check_zmq_process(port):
         if not executable_path or not os.path.exists(executable_path):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
-            _zmq_process = subprocess.Popen([executable_path, "-p", port])
+            try:
+                _zmq_process = subprocess.Popen([executable_path, "-p", port])
+            except Exception as e:
+                _debug(e)
+
 
 
 class VRayRenderer(bpy.types.RenderEngine):
