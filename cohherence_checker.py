@@ -6,21 +6,6 @@ import glob
 
 from importlib.machinery import SourceFileLoader
 
-shutil.move('texture', 'textures')
-
-sys.path.insert(0, './brdf')
-dirs = glob.glob('*/')
-
-fake_dirs = ['vb30', 'vb30/lib', 'vb30/debug', 'vb30/vray_tools', 'vb30/nodes']
-fake_files = [
-	'vb30/lib/ExportUtils.py',
-	'vb30/lib/PluginUtils.py',
-	'vb30/debug/Debug.py',
-	'bpy.py',
-	'vb30/vray_tools/VRaySceneParser.py',
-	'vb30/vray_tools/VrmatParser.py'
-]
-
 def ordered(obj):
 	if isinstance(obj, dict):
 		return sorted((k, ordered(v)) for k, v in obj.items())
@@ -56,6 +41,22 @@ def subset(A, B):
 	return True
 
 if __name__ == '__main__':
+	os.chdir('plugins')
+	shutil.move('texture', 'textures')
+
+	sys.path.insert(0, './brdf')
+	dirs = glob.glob('*/')
+
+	fake_dirs = ['vb30', 'vb30/lib', 'vb30/debug', 'vb30/vray_tools', 'vb30/nodes']
+	fake_files = [
+		'vb30/lib/ExportUtils.py',
+		'vb30/lib/PluginUtils.py',
+		'vb30/debug/Debug.py',
+		'bpy.py',
+		'vb30/vray_tools/VRaySceneParser.py',
+		'vb30/vray_tools/VrmatParser.py'
+	]
+
 	manual_check = []
 	missmatch_json = []
 	missing_json = []

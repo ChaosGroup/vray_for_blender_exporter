@@ -26,7 +26,7 @@ import re
 
 import bpy
 
-from vb30.lib import ExportUtils, LibUtils
+from vb30.lib import ExportUtils, LibUtils, PluginUtils
 
 
 TYPE = 'EFFECT'
