@@ -528,6 +528,7 @@ class VRayListMaterials(bpy.types.UIList):
 
         split.column().prop(item, 'diffuse_color', text="")
         split.column().label(text=item.name, translate=False)
+        split.column().prop(item.vray, 'ntree', text="", icon=item.vray.ntree.bl_icon)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
