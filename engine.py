@@ -80,15 +80,7 @@ def _check_zmq_process(port):
         if not executable_path or not os.path.exists(executable_path):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
-            if 'VRAY_ZMQSERVER_APPSDK_PATH' not in os.environ:
-                _debug("VRAY_ZMQSERVER_APPSDK_PATH is not set!")
-            else:
-                appsdkPath = os.environ['VRAY_ZMQSERVER_APPSDK_PATH']
-                os.environ['VRAY_PATH'] = os.path.dirname(appsdkPath)
-                if 'LD_LIBRARY_PATH' in os.environ:
-                    os.environ['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH'] + ':' + os.environ['VRAY_PATH']
-
-                _zmq_process = subprocess.Popen([executable_path, "-p", port])
+            _zmq_process = subprocess.Popen([executable_path, "-p", port])
 
 
 class VRayRenderer(bpy.types.RenderEngine):
