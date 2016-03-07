@@ -90,7 +90,9 @@ def _check_zmq_process(port, log_lvl):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
             try:
-                _zmq_process = subprocess.Popen([executable_path, "-p", port, "-l", log_lvl_translate[log_lvl]])
+                cmd = [executable_path, "-p", port, "-log", log_lvl_translate[log_lvl]]
+                _debug(' '.join(cmd))
+                _zmq_process = subprocess.Popen(cmd)
             except Exception as e:
                 _debug(e)
 
