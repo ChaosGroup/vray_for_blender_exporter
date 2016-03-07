@@ -49,20 +49,22 @@ def _debug(msg):
         sys.stderr.flush()
 
 def get_file_manager(exporter, engine, scene):
-    pm = VRayFilePaths()
-
-    # Setting user defined value here
-    # It could be overriden in 'initFromScene'
-    # depending on VRayDR settings
-    pm.setSeparateFiles(exporter.useSeparateFiles)
-
-    pm.initFromScene(engine, scene)
-    pm.printInfo()
-
-    fm = VRayExportFiles(pm)
-    fm.setOverwriteGeometry(exporter.auto_meshes)
+    _debug('Creating files for export')
 
     try:
+        pm = VRayFilePaths()
+
+        # Setting user defined value here
+        # It could be overriden in 'initFromScene'
+        # depending on VRayDR settings
+        pm.setSeparateFiles(exporter.useSeparateFiles)
+
+        pm.initFromScene(engine, scene)
+        pm.printInfo()
+
+        fm = VRayExportFiles(pm)
+        fm.setOverwriteGeometry(exporter.auto_meshes)
+
         fm.init()
     except Exception as e:
         _debug(e)
