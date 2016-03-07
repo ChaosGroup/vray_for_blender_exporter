@@ -141,21 +141,25 @@ class VRayRenderer(bpy.types.RenderEngine):
             _check_zmq_process(str(vrayExporter.zmq_port))
 
         if not self.renderer:
-            self.file_manager = get_file_manager(vrayExporter, self, scene)
-            self.renderer = _vray_for_blender_rt.init(
-                context=bpy.context.as_pointer(),
-                engine=self.as_pointer(),
-                data=data.as_pointer(),
-                scene=scene.as_pointer(),
+            arguments = {
+                'context': bpy.context.as_pointer(),
+                'engine': self.as_pointer(),
+                'data': data.as_pointer(),
+                'scene': scene.as_pointer(),
+            }
 
-                mainFile     = self.file_manager.getFileByPluginType('MAIN'),
-                objectFile   = self.file_manager.getFileByPluginType('OBJECT'),
-                envFile      = self.file_manager.getFileByPluginType('WORLD'),
-                geometryFile = self.file_manager.getFileByPluginType('GEOMETRY'),
-                lightsFile   = self.file_manager.getFileByPluginType('LIGHT'),
-                materialFile = self.file_manager.getFileByPluginType('MATERIAL'),
-                textureFile  = self.file_manager.getFileByPluginType('TEXTURE'),
-            )
+            if vrayExporter.backend == 'STD':
+                self.file_manager = get_file_manager(vrayExporter, self, scene)
+
+                arguments['mainFile']     = self.file_manager.getFileByPluginType('MAIN')
+                arguments['objectFile']   = self.file_manager.getFileByPluginType('OBJECT')
+                arguments['envFile']      = self.file_manager.getFileByPluginType('WORLD')
+                arguments['geometryFile'] = self.file_manager.getFileByPluginType('GEOMETRY')
+                arguments['lightsFile']   = self.file_manager.getFileByPluginType('LIGHT')
+                arguments['materialFile'] = self.file_manager.getFileByPluginType('MATERIAL')
+                arguments['textureFile']  = self.file_manager.getFileByPluginType('TEXTURE')
+
+            self.renderer = _vray_for_blender_rt.init(**arguments)
 
         if vrayExporter.animation_mode == 'NONE':
             _vray_for_blender_rt.update(self.renderer)
