@@ -140,7 +140,7 @@ PluginParams = (
         'attr' : 'disable_render_elements',
         'desc' : "Produce only RGBA",
         'type' : 'BOOL',
-        'default' : True,
+        'default' : False,
     },
     {
         'attr' : 'max_render_time',
