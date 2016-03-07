@@ -468,6 +468,18 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 5555
     )
 
+    zmq_log_level = bpy.props.EnumProperty(
+        name = "ZMQ log level",
+        description = "ZMQ log level",
+        items = (
+            ('ERROR', 'Error', ''),
+            ('WARNING', 'Warning', ''),
+            ('DEBUG', 'Debug', ''),
+            ('INFO', 'Info', ''),
+        ),
+        default = 'ERROR'
+    )
+
     vfb_global_preset_file_use = bpy.props.BoolProperty(
         name = "Use Global Preset File",
         description = "Use VFB global preset file",

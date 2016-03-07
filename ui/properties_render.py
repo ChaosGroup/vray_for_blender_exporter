@@ -487,6 +487,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 			if VRayExporter.backend_worker == 'NETWORK':
 				box.prop(VRayExporter, 'zmq_address')
 			box.prop(VRayExporter, 'zmq_port')
+			box.prop(VRayExporter, 'zmq_log_level')
 
 			box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
 

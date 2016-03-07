@@ -73,8 +73,15 @@ def get_file_manager(exporter, engine, scene):
     return fm
 
 
-def _check_zmq_process(port):
+def _check_zmq_process(port, log_lvl):
     global _zmq_process
+
+    log_lvl_translate = {
+        'ERROR': '4',
+        'WARNING': '3',
+        'DEBUG': '2',
+        'INFO': '1',
+    }
 
     if not _zmq_process or _zmq_process and _zmq_process.poll() is not None:
         executable_path = SysUtils.GetZmqPath()
@@ -83,7 +90,7 @@ def _check_zmq_process(port):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
             try:
-                _zmq_process = subprocess.Popen([executable_path, "-p", port])
+                _zmq_process = subprocess.Popen([executable_path, "-p", port, "-l", log_lvl_translate[log_lvl]])
             except Exception as e:
                 _debug(e)
 
@@ -125,7 +132,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
-            _check_zmq_process(str(vrayExporter.zmq_port))
+            _check_zmq_process(str(vrayExporter.zmq_port), vrayExporter.zmq_log_level)
 
     def __del__(self):
         self._debug("__del__()")
@@ -138,7 +145,7 @@ class VRayRenderer(bpy.types.RenderEngine):
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
-            _check_zmq_process(str(vrayExporter.zmq_port))
+            _check_zmq_process(str(vrayExporter.zmq_port), vrayExporter.zmq_log_level)
 
         if not self.renderer:
             arguments = {
