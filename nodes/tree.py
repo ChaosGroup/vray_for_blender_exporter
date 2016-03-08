@@ -179,7 +179,7 @@ class VRayNodeTreeEditor(VRayNodeTree):
 
             ntree = bpy.data.node_groups[listIndex]
             if ntree:
-                return ntree, context.scene, context.scene
+                return ntree, None, None
 
         return (None, None, None)
 
@@ -203,7 +203,7 @@ class VRayNodeTreeMaterialEditor(VRayNodeTree):
 
             material = bpy.data.materials[listIndex]
             if material:
-                return material.vray.ntree, material, material
+                return material.vray.ntree, None, None
 
         return (None, None, None)
 
