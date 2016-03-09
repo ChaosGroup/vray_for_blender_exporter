@@ -48,6 +48,11 @@ SkippedTypes = {
     'MAPCHANNEL_LIST',
     'TRANSFORM_LIST',
     'TRANSFORM_TEXTURE',
+    'PLUGIN_LIST',
+    'LIST_LIST',
+    'TEXTURE_LIST',
+    'FLOAT_TEXTURE_LIST',
+    'STRING_LIST',
 }
 
 InputTypes = {
@@ -62,6 +67,7 @@ InputTypes = {
     'VECTOR',
     'TRANSFORM',
     'MATRIX',
+    'MATRIX_TEXTURE',
 }
 
 OutputTypes = {
@@ -81,6 +87,7 @@ TypeToSocket = {
 
     'TRANSFORM' : 'VRaySocketTransform',
     'MATRIX'    : 'VRaySocketTransform',
+    'MATRIX_TEXTURE' : 'VRaySocketTransform',
 
     'BRDF'     : 'VRaySocketBRDF',
     'GEOMETRY' : 'VRaySocketGeom',
@@ -120,6 +127,7 @@ TypeToProp = {
 
     'TRANSFORM' : bpy.props.StringProperty,
     'MATRIX'    : bpy.props.StringProperty,
+    'MATRIX_TEXTURE' : bpy.props.StringProperty,
 
     'BRDF'     : bpy.props.StringProperty,
     'GEOMETRY' : bpy.props.StringProperty,
@@ -175,6 +183,10 @@ def GenerateAttribute(classMembers, attrDesc):
         'description' : attrDesc['desc'],
     }
 
+    if attrArgs['description'].endswith("."):
+        print(attrArgs['description'])
+        attrArgs['description'] = attrArgs['description'][:-1]
+
     if 'default' in attrDesc:
         attrArgs['default'] = attrDesc['default']
 
@@ -193,12 +205,19 @@ def GenerateAttribute(classMembers, attrDesc):
     if attrDesc['type'] in {'STRING'}:
         pass
 
+    elif attrDesc['type'] in {'PLUGIN'}:
+        attrArgs['default'] = ""
+
     elif attrDesc['type'] in {'COLOR', 'ACOLOR', 'TEXTURE'}:
         c = attrDesc['default']
         attrArgs['subtype'] = 'COLOR'
         attrArgs['default'] = (c[0], c[1], c[2])
         attrArgs['min'] = 0.0
         attrArgs['max'] = 1.0
+
+    elif attrDesc['type'] in {'OUTPUT_TEXTURE'}:
+        c = attrDesc['default']
+        attrArgs['default'] = (c[0], c[1], c[2])
 
     elif attrDesc['type'] in {'VECTOR'}:
         if 'subtype' not in attrDesc:
@@ -211,7 +230,7 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'INT', 'INT_TEXTURE'}:
         pass
 
-    elif attrDesc['type'] in {'TRANSFORM', 'MATRIX'}:
+    elif attrDesc['type'] in {'TRANSFORM', 'MATRIX', 'MATRIX_TEXTURE'}:
         # Currenlty used as fake string attribute
         # attrArgs['size']    = 16
         # attrArgs['subtype'] = 'MATRIX'
