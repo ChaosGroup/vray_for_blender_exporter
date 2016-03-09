@@ -857,7 +857,10 @@ def register():
 		if jsonPluginName not in PLUGINS_ID:
 			if jsonPluginName in {'MtlMulti'}:
 				continue
+
 			jsonPlugin = PluginUtils.PLUGINS_DESC[jsonPluginName]
+			if jsonPlugin['TYPE'] in {'MISC'}:
+				continue
 
 			DynPluginType = type(
 				# Name
