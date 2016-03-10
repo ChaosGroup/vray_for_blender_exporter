@@ -109,6 +109,7 @@ def ExportSettings(bus):
                 # These plugins will be exported manually
                 'Includer',
                 'SettingsEnvironment',
+                'OutputDeepWriter',
                 # These plugins are exported from camera export
                 'BakeView',
                 'VRayStereoscopicSettings',
