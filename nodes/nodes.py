@@ -160,10 +160,6 @@ def GetCategories():
                 nodeitems_utils.NodeItem("VRayNodeTransform"),
                 nodeitems_utils.NodeItem("VRayNodeMatrix"),
                 nodeitems_utils.NodeItem("VRayNodeVector"),
-                # for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
-                #     if hasattr(vrayNodeType, 'bl_menu'):
-                #         if vrayNodeType.bl_menu == 'Math':
-                #             add_nodetype(self.layout, vrayNodeType)
             ],
             icon = 'MANIPUL',
         ),
