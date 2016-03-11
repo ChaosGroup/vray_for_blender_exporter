@@ -22,20 +22,14 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import bpy
+
 from vb30.lib import ExportUtils
 from vb30.lib import PluginUtils
 from vb30.lib import BlenderUtils
 
-import bpy
 
-
-TYPE = 'SETTINGS'
-ID   = 'SettingsImageSampler'
-NAME = 'Image Sampler'
-DESC = ""
-
-PluginParams = PluginUtils.GetPluginParams(ID)
-PluginWidget = PluginUtils.GetPluginWidget(ID)
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):

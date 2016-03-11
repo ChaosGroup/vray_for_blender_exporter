@@ -31,7 +31,7 @@ import mathutils
 
 import nodeitems_utils
 
-from vb30.plugins import PLUGINS
+from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30.debug   import Debug, PrintDict
 from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils, LibUtils
 from vb30.ui      import classes
@@ -81,8 +81,8 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
 
 def BuildItemsList(nodeType, subType=None):
-    def _hide_plugin(vray_plugin):
-        if vray_plugin in {
+    def _hidePlugin(pluginName):
+        if pluginName in {
             'BRDFScanned',
             'GeomHair',
             'GeomImagePlane',
@@ -90,9 +90,10 @@ def BuildItemsList(nodeType, subType=None):
             'GeomMayaHair',
             'GeomStaticMesh',
             'VRayScene',
+            'TexMeshVertexColor',
         }:
             return True
-        if vray_plugin.startswith((
+        if pluginName.startswith((
             'Maya',
             'TexMaya',
             'MtlMaya',
@@ -102,21 +103,40 @@ def BuildItemsList(nodeType, subType=None):
             'volumeXSI',
         )):
             return True
-        if vray_plugin.find('ASGVIS') >= 0:
+        if pluginName.find('ASGVIS') >= 0:
             return True
-        if vray_plugin.find('C4D') >= 0:
+        if pluginName.find('C4D') >= 0:
             return True
-        if vray_plugin.find('Modo') >= 0:
+        if pluginName.find('Modo') >= 0:
             return True
         return False
 
-    node_items = []
+    def _getPluginDesc(pluginName):
+        if pluginName in PLUGINS_ID:
+            return PLUGINS_ID[pluginName]
+
+    menuItems = []
     for t in VRayNodeTypes[nodeType]:
-        vray_plugin = t.bl_rna.identifier.replace("VRayNode", "")
-        if _hide_plugin(vray_plugin):
+        pluginName = t.bl_rna.identifier.replace("VRayNode", "")
+
+        if _hidePlugin(pluginName):
             continue
-        node_items.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
-    return node_items
+
+        pluginDesc = _getPluginDesc(pluginName)
+        if pluginDesc:
+            pluginSubtype = getattr(pluginDesc, 'SUBTYPE', None)
+            if subType is None:
+                # Add only data without SUBTYPE
+                if pluginSubtype is not None:
+                    continue
+            else:
+                # Check subtype
+                if subType != pluginSubtype:
+                    continue
+
+        menuItems.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
+
+    return menuItems
 
 
 def GetCategories():
@@ -154,6 +174,12 @@ def GetCategories():
                 nodeitems_utils.NodeItem("VRayNodeMetaImageTexture"),
             ] + BuildItemsList('TEXTURE'),
             icon  = 'TEXTURE'
+        ),
+        VRayNodeCategory(
+            'VRAY_TEXTURE_UTILITIES',
+            "Utility Textures",
+            items = BuildItemsList('TEXTURE', 'UTILITY'),
+            icon  = 'SEQ_CHROMA_SCOPE'
         ),
         VRayNodeCategory(
             'VRAY_UVWGEN',

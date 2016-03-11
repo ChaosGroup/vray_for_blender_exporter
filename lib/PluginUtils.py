@@ -47,6 +47,7 @@ def LoadPluginDesc():
         pluginParams = pluginDesc.get('Parameters')
         pluginName   = pluginDesc.get('Name')
         pluginType   = pluginDesc.get('Type')
+        pluginSubType = pluginDesc.get('Subtype', None)
         plugiIDDesc  = pluginDesc.get('Description', "")
         plguinWidget = pluginDesc.get('Widget', {})
 
@@ -59,6 +60,7 @@ def LoadPluginDesc():
             # To match plugin interface
             # XXX: Refactor
             'TYPE' : pluginType,
+            'SUBTYPE' : pluginSubType,
             'ID'   : pluginID,
             'NAME' : pluginName,
             'DESC' : plugiIDDesc,
@@ -67,17 +69,12 @@ def LoadPluginDesc():
         }
 
 
-def GetPluginParams(pluginID):
+def loadPluginOnModule(plugin, pluginID):
     if pluginID in PLUGINS_DESC:
-        return PLUGINS_DESC[pluginID]['Parameters']
-    return []
+        pluginDesc = PLUGINS_DESC[pluginID]
 
-
-def GetPluginWidget(pluginID):
-    if pluginID in PLUGINS_DESC:
-        # TODO: Finish plugins this way and refactor this
-        return json.dumps(PLUGINS_DESC[pluginID]['Widget'])
-    return {}
+        for key in pluginDesc:
+            plugin[key] = pluginDesc[key]
 
 
 def PluginName(pluginName):

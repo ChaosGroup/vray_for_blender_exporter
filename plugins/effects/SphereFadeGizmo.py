@@ -23,18 +23,9 @@
 #
 
 import bpy
-import mathutils
 
-from vb30.lib import ExportUtils, PluginUtils
-
-
-TYPE = 'EFFECT'
-ID   = 'SphereFadeGizmo'
-NAME = 'Sphere Fade Gizmo'
-DESC = ""
-
-PluginParams = PluginUtils.GetPluginParams(ID)
-PluginWidget = PluginUtils.GetPluginWidget(ID)
+from vb30.lib import PluginUtils
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def nodeDraw(context, layout, SphereFadeGizmo):

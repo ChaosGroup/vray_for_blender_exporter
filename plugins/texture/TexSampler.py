@@ -23,14 +23,7 @@
 #
 
 from vb30.lib import PluginUtils
-
-
-TYPE = 'TEXTURE'
-ID   = 'TexSampler'
-NAME = 'Sampler'
-DESC = ""
-
-PluginParams = PluginUtils.GetPluginParams(ID)
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def nodeDraw(context, layout, propGroup):
