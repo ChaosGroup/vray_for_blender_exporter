@@ -63,14 +63,6 @@ VRayNodeTypeIcon = {
     'RENDERCHANNEL' : 'SCENE_DATA',
 }
 
-_hidden_nodes = {
-    'GEOMETRY': {
-        'GeomMayaHair',
-        'GeomStaticMesh',
-        'VRayScene',
-    }
-}
-
 
 ##     ## ######## ##    ## ##     ##
 ###   ### ##       ###   ## ##     ##
@@ -81,7 +73,7 @@ _hidden_nodes = {
 ##     ## ######## ##    ##  #######
 
 class VRayNodeCategory(nodeitems_utils.NodeCategory):
-    split_items = 15
+    split_items = 20
 
     @classmethod
     def poll(cls, context):
@@ -89,12 +81,40 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
 
 def BuildItemsList(nodeType, subType=None):
+    def _hide_plugin(vray_plugin):
+        if vray_plugin in {
+            'BRDFScanned',
+            'GeomHair',
+            'GeomImagePlane',
+            'GeomInfinitePlane',
+            'GeomMayaHair',
+            'GeomStaticMesh',
+            'VRayScene',
+        }:
+            return True
+        if vray_plugin.startswith((
+            'Maya',
+            'TexMaya',
+            'MtlMaya',
+            'TexModo',
+            'TexXSI',
+            'texXSI',
+            'volumeXSI',
+        )):
+            return True
+        if vray_plugin.find('ASGVIS') >= 0:
+            return True
+        if vray_plugin.find('C4D') >= 0:
+            return True
+        if vray_plugin.find('Modo') >= 0:
+            return True
+        return False
+
     node_items = []
     for t in VRayNodeTypes[nodeType]:
-        if nodeType in _hidden_nodes:
-            vray_plugin = t.bl_rna.identifier.replace("VRayNode", "")
-            if vray_plugin in _hidden_nodes[nodeType]:
-                continue
+        vray_plugin = t.bl_rna.identifier.replace("VRayNode", "")
+        if _hide_plugin(vray_plugin):
+            continue
         node_items.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
     return node_items
 

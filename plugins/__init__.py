@@ -855,11 +855,23 @@ def register():
 
 	for jsonPluginName in PluginUtils.PLUGINS_DESC:
 		if jsonPluginName not in PLUGINS_ID:
-			if jsonPluginName in {'MtlMulti'}:
-				continue
-			if jsonPluginName.startswith(('TexXSI', 'texXSI', 'TexModo')):
-				continue
-			if jsonPluginName.find('ASGVIS') >= 0:
+			if jsonPluginName in {
+				'MtlMulti',
+				'MtlLayeredBRDF',
+				'MtlSelectRE',
+				'MtlSkp2Sided',
+				'MtlWrapperMaya',
+				'GeomMeshLoader',
+				'GeomMeshLoader1',
+				'GeomMeshTest',
+				'GeomMetaballSystem',
+				'GeomParticleSystem',
+				'GeomStaticNURBS',
+				'Instancer',
+				'Instancer2',
+				'PhxShaderSimGeom',
+				'PhxShaderSimMesh',
+			}:
 				continue
 
 			jsonPlugin = PluginUtils.PLUGINS_DESC[jsonPluginName]

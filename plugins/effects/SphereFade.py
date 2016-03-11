@@ -22,45 +22,15 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import re
-
-import bpy
-
-from vb30.lib import ExportUtils, LibUtils
-
+from vb30.lib import ExportUtils, LibUtils, PluginUtils
 
 TYPE = 'EFFECT'
 ID   = 'SphereFade'
 NAME = 'Sphere Fade'
 DESC = ""
 
-PluginParams = (
-    {
-        'attr' : 'gizmos',
-        'name' : "Gizmo 1",
-        'desc' : "List of gizmos",
-        'type' : 'PLUGIN',
-        'default' : "",
-    },
-    {
-        'attr' : 'empty_color',
-        'desc' : "",
-        'type' : 'COLOR',
-        'default' : (0.5, 0.5, 0.5),
-    },
-    {
-        'attr' : 'affect_alpha',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'falloff',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 0.2,
-    },
-)
+PluginParams = PluginUtils.GetPluginParams(ID)
+PluginWidget = PluginUtils.GetPluginWidget(ID)
 
 
 def nodeDraw(context, layout, propGroup):
@@ -81,11 +51,3 @@ def nodeDraw(context, layout, propGroup):
     addOp.vray_attr  = "gizmos"
 
     row.operator('vray.node_list_socket_del', icon="ZOOMOUT", text="")
-
-
-def gui(context, layout, SphereFade, node):
-    split = layout.split()
-    col = split.column()
-    col.prop(SphereFade, 'empty_color')
-    col.prop(SphereFade, 'affect_alpha')
-    col.prop(SphereFade, 'falloff')

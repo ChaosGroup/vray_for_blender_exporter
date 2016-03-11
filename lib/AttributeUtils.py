@@ -183,6 +183,11 @@ def GenerateAttribute(classMembers, attrDesc):
         'description' : attrDesc['desc'],
     }
 
+    if 'ui' in attrDesc:
+        uiDesc = attrDesc['ui']
+        if 'display_name' in uiDesc:
+            attrArgs['name'] = uiDesc['display_name']
+
     if attrArgs['description'].endswith("."):
         print(attrArgs['description'])
         attrArgs['description'] = attrArgs['description'][:-1]
