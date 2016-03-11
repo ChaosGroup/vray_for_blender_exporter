@@ -43,29 +43,27 @@ def LoadPluginDesc():
     for filePath in descDirpath.glob("*/*.json"):
         pluginDesc = json.loads(filePath.open().read())
 
-        pluginID     = pluginDesc.get('ID')
-        pluginParams = pluginDesc.get('Parameters')
-        pluginName   = pluginDesc.get('Name')
-        pluginType   = pluginDesc.get('Type')
+        pluginID      = pluginDesc.get('ID')
+        pluginParams  = pluginDesc.get('Parameters')
+        pluginName    = pluginDesc.get('Name')
+        pluginType    = pluginDesc.get('Type')
         pluginSubType = pluginDesc.get('Subtype', None)
-        plugiIDDesc  = pluginDesc.get('Description', "")
-        plguinWidget = pluginDesc.get('Widget', {})
+        pluginIDDesc  = pluginDesc.get('Description', "")
+        pluginWidget  = pluginDesc.get('Widget', {})
 
         PLUGINS_DESC[pluginID] = {
-            'ID'         : pluginID,
-            'Name'       : pluginName,
-            'Parameters' : pluginParams,
-            'Widget'     : plguinWidget,
-
             # To match plugin interface
             # XXX: Refactor
-            'TYPE' : pluginType,
-            'SUBTYPE' : pluginSubType,
-            'ID'   : pluginID,
-            'NAME' : pluginName,
-            'DESC' : plugiIDDesc,
+            'DESC'         : pluginIDDesc,
+            'ID'           : pluginID,
+            'NAME'         : pluginName,
+            'SUBTYPE'      : pluginSubType,
+            'TYPE'         : pluginType,
+            'Name'         : pluginName,
+            'Parameters'   : pluginParams,
             'PluginParams' : pluginParams,
-            'PluginWidget' : plguinWidget,
+            'PluginWidget' : pluginWidget,
+            'Widget'       : pluginWidget,
         }
 
 
