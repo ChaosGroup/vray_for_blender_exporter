@@ -857,6 +857,10 @@ def register():
 		if jsonPluginName not in PLUGINS_ID:
 			if jsonPluginName in {'MtlMulti'}:
 				continue
+			if jsonPluginName.startswith(('TexXSI', 'texXSI', 'TexModo')):
+				continue
+			if jsonPluginName.find('ASGVIS') >= 0:
+				continue
 
 			jsonPlugin = PluginUtils.PLUGINS_DESC[jsonPluginName]
 			if jsonPlugin['TYPE'] in {'MISC'}:
