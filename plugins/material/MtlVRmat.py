@@ -36,47 +36,11 @@ from vb30.nodes import tools     as NodesTools
 
 from vb30.debug import Debug
 
+from vb30.lib import ExportUtils
+from vb30.lib import PluginUtils
 
-TYPE = 'MATERIAL'
-ID   = 'MtlVRmat'
-NAME = "VRmat"
-DESC = "VRmat material"
 
-PluginParams = (
-    {
-        'attr' : 'filename',
-        'name' : "Filepath",
-        'desc' : "Filepath",
-        'type' : 'STRING',
-        'subtype' : 'FILE_PATH',
-        'default' : "",
-    },
-    {
-        'attr' : 'mtlname',
-        'name' : "Name",
-        'desc' : "Material name",
-        'type' : 'STRING',
-        'default' : "",
-    },
-
-    {
-        'attr' : 'expanded_material',
-        'name' : "Material",
-        'desc' : "Expanded material",
-        'skip' : True,
-        'type' : 'MATERIAL',
-        'default' : "",
-    },
-    {
-        'attr' : 'expanded',
-        'name' : "Expanded",
-        'desc' : "Material is expanded to nodes",
-        'type' : 'BOOL',
-        'options' : ['HIDDEN'],
-        'skip' : True,
-        'default' : False,
-    },
-)
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 class VRayMaterialNameMenu(bpy.types.Menu):
