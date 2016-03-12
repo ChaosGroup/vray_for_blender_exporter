@@ -256,7 +256,7 @@ def GenerateAttribute(classMembers, attrDesc):
         for opt in attrDesc['options']:
             # These options are not directly mapped into the Blender prop
             # options
-            if opt not in {'LINKED_ONLY', 'EXPORT_AS_IS'}:
+            if opt not in {'LINKED_ONLY', 'EXPORT_AS_IS', 'EXPORT_AS_RADIANS'}:
                 options.add(opt)
         attrArgs['options'] = options
 
