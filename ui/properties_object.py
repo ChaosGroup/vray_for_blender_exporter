@@ -262,6 +262,7 @@ class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
 		col.prop(VRayClipper, 'only_camera_rays')
 		col.prop(VRayClipper, 'use_obj_mtl')
 		col.prop(VRayClipper, 'use_obj_mesh')
+		col.prop(VRayClipper, 'invert_inside')
 
 		row = layout.row(align=True)
 		row.prop(VRayClipper, 'exclusion_mode', text="")
