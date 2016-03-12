@@ -82,18 +82,103 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
 def BuildItemsList(nodeType, subType=None):
     def _hidePlugin(pluginName):
-        if pluginName in {
-            'BRDFScanned',
+        _skip_plugins = {
+            # 3ds max specific
+            'TexMaxHairInfo',
             'GeomHair',
-            'GeomImagePlane',
-            'GeomInfinitePlane',
+            'TexLayeredMax',
+            'TexMaskMax',
+            'TexMarbleMax',
+            'TexRGBTintMax',
+
+            # XSI specific
+            'TexBillboardParticle',
+            'TexColor2Scalar',
+            'TexColor8Mix',
+            'TexColorAverage',
+            'TexColorCurve',
+            'TexColorExponential',
+            'TexColorMathBasic',
+            'TexColorSwitch',
+            'TexDisplacacementRestrict',
+            'TexFloatPerVertexHairSampler',
+            'TexHairRootSampler',
+            'TexInterpLinear',
+            'TexParticleShape',
+            'TexPerVertexHairSampler',
+            'texRenderHair',
+            'TexRgbaCombine',
+            'TexRgbaSplit',
+            'TexScalarCurve',
+            'TexScalarExponential',
+            'TexScalarHairRootSampler',
+            'TexScalarMathBasic',
+            'TexSurfIncidence',
+            'TexXSIBitmap',
+            'TexXSICell',
+            'texXSIColor2Alpha',
+            'texXSIColor2Vector',
+            'TexXSIColorBalance',
+            'TexXSIColorCorrection',
+            'TexXSIColorMix',
+            'TexXSIFabric',
+            'TexXSIFalloff',
+            'TexXSIFlagstone',
+            'TexXSIGradient',
+            'TexXSIHLSAdjust',
+            'TexXSIIntensity',
+            'TexXSILayered',
+            'TexXSIMulti',
+            'TexXSINormalMap',
+            'TexXSIRGBAKeyer',
+            'TexXSIRipple',
+            'TexXSIRock',
+            'TexXSIScalar2Color',
+            'TexXSIScalarInvert',
+            'TexXSISnow',
+            'TexXSIVein',
+            'TexXSIVertexColorLookup',
+            'TexXSIWeightmapColorLookup',
+            'TexXSIWeightmapLookup',
+            'TexXSIWood',
+            'volumeXSIMulti',
+            'xsiUVWGenChannel',
+            'xsiUVWGenEnvironment',
+
+            # Handled with meta node
+            'TexBitmap',
+            'BitmapBuffer',
+
+            # Manually handled
+            'TexBezierCurve',
             'GeomMayaHair',
             'GeomStaticMesh',
             'VRayScene',
+
+            # Unused
+            'GeomImagePlane',
+            'GeomInfinitePlane',
+            'TexCustomBitmap',
+            'TexMultiX',
+            'TexIDIntegerMap',
             'TexMeshVertexColor',
-        }:
+            'TexMeshVertexColorWithDefault',
+            'TexMultiProjection',
+            'TexParticleDiffuse',
+            'TexParticleShape',
+            'TexParticleId',
+            'RawBitmapBuffer',
+
+            # Not yet implemented
+            'BRDFScanned',
+            'TexRamp',
+        }
+
+        if pluginName in _skip_plugins:
             return True
-        if pluginName.startswith((
+
+        # App specific
+        _name_filter = (
             'Maya',
             'TexMaya',
             'MtlMaya',
@@ -101,7 +186,8 @@ def BuildItemsList(nodeType, subType=None):
             'TexXSI',
             'texXSI',
             'volumeXSI',
-        )):
+        )
+        if pluginName.startswith(_name_filter):
             return True
         if pluginName.find('ASGVIS') >= 0:
             return True
@@ -177,7 +263,7 @@ def GetCategories():
         ),
         VRayNodeCategory(
             'VRAY_TEXTURE_UTILITIES',
-            "Utility Textures",
+            "Texture Utilities",
             items = BuildItemsList('TEXTURE', 'UTILITY'),
             icon  = 'SEQ_CHROMA_SCOPE'
         ),
@@ -438,7 +524,7 @@ def LoadDynamicNodes():
 
         for pluginName in sorted(PLUGINS[pluginType]):
             # Skip manually created nodes
-            if pluginName in {'BRDFLayered', 'TexLayered'}:
+            if pluginName in {'BRDFLayered', 'TexLayered', 'TexMulti'}:
                 continue
 
             typeName = "VRay%s" % pluginName

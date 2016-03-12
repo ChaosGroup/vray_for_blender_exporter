@@ -62,7 +62,7 @@ def mapping_type_update(self, context):
 
 class VRayNodeMetaImageTexture(bpy.types.Node):
     bl_idname = 'VRayNodeMetaImageTexture'
-    bl_label  = 'Image File Texture'
+    bl_label  = 'Image File'
     bl_icon   = 'TEXTURE'
 
     vray_type   = bpy.props.StringProperty(default='TEXTURE')
