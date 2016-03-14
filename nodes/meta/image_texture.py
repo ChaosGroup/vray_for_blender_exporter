@@ -25,6 +25,7 @@
 import bpy
 
 from vb30 import plugins as PluginUtils
+from vb30.lib import DrawUtils
 from vb30.ui import classes
 
 from .. import utils as NodeUtils
@@ -112,9 +113,12 @@ class VRayNodeMetaImageTexture(bpy.types.Node):
         mappingPluginID = get_mapping_plugin_id(self)
         if mappingPluginID:
             mapPluginDesc = PluginUtils.PLUGINS_ID[mappingPluginID]
+            mapPropGroup = getattr(self, mappingPluginID)
             if hasattr(mapPluginDesc, 'nodeDraw'):
-                mapPluginDesc.nodeDraw(context, box, getattr(self, mappingPluginID))
-
+                mapPluginDesc.nodeDraw(context, box, mapPropGroup)
+            elif hasattr(mapPluginDesc, 'Widget') and 'node_widgets' in mapPluginDesc.Widget:
+                for widget in mapPluginDesc.Widget['node_widgets']:
+                    DrawUtils.RenderWidget(context, mapPropGroup, layout, widget)
 
     def draw_buttons_ext(self, context, layout):
         box = layout.box()
