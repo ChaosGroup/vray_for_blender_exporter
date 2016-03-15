@@ -172,11 +172,7 @@ class VRayNodeTreeEditor(VRayNodeTree):
         listIndex = VRayExporter.ntreeListIndex if VRayExporter.ntreeListIndex >= 0 else 0
         nNodeGroups = len(bpy.data.node_groups)
 
-        if nNodeGroups:
-            if listIndex >= nNodeGroups:
-                VRayExporter.ntreeListIndex = 0
-                listIndex                   = 0
-
+        if nNodeGroups and listIndex < nNodeGroups:
             ntree = bpy.data.node_groups[listIndex]
             if ntree:
                 return ntree, None, None
