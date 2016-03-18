@@ -529,7 +529,7 @@ class VRayListMaterials(bpy.types.UIList):
         split.column().prop(item, 'diffuse_color', text="")
         split.column().label(text=item.name, translate=False)
         if hasattr(item, 'vray'):
-            icon = item.vray.ntree.bl_icon if item.vray.ntree else ""
+            icon = item.vray.ntree.bl_icon if item.vray.ntree else 'NONE'
             split.column().prop(item.vray, 'ntree', text="", icon=icon)
 
 
