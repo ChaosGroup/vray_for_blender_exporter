@@ -199,7 +199,16 @@ class VRayFilePaths:
                 self.imgDirectory = PathUtils.CreateDirectory(output_filepath)
 
                 # Render output file name
-                ext = SettingsOutput.img_format.lower()
+                img_format = {
+                    '0' : "png",
+                    '1' : "jpg",
+                    '2' : "tiff",
+                    '3' : "tga",
+                    '4' : "sgi",
+                    '5' : "exr",
+                    '6' : "vrimg",
+                }
+                ext = img_format[SettingsOutput.img_format]
 
                 file_name = "render"
                 if SettingsOutput.img_file:
