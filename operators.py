@@ -71,7 +71,7 @@ class VRAY_OT_update(bpy.types.Operator):
 					'C:/Program Files (x86)/Git/bin/git.exe',
 				)
 				for _git in gitPaths:
-					if os.path.exists(git):
+					if os.path.exists(_git):
 						git = _git
 						break
 
