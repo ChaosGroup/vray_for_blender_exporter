@@ -95,7 +95,8 @@ def vray_draw_point(p, mult, tm=mathutils.Matrix.Identity(4)):
     _p = mathutils.Vector((p[0], p[1], p[2])) * mult
     _p3d = tm * _p
     _p2d = location_3d_to_region_2d(bpy.context.region, bpy.context.space_data.region_3d, _p3d)
-    bgl.glVertex2f(*_p2d)
+    if _p2d:
+        bgl.glVertex2f(*_p2d)
 
 
 def vray_draw_shape(shape, mult, tm=mathutils.Matrix.Identity(4)):
