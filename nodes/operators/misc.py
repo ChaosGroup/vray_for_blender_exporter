@@ -87,6 +87,9 @@ class VRayOpShowNtree(bpy.types.Operator):
         elif hasattr(context, 'object'):
             ob = context.object
 
+        if not ob:
+            return {'CANCELLED'}
+
         if self.data == 'MATERIAL':
             if not ob:
                 self.report({'ERROR_INVALID_CONTEXT'}, "No active object!")
