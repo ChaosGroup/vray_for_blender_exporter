@@ -94,9 +94,18 @@ def _check_zmq_process(port, log_lvl):
             _debug("Can't find V-Ray ZMQ Server!")
         else:
             try:
+                env = os.environ.copy()
+                if sys.platform == "win32":
+                    if 'VRAY_ZMQSERVER_APPSDK_PATH' not in env:
+                        sys.stderr.write('Python-engine: Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
+                        sys.stderr.flush()
+                    else:
+                        appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
+                        env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
+                        env['VRAY_PATH'] = appsdk
                 cmd = [executable_path, "-p", port, "-log", log_lvl_translate[log_lvl]]
                 _debug(' '.join(cmd))
-                _zmq_process = subprocess.Popen(cmd)
+                _zmq_process = subprocess.Popen(cmd, env=env)
             except Exception as e:
                 _debug(e)
 
