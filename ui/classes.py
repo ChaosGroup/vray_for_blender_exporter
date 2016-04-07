@@ -170,6 +170,10 @@ def DrawNodePanel(context, layout, node, PLUGINS):
     vrayPlugin = None
     toShow     = True
 
+    if node.bl_idname.startswith('VRayNodeMeta'):
+        node.draw_buttons_ext(context, layout)
+        return
+
     if not hasattr(node, 'vray_type'):
         toShow = False
     else:
