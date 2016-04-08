@@ -22,6 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import os
+
+import bpy
+
 from vb30 import debug
 from vb30.lib import ExportUtils
 from vb30.lib import PluginUtils
@@ -86,6 +90,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
             if not img_dir:
                 debug.PrintError("Image output directory is not set!")
                 return None
+
+            # In case filename is setup as some filepath
+            img_file = os.path.basename(bpy.path.abspath(img_file))
 
             overrideParams['img_file'] = img_file
             overrideParams['img_dir']  = img_dir
