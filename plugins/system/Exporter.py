@@ -31,7 +31,11 @@ from vb30 import version
 from vb30.lib import SysUtils
 from vb30.lib import BlenderUtils
 
-import _vray_for_blender_rt
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
 
 
 TYPE = 'SYSTEM'
@@ -460,7 +464,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     backend = bpy.props.EnumProperty(
         name = "V-Ray Backend",
         description = "V-Ray backend",
-        items = _vray_for_blender_rt.getExporterTypes(),
+        items = _vray_for_blender_rt.getExporterTypes() if _has_rt else (),
     )
 
     work_mode = bpy.props.EnumProperty(

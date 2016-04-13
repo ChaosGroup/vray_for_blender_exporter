@@ -27,8 +27,13 @@ import sys
 import subprocess
 
 import bpy
+import _vray_for_blender
 
-import _vray_for_blender_rt
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
 
 from vb30.lib import SysUtils
 from vb30 import export
@@ -47,6 +52,26 @@ def _debug(msg):
     if bpy.app.debug:
         sys.stderr.write("Python-engine: %s::%s\n" % (inspect.stack()[1][3], msg))
         sys.stderr.flush()
+
+
+def init():
+    jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
+    _vray_for_blender.start(jsonDirpath)
+    if _has_rt:
+        _vray_for_blender_rt.load(jsonDirpath)
+
+
+def shutdown():
+    _vray_for_blender.free()
+    if _has_rt:
+        _vray_for_blender_rt.unload()
+
+    if _has_rt and _zmq_process:
+        try:
+            _zmq_process.terminate()
+        except:
+            pass
+
 
 def get_file_manager(exporter, engine, scene):
     _debug('Creating files for export')
@@ -110,10 +135,34 @@ def _check_zmq_process(port, log_lvl):
                 _debug(e)
 
 
+class VRayRendererBase(bpy.types.RenderEngine):
+    def render(self, scene):
+        if self.is_preview:
+            if scene.render.resolution_x < 64: # Don't render icons
+                return
 
-class VRayRenderer(bpy.types.RenderEngine):
-    bl_idname = 'VRAY_RENDER'
-    bl_label  = "V-Ray"
+        err = export.RenderScene(self, scene)
+        if err is not None:
+            self.report({'ERROR'}, err)
+
+
+class VRayRendererPreview(VRayRendererBase):
+    bl_idname = 'VRAY_RENDER_PREVIEW'
+    bl_label  = "V-Ray (With Material Preview)"
+
+    bl_use_preview      =  True
+    bl_preview_filepath = SysUtils.GetPreviewBlend()
+
+
+class VRayRenderer(VRayRendererBase):
+    bl_idname      = 'VRAY_RENDER'
+    bl_label       = "V-Ray"
+    bl_use_preview =  False
+
+
+class VRayRendererRT(bpy.types.RenderEngine):
+    bl_idname = 'VRAY_RENDER_RT'
+    bl_label  = "V-Ray (NEW)"
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
 
@@ -218,20 +267,21 @@ class VRayRenderer(bpy.types.RenderEngine):
             _vray_for_blender_rt.view_draw(self.renderer)
 
 
-def init():
-    _vray_for_blender_rt.load(os.path.join(SysUtils.GetExporterPath(), "plugins_desc"))
-
-
-def shutdown():
-    _vray_for_blender_rt.unload()
-
-    if _zmq_process is not None:
-        _zmq_process.terminate()
+def GetRegClasses():
+    reg_classes = [
+        VRayRenderer,
+        VRayRendererPreview,
+    ]
+    if _has_rt:
+        reg_classes.append(VRayRendererRT)
+    return reg_classes
 
 
 def register():
-    bpy.utils.register_class(VRayRenderer)
+    for regClass in GetRegClasses():
+        bpy.utils.register_class(regClass)
 
 
 def unregister():
-    bpy.utils.unregister_class(VRayRenderer)
+    for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)

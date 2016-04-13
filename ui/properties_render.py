@@ -33,6 +33,12 @@ from vb30     import plugins, preset
 
 from vb30.ui.classes import PanelGroups
 
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
+
 
 def GetRenderIcon(vrayExporter):
 	renderIcon = 'RENDER_ANIMATION'
@@ -476,32 +482,33 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		layout.label(text="Options:")
 
-		box = layout.box()
-		box.label("Renderer:")
-		box.prop(VRayExporter, 'backend', text="Type")
-		if VRayExporter.backend not in {'STD'}:
-			box.prop(VRayExporter, 'work_mode', text="Work Mode")
+		if _has_rt and context.scene.render.engine == 'VRAY_RENDER_RT':
+			box = layout.box()
+			box.label("Renderer:")
+			box.prop(VRayExporter, 'backend', text="Type")
+			if VRayExporter.backend not in {'STD'}:
+				box.prop(VRayExporter, 'work_mode', text="Work Mode")
 
-		if VRayExporter.backend in {'ZMQ'}:
-			box.prop(VRayExporter, 'backend_worker')
-			if VRayExporter.backend_worker == 'NETWORK':
-				box.prop(VRayExporter, 'zmq_address')
-			box.prop(VRayExporter, 'zmq_port')
-			box.prop(VRayExporter, 'zmq_log_level')
+			if VRayExporter.backend in {'ZMQ'}:
+				box.prop(VRayExporter, 'backend_worker')
+				if VRayExporter.backend_worker == 'NETWORK':
+					box.prop(VRayExporter, 'zmq_address')
+				box.prop(VRayExporter, 'zmq_port')
+				box.prop(VRayExporter, 'zmq_log_level')
 
-			box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
+				box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
 
-		box = layout.box()
-		box.label("Final Rendering:")
-		box.prop(VRayExporter, 'rendering_mode', text="Render Mode")
+			box = layout.box()
+			box.label("Final Rendering:")
+			box.prop(VRayExporter, 'rendering_mode', text="Render Mode")
 
-		box = layout.box()
-		box.label("Viewport Rendering:")
-		box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
-		box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
-		box.prop(VRayExporter, 'viewport_alpha')
+			box = layout.box()
+			box.label("Viewport Rendering:")
+			box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
+			box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
+			box.prop(VRayExporter, 'viewport_alpha')
 
-		layout.separator()
+			layout.separator()
 
 		split = layout.split()
 		col = split.column()
