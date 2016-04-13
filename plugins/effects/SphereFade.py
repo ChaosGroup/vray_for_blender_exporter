@@ -22,21 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import re
-
-import bpy
-
-from vb30.lib import ExportUtils, LibUtils, PluginUtils
-
-
-TYPE = 'EFFECT'
-ID   = 'SphereFade'
-NAME = 'Sphere Fade'
-DESC = ""
-
-
-PluginParams = PluginUtils.GetPluginParams(ID)
-
+from vb30.lib import PluginUtils
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 def nodeDraw(context, layout, propGroup):
     split = layout.split()
@@ -56,11 +43,3 @@ def nodeDraw(context, layout, propGroup):
     addOp.vray_attr  = "gizmos"
 
     row.operator('vray.node_list_socket_del', icon="ZOOMOUT", text="")
-
-
-def gui(context, layout, SphereFade, node):
-    split = layout.split()
-    col = split.column()
-    col.prop(SphereFade, 'empty_color')
-    col.prop(SphereFade, 'affect_alpha')
-    col.prop(SphereFade, 'falloff')

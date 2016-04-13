@@ -37,6 +37,7 @@ from vb30 import debug
 
 from . import PathUtils
 from . import BlenderUtils
+from . import SysUtils
 
 
 class VRayProcess:
@@ -281,6 +282,12 @@ class VRayProcess:
 
         os.environ['VRAY_VFB_ALWAYS_ON_TOP'] = '1'
         os.environ['VRAY_NO_CTRL_C_HANDLER'] = '1'
+
+        vfbThemeFilepath = os.path.join(SysUtils.GetUserConfigDir(), "vfb.theme")
+
+        BlenderUtils.generateVfbTheme(vfbThemeFilepath)
+
+        os.environ['VRAY_VFB_THEME_FILE'] = vfbThemeFilepath
 
         if self.autorun:
             self.process = subprocess.Popen(cmd)

@@ -25,8 +25,11 @@
 import bpy
 import sys
 
+import _vray_for_blender
+
 from vb30 import version
 from vb30.lib import SysUtils
+from vb30.lib import BlenderUtils
 
 import _vray_for_blender_rt
 
@@ -35,6 +38,12 @@ TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
 NAME = 'Exporter'
 DESC = "Exporter configuration"
+
+
+def _mtlEditorUpdatePreview(self, context):
+    if self.materialListIndexPrev != self.materialListIndex:
+        self.materialListIndexPrev = self.materialListIndex
+        _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
 
 
 class VRayExporterSetBinary(bpy.types.Operator):
@@ -201,6 +210,27 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "Node trees list index",
         min         = -1,
         default     = -1,
+    )
+
+    materialListIndex = bpy.props.IntProperty(
+        name        = "Material List Index",
+        description = "Material list index",
+        min         = -1,
+        default     = -1,
+        update      = _mtlEditorUpdatePreview,
+    )
+
+    materialListIndexPrev = bpy.props.IntProperty(
+        name        = "Material List Index Previous State",
+        description = "Material list index previous state",
+        min         = -1,
+        default     = -1,
+    )
+
+    materialListShowPreview = bpy.props.BoolProperty(
+        name        = "Show preview",
+        description = "Show preview",
+        default     = True
     )
 
     useSeparateFiles = bpy.props.BoolProperty(

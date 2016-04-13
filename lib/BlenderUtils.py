@@ -369,3 +369,58 @@ def GetSceneAndCamera(bus):
                 camera = scene.camera
 
     return scene, camera
+
+
+def generateVfbTheme(filepath):
+    import mathutils
+
+    def rgbToHex(color):
+        return '#%X%X%X' % (int(color[0] * 255), int(color[1] * 255), int(color[2] * 255))
+
+    currentTheme = bpy.context.user_preferences.themes[0]
+
+    themeUI   = currentTheme.user_interface
+    themeProp = currentTheme.properties
+
+    back   = rgbToHex(themeProp.space.back)
+    text   = rgbToHex(themeProp.space.text)
+    header = rgbToHex(themeProp.space.header)
+
+    buttonColorTuple = themeUI.wcol_tool.inner
+    buttonColor = mathutils.Color((buttonColorTuple[0], buttonColorTuple[1], buttonColorTuple[2]))
+
+    button = rgbToHex(buttonColor)
+
+    buttonColor.v *= 1.35
+    buttonHover = rgbToHex(buttonColor)
+
+    shadow = rgbToHex(themeUI.wcol_tool.outline)
+
+    pressed = rgbToHex(themeUI.wcol_radio.inner_sel)
+    hover   = rgbToHex(themeUI.wcol_tool.inner_sel)
+
+    rollout = rgbToHex(themeUI.wcol_box.inner)
+
+    import xml.etree.ElementTree
+    from xml.etree.ElementTree import Element, SubElement, tostring
+
+    elVfb = Element("VFB")
+    elTheme = SubElement(elVfb, "Theme")
+
+    SubElement(elTheme, "style").text = "Standalone"
+
+    SubElement(elTheme, "appWorkspace").text   = header
+    SubElement(elTheme, 'window').text         = back
+    SubElement(elTheme, 'windowText').text     = text
+    SubElement(elTheme, 'btnFace').text        = button
+    SubElement(elTheme, 'btnFacePressed').text = pressed
+    SubElement(elTheme, 'btnFaceHover').text   = buttonHover
+    SubElement(elTheme, 'hover').text          = hover
+    SubElement(elTheme, 'rollout').text        = rollout
+    SubElement(elTheme, 'hiLight').text        = shadow
+    SubElement(elTheme, 'darkShadow').text     = shadow
+
+    tree = xml.etree.ElementTree.ElementTree(elVfb) 
+
+    with open(filepath, 'wb') as f:
+        tree.write(f, encoding='utf-8')

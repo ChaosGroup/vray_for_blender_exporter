@@ -95,6 +95,59 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
 
 
+class VRayPanelMaterials(classes.VRayRenderLayersPanel):
+	bl_label   = "Scene Materials"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def getMaterial(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		listIndex = VRayExporter.materialListIndex if VRayExporter.materialListIndex >= 0 else 0
+		numMaterials = len(bpy.data.materials)
+
+		if numMaterials:
+			if listIndex >= numMaterials:
+				listIndex = 0
+
+			return bpy.data.materials[listIndex]
+
+	def draw(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		if context.scene.render.engine in {'VRAY_RENDER_PREVIEW'}:
+			expandIcon = 'TRIA_DOWN' if VRayExporter.materialListShowPreview else 'TRIA_RIGHT'
+
+			box = self.layout.box()
+			row = box.row(align=True)
+			row.prop(VRayExporter, 'materialListShowPreview', text="",  icon=expandIcon, emboss=False)
+			row.label(text="Show Preview")
+
+			if VRayExporter.materialListShowPreview:
+					material = self.getMaterial(context)
+					if material:
+						box.template_preview(material, show_buttons=True)
+
+		self.layout.operator('vray.new_material', text="New Material", icon='MATERIAL')
+
+		self.layout.template_list("VRayListMaterials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
+		self.layout.separator()
+
+		material = self.getMaterial(context)
+		if material:
+			split = self.layout.split()
+
+			col = split.column()
+			col.prop(material, 'name')
+
+			row = col.row(align=True)
+			row.label("Node Tree:")
+
+			op = row.operator("vray.sync_ntree_name", icon='SYNTAX_OFF', text="")
+			op.material = material
+
+			row.prop(material.vray, 'ntree', text="", icon='NODETREE')
+
+
 class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
@@ -228,6 +281,7 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 
 def GetRegClasses():
 	return (
+		VRayPanelMaterials,
 		VRayPanelMiscTools,
 		VRayPanelNodeTrees,
 		VRayPanelLightLister,

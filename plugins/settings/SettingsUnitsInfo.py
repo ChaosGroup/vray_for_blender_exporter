@@ -25,44 +25,10 @@
 import bpy
 
 from vb30.lib import ExportUtils
+from vb30.lib import PluginUtils
 
 
-TYPE = 'SETTINGS'
-ID   = 'SettingsUnitsInfo'
-NAME = 'SettingsUnitsInfo'
-DESC = ""
-
-PluginParams = (
-    {
-        'attr' : 'meters_scale',
-        'desc' : "The number by which a 3d distance must be multiplied to covert it into meters",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'photometric_scale',
-        'desc' : "The number by which the power of photometric lights should be scaled when rendering",
-        'type' : 'FLOAT',
-        'default' : 0.001,
-    },
-    {
-        'attr' : 'scene_upDir',
-        'desc' : "The 'up' direction for the scene",
-        'type' : 'VECTOR',
-        'default' : (0, 0, 1),
-    },
-    {
-        'attr' : 'seconds_scale',
-        'desc' : "The number by which a scene time unit must be multiplied to convert it to seconds",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-)
-
-PluginWidget = """
-{ "widgets": [
-]}
-"""
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):

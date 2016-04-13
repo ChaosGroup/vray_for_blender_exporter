@@ -28,13 +28,17 @@ from vb30.lib import BlenderUtils
 from vb30 import debug
 
 
+def _redrawNodeEditor():
+    for area in bpy.context.screen.areas:
+        if area.type == 'NODE_EDITOR':
+            area.tag_redraw()
+
+
 def SelectNtreeInEditor(context, ntreeName):
     VRayExporter = context.scene.vray.Exporter
     VRayExporter.ntreeListIndex = bpy.data.node_groups.find(ntreeName)
 
-    for area in context.screen.areas:
-        if area.type == 'NODE_EDITOR':
-            area.tag_redraw()
+    _redrawNodeEditor()
 
 
 class VRayOpSelectNtreeInEditor(bpy.types.Operator):
@@ -82,6 +86,9 @@ class VRayOpShowNtree(bpy.types.Operator):
             ob = context.active_object
         elif hasattr(context, 'object'):
             ob = context.object
+
+        if not ob:
+            return {'CANCELLED'}
 
         if self.data == 'MATERIAL':
             if not ob:
@@ -276,6 +283,30 @@ class VRayOpRemoveFakeTextures(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpNtreeNodeMute(bpy.types.Operator):
+    bl_idname = "vray.ntree_node_mute"
+    bl_label = "Toggle Mute"
+
+    def execute(self, context):
+        if hasattr(context, 'active_node'):
+            node = context.active_node
+            if node:
+                node.mute = not node.mute
+                _redrawNodeEditor()
+        return {'FINISHED'}
+
+
+class VRayOpNtreeSyncName(bpy.types.Operator):
+    bl_label = "Sync Node Tree Name"
+    bl_idname = "vray.sync_ntree_name"
+
+    material = bpy.props.PointerProperty(type=bpy.types.Material)
+
+    def execute(self, context):
+        if self.material:
+            self.material.vray.ntree.name = self.material.name
+        return {'FINISHED'}
+
 
 def GetRegClasses():
     return (
@@ -290,6 +321,9 @@ def GetRegClasses():
         VRayMenuShowNtree,
         VRayPieShowNtree,
         VRayPieAddNtree,
+
+        VRayOpNtreeNodeMute,
+        VRayOpNtreeSyncName,
     )
 
 

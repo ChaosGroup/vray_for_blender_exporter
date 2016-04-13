@@ -22,69 +22,10 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-import bpy
-
 from vb30.lib import BlenderUtils
+from vb30.lib import PluginUtils
 
-
-TYPE = 'TEXTURE'
-ID   = 'TexMeshVertexColorChannel'
-NAME = 'Mesh Vertex Channel'
-DESC = ""
-
-PluginParams = (
-    {
-        'attr' : 'channelIndex',
-        'name' : "Channel Index",
-        'desc' : "",
-        'type' : 'INT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'channel_name',
-        'desc' : "Name of the channel to use",
-        'type' : 'STRING',
-        'default' : "",
-    },
-    {
-        'attr' : 'default_color',
-        'desc' : "",
-        'type' : 'TEXTURE',
-        'default' : (0.0, 0.0, 0.0),
-    },
-    {
-        'attr' : 'data_select',
-        'desc' : "Use UV",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "UV", "Use UV channels"),
-            ('1', "Color", "Use Color channels"),
-        ),
-        'skip' : True,
-        'default' : '1',
-    },
-)
-
-PluginWidget = """
-{ "widgets": [
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "data_select" }
-        ]
-    },
-    {   "layout" : "COLUMN",
-        "attrs" : [
-            { "name" : "channelIndex" },
-            { "name" : "channel_name" }
-        ]
-    },
-    {   "layout" : "ROW",
-        "attrs" : [
-            { "name" : "default_color" }
-        ]
-    }
-]}
-"""
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def nodeDraw(context, layout, TexMeshVertexColorChannel):

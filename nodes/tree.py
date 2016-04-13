@@ -172,14 +172,34 @@ class VRayNodeTreeEditor(VRayNodeTree):
         listIndex = VRayExporter.ntreeListIndex if VRayExporter.ntreeListIndex >= 0 else 0
         nNodeGroups = len(bpy.data.node_groups)
 
-        if nNodeGroups:
-            if listIndex >= nNodeGroups:
-                VRayExporter.ntreeListIndex = 0
-                listIndex                   = 0
-
+        if nNodeGroups and listIndex < nNodeGroups:
             ntree = bpy.data.node_groups[listIndex]
             if ntree:
                 return ntree, context.scene, None
+
+        return (None, None, None)
+
+
+class VRayNodeTreeMaterialEditor(VRayNodeTree):
+    bl_label  = "V-Ray Material Editor"
+    bl_idname = 'VRayNodeTreeMaterialEditor'
+    bl_icon   = 'MATERIAL'
+
+    @classmethod
+    def get_from_context(cls, context):
+        VRayExporter = context.scene.vray.Exporter
+
+        listIndex = VRayExporter.materialListIndex if VRayExporter.materialListIndex >= 0 else 0
+        numMaterials = len(bpy.data.materials)
+
+        if numMaterials:
+            if listIndex >= numMaterials:
+                VRayExporter.materialListIndex = 0
+                listIndex                   = 0
+
+            material = bpy.data.materials[listIndex]
+            if material:
+                return material.vray.ntree, None, None
 
         return (None, None, None)
 
@@ -201,6 +221,7 @@ def GetRegClasses():
         VRayNodeTreeScene,
 
         VRayNodeTreeEditor,
+        VRayNodeTreeMaterialEditor,
     )
 
 

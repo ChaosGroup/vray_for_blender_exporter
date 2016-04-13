@@ -23,46 +23,9 @@
 #
 
 import bpy
-import mathutils
 
-from vb30.lib import ExportUtils
-
-
-TYPE = 'EFFECT'
-ID   = 'SphereFadeGizmo'
-NAME = 'Sphere Fade Gizmo'
-DESC = ""
-
-PluginParams = (
-    {
-        'attr' : 'transform',
-        'desc' : "",
-        'type' : 'TRANSFORM',
-        'default' : None,
-    },
-    {
-        'attr' : 'radius',
-        'desc' : "",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'invert',
-        'desc' : "",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-
-    {
-        'attr' : 'object',
-        'desc' : "",
-        'type' : 'STRING',
-        'skip' :  True,
-        'default' : "",
-    },
-)
-
-PluginWidget = '{ "widgets": [] }'
+from vb30.lib import PluginUtils
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def nodeDraw(context, layout, SphereFadeGizmo):

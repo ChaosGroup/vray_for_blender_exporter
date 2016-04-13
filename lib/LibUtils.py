@@ -54,13 +54,13 @@ LampSubtypeToPlugin = {
 }
 
 FormatToSettings = {
-    'PNG'  : 'SettingsPNG',
-    'JPG'  : 'SettingsJPEG',
-    'TIFF' : 'SettingsTIFF',
-    'TGA'  : 'SettingsTGA',
-    'SGI'  : 'SettingsSGI',
-    'EXR'  : 'SettingsEXR',
-    'VRST' : 'SettingsVRST',
+    '0' : 'SettingsPNG',
+    '1' : 'SettingsJPEG',
+    '2' : 'SettingsTIFF',
+    '3' : 'SettingsTGA',
+    '4' : 'SettingsSGI',
+    '5' : 'SettingsEXR',
+    '6' : 'SettingsVRST',
 }
 
 

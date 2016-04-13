@@ -65,21 +65,28 @@ class VRAY_OT_update(bpy.types.Operator):
 		git = shutil.which("git")
 		if not git:
 			if sys.platform == 'win32':
-				# Try default path
-				git = "C:/Program Files (x86)/Git/bin/git.exe"
-				if not os.path.exists(git):
-					self.report({'ERROR'}, "Git is not found!")
-					return {'CANCELLED'}
-			else:
-				self.report({'ERROR'}, "Git is not found!")
-				return {'CANCELLED'}
+				# Try default paths
+				gitPaths = (
+					'C:/Program Files/Git/bin/git.exe',
+					'C:/Program Files (x86)/Git/bin/git.exe',
+				)
+				for _git in gitPaths:
+					if os.path.exists(_git):
+						git = _git
+						break
+
+		if not git:
+			self.report({'ERROR'}, "Git is not found!")
+			return {'CANCELLED'}
 
 		if sys.platform == 'win32':
 			git = '"%s"' % git
 
 		cmds = (
-			"%s pull --rebase" % git,
-			"%s submodule foreach git pull --rebase origin master" % git
+			"%s fetch" % git,
+			"%s reset --hard origin/master" % git,
+			"%s submodule foreach git fetch" % git,
+			"%s submodule foreach git reset --hard origin/master" % git
 		)
 
 		os.chdir(exporterDir)
@@ -447,6 +454,31 @@ class VRayOpSwitchSlotsObject(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class VRayOpNewMaterial(bpy.types.Operator):
+	bl_idname      = "vray.new_material"
+	bl_label       = "Add New Material"
+	bl_description = "Add new material"
+
+	def execute(self, context):
+		from vb30.nodes import tree_defaults
+
+		ma = bpy.data.materials.new(name="Material")
+		ma.use_fake_user = True
+
+		tree_defaults.AddMaterialNodeTree(ma)
+
+		maIndex = 0
+		for i in range(len(bpy.data.materials)):
+			if bpy.data.materials[i] == ma:
+				break
+			maIndex += 1
+
+		VRayExporter = context.scene.vray.Exporter
+		VRayExporter.materialListIndex = maIndex
+
+		return {'FINISHED'}
+
+
 def GetRegClasses():
 	return (
 		VRAY_OT_update,
@@ -461,6 +493,7 @@ def GetRegClasses():
 		VRAY_OT_add_sky,
 
 		VRayOpSwitchSlotsObject,
+		VRayOpNewMaterial,
 	)
 
 

@@ -263,7 +263,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.BakeView, 'use', text="Bake")
 		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
-		col.prop(VRayScene.VRayStereoscopicSettings, 'use')
+		col.prop(VRayScene.VRayStereoscopicSettings, 'use', text="Stereo")
 		if wide_ui:
 			col= split.column()
 		col.label(text="Pipeline:")

@@ -23,19 +23,7 @@
 #
 
 from vb30.lib import PluginUtils
-
-
-TYPE = 'TEXTURE'
-ID   = 'TexSoftbox'
-NAME = 'Soft Box'
-DESC = "Soft Box"
-
-PluginParams = PluginUtils.GetPluginParams(ID)
-PluginWidget = PluginUtils.GetPluginWidget(ID)
-
-
-def nodeDraw(context, layout, node):
-    pass
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def gui(context, layout, TexSoftbox, node):

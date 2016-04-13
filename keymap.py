@@ -37,6 +37,8 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
         kmi.properties.name = "vray.show_ntree_pie"
 
+        kmi = km.keymap_items.new("vray.ntree_node_mute", 'M', 'PRESS')
+
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', shift=True)
         kmi.properties.name = "vray.add_ntree_pie"
 

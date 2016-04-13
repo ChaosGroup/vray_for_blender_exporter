@@ -57,6 +57,7 @@ SkippedTypes = {
 
 InputTypes = {
     'BRDF',
+    'INT_TEXTURE',
     'FLOAT_TEXTURE',
     'VECTOR_TEXTURE',
     'GEOMETRY',
@@ -183,6 +184,12 @@ def GenerateAttribute(classMembers, attrDesc):
         'description' : attrDesc['desc'],
     }
 
+    uiDesc = None
+    if 'ui' in attrDesc:
+        uiDesc = attrDesc['ui']
+        if 'display_name' in uiDesc:
+            attrArgs['name'] = uiDesc['display_name']
+
     if attrArgs['description'].endswith("."):
         print(attrArgs['description'])
         attrArgs['description'] = attrArgs['description'][:-1]
@@ -203,7 +210,12 @@ def GenerateAttribute(classMembers, attrDesc):
     attrFunc = TypeToProp[attrDesc['type']]
 
     if attrDesc['type'] in {'STRING'}:
-        pass
+        if uiDesc:
+            if 'file_extensions' in uiDesc:
+                attrArgs['subtype'] = 'FILE_PATH'
+
+    elif attrDesc['type'] in {'PLUGIN'}:
+        attrArgs['default'] = ""
 
     elif attrDesc['type'] in {'PLUGIN'}:
         attrArgs['default'] = ""
@@ -247,7 +259,7 @@ def GenerateAttribute(classMembers, attrDesc):
         for opt in attrDesc['options']:
             # These options are not directly mapped into the Blender prop
             # options
-            if opt not in {'LINKED_ONLY', 'EXPORT_AS_IS'}:
+            if opt not in {'LINKED_ONLY', 'EXPORT_AS_IS', 'EXPORT_AS_RADIANS'}:
                 options.add(opt)
         attrArgs['options'] = options
 

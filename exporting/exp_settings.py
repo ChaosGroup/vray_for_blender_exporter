@@ -26,6 +26,7 @@ import bpy
 
 from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30.lib     import ExportUtils
+from vb30.lib     import SysUtils
 
 
 # Exports global render settings
@@ -95,6 +96,9 @@ def ExportSettingsPlugin(bus, pluginType, pluginName):
 def ExportSettings(bus):
     scene = bus['scene']
 
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
+
     for pluginType in {'SETTINGS', 'SETTINGS_GLOBAL'}:
         for pluginName in PLUGINS[pluginType]:
             # NOTE: We will export them later to be sure
@@ -106,17 +110,31 @@ def ExportSettings(bus):
                 # TODO: These plugins have to be implemented
                 'SettingsPtexBaker',
                 'SettingsVertexBaker',
+                'SettingsImageFilter',
                 # These plugins will be exported manually
                 'Includer',
                 'SettingsEnvironment',
+                'OutputDeepWriter',
                 # These plugins are exported from camera export
                 'BakeView',
                 'VRayStereoscopicSettings',
                 # Unused plugins for now
                 'SettingsCurrentFrame',
                 'SettingsLightTree',
+                'SettingsColorMappingModo',
+                'SettingsDR',
+                # Deprecated
+                'SettingsPhotonMap',
             }:
                 continue
+
+            if not SysUtils.IsRTEngine(bus):
+                if pluginName in {'RTEngine', 'SettingsRTEngine'}:
+                    continue
+
+            if not VRayScene.SettingsVFB.use:
+                if pluginName in {'EffectLens'}:
+                    continue
 
             ExportSettingsPlugin(bus, pluginType, pluginName)
 

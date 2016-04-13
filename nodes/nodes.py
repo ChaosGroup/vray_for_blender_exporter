@@ -31,7 +31,7 @@ import mathutils
 
 import nodeitems_utils
 
-from vb30.plugins import PLUGINS
+from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30.debug   import Debug, PrintDict
 from vb30.lib     import AttributeUtils, ClassUtils, CallbackUI, DrawUtils, LibUtils
 from vb30.ui      import classes
@@ -63,14 +63,6 @@ VRayNodeTypeIcon = {
     'RENDERCHANNEL' : 'SCENE_DATA',
 }
 
-_hidden_nodes = {
-    'GEOMETRY': {
-        'GeomMayaHair',
-        'GeomStaticMesh',
-        'VRayScene',
-    }
-}
-
 
 ##     ## ######## ##    ## ##     ##
 ###   ### ##       ###   ## ##     ##
@@ -81,7 +73,7 @@ _hidden_nodes = {
 ##     ## ######## ##    ##  #######
 
 class VRayNodeCategory(nodeitems_utils.NodeCategory):
-    split_items = 15
+    split_items = 20
 
     @classmethod
     def poll(cls, context):
@@ -89,14 +81,148 @@ class VRayNodeCategory(nodeitems_utils.NodeCategory):
 
 
 def BuildItemsList(nodeType, subType=None):
-    node_items = []
+    def _hidePlugin(pluginName):
+        _skip_plugins = {
+            # 3ds max specific
+            'TexMaxHairInfo',
+            'GeomHair',
+            'TexLayeredMax',
+            'TexMaskMax',
+            'TexMarbleMax',
+            'TexRGBTintMax',
+
+            # XSI specific
+            'TexBillboardParticle',
+            'TexColor2Scalar',
+            'TexColor8Mix',
+            'TexColorAverage',
+            'TexColorCurve',
+            'TexColorExponential',
+            'TexColorMathBasic',
+            'TexColorSwitch',
+            'TexDisplacacementRestrict',
+            'TexFloatPerVertexHairSampler',
+            'TexHairRootSampler',
+            'TexInterpLinear',
+            'TexParticleShape',
+            'TexPerVertexHairSampler',
+            'texRenderHair',
+            'TexRgbaCombine',
+            'TexRgbaSplit',
+            'TexScalarCurve',
+            'TexScalarExponential',
+            'TexScalarHairRootSampler',
+            'TexScalarMathBasic',
+            'TexSurfIncidence',
+            'TexXSIBitmap',
+            'TexXSICell',
+            'texXSIColor2Alpha',
+            'texXSIColor2Vector',
+            'TexXSIColorBalance',
+            'TexXSIColorCorrection',
+            'TexXSIColorMix',
+            'TexXSIFabric',
+            'TexXSIFalloff',
+            'TexXSIFlagstone',
+            'TexXSIGradient',
+            'TexXSIHLSAdjust',
+            'TexXSIIntensity',
+            'TexXSILayered',
+            'TexXSIMulti',
+            'TexXSINormalMap',
+            'TexXSIRGBAKeyer',
+            'TexXSIRipple',
+            'TexXSIRock',
+            'TexXSIScalar2Color',
+            'TexXSIScalarInvert',
+            'TexXSISnow',
+            'TexXSIVein',
+            'TexXSIVertexColorLookup',
+            'TexXSIWeightmapColorLookup',
+            'TexXSIWeightmapLookup',
+            'TexXSIWood',
+            'volumeXSIMulti',
+            'xsiUVWGenChannel',
+            'xsiUVWGenEnvironment',
+
+            # Handled with meta node
+            'TexBitmap',
+            'BitmapBuffer',
+
+            # Manually handled
+            'TexBezierCurve',
+            'GeomMayaHair',
+            'GeomStaticMesh',
+            'VRayScene',
+
+            # Unused
+            'GeomImagePlane',
+            'GeomInfinitePlane',
+            'TexCustomBitmap',
+            'TexMultiX',
+            'TexIDIntegerMap',
+            'TexMeshVertexColor',
+            'TexMeshVertexColorWithDefault',
+            'TexMultiProjection',
+            'TexParticleDiffuse',
+            'TexParticleShape',
+            'TexParticleId',
+            'RawBitmapBuffer',
+
+            # Not yet implemented
+            'BRDFScanned',
+            'TexRamp',
+        }
+
+        if pluginName in _skip_plugins:
+            return True
+
+        # App specific
+        _name_filter = (
+            'Maya',
+            'TexMaya',
+            'MtlMaya',
+            'TexModo',
+            'TexXSI',
+            'texXSI',
+            'volumeXSI',
+        )
+        if pluginName.startswith(_name_filter):
+            return True
+        if pluginName.find('ASGVIS') >= 0:
+            return True
+        if pluginName.find('C4D') >= 0:
+            return True
+        if pluginName.find('Modo') >= 0:
+            return True
+        return False
+
+    def _getPluginDesc(pluginName):
+        if pluginName in PLUGINS_ID:
+            return PLUGINS_ID[pluginName]
+
+    menuItems = []
     for t in VRayNodeTypes[nodeType]:
-        if nodeType in _hidden_nodes:
-            vray_plugin = t.bl_rna.identifier.replace("VRayNode", "")
-            if vray_plugin in _hidden_nodes[nodeType]:
-                continue
-        node_items.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
-    return node_items
+        pluginName = t.bl_rna.identifier.replace("VRayNode", "")
+
+        if _hidePlugin(pluginName):
+            continue
+
+        pluginDesc = _getPluginDesc(pluginName)
+        if pluginDesc:
+            pluginSubtype = getattr(pluginDesc, 'SUBTYPE', None)
+            if subType is None:
+                # Add only data without SUBTYPE
+                if pluginSubtype is not None:
+                    continue
+            else:
+                # Check subtype
+                if subType != pluginSubtype:
+                    continue
+
+        menuItems.append(nodeitems_utils.NodeItem(t.bl_rna.identifier, label=t.bl_label))
+
+    return menuItems
 
 
 def GetCategories():
@@ -136,6 +262,12 @@ def GetCategories():
             icon  = 'TEXTURE'
         ),
         VRayNodeCategory(
+            'VRAY_TEXTURE_UTILITIES',
+            "Texture Utilities",
+            items = BuildItemsList('TEXTURE', 'UTILITY'),
+            icon  = 'SEQ_CHROMA_SCOPE'
+        ),
+        VRayNodeCategory(
             'VRAY_UVWGEN',
             "Mapping",
             items = BuildItemsList('UVWGEN'),
@@ -160,10 +292,6 @@ def GetCategories():
                 nodeitems_utils.NodeItem("VRayNodeTransform"),
                 nodeitems_utils.NodeItem("VRayNodeMatrix"),
                 nodeitems_utils.NodeItem("VRayNodeVector"),
-                # for vrayNodeType in sorted(VRayNodeTypes['TEXTURE'], key=lambda t: t.bl_label):
-                #     if hasattr(vrayNodeType, 'bl_menu'):
-                #         if vrayNodeType.bl_menu == 'Math':
-                #             add_nodetype(self.layout, vrayNodeType)
             ],
             icon = 'MANIPUL',
         ),
@@ -396,7 +524,7 @@ def LoadDynamicNodes():
 
         for pluginName in sorted(PLUGINS[pluginType]):
             # Skip manually created nodes
-            if pluginName in {'BRDFLayered', 'TexLayered'}:
+            if pluginName in {'BRDFLayered', 'TexLayered', 'TexMulti'}:
                 continue
 
             typeName = "VRay%s" % pluginName

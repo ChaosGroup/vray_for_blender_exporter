@@ -22,76 +22,12 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
-from vb30.lib import ExportUtils, BlenderUtils
+from vb30.lib import ExportUtils
+from vb30.lib import BlenderUtils
+from vb30.lib import PluginUtils
 
 
-TYPE = 'CAMERA'
-ID   = 'SettingsCameraDof'
-NAME = 'SettingsCameraDof'
-DESC = ""
-
-PluginParams = (
-    {
-        'attr' : 'on',
-        'name' : "Use Depth Of Field",
-        'desc' : "Use depth of field",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'aperture',
-        'desc' : "The size of the virtual camera aperture, in world units",
-        'type' : 'FLOAT',
-        'default' : 5,
-    },
-    {
-        'attr' : 'center_bias',
-        'desc' : "This determines the uniformity of the DOF effect",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'focal_dist',
-        'desc' : "Determines the distance from the camera at which objects will be in perfect focus",
-        'type' : 'FLOAT',
-        'default' : 200,
-    },
-    {
-        'attr' : 'sides_on',
-        'desc' : "This option allows you to simulate the polygonal shape of the aperture of real-world cameras",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'sides_num',
-        'desc' : "Number of sides",
-        'type' : 'INT',
-        'default' : 5,
-    },
-    {
-        'attr' : 'rotation',
-        'desc' : "Specifies the orientation of the aperture shape",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'anisotropy',
-        'desc' : "This allows the stretching of the bokeh effect horizontally or vertically",
-        'type' : 'FLOAT',
-        'default' : 0,
-    },
-    {
-        'attr' : 'subdivs',
-        'desc' : "Controls the quality of the DOF effect",
-        'type' : 'INT',
-        'default' : 8,
-    },
-)
-
-PluginWidget = """
-{ "widgets": [
-]}
-"""
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):

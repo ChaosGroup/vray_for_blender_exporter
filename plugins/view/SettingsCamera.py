@@ -23,79 +23,10 @@
 #
 
 from vb30.lib import ExportUtils
+from vb30.lib import PluginUtils
 
 
-TYPE = 'CAMERA'
-ID   = 'SettingsCamera'
-NAME = 'Camera'
-DESC = ""
-
-PluginParams = (
-    {
-        'attr' : 'type',
-        'desc' : "Camera typ",
-        'type' : 'ENUM',
-        'items' : (
-            ('0', "Default", ""),
-            ('1', "Spherifical", ""),
-            ('2', "Cylindrical (Point)", ""),
-            ('3', "Cylindrical (Ortho)", ""),
-            ('4', "Box", ""),
-            ('5', "Fish-Eye", ""),
-            ('6', "Warped Spherical", ""),
-            ('7', "Orthogonal", ""),
-            ('8', "Pinhole", ""),
-        ),
-        'default' : '0',
-    },
-    {
-        'attr' : 'height',
-        'desc' : "Height of the cylindrical (ortho) camera",
-        'type' : 'FLOAT',
-        'default' : 400,
-    },
-    {
-        'attr' : 'dist',
-        'desc' : "Applies only to fish-eye camera. Controls distance to the sphere center",
-        'type' : 'FLOAT',
-        'default' : 2,
-    },
-    {
-        'attr' : 'fov',
-        'desc' : "Field of view; if negative, the field of view will not be modified",
-        'type' : 'FLOAT',
-        'default' : 0.785398,
-    },
-    {
-        'attr' : 'auto_fit',
-        'desc' : "The auto-fit option of the fish-eye camera",
-        'type' : 'BOOL',
-        'default' : True,
-    },
-    {
-        'attr' : 'curve',
-        'desc' : "Controls the way the rendered images is warped. Applies only to fish-eye camera",
-        'type' : 'FLOAT',
-        'default' : 1,
-    },
-    {
-        'attr' : 'dont_affect_settings',
-        'desc' : "This is here so we can suppress a SettingsCamera node from affecting the main VRayRenderer sequence and frame data",
-        'type' : 'BOOL',
-        'default' : False,
-    },
-    {
-        'attr' : 'image_planes',
-        'desc' : "Used only to force a re-export of the image plane geometry in RT rendering",
-        'type' : 'PLUGIN',
-        'default' : "",
-    },
-)
-
-PluginWidget = """
-{ "widgets": [
-]}
-"""
+PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
 def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):

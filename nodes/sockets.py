@@ -70,6 +70,20 @@ def AddOutput(node, socketType, socketName, attrName=None):
         createdSocket.vray_attr = attrName
 
 
+def _is_connected_muted(socket):
+    def _get_connected_node(nodeSocket):
+        for l in nodeSocket.links:
+            if l.from_node:
+                return l.from_node
+        return None
+
+    muted = False
+    conNode = _get_connected_node(socket)
+    if conNode:
+        muted = conNode.mute
+    return muted
+
+
 class VRaySocketMult:
     multiplier = bpy.props.FloatProperty(
         name        = "Multiplier",
@@ -84,22 +98,26 @@ class VRaySocketMult:
     def draw(self, context, layout, node, text):
         if self.is_output:
             layout.label(text)
-        elif self.is_linked:
-            layout.prop(self, 'multiplier', text="%s Mult." % text)
         else:
-            layout.prop(self, 'value', text=text)
+            showValue = _is_connected_muted(self) if self.is_linked else True
+            if showValue:
+                layout.prop(self, 'value', text=text)
+            else:
+                layout.prop(self, 'multiplier', text="%s Mult." % text)
 
 
 class VRaySocketColorMult(VRaySocketMult):
     def draw(self, context, layout, node, text):
         if self.is_output:
             layout.label(text)
-        elif self.is_linked:
-            layout.prop(self, 'multiplier', text="%s Mult." % text)
         else:
-            split = layout.split(percentage=0.4)
-            split.prop(self, 'value', text="")
-            split.label(text=text)
+            showValue = _is_connected_muted(self) if self.is_linked else True
+            if showValue:
+                split = layout.split(percentage=0.4)
+                split.prop(self, 'value', text="")
+                split.label(text=text)
+            else:
+               layout.prop(self, 'multiplier', text="%s Mult." % text)
 
 
 class VRaySocketUse:

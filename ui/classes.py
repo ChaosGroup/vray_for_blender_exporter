@@ -170,6 +170,10 @@ def DrawNodePanel(context, layout, node, PLUGINS):
     vrayPlugin = None
     toShow     = True
 
+    if node.bl_idname.startswith('VRayNodeMeta'):
+        node.draw_buttons_ext(context, layout)
+        return
+
     if not hasattr(node, 'vray_type'):
         toShow = False
     else:
@@ -522,6 +526,17 @@ class VRayListNodeTrees(bpy.types.UIList):
         layout.label(text=item.name, translate=False)
 
 
+class VRayListMaterials(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        split = layout.split(percentage=0.1)
+
+        split.column().prop(item, 'diffuse_color', text="")
+        split.column().label(text=item.name, translate=False)
+        if hasattr(item, 'vray'):
+            icon = item.vray.ntree.bl_icon if item.vray.ntree else 'NONE'
+            split.column().prop(item.vray, 'ntree', text="", icon=icon)
+
+
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
 ##     ## ##       ##    ##   ##  ##    ##    ##    ##     ##   ## ##      ##     ##  ##     ## ###   ##
 ##     ## ##       ##         ##  ##          ##    ##     ##  ##   ##     ##     ##  ##     ## ####  ##
@@ -537,6 +552,7 @@ def GetRegClasses():
         VRayListUse,
         VRayListDR,
         VRayList,
+        VRayListMaterials,
 
         VRayOpListItemNew,
         VRayOpListItemDel,

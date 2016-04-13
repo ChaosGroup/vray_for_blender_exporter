@@ -43,41 +43,36 @@ def LoadPluginDesc():
     for filePath in descDirpath.glob("*/*.json"):
         pluginDesc = json.loads(filePath.open().read())
 
-        pluginID     = pluginDesc.get('ID')
-        pluginParams = pluginDesc.get('Parameters')
-        pluginName   = pluginDesc.get('Name')
-        pluginType   = pluginDesc.get('Type')
-        plugiIDDesc  = pluginDesc.get('Description', "")
-        plguinWidget = pluginDesc.get('Widget', {})
+        pluginID      = pluginDesc.get('ID')
+        pluginParams  = pluginDesc.get('Parameters')
+        pluginName    = pluginDesc.get('Name')
+        pluginType    = pluginDesc.get('Type')
+        pluginSubType = pluginDesc.get('Subtype', None)
+        pluginIDDesc  = pluginDesc.get('Description', "")
+        pluginWidget  = pluginDesc.get('Widget', {})
 
         PLUGINS_DESC[pluginID] = {
-            'ID'         : pluginID,
-            'Name'       : pluginName,
-            'Parameters' : pluginParams,
-            'Widget'     : plguinWidget,
-
             # To match plugin interface
             # XXX: Refactor
-            'TYPE' : pluginType,
-            'ID'   : pluginID,
-            'NAME' : pluginName,
-            'DESC' : plugiIDDesc,
+            'DESC'         : pluginIDDesc,
+            'ID'           : pluginID,
+            'NAME'         : pluginName,
+            'SUBTYPE'      : pluginSubType,
+            'TYPE'         : pluginType,
+            'Name'         : pluginName,
+            'Parameters'   : pluginParams,
             'PluginParams' : pluginParams,
-            'PluginWidget' : plguinWidget,
+            'PluginWidget' : pluginWidget,
+            'Widget'       : pluginWidget,
         }
 
 
-def GetPluginParams(pluginID):
+def loadPluginOnModule(plugin, pluginID):
     if pluginID in PLUGINS_DESC:
-        return PLUGINS_DESC[pluginID]['Parameters']
-    return []
+        pluginDesc = PLUGINS_DESC[pluginID]
 
-
-def GetPluginWidget(pluginID):
-    if pluginID in PLUGINS_DESC:
-        # TODO: Finish plugins this way and refactor this
-        return json.dumps(PLUGINS_DESC[pluginID]['Widget'])
-    return {}
+        for key in pluginDesc:
+            plugin[key] = pluginDesc[key]
 
 
 def PluginName(pluginName):
