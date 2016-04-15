@@ -39,8 +39,14 @@ import vb30.proxy
 from vb30.lib     import LibUtils, BlenderUtils, PathUtils, SysUtils
 from vb30.lib     import ColorUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
-from vb30 import debug
+from vb30         import debug
+from vb30.engine  import ZMQ
 
+_has_rt = True
+try:
+    import _vray_for_blender_rt
+except:
+    _has_rt = False
 
 ##     ## ########  ########     ###    ######## ########
 ##     ## ##     ## ##     ##   ## ##      ##    ##
@@ -478,6 +484,23 @@ class VRayOpNewMaterial(bpy.types.Operator):
 
 		return {'FINISHED'}
 
+class VRayOpZmqRun(bpy.types.Operator):
+	bl_idname      = "vray.zmq_update"
+	bl_label       = "Start/Stop ZMQ"
+	bl_description = "Force start/stop zmq server"
+
+	def execute(self, context):
+		if not _has_rt:
+			self.report({'ERROR'}, "ZMQ not supported")
+			return {'CANCELLED'}
+
+		if ZMQ.is_running():
+			ZMQ.stop()
+		else:
+			ZMQ.start()
+
+		return {'FINISHED'}
+
 
 def GetRegClasses():
 	return (
@@ -494,6 +517,7 @@ def GetRegClasses():
 
 		VRayOpSwitchSlotsObject,
 		VRayOpNewMaterial,
+		VRayOpZmqRun,
 	)
 
 

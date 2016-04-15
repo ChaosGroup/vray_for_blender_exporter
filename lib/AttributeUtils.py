@@ -217,9 +217,6 @@ def GenerateAttribute(classMembers, attrDesc):
     elif attrDesc['type'] in {'PLUGIN'}:
         attrArgs['default'] = ""
 
-    elif attrDesc['type'] in {'PLUGIN'}:
-        attrArgs['default'] = ""
-
     elif attrDesc['type'] in {'COLOR', 'ACOLOR', 'TEXTURE'}:
         c = attrDesc['default']
         attrArgs['subtype'] = 'COLOR'

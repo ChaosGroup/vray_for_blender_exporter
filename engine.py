@@ -45,7 +45,79 @@ from vb30.lib.VRayStream import VRayFilePaths
 # This will hold handle to subprocess.Popen to the zmq server if
 # it is started in local mode, and it should be terminated on Shutdown()
 #
-_zmq_process = None
+class ZMQProcess:
+    _zmq_process = None
+
+    def is_running(self):
+        running = False
+        if self._zmq_process is not None:
+            self._zmq_process.poll()
+
+        if self._zmq_process is not None\
+            and self._zmq_process.returncode is None:
+            running = True
+
+        return running
+
+    def start(self):
+        self._check_process()
+
+    def stop(self):
+        if self.is_running():
+            try:
+                self._zmq_process.terminate()
+                for area in bpy.context.screen.areas:
+                    if area.type == 'VIEW_3D':
+                        for space in area.spaces:
+                            if space.type == 'VIEW_3D' and space.viewport_shade == 'RENDERED':
+                                space.viewport_shade = 'SOLID'
+            except:
+                pass
+
+    def restart(self):
+        self.stop()
+        self.start()
+
+    def _check_process(self):
+        settings = bpy.context.scene.vray.Exporter
+        port = str(settings.zmq_port)
+        log_lvl = settings.zmq_log_level
+
+        log_lvl_translate = {
+            'ERROR': '4',
+            'WARNING': '3',
+            'DEBUG': '2',
+            'INFO': '1',
+        }
+
+        if self._zmq_process is not None:
+            self._zmq_process.poll()
+            _debug("ZMQ: %s -> code[%s]" % (self._zmq_process, self._zmq_process.returncode))
+
+        if self._zmq_process is None or self._zmq_process.returncode is not None:
+            executable_path = SysUtils.GetZmqPath()
+
+            if not executable_path or not os.path.exists(executable_path):
+                _debug("Can't find V-Ray ZMQ Server!")
+            else:
+                try:
+                    env = os.environ.copy()
+                    if sys.platform == "win32":
+                        if 'VRAY_ZMQSERVER_APPSDK_PATH' not in env:
+                            sys.stderr.write('Python-engine: Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
+                            sys.stderr.flush()
+                        else:
+                            appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
+                            env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
+                            env['VRAY_PATH'] = appsdk
+                    cmd = [executable_path, "-p", port, "-log", log_lvl_translate[log_lvl]]
+                    _debug(' '.join(cmd))
+                    self._zmq_process = subprocess.Popen(cmd, env=env)
+                except Exception as e:
+                    _debug(e)
+
+
+ZMQ = ZMQProcess()
 
 def _debug(msg):
     import inspect
@@ -65,12 +137,7 @@ def shutdown():
     _vray_for_blender.free()
     if _has_rt:
         _vray_for_blender_rt.unload()
-
-    if _has_rt and _zmq_process:
-        try:
-            _zmq_process.terminate()
-        except:
-            pass
+        ZMQ.stop();
 
 
 def get_file_manager(exporter, engine, scene):
@@ -96,43 +163,6 @@ def get_file_manager(exporter, engine, scene):
         return "Error initing files!"
 
     return fm
-
-
-def _check_zmq_process(port, log_lvl):
-    global _zmq_process
-
-    log_lvl_translate = {
-        'ERROR': '4',
-        'WARNING': '3',
-        'DEBUG': '2',
-        'INFO': '1',
-    }
-
-    if _zmq_process is not None:
-        _zmq_process.poll()
-        _debug("ZMQ: %s -> code[%s]" % (_zmq_process, _zmq_process.returncode))
-
-    if _zmq_process is None or _zmq_process.returncode is not None:
-        executable_path = SysUtils.GetZmqPath()
-
-        if not executable_path or not os.path.exists(executable_path):
-            _debug("Can't find V-Ray ZMQ Server!")
-        else:
-            try:
-                env = os.environ.copy()
-                if sys.platform == "win32":
-                    if 'VRAY_ZMQSERVER_APPSDK_PATH' not in env:
-                        sys.stderr.write('Python-engine: Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
-                        sys.stderr.flush()
-                    else:
-                        appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
-                        env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
-                        env['VRAY_PATH'] = appsdk
-                cmd = [executable_path, "-p", port, "-log", log_lvl_translate[log_lvl]]
-                _debug(' '.join(cmd))
-                _zmq_process = subprocess.Popen(cmd, env=env)
-            except Exception as e:
-                _debug(e)
 
 
 class VRayRendererBase(bpy.types.RenderEngine):
@@ -191,7 +221,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
-            _check_zmq_process(str(vrayExporter.zmq_port), vrayExporter.zmq_log_level)
+            ZMQ._check_process()
 
     def __del__(self):
         _debug("__del__()")
@@ -204,7 +234,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
 
         vrayExporter = self._get_settings()
         if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
-            _check_zmq_process(str(vrayExporter.zmq_port), vrayExporter.zmq_log_level)
+            ZMQ._check_process()
 
         if not self.renderer:
             arguments = {

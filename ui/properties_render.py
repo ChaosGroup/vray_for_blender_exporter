@@ -29,7 +29,7 @@ import bpy
 
 from vb30.lib import LibUtils
 from vb30.ui  import classes
-from vb30     import plugins, preset
+from vb30     import plugins, preset, engine, debug
 
 from vb30.ui.classes import PanelGroups
 
@@ -493,6 +493,19 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box.prop(VRayExporter, 'backend_worker')
 				if VRayExporter.backend_worker == 'NETWORK':
 					box.prop(VRayExporter, 'zmq_address')
+				else:
+					action = 'Start'
+					stat = 'STOPPED'
+					icon = GetRenderIcon(VRayExporter)
+
+					if engine.ZMQ.is_running():
+						action = 'Stop'
+						stat = 'RUNNING'
+						icon = 'CANCEL'
+
+					box.label(text='ZMQ server status: %s' % stat)
+					box.operator("vray.zmq_update", text=action, icon=icon)
+
 				box.prop(VRayExporter, 'zmq_port')
 				box.prop(VRayExporter, 'zmq_log_level')
 
