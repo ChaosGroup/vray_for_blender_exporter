@@ -103,7 +103,7 @@ def CreateDirectory(directory):
     if not os.path.exists(directory):
         debug.Debug('Creating directory "%s"...' % directory)
         try:
-            os.mkdir(directory)
+            os.makedirs(directory)
         except OSError:
             debug.Debug('Error creating directory: "%s"' % directory, msgType='ERROR')
             directory = tempfile.gettempdir()
