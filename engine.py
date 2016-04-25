@@ -195,6 +195,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
     bl_label  = "V-Ray (NEW)"
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
+    bl_use_shading_nodes = True
 
     def _get_settings(self):
         # In case of preview "scene" argument will point
