@@ -105,8 +105,7 @@ class ZMQProcess:
                     env = os.environ.copy()
                     if sys.platform == "win32":
                         if 'VRAY_ZMQSERVER_APPSDK_PATH' not in env:
-                            sys.stderr.write('Python-engine: Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
-                            sys.stderr.flush()
+                            debug.PrintError('Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
                         else:
                             appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
                             env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
