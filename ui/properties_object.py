@@ -258,7 +258,6 @@ class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
 		col = split.column()
 		col.prop(VRayClipper, 'affect_light')
 		col.prop(VRayClipper, 'clip_lights')
-		col.prop(VRayClipper, 'use_obj_mesh')
 
 		col.prop(VRayClipper, 'only_camera_rays')
 		col.prop(VRayClipper, 'use_obj_mtl')

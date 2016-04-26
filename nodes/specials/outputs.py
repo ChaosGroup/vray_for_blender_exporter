@@ -69,8 +69,8 @@ class VRayNodeBlenderOutputGeometry(bpy.types.Node):
     bl_label  = 'Blender Object Geometry'
     bl_icon   = 'MESH_DATA'
 
-    vray_type   = bpy.props.StringProperty(default='GEOMETRY')
-    vray_plugin = bpy.props.StringProperty(default='GeomStaticMesh')
+    vray_type   = bpy.props.StringProperty(default='NONE')
+    vray_plugin = bpy.props.StringProperty(default='NONE')
 
     GeomStaticMesh = bpy.props.PointerProperty(
         name = "GeomStaticMesh",
