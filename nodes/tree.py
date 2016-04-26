@@ -57,7 +57,7 @@ class VRayNodeTreeMaterial(VRayNodeTree):
         if ob and ob.type not in {'LAMP', 'CAMERA'}:
             ma = ob.active_material
             if ma and ma.vray.ntree:
-                return ma.vray.ntree, None, None
+                return ma.vray.ntree, ma, None
         return (None, None, None)
 
 
@@ -81,7 +81,7 @@ class VRayNodeTreeWorld(VRayNodeTree):
         if hasattr(context.scene, 'world'):
             world = context.scene.world
             if world and world.vray.ntree:
-                return world.vray.ntree, None, None
+                return world.vray.ntree, world, None
         return (None, None, None)
 
 
@@ -106,7 +106,7 @@ class VRayNodeTreeObject(VRayNodeTree):
         ob = context.active_object
         if ob and ob.type not in BlenderUtils.NonGeometryTypes:
             if ob.vray.ntree:
-                return ob.vray.ntree, None, None
+                return ob.vray.ntree, ob, None
         return (None, None, None)
 
 
@@ -128,7 +128,7 @@ class VRayNodeTreeLight(VRayNodeTree):
         ob = context.active_object
         if ob and ob.type == 'LAMP':
             if ob.data.vray.ntree:
-                return ob.data.vray.ntree, None, None
+                return ob.data.vray.ntree, ob.data, None
         return (None, None, None)
 
 
@@ -148,7 +148,7 @@ class VRayNodeTreeScene(VRayNodeTree):
     @classmethod
     def get_from_context(cls, context):
         if context.scene.vray.ntree:
-            return context.scene.vray.ntree, None, None
+            return context.scene.vray.ntree, context.scene, None
         return (None, None, None)
 
 
@@ -175,7 +175,7 @@ class VRayNodeTreeEditor(VRayNodeTree):
         if nNodeGroups and listIndex < nNodeGroups:
             ntree = bpy.data.node_groups[listIndex]
             if ntree:
-                return ntree, None, None
+                return ntree, context.scene, None
 
         return (None, None, None)
 

@@ -37,6 +37,7 @@ try:
 except:
     _has_rt = False
 
+
 TYPE = 'SYSTEM'
 ID   = 'VRayExporter'
 NAME = 'Exporter'
@@ -501,6 +502,18 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = 5555
     )
 
+    zmq_log_level = bpy.props.EnumProperty(
+        name = "ZMQ log level",
+        description = "ZMQ log level",
+        items = (
+            ('ERROR', 'Error', ''),
+            ('WARNING', 'Warning', ''),
+            ('DEBUG', 'Debug', ''),
+            ('INFO', 'Info', ''),
+        ),
+        default = 'ERROR'
+    )
+
     vfb_global_preset_file_use = bpy.props.BoolProperty(
         name = "Use Global Preset File",
         description = "Use VFB global preset file",
@@ -511,6 +524,53 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Global Preset File",
         subtype = 'FILE_PATH',
         description = "VFB global preset file",
+    )
+
+    rendering_mode = bpy.props.EnumProperty(
+        name = "Rendering Mode",
+        description = "Rendering mode",
+        items = (
+            ( "-1", "Production", "" ),
+            ( "0",  "RT CPU",     "" ),
+            ( "1",  "RT OpenCL",  "" ),
+            ( "4",  "RT CUDA",    "" )
+        ),
+        default = "-1"
+    )
+
+    viewport_rendering_mode = bpy.props.EnumProperty(
+        name = "Viewport Rendering Mode",
+        description = "Viewport rendering mode",
+        items = (
+            ( "0",  "RT CPU",     "" ),
+            ( "1",  "RT OpenCL",  "" ),
+            ( "4",  "RT CUDA",    "" )
+        ),
+        default = '0'
+    )
+
+    viewport_jpeg_quality = bpy.props.IntProperty(
+        name = "Image quality",
+        description = "JPEG image quality",
+        min = 10,
+        max = 100,
+        subtype = 'PERCENTAGE',
+        default = 60
+    )
+
+    viewport_resolution = bpy.props.IntProperty(
+        name = "Viewport Resolution",
+        description = "Viewport resolution",
+        min = 10,
+        max = 100,
+        subtype = 'PERCENTAGE',
+        default = 100
+    )
+
+    viewport_alpha = bpy.props.BoolProperty(
+        name = "Show Alpha",
+        description = "how Alpha",
+        default = False
     )
 
 
