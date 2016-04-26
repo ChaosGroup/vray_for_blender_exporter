@@ -46,7 +46,19 @@ from vb30.lib.VRayStream import VRayFilePaths
 # it is started in local mode, and it should be terminated on Shutdown()
 #
 class ZMQProcess:
+    log_lvl_translate = {
+        'ERROR': '4',
+        'WARNING': '3',
+        'DEBUG': '2',
+        'INFO': '1',
+    }
     _zmq_process = None
+
+    def should_start(self):
+        settings = bpy.context.scene.vray.Exporter
+        should_start = settings.backend in {'ZMQ'} and settings.backend_worker == 'LOCAL'
+        debug.Debug('ZMQ should start %s' % should_start)
+        return should_start
 
     def is_running(self):
         running = False
@@ -60,7 +72,8 @@ class ZMQProcess:
         return running
 
     def start(self):
-        self._check_process()
+        if not self.is_running():
+            self._check_process()
 
     def stop(self):
         if self.is_running():
@@ -84,13 +97,6 @@ class ZMQProcess:
         port = str(settings.zmq_port)
         log_lvl = settings.zmq_log_level
 
-        log_lvl_translate = {
-            'ERROR': '4',
-            'WARNING': '3',
-            'DEBUG': '2',
-            'INFO': '1',
-        }
-
         if self._zmq_process is not None:
             self._zmq_process.poll()
             debug.Debug("ZMQ: %s -> code[%s]" % (self._zmq_process, self._zmq_process.returncode))
@@ -110,8 +116,14 @@ class ZMQProcess:
                             appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
                             env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
                             env['VRAY_PATH'] = appsdk
-                    cmd = [executable_path, "-p", port, "-log", log_lvl_translate[log_lvl]]
+
+                    cmd = [
+                        executable_path,
+                        "-p", port,
+                        "-log", self.log_lvl_translate[log_lvl]
+                    ]
                     debug.Debug(' '.join(cmd))
+
                     self._zmq_process = subprocess.Popen(cmd, env=env)
                 except Exception as e:
                     debug.PrintError(e)
@@ -219,8 +231,8 @@ class VRayRendererRT(bpy.types.RenderEngine):
         debug.Debug("update()")
 
         vrayExporter = self._get_settings()
-        if vrayExporter.backend in {'ZMQ'} and vrayExporter.backend_worker == 'LOCAL':
-            ZMQ._check_process()
+        if ZMQ.should_start():
+            ZMQ.start()
 
         if not self.renderer:
             arguments = {
@@ -263,7 +275,8 @@ class VRayRendererRT(bpy.types.RenderEngine):
     def view_update(self, context):
         debug.Debug("view_update()")
 
-        vrayExporter = self._get_settings()
+        if ZMQ.should_start():
+            ZMQ.start()
 
         if not self.renderer:
             self.renderer = _vray_for_blender_rt.init_rt(
