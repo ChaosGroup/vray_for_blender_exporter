@@ -346,7 +346,9 @@ def GetRegClasses():
 def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
-    bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
+
+    if _has_rt:
+        bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
 
 
 def unregister():
