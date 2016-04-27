@@ -134,23 +134,32 @@ def AddDefaultInputs(self, vrayPlugin, attrFilter=None):
             TypeToSocket = AttributeUtils.TypeToSocket
             if self.vray_type == 'LIGHT' or 'LINKED_ONLY' in attr_options:
                 TypeToSocket = AttributeUtils.TypeToSocketNoValue
-
             SocketUtils.AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
 
 def AddDefaultOutputs(self, vrayPlugin):
+    hasOutColor = False
+
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
+
+        if attr['attr'] == 'color' or attr_name == 'Color':
+            hasOutColor = True
+
+        if attr_name.startswith("Out "):
+            attr_name = attr_name[4:]
 
         attr_options = attr.get('options', {})
 
         if attr['type'] in AttributeUtils.OutputTypes:
             SocketUtils.AddOutput(self, AttributeUtils.TypeToSocket[attr['type']], attr_name, attr['attr'])
 
+    return hasOutColor
+
 
 def AddDefaultInputsOutputs(self, vrayPlugin):
     AddDefaultInputs(self, vrayPlugin)
-    AddDefaultOutputs(self, vrayPlugin)
+    return AddDefaultOutputs(self, vrayPlugin)
 
 
 def CreateNode(ntree, nodeType, nodeName=None, unique=True):

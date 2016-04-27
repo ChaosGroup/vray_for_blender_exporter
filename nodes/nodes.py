@@ -416,7 +416,7 @@ def VRayNodeInit(self, context):
 
     vrayPlugin = PLUGINS[self.vray_type][self.vray_plugin]
 
-    NodeUtils.AddDefaultInputsOutputs(self, vrayPlugin)
+    hasOutColor = NodeUtils.AddDefaultInputsOutputs(self, vrayPlugin)
 
     if self.vray_type == 'TEXTURE':
         # Some plugins already have properly defined outputs
@@ -425,7 +425,7 @@ def VRayNodeInit(self, context):
             pass
         elif self.vray_plugin in {'TexVector'}:
             AddOutput(self, 'VRaySocketVector', "Vector")
-        else:
+        elif not hasOutColor:
             AddOutput(self, 'VRaySocketColor', "Output")
     elif self.vray_type == 'UVWGEN':
         AddOutput(self, 'VRaySocketCoords', "Mapping", 'uvwgen')
