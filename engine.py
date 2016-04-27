@@ -53,12 +53,43 @@ class ZMQProcess:
         'INFO': '1',
     }
     _zmq_process = None
+    _heartbeat_running = False
+
+    def _get_settings(self):
+        settings = bpy.context.scene.vray.Exporter
+        return settings.zmq_address, str(settings.zmq_port), settings.zmq_log_level
+
+    def start_heartbeat(self):
+        addr, port, _ = self._get_settings()
+        self._heartbeat_running = _vray_for_blender_rt.zmq_heartbeat_start("tcp://%s:%s" % (addr, port))
+        debug.Debug('ZMQ starting heartbeat = %s' % self._heartbeat_running)
+
+    def stop_heartbeat(self):
+        _vray_for_blender_rt.zmq_heartbeat_stop()
+        self._heartbeat_running = False
+        debug.Debug('ZMQ stopping heartbeat')
+
+    def is_use_zmq(self):
+        return bpy.context.scene.vray.Exporter.backend in {'ZMQ'}
+
+    def is_local(self):
+        return bpy.context.scene.vray.Exporter.backend_worker == 'LOCAL'
 
     def should_start(self):
-        settings = bpy.context.scene.vray.Exporter
-        should_start = settings.backend in {'ZMQ'} and settings.backend_worker == 'LOCAL'
+        should_start = self.is_use_zmq() and self.is_local()
         debug.Debug('ZMQ should start %s' % should_start)
         return should_start
+
+    def check_heartbeat(self):
+        if self.is_use_zmq():
+            if not self._heartbeat_running:
+                self.start_heartbeat()
+
+    def check_start(self):
+        if self.is_use_zmq():
+            if self.is_local():
+                self.start()
+            self.check_heartbeat()
 
     def is_running(self):
         running = False
@@ -68,6 +99,11 @@ class ZMQProcess:
         if self._zmq_process is not None\
             and self._zmq_process.returncode is None:
             running = True
+
+        if self._heartbeat_running:
+            running = _vray_for_blender_rt.zmq_heartbeat_check()
+            if not running:
+                self.stop_heartbeat()
 
         return running
 
@@ -79,23 +115,27 @@ class ZMQProcess:
         if self.is_running():
             try:
                 debug.Debug('Zmq stopped - stopping all viewports')
-                self._zmq_process.terminate()
+                self.stop_heartbeat()
+
+                if self._zmq_process:
+                    self._zmq_process.terminate()
+
                 for area in bpy.context.screen.areas:
                     if area.type == 'VIEW_3D':
                         for space in area.spaces:
                             if space.type == 'VIEW_3D' and space.viewport_shade == 'RENDERED':
                                 space.viewport_shade = 'SOLID'
-            except:
-                pass
+            except Exception as e:
+                debug.PrintError(e)
+        else:
+            debug.Debug("Not running - cant stop")
 
     def restart(self):
         self.stop()
-        self.start()
+        self.check_start()
 
     def _check_process(self):
-        settings = bpy.context.scene.vray.Exporter
-        port = str(settings.zmq_port)
-        log_lvl = settings.zmq_log_level
+        _, port, log_lvl = self._get_settings()
 
         if self._zmq_process is not None:
             self._zmq_process.poll()
@@ -124,6 +164,7 @@ class ZMQProcess:
                     ]
                     debug.Debug(' '.join(cmd))
 
+                    self.start_heartbeat()
                     self._zmq_process = subprocess.Popen(cmd, env=env)
                 except Exception as e:
                     debug.PrintError(e)
@@ -230,10 +271,9 @@ class VRayRendererRT(bpy.types.RenderEngine):
     def update(self, data, scene):
         debug.Debug("update()")
 
-        vrayExporter = self._get_settings()
-        if ZMQ.should_start():
-            ZMQ.start()
+        ZMQ.check_start()
 
+        vrayExporter = self._get_settings()
         if not self.renderer:
             arguments = {
                 'context': bpy.context.as_pointer(),
@@ -275,8 +315,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
     def view_update(self, context):
         debug.Debug("view_update()")
 
-        if ZMQ.should_start():
-            ZMQ.start()
+        ZMQ.check_start()
 
         if not self.renderer:
             self.renderer = _vray_for_blender_rt.init_rt(
@@ -307,6 +346,7 @@ def GetRegClasses():
 def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
+    bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
 
 
 def unregister():

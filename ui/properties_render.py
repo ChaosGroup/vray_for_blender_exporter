@@ -491,19 +491,20 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 			if VRayExporter.backend in {'ZMQ'}:
 				box.prop(VRayExporter, 'backend_worker')
+
+				action = 'Start'
+				stat = 'STOPPED'
+				icon = GetRenderIcon(VRayExporter)
+
+				if engine.ZMQ.is_running():
+					action = 'Stop'
+					stat = 'RUNNING'
+					icon = 'CANCEL'
+
+				box.label(text='ZMQ server status: %s' % stat)
 				if VRayExporter.backend_worker == 'NETWORK':
 					box.prop(VRayExporter, 'zmq_address')
 				else:
-					action = 'Start'
-					stat = 'STOPPED'
-					icon = GetRenderIcon(VRayExporter)
-
-					if engine.ZMQ.is_running():
-						action = 'Stop'
-						stat = 'RUNNING'
-						icon = 'CANCEL'
-
-					box.label(text='ZMQ server status: %s' % stat)
 					box.operator("vray.zmq_update", text=action, icon=icon)
 
 				box.prop(VRayExporter, 'zmq_port')
