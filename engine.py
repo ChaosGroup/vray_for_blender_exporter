@@ -118,6 +118,7 @@ class ZMQProcess:
                 self.stop_heartbeat()
 
                 if self._zmq_process:
+                    debug.Debug('Zmq terminating process')
                     self._zmq_process.terminate()
 
                 for area in bpy.context.screen.areas:
