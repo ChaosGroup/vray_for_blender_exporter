@@ -25,6 +25,7 @@
 import os
 import sys
 import subprocess
+import ipaddress
 
 import bpy
 import _vray_for_blender
@@ -61,7 +62,13 @@ class ZMQProcess:
 
     def start_heartbeat(self):
         addr, port, _ = self._get_settings()
-        self._heartbeat_running = _vray_for_blender_rt.zmq_heartbeat_start("tcp://%s:%s" % (addr, port))
+        ip = 'localhost'
+        try:
+            ip = str(ipaddress.ip_address(str(addr)))
+        except:
+            debug.PrintError("Failed parsing ip addr from [%s], falling back to %s" % (addr, ip))
+
+        self._heartbeat_running = _vray_for_blender_rt.zmq_heartbeat_start("tcp://%s:%s" % (ip, port))
         debug.Debug('ZMQ starting heartbeat = %s' % self._heartbeat_running)
 
     def stop_heartbeat(self):
