@@ -125,6 +125,7 @@ def ExportSettings(bus):
                 'SettingsDR',
                 # Deprecated
                 'SettingsPhotonMap',
+                'RTEngine',
             }:
                 continue
 
