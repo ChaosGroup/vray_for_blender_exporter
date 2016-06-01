@@ -143,11 +143,12 @@ def AddDefaultOutputs(self, vrayPlugin):
     for attr in vrayPlugin.PluginParams:
         attr_name = attr.get('name', AttributeUtils.GetNameFromAttr(attr['attr']))
 
-        if attr['attr'] == 'color' or attr_name == 'Color':
-            hasOutColor = True
+        if attr['type'] in AttributeUtils.OutputTypes:
+            if attr_name.startswith("Out "):
+                attr_name = attr_name[4:]
 
-        if attr_name.startswith("Out "):
-            attr_name = attr_name[4:]
+            if attr['attr'] == 'color' or attr_name == 'Color':
+                hasOutColor = True
 
         attr_options = attr.get('options', {})
 
