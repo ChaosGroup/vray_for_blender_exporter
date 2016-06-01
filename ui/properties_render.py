@@ -513,14 +513,15 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
 
 			box = layout.box()
-			box.label("Final Rendering:")
-			box.prop(VRayExporter, 'rendering_mode', text="Render Mode")
+			box.label("Production Rendering:")
+			box.prop(VRayExporter, 'rendering_mode', text="Engine")
 
-			box = layout.box()
-			box.label("Viewport Rendering:")
-			box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
-			box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
-			box.prop(VRayExporter, 'viewport_alpha')
+			if VRayExporter.backend not in {'STD'}:
+				box = layout.box()
+				box.label("Viewport Rendering:")
+				box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
+				box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
+				box.prop(VRayExporter, 'viewport_alpha')
 
 			layout.separator()
 
