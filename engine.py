@@ -300,6 +300,7 @@ class VRayRendererRT(bpy.types.RenderEngine):
                 arguments['lightsFile']   = self.file_manager.getFileByPluginType('LIGHT')
                 arguments['materialFile'] = self.file_manager.getFileByPluginType('MATERIAL')
                 arguments['textureFile']  = self.file_manager.getFileByPluginType('TEXTURE')
+                arguments['cameraFile']   = self.file_manager.getFileByPluginType('CAMERA')
 
             self.renderer = _vray_for_blender_rt.init(**arguments)
 
