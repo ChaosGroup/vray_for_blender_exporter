@@ -139,7 +139,34 @@ def ExportEx(bus):
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...
-        err = Export(bus, scene, engine, engine.is_preview)
+        rtExporter = SysUtils.hasRtExporter() and engine == 'VRAY_RENDER_RT'
+        if not rtExporter:
+            err = Export(bus, scene, engine, engine.is_preview)
+        else:
+            init = {
+                'context': bpy.context.as_pointer(),
+                'engine': self.as_pointer(),
+                'data': data.as_pointer(),
+                'scene': scene.as_pointer(),
+                'mainFile'     : fm.getFileByPluginType('MAIN'),
+                'objectFile'   : fm.getFileByPluginType('OBJECT'),
+                'envFile'      : fm.getFileByPluginType('WORLD'),
+                'geometryFile' : fm.getFileByPluginType('GEOMETRY'),
+                'lightsFile'   : fm.getFileByPluginType('LIGHT'),
+                'materialFile' : fm.getFileByPluginType('MATERIAL'),
+                'textureFile'  : fm.getFileByPluginType('TEXTURE'),
+                'cameraFile'   : fm.getFileByPluginType('CAMERA'),
+            }
+
+            # Free anything we have
+            if engine.renderer:
+                del engine.renderer
+
+            renderer = _vray_for_blender_rt.init(**init)
+            if renderer:
+                setattr(engine, 'renderer', renderer)
+                _vray_for_blender_rt.render(renderer)
+
     except Exception as e:
         debug.ExceptionInfo(e)
         err = str(e)
@@ -151,6 +178,9 @@ def ExportEx(bus):
 
 
 def ExportAndRun(engine, scene):
+    if engine.test_break():
+        return "Export is interrupted!"
+
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
@@ -188,9 +218,6 @@ def ExportAndRun(engine, scene):
             'blend'    : "TEDefaultBlend",
         },
     }
-
-    if engine.test_break():
-        return "Export is interrupted!"
 
     err = ExportEx(bus)
     if err is not None:

@@ -30,17 +30,17 @@ import ipaddress
 import bpy
 import _vray_for_blender
 
-_has_rt = True
-try:
-    import _vray_for_blender_rt
-except:
-    _has_rt = False
-
 from vb30.lib import SysUtils
 from vb30 import export, debug
 
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayFilePaths
+
+
+# Check if current build support new RT exporter
+_has_rt = SysUtils.hasRtExporter()
+if _has_rt:
+    import _vray_for_blender_rt
 
 
 # This will hold handle to subprocess.Popen to the zmq server if
@@ -245,9 +245,9 @@ class VRayRenderer(VRayRendererBase):
     bl_use_preview =  False
 
 
-class VRayRendererRT(bpy.types.RenderEngine):
+class VRayExporter(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
-    bl_label  = "V-Ray (NEW)"
+    bl_label  = "V-Ray (With RT)"
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
@@ -279,45 +279,38 @@ class VRayRendererRT(bpy.types.RenderEngine):
     def update(self, data, scene):
         debug.Debug("update()")
 
-        ZMQ.check_start()
-
         vrayExporter = self._get_settings()
-        if not self.renderer:
-            arguments = {
-                'context': bpy.context.as_pointer(),
-                'engine': self.as_pointer(),
-                'data': data.as_pointer(),
-                'scene': scene.as_pointer(),
-            }
 
-            if vrayExporter.backend == 'STD':
-                self.file_manager = get_file_manager(vrayExporter, self, scene)
+        if vrayExporter.backend not in {'STD'}:
+            ZMQ.check_start()
 
-                arguments['mainFile']     = self.file_manager.getFileByPluginType('MAIN')
-                arguments['objectFile']   = self.file_manager.getFileByPluginType('OBJECT')
-                arguments['envFile']      = self.file_manager.getFileByPluginType('WORLD')
-                arguments['geometryFile'] = self.file_manager.getFileByPluginType('GEOMETRY')
-                arguments['lightsFile']   = self.file_manager.getFileByPluginType('LIGHT')
-                arguments['materialFile'] = self.file_manager.getFileByPluginType('MATERIAL')
-                arguments['textureFile']  = self.file_manager.getFileByPluginType('TEXTURE')
-                arguments['cameraFile']   = self.file_manager.getFileByPluginType('CAMERA')
+            # Init ZMQ exporter
+            if not self.renderer:
+                arguments = {
+                    'context': bpy.context.as_pointer(),
+                    'engine': self.as_pointer(),
+                    'data': data.as_pointer(),
+                    'scene': scene.as_pointer(),
+                }
 
-            self.renderer = _vray_for_blender_rt.init(**arguments)
+                self.renderer = _vray_for_blender_rt.init(**arguments)
 
-        if vrayExporter.animation_mode == 'NONE':
-            _vray_for_blender_rt.update(self.renderer)
+            if self.renderer:
+                if vrayExporter.animation_mode == 'NONE':
+                    _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
         debug.Debug("render()")
 
         vrayExporter = self._get_settings()
 
-        if self.renderer:
+        if vrayExporter.backend == 'STD':
+            super().render(scene)
+        elif self.renderer:
             if vrayExporter.animation_mode == 'NONE':
                 _vray_for_blender_rt.render(self.renderer)
             else:
                 _vray_for_blender_rt.update(self.renderer)
-
 
     # Interactive rendering
     #
@@ -342,13 +335,14 @@ class VRayRendererRT(bpy.types.RenderEngine):
             _vray_for_blender_rt.view_draw(self.renderer)
 
 
+
 def GetRegClasses():
     reg_classes = [
         VRayRenderer,
         VRayRendererPreview,
     ]
-    if _has_rt:
-        reg_classes.append(VRayRendererRT)
+    if SysUtils.hasRtExporter():
+        reg_classes.append(VRayExporter)
     return reg_classes
 
 

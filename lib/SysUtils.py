@@ -250,3 +250,9 @@ def GetZmqPath():
         return "/Applications/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
     else:
         return "/usr/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
+
+
+def hasRtExporter():
+    import importlib
+    hasRtExporter = importlib.util.find_spec("_vray_for_blender_rt") is not None
+    return hasRtExporter
