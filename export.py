@@ -46,6 +46,10 @@ from vb30.exporting import exp_anim_camera_loop
 
 from vb30 import debug
 
+_has_rt = SysUtils.hasRtExporter()
+if _has_rt:
+    import _vray_for_blender_rt
+
 
 @debug.TimeIt
 def Export(bus, scene, engine, isPreview=False):
@@ -139,15 +143,15 @@ def ExportEx(bus):
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...
-        rtExporter = SysUtils.hasRtExporter() and engine == 'VRAY_RENDER_RT'
+        rtExporter = SysUtils.hasRtExporter() and engine.bl_idname == 'VRAY_RENDER_RT'
         if not rtExporter:
             err = Export(bus, scene, engine, engine.is_preview)
         else:
             init = {
-                'context': bpy.context.as_pointer(),
-                'engine': self.as_pointer(),
-                'data': data.as_pointer(),
-                'scene': scene.as_pointer(),
+                'context'      : bpy.context.as_pointer(),
+                'engine'       : engine.as_pointer(),
+                'data'         : bpy.data.as_pointer(),
+                'scene'        : scene.as_pointer(),
                 'mainFile'     : fm.getFileByPluginType('MAIN'),
                 'objectFile'   : fm.getFileByPluginType('OBJECT'),
                 'envFile'      : fm.getFileByPluginType('WORLD'),
@@ -165,7 +169,7 @@ def ExportEx(bus):
             renderer = _vray_for_blender_rt.init(**init)
             if renderer:
                 setattr(engine, 'renderer', renderer)
-                _vray_for_blender_rt.render(renderer)
+                _vray_for_blender_rt.update(renderer)
 
     except Exception as e:
         debug.ExceptionInfo(e)
