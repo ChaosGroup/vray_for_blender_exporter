@@ -281,9 +281,7 @@ class VRayExporter(VRayRendererBase):
 
         vrayExporter = self._get_settings()
 
-        if vrayExporter.backend == 'STD':
-            super().render(scene)
-        else:
+        if vrayExporter.backend != 'STD':
             ZMQ.check_start()
 
             # Init ZMQ exporter
@@ -302,6 +300,13 @@ class VRayExporter(VRayRendererBase):
 
     def render(self, scene):
         debug.Debug("render()")
+
+        vrayExporter = self._get_settings()
+        if vrayExporter.backend == 'STD':
+            super().render(scene)
+        elif self.renderer:
+            _vray_for_blender_rt.render(self.renderer)
+
 
     # Interactive rendering
     #
