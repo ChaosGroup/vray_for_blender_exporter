@@ -262,17 +262,12 @@ class VRayExporter(VRayRendererBase):
     def __init__(self):
         debug.Debug("__init__()")
         self.renderer = None
-        self.file_manager = None
 
     def __del__(self):
         debug.Debug("__del__()")
 
         if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
-
-        if hasattr(self, 'file_manager') and  self.file_manager:
-            self.file_manager.writeIncludes()
-            self.file_manager.closeFiles()
 
     # Production rendering
     #
@@ -302,7 +297,9 @@ class VRayExporter(VRayRendererBase):
         debug.Debug("render()")
 
         vrayExporter = self._get_settings()
-        if vrayExporter.backend == 'STD':
+        use_std = vrayExporter.backend == 'STD' and not self.is_preview
+
+        if use_std:
             super().render(scene)
         elif self.renderer:
             _vray_for_blender_rt.render(self.renderer)
