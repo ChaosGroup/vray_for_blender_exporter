@@ -40,7 +40,8 @@ def nodeDraw(context, layout, node):
 def gui(context, layout, BitmapBuffer, node):
     if node.texture:
         if node.texture.image:
-            if not context.scene.render.engine == 'VRAY_RENDER_PREVIEW':
+            has_preview = context.scene.render.engine in {'VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+            if not has_preview:
                 layout.template_preview(node.texture)
             layout.separator()
             layout.template_image(node.texture, 'image', node.texture.image_user)
