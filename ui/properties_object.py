@@ -275,7 +275,7 @@ class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
 
 
 class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
-	bl_label   = "Scene Asset"
+	bl_label   = "V-Ray Scene"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	def draw_header(self, context):

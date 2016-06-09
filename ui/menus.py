@@ -152,6 +152,55 @@ class VRayOpAddObjectProxy(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpAddObjectVRayScene(bpy.types.Operator):
+    bl_idname = "vray.add_object_vrayscene"
+    bl_label = "Add V-Ray Scene"
+
+    filepath = bpy.props.StringProperty(name="Filepath (*.vrscene)", subtype="FILE_PATH")
+    relpath = bpy.props.BoolProperty(name="Relative Path", default=True)
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+    def execute(self, context):
+        if not self.filepath:
+            return {'CANCELLED'}
+
+        filepath = os.path.normpath(self.filepath)
+        if not os.path.exists(filepath):
+            self.report({'ERROR'}, "File not found!")
+            return {'CANCELLED'}
+
+        # Add new mesh object
+        name = 'VRayScene@%s' % os.path.splitext(os.path.basename(filepath))[0]
+
+        mesh = bpy.data.meshes.new(name)
+        ob = bpy.data.objects.new(name, mesh)
+
+        context.scene.objects.link(ob)
+
+        # Add VRayScene data
+        sceneFilepath = bpy.path.relpath(filepath) if self.relpath and bpy.data.filepath else filepath
+
+        VRayObject = ob.vray
+        VRayAsset = VRayObject.VRayAsset
+        VRayAsset.sceneFilepath = sceneFilepath
+
+        sceneFilenameNoExt = os.path.splitext(os.path.basename(sceneFilepath))[0]
+        previewFilepath = os.path.join(os.path.dirname(sceneFilepath), "%s.vrmesh" % sceneFilenameNoExt)
+
+        if not os.path.exists(previewFilepath):
+            ProxyUtils.LaunchPly2Vrmesh(sceneFilepath, previewOnly=True, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
+
+        if os.path.exists(previewFilepath):
+            ProxyUtils.LoadVRayScenePreviewMesh(sceneFilepath, context.scene, ob)
+
+        BlenderUtils.SelectObject(ob)
+
+        return {'FINISHED'}
+
+
 class VRayOpAddObjectPlane(bpy.types.Operator):
     bl_idname = "vray.add_object_plane"
     bl_label = "Add V-Ray Plane"
@@ -195,6 +244,7 @@ class VRayMenuMesh(bpy.types.Menu):
     bl_label = "V-Ray"
 
     def draw(self, context):
+        self.layout.operator(VRayOpAddObjectVRayScene.bl_idname, text="V-Ray Scene", icon='VRAY_OBJECT')
         self.layout.operator(VRayOpAddObjectProxy.bl_idname, text="V-Ray Proxy", icon='VRAY_OBJECT')
         self.layout.operator(VRayOpAddObjectPlane.bl_idname, text="V-Ray Infinite Plane", icon='VRAY_OBJECT')
 
@@ -215,6 +265,7 @@ def GetRegClasses():
     return (
         VRayOpSetCamera,
         VRayOpSetView,
+        VRayOpAddObjectVRayScene,
         VRayOpAddObjectProxy,
         VRayOpAddObjectPlane,
         VRayOpSelectCamera,
