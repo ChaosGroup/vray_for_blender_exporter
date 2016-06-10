@@ -151,7 +151,7 @@ def LoadProxyPreviewMesh(ob, filepath, anim_type, anim_offset, anim_speed, anim_
     bpy.data.meshes.remove(mesh)
 
 
-def CreateProxyNodetree(ob, proxyFilepath):
+def CreateProxyNodetree(ob, proxyFilepath, isRelative=False):
     VRayObject = ob.vray
     if VRayObject.ntree:
         return "Node tree already exists!"
@@ -175,7 +175,7 @@ def CreateProxyNodetree(ob, proxyFilepath):
 
     NodesTools.deselectNodes(nt)
 
-    proxyGeometry.GeomMeshFile.file = proxyFilepath
+    proxyGeometry.GeomMeshFile.file = bpy.path.relpath(proxyFilepath) if isRelative and bpy.data.filepath else proxyFilepath
 
     VRayObject.ntree = nt
 
@@ -326,6 +326,8 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         GeomMeshFile = ob.data.vray.GeomMeshFile
 
         # Create output path
+        outputIsRelative = BlenderUtils.IsPathRelative(GeomMeshFile.dirpath)
+
         outputDirpath = BlenderUtils.GetFullFilepath(GeomMeshFile.dirpath)
         outputDirpath = PathUtils.CreateDirectory(outputDirpath)
 
@@ -437,7 +439,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
                 else:
                     attachOb.matrix_world = ob.matrix_world
 
-                CreateProxyNodetree(attachOb, vrmeshFilepath)
+                CreateProxyNodetree(attachOb, vrmeshFilepath, outputIsRelative)
 
                 if GeomMeshFile.proxy_attach_mode in {'NEW', 'REPLACE'}:
                     LoadProxyPreviewMesh(
