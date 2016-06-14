@@ -282,6 +282,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    select_node_preview = bpy.props.BoolProperty(
+        name = "Selected node preview",
+        description = "Enable material preview of selected node in node editor",
+        default = True
+    )
+
     image_to_blender = bpy.props.BoolProperty(
         name = "Image To Blender",
         description = "Pass image to Blender on render end (EXR file format is used)",
