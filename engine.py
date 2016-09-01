@@ -58,10 +58,10 @@ class ZMQProcess:
 
     def _get_settings(self):
         settings = bpy.context.scene.vray.Exporter
-        return settings.zmq_address, str(settings.zmq_port), settings.zmq_log_level
+        return settings.zmq_address, str(settings.zmq_port), settings.zmq_log_level, settings.display
 
     def start_heartbeat(self):
-        addr, port, _ = self._get_settings()
+        addr, port, _, _ = self._get_settings()
         ip = 'localhost'
         try:
             ip = str(ipaddress.ip_address(str(addr)))
@@ -143,7 +143,7 @@ class ZMQProcess:
         self.check_start()
 
     def _check_process(self):
-        _, port, log_lvl = self._get_settings()
+        _, port, log_lvl, vfb = self._get_settings()
 
         if self._zmq_process is not None:
             self._zmq_process.poll()
@@ -170,6 +170,8 @@ class ZMQProcess:
                         "-p", port,
                         "-log", self.log_lvl_translate[log_lvl]
                     ]
+                    if vfb:
+                        cmd.append('-vfb')
                     debug.Debug(' '.join(cmd))
 
                     self.start_heartbeat()
