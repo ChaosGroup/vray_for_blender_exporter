@@ -104,6 +104,11 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
                 if not propGroup.relements_separateFiles:
                     overrideParams['img_rawFile'] = True
 
+    # Animation
+    overrideParams['anim_start'] = o.frameStart
+    overrideParams['anim_end'] = o.frameEnd
+    overrideParams['frame_start'] = o.frameStart
+
     # NOTE: When loading preview image for World
     # image alpha will be replaced with black color.
     # We don't want this, so simply use JPEG,

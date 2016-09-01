@@ -67,7 +67,6 @@ def Export(bus, scene, engine, isPreview=False):
         o.write('MAIN', "\n")
         o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
 
-    exp_settings.ExportSettings(bus)
     exp_channels.ExportRenderElements(bus)
 
     if VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}:
@@ -92,6 +91,10 @@ def Export(bus, scene, engine, isPreview=False):
                 filepath = BlenderUtils.GetFullFilepath(includeFile.scene)
                 o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
             o.write('MAIN', '\n')
+
+    # No need for interpolate() anymore
+    o.setAnimation(False)
+    exp_settings.ExportSettings(bus)
 
     te = time.time() - ts
     td = datetime.timedelta(seconds=te)
