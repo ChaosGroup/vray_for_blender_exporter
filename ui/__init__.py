@@ -25,6 +25,18 @@
 __all__ = [ 'classes' ]
 
 
+def _get_physics_panels():
+    import bpy
+
+    panels = []
+    for panel in bpy.types.Panel.__subclasses__():
+        if hasattr(panel, 'COMPAT_ENGINES') and 'BLENDER_RENDER' in panel.COMPAT_ENGINES:
+            if panel.__name__.startswith('PHYSICS'):
+                panels.append(panel)
+
+    return panels
+
+
 def register():
     from vb30.ui import classes
     from vb30.ui import properties_data_geometry
@@ -58,6 +70,10 @@ def register():
     properties_world.register()
     menus.register()
     draw_callbacks.register()
+
+    for panel in _get_physics_panels():
+        for vray_engine in classes.VRayEngines:
+            panel.COMPAT_ENGINES.add(vray_engine)
 
 
 def unregister():
@@ -93,3 +109,8 @@ def unregister():
     properties_world.unregister()
     menus.unregister()
     draw_callbacks.unregister()
+
+    for panel in _get_physics_panels():
+        for vray_engine in classes.VRayEngines:
+            if vray_engine in panel.COMPAT_ENGINES:
+                panel.COMPAT_ENGINES.remove(vray_engine)
