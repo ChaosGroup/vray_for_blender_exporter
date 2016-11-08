@@ -41,4 +41,12 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         if VRayDR.assetSharing == 'TRANSFER':
             overrideParams['misc_transferAssets'] = True
 
+    propGroup = getattr(VRayScene, pluginName)
+    attributes = sorted(pluginModule.PluginParams, key=lambda t: t['attr'])
+
+    for attrDesc in attributes:
+        key = attrDesc['attr']
+        if key in propGroup and attrDesc['default'] != getattr(propGroup, key):
+            overrideParams[key] = getattr(propGroup, key)
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
