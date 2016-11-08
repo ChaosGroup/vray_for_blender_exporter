@@ -67,6 +67,15 @@ def ExportSettingsPlugin(bus, pluginType, pluginName):
             'yc' : propGroup.xc if propGroup.lock_size else propGroup.yc,
         }
 
+    elif pluginName == 'SettingsOptions':
+        propGroup = getattr(VRayScene, pluginName)
+        attributes = sorted(pluginModule.PluginParams, key=lambda t: t['attr'])
+
+        for attrDesc in attributes:
+            key = attrDesc['attr']
+            if key in propGroup and attrDesc['default'] != getattr(propGroup, key):
+                overrideParams[key] = getattr(propGroup, key)
+
     elif pluginName.startswith('Filter'):
         propGroup = getattr(VRayScene, pluginName)
         if SettingsImageSampler.filter_type != pluginName:
