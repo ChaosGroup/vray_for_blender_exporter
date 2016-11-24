@@ -398,19 +398,14 @@ class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
 	def draw(self, context):
 		VRayObject = context.object.vray
 
-		self.layout.label("Duplication:")
-		self.layout.prop(VRayObject, 'dupliShowEmitter')
+		box = self.layout.box()
+		box.label("Duplication / Particles:")
+		box.prop(VRayObject, 'dupliShowEmitter', text="Force Show Emitter")
+		box.prop(VRayObject, 'dupliGroupIDOverride', text="Object ID Override")
 
-		self.layout.label("Duplication / Particles:")
-		self.layout.prop(VRayObject, 'use_instancer')
-
-		split = self.layout.split()
-		row = split.row()
-		row.active = not VRayObject.use_instancer
-		row.prop(VRayObject, 'dupliGroupIDOverride', text="Dupli / Part Object ID Override")
-
-		self.layout.label("Animation:")
-		self.layout.prop(VRayObject, 'subframes')
+		box = self.layout.box()
+		box.label("Animation:")
+		box.prop(VRayObject, 'subframes')
 
 
 def GetRegClasses():
