@@ -253,6 +253,11 @@ def GetZmqPath():
 
 
 def hasRtExporter():
-    import importlib
-    hasRtExporter = importlib.util.find_spec("_vray_for_blender_rt") is not None
-    return hasRtExporter
+    doEnableRtCheck = False
+
+    if doEnableRtCheck:
+        import importlib
+        hasRtExporter = importlib.util.find_spec("_vray_for_blender_rt") is not None
+        return hasRtExporter
+    else:
+        return False
