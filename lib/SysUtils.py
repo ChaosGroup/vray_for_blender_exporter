@@ -253,7 +253,7 @@ def GetZmqPath():
 
 
 def hasRtExporter():
-    doEnableRtCheck = False
+    doEnableRtCheck = 'VRAY_FOR_BLENDER_RT_ENABLE' in os.environ
 
     if doEnableRtCheck:
         import importlib
