@@ -162,8 +162,10 @@ class ZMQProcess:
                             debug.PrintError('Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
                         else:
                             appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
-                            env['PATH'] = '%s;%s' % (env['PATH'], appsdk)
+                            env['PATH'] = env['PATH'] + os.pathsep + appsdk
                             env['VRAY_PATH'] = appsdk
+                            old_ld = (os.pathsep + env['LD_LIBRARY_PATH']) if 'LD_LIBRARY_PATH' in env else ''
+                            env['LD_LIBRARY_PATH'] = appsdk + old_ld
 
                     cmd = [
                         executable_path,
