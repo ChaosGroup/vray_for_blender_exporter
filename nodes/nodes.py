@@ -350,7 +350,7 @@ def GetCategories():
                 nodeitems_utils.NodeItem("NodeReroute"),
                 nodeitems_utils.NodeItem("VRayNodeDebugSwitch"),
             ],
-            icon = 'VIEW3D_VEC'
+            icon = 'NODE_INSERT_OFF'
         ),
     ]
 
