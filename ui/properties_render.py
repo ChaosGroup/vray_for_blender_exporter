@@ -416,11 +416,11 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 
 		split = layout.split()
 		col = split.column()
-		col.prop(SettingsOptions, 'probabilistic_lights_on')
+		col.prop(SettingsOptions, 'probabilistic_lights_on', text="")
 		if wide_ui:
 			col = split.column()
 		sub = col.column()
-		sub.active = SettingsOptions.probabilistic_lights_on
+		sub.active = int(SettingsOptions.probabilistic_lights_on) > 0
 		sub.prop(SettingsOptions, 'num_probabilistic_lights', text="")
 
 		layout.label(text="GI:")
