@@ -1430,6 +1430,8 @@ class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 
 		layout.active = SettingsVFB.use
 
+		layout.prop(SettingsVFB, 'hardware_accelerated')
+
 		layout.prop(SettingsVFB, 'bloom_on', text="Bloom")
 		split = layout.split()
 		split.active = SettingsVFB.bloom_on
