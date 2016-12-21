@@ -174,7 +174,6 @@ class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 
 				if lightPluginName == 'SunLight':
 					sub = col.row()
-
 					sub.prop(lightPropGroup, 'enabled', text="")
 
 					r = sub.row()
@@ -183,11 +182,16 @@ class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 
 					sub.prop(lightPropGroup, 'intensity_multiplier', text="")
 					sub.prop(lightPropGroup, 'shadow_subdivs',       text="")
+
 				else:
 					sub = col.row()
 					sub.prop(lightPropGroup, 'enabled', text="")
 					sub.prop(lightPropGroup, 'color',   text="")
-					sub.prop(lightPropGroup, 'intensity', text="")
+
+					if hasattr(lightPropGroup, 'intensity'):
+						sub.prop(lightPropGroup, 'intensity', text="")
+					if hasattr(lightPropGroup, 'power'):
+						sub.prop(lightPropGroup, 'power', text="")
 					if hasattr(lightPropGroup, 'subdivs'):
 						sub.prop(lightPropGroup, 'subdivs', text="")
 					if hasattr(lightPropGroup, 'shadowSubdivs'):
