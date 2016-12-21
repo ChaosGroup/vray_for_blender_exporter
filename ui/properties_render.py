@@ -209,7 +209,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 
 		classes.DrawPluginUIAuto(context, layout, imgFormatPropGroup, formatPropGroupName)
 
-		if SettingsOutput.img_format in {'EXR', 'VRST'}:
+		if SettingsOutput.img_format in {'5', '6'}:
 			layout.prop(SettingsOutput, 'img_deepFile')
 
 		layout.separator()
@@ -219,7 +219,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		col.prop(SettingsOutput, 'img_noAlpha')
 		col.prop(SettingsOutput, 'img_separateAlpha')
 		col.prop(SettingsOutput, 'relements_separateFolders')
-		if SettingsOutput.img_format in {'EXR', 'VRST'}:
+		if SettingsOutput.img_format in {'5', '6'}:
 			col.prop(SettingsOutput, 'relements_separateFiles')
 		if wide_ui:
 			col = split.column()
