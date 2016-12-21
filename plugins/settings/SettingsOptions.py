@@ -49,4 +49,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         if key in propGroup and attrDesc['default'] != getattr(propGroup, key):
             overrideParams[key] = getattr(propGroup, key)
 
+    if 'mtl_override' in overrideParams:
+        del overrideParams['mtl_override']
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
