@@ -31,6 +31,7 @@ from vb30.lib import ExportUtils
 from vb30.lib import PluginUtils
 from vb30.lib import PathUtils
 from vb30.lib import LibUtils
+from vb30.lib import SysUtils
 
 
 PluginUtils.loadPluginOnModule(globals(), __name__)
@@ -52,7 +53,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         VRayCamera = camera.data.vray
         CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-        if VRayScene.RTEngine.enabled:
+        if SysUtils.IsRTEngine(bus):
             if VRayScene.SettingsRTEngine.stereo_mode:
                 img_width *= 2
         else:

@@ -60,8 +60,8 @@ def Run(bus):
     p.setDisplayVFB(VRayExporter.display)
     p.setAutoclose(VRayExporter.autoclose)
 
-    if RTEngine.enabled:
-        p.setRtEngine(RTEngine, VRayScene.SettingsRTEngine)
+    if SysUtils.IsRTEngine(bus):
+        p.setRtEngine(VRayExporter.device_gpu_type, VRayScene.SettingsRTEngine)
 
     # TODO: Rewrite into 'SettingsOutput'
     if scene.render.use_border:

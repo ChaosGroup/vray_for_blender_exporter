@@ -236,9 +236,9 @@ def GetPreviewBlend():
 
 
 def IsRTEngine(bus):
-    if bus["engine"].bl_idname == 'VRAY_RENDER_RT':
+    if bus["engine"].bl_idname in {'VRAY_RENDER_RT'}:
         return True
-    if bus["scene"].vray.RTEngine.enabled:
+    if bus["scene"].vray.Exporter.device_type in {'GPU'}:
         return True
     return False
 

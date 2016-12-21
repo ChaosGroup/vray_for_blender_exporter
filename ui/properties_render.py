@@ -267,7 +267,6 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(VRayScene.SettingsCaustics, 'on', text="Caustics")
 		col.prop(VRayExporter, 'use_displace')
 		col.prop(VRayScene.BakeView, 'use', text="Bake")
-		col.prop(VRayScene.RTEngine, 'enabled', text="Realtime Engine")
 		col.prop(VRayScene.VRayStereoscopicSettings, 'use', text="Stereo")
 		if wide_ui:
 			col= split.column()
@@ -291,6 +290,10 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.separator()
 		layout.prop(rd, "display_mode")
 
+		layout.separator()
+		layout.label(text="Device:")
+		layout.prop(VRayExporter, 'device_type', expand=True)
+
 
 ########  ########    ###    ##       ######## #### ##     ## ########
 ##     ## ##         ## ##   ##          ##     ##  ###   ### ##
@@ -300,21 +303,21 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 ##    ##  ##       ##     ## ##          ##     ##  ##     ## ##
 ##     ## ######## ##     ## ########    ##    #### ##     ## ########
 
-class VRAY_RP_RTEngine(classes.VRayRenderPanel):
-	bl_label = "Realtime Engine"
+class VRAY_RP_Device(classes.VRayRenderPanel):
+	bl_label = "GPU"
 	bl_panel_groups = PanelGroups
 
 	@classmethod
 	def poll_custom(cls, context):
-		rtengineOn     = context.scene.vray.RTEngine.enabled
-		rtengineChosen = context.scene.render.engine == 'VRAY_RENDER_RT'
-
-		return rtengineOn or rtengineChosen
+		VRayScene = context.scene.vray
+		VRayExporter = VRayScene.Exporter
+		return VRayExporter.device_type in {'GPU'}
 
 	def draw(self, context):
 		VRayScene = context.scene.vray
+		VRayExporter = VRayScene.Exporter
 
-		classes.DrawPluginUIAuto(context, self.layout, VRayScene.RTEngine, 'RTEngine')
+		self.layout.prop(VRayExporter, 'device_gpu_type', expand=True)
 
 		self.layout.separator()
 
@@ -1493,11 +1496,11 @@ def GetRegClasses():
 		VRayRenderPanelContext,
 
 		VRAY_RP_render,
+		VRAY_RP_Device,
 		VRAY_RP_dimensions,
 		VRAY_RP_output,
 
 		VRAY_RP_Globals,
-		VRAY_RP_RTEngine,
 		VRAY_RP_SettingsCaustics,
 		VRAY_RP_exporter,
 		VRAY_RP_cm,

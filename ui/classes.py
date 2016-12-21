@@ -47,8 +47,8 @@ VRayEngines = {
 PanelGroups = {
     '0' : (
         'VRAY_RP_render',
+        'VRAY_RP_Device',
         'VRayPanelBake',
-        'VRAY_RP_RTEngine',
         'VRAY_RP_SettingsCaustics',
         'VRAY_RP_VRayStereoscopicSettings',
         'VRAY_RP_dimensions',

@@ -181,14 +181,13 @@ class VRayProcess:
     def setGenRunFile(self, v):
         self.gen_run_file = v
 
-    def setRtEngine(self, RTEngine, SettingsRTEngine):
+    def setRtEngine(self, deviceType, SettingsRTEngine):
         DEVICE = {
-            '0' : 1,
-            '1' : 3,
-            '4' : 5,
+            'OPENCL' : 3,
+            'CUDA'   : 5,
         }
 
-        self.rtEngine = DEVICE[RTEngine.use_opencl]
+        self.rtEngine = DEVICE[deviceType]
         self.rtNoise       = SettingsRTEngine.noise_threshold
         self.rtSampleLevel = SettingsRTEngine.max_sample_level
         self.rtTimeOut     = SettingsRTEngine.max_render_time

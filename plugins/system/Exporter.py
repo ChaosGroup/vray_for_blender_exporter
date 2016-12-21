@@ -577,6 +577,25 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    device_type = bpy.props.EnumProperty(
+        name = "Device Type",
+        description = "Rendering device",
+        items = (
+            ('CPU', "CPU", ""),
+            ('GPU', "GPU", ""),
+        ),
+        default = 'CPU'
+    )
+
+    device_gpu_type = bpy.props.EnumProperty(
+        name = "GPU Device Type",
+        description = "GPU device type",
+        items = (
+            ('CUDA', "CUDA", ""),
+            ('OPENCL', "OpenCL", ""),
+        ),
+        default = 'CUDA'
+    )
 
 def GetRegClasses():
     return (
