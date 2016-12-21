@@ -117,8 +117,6 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
             if VRayLight.spot_type == 'SPOT':
                 col.prop(lamp, 'spot_size', text="Size")
                 col.prop(lamp, 'spot_blend', text="Blend")
-            else:
-                col.prop(lightPropGroup, 'ies_file', text="File")
 
 
 ######## ##     ##  ######  ##       ##     ## ########  ########
