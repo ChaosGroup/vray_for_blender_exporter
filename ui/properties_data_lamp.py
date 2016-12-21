@@ -98,28 +98,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         layout.separator()
         classes.DrawPluginUI(context, layout, VRayLight, lightPropGroup, lightPluginName, PLUGINS['LIGHT'][lightPluginName])
 
-
- ######  ##     ##    ###    ########  ########
-##    ## ##     ##   ## ##   ##     ## ##
-##       ##     ##  ##   ##  ##     ## ##
- ######  ######### ##     ## ########  ######
-      ## ##     ## ######### ##        ##
-##    ## ##     ## ##     ## ##        ##
- ######  ##     ## ##     ## ##        ########
-
-class VRAY_DP_light_shape(classes.VRayLampPanel):
-    bl_label = "Shape"
-
-    def draw(self, context):
-        layout = self.layout
-
-        lamp      = context.lamp
-        VRayLight = lamp.vray
-        VRayScene = context.scene.vray
-
-        lightPluginName = LibUtils.GetLightPluginName(lamp)
-
-        lightPropGroup = getattr(VRayLight, lightPluginName)
+        layout.separator()
 
         if lamp.type == 'AREA':
             layout.prop(lamp, 'shape', expand=True)
@@ -132,7 +111,7 @@ class VRAY_DP_light_shape(classes.VRayLampPanel):
                 row.prop(lamp, 'size',   text="X")
                 row.prop(lamp, 'size_y', text="Y")
 
-        if lamp.type == 'SPOT':
+        elif lamp.type == 'SPOT':
             split = layout.split()
             col = split.column()
             if VRayLight.spot_type == 'SPOT':
@@ -183,7 +162,6 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 def GetRegClasses():
     return (
         VRAY_DP_context_lamp,
-        VRAY_DP_light_shape,
         VRAY_DP_include_exclude,
     )
 
