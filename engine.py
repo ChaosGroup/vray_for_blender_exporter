@@ -38,9 +38,11 @@ from vb30.lib.VRayStream import VRayFilePaths
 
 
 # Check if current build support new RT exporter
-_has_rt = SysUtils.hasRtExporter()
-if _has_rt:
+HAS_VB35 = SysUtils.hasRtExporter()
+HAS_ZMQ = SysUtils.hasRtExporter(checkZmq=True)
+if HAS_VB35:
     import _vray_for_blender_rt
+
 
 
 # This will hold handle to subprocess.Popen to the zmq server if
@@ -180,47 +182,25 @@ class ZMQProcess:
                 except Exception as e:
                     debug.PrintError(e)
 
-
-ZMQ = ZMQProcess()
+if HAS_ZMQ:
+    ZMQ = ZMQProcess()
+else:
+    ZMQ = None
 
 
 def init():
     jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
     _vray_for_blender.start(jsonDirpath)
-    if _has_rt:
+    if HAS_VB35:
         _vray_for_blender_rt.load(jsonDirpath)
 
 
 def shutdown():
     _vray_for_blender.free()
-    if _has_rt:
+    if HAS_VB35:
         _vray_for_blender_rt.unload()
-        ZMQ.stop();
-
-
-def get_file_manager(exporter, engine, scene):
-    debug.Debug('Creating files for export')
-
-    try:
-        pm = VRayFilePaths()
-
-        # Setting user defined value here
-        # It could be overriden in 'initFromScene'
-        # depending on VRayDR settings
-        pm.setSeparateFiles(exporter.useSeparateFiles)
-
-        pm.initFromScene(engine, scene)
-        pm.printInfo()
-
-        fm = VRayExportFiles(pm)
-        fm.setOverwriteGeometry(exporter.auto_meshes)
-
-        fm.init()
-    except Exception as e:
-        debug.PrintError(e)
-        return "Error initing files!"
-
-    return fm
+        if HAS_ZMQ:
+            ZMQ.stop();
 
 
 class VRayRendererBase(bpy.types.RenderEngine):
@@ -248,10 +228,10 @@ class VRayRenderer(VRayRendererBase):
     bl_use_preview =  False
 
 
-class VRayExporter(VRayRendererBase):
+class VRayRendererRT(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label  = "V-Ray (With RT)"
-    bl_use_preview = True
+    bl_use_preview = SysUtils.hasRtExporter(True)
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
 
@@ -326,10 +306,14 @@ class VRayExporter(VRayRendererBase):
         if self.renderer:
             _vray_for_blender_rt.view_update(self.renderer)
 
-    def view_draw(self, context):
+    def _view_draw(self, context):
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
 
+# Internally blender check for 'view_draw' method to decide if it will show
+# viewport 'RENDERED' mode
+if HAS_ZMQ:
+    VRayRendererRT.view_draw = VRayRendererRT._view_draw
 
 
 def GetRegClasses():
@@ -338,7 +322,7 @@ def GetRegClasses():
         VRayRendererPreview,
     ]
     if SysUtils.hasRtExporter():
-        reg_classes.append(VRayExporter)
+        reg_classes.append(VRayRendererRT)
     return reg_classes
 
 
@@ -346,7 +330,7 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    if _has_rt:
+    if HAS_ZMQ:
         bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
 
 

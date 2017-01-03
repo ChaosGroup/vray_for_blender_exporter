@@ -46,10 +46,9 @@ from vb30.exporting import exp_anim_camera_loop
 
 from vb30 import debug
 
-_has_rt = SysUtils.hasRtExporter()
-if _has_rt:
+HAS_VB35 = SysUtils.hasRtExporter()
+if HAS_VB35:
     import _vray_for_blender_rt
-
 
 @debug.TimeIt
 def Export(bus, scene, engine, isPreview=False):
@@ -146,7 +145,7 @@ def ExportEx(bus):
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...
-        rtExporter = SysUtils.hasRtExporter() and engine.bl_idname == 'VRAY_RENDER_RT'
+        rtExporter = HAS_VB35 and engine.bl_idname == 'VRAY_RENDER_RT'
         if not rtExporter:
             err = Export(bus, scene, engine, engine.is_preview)
         else:

@@ -40,13 +40,16 @@ from vb30.lib     import LibUtils, BlenderUtils, PathUtils, SysUtils
 from vb30.lib     import ColorUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30         import debug
-from vb30.engine  import ZMQ
 
-_has_rt = True
-try:
-    import _vray_for_blender_rt
-except:
-    _has_rt = False
+HAS_VB35 = SysUtils.hasRtExporter()
+HAS_ZMQ = SysUtils.hasRtExporter(checkZmq=True)
+
+if HAS_VB35:
+	import _vray_for_blender_rt
+
+if HAS_ZMQ:
+	from vb30.engine  import ZMQ
+
 
 ##     ## ########  ########     ###    ######## ########
 ##     ## ##     ## ##     ##   ## ##      ##    ##
@@ -490,7 +493,7 @@ class VRayOpZmqRun(bpy.types.Operator):
 	bl_description = "Force start/stop zmq server"
 
 	def execute(self, context):
-		if not _has_rt:
+		if not HAS_ZMQ:
 			self.report({'ERROR'}, "ZMQ not supported")
 			return {'CANCELLED'}
 
