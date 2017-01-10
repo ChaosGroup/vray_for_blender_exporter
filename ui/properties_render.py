@@ -222,7 +222,8 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(SettingsOutput, 'img_file_needFrameNumber')
-		if VRayExporter.animation_mode == 'NONE':
+		isStdExporter = bpy.context.scene.render.engine != 'VRAY_RENDER_RT' or VRayExporter.backend == 'STD'
+		if VRayExporter.animation_mode == 'NONE' and isStdExporter:
 			col.prop(VRayExporter, 'image_to_blender')
 
 
