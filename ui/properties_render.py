@@ -670,15 +670,14 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 
 		classes.DrawPluginUIAuto(context, self.layout, SettingsImageSampler, 'SettingsImageSampler')
 
-		if SettingsImageSampler.type not in {'3'}:
-			self.layout.separator()
-			self.layout.prop(SettingsImageSampler, "filter_type")
+		self.layout.separator()
+		self.layout.prop(SettingsImageSampler, "filter_type")
 
-			if SettingsImageSampler.filter_type not in {'NONE'}:
-				filterPluginName = SettingsImageSampler.filter_type
-				filterPropGroup  = getattr(VRayScene, filterPluginName)
+		if SettingsImageSampler.filter_type not in {'NONE'}:
+			filterPluginName = SettingsImageSampler.filter_type
+			filterPropGroup  = getattr(VRayScene, filterPluginName)
 
-				classes.DrawPluginUIAuto(context, self.layout, filterPropGroup, filterPluginName)
+			classes.DrawPluginUIAuto(context, self.layout, filterPropGroup, filterPluginName)
 
 
 ########  ##     ##  ######
