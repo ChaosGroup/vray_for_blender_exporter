@@ -240,3 +240,8 @@ def RenderTemplate(context, layout, propGroup, pluginModule):
             RenderWidget(context, propGroup, layout, widget)
     else:
         Draw(context, layout, propGroup, pluginModule.PluginParams)
+
+
+def renderWidgets(layout, context, propGroup, jsonWidgets):
+    for widget in json.loads(jsonWidgets):
+        RenderWidget(context, propGroup, layout, widget)
