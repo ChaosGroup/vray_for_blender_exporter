@@ -134,6 +134,17 @@ def AddDefaultInputs(self, vrayPlugin, attrFilter=None):
             TypeToSocket = AttributeUtils.TypeToSocket
             if self.vray_type == 'LIGHT' or 'LINKED_ONLY' in attr_options:
                 TypeToSocket = AttributeUtils.TypeToSocketNoValue
+
+            if self.vray_type == 'TEXTURE':
+                if attr['attr'] in {
+                    'alpha_mult',
+                    'alpha_offset',
+                    'color_mult',
+                    'color_offset',
+                    'nouvw_color'
+                }:
+                    continue
+
             SocketUtils.AddInput(self, TypeToSocket[attr['type']], attr_name, attr['attr'], attr['default'])
 
 
