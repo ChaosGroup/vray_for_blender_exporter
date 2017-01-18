@@ -27,7 +27,7 @@ import sys
 
 import bpy
 
-from vb30.lib import LibUtils, SysUtils
+from vb30.lib import LibUtils, SysUtils, DrawUtils
 from vb30.ui  import classes
 from vb30     import plugins, preset, engine, debug
 
@@ -35,7 +35,7 @@ from vb30.ui.classes import PanelGroups
 
 HAS_VB35 = SysUtils.hasRtExporter()
 if HAS_VB35:
-    import _vray_for_blender_rt
+	import _vray_for_blender_rt
 
 
 def GetRenderIcon(vrayExporter):
@@ -319,9 +319,43 @@ class VRAY_RP_Device(classes.VRayRenderPanel):
 
 		self.layout.prop(VRayExporter, 'device_gpu_type', expand=True)
 
-		self.layout.separator()
+		jsonWidgets = """ [
+{ "label": "Ray Settings", "layout": "SEPARATOR" },
+{
+	"layout": "SPLIT",
+	"splits": [
+		{
+			"layout": "COLUMN",
+			"align": true,
+			"attrs": [
+				{ "name": "opencl_resizeTextures", "label": "" },
+				{ "name": "opencl_texsize" },
+				{ "name": "opencl_textureFormat", "label": "" }
+			]
+		},
+		{
+			"layout": "COLUMN",
+			"align": true,
+			"attrs": [
+				{ "name": "gpu_bundle_size" },
+				{ "name": "gpu_samples_per_pixel" }
+			]
+		}
+	]
+},
+{ "label": "Termination Settings", "layout": "SEPARATOR" },
+{
+	"layout": "COLUMN",
+	"align": true,
+	"attrs": [
+		{ "name": "max_render_time" },
+		{ "name": "max_sample_level" },
+		{ "name": "noise_threshold" }
+	]
+}
+] """
 
-		classes.DrawPluginUIAuto(context, self.layout, VRayScene.SettingsRTEngine, 'SettingsRTEngine')
+		DrawUtils.renderWidgets(self.layout, context, VRayScene.SettingsRTEngine, jsonWidgets)
 
 
  ######  ######## ######## ########  ########  #######   ######   ######   #######  ########  ####  ######
