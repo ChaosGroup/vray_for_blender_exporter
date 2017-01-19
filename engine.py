@@ -39,7 +39,7 @@ from vb30.lib.VRayStream import VRayFilePaths
 
 # Check if current build support new RT exporter
 HAS_VB35 = SysUtils.hasRtExporter()
-HAS_ZMQ = SysUtils.hasRtExporter(checkZmq=True)
+HAS_ZMQ = HAS_VB35
 if HAS_VB35:
     import _vray_for_blender_rt
 
@@ -231,7 +231,7 @@ class VRayRenderer(VRayRendererBase):
 class VRayRendererRT(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label  = "V-Ray (With RT)"
-    bl_use_preview = SysUtils.hasRtExporter(True)
+    bl_use_preview = SysUtils.hasRtExporter()
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
 
@@ -317,12 +317,12 @@ if HAS_ZMQ:
 
 
 def GetRegClasses():
-    reg_classes = [
-        VRayRenderer,
-        VRayRendererPreview,
-    ]
+    reg_classes = []
     if SysUtils.hasRtExporter():
         reg_classes.append(VRayRendererRT)
+    else:
+        reg_classes.append(VRayRenderer)
+        reg_classes.append(VRayRendererPreview)
     return reg_classes
 
 

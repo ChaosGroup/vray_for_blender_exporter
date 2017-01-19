@@ -42,7 +42,7 @@ from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30         import debug
 
 HAS_VB35 = SysUtils.hasRtExporter()
-HAS_ZMQ = SysUtils.hasRtExporter(checkZmq=True)
+HAS_ZMQ = HAS_VB35
 
 if HAS_VB35:
 	import _vray_for_blender_rt
