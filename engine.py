@@ -320,7 +320,7 @@ def GetRegClasses():
     reg_classes = []
     if SysUtils.hasRtExporter():
         reg_classes.append(VRayRendererRT)
-    else:
+    # else:
         reg_classes.append(VRayRenderer)
         reg_classes.append(VRayRendererPreview)
     return reg_classes

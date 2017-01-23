@@ -60,7 +60,7 @@ def Run(bus):
     p.setDisplayVFB(VRayExporter.display)
     p.setAutoclose(VRayExporter.autoclose)
 
-    if SysUtils.IsRTEngine(bus):
+    if SysUtils.IsGPUEngine(bus):
         p.setRtEngine(VRayExporter.device_gpu_type, VRayScene.SettingsRTEngine)
 
     # TODO: Rewrite into 'SettingsOutput'

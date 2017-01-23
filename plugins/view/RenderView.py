@@ -53,7 +53,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
 
     fov, orthoWidth = BlenderUtils.GetCameraFOV(scene, ca)
 
-    overrideParams['use_scene_offset'] = SysUtils.IsRTEngine(bus)
+    overrideParams['use_scene_offset'] = SysUtils.IsGPUEngine(bus)
     overrideParams['clipping'] = RenderView.clip_near or RenderView.clip_far
 
     # if SettingsCamera.type not in {'SPHERIFICAL', 'BOX'}:

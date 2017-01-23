@@ -53,7 +53,7 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
         VRayCamera = camera.data.vray
         CameraStereoscopic = VRayCamera.CameraStereoscopic
 
-        if SysUtils.IsRTEngine(bus):
+        if SysUtils.IsGPUEngine(bus):
             if VRayScene.SettingsRTEngine.stereo_mode:
                 img_width *= 2
         else:
