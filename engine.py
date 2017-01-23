@@ -39,7 +39,7 @@ from vb30.lib.VRayStream import VRayFilePaths
 
 # Check if current build support new RT exporter
 HAS_VB35 = SysUtils.hasRtExporter()
-HAS_ZMQ = HAS_VB35
+HAS_ZMQ = SysUtils.hasZMQEnabled()
 if HAS_VB35:
     import _vray_for_blender_rt
 

@@ -257,9 +257,14 @@ def hasRtExporter():
     return importlib.util.find_spec("_vray_for_blender_rt") is not None
 
 
+def hasZMQEnabled():
+    return False
+
+
 def getExporterBackendList():
     if hasRtExporter():
         import _vray_for_blender_rt
-        return _vray_for_blender_rt.getExporterTypes()
+        backends = _vray_for_blender_rt.getExporterTypes()
+        return (item for item in backends if (hasZMQEnabled() or item[0] != 'ZMQ'))
 
     return tuple()
