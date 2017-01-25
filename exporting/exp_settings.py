@@ -129,7 +129,7 @@ def ExportSettings(bus):
             }:
                 continue
 
-            if not SysUtils.IsGPUEngine(bus):
+            if not SysUtils.IsRTEngine(bus):
                 if pluginName in {'RTEngine', 'SettingsRTEngine'}:
                     continue
 

@@ -235,7 +235,9 @@ def GetPreviewBlend():
     return os.path.join(GetExporterPath(), "preview", "preview.blend")
 
 
-def IsGPUEngine(bus):
+def IsRTEngine(bus):
+    if bus["engine"].bl_idname in {'VRAY_RENDER_RT'}:
+        return True
     if bus["scene"].vray.Exporter.device_type in {'GPU'}:
         return True
     return False
@@ -256,7 +258,7 @@ def hasRtExporter():
 
 
 def hasZMQEnabled():
-    return True
+    return False
 
 
 def getExporterBackendList():
