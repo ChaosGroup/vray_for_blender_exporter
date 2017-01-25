@@ -235,9 +235,7 @@ def GetPreviewBlend():
     return os.path.join(GetExporterPath(), "preview", "preview.blend")
 
 
-def IsRTEngine(bus):
-    if bus["engine"].bl_idname in {'VRAY_RENDER_RT'}:
-        return True
+def IsGPUEngine(bus):
     if bus["scene"].vray.Exporter.device_type in {'GPU'}:
         return True
     return False
