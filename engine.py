@@ -230,7 +230,7 @@ class VRayRenderer(VRayRendererBase):
 
 class VRayRendererRT(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
-    bl_label  = "V-Ray (With RT)"
+    bl_label = "V-Ray"
     bl_use_preview = SysUtils.hasRtExporter()
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
