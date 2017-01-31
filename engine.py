@@ -231,7 +231,7 @@ class VRayRenderer(VRayRendererBase):
 class VRayRendererRT(VRayRendererBase):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label = "V-Ray"
-    bl_use_preview = SysUtils.hasRtExporter()
+    bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
 
@@ -280,7 +280,7 @@ class VRayRendererRT(VRayRendererBase):
         debug.Debug("render()")
 
         vrayExporter = self._get_settings()
-        use_std = vrayExporter.backend == 'STD' and not self.is_preview
+        use_std = vrayExporter.backend == 'STD'
 
         if use_std:
             super().render(scene)

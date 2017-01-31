@@ -169,11 +169,13 @@ def ExportEx(bus):
                 del engine.renderer
 
             renderer = _vray_for_blender_rt.init(**init)
-            # write settings for new exporter
-            # TODO: move this to cpp
-            exp_settings.ExportSettings(bus)
             if renderer:
+                # Write settings for new exporter.
+                # TODO: Move this to cpp.
+                exp_settings.ExportSettings(bus)
+
                 setattr(engine, 'renderer', renderer)
+
                 _vray_for_blender_rt.update(renderer)
 
     except Exception as e:
