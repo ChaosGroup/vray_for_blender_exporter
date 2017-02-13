@@ -131,8 +131,6 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
     bl_label   = "Include / Exclude"
     bl_options = {'DEFAULT_CLOSED'}
 
-    COMPAT_ENGINES= {'VRAY_RENDER','VRAY_RENDERER','VRAY_RENDER_PREVIEW'}
-
     def draw(self, context):
         wide_ui= context.region.width > classes.narrowui
         layout= self.layout
