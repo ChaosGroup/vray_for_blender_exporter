@@ -149,6 +149,12 @@ def ExportEx(bus):
         if not rtExporter:
             err = Export(bus, scene, engine, engine.is_preview)
         else:
+            if not VRayExporter.animation_mode in {'NONE', 'CAMERA_LOOP'}:
+                o.setAnimation(True)
+                o.setFrameStart(scene.frame_start)
+                o.setFrameEnd(scene.frame_end)
+                o.setFrameStep(scene.frame_step)
+
             init = {
                 'context'      : bpy.context.as_pointer(),
                 'engine'       : engine.as_pointer(),
@@ -176,7 +182,7 @@ def ExportEx(bus):
 
                 setattr(engine, 'renderer', renderer)
 
-                _vray_for_blender_rt.update(renderer)
+                _vray_for_blender_rt.render(renderer)
 
     except Exception as e:
         debug.ExceptionInfo(e)
