@@ -78,24 +78,24 @@ class ZMQProcess:
         self._heartbeat_running = False
         debug.Debug('ZMQ stopping heartbeat')
 
-    def is_use_zmq(self):
+    def use_zmq(self):
         return bpy.context.scene.vray.Exporter.backend in {'ZMQ'}
 
     def is_local(self):
         return bpy.context.scene.vray.Exporter.backend_worker == 'LOCAL'
 
     def should_start(self):
-        should_start = self.is_use_zmq() and self.is_local()
+        should_start = self.use_zmq() and self.is_local()
         debug.Debug('ZMQ should start %s' % should_start)
         return should_start
 
     def check_heartbeat(self):
-        if self.is_use_zmq():
+        if self.use_zmq():
             if not self._heartbeat_running:
                 self.start_heartbeat()
 
     def check_start(self):
-        if self.is_use_zmq():
+        if self.use_zmq():
             if self.is_local():
                 self.start()
             self.check_heartbeat()
