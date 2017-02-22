@@ -134,8 +134,8 @@ class VRayNodeTexLayered(bpy.types.Node):
     bl_label  = 'Layered'
     bl_icon   = 'TEXTURE'
 
-    vray_type   = 'TEXTURE'
-    vray_plugin = 'TexLayered'
+    vray_type   = bpy.props.StringProperty(default='TEXTURE')
+    vray_plugin = bpy.props.StringProperty(default='TexLayered')
 
     alpha_from_intensity = bpy.props.BoolProperty(
         name        = "Alpha From Intersity",
@@ -249,8 +249,8 @@ class VRayNodeTexMulti(bpy.types.Node):
     bl_label  = 'Multi ID'
     bl_icon   = 'TEXTURE'
 
-    vray_type   = 'TEXTURE'
-    vray_plugin = 'TexMulti'
+    vray_type   = bpy.props.StringProperty(default='TEXTURE')
+    vray_plugin = bpy.props.StringProperty(default='TexMulti')
 
     mode = bpy.props.EnumProperty(
         name = "Mode",
