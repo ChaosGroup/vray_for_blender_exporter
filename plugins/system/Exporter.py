@@ -462,7 +462,7 @@ class VRayExporter(bpy.types.PropertyGroup):
             ('HEX',   "HEX",        "Export list data in hex format"),
             ('ASCII', "Plain Text", "Export as plain text"),
         ),
-        default = 'HEX'
+        default = 'ZIP'
     )
 
     backend = bpy.props.EnumProperty(
