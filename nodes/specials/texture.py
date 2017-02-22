@@ -252,22 +252,31 @@ class VRayNodeTexMulti(bpy.types.Node):
     vray_type   = 'TEXTURE'
     vray_plugin = 'TexMulti'
 
+    interpolate =  bpy.props.BoolProperty(
+        name        = "Interpolate",
+        description = "Used when mode is \"Use ID Generator texture\"",
+        default     =  False
+    )
+
     mode = bpy.props.EnumProperty(
         name = "Mode",
         description = "The mode for the texture",
         items = (
-            ('0', "Face Material ID", ""),
-            ('1', "Object ID",        ""),
-            ('2', "Random By Node Handle", ""),
-            ('3', "Random By Render ID", ""),
-            ('4', "Random By Node Name", ""),
+            ('0',  "Face Material ID", ""),
+            ('1',  "Object ID",        ""),
+            ('2',  "Random By Node Handle", ""),
+            ('3',  "Random By Render ID", ""),
+            ('4',  "Random By Node Name", ""),
+            ('6',  "Random by instance ID", ""),
+            ('30', "Use ID Generator texture", ""),
         ),
         default = '0'
     )
 
-    def init(self, context):
-        AddOutput(self, 'VRaySocketColor', "Output")
 
+    def init(self, context):
+        AddInput(self, 'VRaySocketFloatNoValue', "Float Gen.", 'id_gen_tex', 1.0)
+        AddOutput(self, 'VRaySocketColor', "Output")
         AddInput(self, 'VRaySocketColor', "Default")
 
         for i in range(3):
@@ -279,6 +288,7 @@ class VRayNodeTexMulti(bpy.types.Node):
         split = layout.split()
         col = split.column()
         col.prop(self, 'mode')
+        col.prop(self, 'interpolate')
 
         split = layout.split()
         row = split.row(align=True)
