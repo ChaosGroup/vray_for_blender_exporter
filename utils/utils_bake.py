@@ -340,6 +340,7 @@ class VRayOpBatchBake(bpy.types.Operator):
             try:
                 for ob in obList:
                     debug.PrintInfo("Baking: %s..." % ob.name)
+                    VRayScene.Exporter.currentBakeObject = ob
 
                     # UV channel to use for baking
                     uv_channel = None

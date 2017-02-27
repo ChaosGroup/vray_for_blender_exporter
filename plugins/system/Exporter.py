@@ -131,6 +131,12 @@ class VRayExporter(bpy.types.PropertyGroup):
     ##        ##   ##  ##        ##     ## ##    ##     ##
     ######## ##     ## ##         #######  ##     ##    ##
 
+    currentBakeObject = bpy.props.PointerProperty(
+        name = "Current Bake object",
+        type = bpy.types.Object,
+        options= {'HIDDEN'},
+    )
+
     ntreeExportDirectory = bpy.props.StringProperty(
         name = "Export Path",
         subtype = 'DIR_PATH',
