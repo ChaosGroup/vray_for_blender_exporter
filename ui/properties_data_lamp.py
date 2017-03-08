@@ -114,6 +114,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         elif lamp.type == 'SPOT':
             split = layout.split()
             col = split.column()
+            col.prop(lamp, "show_cone")
             if VRayLight.spot_type == 'SPOT':
                 col.prop(lamp, 'spot_size', text="Size")
                 col.prop(lamp, 'spot_blend', text="Blend")
