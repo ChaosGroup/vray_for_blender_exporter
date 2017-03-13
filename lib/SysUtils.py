@@ -256,6 +256,8 @@ def hasRtExporter():
 
 
 def hasZMQEnabled():
+    if 'VRAY_FOR_BLENDER_RT' in os.environ:
+        return int(os.environ['VRAY_FOR_BLENDER_RT'])
     return False
 
 
