@@ -1,8 +1,8 @@
 [submodule "vray_tools"]
 	path = vray_tools
 	url = https://github.com/bdancer/vray_tools.git
-	ignore = dirty
+	ignore = all
 [submodule "plugins_desc"]
 	path = plugins_desc
 	url = https://github.com/bdancer/plugins_desc.git
-	ignore = dirty
+	ignore = all
