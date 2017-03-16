@@ -313,6 +313,7 @@ class VRayExportFiles:
                 continue
             self.files[fileType].write("// V-Ray For Blender\n")
             self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
+            self.files[fileType].write("\n")
 
 
     def writeIncludes(self):
