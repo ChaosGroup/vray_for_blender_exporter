@@ -289,7 +289,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     select_node_preview = bpy.props.BoolProperty(
         name = "Selected node preview",
         description = "Enable material preview of selected node in node editor",
-        default = True
+        default = False
     )
 
     image_to_blender = bpy.props.BoolProperty(
