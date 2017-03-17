@@ -79,7 +79,7 @@ class ZMQProcess:
         debug.Debug('ZMQ stopping heartbeat')
 
     def use_zmq(self):
-        return bpy.context.scene.vray.Exporter.backend in {'ZMQ'}
+        return SysUtils.hasZMQEnabled()
 
     def is_local(self):
         return bpy.context.scene.vray.Exporter.backend_worker == 'LOCAL'
