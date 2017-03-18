@@ -388,7 +388,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     display_srgb = bpy.props.BoolProperty(
         name = "Display In sRGB",
         description = "Display colors on Vray Framebuffer in sRGB space",
-        default = False
+        default = True
     )
 
     vray_binary = bpy.props.StringProperty(
