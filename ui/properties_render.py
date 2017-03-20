@@ -728,7 +728,7 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 ########  ##     ##  ######
 
 class VRAY_RP_dmc(classes.VRayRenderPanel):
-	bl_label = "DMC Sampler"
+	bl_label = "Global DMC"
 	bl_panel_groups = PanelGroups
 
 	def draw(self, context):

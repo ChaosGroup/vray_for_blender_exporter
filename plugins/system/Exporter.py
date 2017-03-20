@@ -440,7 +440,7 @@ class VRayExporter(bpy.types.PropertyGroup):
             ('0', "Render", ""),
             ('1', "Globals", ""),
             ('2', "GI", ""),
-            ('3', "DMC", ""),
+            ('3', "Sampler", ""),
             ('4', "System", ""),
         ),
         default = '0'
