@@ -252,13 +252,8 @@ def GenerateAttribute(classMembers, attrDesc):
         attrArgs['items'] = (tuple(item) for item in attrDesc['items'])
 
     if 'options' in attrDesc:
-        options = set()
-        for opt in attrDesc['options']:
-            # These options are not directly mapped into the Blender prop
-            # options
-            if opt.startswith('EXPORT_') or opt in {'LINKED_ONLY'}:
-                continue
-            options.add(opt)
+        # Skip V-Ray options
+        options = set([opt for opt in attrDesc['options'] if opt in {'HIDDEN', 'SKIP_SAVE', 'ANIMATABLE', 'LIBRARY_EDITABLE', 'PROPORTIONAL', 'TEXTEDIT_UPDATE'}])
         attrArgs['options'] = options
 
     for optionalKey in {'size', 'precision', 'subtype'}:
