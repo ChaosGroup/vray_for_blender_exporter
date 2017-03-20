@@ -548,7 +548,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box.operator("vray.zmq_update", text=action, icon=icon)
 
 				box.prop(VRayExporter, 'zmq_port')
-				if engine.ZMQ.is_local():
+				if engine.ZMQ.is_local() and not engine.ZMQ.is_running():
 					box.prop(VRayExporter, 'zmq_log_level')
 
 				box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
