@@ -551,7 +551,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				if engine.ZMQ.is_local() and not engine.ZMQ.is_running():
 					box.prop(VRayExporter, 'zmq_log_level')
 
-				box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
 
 			box = layout.box()
 			box.label("Production Rendering:")
@@ -561,6 +560,10 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box = layout.box()
 				box.label("Viewport Rendering:")
 				box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
+				box.prop(VRayExporter, 'viewport_image_type', text="Image Type")
+				if VRayExporter.viewport_image_type == '4':
+					# 4 == JPEG
+					box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
 				box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
 				box.prop(VRayExporter, 'viewport_alpha')
 
