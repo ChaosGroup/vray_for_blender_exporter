@@ -433,7 +433,7 @@ def VRayNodeInit(self, context):
         AddOutput(self, 'VRaySocketBRDF', "BRDF")
     elif self.vray_type == 'GEOMETRY':
         AddOutput(self, 'VRaySocketGeom', "Geometry")
-    elif self.vray_type == 'MATERIAL':
+    elif self.vray_type == 'MATERIAL' and self.vray_plugin != 'MtlOSL':
         AddOutput(self, 'VRaySocketMtl', "Material")
     elif self.vray_type == 'EFFECT':
         AddOutput(self, 'VRaySocketEffectOutput', "Output")
@@ -524,7 +524,7 @@ def LoadDynamicNodes():
 
         for pluginName in sorted(PLUGINS[pluginType]):
             # Skip manually created nodes
-            if pluginName in {'BRDFLayered', 'TexLayered', 'TexMulti'}:
+            if pluginName in {'BRDFLayered', 'TexLayered', 'TexMulti', 'TexOSL', 'MtlOSL'}:
                 continue
 
             typeName = "VRay%s" % pluginName
@@ -585,6 +585,14 @@ def LoadDynamicNodes():
     VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexLayered)
     VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexMulti)
     VRayNodeTypes['MATERIAL'].append(bpy.types.VRayNodeMtlMulti)
+
+    ClassUtils.RegisterPluginPropertyGroup(bpy.types.VRayNodeMtlOSL, PLUGINS['MATERIAL']['MtlOSL'])
+    VRayNodeTypes['MATERIAL'].append(bpy.types.VRayNodeMtlOSL)
+    DynamicClasses.append(bpy.types.VRayNodeMtlOSL)
+
+    ClassUtils.RegisterPluginPropertyGroup(bpy.types.VRayNodeTexOSL, PLUGINS['TEXTURE']['TexOSL'])
+    VRayNodeTypes['TEXTURE'].append(bpy.types.VRayNodeTexOSL)
+    DynamicClasses.append(bpy.types.VRayNodeTexOSL)
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##

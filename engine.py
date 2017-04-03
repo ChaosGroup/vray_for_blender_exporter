@@ -32,6 +32,7 @@ import _vray_for_blender
 
 from vb30.lib import SysUtils
 from vb30 import export, debug
+from vb30 import osl
 
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayFilePaths
@@ -314,6 +315,10 @@ class VRayRendererRT(VRayRendererBase):
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
 
+    # OSL scripts
+    def update_script_node(self, node):
+        osl.update_script_node(node, self.report)
+
 # Internally blender check for 'view_draw' method to decide if it will show
 # viewport 'RENDERED' mode
 if HAS_ZMQ:
@@ -324,7 +329,7 @@ def GetRegClasses():
     reg_classes = []
     if SysUtils.hasRtExporter():
         reg_classes.append(VRayRendererRT)
-    else:
+    #else:
         reg_classes.append(VRayRenderer)
         reg_classes.append(VRayRendererPreview)
     return reg_classes

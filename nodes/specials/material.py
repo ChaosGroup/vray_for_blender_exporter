@@ -24,9 +24,13 @@
 
 import bpy
 
+from vb30.lib import PluginUtils
+from vb30.lib import ClassUtils
+from vb30 import plugins
+
 from ..sockets import AddInput, AddOutput
 from ..operators import sockets as SocketOperators
-
+from ..nodes import VRayNodeInit, VRayNodeDraw, VRayNodeDrawSide
 
 PluginParams = (
     {
@@ -133,12 +137,150 @@ class VRayNodeMtlMulti(bpy.types.Node):
         row.operator('vray.node_del_mtlmulti_sockets', icon="ZOOMOUT", text="")
 
 
+from vb30 import osl
+
+
+class VRAY_OT_update_osl_node(bpy.types.Operator):
+    bl_idname      = "vray.update_osl_node"
+    bl_label       = "Update"
+    bl_description = ""
+
+    def execute(self, context):
+        v = []
+        osl.update_script_node(context.node, lambda e, m: v.append((e, m)))
+        return {'FINISHED'}
+
+
+class VRayNodeTexOSL(bpy.types.Node):
+    bl_idname = 'VRayNodeTexOSL'
+    bl_label  = 'OSL Texture'
+    bl_icon   = 'TEXTURE'
+
+    vray_type   = bpy.props.StringProperty(default='TEXTURE')
+    vray_plugin = bpy.props.StringProperty(default='TexOSL')
+
+    script = bpy.props.PointerProperty(
+        name = "Script",
+        type = bpy.types.Text,
+        description = "Internal shader script to define the shader",
+    )
+
+    filepath = bpy.props.StringProperty(
+        name = 'File Path',
+        default = '',
+        description = 'Shader script path',
+        subtype = 'FILE_PATH',
+    )
+
+    bytecode = bpy.props.StringProperty(
+        name = 'Compiled script',
+        default = '',
+        options= {'HIDDEN'},
+    )
+
+    export_filepath = bpy.props.StringProperty(
+        name = 'Export path',
+        default = '',
+        options= {'HIDDEN'},
+    )
+
+    mode = bpy.props.EnumProperty(
+        name = "Script Source",
+        items = (
+            ('INTERNAL', "Internal", "Use internal text data-block"),
+            ('EXTERNAL', "External", "Use external .osl or .oso file"),
+        ),
+        default = 'INTERNAL'
+    )
+
+    def init(self, context):
+        VRayNodeInit(self, context)
+
+    def draw_buttons(self, context, layout):
+        row = layout.row()
+        row.prop(self, 'mode', expand=True)
+        row = layout.row(align=True)
+        if self.mode == 'INTERNAL':
+            row.prop(self, 'script', text='', icon='NONE')
+        else:
+            row.prop(self, 'filepath', text='', icon='NONE')
+        row.operator("vray.update_osl_node", text='', icon='FILE_REFRESH')
+        VRayNodeDraw(self, context, layout)
+
+    def draw_buttons_ex(self, context, layout):
+        VRayNodeDrawSide(self, context, layout)
+
+
+class VRayNodeMtlOSL(bpy.types.Node):
+    bl_idname = 'VRayNodeMtlOSL'
+    bl_label  = 'OSL Material'
+    bl_icon   = 'MATERIAL'
+
+    vray_type   = bpy.props.StringProperty(default='MATERIAL')
+    vray_plugin = bpy.props.StringProperty(default='MtlOSL')
+
+    script = bpy.props.PointerProperty(
+        name = "Script",
+        type = bpy.types.Text,
+        description = "Internal shader script to define the shader",
+    )
+
+    filepath = bpy.props.StringProperty(
+        name = 'File Path',
+        default = '',
+        description = 'Shader script path',
+        subtype = 'FILE_PATH',
+    )
+
+    bytecode = bpy.props.StringProperty(
+        name = 'Compiled script',
+        default = '',
+        options= {'HIDDEN'},
+    )
+
+    export_filepath = bpy.props.StringProperty(
+        name = 'Export path',
+        default = '',
+        options= {'HIDDEN'},
+    )
+
+    mode = bpy.props.EnumProperty(
+        name = "Script Source",
+        items = (
+            ('INTERNAL', "Internal", "Use internal text data-block"),
+            ('EXTERNAL', "External", "Use external .osl or .oso file"),
+        ),
+        default = 'INTERNAL'
+    )
+
+    def init(self, context):
+        VRayNodeInit(self, context)
+        AddOutput(self, 'VRaySocketMtl', "Ci")
+
+    def draw_buttons(self, context, layout):
+        row = layout.row()
+        row.prop(self, 'mode', expand=True)
+        row = layout.row(align=True)
+        if self.mode == 'INTERNAL':
+            row.prop(self, 'script', text='', icon='NONE')
+        else:
+            row.prop(self, 'filepath', text='', icon='NONE')
+        row.operator("vray.update_osl_node", text='', icon='FILE_REFRESH')
+        VRayNodeDraw(self, context, layout)
+
+    def draw_buttons_ex(self, context, layout):
+        VRayNodeDrawSide(self, context, layout)
+
+
 def GetRegClasses():
     return (
         VRaySocketMtlMulti,
         VRayNodeMtlMultiAddSocket,
         VRayNodeTexLayeredDelSocket,
         VRayNodeMtlMulti,
+        VRayNodeMtlOSL,
+        VRayNodeTexOSL,
+        VRAY_OT_update_osl_node,
    )
 
 

@@ -597,6 +597,39 @@ class VRaySocketMtl(bpy.types.NodeSocket):
         return (1.000, 0.468, 0.087, 1.000)
 
 
+########   ##        ##     ##   ######    ####  ##    ##
+##     ##  ##        ##     ##  ##    ##    ##   ###   ##
+##     ##  ##        ##     ##  ##          ##   ####  ##
+########   ##        ##     ##  ##   ####   ##   ## ## ##
+##         ##        ##     ##  ##    ##    ##   ##  ####
+##         ##        ##     ##  ##    ##    ##   ##   ###
+##         ########   #######    ######    ####  ##    ##
+
+
+class VRaySocketPlugin(bpy.types.NodeSocket):
+    bl_idname = 'VRaySocketPlugin'
+    bl_label  = 'Plugin Socket'
+
+    value = bpy.props.StringProperty(
+        name        = "Plugin Name",
+        description = "Plugin Name",
+        default     = ""
+    )
+
+    vray_attr = bpy.props.StringProperty(
+        name = "V-Ray Attribute",
+        description = "V-Ray plugin attribute name",
+        options = {'HIDDEN'},
+        default = ""
+    )
+
+    def draw(self, context, layout, node, text):
+        layout.label(text)
+
+    def draw_color(self, context, node):
+        return (1.000, 0.000, 1.000, 1.000)
+
+
 ########  ######## ##    ## ########  ######## ########      ######  ##     ##    ###    ##    ## ##    ## ######## ##
 ##     ## ##       ###   ## ##     ## ##       ##     ##    ##    ## ##     ##   ## ##   ###   ## ###   ## ##       ##
 ##     ## ##       ####  ## ##     ## ##       ##     ##    ##       ##     ##  ##   ##  ####  ## ####  ## ##       ##
@@ -779,6 +812,7 @@ def GetRegClasses():
         VRaySocketEffect,
         VRaySocketEffectOutput,
         VRaySocketTransform,
+        VRaySocketPlugin,
     )
 
 
