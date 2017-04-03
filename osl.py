@@ -16,8 +16,27 @@
 
 # <pep8 compliant>
 
+import os
 import bpy
+
 import _vray_for_blender_rt
+
+
+def get_stdosl_path():
+    def getPaths(pathStr):
+        if pathStr:
+            return pathStr.strip().replace('\"','').split(os.pathsep)
+        return []
+
+    env = os.environ
+    for key in sorted(env.keys()):
+        if key.startswith('VRAY_OSL_PATH_'):
+            for p in getPaths(env[key]):
+                stdPath = os.path.join(p, 'stdosl.h')
+                if os.path.exists(stdPath):
+                    return stdPath
+
+    return ''
 
 def osl_compile(input_path, report):
     """compile .osl file with given filepath to temporary .oso file"""
@@ -26,7 +45,7 @@ def osl_compile(input_path, report):
     output_path = output_file.name
     output_file.close()
 
-    ok = _vray_for_blender_rt.osl_compile(input_path, output_path)
+    ok = _vray_for_blender_rt.osl_compile(input_path, output_path, get_stdosl_path())
 
     if ok:
         report({'INFO'}, "OSL shader compilation succeeded")
