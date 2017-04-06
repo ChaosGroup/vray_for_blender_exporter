@@ -19,6 +19,8 @@
 import os
 import bpy
 
+from vb30.lib import SysUtils
+
 import _vray_for_blender_rt
 
 
@@ -35,6 +37,10 @@ def get_stdosl_path():
                 stdPath = os.path.join(p, 'stdosl.h')
                 if os.path.exists(stdPath):
                     return stdPath
+
+    cyclesPath = SysUtils.GetCyclesShaderPath()
+    if cyclesPath:
+        return os.path.join(cyclesPath, 'stdosl.h')
 
     return ''
 

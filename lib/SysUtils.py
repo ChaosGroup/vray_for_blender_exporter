@@ -199,6 +199,13 @@ def GetVRayStandalonePath():
     return shutil.which(vray_bin)
 
 
+def GetCyclesShaderPath():
+    for path in bpy.utils.script_paths(os.path.join('addons','cycles','shader')):
+        if path:
+            return path
+    return None
+
+
 def GetExporterPath():
     for path in bpy.utils.script_paths(os.path.join('addons','vb30')):
         if path:
