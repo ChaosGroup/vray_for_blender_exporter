@@ -91,7 +91,7 @@ class VRaySocketMult:
         subtype     = 'PERCENTAGE',
         precision   = 0,
         min         = 0.0,
-        max         = 100.0,
+        soft_max    = 100.0,
         default     = 100.0
     )
 
