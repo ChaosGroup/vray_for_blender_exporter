@@ -44,14 +44,14 @@ def get_stdosl_path():
 
     return ''
 
-def osl_compile(input_path, report):
+def osl_compile(node, input_path, report):
     """compile .osl file with given filepath to temporary .oso file"""
     import tempfile
     output_file = tempfile.NamedTemporaryFile(mode='w', suffix=".oso", delete=False)
     output_path = output_file.name
     output_file.close()
 
-    ok = _vray_for_blender_rt.osl_compile(input_path, output_path, get_stdosl_path())
+    ok = _vray_for_blender_rt.osl_compile(node.id_data.as_pointer(), node.as_pointer(), input_path, output_path, get_stdosl_path())
 
     if ok:
         report({'INFO'}, "OSL shader compilation succeeded")
@@ -79,7 +79,7 @@ def update_script_node(node, report):
             ok, oso_path = True, script_path
         elif script_ext == ".osl":
             # compile .osl file
-            ok, oso_path = osl_compile(script_path, report)
+            ok, oso_path = osl_compile(node, script_path, report)
             oso_file_remove = True
 
             if ok:
@@ -100,7 +100,6 @@ def update_script_node(node, report):
 
         if ok:
             node.bytecode = ""
-            node.bytecode_hash = ""
     elif node.mode == 'INTERNAL' and node.script:
         # internal script, we will store bytecode in the node
         script = node.script
@@ -112,12 +111,12 @@ def update_script_node(node, report):
             osl_file.write(script.as_string())
             osl_file.close()
 
-            ok, oso_path = osl_compile(osl_file.name, report)
+            ok, oso_path = osl_compile(node, osl_file.name, report)
             node.export_filepath = osl_file.name
             #os.remove(osl_file.name)
         else:
             # compile text datablock from disk directly
-            ok, oso_path = osl_compile(osl_path, report)
+            ok, oso_path = osl_compile(node, osl_path, report)
             node.export_filepath = osl_path
     else:
         report({'WARNING'}, "No text or file specified in node, nothing to compile")
