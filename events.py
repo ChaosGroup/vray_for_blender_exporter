@@ -50,6 +50,7 @@ def event_shutdown(e):
 @bpy.app.handlers.persistent
 def new_material_ntree(ma):
     AddMaterialNodeTree(ma)
+    bpy.ops.object.material_slot_add()
     bpy.ops.vray.show_ntree(data='MATERIAL', ntree_name=ma.vray.ntree.name)
 
 
