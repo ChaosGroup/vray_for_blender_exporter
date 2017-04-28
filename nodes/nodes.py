@@ -156,6 +156,7 @@ def BuildItemsList(nodeType, subType=None):
             'VRayScene',
 
             # Unused
+            'MtlBump',
             'GeomImagePlane',
             'GeomInfinitePlane',
             'TexCustomBitmap',
