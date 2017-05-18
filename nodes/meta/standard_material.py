@@ -49,6 +49,7 @@ class VRayNodeMetaStandardMaterial(bpy.types.Node):
             },
             'BRDFBump': {
                 'base_brdf',
+                'normal_uvwgen',
             },
             'MtlSingleBRDF': {
                 'brdf',
