@@ -244,6 +244,7 @@ class VRAY_DP_physical_camera(classes.VRayCameraPanel):
 
 		if CameraPhysical.use_moblur or CameraPhysical.use_dof:
 			colL.prop(CameraPhysical, 'subdivs')
+			colL.prop(VRayCamera.SettingsMotionBlur, 'geom_samples')
 
 			if CameraPhysical.use_dof and CameraPhysical.blades_enable:
 				colR.prop(CameraPhysical, 'blades_num')
