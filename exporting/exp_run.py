@@ -56,7 +56,7 @@ def Run(bus):
     p.setAutorun(VRayExporter.autorun)
     p.setVerboseLevel(VRayExporter.verboseLevel)
     p.setShowProgress(VRayExporter.showProgress)
-    p.setDisplaySRGB(VRayExporter.display_srgb)
+    p.setDisplaySRGB(scene.display_settings.display_device == 'sRGB')
     p.setDisplayVFB(VRayExporter.display)
     p.setAutoclose(VRayExporter.autoclose)
 

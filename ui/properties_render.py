@@ -586,7 +586,6 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		col = split.column()
 		col.prop(VRayExporter, 'display', text="Show VFB")
 		col.prop(VRayExporter, 'display_vfb_in_batch', text="Show VFB In Batch")
-		col.prop(VRayExporter, 'display_srgb', text="sRGB")
 		if wide_ui:
 			col = split.column()
 		col.prop(VRayExporter, 'autoclose', text="Close On Stop")
