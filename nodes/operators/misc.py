@@ -181,27 +181,31 @@ class VRayOpBitmapBufferToImageEditor(bpy.types.Operator):
     def execute(self, context):
         node = context.active_node
         ob   = context.active_object
+        material = ob.active_material
 
         if not (node and hasattr(node, 'texture') and node.texture):
             return {'CANCELLED'}
+
+        image = node.texture.image
+        update_objects = [ob]
+        for obj in bpy.data.objects:
+            for slot in obj.material_slots:
+                if slot.material == material:
+                    update_objects.append(obj)
 
         if node.bl_idname in {'VRayNodeBitmapBuffer', 'VRayNodeMetaImageTexture'}:
             for area in context.screen.areas:
                 if area.type == 'IMAGE_EDITOR':
                     for space in area.spaces:
                         if space.type == 'IMAGE_EDITOR':
-                            space.image = node.texture.image
+                            space.image = image
                     break
 
-        if ob:
-            mesh = ob.data
+        for obj in update_objects:
+            mesh = obj.data
             if hasattr(mesh, 'uv_textures') and mesh.uv_textures:
-                try:
-                    for f in mesh.polygons:
-                        mesh.uv_textures.active.data[f.index].image = node.texture.image
-                except:
-                    # Don't mess with errors...
-                    pass
+                for uv_face in mesh.uv_textures.active.data:
+                    uv_face.image = image
 
         return {'FINISHED'}
 
