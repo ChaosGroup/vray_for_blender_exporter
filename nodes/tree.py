@@ -194,7 +194,9 @@ class VRayNodeTreeMaterialEditor(VRayNodeTree):
 
         if numMaterials:
             if listIndex >= numMaterials:
-                VRayExporter.materialListIndex = 0
+                # we cant do this here since this is called when drawing
+                # and Blender does not want to edit IDs while drawing
+                # VRayExporter.materialListIndex = 0
                 listIndex                   = 0
 
             material = bpy.data.materials[listIndex]

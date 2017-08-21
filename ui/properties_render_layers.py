@@ -108,6 +108,7 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 		if numMaterials:
 			if listIndex >= numMaterials:
 				listIndex = 0
+				VRayExporter.materialListIndex = 0
 
 			return bpy.data.materials[listIndex]
 
