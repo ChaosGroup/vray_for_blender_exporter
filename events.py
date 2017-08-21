@@ -56,6 +56,8 @@ def new_material_ntree(ma):
 
 @bpy.app.handlers.persistent
 def update_world_preview(ob):
+    if not hasattr(ob, 'type'):
+        return
     if not ob.type == 'CAMERA':
         return
     sce = bpy.context.scene
