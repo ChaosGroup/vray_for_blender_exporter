@@ -53,9 +53,11 @@ def LoadImage(scene, engine, o, p):
 
     # TODO: Create VRayImage loader and load image while rendering
     #
-    while True:
+    while not engine.test_break():
         if not p.is_running():
             result = engine.begin_result(0, 0, resolution_x, resolution_y)
+            if engine.test_break():
+                break
             layer = result.layers[0]
             try:
                 if os.path.exists(imageFile):
@@ -64,6 +66,8 @@ def LoadImage(scene, engine, o, p):
                     layer.load_from_file(imageFilePreviewCompat)
             except Exception as e:
                 debug.Debug("Error loading file! [%s]" % e, msgType='ERROR')
+            if engine.test_break():
+                break
             engine.end_result(result)
             break
-        time.sleep(0.1)
+        time.sleep(0.001)
