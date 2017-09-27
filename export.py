@@ -242,6 +242,9 @@ def ExportAndRun(engine, scene):
         },
     }
 
+    if bus['camera'].type != 'CAMERA':
+        return "Scene's active camera is not of type camera"
+
     err = ExportEx(bus)
     if err is not None:
         return err
