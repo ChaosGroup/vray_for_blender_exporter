@@ -178,6 +178,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = True
     )
 
+    calculate_instancer_velocity = bpy.props.BoolProperty(
+        name = "Calculate instancer velocity",
+        description = "Used to calculate particles velocty when using motion blur",
+        default = False
+    )
+
     use_smoke = bpy.props.BoolProperty(
         name = "Export Smoke",
         description = "Render smoke",

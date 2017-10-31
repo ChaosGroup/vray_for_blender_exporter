@@ -576,6 +576,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		if wide_ui:
 			col = split.column()
 		col.prop(VRayExporter, 'subsurf_to_osd')
+		col.prop(VRayExporter, 'calculate_instancer_velocity')
 
 		layout.separator()
 		layout.prop(VRayExporter, 'default_mapping', text="Def. Mapping")
