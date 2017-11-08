@@ -37,4 +37,9 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     if unit_settings.system != 'NONE':
         overrideParams['meters_scale'] = unit_settings.scale_length
 
+
+    sceneFps = bpy.context.scene.render.fps / bpy.context.scene.render.fps_base
+    overrideParams['frames_scale'] = sceneFps
+    overrideParams['seconds_scale'] = 1.0 / sceneFps
+
     return ExportUtils.WritePluginCustom(bus, pluginModule, pluginName, propGroup, overrideParams)
