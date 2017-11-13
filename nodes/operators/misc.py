@@ -26,7 +26,6 @@ import bpy
 
 from vb30.lib import BlenderUtils
 from vb30 import debug
-from vb30 import plugins as Plugins
 
 
 def _redrawNodeEditor():
@@ -40,51 +39,6 @@ def SelectNtreeInEditor(context, ntreeName):
     VRayExporter.ntreeListIndex = bpy.data.node_groups.find(ntreeName)
 
     _redrawNodeEditor()
-
-
-class VRayOpInvertMultipliers(bpy.types.Operator):
-    bl_idname      = "vray.invert_texture_multipliers"
-    bl_label       = "Inverts texture multipliers"
-    bl_description = "Inverts texture multipliers for all sockets that are marked as 'INVERT_MULTIPLIER'"
-
-    def _load_params(self):
-        plugin_map = {}
-        param_set = set()
-        for type_key in Plugins.PLUGINS:
-            for plugin_name in Plugins.PLUGINS[type_key]:
-                plugin = Plugins.PLUGINS[type_key][plugin_name]
-                if not hasattr(plugin, 'PluginParams'):
-                    continue
-                for param in plugin.PluginParams:
-                    if not 'options' in param:
-                        continue
-                    if 'INVERT_MULTIPLIER' in param['options']:
-                        if plugin.Name not in plugin_map:
-                            print('Plugin %s::%s::%s has "INVERT_MULTIPLIER" option' % (type_key, plugin.Name, param['attr']))
-                            plugin_map[plugin.Name] = (plugin, param)
-                            param_set.add(param['attr'])
-
-        return plugin_map, param_set
-
-    def execute(self, context):
-        if not hasattr(self, 'vray_pset'):
-            pmap, pset = self._load_params()
-            self.vray_pset = pset
-            self.vray_pmap = pmap
-
-        for material in bpy.data.materials:
-            if not hasattr(material, 'vray') or not hasattr(material.vray, 'ntree'):
-                continue
-            for node in material.vray.ntree.nodes:
-                for socket in node.inputs:
-                    if socket.vray_attr not in self.vray_pset:
-                        continue
-                    val = socket.multiplier
-                    newVal = 100.0 - val
-                    print('Changing "%s"::"%s"::"%s" from %f to %f' % (material.name, node.name, socket.name, val, newVal))
-                    socket.multiplier = newVal
-
-        return {'FINISHED'}
 
 
 class VRayOpSelectNtreeInEditor(bpy.types.Operator):
@@ -363,8 +317,6 @@ def GetRegClasses():
         VRayOpRemoveFakeTextures,
         VRayOpRestoreNtreeTextures,
         VRayOpRestoreNtreeMaterials,
-
-        VRayOpInvertMultipliers,
 
         VRayOpBitmapBufferToImageEditor,
         VRayOpSelectNtreeInEditor,

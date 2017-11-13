@@ -94,10 +94,6 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row.operator("vray.restore_ntree_textures", text="Restore Textures", icon='FILE_REFRESH')
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
 
-		box.separator()
-		box_row = box.column()
-		box_row.operator("vray.invert_texture_multipliers", text="Invert texture multipliers", icon='FILE_REFRESH')
-
 
 class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 	bl_label   = "Scene Materials"
