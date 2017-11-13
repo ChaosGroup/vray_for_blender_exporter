@@ -23,6 +23,7 @@
 #
 
 import bpy
+import mathutils
 
 from vb30.debug import Debug
 
@@ -98,26 +99,16 @@ class VRaySocketMult:
     def draw(self, context, layout, node, text):
         if self.is_output:
             layout.label(text)
+        elif self.is_linked and not _is_connected_muted(self):
+            split = layout.split(percentage=0.4)
+            split.prop(self, 'value', text="")
+            split.prop(self, 'multiplier', text=text)
+        elif type(self.value) is mathutils.Color:
+            split = layout.split(percentage=0.4)
+            split.prop(self, 'value', text="")
+            split.label(text=text)
         else:
-            showValue = _is_connected_muted(self) if self.is_linked else True
-            if showValue:
-                layout.prop(self, 'value', text=text)
-            else:
-                layout.prop(self, 'multiplier', text="%s Mult." % text)
-
-
-class VRaySocketColorMult(VRaySocketMult):
-    def draw(self, context, layout, node, text):
-        if self.is_output:
-            layout.label(text)
-        else:
-            showValue = _is_connected_muted(self) if self.is_linked else True
-            if showValue:
-                split = layout.split(percentage=0.4)
-                split.prop(self, 'value', text="")
-                split.label(text=text)
-            else:
-               layout.prop(self, 'multiplier', text="%s Mult." % text)
+            layout.prop(self, 'value', text=text)
 
 
 class VRaySocketUse:
@@ -353,7 +344,7 @@ class VRaySocketFloatColor(bpy.types.NodeSocket, VRaySocketMult):
 ##    ## ##     ## ##       ##     ## ##    ##
  ######   #######  ########  #######  ##     ##
 
-class VRaySocketColor(bpy.types.NodeSocket, VRaySocketColorMult):
+class VRaySocketColor(bpy.types.NodeSocket, VRaySocketMult):
     bl_idname = 'VRaySocketColor'
     bl_label  = 'Color socket'
 
