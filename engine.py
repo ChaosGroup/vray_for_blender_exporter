@@ -260,6 +260,9 @@ class VRayRendererRT(VRayRendererBase):
     # Production rendering
     #
     def update(self, data, scene):
+        if self.is_animation:
+            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+            return
         debug.Debug("update()")
 
         vrayExporter = self._get_settings()
@@ -282,6 +285,9 @@ class VRayRendererRT(VRayRendererBase):
                 _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
+        if self.is_animation:
+            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+            return
         debug.Debug("render()")
 
         vrayExporter = self._get_settings()
@@ -296,6 +302,9 @@ class VRayRendererRT(VRayRendererBase):
     # Interactive rendering
     #
     def view_update(self, context):
+        if self.is_animation:
+            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+            return
         debug.Debug("view_update()")
 
         ZMQ.check_start()
@@ -312,6 +321,9 @@ class VRayRendererRT(VRayRendererBase):
             _vray_for_blender_rt.view_update(self.renderer)
 
     def _view_draw(self, context):
+        if self.is_animation:
+            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+            return
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
 
