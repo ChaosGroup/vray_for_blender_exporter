@@ -552,7 +552,7 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Viewport Image Type",
         description = "Viewport Image Type",
         items = (
-            ( "1", "RGBA", "Full Color + Alpha" ),
+            ( "1", "RAW", "Full Color + Alpha" ),
             ( "4", "JPEG", "JPEG compressed"    )
         ),
         default = '4'
