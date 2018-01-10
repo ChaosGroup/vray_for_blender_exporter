@@ -173,6 +173,10 @@ class ZMQProcess:
                             env['VRAY_PATH'] = appsdk
                             old_ld = (os.pathsep + env['LD_LIBRARY_PATH']) if 'LD_LIBRARY_PATH' in env else ''
                             env['LD_LIBRARY_PATH'] = appsdk + old_ld
+                    else if sys.platform == "darwin":
+                        appsdkPath = os.path.dirname(executable_path)
+                        old_ld = (os.pathsep + env['LD_LIBRARY_PATH']) if 'LD_LIBRARY_PATH' in env else ''
+                        env['LD_LIBRARY_PATH'] = appsdk + old_ld
 
                     cmd = [
                         executable_path,
