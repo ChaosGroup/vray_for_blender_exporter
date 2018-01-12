@@ -1496,6 +1496,9 @@ class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 		col = split.column()
 		col.prop(SettingsVFB, 'glare_mode', text="Mode")
 		col.prop(SettingsVFB, 'glare_type', text="Type")
+		if SettingsVFB.glare_type == '0':
+			col.prop(SettingsVFB, 'glare_image_path', text="Image Path")
+			
 		col.prop(SettingsVFB, 'glare_fill_edges', text="Fill Edges")
 		col.prop(SettingsVFB, 'glare_weight', text="Weight")
 		col.prop(SettingsVFB, 'glare_size', text="Size")
@@ -1512,7 +1515,6 @@ class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 		col.prop(SettingsVFB, 'glare_mask_objid', text="Object ID")
 		col.prop(SettingsVFB, 'glare_mask_mtlid_on', text="Use Material ID")
 		col.prop(SettingsVFB, 'glare_mask_mtlid', text="Material ID")
-		col.prop(SettingsVFB, 'glare_image_path', text="Image Path")
 		col.prop(SettingsVFB, 'glare_use_obstacle_image', text="Use Obstacle Image")
 		col.prop(SettingsVFB, 'glare_obstacle_image_path', text="Obstacle Path")
 
