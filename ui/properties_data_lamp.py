@@ -101,15 +101,21 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
         layout.separator()
 
         if lamp.type == 'AREA':
-            layout.prop(lamp, 'shape', expand=True)
-            split = layout.split()
-            if lamp.shape == 'SQUARE':
+            layout.prop(VRayLight.LightRectangle, 'is_disc')
+            if VRayLight.LightRectangle.is_disc:
+                split = layout.split()
                 col = split.column()
                 col.prop(lamp, 'size')
             else:
-                row = split.row(align=True)
-                row.prop(lamp, 'size',   text="X")
-                row.prop(lamp, 'size_y', text="Y")
+                layout.prop(lamp, 'shape', expand=True)
+                split = layout.split()
+                if lamp.shape == 'SQUARE':
+                    col = split.column()
+                    col.prop(lamp, 'size')
+                else:
+                    row = split.row(align=True)
+                    row.prop(lamp, 'size',   text="X")
+                    row.prop(lamp, 'size_y', text="Y")
 
         elif lamp.type == 'SPOT':
             split = layout.split()
