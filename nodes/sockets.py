@@ -23,9 +23,17 @@
 #
 
 import bpy
+import copy
+import hashlib
 import mathutils
 
+from vb30.lib import AttributeUtils
 from vb30.debug import Debug
+from vb30.plugins import PLUGINS_ID
+
+DYNAMIC_SOCKET_OVERRIDES = {}
+DYNAMIC_SOCKET_CLASSES = set()
+DYNAMIC_SOCKET_CLASS_NAMES = set()
 
 
 def CheckLinkedSockets(node_sockets):
@@ -35,23 +43,112 @@ def CheckLinkedSockets(node_sockets):
     return False
 
 
+def FindPluginUIAttr(plugin, attrName):
+    pluginParams = PLUGINS_ID[plugin].PluginParams
+    for param in pluginParams:
+        if param['attr'] == attrName:
+            return param.get('ui', dict())
+    return None
+
+
+def GetDynamicSocketClass(pluginName, socketTypeName, attrName):
+    def abbreviateTitle(str):
+        return ''.join(filter(lambda c: c >= 'A' and c <= 'Z', str))
+
+    # make the typeName unique per type, node and attribute
+    suffix = '%s_%s' % (abbreviateTitle(pluginName), attrName)
+    typeName = '%s_%s' % (socketTypeName, suffix)
+    # bpy has obscene limitation of 64 symbols for class name!
+    if len(typeName) >= 64:
+        hashed = hashlib.sha1(typeName.encode('utf-8')).hexdigest()
+        hashLen = 64 - 1 - (len(socketTypeName) + 1)
+        typeName = "%s_%s" % (socketTypeName, hashed[0:hashLen])
+    return typeName
+
+
+def RegisterDynamicSocketClass(pluginName, socketTypeName, attrName):
+    global DYNAMIC_SOCKET_CLASSES
+    global DYNAMIC_SOCKET_CLASS_NAMES
+
+    if not attrName:
+        Debug("Could not register dynamic socket type for %s::%s" % (node.bl_idname, socketTypeName), msgType='ERROR')
+        return
+
+    if socketTypeName not in DYNAMIC_SOCKET_OVERRIDES:
+        return
+
+    typeName = GetDynamicSocketClass(pluginName, socketTypeName, attrName)
+
+    if not hasattr(bpy.types, typeName):
+        INFO_BASESES = 0
+        INFO_DYNAMIC_ATTR = 1
+        INFO_ATTRIBUTES = 2
+
+        typeInfo = copy.deepcopy(DYNAMIC_SOCKET_OVERRIDES[socketTypeName])
+        overrideName = typeInfo[INFO_DYNAMIC_ATTR][0]
+        overrideType = typeInfo[INFO_DYNAMIC_ATTR][1]
+        overrideParams = typeInfo[INFO_DYNAMIC_ATTR][2]
+
+        pluginParam = FindPluginUIAttr(pluginName, attrName)
+        if pluginParam:
+            overrideParams['soft_min'] = pluginParam.get('soft_min', -100)
+            overrideParams['soft_max'] = pluginParam.get('soft_max',  100)
+        typeInfo[INFO_ATTRIBUTES][overrideName] = overrideType(**overrideParams)
+
+        typeInfo[INFO_ATTRIBUTES]['bl_idname'] = typeName
+        typeInfo[INFO_ATTRIBUTES]['vray_socket_base_type'] = bpy.props.StringProperty(
+            name = "V-Ray Attribute",
+            description = "V-Ray plugin socket attribute",
+            options = {'HIDDEN'},
+            default = ""
+        )
+        newType = type(
+            typeName,
+            typeInfo[INFO_BASESES],
+            typeInfo[INFO_ATTRIBUTES],
+        )
+        bpy.utils.register_class(newType)
+        DYNAMIC_SOCKET_CLASSES.add(newType)
+        DYNAMIC_SOCKET_CLASS_NAMES.add(typeName)
+
+
 def AddInput(node, socketType, socketName, attrName=None, default=None):
     if socketName in node.inputs:
         return
 
-    Debug("Adding input socket: '%s' <= '%s'" % (socketName, attrName), msgType='INFO')
+    baseType = socketType
+    foundPlugin = None
+    if attrName and socketType in DYNAMIC_SOCKET_OVERRIDES:
+        # get the dynamic name for this socket type
+        if hasattr(node, 'vray_plugins'):
+            for plugin in node.vray_plugins:
+                dynamicType = GetDynamicSocketClass(plugin, socketType, attrName)
+                if dynamicType in DYNAMIC_SOCKET_CLASS_NAMES:
+                    foundPlugin = plugin
+                    socketType = dynamicType
+                    break
+        if not foundPlugin:
+            Debug("Can't find dynamic socket type for: %s::%s" % (node.bl_idname, socketName), msgType='ERROR')
+            return
 
+    # register the socket for this node
     node.inputs.new(socketType, socketName)
-
     createdSocket = node.inputs[socketName]
 
     if attrName is not None:
-        createdSocket.vray_attr = attrName
+        if not hasattr(createdSocket, 'vray_attr'):
+            Debug("vray_attr mising from socketType: %s::%s" % (node.bl_idname, socketName), msgType='ERROR')
+        else:
+            createdSocket.vray_attr = attrName
+
+    if hasattr(createdSocket, 'vray_socket_base_type'):
+        createdSocket.vray_socket_base_type = baseType
 
     if default is not None:
         # Some socket intensionally have no 'value'
         if hasattr(createdSocket, 'value'):
-            if socketType in {'VRaySocketColor', 'VRaySocketVector'}:
+            # we are interested if the base type is not scalar
+            if baseType in {'VRaySocketColor', 'VRaySocketVector'}:
                 createdSocket.value = (default[0], default[1], default[2])
             else:
                 createdSocket.value = default
@@ -806,12 +903,242 @@ def GetRegClasses():
         VRaySocketPlugin,
     )
 
+DYNAMIC_SOCKET_OVERRIDES = {
+    'VRaySocketInt': (
+        (bpy.types.NodeSocket, ),
+        (
+            'value', bpy.props.IntProperty, {
+                'name':  "Value",
+                'description':  "Value",
+                'min':  -1024,
+                'max':   1024,
+                'soft_min':  -100,
+                'soft_max':   100,
+                'default':  1
+            }
+        ),
+        {
+            'bl_label': 'Integer socket',
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw': VRaySocketInt.draw,
+            'draw_color': VRaySocketInt.draw_color,
+        }
+    ),
+    'VRaySocketIntNoValue': (
+        (bpy.types.NodeSocket, ),
+        (
+            'value', bpy.props.IntProperty, {
+                'name': "Value",
+                'description': "Value",
+                'min': -1024,
+                'max':  1024,
+                'soft_min': -100,
+                'soft_max':  100,
+                'default': 1
+            }
+        ),
+        {
+            'bl_label' : 'Integer socket',
+            'vray_attr' : bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw': VRaySocketIntNoValue.draw,
+            'draw_color': VRaySocketIntNoValue.draw_color,
+        }
+    ),
+    'VRaySocketFloat': (
+        (bpy.types.NodeSocket, VRaySocketMult),
+        (
+            'value', bpy.props.FloatProperty, {
+                'name': "Value",
+                'description': "Value",
+                'precision': 3,
+                'min': -100000.0,
+                'max':  100000.0,
+                'soft_min': -100.0,
+                'soft_max':  100.0,
+                'default': 0.5
+            }
+        ),
+        {
+            'bl_label': 'Float socket',
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw_color': VRaySocketFloat.draw_color
+        }
+    ),
+    'VRaySocketFloatColor': (
+        (bpy.types.NodeSocket, VRaySocketMult),
+        (
+            'value', bpy.props.FloatProperty, {
+                'name': "Value",
+                'description': "Value",
+                'precision': 3,
+                'min': -100000.0,
+                'max':  100000.0,
+                'soft_min': -100.0,
+                'soft_max':  100.0,
+                'default': 0.5
+            }
+        ),
+        {
+            'bl_label' : 'Float color socket',
+            'vray_attr' : bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw_color': VRaySocketFloatColor.draw_color
+        }
+    ),
+    'VRaySocketColor': (
+        (bpy.types.NodeSocket, VRaySocketMult),
+        (
+            'value', bpy.props.FloatVectorProperty, {
+                'name': "Color",
+                'description': "Color",
+                'subtype': 'COLOR',
+                'min': 0.0,
+                'max': 1.0,
+                'soft_min': 0.0,
+                'soft_max': 1.0,
+                'default': (1.0, 1.0, 1.0)
+            }
+        ),
+        {
+            'bl_label': 'Color socket',
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw_color': VRaySocketColor.draw_color
+        }
+    ),
+    'VRaySocketColorUse': (
+        (bpy.types.NodeSocket, ),
+        (
+            'value', bpy.props.FloatVectorProperty, {
+                'name': "Color",
+                'description': "Color",
+                'subtype': 'COLOR',
+                'min': 0.0,
+                'max': 1.0,
+                'soft_min': 0.0,
+                'soft_max': 1.0,
+                'default': (1.0, 1.0, 1.0)
+            }
+        ),
+        {
+            'bl_label':  'Color socket with use flag',
+            'use': bpy.props.BoolProperty(
+                name        = "Use",
+                description = "Use socket",
+                default     = False
+            ),
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw': VRaySocketColorUse.draw,
+            'draw_color': VRaySocketColorUse.draw_color,
+        }
+    ),
+    'VRaySocketColorMult': (
+        (bpy.types.NodeSocket, VRaySocketMult),
+        (
+            'value', bpy.props.FloatVectorProperty, {
+                'name': "Color",
+                'description': "Color",
+                'subtype': 'COLOR',
+                'min': 0.0,
+                'max': 1.0,
+                'soft_min': 0.0,
+                'soft_max': 1.0,
+                'default': (1.0, 1.0, 1.0)
+            }
+        ),
+        {
+            'bl_label':  'Color socket with multiplier',
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw_color': VRaySocketColorMult.draw_color,
+        }
+    ),
+    'VRaySocketVector': (
+        (bpy.types.NodeSocket, ),
+        (
+            'value', bpy.props.FloatVectorProperty, {
+                'name': "Vector",
+                'description': "Vector",
+                'subtype': 'TRANSLATION',
+                'soft_min': -1.0,
+                'soft_max': 1.0,
+                'default': (0.0, 0.0, 0.0)
+            }
+        ),
+        {
+            'bl_label':  'Vector socket',
+            'vray_attr': bpy.props.StringProperty(
+                name = "V-Ray Attribute",
+                description = "V-Ray plugin attribute name",
+                options = {'HIDDEN'},
+                default = ""
+            ),
+            'draw': VRaySocketVector.draw,
+            'draw_color': VRaySocketVector.draw_color,
+        }
+    )
+}
+
+
+def InitDynamicSocketTypes():
+    for pluginId in PLUGINS_ID:
+        pluginDesc = PLUGINS_ID[pluginId]
+        if not hasattr(pluginDesc, 'PluginParams'):
+            Debug("Plugin [%s] missing Pluginparams" % pluginId, msgType='ERROR')
+            continue
+        pluginParams = pluginDesc.PluginParams
+        for param in pluginParams:
+            attrName = param.get('attr', None)
+            paramType = param.get('type', None)
+            paramSocketType = AttributeUtils.TypeToSocket.get(param.get('type', None), None)
+            if not paramSocketType:
+                continue
+            RegisterDynamicSocketClass(pluginId, paramSocketType, attrName)
+
 
 def register():
+    InitDynamicSocketTypes()
+
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
 
+
 def unregister():
     for regClass in GetRegClasses():
+        bpy.utils.unregister_class(regClass)
+
+    for regClass in DYNAMIC_SOCKET_CLASSES:
         bpy.utils.unregister_class(regClass)
