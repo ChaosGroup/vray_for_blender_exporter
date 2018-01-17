@@ -1127,7 +1127,12 @@ DYNAMIC_SOCKET_OVERRIDES = {
 
 
 def InitDynamicSocketTypes():
+    skip_plugins = {"GeomVRayPattern", "Node", "VRayExporter", "Includer",
+        "CameraStereoscopic", "ExportSets", "VRayQuickSettings"}
+
     for pluginId in PLUGINS_ID:
+        if pluginId in skip_plugins:
+            continue
         pluginDesc = PLUGINS_ID[pluginId]
         if not hasattr(pluginDesc, 'PluginParams'):
             Debug("Plugin [%s] missing Pluginparams" % pluginId, msgType='ERROR')
