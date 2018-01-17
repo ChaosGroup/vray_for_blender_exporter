@@ -127,6 +127,10 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
                     foundPlugin = plugin
                     socketType = dynamicType
                     break
+        else:
+            Debug("Can't find vray_plugins for %s" % node.bl_idname, msgType='ERROR')
+            foundPlugin = 'NONE'
+            socketType = baseType
         if not foundPlugin:
             Debug("Can't find dynamic socket type for: %s::%s" % (node.bl_idname, socketName), msgType='ERROR')
             return
