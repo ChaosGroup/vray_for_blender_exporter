@@ -119,18 +119,28 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
     baseType = socketType
     foundPlugin = None
     if attrName and socketType in DYNAMIC_SOCKET_OVERRIDES:
-        # get the dynamic name for this socket type
+        # get possible plugins for this node
+        test_plugins = []
+        if hasattr(node, 'vray_plugin'):
+            test_plugins.append(node.vray_plugin)
         if hasattr(node, 'vray_plugins'):
             for plugin in node.vray_plugins:
-                dynamicType = GetDynamicSocketClass(plugin, socketType, attrName)
-                if dynamicType in DYNAMIC_SOCKET_CLASS_NAMES:
-                    foundPlugin = plugin
-                    socketType = dynamicType
-                    break
-        else:
+                test_plugins.append(plugin)
+
+        # test each plugin to find where this attribute comes from
+        for plugin in test_plugins:
+            dynamicType = GetDynamicSocketClass(plugin, socketType, attrName)
+            if dynamicType in DYNAMIC_SOCKET_CLASS_NAMES:
+                foundPlugin = plugin
+                socketType = dynamicType
+                break
+
+        # fall-back to static socket type
+        if len(test_plugins) == 0:
             Debug("Can't find vray_plugins for %s" % node.bl_idname, msgType='ERROR')
             foundPlugin = 'NONE'
             socketType = baseType
+
         if not foundPlugin:
             Debug("Can't find dynamic socket type for: %s::%s" % (node.bl_idname, socketName), msgType='ERROR')
             return
