@@ -127,6 +127,10 @@ def AddInput(node, socketType, socketName, attrName=None, default=None):
             for plugin in node.vray_plugins:
                 test_plugins.append(plugin)
 
+        for attr in dir(node):
+            if attr in PLUGINS_ID:
+                test_plugins.append(attr)
+
         # test each plugin to find where this attribute comes from
         for plugin in test_plugins:
             dynamicType = GetDynamicSocketClass(plugin, socketType, attrName)
