@@ -27,6 +27,8 @@ import bpy
 from vb30.lib import BlenderUtils
 from vb30 import debug
 
+from ..sockets import DYNAMIC_SOCKET_CLASSES, DYNAMIC_SOCKET_OVERRIDES
+from ..sockets import AddInput, AddOutput
 
 def _redrawNodeEditor():
     for area in bpy.context.screen.areas:
@@ -312,8 +314,73 @@ class VRayOpNtreeSyncName(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class VRayOpConvertStaticSockets(bpy.types.Operator):
+    bl_idname = "vray.convert_static_sockets"
+    bl_label = "Converts old style sockets with wrong min max, to the imporved new ones"
+
+    def execute(self, context):
+        for ntree in bpy.data.node_groups:
+            for node in ntree.nodes:
+                # custom node or not vray node
+                if not hasattr(node, 'vray_plugin') and not hasattr(node, 'vray_plugins'):
+                    continue
+
+                # not a plugin node
+                if node.vray_plugin == 'NONE':
+                    continue
+
+                updatedTree = False
+                # get all sockets of this node, so we can re-add them to get dynamic types
+                sockets = []
+                for socket in node.inputs:
+                    if hasattr(socket, 'vray_socket_base_type'):
+                        updatedTree = True
+                        break
+
+                    value = None
+                    if hasattr(socket, 'value'):
+                        if socket.bl_idname in {'VRaySocketColor', 'VRaySocketVector'}:
+                            value = (socket.value[0], socket.value[1], socket.value[2])
+                        else:
+                            value = socket.value
+
+                    sockets.append({
+                        'socketType': socket.bl_idname,
+                        'socketName': socket.identifier,
+                        'attrName': socket.vray_attr,
+                        'default': value
+                    })
+                    # socket does not have dynamic type
+                    if socket.bl_idname not in DYNAMIC_SOCKET_OVERRIDES:
+                        continue
+
+                if updatedTree:
+                    continue
+
+                # get all links to this node
+                to_links = {}
+                for link in ntree.links:
+                    if link.to_node == node:
+                        to_links[link.to_socket.identifier] = link.from_socket
+
+                node.inputs.clear()
+
+                for socket in sockets:
+                    # re-create socket
+                    AddInput(node, **socket)
+                    # re-create links to this node's sockets
+                    if socket['socketName'] in to_links:
+                        ntree.links.new(
+                            to_links[socket['socketName']],
+                            node.inputs[socket['socketName']]
+                        )
+        return {'FINISHED'}
+
+
+
 def GetRegClasses():
     return (
+        VRayOpConvertStaticSockets,
         VRayOpRemoveFakeTextures,
         VRayOpRestoreNtreeTextures,
         VRayOpRestoreNtreeMaterials,
