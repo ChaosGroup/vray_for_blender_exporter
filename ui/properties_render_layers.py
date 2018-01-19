@@ -93,7 +93,7 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row = box.column()
 		box_row.operator("vray.restore_ntree_textures", text="Restore Textures", icon='FILE_REFRESH')
 		box_row.operator("vray.remove_fake_textures", text="Remove Unused Data", icon='ERROR')
-		box_row.operator("vray.convert_static_sockets", text="Update Sockets with correct defaults", icon='FILE_REFRESH')
+		box_row.operator("vray.convert_static_sockets", text="Update Sockets with correct ranges", icon='FILE_REFRESH')
 
 
 class VRayPanelMaterials(classes.VRayRenderLayersPanel):
