@@ -540,10 +540,9 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Rendering Mode",
         description = "Rendering mode",
         items = (
-            ( "-1", "Production", "" ),
-            ( "0",  "RT CPU",     "" ),
-            ( "1",  "RT OpenCL",  "" ),
-            ( "4",  "RT CUDA",    "" )
+            ( "-1", "CPU", "" ),
+            ( "4",  "CUDA",    "" ),
+            ( "1",  "OpenCL",  "" ),
         ),
         default = "-1"
     )
@@ -562,9 +561,9 @@ class VRayExporter(bpy.types.PropertyGroup):
         name = "Viewport Rendering Mode",
         description = "Viewport rendering mode",
         items = (
-            ( "0",  "RT CPU",     "" ),
-            ( "1",  "RT OpenCL",  "" ),
-            ( "4",  "RT CUDA",    "" )
+            ( "0",  "CPU",     "" ),
+            ( "4",  "CUDA",    "" ),
+            ( "1",  "OpenCL",  "" ),
         ),
         default = '0'
     )
