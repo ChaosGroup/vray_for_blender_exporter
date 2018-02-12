@@ -161,37 +161,48 @@ class ZMQProcess:
 
             if not executable_path or not os.path.exists(executable_path):
                 debug.PrintError("Can't find V-Ray ZMQ Server!")
-            else:
-                try:
-                    env = os.environ.copy()
-                    if sys.platform == "win32":
-                        if 'VRAY_ZMQSERVER_APPSDK_PATH' not in env:
-                            debug.PrintError('Environment variable VRAY_ZMQSERVER_APPSDK_PATH is missing!')
-                        else:
-                            appsdk = os.path.dirname(env['VRAY_ZMQSERVER_APPSDK_PATH'])
-                            env['PATH'] = env['PATH'] + os.pathsep + appsdk
-                            env['VRAY_PATH'] = appsdk
-                            old_ld = (os.pathsep + env['LD_LIBRARY_PATH']) if 'LD_LIBRARY_PATH' in env else ''
-                            env['LD_LIBRARY_PATH'] = appsdk + old_ld
-                            env['QT_PLUGIN_PATH'] = appsdk
-                    elif sys.platform == "darwin":
-                        appsdkPath = os.path.join(os.path.dirname(executable_path), 'appsdk')
-                        old_ld = (os.pathsep + env['DYLD_FALLBACK_LIBRARY_PATH']) if 'DYLD_FALLBACK_LIBRARY_PATH' in env else ''
-                        env['DYLD_FALLBACK_LIBRARY_PATH'] = appsdkPath + old_ld
-                        env['QT_PLUGIN_PATH'] = appsdkPath
+                return
 
-                    cmd = [
-                        executable_path,
-                        "-p", port,
-                        "-log", self.log_lvl_translate[log_lvl],
-                        "-vfb"
-                    ]
-                    debug.Debug(' '.join(cmd))
+            envAppSDK = os.environ.copy()
 
-                    self.start_heartbeat()
-                    self._zmq_process = subprocess.Popen(cmd, env=env)
-                except Exception as e:
-                    debug.PrintError(e)
+            def _joinPath(*args):
+                return os.path.normpath(os.path.join(*args))
+
+            def _extendEnv(env, name, value):
+                prevValue = env.get(name, None)
+                env[name] = value
+                if prevValue:
+                    env[name] += "%s%s" % (os.pathsep, prevValue)
+
+            appSdkDir = _joinPath(os.path.dirname(executable_path), "appsdk")
+
+            envAppSDK['VRAY_ZMQSERVER_APPSDK_PATH'] = os.environ.get('VRAY_ZMQSERVER_APPSDK_PATH', appSdkDir)
+            envAppSDK['VRAY_PATH'] = appSdkDir
+            envAppSDK['QT_PLUGIN_PATH'] = appSdkDir
+            envAppSDK['QT_QPA_PLATFORM_PLUGIN_PATH'] = _joinPath(appSdkDir, "platforms")
+
+            if sys.platform == "win32":
+                _extendEnv(envAppSDK, 'PATH', appSdkDir)
+
+            elif sys.platform == "linux":
+                _extendEnv(envAppSDK, 'LD_LIBRARY_PATH', appSdkDir)
+
+            elif sys.platform == "darwin":
+                _extendEnv(envAppSDK, 'DYLD_FALLBACK_LIBRARY_PATH', appSdkDir)
+
+            cmd = [
+                executable_path,
+                "-p", port,
+                "-log", self.log_lvl_translate[log_lvl],
+                "-vfb"
+            ]
+            debug.Debug(' '.join(cmd))
+
+            try:
+                self.start_heartbeat()
+                self._zmq_process = subprocess.Popen(cmd, env=envAppSDK)
+            except Exception as e:
+                debug.PrintError(e)
 
 if HAS_ZMQ:
     ZMQ = ZMQProcess()
