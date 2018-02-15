@@ -166,6 +166,9 @@ def ExportEx(bus):
                 'engine'       : engine.as_pointer(),
                 'data'         : bpy.data.as_pointer(),
                 'scene'        : scene.as_pointer(),
+            }
+
+            files = {
                 'mainFile'     : fm.getFileByPluginType('MAIN'),
                 'objectFile'   : fm.getFileByPluginType('OBJECT'),
                 'envFile'      : fm.getFileByPluginType('WORLD'),
@@ -175,6 +178,9 @@ def ExportEx(bus):
                 'textureFile'  : fm.getFileByPluginType('TEXTURE'),
                 'cameraFile'   : fm.getFileByPluginType('CAMERA'),
             }
+
+            for key in files.keys():
+                init[key] = os.path.abspath(files[key].name)
 
             # Free anything we have
             if engine.renderer:
@@ -186,6 +192,10 @@ def ExportEx(bus):
                 # TODO: Move this to cpp.
                 exp_settings.ExportSettings(bus)
 
+                # close files since c++ will re-open them
+                for key in files:
+                    files[key].close()
+
                 setattr(engine, 'renderer', renderer)
 
                 _vray_for_blender_rt.render(renderer)
@@ -194,6 +204,7 @@ def ExportEx(bus):
         debug.ExceptionInfo(e)
         err = str(e)
     finally:
+        fm.reopenFiles()
         exp_init.ShutdownExporter(bus)
         o.done()
 

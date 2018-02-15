@@ -344,6 +344,15 @@ class VRayExportFiles:
         mainFile.write('\n')
 
 
+    def reopenFiles(self):
+        if not self.files:
+            return
+        for fileType in self.files:
+            f = self.files[fileType]
+            if f and f.closed:
+                self.files[fileType] = open(os.path.abspath(f.name), 'a')
+
+
     def closeFiles(self):
         Debug("VRayExportFiles::closeFiles()")
         if not self.files:
