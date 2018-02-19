@@ -64,6 +64,10 @@ class VRayExporterSetBinary(bpy.types.Operator):
 
 
 def GetVRayCloudPath():
+    """
+    If V-Ray Cloud is installed on the system returns the path to it, else - None.
+    """
+
     # check whether vcloud JSON file exists
     vcloudJsonDir = '%APPDATA%/Chaos Group/vcloud/client/' if bpy.app.build_platform == b'Windows' else '$HOME/.ChaosGroup/vcloud/client/'
     vcloudJsonDir = os.path.expandvars(vcloudJsonDir)
