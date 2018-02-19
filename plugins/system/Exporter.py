@@ -27,6 +27,8 @@ import sys
 
 import _vray_for_blender
 
+import os, json
+
 from vb30 import version
 from vb30.lib import SysUtils
 from vb30.lib import BlenderUtils
@@ -61,8 +63,28 @@ class VRayExporterSetBinary(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def GetVRayCloudPath():
+    # check whether vcloud JSON file exists
+    vcloudJsonDir = '%APPDATA%/Chaos Group/vcloud/client/' if bpy.app.build_platform == b'Windows' else '$HOME/.ChaosGroup/vcloud/client/'
+    vcloudJsonDir = os.path.expandvars(vcloudJsonDir)
+    vcloudJsonFilename = vcloudJsonDir + 'vcloud.json'
+    if not os.path.exists(vcloudJsonFilename):
+        return None
+
+    # check whether the vcloud executable file exists via the "executable" field in the JSON file
+    vcloudFullPath = ''
+    with open(vcloudJsonFilename, 'r') as jsonFileId:
+        jsonData = json.load(jsonFileId)
+        vcloudFullPath = os.path.expandvars(jsonData['executable'])
+    
+    return vcloudFullPath if os.path.exists(vcloudFullPath) else None
+
+
 class VRayExporterPreferences(bpy.types.AddonPreferences):
     bl_idname = "vb30"
+
+    vray_cloud_binary = GetVRayCloudPath()
+    detect_vray_cloud = vray_cloud_binary is not None
 
     detect_vray = bpy.props.BoolProperty(
         name = "Detect V-Ray",
@@ -104,6 +126,11 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
             split = layout.split(percentage=0.2, align=True)
             split.column().label("Filepath:")
             split.column().prop(self, "vray_binary", text="")
+        
+        if self.detect_vray_cloud:
+            layout.label(text="V-Ray Cloud binary: {0}".format(self.vray_cloud_binary))
+        else:
+            layout.label(text="V-Ray Cloud binary is not detected on your system!")
 
 
 class VRayExporter(bpy.types.PropertyGroup):
