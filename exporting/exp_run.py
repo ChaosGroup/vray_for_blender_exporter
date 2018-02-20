@@ -24,6 +24,8 @@
 
 import bpy
 
+import subprocess
+
 from vb30.lib.VRayProcess import VRayProcess
 from vb30.lib import SysUtils
 
@@ -31,6 +33,51 @@ from vb30 import debug
 
 from . import exp_load
 
+
+def buildCloudCmd(bus):
+    scene  = bus['scene']
+    output = bus['output']
+
+    VRayScene = scene.vray
+    VRayExporter = VRayScene.Exporter
+    VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+
+    cmd = [VRayPreferences.vray_cloud_binary, "job", "submit"]
+
+    cmd.append("--project")
+    cmd.append(VRayExporter.vray_cloud_project_name)
+
+    cmd.append("--name")
+    cmd.append(VRayExporter.vray_cloud_job_name)
+
+    cmd.append("--sceneFile")
+    cmd.append(output.fileManager.getOutputFilepath())
+
+    cmd.append("--renderMode")
+    if VRayScene.SettingsImageSampler.type == '3':
+        cmd.append("progressive")
+    else:
+        cmd.append("bucket")
+
+    cmd.append("--width")
+    cmd.append(str(VRayScene.SettingsOutput.img_width))
+
+    cmd.append("--height")
+    cmd.append(str(VRayScene.SettingsOutput.img_height))
+
+    if not VRayExporter.animation_mode == 'NONE':
+        cmd.append("--animation")
+
+        cmd.append("--frameRange")
+        frame_range = '{}-{}'.format(scene.frame_start, scene.frame_end)
+        cmd.append(frame_range)
+
+        cmd.append("--frameStep")
+        cmd.append(scene.frame_step)
+
+    cmd.append("--ignoreWarnings")
+
+    return cmd
 
 def Run(bus):
     debug.Debug("Run()")
@@ -130,6 +177,10 @@ def Run(bus):
         p.setGenRunFile(True)
 
     p.run()
+
+    if VRayExporter.submit_to_vray_cloud:
+        cmd = buildCloudCmd(bus)
+        subprocess.call(cmd)
 
     if imageToBlender or engine.is_preview:
         exp_load.LoadImage(scene, engine, o, p)
