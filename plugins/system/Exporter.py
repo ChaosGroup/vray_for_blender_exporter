@@ -619,8 +619,26 @@ class VRayExporter(bpy.types.PropertyGroup):
 
     viewport_alpha = bpy.props.BoolProperty(
         name = "Show Alpha",
-        description = "how Alpha",
+        description = "Show Alpha",
         default = False
+    )
+
+    submit_to_vray_cloud = bpy.props.BoolProperty(
+        name = "Submit to V-Ray Cloud",
+        description = "Submits current scene as a render job to the V-Ray Cloud.",
+        default = False
+    )
+
+    vray_cloud_project_name = bpy.props.StringProperty(
+        name = "Project",
+        description = "V-Ray Cloud Project Name",
+        default = "Blender for V-Ray"
+    )
+
+    vray_cloud_job_name = bpy.props.StringProperty(
+        name = "Job",
+        description = "V-Ray Cloud Job Name",
+        default = "untitled"
     )
 
     device_type = bpy.props.EnumProperty(
