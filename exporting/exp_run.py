@@ -176,6 +176,9 @@ def Run(bus):
     if VRayExporter.gen_run_file:
         p.setGenRunFile(True)
 
+    if VRayExporter.submit_to_vray_cloud:
+        p.setAutorun(False)
+
     p.run()
 
     if VRayExporter.submit_to_vray_cloud:
