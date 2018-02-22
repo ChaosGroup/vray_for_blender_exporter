@@ -27,7 +27,8 @@ import sys
 
 import _vray_for_blender
 
-import os, json
+import os
+import json
 
 from vb30 import version
 from vb30.lib import SysUtils
@@ -63,7 +64,7 @@ class VRayExporterSetBinary(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def GetVRayCloudPath():
+def getVRayCloudPath():
     """
     If V-Ray Cloud is installed on the system returns the path to it, else - None.
     """
@@ -87,7 +88,7 @@ def GetVRayCloudPath():
 class VRayExporterPreferences(bpy.types.AddonPreferences):
     bl_idname = "vb30"
 
-    vray_cloud_binary = GetVRayCloudPath()
+    vray_cloud_binary = getVRayCloudPath()
     detect_vray_cloud = vray_cloud_binary is not None
 
     detect_vray = bpy.props.BoolProperty(
