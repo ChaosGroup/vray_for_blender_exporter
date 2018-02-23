@@ -44,7 +44,6 @@ def Run(bus):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
     VRayDR       = VRayScene.VRayDR
-    RTEngine     = VRayScene.RTEngine
 
     vrayCmd = SysUtils.GetVRayStandalonePath()
     if not vrayCmd:
