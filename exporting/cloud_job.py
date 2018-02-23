@@ -113,8 +113,8 @@ class VCloudJob:
         submitJobResult     = subprocess.call(self.submitCmd())
         
         exitCode = 0
-        if (submitJobResult != 0):
-            if (createProjectResult != 0):
+        if submitJobResult != 0:
+            if createProjectResult != 0:
                 exitCode = -1
             else:
                 exitCode = -2
