@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.lib import LibUtils
+
 import subprocess
 
 class VCloudJob:
@@ -64,7 +66,7 @@ class VCloudJob:
         cmd.append(self.project)
 
         cmd.append("--name")
-        cmd.append(self.name)
+        cmd.append(LibUtils.FormatName(self.name))
 
         cmd.append("--sceneFile")
         cmd.append(self.sceneFile)

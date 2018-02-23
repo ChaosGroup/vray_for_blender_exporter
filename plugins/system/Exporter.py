@@ -639,7 +639,7 @@ class VRayExporter(bpy.types.PropertyGroup):
     vray_cloud_job_name = bpy.props.StringProperty(
         name = "Job",
         description = "V-Ray Cloud Job Name",
-        default = "untitled"
+        default = "$F"
     )
 
     device_type = bpy.props.EnumProperty(
