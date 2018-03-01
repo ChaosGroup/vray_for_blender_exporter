@@ -25,8 +25,25 @@
 import bpy
 
 from vb30.lib import LibUtils
+from vb30.exporting import exp_anim_camera_loop
 
 import subprocess
+
+def getFrameRange(scene):
+    VRayExporter = scene.vray.Exporter
+    
+    if VRayExporter.animation_mode == 'NONE':
+        return ''
+
+    frame_range = '{}-{}'
+    if not VRayExporter.animation_mode == 'CAMERA_LOOP':
+        frame_range =  frame_range.format(scene.frame_start, scene.frame_end)
+    else: # if camera loop is enabled
+        loop_cameras = exp_anim_camera_loop.GetLoopCameras(scene)
+        frame_range = frame_range.format(1, len(loop_cameras))
+
+    return frame_range
+
 
 class VCloudJob:
     def __init__(self, bus):
@@ -46,12 +63,12 @@ class VCloudJob:
         else:
             self.renderMode = "bucket"
 
-        self.width = str(VRayScene.SettingsOutput.img_width)
-        self.height = str(VRayScene.SettingsOutput.img_height)
+        self.width = VRayScene.SettingsOutput.img_width
+        self.height = VRayScene.SettingsOutput.img_height
         
         self.animation = not VRayExporter.animation_mode == 'NONE'
         if self.animation:
-            self.frameRange = '{}-{}'.format(scene.frame_start, scene.frame_end)
+            self.frameRange = getFrameRange(scene)
             self.frameStep = scene.frame_step
 
         self.ignoreWarnings = True
@@ -75,10 +92,10 @@ class VCloudJob:
         cmd.append(self.renderMode)
 
         cmd.append("--width")
-        cmd.append(self.width)
+        cmd.append(str(self.width))
 
         cmd.append("--height")
-        cmd.append(self.height)
+        cmd.append(str(self.height))
 
         if self.animation:
             cmd.append("--animation")
@@ -87,7 +104,7 @@ class VCloudJob:
             cmd.append(self.frameRange)
 
             cmd.append("--frameStep")
-            cmd.append(self.frameStep)
+            cmd.append(str(self.frameStep))
 
         if self.ignoreWarnings:
             cmd.append("--ignoreWarnings")
