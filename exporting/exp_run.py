@@ -133,9 +133,9 @@ def Run(bus):
     if VRayExporter.submit_to_vray_cloud:
         p.setAutorun(False)
 
-    p.run()
+    exportExitStatus = p.run()
 
-    if VRayExporter.submit_to_vray_cloud:
+    if exportExitStatus == 0 and VRayExporter.submit_to_vray_cloud:
         job = VCloudJob(bus)
         job.submitToCloud()
 
