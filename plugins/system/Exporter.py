@@ -27,6 +27,9 @@ import sys
 
 import _vray_for_blender
 
+import os
+import json
+
 from vb30 import version
 from vb30.lib import SysUtils
 from vb30.lib import BlenderUtils
@@ -61,8 +64,32 @@ class VRayExporterSetBinary(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def getVRayCloudPath():
+    """
+    If V-Ray Cloud is installed on the system returns the path to it, else - None.
+    """
+
+    # check whether vcloud JSON file exists
+    vcloudJsonDir = '%APPDATA%/Chaos Group/vcloud/client/' if bpy.app.build_platform == b'Windows' else '$HOME/.ChaosGroup/vcloud/client/'
+    vcloudJsonDir = os.path.expandvars(vcloudJsonDir)
+    vcloudJsonFilename = vcloudJsonDir + 'vcloud.json'
+    if not os.path.exists(vcloudJsonFilename):
+        return None
+
+    # check whether the vcloud executable file exists via the "executable" field in the JSON file
+    vcloudFullPath = ''
+    with open(vcloudJsonFilename, 'r') as jsonFileId:
+        jsonData = json.load(jsonFileId)
+        vcloudFullPath = os.path.expandvars(jsonData['executable'])
+    
+    return vcloudFullPath if os.path.exists(vcloudFullPath) else None
+
+
 class VRayExporterPreferences(bpy.types.AddonPreferences):
     bl_idname = "vb30"
+
+    vray_cloud_binary = getVRayCloudPath()
+    detect_vray_cloud = vray_cloud_binary is not None
 
     detect_vray = bpy.props.BoolProperty(
         name = "Detect V-Ray",
@@ -104,6 +131,11 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
             split = layout.split(percentage=0.2, align=True)
             split.column().label("Filepath:")
             split.column().prop(self, "vray_binary", text="")
+        
+        if self.detect_vray_cloud:
+            layout.label(text="V-Ray Cloud binary: {0}".format(self.vray_cloud_binary))
+        else:
+            layout.label(text="V-Ray Cloud binary is not detected on your system!")
 
 
 class VRayExporter(bpy.types.PropertyGroup):
@@ -588,8 +620,26 @@ class VRayExporter(bpy.types.PropertyGroup):
 
     viewport_alpha = bpy.props.BoolProperty(
         name = "Show Alpha",
-        description = "how Alpha",
+        description = "Show Alpha",
         default = False
+    )
+
+    submit_to_vray_cloud = bpy.props.BoolProperty(
+        name = "Submit to V-Ray Cloud",
+        description = "Submits current scene as a render job to the V-Ray Cloud.",
+        default = False
+    )
+
+    vray_cloud_project_name = bpy.props.StringProperty(
+        name = "Project",
+        description = "V-Ray Cloud Project Name",
+        default = "Blender for V-Ray"
+    )
+
+    vray_cloud_job_name = bpy.props.StringProperty(
+        name = "Job",
+        description = "V-Ray Cloud Job Name",
+        default = "$F"
     )
 
     device_type = bpy.props.EnumProperty(
