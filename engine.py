@@ -289,10 +289,13 @@ class VRayRendererRT(VRayRendererBase):
         frameEnd = None
         outputDir = ''
         renderAnim = False
+        argc = len(sys.argv)
+        print(sys.argv)
+        sys.exit(1)
 
-        for c in range(0, len(sys.argv)):
+        for c in range(1, argc):
             arg = sys.argv[c]
-            hasNext = c + 1 < len(sys.argv)
+            hasNext = c + 1 < argc
             if arg in {'-f', '--render-frame'} and hasNext:
                 frameStart = frameEnd = sys.argv[c + 1]
             elif arg in {'-s', '--frame-start'} and hasNext:
