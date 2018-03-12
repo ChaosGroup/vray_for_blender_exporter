@@ -345,7 +345,7 @@ class VRayRendererRT(VRayRendererBase):
     #
     def update(self, data, scene):
         if not self.doRender():
-            return;
+            return
 
         debug.Debug("update()")
 
