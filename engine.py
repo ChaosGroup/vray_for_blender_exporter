@@ -269,7 +269,7 @@ class VRayRendererRT(VRayRendererBase):
         VRayRendererRT.backgroundRendererInstance += 1
         self.canRender = True
         if bpy.app.background:
-            # when in background mode, blender's animation handler will create
+            # when in background mode, Blender's animation handler will create
             # the renderer for each frame, but we will do all the work on the first
             # call so we ignore all others
             self.canRender = VRayRendererRT.backgroundRendererInstance == 1
@@ -329,7 +329,7 @@ class VRayRendererRT(VRayRendererBase):
         errString = "Animation is supported trough Render Image, with Animation set to not None"
         if self.is_animation:
             if bpy.app.background:
-                # We generally dont want to support blender's animation rendering
+                # We generally dont want to support Blender's animation rendering
                 # because it will re-create the renderer for each frame but in
                 # background we dont really have a choice so we export everything
                 # on the first frame and ignore all other
@@ -412,7 +412,7 @@ class VRayRendererRT(VRayRendererBase):
     def update_script_node(self, node):
         osl.update_script_node(node, self.report)
 
-# Internally blender check for 'view_draw' method to decide if it will show
+# Internally Blender check for 'view_draw' method to decide if it will show
 # viewport 'RENDERED' mode
 if HAS_ZMQ:
     VRayRendererRT.view_draw = VRayRendererRT._view_draw
