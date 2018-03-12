@@ -256,8 +256,9 @@ class VRayRendererRT(VRayRendererBase):
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
+    backgroundRendererInstance = 0
 
-    def _get_settings(self):
+    def getExporter(self):
         # In case of preview "scene" argument will point
         # to the preview scene, but we need to use settings
         # from the actual scene
@@ -265,6 +266,14 @@ class VRayRendererRT(VRayRendererBase):
         return bpy.context.scene.vray.Exporter
 
     def __init__(self):
+        VRayRendererRT.backgroundRendererInstance += 1
+        self.canRender = True
+        if bpy.app.background:
+            # when in background mode, blender's animation handler will create
+            # the renderer for each frame, but we will do all the work on the first
+            # call so we ignore all others
+            self.canRender = VRayRendererRT.backgroundRendererInstance == 1
+            self.parseArguments()
         debug.Debug("__init__()")
         self.renderer = None
 
@@ -274,15 +283,74 @@ class VRayRendererRT(VRayRendererBase):
         if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
 
+    # We are in background mode, so override UI settings with supported arugmnets
+    def parseArguments(self):
+        frameStart = None
+        frameEnd = None
+        outputDir = ''
+        renderAnim = False
+
+        for c in range(0, len(sys.argv)):
+            arg = sys.argv[c]
+            hasNext = c + 1 < len(sys.argv)
+            if arg in {'-f', '--render-frame'} and hasNext:
+                frameStart = frameEnd = sys.argv[c + 1]
+            elif arg in {'-s', '--frame-start'} and hasNext:
+                frameStart = sys.argv[c + 1]
+            elif arg in {'-e', '--frame-end'} and hasNext:
+                frameEnd = sys.argv[c + 1]
+            elif arg in {'-o', '--render-output'} and hasNext:
+                outputDir = sys.argv[c + 1]
+            elif arg in {'-a', '--render-anim'}:
+                renderAnim = True
+
+        vrayExporter = self.getExporter()
+        vrayScene = bpy.context.scene.vray
+
+        print('Background settings override:')
+
+        if outputDir != '':
+            vrayExporter.auto_save_render = True
+            vrayScene.SettingsOutput.img_dir = outputDir
+            print('img_dir: %s' % outputDir)
+
+        if renderAnim and vrayExporter.animation_mode == 'NONE':
+            # if we dont have anim mode set, use Full Range
+            print('animation_mode: %s -> FULL' % vrayExporter.animation_mode)
+            vrayExporter.animation_mode = 'FULL'
+
+        if frameStart == frameEnd and frameStart != None:
+            # force single frame
+            print('animation_mode: %s -> NONE' % vrayExporter.animation_mode)
+            vrayExporter.animation_mode = 'NONE'
+
+    # Check if we can actually render
+    def doRender(self):
+        errString = "Animation is supported trough Render Image, with Animation set to not None"
+        if self.is_animation:
+            if bpy.app.background:
+                # We generally dont want to support blender's animation rendering
+                # because it will re-create the renderer for each frame but in
+                # background we dont really have a choice so we export everything
+                # on the first frame and ignore all other
+                if not self.canRender:
+                    debug.PrintError(errString)
+                    return False
+            else:
+                print('CAN RENDER', False)
+                self.report({'ERROR'}, errString)
+                return False
+        return True
+
     # Production rendering
     #
     def update(self, data, scene):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
-            return
+        if not self.doRender():
+            return;
+
         debug.Debug("update()")
 
-        vrayExporter = self._get_settings()
+        vrayExporter = self.getExporter()
 
         if vrayExporter.backend != 'STD':
             ZMQ.check_start()
@@ -302,12 +370,11 @@ class VRayRendererRT(VRayRendererBase):
                 _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
-            return
+        if not self.doRender():
+            return;
         debug.Debug("render()")
 
-        vrayExporter = self._get_settings()
+        vrayExporter = self.getExporter()
         use_std = vrayExporter.backend == 'STD'
 
         if use_std:
@@ -319,9 +386,8 @@ class VRayRendererRT(VRayRendererBase):
     # Interactive rendering
     #
     def view_update(self, context):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
-            return
+        if not self.doRender():
+            return;
         debug.Debug("view_update()")
 
         ZMQ.check_start()
@@ -338,9 +404,8 @@ class VRayRendererRT(VRayRendererBase):
             _vray_for_blender_rt.view_update(self.renderer)
 
     def _view_draw(self, context):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
-            return
+        if not self.doRender():
+            return;
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
 
