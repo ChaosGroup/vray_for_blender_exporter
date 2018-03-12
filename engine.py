@@ -290,8 +290,6 @@ class VRayRendererRT(VRayRendererBase):
         outputDir = ''
         renderAnim = False
         argc = len(sys.argv)
-        print(sys.argv)
-        sys.exit(1)
 
         for c in range(1, argc):
             arg = sys.argv[c]
@@ -315,16 +313,16 @@ class VRayRendererRT(VRayRendererBase):
         if outputDir != '':
             vrayExporter.auto_save_render = True
             vrayScene.SettingsOutput.img_dir = outputDir
-            debug.PrintInfo('img_dir: %s' % outputDir)
+            debug.PrintInfo('Image output dir: %s' % outputDir)
 
         if renderAnim and vrayExporter.animation_mode == 'NONE':
             # if we dont have anim mode set, use Full Range
-            debug.PrintInfo('animation_mode: %s -> FULL' % vrayExporter.animation_mode)
+            debug.PrintInfo('Change Animation Mode from "%s" to "NONE"' % vrayExporter.animation_mode)
             vrayExporter.animation_mode = 'FULL'
 
         if frameStart == frameEnd and frameStart != None:
             # force single frame
-            debug.PrintInfo('animation_mode: %s -> NONE' % vrayExporter.animation_mode)
+            debug.PrintInfo('Change Animation Mode from "%s" to "NONE"' % vrayExporter.animation_mode)
             vrayExporter.animation_mode = 'NONE'
 
     # Check if we can actually render
