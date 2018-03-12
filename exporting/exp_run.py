@@ -24,6 +24,8 @@
 
 import bpy
 
+from vb30.exporting.cloud_job import VCloudJob
+
 from vb30.lib.VRayProcess import VRayProcess
 from vb30.lib import SysUtils
 
@@ -42,7 +44,6 @@ def Run(bus):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
     VRayDR       = VRayScene.VRayDR
-    RTEngine     = VRayScene.RTEngine
 
     vrayCmd = SysUtils.GetVRayStandalonePath()
     if not vrayCmd:
@@ -129,7 +130,14 @@ def Run(bus):
     if VRayExporter.gen_run_file:
         p.setGenRunFile(True)
 
-    p.run()
+    if VRayExporter.submit_to_vray_cloud:
+        p.setAutorun(False)
+
+    exportExitStatus = p.run()
+
+    if exportExitStatus == 0 and VRayExporter.submit_to_vray_cloud:
+        job = VCloudJob(bus)
+        job.submitToCloud()
 
     if imageToBlender or engine.is_preview:
         exp_load.LoadImage(scene, engine, o, p)

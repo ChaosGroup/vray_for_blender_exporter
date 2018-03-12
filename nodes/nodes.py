@@ -536,7 +536,6 @@ def LoadDynamicNodes():
                 continue
 
             vrayPlugin  = PLUGINS[pluginType][pluginName]
-            textureBpyType = getattr(bpy.types, typeName)
             textureMenuType = getattr(vrayPlugin, 'MENU', None)
 
             DynNodeClassName = "VRayNode%s" % (pluginName)

@@ -116,7 +116,6 @@ def ExportEx(bus):
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
-    VRayDR       = VRayScene.VRayDR
 
     pm = VRayFilePaths()
 
@@ -216,7 +215,6 @@ def ExportAndRun(engine, scene):
         return "Export is interrupted!"
 
     VRayScene    = scene.vray
-    VRayExporter = VRayScene.Exporter
 
     o = VRayPluginExporter()
 

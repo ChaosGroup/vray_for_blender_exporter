@@ -183,6 +183,9 @@ class VRayFilePaths:
                 elif VRayDR.assetSharing == 'SHARE':
                     export_filepath = bpy.path.abspath(VRayDR.shared_dir)
 
+            if VRayExporter.submit_to_vray_cloud:
+                self.separateFiles = False
+
             self.exportDirectory = PathUtils.CreateDirectory(export_filepath)
             self.exportFilename  = export_filename
 

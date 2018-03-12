@@ -295,6 +295,29 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'device_type', expand=True)
 
 
+class VRAY_RP_cloud(classes.VRayRenderPanel):
+	bl_label = "V-Ray Cloud"
+	bl_panel_groups = PanelGroups
+
+	@classmethod
+	def poll_custom(cls, context):
+		VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+		return VRayPreferences.detect_vray_cloud
+
+	def draw_header(self, context):
+		VRayExporter= context.scene.vray.Exporter
+		
+		self.layout.prop(VRayExporter, 'submit_to_vray_cloud', text="")
+
+	def draw(self, context):
+		VRayExporter = context.scene.vray.Exporter
+
+		self.layout.active = VRayExporter.submit_to_vray_cloud
+
+		self.layout.prop(VRayExporter, 'vray_cloud_project_name')
+		self.layout.prop(VRayExporter, 'vray_cloud_job_name')		
+
+
 ########  ########    ###    ##       ######## #### ##     ## ########
 ##     ## ##         ## ##   ##          ##     ##  ###   ### ##
 ##     ## ##        ##   ##  ##          ##     ##  #### #### ##
@@ -1537,6 +1560,7 @@ def GetRegClasses():
 		VRayRenderPanelContext,
 
 		VRAY_RP_render,
+		VRAY_RP_cloud,
 		VRAY_RP_Device,
 		VRAY_RP_dimensions,
 		VRAY_RP_output,
