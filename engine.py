@@ -316,7 +316,7 @@ class VRayRendererRT(VRayRendererBase):
 
         if renderAnim and vrayExporter.animation_mode == 'NONE':
             # if we dont have anim mode set, use Full Range
-            debug.PrintInfo('Changing Animation Mode from "%s" to "NONE"' % vrayExporter.animation_mode)
+            debug.PrintInfo('Changing Animation Mode from "%s" to "FULL"' % vrayExporter.animation_mode)
             vrayExporter.animation_mode = 'FULL'
 
         if frameStart == frameEnd and frameStart != None:
