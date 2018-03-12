@@ -370,7 +370,7 @@ class VRayRendererRT(VRayRendererBase):
 
     def render(self, scene):
         if not self.doRender():
-            return;
+            return
         debug.Debug("render()")
 
         vrayExporter = self.getExporter()
@@ -386,7 +386,7 @@ class VRayRendererRT(VRayRendererBase):
     #
     def view_update(self, context):
         if not self.doRender():
-            return;
+            return
         debug.Debug("view_update()")
 
         ZMQ.check_start()
@@ -404,7 +404,7 @@ class VRayRendererRT(VRayRendererBase):
 
     def _view_draw(self, context):
         if not self.doRender():
-            return;
+            return
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
 
