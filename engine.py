@@ -307,21 +307,21 @@ class VRayRendererRT(VRayRendererBase):
         vrayExporter = self.getExporter()
         vrayScene = bpy.context.scene.vray
 
-        print('Background settings override:')
+        debug.PrintInfo('Background settings override:')
 
         if outputDir != '':
             vrayExporter.auto_save_render = True
             vrayScene.SettingsOutput.img_dir = outputDir
-            print('img_dir: %s' % outputDir)
+            debug.PrintInfo('img_dir: %s' % outputDir)
 
         if renderAnim and vrayExporter.animation_mode == 'NONE':
             # if we dont have anim mode set, use Full Range
-            print('animation_mode: %s -> FULL' % vrayExporter.animation_mode)
+            debug.PrintInfo('animation_mode: %s -> FULL' % vrayExporter.animation_mode)
             vrayExporter.animation_mode = 'FULL'
 
         if frameStart == frameEnd and frameStart != None:
             # force single frame
-            print('animation_mode: %s -> NONE' % vrayExporter.animation_mode)
+            debug.PrintInfo('animation_mode: %s -> NONE' % vrayExporter.animation_mode)
             vrayExporter.animation_mode = 'NONE'
 
     # Check if we can actually render
@@ -337,7 +337,6 @@ class VRayRendererRT(VRayRendererBase):
                     debug.PrintError(errString)
                     return False
             else:
-                print('CAN RENDER', False)
                 self.report({'ERROR'}, errString)
                 return False
         return True
