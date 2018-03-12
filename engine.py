@@ -291,17 +291,16 @@ class VRayRendererRT(VRayRendererBase):
         renderAnim = False
         argc = len(sys.argv)
 
-        for c in range(1, argc):
-            arg = sys.argv[c]
-            hasNext = c + 1 < argc
+        for (idx, arg) in enumerate(sys.argv):
+            hasNext = idx < argc
             if arg in {'-f', '--render-frame'} and hasNext:
-                frameStart = frameEnd = sys.argv[c + 1]
+                frameStart = frameEnd = sys.argv[idx + 1]
             elif arg in {'-s', '--frame-start'} and hasNext:
-                frameStart = sys.argv[c + 1]
+                frameStart = sys.argv[idx + 1]
             elif arg in {'-e', '--frame-end'} and hasNext:
-                frameEnd = sys.argv[c + 1]
+                frameEnd = sys.argv[idx + 1]
             elif arg in {'-o', '--render-output'} and hasNext:
-                outputDir = sys.argv[c + 1]
+                outputDir = sys.argv[idx + 1]
             elif arg in {'-a', '--render-anim'}:
                 renderAnim = True
 
@@ -313,7 +312,7 @@ class VRayRendererRT(VRayRendererBase):
         if outputDir != '':
             vrayExporter.auto_save_render = True
             vrayScene.SettingsOutput.img_dir = outputDir
-            debug.PrintInfo('Image output dir: %s' % outputDir)
+            debug.PrintInfo('Change Image output dir to "%s"' % outputDir)
 
         if renderAnim and vrayExporter.animation_mode == 'NONE':
             # if we dont have anim mode set, use Full Range
