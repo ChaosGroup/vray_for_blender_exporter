@@ -34,6 +34,7 @@ from vb30.lib import SysUtils
 from vb30 import export, debug
 from vb30 import osl
 
+from vb30.plugins import PLUGINS_ID
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayFilePaths
 
@@ -283,12 +284,23 @@ class VRayRendererRT(VRayRendererBase):
         if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
 
+    def _getImageFormats(self):
+        try:
+            items = PLUGINS_ID['SettingsOutput'].PluginParams
+            for param in items:
+                if param['attr'] == 'img_format':
+                    return param['items']
+        except Exception:
+            return []
+        return []
+
     # We are in background mode, so override UI settings with supported arugmnets
     def parseArguments(self):
         frameStart = None
         frameEnd = None
         outputDir = ''
         renderAnim = False
+        imgFormat = None
         argc = len(sys.argv)
 
         for (idx, arg) in enumerate(sys.argv):
@@ -301,6 +313,8 @@ class VRayRendererRT(VRayRendererBase):
                 frameEnd = sys.argv[idx + 1]
             elif arg in {'-o', '--render-output'} and hasNext:
                 outputDir = sys.argv[idx + 1]
+            elif arg in {'-F', '--render-format'} and hasNext:
+                imgFormat = sys.argv[idx + 1]
             elif arg in {'-a', '--render-anim'}:
                 renderAnim = True
 
@@ -309,10 +323,21 @@ class VRayRendererRT(VRayRendererBase):
 
         debug.PrintInfo('Command line overrides:')
 
+        if imgFormat:
+            formats = self._getImageFormats()
+            for img in formats:
+                if img[1].lower() == imgFormat.lower():
+                    debug.PrintInfo('Changing image output format to "%s"' % img[1])
+                    vrayScene.SettingsOutput.img_format = img[0]
+
         if outputDir != '':
             vrayExporter.auto_save_render = True
             vrayScene.SettingsOutput.img_dir = outputDir
             debug.PrintInfo('Changing image output directory to "%s"' % outputDir)
+
+            vrayExporter.output = 'USER'
+            vrayExporter.output_dir = outputDir
+            debug.PrintInfo('Changing .vrscene output directory to "%s"' % outputDir)
 
         if renderAnim and vrayExporter.animation_mode == 'NONE':
             # if we dont have anim mode set, use Full Range
