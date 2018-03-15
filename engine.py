@@ -329,6 +329,7 @@ class VRayRendererRT(VRayRendererBase):
                 if img[1].lower() == imgFormat.lower():
                     debug.PrintInfo('Changing image output format to "%s"' % img[1])
                     vrayScene.SettingsOutput.img_format = img[0]
+                    break
 
         if outputDir != '':
             vrayExporter.auto_save_render = True
