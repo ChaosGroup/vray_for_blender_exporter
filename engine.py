@@ -403,6 +403,10 @@ class VRayRendererRT(VRayRendererBase):
 
         if use_std:
             super().render(scene)
+            if bpy.app.background:
+                # in backgorund mode we render only once, so exit here to force
+                # Blender not rendering more frames and not wrinting files
+                sys.exit(0)
         elif self.renderer:
             _vray_for_blender_rt.render(self.renderer)
 
