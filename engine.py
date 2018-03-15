@@ -325,11 +325,25 @@ class VRayRendererRT(VRayRendererBase):
 
         if imgFormat:
             formats = self._getImageFormats()
+            newFormatName = None
+            newFormatIdx = 0
+            savedFormatName = None
             for img in formats:
                 if img[1].lower() == imgFormat.lower():
-                    debug.PrintInfo('Changing image output format to "%s"' % img[1])
-                    vrayScene.SettingsOutput.img_format = img[0]
+                    newFormatName = img[1]
+                    newFormatIdx = img[0]
+                if img[0].lower() == vrayScene.SettingsOutput.img_format:
+                    # get this so we can log it
+                    savedFormatName = img[1]
+                if newFormatName and savedFormatName:
                     break
+
+            if newFormatName:
+                if newFormatName != savedFormatName:
+                    debug.PrintInfo('Changing image output format from "%s" to "%s"' % (savedFormatName, newFormatName))
+                    vrayScene.SettingsOutput.img_format = newFormatIdx
+            else:
+                debug.PrintError('Format "%s" not found, using "%s"' % (imgFormat, savedFormatName))
 
         if outputDir != '':
             vrayExporter.auto_save_render = True
