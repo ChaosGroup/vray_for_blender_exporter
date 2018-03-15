@@ -242,6 +242,7 @@ class VRayExportFiles:
 
         # *.vrscene files dict
         self.files = {}
+        self.filePaths = {}
 
         # Export directory
         self.exportDir = pm.getExportDirectory()
@@ -279,18 +280,20 @@ class VRayExportFiles:
     def getPathManager(self):
         return self.pm
 
-    def init(self):
+    def init(self, doOpen=True):
         self.files = {}
 
         if not self.separateFiles:
             filename = "%s.vrscene" % self.baseName
             filepath = os.path.join(self.exportDir, filename)
 
-            self.files['scene'] = open(filepath, 'w')
+            if doOpen:
+                self.files['scene'] = open(filepath, 'w')
+            self.filePaths['scene'] = os.path.abspath(os.path.normpath(filepath))
         else:
             for pluginType in PluginTypeToFile:
                 fileType = PluginTypeToFile[pluginType]
-                if fileType in self.files:
+                if fileType in self.filePaths:
                     continue
 
                 filename = "%s_%s.vrscene" % (self.baseName, fileType)
@@ -300,7 +303,9 @@ class VRayExportFiles:
                 if fileType == 'geometry' and not self.overwriteGeometry:
                     fmode = 'r'
 
-                self.files[fileType] = open(filepath, fmode)
+                if doOpen:
+                    self.files[fileType] = open(filepath, fmode)
+                self.filePaths[fileType] = os.path.abspath(os.path.normpath(filepath))
 
         self.writeHeaders()
 
@@ -373,6 +378,15 @@ class VRayExportFiles:
         return self.files[fileType]
 
 
+    def getFilePathByPluginType(self, pluginType):
+        if not self.separateFiles:
+            return self.filePaths['scene']
+        if not pluginType:
+            return self.filePaths['scene']
+        fileType = PluginTypeToFile[pluginType]
+        return self.filePaths[fileType]
+
+
     def getOutputFile(self, pluginType=None):
         if not self.separateFiles:
             return self.files['scene']
@@ -382,10 +396,7 @@ class VRayExportFiles:
 
 
     def getOutputFilepath(self, pluginType=None):
-        f = self.getOutputFile(pluginType)
-        if f:
-            return f.name
-        return None
+        return self.getFilePathByPluginType(pluginType)
 
 
 ######## ##     ## ########   #######  ########  ########
