@@ -280,9 +280,12 @@ class VRayRendererRT(VRayRendererBase):
 
     def __del__(self):
         debug.Debug("__del__()")
+        self._free_renderer()
 
+    def _free_renderer(self):
         if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
+            self.renderer = None
 
     def _getImageFormats(self):
         try:
@@ -419,6 +422,8 @@ class VRayRendererRT(VRayRendererBase):
         if use_std:
             super().render(scene)
             if bpy.app.background:
+                # free renderer so we close and flush all files
+                self._free_renderer()
                 # in backgorund mode we render only once, so exit here to force
                 # Blender not rendering more frames and not wrinting files
                 sys.exit(0)
