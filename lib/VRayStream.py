@@ -317,7 +317,7 @@ class VRayExportFiles:
             import _vray_for_blender_rt
             self.files[fileType].write("// V-Ray For Blender\n")
             self.files[fileType].write("// %s\n" % datetime.datetime.now().strftime("%A, %d %B %Y %H:%M"))
-            self.files[fileType].write("// Buils hash [%s]\n" % _vray_for_blender_rt.get_build_hash())
+            self.files[fileType].write("// Buils hash [%s]\n" % bpy.app.build_hash)
             self.files[fileType].write("\n")
 
 
