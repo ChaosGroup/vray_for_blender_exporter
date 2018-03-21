@@ -189,9 +189,7 @@ def ExportEx(bus):
         debug.ExceptionInfo(e)
         err = str(e)
     finally:
-        #fm.reopenFiles()
         exp_init.ShutdownExporter(bus)
-        #o.done()
 
     return err
 
