@@ -130,8 +130,9 @@ def ExportEx(bus):
     fm = VRayExportFiles(pm)
     fm.setOverwriteGeometry(VRayExporter.auto_meshes)
 
+    rtExporter = HAS_VB35 and engine.bl_idname == 'VRAY_RENDER_RT'
     try:
-        fm.init()
+        fm.init(not rtExporter)
     except Exception as e:
         debug.ExceptionInfo(e)
         return "Error initing files!"
@@ -139,12 +140,12 @@ def ExportEx(bus):
     o.setFileManager(fm)
     o.setPreview(engine.is_preview)
 
-    bus['exporter'] = exp_init.InitExporter(bus)
+    if not rtExporter:
+        bus['exporter'] = exp_init.InitExporter(bus)
 
     try:
         # We do everything here basically because we want to close files
         # if smth goes wrong...
-        rtExporter = HAS_VB35 and engine.bl_idname == 'VRAY_RENDER_RT'
         if not rtExporter:
             err = Export(bus, scene, engine, engine.is_preview)
         else:
@@ -165,21 +166,15 @@ def ExportEx(bus):
                 'engine'       : engine.as_pointer(),
                 'data'         : bpy.data.as_pointer(),
                 'scene'        : scene.as_pointer(),
+                'mainFile'     : fm.getFilePathByPluginType('MAIN'),
+                'objectFile'   : fm.getFilePathByPluginType('OBJECT'),
+                'envFile'      : fm.getFilePathByPluginType('WORLD'),
+                'geometryFile' : fm.getFilePathByPluginType('GEOMETRY'),
+                'lightsFile'   : fm.getFilePathByPluginType('LIGHT'),
+                'materialFile' : fm.getFilePathByPluginType('MATERIAL'),
+                'textureFile'  : fm.getFilePathByPluginType('TEXTURE'),
+                'cameraFile'   : fm.getFilePathByPluginType('CAMERA'),
             }
-
-            files = {
-                'mainFile'     : fm.getFileByPluginType('MAIN'),
-                'objectFile'   : fm.getFileByPluginType('OBJECT'),
-                'envFile'      : fm.getFileByPluginType('WORLD'),
-                'geometryFile' : fm.getFileByPluginType('GEOMETRY'),
-                'lightsFile'   : fm.getFileByPluginType('LIGHT'),
-                'materialFile' : fm.getFileByPluginType('MATERIAL'),
-                'textureFile'  : fm.getFileByPluginType('TEXTURE'),
-                'cameraFile'   : fm.getFileByPluginType('CAMERA'),
-            }
-
-            for key in files.keys():
-                init[key] = os.path.abspath(files[key].name)
 
             # Free anything we have
             if engine.renderer:
@@ -187,25 +182,14 @@ def ExportEx(bus):
 
             renderer = _vray_for_blender_rt.init(**init)
             if renderer:
-                # Write settings for new exporter.
-                # TODO: Move this to cpp.
-                exp_settings.ExportSettings(bus)
-
-                # close files since c++ will re-open them
-                for key in files:
-                    files[key].close()
-
                 setattr(engine, 'renderer', renderer)
-
                 _vray_for_blender_rt.render(renderer)
 
     except Exception as e:
         debug.ExceptionInfo(e)
         err = str(e)
     finally:
-        fm.reopenFiles()
         exp_init.ShutdownExporter(bus)
-        o.done()
 
     return err
 
