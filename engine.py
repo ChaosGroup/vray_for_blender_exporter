@@ -34,6 +34,7 @@ from vb30.lib import SysUtils
 from vb30 import export, debug
 from vb30 import osl
 
+from vb30.plugins import PLUGINS_ID
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayFilePaths
 
@@ -256,8 +257,9 @@ class VRayRendererRT(VRayRendererBase):
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()
     bl_use_shading_nodes = True
+    backgroundRendererInstance = 0
 
-    def _get_settings(self):
+    def getExporter(self):
         # In case of preview "scene" argument will point
         # to the preview scene, but we need to use settings
         # from the actual scene
@@ -265,24 +267,132 @@ class VRayRendererRT(VRayRendererBase):
         return bpy.context.scene.vray.Exporter
 
     def __init__(self):
+        VRayRendererRT.backgroundRendererInstance += 1
+        self.canRender = True
+        if bpy.app.background:
+            # when in background mode, Blender's animation handler will create
+            # the renderer for each frame, but we will do all the work on the first
+            # call so we ignore all others
+            self.canRender = VRayRendererRT.backgroundRendererInstance == 1
+            self.parseArguments()
         debug.Debug("__init__()")
         self.renderer = None
 
     def __del__(self):
         debug.Debug("__del__()")
+        self._free_renderer()
 
+    def _free_renderer(self):
         if hasattr(self, 'renderer') and self.renderer is not None:
             _vray_for_blender_rt.free(self.renderer)
+            self.renderer = None
+
+    def _getImageFormats(self):
+        try:
+            items = PLUGINS_ID['SettingsOutput'].PluginParams
+            for param in items:
+                if param['attr'] == 'img_format':
+                    return param['items']
+        except Exception:
+            return []
+        return []
+
+    # We are in background mode, so override UI settings with supported arugmnets
+    def parseArguments(self):
+        frameStart = None
+        frameEnd = None
+        outputDir = ''
+        renderAnim = False
+        imgFormat = None
+        argc = len(sys.argv)
+
+        for (idx, arg) in enumerate(sys.argv):
+            hasNext = idx < argc
+            if arg in {'-f', '--render-frame'} and hasNext:
+                frameStart = frameEnd = sys.argv[idx + 1]
+            elif arg in {'-s', '--frame-start'} and hasNext:
+                frameStart = sys.argv[idx + 1]
+            elif arg in {'-e', '--frame-end'} and hasNext:
+                frameEnd = sys.argv[idx + 1]
+            elif arg in {'-o', '--render-output'} and hasNext:
+                outputDir = sys.argv[idx + 1]
+            elif arg in {'-F', '--render-format'} and hasNext:
+                imgFormat = sys.argv[idx + 1]
+            elif arg in {'-a', '--render-anim'}:
+                renderAnim = True
+
+        vrayExporter = self.getExporter()
+        vrayScene = bpy.context.scene.vray
+
+        debug.PrintInfo('Command line overrides:')
+
+        if imgFormat:
+            formats = self._getImageFormats()
+            newFormatName = None
+            newFormatIdx = 0
+            savedFormatName = None
+            for img in formats:
+                if img[1].lower() == imgFormat.lower():
+                    newFormatName = img[1]
+                    newFormatIdx = img[0]
+                if img[0].lower() == vrayScene.SettingsOutput.img_format:
+                    # get this so we can log it
+                    savedFormatName = img[1]
+                if newFormatName and savedFormatName:
+                    break
+
+            if newFormatName:
+                if newFormatName != savedFormatName:
+                    debug.PrintInfo('Changing image output format from "%s" to "%s"' % (savedFormatName, newFormatName))
+                    vrayScene.SettingsOutput.img_format = newFormatIdx
+            else:
+                debug.PrintError('Format "%s" not found, using "%s"' % (imgFormat, savedFormatName))
+
+        if outputDir != '':
+            vrayExporter.auto_save_render = True
+            vrayScene.SettingsOutput.img_dir = outputDir
+            debug.PrintInfo('Changing image output directory to "%s"' % outputDir)
+
+            vrayExporter.output = 'USER'
+            vrayExporter.output_dir = outputDir
+            debug.PrintInfo('Changing .vrscene output directory to "%s"' % outputDir)
+
+        if renderAnim and vrayExporter.animation_mode == 'NONE':
+            # if we dont have anim mode set, use Full Range
+            debug.PrintInfo('Changing Animation Mode from "%s" to "FULL"' % vrayExporter.animation_mode)
+            vrayExporter.animation_mode = 'FULL'
+
+        if frameStart == frameEnd and frameStart != None:
+            # force single frame
+            debug.PrintInfo('Changing Animation Mode from "%s" to "NONE"' % vrayExporter.animation_mode)
+            vrayExporter.animation_mode = 'NONE'
+
+    # Check if we can actually render
+    def doRender(self):
+        errString = "Animation is supported trough Render Image, with Animation set to not None"
+        if self.is_animation:
+            if bpy.app.background:
+                # We generally dont want to support Blender's animation rendering
+                # because it will re-create the renderer for each frame but in
+                # background we dont really have a choice so we export everything
+                # on the first frame and ignore all other
+                if not self.canRender:
+                    debug.PrintError(errString)
+                    return False
+            else:
+                self.report({'ERROR'}, errString)
+                return False
+        return True
 
     # Production rendering
     #
     def update(self, data, scene):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+        if not self.doRender():
             return
+
         debug.Debug("update()")
 
-        vrayExporter = self._get_settings()
+        vrayExporter = self.getExporter()
 
         if vrayExporter.backend != 'STD':
             ZMQ.check_start()
@@ -302,16 +412,21 @@ class VRayRendererRT(VRayRendererBase):
                 _vray_for_blender_rt.update(self.renderer)
 
     def render(self, scene):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+        if not self.doRender():
             return
         debug.Debug("render()")
 
-        vrayExporter = self._get_settings()
+        vrayExporter = self.getExporter()
         use_std = vrayExporter.backend == 'STD'
 
         if use_std:
             super().render(scene)
+            if bpy.app.background:
+                # free renderer so we close and flush all files
+                self._free_renderer()
+                # in backgorund mode we render only once, so exit here to force
+                # Blender not rendering more frames and not wrinting files
+                sys.exit(0)
         elif self.renderer:
             _vray_for_blender_rt.render(self.renderer)
 
@@ -319,8 +434,7 @@ class VRayRendererRT(VRayRendererBase):
     # Interactive rendering
     #
     def view_update(self, context):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+        if not self.doRender():
             return
         debug.Debug("view_update()")
 
@@ -338,8 +452,7 @@ class VRayRendererRT(VRayRendererBase):
             _vray_for_blender_rt.view_update(self.renderer)
 
     def _view_draw(self, context):
-        if self.is_animation:
-            self.report({'ERROR'}, "Animation is supported trough Render Image, with Animation set to not None")
+        if not self.doRender():
             return
         if self.renderer:
             _vray_for_blender_rt.view_draw(self.renderer)
@@ -348,7 +461,7 @@ class VRayRendererRT(VRayRendererBase):
     def update_script_node(self, node):
         osl.update_script_node(node, self.report)
 
-# Internally blender check for 'view_draw' method to decide if it will show
+# Internally Blender check for 'view_draw' method to decide if it will show
 # viewport 'RENDERED' mode
 if HAS_ZMQ:
     VRayRendererRT.view_draw = VRayRendererRT._view_draw
