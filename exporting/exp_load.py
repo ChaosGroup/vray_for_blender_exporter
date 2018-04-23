@@ -27,10 +27,8 @@ import os
 
 from vb30 import debug
 
-
+@debug.TimeIt
 def LoadImage(scene, engine, o, p):
-    debug.Debug("LoadImage()")
-
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 

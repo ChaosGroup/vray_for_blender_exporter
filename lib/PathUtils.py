@@ -108,7 +108,7 @@ def CreateDirectory(directory):
             debug.Debug('Error creating directory: "%s"' % directory, msgType='ERROR')
             directory = tempfile.gettempdir()
             debug.Debug("Using TMP path: %s" % directory)
-    return directory
+    return os.path.expanduser(directory)
 
 
 def CreateDirectoryFromFilepath(filepath):

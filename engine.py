@@ -30,7 +30,7 @@ import ipaddress
 import bpy
 import _vray_for_blender
 
-from vb30.lib import SysUtils
+from vb30.lib import SysUtils, PathUtils
 from vb30 import export, debug
 from vb30 import osl
 
@@ -267,6 +267,7 @@ class VRayRendererRT(VRayRendererBase):
         return bpy.context.scene.vray.Exporter
 
     def __init__(self):
+        _vray_for_blender_rt.set_preview_dir(PathUtils.GetPreviewDir())
         VRayRendererRT.backgroundRendererInstance += 1
         self.canRender = True
         if bpy.app.background:
