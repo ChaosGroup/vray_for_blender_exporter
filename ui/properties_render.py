@@ -298,12 +298,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 class VRAY_RP_cloud(classes.VRayRenderPanel):
 	bl_label = "V-Ray Cloud"
 	bl_panel_groups = PanelGroups
-
-	@classmethod
-	def poll_custom(cls, context):
-		VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
-		return VRayPreferences.detect_vray_cloud
-
+	
 	def draw_header(self, context):
 		VRayExporter= context.scene.vray.Exporter
 		

@@ -122,18 +122,24 @@ class VCloudJob:
         """
         Submits this job to V-Ray Cloud. Tries to create a project before submitting.
         Exit code:
-            -2: created project, failed to submit job
-            -1: failed to create project, failed to submit job
-            0 : job submitted successfully 
+            -404: V-Ray Cloud binary is not detected on the system, done nothing
+            -2:   created project, failed to submit job
+            -1:   failed to create project, failed to submit job
+            0 :   job submitted successfully 
         """
-        createProjectResult = subprocess.call(self.createProjectCmd())
-        submitJobResult     = subprocess.call(self.submitCmd())
-        
+        VRayPreferences = bpy.context.user_preferences.addons['vb30'].preferences
+
         exitCode = 0
-        if submitJobResult != 0:
-            if createProjectResult != 0:
-                exitCode = -1
-            else:
-                exitCode = -2
+        if VRayPreferences.detect_vray_cloud:
+            createProjectResult = subprocess.call(self.createProjectCmd())
+            submitJobResult     = subprocess.call(self.submitCmd())
+            
+            if submitJobResult != 0:
+                if createProjectResult != 0:
+                    exitCode = -1
+                else:
+                    exitCode = -2
+        else:
+            exitCode = -404;
 
         return exitCode

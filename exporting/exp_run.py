@@ -33,6 +33,8 @@ from vb30 import debug
 
 from . import exp_load
 
+import webbrowser
+
 
 def Run(bus):
     debug.Debug("Run()")
@@ -137,7 +139,10 @@ def Run(bus):
 
     if exportExitStatus == 0 and VRayExporter.submit_to_vray_cloud:
         job = VCloudJob(bus)
-        job.submitToCloud()
+        cloudExitStatus = job.submitToCloud()
+        if cloudExitStatus == -404:
+            print("V-Ray Cloud binary is not detected on your system!")
+            webbrowser.open("https://www.chaosgroup.com/cloud")
 
     if imageToBlender or engine.is_preview:
         exp_load.LoadImage(scene, engine, o, p)
