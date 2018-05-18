@@ -584,9 +584,9 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "Viewport Image Type",
         items = (
             ( "1", "RAW", "Full Color + Alpha" ),
-            ( "4", "JPEG", "JPEG compressed"    )
+            ( "4", "JPEG", "JPEG compressed"   )
         ),
-        default = '4'
+        default = '1'
     )
 
     viewport_rendering_mode = bpy.props.EnumProperty(
