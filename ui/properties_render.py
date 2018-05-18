@@ -541,6 +541,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		VRayScene      = context.scene.vray
 		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
+		zmqRunning = engine.ZMQ.is_running()
 
 		layout.label(text="Options:")
 
@@ -552,7 +553,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 				box.prop(VRayExporter, 'work_mode', text="Work Mode")
 
 			if VRayExporter.backend in {'ZMQ'}:
-				box.prop(VRayExporter, 'backend_worker')
+				if not zmqRunning:
+					box.prop(VRayExporter, 'backend_worker')
 
 				action = 'Start' if engine.ZMQ.is_local() else 'Connect'
 				stat = 'STOPPED'
@@ -564,15 +566,16 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 					icon = 'CANCEL'
 
 				box.label(text='ZMQ server status: %s' % stat)
-				if not engine.ZMQ.is_local():
+				if not engine.ZMQ.is_local() and not zmqRunning:
 					box.prop(VRayExporter, 'zmq_address')
 
 				# always show operator
 				box.operator("vray.zmq_update", text=action, icon=icon)
 
-				box.prop(VRayExporter, 'zmq_port')
-				if engine.ZMQ.is_local() and not engine.ZMQ.is_running():
-					box.prop(VRayExporter, 'zmq_log_level')
+				if not zmqRunning:
+					box.prop(VRayExporter, 'zmq_port')
+					if engine.ZMQ.is_local():
+						box.prop(VRayExporter, 'zmq_log_level')
 
 
 			box = layout.box()
