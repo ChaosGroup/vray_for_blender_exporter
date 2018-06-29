@@ -626,7 +626,7 @@ class VRayExporter(bpy.types.PropertyGroup):
 
     submit_to_vray_cloud = bpy.props.BoolProperty(
         name = "Submit to V-Ray Cloud",
-        description = "Submits current scene as a render job to the V-Ray Cloud.",
+        description = "Submits current scene as a render job to the V-Ray Cloud",
         default = False
     )
 
