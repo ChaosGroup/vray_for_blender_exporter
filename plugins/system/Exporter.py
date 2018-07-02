@@ -568,17 +568,6 @@ class VRayExporter(bpy.types.PropertyGroup):
         description = "VFB global preset file",
     )
 
-    rendering_mode = bpy.props.EnumProperty(
-        name = "Rendering Mode",
-        description = "Rendering mode",
-        items = (
-            ( "-1", "CPU", "" ),
-            ( "4",  "CUDA",    "" ),
-            ( "1",  "OpenCL",  "" ),
-        ),
-        default = "-1"
-    )
-
     viewport_image_type = bpy.props.EnumProperty(
         name = "Viewport Image Type",
         description = "Viewport Image Type",
@@ -587,17 +576,6 @@ class VRayExporter(bpy.types.PropertyGroup):
             ( "4", "JPEG", "JPEG compressed"   )
         ),
         default = '1'
-    )
-
-    viewport_rendering_mode = bpy.props.EnumProperty(
-        name = "Viewport Rendering Mode",
-        description = "Viewport rendering mode",
-        items = (
-            ( "0",  "CPU",     "" ),
-            ( "4",  "CUDA",    "" ),
-            ( "1",  "OpenCL",  "" ),
-        ),
-        default = '0'
     )
 
     viewport_jpeg_quality = bpy.props.IntProperty(

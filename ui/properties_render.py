@@ -573,14 +573,9 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 						box.prop(VRayExporter, 'zmq_log_level')
 
 
-			box = layout.box()
-			box.label("Production Rendering:")
-			box.prop(VRayExporter, 'rendering_mode', text="Engine")
-
 			if VRayExporter.backend not in {'STD'}:
 				box = layout.box()
 				box.label("Viewport Rendering:")
-				box.prop(VRayExporter, 'viewport_rendering_mode', text="Render Mode")
 				box.prop(VRayExporter, 'viewport_image_type', text="Image Type")
 				if VRayExporter.viewport_image_type == '4':
 					# 4 == JPEG
