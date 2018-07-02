@@ -541,7 +541,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		VRayScene      = context.scene.vray
 		VRayExporter   = VRayScene.Exporter
 		SettingsOutput = VRayScene.SettingsOutput
-		zmqRunning = engine.ZMQ.is_running()
+		zmqRunning = engine.ZMQ and engine.ZMQ.is_running()
 
 		layout.label(text="Options:")
 
