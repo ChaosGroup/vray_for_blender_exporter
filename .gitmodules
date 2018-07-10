@@ -4,5 +4,5 @@
 	ignore = all
 [submodule "plugins_desc"]
 	path = plugins_desc
-	url = https://github.com/ChaosGroup/vray_for_blender_python_utils.git
+	url = https://github.com/ChaosGroup/vray_for_blender_plugins.git
 	ignore = all
