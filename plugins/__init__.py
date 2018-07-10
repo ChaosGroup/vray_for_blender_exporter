@@ -29,7 +29,7 @@ import imp
 
 import bpy
 
-from vb30.debug import Debug
+from vb30.debug import Debug, PrintError
 from vb30.lib   import ClassUtils
 from vb30.lib   import SysUtils
 from vb30.lib   import PluginUtils
@@ -850,7 +850,9 @@ def register():
 	global PLUGINS
 	global PLUGINS_ID
 
-	PluginUtils.LoadPluginDesc()
+	if PluginUtils.LoadPluginDesc() == 0:
+		PrintError('Failed to load JSON plugin descriptions')
+		raise IOError('Failed to load JSON plugin descriptions')
 	LoadPlugins(PLUGINS, PLUGINS_ID)
 
 	for jsonPluginName in PluginUtils.PLUGINS_DESC:

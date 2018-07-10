@@ -40,10 +40,12 @@ def GetPluginsDescDir():
 def LoadPluginDesc():
     descDirpath = pathlib.Path(GetPluginsDescDir())
 
+    loadedPlugins = 0
     for filePath in descDirpath.glob("*/*.json"):
         file = filePath.open()
         pluginDesc = json.loads(file.read())
         file.close()
+        loadedPlugins += 1
 
         pluginID      = pluginDesc.get('ID')
         pluginParams  = pluginDesc.get('Parameters')
@@ -67,6 +69,7 @@ def LoadPluginDesc():
             'PluginWidget' : pluginWidget,
             'Widget'       : pluginWidget,
         }
+    return loadedPlugins
 
 
 def loadPluginOnModule(plugin, pluginID):
