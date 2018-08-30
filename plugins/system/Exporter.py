@@ -417,6 +417,12 @@ class VRayExporter(bpy.types.PropertyGroup):
         default = False
     )
 
+    display_vfb_on_top = bpy.props.BoolProperty(
+        name = "Display Always On Top",
+        description = "Display VFB on top of the other windows",
+        default = True
+    )
+
     detect_vray = bpy.props.BoolProperty(
         name = "Detect V-Ray",
         description = "Detect V-Ray binary location",

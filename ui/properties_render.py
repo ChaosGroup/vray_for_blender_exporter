@@ -602,7 +602,8 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 		split = layout.split()
 		col = split.column()
 		col.prop(VRayExporter, 'display', text="Show VFB")
-		col.prop(VRayExporter, 'display_vfb_in_batch', text="Show VFB In Batch")
+		col.prop(VRayExporter, 'display_vfb_on_top', text="Always On Top")
+		col.prop(VRayExporter, 'display_vfb_in_batch', text="Show In Batch")
 		if wide_ui:
 			col = split.column()
 		col.prop(VRayExporter, 'autoclose', text="Close On Stop")
