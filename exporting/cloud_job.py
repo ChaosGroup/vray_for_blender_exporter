@@ -63,9 +63,9 @@ class VCloudJob:
         else:
             self.renderMode = "bucket"
 
-        self.width = VRayScene.SettingsOutput.img_width
-        self.height = VRayScene.SettingsOutput.img_height
-        
+        self.width = int(scene.render.resolution_x * scene.render.resolution_percentage * 0.01)
+        self.height = int(scene.render.resolution_y * scene.render.resolution_percentage * 0.01)
+
         self.animation = not VRayExporter.animation_mode == 'NONE'
         if self.animation:
             self.frameRange = getFrameRange(scene)
