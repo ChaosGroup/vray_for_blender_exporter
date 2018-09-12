@@ -29,7 +29,7 @@ from vb30.lib import ClassUtils
 from vb30 import plugins
 from vb30 import osl
 
-from ..sockets import AddInput, AddOutput
+from ..sockets import AddInput, AddOutput, RegisterDynamicSocketClass
 from ..operators import sockets as SocketOperators
 from ..nodes import VRayNodeInit, VRayNodeDraw, VRayNodeDrawSide
 
@@ -117,6 +117,7 @@ class VRayNodeMtlMulti(bpy.types.Node):
     )
 
     def init(self, context):
+        RegisterDynamicSocketClass('MtlMulti', 'VRaySocketIntNoValue', 'mtlid_gen')
         AddInput(self, 'VRaySocketIntNoValue',   "Int Gen.",   'mtlid_gen',       1)
         AddInput(self, 'VRaySocketFloatNoValue', "Float Gen.", 'mtlid_gen_float', 1.0)
 

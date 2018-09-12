@@ -28,6 +28,7 @@ import hashlib
 import mathutils
 
 from vb30.lib import AttributeUtils
+from vb30.lib import PluginUtils
 from vb30.debug import Debug
 from vb30.plugins import PLUGINS_ID
 
@@ -44,7 +45,7 @@ def CheckLinkedSockets(node_sockets):
 
 
 def FindPluginUIAttr(plugin, attrName):
-    pluginParams = PLUGINS_ID[plugin].PluginParams
+    pluginParams = PluginUtils.PLUGINS_DESC[plugin]['Parameters']
     for param in pluginParams:
         if param['attr'] == attrName:
             return param.get('ui', dict())
@@ -1134,14 +1135,14 @@ def InitDynamicSocketTypes():
     skip_plugins = {"GeomVRayPattern", "Node", "VRayExporter", "Includer",
         "CameraStereoscopic", "ExportSets", "VRayQuickSettings"}
 
-    for pluginId in PLUGINS_ID:
+    for pluginId in PluginUtils.PLUGINS_DESC:
         if pluginId in skip_plugins:
             continue
-        pluginDesc = PLUGINS_ID[pluginId]
-        if not hasattr(pluginDesc, 'PluginParams'):
-            Debug("Plugin [%s] missing Pluginparams" % pluginId, msgType='ERROR')
+        pluginDesc = PluginUtils.PLUGINS_DESC[pluginId]
+        if 'Parameters' not in pluginDesc:
+            Debug("Plugin [%s] missing Parameters" % pluginId, msgType='ERROR')
             continue
-        pluginParams = pluginDesc.PluginParams
+        pluginParams = pluginDesc['Parameters']
         for param in pluginParams:
             attrName = param.get('attr', None)
             paramType = param.get('type', None)
