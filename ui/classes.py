@@ -246,10 +246,10 @@ def DrawListWidget(layout, parentID, propGroupPath, listType, defItemName, itemA
     op.list_parent = parentID
     op.list_attr   = propGroupPath
     subsub = sub.column(align=True)
-    op = subsub.operator("vray.ui_list_item_up",   icon='MOVE_UP_VEC',   text="")
+    op = subsub.operator("vray.ui_list_item_up",   icon='TRIA_UP',   text="")
     op.list_parent = parentID
     op.list_attr   = propGroupPath
-    op = subsub.operator("vray.ui_list_item_down", icon='MOVE_DOWN_VEC', text="")
+    op = subsub.operator("vray.ui_list_item_down", icon='TRIA_DOWN', text="")
     op.list_parent = parentID
     op.list_attr   = propGroupPath
 

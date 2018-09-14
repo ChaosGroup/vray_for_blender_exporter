@@ -25,9 +25,18 @@
 import bpy
 
 from vb30.lib import LibUtils
-from vb30.exporting import exp_anim_camera_loop
 
 import subprocess
+
+
+def GetLoopCamerasCount(scene):
+    count = 0
+    for ob in scene.objects:
+        if ob.type == 'CAMERA':
+            if ob.data.vray.use_camera_loop:
+                count += 1
+    return count
+
 
 def getFrameRange(scene):
     VRayExporter = scene.vray.Exporter
@@ -39,8 +48,7 @@ def getFrameRange(scene):
     if not VRayExporter.animation_mode == 'CAMERA_LOOP':
         frame_range =  frame_range.format(scene.frame_start, scene.frame_end)
     else: # if camera loop is enabled
-        loop_cameras = exp_anim_camera_loop.GetLoopCameras(scene)
-        frame_range = frame_range.format(1, len(loop_cameras))
+        frame_range = frame_range.format(1, GetLoopCamerasCount(scene))
 
     return frame_range
 

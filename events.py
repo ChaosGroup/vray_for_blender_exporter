@@ -28,9 +28,7 @@ from .lib import BlenderUtils
 
 from .nodes.tree_defaults import AddMaterialNodeTree
 from . import engine
-
-import _vray_for_blender
-
+import _vray_for_blender_rt
 
 @bpy.app.handlers.persistent
 def dr_nodes_store(e):
@@ -68,12 +66,13 @@ def update_world_preview(ob):
     if not ntree:
         return
 
-    _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_WORLD)
+    _vray_for_blender_rt.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_WORLD)
 
 
 @bpy.app.handlers.persistent
 def update_material_preview(sce):
-    _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
+    pass
+    _vray_for_blender_rt.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
 
 
 def register():

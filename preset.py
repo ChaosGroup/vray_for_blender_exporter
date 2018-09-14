@@ -42,8 +42,6 @@ from vb30.ui import classes
 
 from vb30 import debug
 
-import _vray_for_blender
-
 
  ######  ######## ######## ######## #### ##    ##  ######    ######
 ##    ## ##          ##       ##     ##  ###   ## ##    ##  ##    ##
@@ -471,6 +469,7 @@ def VRayNodeTemplatesMenu(self, context):
 ##     ## ##    ## ##    ## ##          ##
 ##     ##  ######   ######  ########    ##
 
+# TODO(CLEANUP)
 class VRayNodeExportAsset(bpy.types.Operator):
     bl_idname      = "vray.export_asset"
     bl_label       = "Export Node Asset"
@@ -600,7 +599,7 @@ def GetRegClasses():
         VRayPresetMenuNodeMaterial,
         VRayNodeTemplatesSubMenus,
 
-        VRayNodeExportAsset,
+        # VRayNodeExportAsset,
     )
 
 

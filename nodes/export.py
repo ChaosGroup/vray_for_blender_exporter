@@ -25,8 +25,6 @@
 import bpy
 import mathutils
 
-import _vray_for_blender
-
 from vb30.lib     import ExportUtils, LibUtils
 from vb30.plugins import PLUGINS
 from vb30         import debug

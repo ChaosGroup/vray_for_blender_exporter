@@ -33,9 +33,7 @@ from vb30     import plugins, preset, engine, debug
 
 from vb30.ui.classes import PanelGroups
 
-HAS_VB35 = SysUtils.hasRtExporter()
-if HAS_VB35:
-	import _vray_for_blender_rt
+import _vray_for_blender_rt
 
 
 def GetRenderIcon(vrayExporter):
@@ -540,7 +538,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		layout.label(text="Options:")
 
-		if HAS_VB35 and context.scene.render.engine == 'VRAY_RENDER_RT':
+		if context.scene.render.engine == 'VRAY_RENDER_RT':
 			box = layout.box()
 			box.label("Renderer:")
 			box.prop(VRayExporter, 'backend', text="Type")

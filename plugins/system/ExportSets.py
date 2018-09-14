@@ -26,8 +26,6 @@ import os
 
 import bpy
 
-import _vray_for_blender
-
 from vb30.lib import BlenderUtils
 from vb30.lib import PathUtils
 from vb30.lib import VRayStream
@@ -222,7 +220,7 @@ class VRayExportSet(bpy.types.PropertyGroup):
 ##     ## ##        ##       ##   ##   #########    ##    ##     ## ##   ##         ##
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
-
+# TODO(CLEANUP)
 class VRayOpExportSetSelected(bpy.types.Operator):
     bl_idname      = "vray.expset_export_selected"
     bl_label       = "Export Selected Set"
@@ -270,8 +268,8 @@ def GetRegClasses():
     return (
         VRayExportSetItem,
         VRayExportSet,
-        VRayOpExportSetSelected,
-        VRayOpExportSetAll,
+        # VRayOpExportSetSelected,
+        # VRayOpExportSetAll,
     )
 
 

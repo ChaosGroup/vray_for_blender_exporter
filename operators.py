@@ -41,12 +41,9 @@ from vb30.lib     import ColorUtils
 from vb30.plugins import PLUGINS, PLUGINS_ID
 from vb30         import debug
 
-HAS_VB35 = SysUtils.hasRtExporter()
-HAS_ZMQ = HAS_VB35
+import _vray_for_blender_rt
 
-if HAS_VB35:
-	import _vray_for_blender_rt
-
+HAS_ZMQ = SysUtils.hasZMQEnabled()
 if HAS_ZMQ:
 	from vb30.engine  import ZMQ
 

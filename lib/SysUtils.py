@@ -257,11 +257,6 @@ def GetZmqPath():
         return "/usr/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
 
 
-def hasRtExporter():
-    import importlib
-    return importlib.util.find_spec("_vray_for_blender_rt") is not None
-
-
 def hasZMQEnabled():
     if 'VRAY_FOR_BLENDER_RT' in os.environ:
         return int(os.environ['VRAY_FOR_BLENDER_RT'])
@@ -269,9 +264,8 @@ def hasZMQEnabled():
 
 
 def getExporterBackendList():
-    if hasRtExporter():
-        import _vray_for_blender_rt
-        backends = _vray_for_blender_rt.getExporterTypes()
-        return (item for item in backends if (hasZMQEnabled() or item[0] != 'ZMQ'))
+    import _vray_for_blender_rt
+    backends = _vray_for_blender_rt.getExporterTypes()
+    return (item for item in backends if (hasZMQEnabled() or item[0] != 'ZMQ'))
 
     return tuple()

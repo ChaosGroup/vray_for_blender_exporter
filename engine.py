@@ -28,7 +28,6 @@ import subprocess
 import ipaddress
 
 import bpy
-import _vray_for_blender
 
 from vb30.lib import SysUtils, PathUtils
 from vb30 import export, debug
@@ -38,13 +37,10 @@ from vb30.plugins import PLUGINS_ID
 from vb30.lib.VRayStream import VRayExportFiles
 from vb30.lib.VRayStream import VRayFilePaths
 
+import _vray_for_blender_rt
 
 # Check if current build support new RT exporter
-HAS_VB35 = SysUtils.hasRtExporter()
 HAS_ZMQ = SysUtils.hasZMQEnabled()
-if HAS_VB35:
-    import _vray_for_blender_rt
-
 
 
 # This will hold handle to subprocess.Popen to the zmq server if
@@ -213,17 +209,13 @@ else:
 
 def init():
     jsonDirpath = os.path.join(SysUtils.GetExporterPath(), "plugins_desc")
-    _vray_for_blender.start(jsonDirpath)
-    if HAS_VB35:
-        _vray_for_blender_rt.load(jsonDirpath)
+    _vray_for_blender_rt.load(jsonDirpath)
 
 
 def shutdown():
-    _vray_for_blender.free()
-    if HAS_VB35:
-        _vray_for_blender_rt.unload()
-        if HAS_ZMQ:
-            ZMQ.stop();
+    _vray_for_blender_rt.unload()
+    if HAS_ZMQ:
+        ZMQ.stop();
 
 
 class VRayRendererBase(bpy.types.RenderEngine):
@@ -470,11 +462,7 @@ if HAS_ZMQ:
 
 def GetRegClasses():
     reg_classes = []
-    if SysUtils.hasRtExporter():
-        reg_classes.append(VRayRendererRT)
-    else:
-        reg_classes.append(VRayRenderer)
-        reg_classes.append(VRayRendererPreview)
+    reg_classes.append(VRayRendererRT)
     return reg_classes
 
 

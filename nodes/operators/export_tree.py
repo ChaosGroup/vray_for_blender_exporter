@@ -33,8 +33,7 @@ from vb30.lib import VRayStream
 
 from vb30 import debug
 
-import _vray_for_blender
-
+# TODO(CLEANUP)
 
 class VRAY_OT_export_nodetree(bpy.types.Operator):
     bl_idname      = "vray.export_nodetree"
@@ -106,7 +105,7 @@ class VRAY_OT_export_nodetree(bpy.types.Operator):
 
 def GetRegClasses():
     return (
-        VRAY_OT_export_nodetree,
+        # VRAY_OT_export_nodetree,
     )
 
 

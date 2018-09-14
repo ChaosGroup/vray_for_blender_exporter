@@ -36,74 +36,11 @@ from vb30.lib import SysUtils, BlenderUtils
 
 from vb30.nodes import export as NodesExport
 
-from vb30.exporting import exp_init
-from vb30.exporting import exp_settings
-from vb30.exporting import exp_channels
-from vb30.exporting import exp_frame
 from vb30.exporting import exp_run
-from vb30.exporting import exp_anim_full
-from vb30.exporting import exp_anim_camera_loop
 
 from vb30 import debug
 
-HAS_VB35 = SysUtils.hasRtExporter()
-if HAS_VB35:
-    import _vray_for_blender_rt
-
-@debug.TimeIt
-def Export(bus, scene, engine, isPreview=False):
-    o = bus['output']
-
-    VRayScene    = scene.vray
-    VRayExporter = VRayScene.Exporter
-
-    ts = time.time()
-
-    o.write('MAIN', "\n")
-    o.write('MAIN', SysUtils.GetVRsceneTemplate("defaults.vrscene"))
-
-    if VRayExporter.draft:
-        o.write('MAIN', "\n")
-        o.write('MAIN', SysUtils.GetVRsceneTemplate("draft.vrscene"))
-
-    exp_channels.ExportRenderElements(bus)
-
-    if VRayExporter.animation_mode in {'FRAMEBYFRAME', 'NONE'}:
-        err = exp_frame.ExportSingleFrame(bus)
-
-    elif VRayExporter.animation_mode == 'CAMERA_LOOP':
-        err = exp_anim_camera_loop.ExportCameraLoop(bus)
-
-    else:
-        err = exp_anim_full.ExportAnimation(bus,
-            scene.frame_start,
-            scene.frame_end,
-            scene.frame_step
-        )
-
-    if VRayScene.Includer.use:
-        if VRayScene.Includer.use:
-            o.write('MAIN', "\n// Include additional *.vrscene files")
-            for includeFile in VRayScene.Includer.nodes:
-                if not includeFile.use:
-                    continue
-                filepath = BlenderUtils.GetFullFilepath(includeFile.scene)
-                o.write('MAIN', '\n#include "%s" // %s' % (filepath, includeFile.name))
-            o.write('MAIN', '\n')
-
-    # No need for interpolate() anymore
-    o.setAnimation(False)
-    exp_settings.ExportSettings(bus)
-
-    te = time.time() - ts
-    td = datetime.timedelta(seconds=te)
-    d  = datetime.datetime(1,1,1) + td
-
-    if not bus['preview']:
-        debug.PrintMsg("Export done [%.2i:%.2i:%.2i]" % (d.hour, d.minute, d.second))
-
-    return err
-
+import _vray_for_blender_rt
 
 def ExportEx(bus):
     debug.Debug("ExportEx()")
@@ -130,9 +67,8 @@ def ExportEx(bus):
     fm = VRayExportFiles(pm)
     fm.setOverwriteGeometry(VRayExporter.auto_meshes)
 
-    rtExporter = HAS_VB35 and engine.bl_idname == 'VRAY_RENDER_RT'
     try:
-        fm.init(not rtExporter)
+        fm.init(False)
     except Exception as e:
         debug.ExceptionInfo(e)
         return "Error initing files!"
@@ -140,56 +76,47 @@ def ExportEx(bus):
     o.setFileManager(fm)
     o.setPreview(engine.is_preview)
 
-    if not rtExporter:
-        bus['exporter'] = exp_init.InitExporter(bus)
-
     try:
-        # We do everything here basically because we want to close files
-        # if smth goes wrong...
-        if not rtExporter:
-            err = Export(bus, scene, engine, engine.is_preview)
-        else:
-            if not VRayExporter.animation_mode in {'NONE', 'CAMERA_LOOP'}:
-                o.setAnimation(True)
-                o.setFrameStart(scene.frame_start)
-                o.setFrameEnd(scene.frame_end)
-                o.setFrameStep(scene.frame_step)
-            elif VRayExporter.animation_mode == 'CAMERA_LOOP':
-                cameraCount = len([1 for o in scene.objects if o.type == 'CAMERA' and o.data.vray.use_camera_loop])
-                o.setAnimation(True)
-                o.setFrameStart(1)
-                o.setFrameEnd(cameraCount)
-                o.setFrameStep(1)
 
-            init = {
-                'context'      : bpy.context.as_pointer(),
-                'engine'       : engine.as_pointer(),
-                'data'         : bpy.data.as_pointer(),
-                'scene'        : scene.as_pointer(),
-                'mainFile'     : fm.getFilePathByPluginType('MAIN'),
-                'objectFile'   : fm.getFilePathByPluginType('OBJECT'),
-                'envFile'      : fm.getFilePathByPluginType('WORLD'),
-                'geometryFile' : fm.getFilePathByPluginType('GEOMETRY'),
-                'lightsFile'   : fm.getFilePathByPluginType('LIGHT'),
-                'materialFile' : fm.getFilePathByPluginType('MATERIAL'),
-                'textureFile'  : fm.getFilePathByPluginType('TEXTURE'),
-                'cameraFile'   : fm.getFilePathByPluginType('CAMERA'),
-            }
+        if not VRayExporter.animation_mode in {'NONE', 'CAMERA_LOOP'}:
+            o.setAnimation(True)
+            o.setFrameStart(scene.frame_start)
+            o.setFrameEnd(scene.frame_end)
+            o.setFrameStep(scene.frame_step)
+        elif VRayExporter.animation_mode == 'CAMERA_LOOP':
+            cameraCount = len([1 for o in scene.objects if o.type == 'CAMERA' and o.data.vray.use_camera_loop])
+            o.setAnimation(True)
+            o.setFrameStart(1)
+            o.setFrameEnd(cameraCount)
+            o.setFrameStep(1)
 
-            # Free anything we have
-            if engine.renderer:
-                del engine.renderer
+        init = {
+            'context'      : bpy.context.as_pointer(),
+            'engine'       : engine.as_pointer(),
+            'data'         : bpy.data.as_pointer(),
+            'scene'        : scene.as_pointer(),
+            'mainFile'     : fm.getFilePathByPluginType('MAIN'),
+            'objectFile'   : fm.getFilePathByPluginType('OBJECT'),
+            'envFile'      : fm.getFilePathByPluginType('WORLD'),
+            'geometryFile' : fm.getFilePathByPluginType('GEOMETRY'),
+            'lightsFile'   : fm.getFilePathByPluginType('LIGHT'),
+            'materialFile' : fm.getFilePathByPluginType('MATERIAL'),
+            'textureFile'  : fm.getFilePathByPluginType('TEXTURE'),
+            'cameraFile'   : fm.getFilePathByPluginType('CAMERA'),
+        }
 
-            renderer = _vray_for_blender_rt.init(**init)
-            if renderer:
-                setattr(engine, 'renderer', renderer)
-                _vray_for_blender_rt.render(renderer)
+        # Free anything we have
+        if engine.renderer:
+            del engine.renderer
+
+        renderer = _vray_for_blender_rt.init(**init)
+        if renderer:
+            setattr(engine, 'renderer', renderer)
+            _vray_for_blender_rt.render(renderer)
 
     except Exception as e:
         debug.ExceptionInfo(e)
         err = str(e)
-    finally:
-        exp_init.ShutdownExporter(bus)
 
     return err
 

@@ -32,8 +32,6 @@ import time
 import bpy
 import bmesh
 
-import _vray_for_blender
-
 from vb30.lib import BlenderUtils, PathUtils, LibUtils, SysUtils
 from vb30.lib import VRayStream
 

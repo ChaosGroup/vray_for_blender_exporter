@@ -25,8 +25,6 @@
 import bpy
 import sys
 
-import _vray_for_blender
-
 import os
 import json
 
@@ -34,9 +32,7 @@ from vb30 import version
 from vb30.lib import SysUtils
 from vb30.lib import BlenderUtils
 
-HAS_VB35 = SysUtils.hasRtExporter()
-if HAS_VB35:
-    import _vray_for_blender_rt
+import _vray_for_blender_rt
 
 
 TYPE = 'SYSTEM'
@@ -48,7 +44,7 @@ DESC = "Exporter configuration"
 def _mtlEditorUpdatePreview(self, context):
     if self.materialListIndexPrev != self.materialListIndex:
         self.materialListIndexPrev = self.materialListIndex
-        _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
+        # _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
 
 
 class VRayExporterSetBinary(bpy.types.Operator):
