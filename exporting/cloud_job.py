@@ -56,7 +56,6 @@ def getFrameRange(scene):
 class VCloudJob:
     def __init__(self, bus):
         scene  = bus['scene']
-        output = bus['output']
 
         VRayScene = scene.vray
         VRayExporter = VRayScene.Exporter
@@ -64,7 +63,7 @@ class VCloudJob:
 
         self.project = VRayExporter.vray_cloud_project_name
         self.name = VRayExporter.vray_cloud_job_name
-        self.sceneFile = output.fileManager.getOutputFilepath()
+        self.sceneFile = bus['outputFilePath']
         
         if VRayScene.SettingsImageSampler.type == '3':
             self.renderMode = "progressive"

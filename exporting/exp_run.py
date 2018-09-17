@@ -41,7 +41,6 @@ def Run(bus):
 
     scene  = bus['scene']
     engine = bus['engine']
-    o      = bus['output']
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
@@ -55,7 +54,7 @@ def Run(bus):
 
     p = VRayProcess()
     p.setVRayStandalone(vrayCmd)
-    p.setSceneFile(o.fileManager.getOutputFilepath())
+    p.setSceneFile(bus['outputFilePath'])
     p.setAutorun(VRayExporter.autorun)
     p.setVerboseLevel(VRayExporter.verboseLevel)
     p.setShowProgress(VRayExporter.showProgress)
@@ -117,7 +116,7 @@ def Run(bus):
         p.setFrames(scene.frame_current)
 
     else:
-        p.setFrames(o.frameStart, o.frameEnd, o.frameStep)
+        p.setFrames(bus['frameStart'], bus['frameEnd'], bus['frameStep'])
 
     if not scene.render.threads_mode == 'AUTO':
         p.setThreads(scene.render.threads)

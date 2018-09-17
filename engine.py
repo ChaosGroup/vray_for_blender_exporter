@@ -34,8 +34,6 @@ from vb30 import export, debug
 from vb30 import osl
 
 from vb30.plugins import PLUGINS_ID
-from vb30.lib.VRayStream import VRayExportFiles
-from vb30.lib.VRayStream import VRayFilePaths
 
 import _vray_for_blender_rt
 
@@ -218,32 +216,7 @@ def shutdown():
         ZMQ.stop();
 
 
-class VRayRendererBase(bpy.types.RenderEngine):
-    def render(self, scene):
-        if self.is_preview:
-            if scene.render.resolution_x < 64: # Don't render icons
-                return
-
-        err = export.RenderScene(self, scene)
-        if err is not None:
-            self.report({'ERROR'}, err)
-
-
-class VRayRendererPreview(VRayRendererBase):
-    bl_idname = 'VRAY_RENDER_PREVIEW'
-    bl_label  = "V-Ray (With Material Preview)"
-
-    bl_use_preview      =  True
-    bl_preview_filepath = SysUtils.GetPreviewBlend()
-
-
-class VRayRenderer(VRayRendererBase):
-    bl_idname      = 'VRAY_RENDER'
-    bl_label       = "V-Ray"
-    bl_use_preview =  False
-
-
-class VRayRendererRT(VRayRendererBase):
+class VRayRendererRT(bpy.types.RenderEngine):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label = "V-Ray"
     bl_use_preview = True
@@ -401,9 +374,6 @@ class VRayRendererRT(VRayRendererBase):
 
                 self.renderer = _vray_for_blender_rt.init(**arguments)
 
-            if self.renderer:
-                _vray_for_blender_rt.update(self.renderer)
-
     def render(self, scene):
         if not self.doRender():
             return
@@ -413,7 +383,13 @@ class VRayRendererRT(VRayRendererBase):
         use_std = vrayExporter.backend == 'STD'
 
         if use_std:
-            super().render(scene)
+            if self.is_preview:
+                if scene.render.resolution_x < 64: # Don't render icons
+                    return
+
+            err = export.RenderScene(self, scene)
+            if err is not None:
+                self.report({'ERROR'}, err)
             if bpy.app.background:
                 # free renderer so we close and flush all files
                 self._free_renderer()

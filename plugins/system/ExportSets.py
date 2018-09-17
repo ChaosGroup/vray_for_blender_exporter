@@ -110,6 +110,14 @@ def ExportExportSetItem(item):
     scene = bpy.context.scene
     frameCurrent = scene.frame_current
 
+    arguments = {
+        'context': bpy.context.as_pointer(),
+        # 'engine': 0,
+        'data': bpy.data.as_pointer(),
+        'scene': scene.as_pointer(),
+    }
+    renderer = _vray_for_blender_rt.init(**arguments)
+
     dirPath  = item.dirpath
     fileName = item.filename
     if not fileName.endswith(".vrscene"):
@@ -125,7 +133,17 @@ def ExportExportSetItem(item):
     frameStart = item.frame_start if item.use_animation == 'MANUAL' else scene.frame_start
     frameEnd   = item.frame_end   if item.use_animation == 'MANUAL' else scene.frame_end
 
-    ExportObjects(objects, vrsceneFilepath, item.use_animation, frameStart, frameEnd)
+    optionsArgs = {
+        'renderer': renderer,
+        'firstFrame': frameStart,
+        'lastFrame': frameEnd,
+        'useAnimation': item.useAnimation != 'NONE',
+        'scenePath': vrsceneFilepath,
+        'group': item.group,
+    }
+    _vray_for_blender_rt.set_export_options(**optionsArgs)
+    _vray_for_blender_rt.render(renderer)
+    _vray_for_blender_rt.free(renderer)
 
     # Restore current frame
     scene.frame_set(frameCurrent)

@@ -28,11 +28,9 @@ import datetime
 
 import bpy
 
-from vb30.lib.VRayStream import VRayExportFiles
-from vb30.lib.VRayStream import VRayPluginExporter
-from vb30.lib.VRayStream import VRayFilePaths
+from vb30.lib.VRayStream import getExportFilesPaths
 
-from vb30.lib import SysUtils, BlenderUtils
+from vb30.lib import SysUtils, BlenderUtils, PathUtils
 
 from vb30.nodes import export as NodesExport
 
@@ -42,6 +40,8 @@ from vb30 import debug
 
 import _vray_for_blender_rt
 
+
+
 def ExportEx(bus):
     debug.Debug("ExportEx()")
 
@@ -49,60 +49,38 @@ def ExportEx(bus):
 
     scene  = bus['scene']
     engine = bus['engine']
-    o      = bus['output']
 
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
-    pm = VRayFilePaths()
-
-    # Setting user defined value here
-    # It could be overriden in 'initFromScene'
-    # depending on VRayDR settings
-    pm.setSeparateFiles(VRayExporter.useSeparateFiles)
-
-    pm.initFromScene(engine, scene)
-    pm.printInfo()
-
-    fm = VRayExportFiles(pm)
-    fm.setOverwriteGeometry(VRayExporter.auto_meshes)
-
-    try:
-        fm.init(False)
-    except Exception as e:
-        debug.ExceptionInfo(e)
-        return "Error initing files!"
-
-    o.setFileManager(fm)
-    o.setPreview(engine.is_preview)
+    pathSettings = getExportFilesPaths(engine, scene)
+    bus['outputFilePath'] = pathSettings['scene']['MAIN']
 
     try:
 
         if not VRayExporter.animation_mode in {'NONE', 'CAMERA_LOOP'}:
-            o.setAnimation(True)
-            o.setFrameStart(scene.frame_start)
-            o.setFrameEnd(scene.frame_end)
-            o.setFrameStep(scene.frame_step)
+            bus['frameStart'] = scene.frame_start
+            bus['frameEnd'] = scene.frame_end
+            bus['frameStep'] = scene.frame_step
         elif VRayExporter.animation_mode == 'CAMERA_LOOP':
             cameraCount = len([1 for o in scene.objects if o.type == 'CAMERA' and o.data.vray.use_camera_loop])
-            o.setAnimation(True)
-            o.setFrameStart(1)
-            o.setFrameEnd(cameraCount)
-            o.setFrameStep(1)
+            bus['frameStart'] = 1
+            bus['frameEnd'] = cameraCount
+            bus['frameStep'] = 1
 
         init = {
             'context'      : bpy.context.as_pointer(),
             'engine'       : engine.as_pointer(),
             'data'         : bpy.data.as_pointer(),
             'scene'        : scene.as_pointer(),
-            'mainFile'     : fm.getFilePathByPluginType('MAIN'),
-            'objectFile'   : fm.getFilePathByPluginType('OBJECT'),
-            'envFile'      : fm.getFilePathByPluginType('WORLD'),
-            'geometryFile' : fm.getFilePathByPluginType('GEOMETRY'),
-            'lightsFile'   : fm.getFilePathByPluginType('LIGHT'),
-            'materialFile' : fm.getFilePathByPluginType('MATERIAL'),
-            'textureFile'  : fm.getFilePathByPluginType('TEXTURE'),
-            'cameraFile'   : fm.getFilePathByPluginType('CAMERA'),
+            'mainFile'     : pathSettings['scene']['MAIN'],
+            'objectFile'   : pathSettings['scene']['OBJECT'],
+            'envFile'      : pathSettings['scene']['WORLD'],
+            'geometryFile' : pathSettings['scene']['GEOMETRY'],
+            'lightsFile'   : pathSettings['scene']['LIGHT'],
+            'materialFile' : pathSettings['scene']['MATERIAL'],
+            'textureFile'  : pathSettings['scene']['TEXTURE'],
+            'cameraFile'   : pathSettings['scene']['CAMERA'],
         }
 
         # Free anything we have
@@ -127,39 +105,10 @@ def ExportAndRun(engine, scene):
 
     VRayScene    = scene.vray
 
-    o = VRayPluginExporter()
-
     bus = {
-        'output' : o,
-
         'engine' : engine,
         'scene'  : scene,
         'camera' : scene.camera,
-
-        'skipObjects'        : set(),
-        'environment_volume' : set(),
-        'gizmos'             : set(),
-
-        'preview'    : engine.is_preview,
-
-        # Used to pass nodes into plugin exporter
-        # to access some special data like "fake" textures
-        'context' : {
-            'node' : None,
-        },
-
-        'cache' : {
-            'plugins' : set(),
-            'mesh'    : set(),
-        },
-
-        'defaults' : {
-            'brdf'     : "BRDFNOBRDFISSET",
-            'material' : "MANOMATERIALISSET",
-            'texture'  : "TENOTEXTUREIESSET",
-            'uvwgen'   : "DEFAULTUVWC",
-            'blend'    : "TEDefaultBlend",
-        },
     }
 
     if bus['camera'].type != 'CAMERA':
