@@ -28,6 +28,7 @@ import socket
 import sys
 import shutil
 import platform
+from importlib import util
 
 import bpy
 
@@ -258,8 +259,7 @@ def GetZmqPath():
 
 
 def hasRtExporter():
-    import importlib
-    return importlib.util.find_spec("_vray_for_blender_rt") is not None
+    return util.find_spec("_vray_for_blender_rt") is not None
 
 
 def hasZMQEnabled():
