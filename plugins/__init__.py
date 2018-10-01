@@ -727,7 +727,7 @@ class VRayRenderNode(bpy.types.PropertyGroup):
 		description= "Distributed rendering port",
 		min= 0,
 		max= 65535,
-		default= 20204
+		default= 20207
 	)
 
 	use = bpy.props.BoolProperty(
@@ -749,7 +749,7 @@ class VRayDR(bpy.types.PropertyGroup):
 		description= "Distributed rendering port",
 		min= 0,
 		max= 65535,
-		default= 20204
+		default= 20207
 	)
 
 	shared_dir = bpy.props.StringProperty(
