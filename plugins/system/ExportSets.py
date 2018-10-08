@@ -25,10 +25,13 @@
 import os
 
 import bpy
+import _vray_for_blender_rt
 
 from vb30.lib import BlenderUtils
 from vb30.lib import PathUtils
 from vb30.lib import VRayStream
+
+from vb30.lib.VRayStream import getExportFilesPaths
 
 from vb30 import proxy as ProxyTools
 
@@ -46,77 +49,8 @@ DESC = "Custom export sets"
 ##        ##   ##  ##        ##     ## ##    ##     ##
 ######## ##     ## ##         #######  ##     ##    ##
 
-def ExportObjects(objects, filepath, animation='NONE', frameStart=1, frameEnd=10):
+def ExportExportSetItem(item, selectedOnly=False):
     scene = bpy.context.scene
-
-    vrsceneFile = open(filepath, 'w')
-
-    o = VRayStream.VRaySimplePluginExporter(outputFile=vrsceneFile)
-
-    exporter = _vray_for_blender.init(
-        engine  = 0,
-        context = bpy.context.as_pointer(),
-        scene   = scene.as_pointer(),
-        data    = bpy.data.as_pointer(),
-
-        mainFile     = o.output,
-        objectFile   = o.output,
-        envFile      = o.output,
-        geometryFile = o.output,
-        lightsFile   = o.output,
-        materialFile = o.output,
-        textureFile  = o.output,
-
-        drSharePath = "",
-    )
-
-    def _export_objects(objects):
-        # Init stuff for dupli / particles / etc
-        _vray_for_blender.exportObjectsPre(exporter)
-        for ob in objects:
-            print(ob.name)
-            _vray_for_blender.exportObject(ob.as_pointer(), bpy.data.as_pointer(), exporter)
-        # Write dupli / particles / etc
-        _vray_for_blender.exportObjectsPost(exporter)
-
-    # NOTE: Have to do it before export pre init
-    if animation not in {'NONE'}:
-        _vray_for_blender.initAnimation(True,
-            frameStart,
-            frameEnd
-        )
-
-    if animation not in {'NONE'}:
-        while frameStart <= frameEnd:
-            print(frameStart)
-
-            scene.frame_set(frameStart)
-            _vray_for_blender.setFrame(frameStart)
-
-            _export_objects(objects)
-
-            frameStart += scene.frame_step
-    else:
-        _export_objects(objects)
-
-    o.done()
-    vrsceneFile.close()
-    _vray_for_blender.clearFrames()
-    _vray_for_blender.clearCache()
-    _vray_for_blender.exit(exporter)
-
-
-def ExportExportSetItem(item):
-    scene = bpy.context.scene
-    frameCurrent = scene.frame_current
-
-    arguments = {
-        'context': bpy.context.as_pointer(),
-        # 'engine': 0,
-        'data': bpy.data.as_pointer(),
-        'scene': scene.as_pointer(),
-    }
-    renderer = _vray_for_blender_rt.init(**arguments)
 
     dirPath  = item.dirpath
     fileName = item.filename
@@ -126,29 +60,45 @@ def ExportExportSetItem(item):
     # Create output path
     dirPath = BlenderUtils.GetFullFilepath(dirPath)
     dirPath = PathUtils.CreateDirectory(dirPath)
-
     vrsceneFilepath = os.path.join(dirPath, fileName)
-    objects         = BlenderUtils.GetGroupObjects(item.group)
+
+    arguments = {
+        'context'      : bpy.context.as_pointer(),
+        'engine'       : 0,
+        'data'         : bpy.data.as_pointer(),
+        'scene'        : scene.as_pointer(),
+        'mainFile'     : vrsceneFilepath,
+        'objectFile'   : vrsceneFilepath,
+        'envFile'      : vrsceneFilepath,
+        'geometryFile' : vrsceneFilepath,
+        'lightsFile'   : vrsceneFilepath,
+        'materialFile' : vrsceneFilepath,
+        'textureFile'  : vrsceneFilepath,
+        'cameraFile'   : vrsceneFilepath,
+    }
+    exporter = _vray_for_blender_rt.init(**arguments)
+    if not exporter:
+        return None
 
     frameStart = item.frame_start if item.use_animation == 'MANUAL' else scene.frame_start
     frameEnd   = item.frame_end   if item.use_animation == 'MANUAL' else scene.frame_end
 
     optionsArgs = {
-        'renderer': renderer,
+        'exporter': exporter,
         'firstFrame': frameStart,
         'lastFrame': frameEnd,
-        'useAnimation': item.useAnimation != 'NONE',
-        'scenePath': vrsceneFilepath,
-        'group': item.group,
+        'useAnimation': item.use_animation != 'NONE',
     }
-    _vray_for_blender_rt.set_export_options(**optionsArgs)
-    _vray_for_blender_rt.render(renderer)
-    _vray_for_blender_rt.free(renderer)
 
-    # Restore current frame
-    scene.frame_set(frameCurrent)
+    if selectedOnly:
+        optionsArgs['groupName'] = item.group
 
-    return vrsceneFilepath
+    if _vray_for_blender_rt.set_export_options(**optionsArgs):
+        _vray_for_blender_rt.render(exporter)
+
+    _vray_for_blender_rt.free(exporter)
+
+    return (vrsceneFilepath, (frameStart, frameEnd))
 
 
 ########  ########   #######  ########         ######   ########   #######  ##     ## ########
@@ -238,12 +188,9 @@ class VRayExportSet(bpy.types.PropertyGroup):
 ##     ## ##        ##       ##   ##   #########    ##    ##     ## ##   ##         ##
 ##     ## ##        ##       ##    ##  ##     ##    ##    ##     ## ##    ##  ##    ##
  #######  ##        ######## ##     ## ##     ##    ##     #######  ##     ##  ######
-# TODO(CLEANUP)
-class VRayOpExportSetSelected(bpy.types.Operator):
-    bl_idname      = "vray.expset_export_selected"
-    bl_label       = "Export Selected Set"
-    bl_description = "Export selected export set"
 
+
+class VRayOpExportSetBase:
     def execute(self, context):
         VRayScene = context.scene.vray
         VRayExporter  = VRayScene.Exporter
@@ -251,27 +198,40 @@ class VRayOpExportSetSelected(bpy.types.Operator):
 
         if ExportSets.list_item_selected >= 0 and len(ExportSets.list_items) > 0:
             listItem = ExportSets.list_items[ExportSets.list_item_selected]
+            hasAnimation = listItem.use_animation != 'NONE'
 
-            vrsceneFilepath = ExportExportSetItem(listItem)
+            exportResult = ExportExportSetItem(listItem, selectedOnly=self.selectedOnly)
 
-            if ExportSets.generate_preview:
-                # NOTE: Generate animated preview?
-                ProxyTools.LaunchPly2Vrmesh(vrsceneFilepath,
-                    previewFaces=ExportSets.max_preview_faces,
-                    previewOnly=True)
+            if ExportSets.generate_preview and exportResult:
+                if hasAnimation:
+                    err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
+                        previewFaces=ExportSets.max_preview_faces,
+                        previewOnly=True,
+                        frames=exportResult[1])
+                else:
+                    err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
+                        previewFaces=ExportSets.max_preview_faces,
+                        previewOnly=True)
+                if err:
+                    self.report({'ERROR'}, err)
 
             return {'FINISHED'}
 
         return {'CANCELLED'}
 
 
-class VRayOpExportSetAll(bpy.types.Operator):
+class VRayOpExportSetSelected(bpy.types.Operator, VRayOpExportSetBase):
+    bl_idname      = "vray.expset_export_selected"
+    bl_label       = "Export Selected Set"
+    bl_description = "Export selected export set"
+    selectedOnly   = True
+
+
+class VRayOpExportSetAll(bpy.types.Operator, VRayOpExportSetBase):
     bl_idname      = "vray.expset_export_all"
     bl_label       = "Export Sets"
     bl_description = "Export sets"
-
-    def execute(self, context):
-        return {'FINISHED'}
+    selectedOnly   = False
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -286,8 +246,8 @@ def GetRegClasses():
     return (
         VRayExportSetItem,
         VRayExportSet,
-        # VRayOpExportSetSelected,
-        # VRayOpExportSetAll,
+        VRayOpExportSetSelected,
+        VRayOpExportSetAll,
     )
 
 
