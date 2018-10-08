@@ -42,18 +42,16 @@ from vb30 import debug
 
 
 def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=None):
-    ply2vrmeshBin  = "ply2vrmesh{arch}{ext}"
-    ply2vrmeshArch = ""
+    ply2vrmeshBin  = "ply2vrmesh{ext}"
 
     if sys.platform == 'win32':
         ply2vrmeshExt = ".exe"
-        ply2vrmeshArch = "_%s" % SysUtils.GetArch()
     elif sys.platform == 'linux':
         ply2vrmeshExt = ".bin"
     else:
         ply2vrmeshExt = ".mach"
 
-    ply2vrmeshBin = ply2vrmeshBin.format(arch=ply2vrmeshArch, ext=ply2vrmeshExt)
+    ply2vrmeshBin = ply2vrmeshBin.format(ext=ply2vrmeshExt)
 
     exporterPath = SysUtils.GetExporterPath()
     if not exporterPath:
@@ -65,14 +63,23 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
 
     cmd = [ply2vrmesh]
     cmd.append(vrsceneFilepath)
+    if not vrmeshFilepath:
+        vrmeshFilepath = vrsceneFilepath.replace('.vrscene', '.vrmesh')
+    cmd.append(vrmeshFilepath)
+
     if previewFaces:
         cmd.append('-previewFaces')
         cmd.append('%i' % previewFaces)
+
     if previewOnly:
-        cmd.append('-vrscenePreview')
+        debug.Debug('-previewOnly parameter not supported anymore, will generate full .vrmesh file')
+
     if nodeName:
         cmd.append('-vrsceneNodeName')
         cmd.append(nodeName)
+    else:
+        cmd.append('-vrsceneWholeScene')
+
     if useVelocity:
         cmd.append('-vrsceneVelocity')
     if applyTm:
@@ -80,8 +87,6 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
     if frames is not None:
         cmd.append('-vrsceneFrames')
         cmd.append('%i-%i' % (frames[0], frames[1]))
-    if vrmeshFilepath is not None:
-        cmd.append(vrmeshFilepath)
 
     debug.PrintInfo("Calling: %s" % " ".join(cmd))
 
