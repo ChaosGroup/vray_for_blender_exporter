@@ -43,7 +43,7 @@ from vb30 import debug
 import _vray_for_blender_rt
 
 
-def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=None):
+def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=10000):
     ply2vrmeshBin  = "ply2vrmesh{ext}"
 
     if sys.platform == 'win32':
@@ -99,7 +99,7 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
     return None
 
 
-def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, group=None):
+def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, groupName=None, objectName=None):
     scene = bpy.context.scene
 
     arguments = {
@@ -132,8 +132,10 @@ def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelect
 
     if onlySelected:
         optionsArgs['onlySelected'] = True
-    elif group:
-        optionsArgs['groupName'] = group
+    if groupName:
+        optionsArgs['groupName'] = groupName
+    if objectName:
+        optionsArgs['objectName'] = objectName
 
     if _vray_for_blender_rt.set_export_options(**optionsArgs):
         _vray_for_blender_rt.render(exporter)
@@ -394,7 +396,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         # Use current active object UI for initial settings
         ob        = bpy.context.object
         selection = bpy.context.selected_objects
-        oneObject = len(selection)
+        oneObject = len(selection) == 1
 
         GeomMeshFile = ob.data.vray.GeomMeshFile
 
@@ -404,128 +406,104 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         outputDirpath = BlenderUtils.GetFullFilepath(GeomMeshFile.dirpath)
         outputDirpath = PathUtils.CreateDirectory(outputDirpath)
 
+        isDebug = debug.IsDebugMode()
+
         # Create tmp export file
-        vrsceneFilepath = os.path.join(tempfile.gettempdir(), "vrmesh.vrscene")
-        vrsceneFile = open(vrsceneFilepath, 'w')
+        if isDebug:
+            vrsceneOutputDir = os.path.join(outputDirpath)
+        else:
+            vrsceneOutputDir = os.path.join(tempfile.gettempdir())
 
         # Settings
         frames = None
-        frameStart = 1
-        frameStep  = 1
-        if GeomMeshFile.animation not in {'NONE'}:
+        useAnimation = False
+        if GeomMeshFile.animation != 'NONE':
+            useAnimation = True
             if GeomMeshFile.animation == 'MANUAL':
-                frameStart = GeomMeshFile.frame_start
-                frames = (frameStart, GeomMeshFile.frame_end, 1)
+                frames = (GeomMeshFile.frame_start, GeomMeshFile.frame_end)
             else:
-                frameStart = sce.frame_start
-                frameStep  = sce.frame_step
-                frames = (sce.frame_start, sce.frame_end, sce.frame_step)
+                frames = (sce.frame_start, sce.frame_end)
 
         applyTm     = GeomMeshFile.apply_transforms
         useVelocity = GeomMeshFile.add_velocity
 
-        # Export objects meshes and generate nodes name list
-        obPluginNames = []
-        o = VRayStream.VRaySimplePluginExporter(outputFile=vrsceneFile)
+        # generate .vrmesh files
+        for selectedObject in selection:
+            obName = selectedObject.name
+            vrsceneFilepath = os.path.join(vrsceneOutputDir, LibUtils.CleanString(obName) + '.vrscene')
+            exportResult = exportVrsceneForObjects(
+                vrscene=vrsceneFilepath,
+                useAnimation=useAnimation,
+                frames=frames,
+                onlySelected=True,
+                objectName=obName)
 
-        exporter = _vray_for_blender.init(
-            engine  = 0,
-            context = bpy.context.as_pointer(),
-            scene   = sce.as_pointer(),
-            data    = bpy.data.as_pointer(),
-
-            mainFile     = o.output,
-            objectFile   = o.output,
-            envFile      = o.output,
-            geometryFile = o.output,
-            lightsFile   = o.output,
-            materialFile = o.output,
-            textureFile  = o.output,
-
-            drSharePath = "",
-        )
-
-        _vray_for_blender.initAnimation(
-            True,
-            frameStart,
-            1
-        )
-
-        _vray_for_blender.setFrame(frameStart)
-
-        for ob in selection:
-            if ob.type in BlenderUtils.NonGeometryTypes:
-                continue
-            nodeName = None
-            if not frames:
-                nodeName = ExportMeshSample(o, ob)
-            else:
-                sce = bpy.context.scene
-                frame_current = sce.frame_current
-                for f in range(frames[0], frames[1]+frames[2], frames[2]):
-                    bpy.context.scene.frame_set(f)
-                    _vray_for_blender.setFrame(f)
-                    nodeName = ExportMeshSample(o, ob)
-                    _vray_for_blender.clearCache()
-                sce.frame_set(frame_current)
-            obPluginNames.append([ob, nodeName])
-        o.done()
-        vrsceneFile.close()
-
-        _vray_for_blender.clearFrames()
-        _vray_for_blender.exit(exporter)
-
-        # Launch the generator tool
-        err = None
-        for ob, nodeName in obPluginNames:
-            vrmeshName = LibUtils.CleanString(ob.name)
-            if oneObject and GeomMeshFile.filename:
-                vrmeshName = GeomMeshFile.filename
-            vrmeshName += ".vrmesh"
-            vrmeshFilepath = os.path.join(outputDirpath, vrmeshName)
-
-            err = LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath, nodeName, frames, applyTm, useVelocity)
-            if err is not None:
+            if not exportResult:
+                err = 'Failed to export .vrscene for object \"%s\"' % obName
                 break
 
-            if GeomMeshFile.proxy_attach_mode != 'NONE':
-                attachOb = ob
+            vrmeshName = LibUtils.CleanString(obName)
+            if oneObject and GeomMeshFile.filename:
+                vrmeshName = GeomMeshFile.filename
 
-                if GeomMeshFile.proxy_attach_mode == 'NEW':
-                    newName = '%s@VRayProxy' % ob.name
-                    newMesh = bpy.data.meshes.new(newName)
-                    attachOb = bpy.data.objects.new(newName, newMesh)
+            if '.vrmesh' not in vrmeshName:
+                vrmeshName += '.vrmesh'
+            vrmeshFilepath = os.path.join(outputDirpath, vrmeshName)
 
-                    context.scene.objects.link(attachOb)
+            err = LaunchPly2Vrmesh(
+                vrsceneFilepath=vrsceneFilepath,
+                vrmeshFilepath=vrmeshFilepath,
+                frames=frames,
+                applyTm=applyTm,
+                useVelocity=useVelocity)
 
-                BlenderUtils.SelectObject(attachOb)
+            if err:
+                break
 
-                if GeomMeshFile.proxy_attach_mode == 'NEW':
-                    for slot in ob.material_slots:
-                        if slot and slot.material:
-                            attachOb.data.materials.append(slot.material)
-                            attachOb.material_slots[-1].link     = 'OBJECT'
-                            attachOb.material_slots[-1].material = slot.material
+            # TODO: proxy_attach_mode == THIS is not implemented
+            if GeomMeshFile.proxy_attach_mode == 'NONE':
+                # nothing to do with the exported .vrmesh
+                continue
 
-                if GeomMeshFile.apply_transforms:
-                    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-                else:
-                    attachOb.matrix_world = ob.matrix_world
+            attachOb = selectedObject
 
-                CreateProxyNodetree(attachOb, vrmeshFilepath, outputIsRelative)
+            if GeomMeshFile.proxy_attach_mode == 'NEW':
+                newName = '%s@VRayProxy' % ob.name
+                newMesh = bpy.data.meshes.new(newName)
+                attachOb = bpy.data.objects.new(newName, newMesh)
 
-                if GeomMeshFile.proxy_attach_mode in {'NEW', 'REPLACE'}:
-                    LoadProxyPreviewMesh(
-                        attachOb,
-                        vrmeshFilepath,
-                        GeomMeshFile.anim_type,
-                        GeomMeshFile.anim_offset,
-                        GeomMeshFile.anim_speed,
-                        context.scene.frame_current-1
-                    )
+                context.scene.objects.link(attachOb)
 
-        # Remove temp export file
-        os.remove(vrsceneFilepath)
+            BlenderUtils.SelectObject(attachOb)
+            debug.PrintError("Replacing ob [%s] with proxy [%s]" % (obName, vrmeshFilepath))
+
+            if GeomMeshFile.proxy_attach_mode == 'NEW':
+                for slot in ob.material_slots:
+                    if slot and slot.material:
+                        attachOb.data.materials.append(slot.material)
+                        attachOb.material_slots[-1].link     = 'OBJECT'
+                        attachOb.material_slots[-1].material = slot.material
+
+            if GeomMeshFile.apply_transforms:
+                bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+            else:
+                attachOb.matrix_world = ob.matrix_world
+
+            CreateProxyNodetree(attachOb, vrmeshFilepath, outputIsRelative)
+
+            if GeomMeshFile.proxy_attach_mode in {'NEW', 'REPLACE'}:
+                LoadProxyPreviewMesh(
+                    attachOb,
+                    vrmeshFilepath,
+                    GeomMeshFile.anim_type,
+                    GeomMeshFile.anim_offset,
+                    GeomMeshFile.anim_speed,
+                    context.scene.frame_current-1
+                )
+
+            # Remove temp export file
+            if not isDebug:
+                os.remove(vrsceneFilepath)
 
         if err:
             self.report({'ERROR'}, "Error generating VRayProxy! Check system console!")
