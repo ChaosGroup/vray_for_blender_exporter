@@ -40,6 +40,8 @@ from vb30.nodes import tools as NodesTools
 from vb30.vray_tools import VRayProxy
 from vb30 import debug
 
+import _vray_for_blender_rt
+
 
 def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=None):
     ply2vrmeshBin  = "ply2vrmesh{ext}"
@@ -95,6 +97,74 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
         return "Error generating vrmesh file!"
 
     return None
+
+
+def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, group=None):
+    scene = bpy.context.scene
+
+    arguments = {
+        'context'      : bpy.context.as_pointer(),
+        'engine'       : 0,
+        'data'         : bpy.data.as_pointer(),
+        'scene'        : scene.as_pointer(),
+        'mainFile'     : vrscene,
+        'objectFile'   : vrscene,
+        'envFile'      : vrscene,
+        'geometryFile' : vrscene,
+        'lightsFile'   : vrscene,
+        'materialFile' : vrscene,
+        'textureFile'  : vrscene,
+        'cameraFile'   : vrscene,
+    }
+
+    exporter = _vray_for_blender_rt.init(**arguments)
+    if not exporter:
+        return None
+
+    optionsArgs = {
+        'exporter': exporter,
+        'useAnimation': useAnimation,
+    }
+
+    if useAnimation and frames:
+        optionsArgs['firstFrame'] = frames[0]
+        optionsArgs['lastFrame'] = frames[1]
+
+    if onlySelected:
+        optionsArgs['onlySelected'] = True
+    elif group:
+        optionsArgs['groupName'] = group
+
+    if _vray_for_blender_rt.set_export_options(**optionsArgs):
+        _vray_for_blender_rt.render(exporter)
+
+    _vray_for_blender_rt.free(exporter)
+
+    if not frames:
+        frames = (scene.frame_start, scene.frame_end)
+    return (vrscene, frames)
+
+
+def exportVrmeshForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, group=''):
+    exportResult = exportVrsceneForObjects(
+        vrscene=vrscene,
+        useAnimation=useAnimation,
+        frames=frames,
+        onlySelected=onlySelected,
+        group=group)
+
+    if not exportResult:
+        return exportResult
+
+    if hasAnimation:
+        err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
+            previewFaces=ExportSets.max_preview_faces,
+            frames=exportResult[1])
+    else:
+        err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
+            previewFaces=ExportSets.max_preview_faces)
+
+    return err
 
 
 def ExportMeshSample(o, ob):
