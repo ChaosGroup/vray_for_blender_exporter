@@ -37,6 +37,7 @@ from vb30.nodes import importing as NodesImport
 from vb30.nodes import tools     as NodesTools
 from vb30.nodes import export    as NodesExport
 from vb30.nodes import sockets   as NodesSockets
+from vb30 import export as ExportTools
 
 from vb30.ui import classes
 
@@ -518,57 +519,25 @@ class VRayNodeExportAsset(bpy.types.Operator):
 
         outputFilepath = os.path.normpath(os.path.join(userNodeAssetPath, fileName))
 
-        # Create exporter (output)
-        o = VRayStream.VRaySimplePluginExporter(outputFilepath)
+        ntree = context.space_data.edit_tree
+        # TODO:
+        # selectedNode = context.selected_nodes[0]
 
-        exporter = _vray_for_blender.init(
-            engine  = 0,
-            context = bpy.context.as_pointer(),
-            scene   = bpy.context.scene.as_pointer(),
-            data    = bpy.data.as_pointer(),
-
-            mainFile     = o.output,
-            objectFile   = o.output,
-            envFile      = o.output,
-            geometryFile = o.output,
-            lightsFile   = o.output,
-            materialFile = o.output,
-            textureFile  = o.output,
-
-            drSharePath = "",
+        exportResult = ExportTools.nonRenderVrsceneExport(
+            vrscene=outputFilepath,
+            ntree=ntree,
         )
 
-        # Get selected nodes
-        ntree        = context.space_data.edit_tree
-        selectedNode = context.selected_nodes[0]
+        if not exportResult:
+            return {'CANCELLED'}
 
-        if selectedNode.bl_idname == 'VRayNodeRenderChannels':
-            pluginNames = []
-
-            for inSock in selectedNode.inputs:
-                pluginNames.append(NodesExport.WriteConnectedNode(None, ntree, inSock))
-
-            pluginName = "List(%s)" % ",".join(pluginNames)
-
-        else:
-            if selectedNode.bl_idname == 'VRayNodeOutputMaterial':
-                selectedNode = NodesExport.GetConnectedNode(ntree, selectedNode.inputs['Material'])
-
-            # TODO: CLEANUP
-            pluginName = _vray_for_blender.exportNode(
-                ntree.as_pointer(),
-                selectedNode.as_pointer(),
-                None
-            )
-
+        # TODO: is this needed?
         # Write fake Asset node
         o.set('MAIN', 'Asset', self.asset_type.capitalize())
         o.writeHeader()
         o.writeAttibute(self.asset_type, pluginName)
         o.writeFooter()
         o.done()
-
-        _vray_for_blender.exit(exporter)
 
         return {'FINISHED'}
 
@@ -600,7 +569,7 @@ def GetRegClasses():
         VRayPresetMenuNodeMaterial,
         VRayNodeTemplatesSubMenus,
 
-        # VRayNodeExportAsset,
+        VRayNodeExportAsset,
     )
 
 

@@ -54,22 +54,3 @@ def GetOutputNode(ntree):
         return None
 
     return GetNodeByType(ntree, outputNodeType)
-
-
-######## ##     ## ########   #######  ########  ########
-##        ##   ##  ##     ## ##     ## ##     ##    ##
-##         ## ##   ##     ## ##     ## ##     ##    ##
-######      ###    ########  ##     ## ########     ##
-##         ## ##   ##        ##     ## ##   ##      ##
-##        ##   ##  ##        ##     ## ##    ##     ##
-######## ##     ## ##         #######  ##     ##    ##
-
-def WriteConnectedNode(_unused_, nodetree, nodeSocket):
-    connectedNode = GetConnectedNode(nodetree, nodeSocket)
-    if connectedNode:
-        # TODO: CLEANUP
-        return _vray_for_blender.exportNode(
-            nodetree.as_pointer(),
-            connectedNode.as_pointer(),
-            nodeSocket.as_pointer()
-        )

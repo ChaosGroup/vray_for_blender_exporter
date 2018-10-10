@@ -233,8 +233,8 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 		subsub.operator('vray.includer_remove', text="", icon="ZOOMOUT")
 		sub= col.row()
 		subsub= sub.column(align=True)
-		subsub.operator("vray.includer_up",   icon='MOVE_UP_VEC',   text="")
-		subsub.operator("vray.includer_down", icon='MOVE_DOWN_VEC', text="")
+		subsub.operator("vray.includer_up",   icon='TRIA_UP',   text="")
+		subsub.operator("vray.includer_down", icon='TRIA_DOWN', text="")
 
 		if module.nodes_selected >= 0 and len(module.nodes) > 0:
 			render_node= module.nodes[module.nodes_selected]

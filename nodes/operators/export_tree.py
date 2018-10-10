@@ -34,7 +34,6 @@ from vb30.lib import VRayStream
 
 from vb30 import debug
 
-# TODO(CLEANUP)
 
 class VRAY_OT_export_nodetree(bpy.types.Operator):
     bl_idname      = "vray.export_nodetree"
