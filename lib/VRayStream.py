@@ -192,3 +192,71 @@ def getExportFilesPaths(engine, scene):
         'scene': fileTypePaths
     }
 
+class VRaySimplePluginExporter:
+    def __init__(self, outputFilepath=None, outputFile=None):
+        self.output = outputFile if outputFile else open(outputFilepath, 'w')
+
+        self.namesCache = set()
+
+        # Currently processed plugin
+        self.pluginType  = None
+        self.pluginID    = None
+        self.pluginName  = None
+        self.pluginAttrs = None
+
+    def __del__(self):
+        self.done()
+
+    # Set params for currently exported plugin
+    #
+    def set(self, pluginType, pluginID, pluginName):
+        self.pluginType  = pluginType
+        self.pluginID    = pluginID
+        self.pluginName  = pluginName
+        self.pluginAttrs = {}
+
+    # Useless right now; keep for compatibility
+    def writeHeader(self):
+        if self.pluginName in self.namesCache:
+            self.pluginID   = None
+            self.pluginName = None
+
+    def writeAttibute(self, attrName, val):
+        # Could also mean that plugin is already exported
+        if not self.pluginID and not self.pluginName:
+            return
+        # Store value for writing
+        self.pluginAttrs[attrName] = LibUtils.FormatValue(val)
+
+    # This will actually write plugin data to file
+    def writeFooter(self):
+        # Could also mean that plugin is already exported
+        if not self.pluginID and not self.pluginName:
+            return
+        # No attributes are collected for write
+        if not self.pluginAttrs:
+            return
+
+        p = "\n%s %s {" % (self.pluginID, PluginUtils.PluginName(self.pluginName))
+        for attrName in sorted(self.pluginAttrs.keys()):
+            p += "\n\t%s=%s;" % (attrName, self.pluginAttrs[attrName])
+        p += "\n}\n"
+
+        self.output.write(p)
+
+        # Reset current plugin
+        self.pluginType  = None
+        self.pluginID    = None
+        self.pluginName  = None
+        self.pluginAttrs = None
+
+    # Writes arbitary data to file
+    def write(self, pluginType, data):
+        self.output.write(data)
+
+    def isPreviewRender(self):
+        return False
+
+    def done(self):
+        if self.output and not self.output.closed:
+            self.output.close()

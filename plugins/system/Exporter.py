@@ -44,7 +44,7 @@ DESC = "Exporter configuration"
 def _mtlEditorUpdatePreview(self, context):
     if self.materialListIndexPrev != self.materialListIndex:
         self.materialListIndexPrev = self.materialListIndex
-        # _vray_for_blender.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
+        _vray_for_blender_rt.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
 
 
 class VRayExporterSetBinary(bpy.types.Operator):
