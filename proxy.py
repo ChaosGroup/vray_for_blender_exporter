@@ -147,49 +147,6 @@ def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelect
     return (vrscene, frames)
 
 
-def exportVrmeshForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, group=''):
-    exportResult = exportVrsceneForObjects(
-        vrscene=vrscene,
-        useAnimation=useAnimation,
-        frames=frames,
-        onlySelected=onlySelected,
-        group=group)
-
-    if not exportResult:
-        return exportResult
-
-    if hasAnimation:
-        err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
-            previewFaces=ExportSets.max_preview_faces,
-            frames=exportResult[1])
-    else:
-        err = ProxyTools.LaunchPly2Vrmesh(exportResult[0],
-            previewFaces=ExportSets.max_preview_faces)
-
-    return err
-
-
-def ExportMeshSample(o, ob):
-    nodeName = BlenderUtils.GetObjectName(ob)
-    geomName = BlenderUtils.GetObjectName(ob, prefix='ME')
-
-    o.set('OBJECT', 'Node', nodeName)
-    o.writeHeader()
-    o.writeAttibute('geometry', geomName)
-    o.writeAttibute('transform', ob.matrix_world)
-    o.writeFooter()
-
-    _vray_for_blender.exportMesh(
-        bpy.context.as_pointer(),   # Context
-        ob.as_pointer(),            # Object
-        geomName,                   # Result plugin name
-        None,                       # propGroup
-        o.output                    # Output file
-    )
-
-    return nodeName
-
-
 def LoadProxyPreviewMesh(ob, filepath, anim_type, anim_offset, anim_speed, anim_frame):
     meshFile = VRayProxy.MeshFile(filepath)
 
