@@ -41,6 +41,57 @@ from vb30 import debug
 import _vray_for_blender_rt
 
 
+def nonRenderVrsceneExport(vrscene, useAnimation=False, frames=None, onlySelected=False, groupName=None, objectName=None, ntree=None):
+    scene = bpy.context.scene
+
+    arguments = {
+        'context'      : bpy.context.as_pointer(),
+        'engine'       : 0,
+        'data'         : bpy.data.as_pointer(),
+        'scene'        : scene.as_pointer(),
+        'mainFile'     : vrscene,
+        'objectFile'   : vrscene,
+        'envFile'      : vrscene,
+        'geometryFile' : vrscene,
+        'lightsFile'   : vrscene,
+        'materialFile' : vrscene,
+        'textureFile'  : vrscene,
+        'cameraFile'   : vrscene,
+    }
+
+    exporter = _vray_for_blender_rt.init(**arguments)
+    if not exporter:
+        return None
+
+    optionsArgs = {
+        'exporter': exporter,
+        'useAnimation': useAnimation,
+    }
+
+    if useAnimation and frames:
+        optionsArgs['firstFrame'] = frames[0]
+        optionsArgs['lastFrame'] = frames[1]
+
+    if onlySelected:
+        optionsArgs['onlySelected'] = True
+    if groupName:
+        optionsArgs['groupName'] = groupName
+    if objectName:
+        optionsArgs['objectName'] = objectName
+    if ntree:
+        optionsArgs['ntreeId'] = ntree.id_data.as_pointer()
+        optionsArgs['ntree'] = ntree.as_pointer()
+
+    if _vray_for_blender_rt.set_export_options(**optionsArgs):
+        _vray_for_blender_rt.render(exporter)
+
+    _vray_for_blender_rt.free(exporter)
+
+    if not frames:
+        frames = (scene.frame_start, scene.frame_end)
+    return (vrscene, frames)
+
+
 
 def ExportEx(bus):
     debug.Debug("ExportEx()")

@@ -39,6 +39,7 @@ from vb30.nodes import tools as NodesTools
 
 from vb30.vray_tools import VRayProxy
 from vb30 import debug
+from vb30 import export as ExportTools
 
 import _vray_for_blender_rt
 
@@ -97,54 +98,6 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
         return "Error generating vrmesh file!"
 
     return None
-
-
-def exportVrsceneForObjects(vrscene, useAnimation=False, frames=None, onlySelected=False, groupName=None, objectName=None):
-    scene = bpy.context.scene
-
-    arguments = {
-        'context'      : bpy.context.as_pointer(),
-        'engine'       : 0,
-        'data'         : bpy.data.as_pointer(),
-        'scene'        : scene.as_pointer(),
-        'mainFile'     : vrscene,
-        'objectFile'   : vrscene,
-        'envFile'      : vrscene,
-        'geometryFile' : vrscene,
-        'lightsFile'   : vrscene,
-        'materialFile' : vrscene,
-        'textureFile'  : vrscene,
-        'cameraFile'   : vrscene,
-    }
-
-    exporter = _vray_for_blender_rt.init(**arguments)
-    if not exporter:
-        return None
-
-    optionsArgs = {
-        'exporter': exporter,
-        'useAnimation': useAnimation,
-    }
-
-    if useAnimation and frames:
-        optionsArgs['firstFrame'] = frames[0]
-        optionsArgs['lastFrame'] = frames[1]
-
-    if onlySelected:
-        optionsArgs['onlySelected'] = True
-    if groupName:
-        optionsArgs['groupName'] = groupName
-    if objectName:
-        optionsArgs['objectName'] = objectName
-
-    if _vray_for_blender_rt.set_export_options(**optionsArgs):
-        _vray_for_blender_rt.render(exporter)
-
-    _vray_for_blender_rt.free(exporter)
-
-    if not frames:
-        frames = (scene.frame_start, scene.frame_end)
-    return (vrscene, frames)
 
 
 def LoadProxyPreviewMesh(ob, filepath, anim_type, anim_offset, anim_speed, anim_frame):
@@ -388,7 +341,7 @@ class VRAY_OT_create_proxy(bpy.types.Operator):
         for selectedObject in selection:
             obName = selectedObject.name
             vrsceneFilepath = os.path.join(vrsceneOutputDir, LibUtils.CleanString(obName) + '.vrscene')
-            exportResult = exportVrsceneForObjects(
+            exportResult = ExportTools.nonRenderVrsceneExport(
                 vrscene=vrsceneFilepath,
                 useAnimation=useAnimation,
                 frames=frames,

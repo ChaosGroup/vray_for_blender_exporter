@@ -554,6 +554,7 @@ class VRayNodeExportAsset(bpy.types.Operator):
             if selectedNode.bl_idname == 'VRayNodeOutputMaterial':
                 selectedNode = NodesExport.GetConnectedNode(ntree, selectedNode.inputs['Material'])
 
+            # TODO: CLEANUP
             pluginName = _vray_for_blender.exportNode(
                 ntree.as_pointer(),
                 selectedNode.as_pointer(),

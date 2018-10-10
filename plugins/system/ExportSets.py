@@ -34,6 +34,7 @@ from vb30.lib import VRayStream
 from vb30.lib.VRayStream import getExportFilesPaths
 
 from vb30 import proxy as ProxyTools
+from vb30 import export as ExportTools
 
 TYPE = 'SYSTEM'
 ID   = 'ExportSets'
@@ -65,7 +66,7 @@ def ExportExportSetItem(item, allObjects):
     frameStart = item.frame_start if item.use_animation == 'MANUAL' else scene.frame_start
     frameEnd   = item.frame_end   if item.use_animation == 'MANUAL' else scene.frame_end
 
-    return ProxyTools.exportVrsceneForObjects(
+    return ExportTools.nonRenderVrsceneExport(
         vrscene=vrsceneFilepath,
         useAnimation=item.use_animation != 'NONE',
         frames=(frameStart, frameEnd),

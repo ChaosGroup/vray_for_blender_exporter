@@ -27,6 +27,7 @@ import os
 import bpy
 
 from vb30.nodes import export as NodesExport
+from vb30 import export as ExportTools
 
 from vb30.lib import BlenderUtils, PathUtils, LibUtils
 from vb30.lib import VRayStream
@@ -48,49 +49,19 @@ class VRAY_OT_export_nodetree(bpy.types.Operator):
             return {'CANCELLED'}
 
         ntree = bpy.data.node_groups[selectedNodeTree]
-
-        outputNode = NodesExport.GetOutputNode(ntree)
-        if not outputNode:
-            return {'CANCELLED'}
-
         exportPath = BlenderUtils.GetFullFilepath(VRayExporter.ntreeExportDirectory)
         exportPath = PathUtils.CreateDirectory(exportPath)
 
         fileName = "%s.vrscene" % LibUtils.CleanString(ntree.name)
-
         outputFilepath = os.path.normpath(os.path.join(exportPath, fileName))
 
         debug.PrintInfo('Exporting "%s" to: "%s"' % (ntree.name, outputFilepath))
-
-        o = VRayStream.VRaySimplePluginExporter(outputFilepath)
-
-        exporter = _vray_for_blender.init(
-            engine  = 0,
-            context = bpy.context.as_pointer(),
-            scene   = bpy.context.scene.as_pointer(),
-            data    = bpy.data.as_pointer(),
-
-            mainFile     = o.output,
-            objectFile   = o.output,
-            envFile      = o.output,
-            geometryFile = o.output,
-            lightsFile   = o.output,
-            materialFile = o.output,
-            textureFile  = o.output,
-
-            drSharePath = "",
-        )
-
-        for sock in outputNode.inputs:
-            conNode = NodesExport.GetConnectedNode(ntree, sock)
-            if conNode:
-                _vray_for_blender.exportNode(
-                    ntree.as_pointer(),
-                    conNode.as_pointer(),
-                    sock.as_pointer()
-                )
-
-        _vray_for_blender.exit(exporter)
+        exportResult = ExportTools.nonRenderVrsceneExport(
+            vrscene=outputFilepath,
+            objectName=VRayExporter.currentContextObject.name,
+            ntree=ntree)
+        if not exportResult:
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 
@@ -105,7 +76,7 @@ class VRAY_OT_export_nodetree(bpy.types.Operator):
 
 def GetRegClasses():
     return (
-        # VRAY_OT_export_nodetree,
+        VRAY_OT_export_nodetree,
     )
 
 

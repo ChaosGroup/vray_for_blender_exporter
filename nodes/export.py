@@ -67,6 +67,7 @@ def GetOutputNode(ntree):
 def WriteConnectedNode(_unused_, nodetree, nodeSocket):
     connectedNode = GetConnectedNode(nodetree, nodeSocket)
     if connectedNode:
+        # TODO: CLEANUP
         return _vray_for_blender.exportNode(
             nodetree.as_pointer(),
             connectedNode.as_pointer(),

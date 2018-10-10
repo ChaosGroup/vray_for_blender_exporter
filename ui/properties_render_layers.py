@@ -80,6 +80,7 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box = self.layout.box()
 		box.prop(VRayExporter, 'ntreeExportDirectory', text="Path")
 		box.separator()
+		box.prop(VRayExporter, 'currentContextObject', text="Context Object")
 		box.operator("vray.export_nodetree", text="Export Selected Nodetree", icon='NODETREE')
 
 		box = self.layout.box()
