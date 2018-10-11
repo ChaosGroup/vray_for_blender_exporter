@@ -520,24 +520,16 @@ class VRayNodeExportAsset(bpy.types.Operator):
         outputFilepath = os.path.normpath(os.path.join(userNodeAssetPath, fileName))
 
         ntree = context.space_data.edit_tree
-        # TODO:
-        # selectedNode = context.selected_nodes[0]
+        selectedNode = context.selected_nodes[0]
 
         exportResult = ExportTools.nonRenderVrsceneExport(
             vrscene=outputFilepath,
             ntree=ntree,
+            assetType=self.asset_type,
         )
 
         if not exportResult:
             return {'CANCELLED'}
-
-        # TODO: is this needed?
-        # Write fake Asset node
-        o.set('MAIN', 'Asset', self.asset_type.capitalize())
-        o.writeHeader()
-        o.writeAttibute(self.asset_type, pluginName)
-        o.writeFooter()
-        o.done()
 
         return {'FINISHED'}
 
@@ -560,8 +552,9 @@ def GetRegClasses():
 
         VRayPresetMenuIM,
 
-        VRayPresetApply,
-        VRayPresetApplyNode,
+        # Disable these as for now
+        #VRayPresetApply,
+        #VRayPresetApplyNode,
 
         VRayPresetMenuNodeEffects,
         VRayPresetMenuNodeRenderChannel,

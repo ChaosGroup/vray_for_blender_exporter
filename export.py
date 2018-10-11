@@ -41,7 +41,7 @@ from vb30 import debug
 import _vray_for_blender_rt
 
 
-def nonRenderVrsceneExport(vrscene, useAnimation=False, frames=None, onlySelected=False, groupName=None, objectName=None, ntree=None):
+def nonRenderVrsceneExport(vrscene, useAnimation=False, frames=None, onlySelected=False, groupName=None, objectName=None, ntree=None, assetType=None):
     scene = bpy.context.scene
 
     arguments = {
@@ -81,6 +81,8 @@ def nonRenderVrsceneExport(vrscene, useAnimation=False, frames=None, onlySelecte
     if ntree:
         optionsArgs['ntreeId'] = ntree.id_data.as_pointer()
         optionsArgs['ntree'] = ntree.as_pointer()
+        if assetType:
+            optionsArgs['assetType'] = assetType
 
     if _vray_for_blender_rt.set_export_options(**optionsArgs):
         _vray_for_blender_rt.render(exporter)
