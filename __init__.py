@@ -24,7 +24,7 @@
 
 bl_info = {
     "name"        : "V-Ray For Blender 4.0",
-    "author"      : "Andrei Izrantcev <andrei.izrantcev@chaosgroup.com>",
+    "author"      : "Andrei Izrantcev <andrei.izrantcev@chaosgroup.com>, Lyubomir Koev <lyubomir.koev@chaosgroup.com>",
     "blender"     : (2, 79, 0),
     "location"    : "Info header, render engine menu",
     "description" : "Exporter to the V-Ray Standalone file format",
