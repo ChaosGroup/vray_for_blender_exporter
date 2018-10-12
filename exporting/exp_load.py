@@ -28,7 +28,7 @@ import os
 from vb30 import debug
 
 @debug.TimeIt
-def LoadImage(scene, engine, o, p):
+def LoadImage(scene, engine, imageFile, p):
     VRayScene    = scene.vray
     VRayExporter = VRayScene.Exporter
 
@@ -39,9 +39,7 @@ def LoadImage(scene, engine, o, p):
     if not (engine.is_preview or imageToBlender):
         return
 
-    pm = o.getFileManager().getPathManager()
-
-    imageFile = pm.getImgLoadFilepath()
+    debug.Debug('ImageFile [%s]' % imageFile)
 
     # There was some version that was always adding frame number
     imageFilePreviewCompat = imageFile.replace("preview.exr", "preview.000%i.exr" % scene.frame_current)

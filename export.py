@@ -108,6 +108,7 @@ def ExportEx(bus):
 
     pathSettings = getExportFilesPaths(engine, scene)
     bus['outputFilePath'] = pathSettings['scene']['MAIN']
+    bus['renderedImagePath'] = ''
 
     try:
 
@@ -144,6 +145,7 @@ def ExportEx(bus):
         if renderer:
             setattr(engine, 'renderer', renderer)
             _vray_for_blender_rt.render(renderer)
+            bus['renderedImagePath'] = _vray_for_blender_rt.getRenderedImagePath(renderer)
 
     except Exception as e:
         debug.ExceptionInfo(e)

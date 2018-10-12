@@ -144,7 +144,7 @@ def Run(bus):
             webbrowser.open("https://www.chaosgroup.com/cloud")
 
     if imageToBlender or engine.is_preview:
-        exp_load.LoadImage(scene, engine, o, p)
+        exp_load.LoadImage(scene, engine, bus['renderedImagePath'], p)
 
 
 def RunEx(bus):
