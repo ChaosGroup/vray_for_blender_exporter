@@ -23,14 +23,14 @@
 #
 
 bl_info = {
-    "name"        : "V-Ray For Blender 3.0",
+    "name"        : "V-Ray For Blender 4.0",
     "author"      : "Andrei Izrantcev <andrei.izrantcev@chaosgroup.com>",
-    "blender"     : (2, 70, 0),
+    "blender"     : (2, 79, 0),
     "location"    : "Info header, render engine menu",
     "description" : "Exporter to the V-Ray Standalone file format",
     "warning"     : "",
-    "wiki_url"    : "https://github.com/bdancer/vb30/wiki",
-    "tracker_url" : "https://github.com/bdancer/blender-for-vray/issues",
+    "wiki_url"    : "https://github.com/ChaosGroup/vray_for_blender_exporter/wiki",
+    "tracker_url" : "https://github.com/ChaosGroup/blender_with_vray_additions/issues",
     "category"    : "Render"
 }
 
