@@ -71,7 +71,6 @@ def update_world_preview(ob):
 
 @bpy.app.handlers.persistent
 def update_material_preview(sce):
-    pass
     _vray_for_blender_rt.updatePreview(bpy.context.as_pointer(), BlenderUtils.NC_MATERIAL)
 
 
