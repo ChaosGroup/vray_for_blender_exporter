@@ -260,7 +260,7 @@ def GetDefaultZmqPath():
 def GetZmqInstallPath():
     if 'VRAY_ZMQSERVER_APPSDK_PATH' in os.environ:
         libFile = os.environ['VRAY_ZMQSERVER_APPSDK_PATH']
-        zmqPath = os.path.normpath(os.path.dirname(libFile))
+        zmqPath = os.path.normpath(os.path.join(os.path.dirname(libFile), '..'))
         return zmqPath
     else:
         debug.PrintError("Missing environment variable \"VRAY_ZMQSERVER_APPSDK_PATH\", will use default")

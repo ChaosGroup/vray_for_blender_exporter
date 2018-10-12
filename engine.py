@@ -147,7 +147,7 @@ class ZMQProcess:
             executable_path = SysUtils.GetZmqPath()
 
             if not executable_path or not os.path.exists(executable_path):
-                debug.PrintError("Can't find V-Ray ZMQ Server!")
+                debug.PrintError("Can't find V-Ray ZMQ Server in [%s]!" % executable_path)
                 return
 
             envAppSDK = os.environ.copy()
