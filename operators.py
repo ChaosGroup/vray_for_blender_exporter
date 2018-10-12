@@ -43,9 +43,7 @@ from vb30         import debug
 
 import _vray_for_blender_rt
 
-HAS_ZMQ = SysUtils.hasZMQEnabled()
-if HAS_ZMQ:
-	from vb30.engine  import ZMQ
+from vb30.engine  import ZMQ
 
 
 ##     ## ########  ########     ###    ######## ########
@@ -490,10 +488,6 @@ class VRayOpZmqRun(bpy.types.Operator):
 	bl_description = "Force start/stop zmq server"
 
 	def execute(self, context):
-		if not HAS_ZMQ:
-			self.report({'ERROR'}, "ZMQ not supported")
-			return {'CANCELLED'}
-
 		if ZMQ.is_running():
 			ZMQ.stop()
 		else:

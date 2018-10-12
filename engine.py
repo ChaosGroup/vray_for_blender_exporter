@@ -37,9 +37,6 @@ from vb30.plugins import PLUGINS_ID
 
 import _vray_for_blender_rt
 
-# Check if current build support new RT exporter
-HAS_ZMQ = SysUtils.hasZMQEnabled()
-
 
 # This will hold handle to subprocess.Popen to the zmq server if
 # it is started in local mode, and it should be terminated on Shutdown()
@@ -75,27 +72,22 @@ class ZMQProcess:
         self._heartbeat_running = False
         debug.Debug('ZMQ stopping heartbeat')
 
-    def use_zmq(self):
-        return SysUtils.hasZMQEnabled()
-
     def is_local(self):
         return bpy.context.scene.vray.Exporter.backend_worker == 'LOCAL'
 
     def should_start(self):
-        should_start = self.use_zmq() and self.is_local()
+        should_start = self.is_local()
         debug.Debug('ZMQ should start %s' % should_start)
         return should_start
 
     def check_heartbeat(self):
-        if self.use_zmq():
-            if not self._heartbeat_running:
-                self.start_heartbeat()
+        if not self._heartbeat_running:
+            self.start_heartbeat()
 
     def check_start(self):
-        if self.use_zmq():
-            if self.is_local():
-                self.start()
-            self.check_heartbeat()
+        if self.is_local():
+            self.start()
+        self.check_heartbeat()
 
     def is_running(self):
         running = False
@@ -199,10 +191,7 @@ class ZMQProcess:
             except Exception as e:
                 debug.PrintError(e)
 
-if HAS_ZMQ:
-    ZMQ = ZMQProcess()
-else:
-    ZMQ = None
+ZMQ = ZMQProcess()
 
 
 def init():
@@ -212,8 +201,7 @@ def init():
 
 def shutdown():
     _vray_for_blender_rt.unload()
-    if HAS_ZMQ:
-        ZMQ.stop();
+    ZMQ.stop();
 
 
 class VRayRenderer(bpy.types.RenderEngine):
@@ -420,7 +408,7 @@ class VRayRenderer(bpy.types.RenderEngine):
         if self.renderer:
             _vray_for_blender_rt.view_update(self.renderer)
 
-    def _view_draw(self, context):
+    def view_draw(self, context):
         if not self.doRender():
             return
         if self.renderer:
@@ -429,11 +417,6 @@ class VRayRenderer(bpy.types.RenderEngine):
     # OSL scripts
     def update_script_node(self, node):
         osl.update_script_node(node, self.report)
-
-# Internally Blender check for 'view_draw' method to decide if it will show
-# viewport 'RENDERED' mode
-if HAS_ZMQ:
-    VRayRenderer.view_draw = VRayRenderer._view_draw
 
 
 def GetRegClasses():
@@ -446,8 +429,7 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    if HAS_ZMQ:
-        bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
+    bpy.app.handlers.load_post.append(lambda: ZMQ.check_heartbeat())
 
 
 def unregister():

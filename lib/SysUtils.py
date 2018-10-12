@@ -277,13 +277,7 @@ def GetAppsdkPath():
     return os.path.join(GetZmqInstallPath(), 'appsdk')
 
 
-def hasZMQEnabled():
-    if 'VRAY_FOR_BLENDER_RT' in os.environ:
-        return int(os.environ['VRAY_FOR_BLENDER_RT'])
-    return False
-
-
 def getExporterBackendList():
     import _vray_for_blender_rt
     backends = _vray_for_blender_rt.getExporterTypes()
-    return (item for item in backends if (hasZMQEnabled() or item[0] != 'ZMQ'))
+    return (item for item in backends)
