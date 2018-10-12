@@ -217,7 +217,7 @@ def shutdown():
 
 
 class VRayRenderer(bpy.types.RenderEngine):
-    bl_idname = 'VRAY_RENDER_RT'
+    bl_idname = 'VRAY_RENDERER'
     bl_label = "V-Ray"
     bl_use_preview = True
     bl_preview_filepath = SysUtils.GetPreviewBlend()

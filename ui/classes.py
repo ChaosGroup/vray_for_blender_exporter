@@ -38,9 +38,6 @@ from vb30     import plugins
 ########  ######## ##       #### ##    ## ########  ######
 
 VRayEngines = {
-    'VRAY_RENDER',
-    'VRAY_RENDER_PREVIEW',
-    'VRAY_RENDER_RT',
     'VRAY_RENDERER'
 }
 

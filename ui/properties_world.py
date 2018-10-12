@@ -34,7 +34,7 @@ class VRayPanelWorldPreview(classes.VRayWorldPanel):
     bl_label = "Preview"
     bl_options = {'HIDE_HEADER'}
 
-    COMPAT_ENGINES = {'VRAY_RENDER_PREVIEW', 'VRAY_RENDER_RT'}
+    COMPAT_ENGINES = {'VRAY_RENDERER'}
 
     def draw(self, context):
         self.layout.template_preview(context.world)
