@@ -117,18 +117,17 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
 
-		if context.scene.render.engine in {'VRAY_RENDER_RT'}:
-			expandIcon = 'TRIA_DOWN' if VRayExporter.materialListShowPreview else 'TRIA_RIGHT'
+		expandIcon = 'TRIA_DOWN' if VRayExporter.materialListShowPreview else 'TRIA_RIGHT'
 
-			box = self.layout.box()
-			row = box.row(align=True)
-			row.prop(VRayExporter, 'materialListShowPreview', text="",  icon=expandIcon, emboss=False)
-			row.label(text="Show Preview")
+		box = self.layout.box()
+		row = box.row(align=True)
+		row.prop(VRayExporter, 'materialListShowPreview', text="",  icon=expandIcon, emboss=False)
+		row.label(text="Show Preview")
 
-			if VRayExporter.materialListShowPreview:
-					material = self.getMaterial(context)
-					if material:
-						box.template_preview(material, show_buttons=True)
+		if VRayExporter.materialListShowPreview:
+				material = self.getMaterial(context)
+				if material:
+					box.template_preview(material, show_buttons=True)
 
 		self.layout.operator('vray.new_material', text="New Material", icon='MATERIAL')
 

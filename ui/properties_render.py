@@ -274,9 +274,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 			col.prop(VRayExporter, 'customRenderLayers', text="")
 		col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.prop(VRayExporter, 'draft')
-
-		if context.scene.render.engine == 'VRAY_RENDER_RT':
-			col.prop(VRayExporter, 'select_node_preview')
+		col.prop(VRayExporter, 'select_node_preview')
 
 		layout.separator()
 		row = layout.row(align=True)
@@ -538,50 +536,49 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		layout.label(text="Options:")
 
-		if context.scene.render.engine == 'VRAY_RENDER_RT':
+		box = layout.box()
+		box.label("Renderer:")
+		box.prop(VRayExporter, 'backend', text="Type")
+		if VRayExporter.backend not in {'STD'}:
+			box.prop(VRayExporter, 'work_mode', text="Work Mode")
+
+		if VRayExporter.backend in {'ZMQ'}:
+			if not zmqRunning:
+				box.prop(VRayExporter, 'backend_worker')
+
+			action = 'Start' if engine.ZMQ.is_local() else 'Connect'
+			stat = 'STOPPED'
+			icon = GetRenderIcon(VRayExporter)
+
+			if engine.ZMQ.is_running():
+				action = 'Stop'
+				stat = 'RUNNING'
+				icon = 'CANCEL'
+
+			box.label(text='ZMQ server status: %s' % stat)
+			if not engine.ZMQ.is_local() and not zmqRunning:
+				box.prop(VRayExporter, 'zmq_address')
+
+			# always show operator
+			box.operator("vray.zmq_update", text=action, icon=icon)
+
+			if not zmqRunning:
+				box.prop(VRayExporter, 'zmq_port')
+				if engine.ZMQ.is_local():
+					box.prop(VRayExporter, 'zmq_log_level')
+
+
+		if VRayExporter.backend not in {'STD'}:
 			box = layout.box()
-			box.label("Renderer:")
-			box.prop(VRayExporter, 'backend', text="Type")
-			if VRayExporter.backend not in {'STD'}:
-				box.prop(VRayExporter, 'work_mode', text="Work Mode")
+			box.label("Viewport Rendering:")
+			box.prop(VRayExporter, 'viewport_image_type', text="Image Type")
+			if VRayExporter.viewport_image_type == '4':
+				# 4 == JPEG
+				box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
+			box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
+			box.prop(VRayExporter, 'viewport_alpha')
 
-			if VRayExporter.backend in {'ZMQ'}:
-				if not zmqRunning:
-					box.prop(VRayExporter, 'backend_worker')
-
-				action = 'Start' if engine.ZMQ.is_local() else 'Connect'
-				stat = 'STOPPED'
-				icon = GetRenderIcon(VRayExporter)
-
-				if engine.ZMQ.is_running():
-					action = 'Stop'
-					stat = 'RUNNING'
-					icon = 'CANCEL'
-
-				box.label(text='ZMQ server status: %s' % stat)
-				if not engine.ZMQ.is_local() and not zmqRunning:
-					box.prop(VRayExporter, 'zmq_address')
-
-				# always show operator
-				box.operator("vray.zmq_update", text=action, icon=icon)
-
-				if not zmqRunning:
-					box.prop(VRayExporter, 'zmq_port')
-					if engine.ZMQ.is_local():
-						box.prop(VRayExporter, 'zmq_log_level')
-
-
-			if VRayExporter.backend not in {'STD'}:
-				box = layout.box()
-				box.label("Viewport Rendering:")
-				box.prop(VRayExporter, 'viewport_image_type', text="Image Type")
-				if VRayExporter.viewport_image_type == '4':
-					# 4 == JPEG
-					box.prop(VRayExporter, 'viewport_jpeg_quality', text="Quality")
-				box.prop(VRayExporter, 'viewport_resolution', text="Resolution")
-				box.prop(VRayExporter, 'viewport_alpha')
-
-			layout.separator()
+		layout.separator()
 
 		split = layout.split()
 		col = split.column()
