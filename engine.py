@@ -216,7 +216,7 @@ def shutdown():
         ZMQ.stop();
 
 
-class VRayRendererRT(bpy.types.RenderEngine):
+class VRayRenderer(bpy.types.RenderEngine):
     bl_idname = 'VRAY_RENDER_RT'
     bl_label = "V-Ray"
     bl_use_preview = True
@@ -233,13 +233,13 @@ class VRayRendererRT(bpy.types.RenderEngine):
 
     def __init__(self):
         _vray_for_blender_rt.set_preview_dir(PathUtils.GetPreviewDir())
-        VRayRendererRT.backgroundRendererInstance += 1
+        VRayRenderer.backgroundRendererInstance += 1
         self.canRender = True
         if bpy.app.background:
             # when in background mode, Blender's animation handler will create
             # the renderer for each frame, but we will do all the work on the first
             # call so we ignore all others
-            self.canRender = VRayRendererRT.backgroundRendererInstance == 1
+            self.canRender = VRayRenderer.backgroundRendererInstance == 1
             self.parseArguments()
         debug.Debug("__init__()")
         self.renderer = None
@@ -433,12 +433,12 @@ class VRayRendererRT(bpy.types.RenderEngine):
 # Internally Blender check for 'view_draw' method to decide if it will show
 # viewport 'RENDERED' mode
 if HAS_ZMQ:
-    VRayRendererRT.view_draw = VRayRendererRT._view_draw
+    VRayRenderer.view_draw = VRayRenderer._view_draw
 
 
 def GetRegClasses():
     reg_classes = []
-    reg_classes.append(VRayRendererRT)
+    reg_classes.append(VRayRenderer)
     return reg_classes
 
 
