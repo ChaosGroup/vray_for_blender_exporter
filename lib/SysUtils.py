@@ -248,13 +248,33 @@ def IsGPUEngine(bus):
     return False
 
 
-def GetZmqPath():
+def GetDefaultZmqPath():
     if sys.platform == 'win32':
-        return "C:/Program Files/Chaos Group/V-Ray/VRayZmqServer/VRayZmqServer.exe"
+        return "C:/Program Files/Chaos Group/V-Ray/VRayZmqServer/"
     elif sys.platform == 'darwin':
-        return "/Applications/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
+        return "/Applications/ChaosGroup/V-Ray/VRayZmqServer/"
     else:
-        return "/usr/ChaosGroup/V-Ray/VRayZmqServer/VRayZmqServer"
+        return "/usr/ChaosGroup/V-Ray/VRayZmqServer/"
+
+
+def GetZmqInstallPath():
+    if 'VRAY_ZMQSERVER_APPSDK_PATH' in os.environ:
+        libFile = os.environ['VRAY_ZMQSERVER_APPSDK_PATH']
+        zmqPath = os.path.normpath(os.path.dirname(libFile))
+        return zmqPath
+    else:
+        debug.PrintError("Missing environment variable \"VRAY_ZMQSERVER_APPSDK_PATH\", will use default")
+        return GetDefaultZmqPath()
+
+
+def GetZmqPath():
+    zmqPath = GetZmqInstallPath()
+    ext = '.exe' if sys.platform == 'win32' else ''
+    return os.path.join(zmqPath, 'VRayZmqServer%s' % ext)
+
+
+def GetAppsdkPath():
+    return os.path.join(GetZmqInstallPath(), 'appsdk')
 
 
 def hasZMQEnabled():
@@ -267,5 +287,3 @@ def getExporterBackendList():
     import _vray_for_blender_rt
     backends = _vray_for_blender_rt.getExporterTypes()
     return (item for item in backends if (hasZMQEnabled() or item[0] != 'ZMQ'))
-
-    return tuple()

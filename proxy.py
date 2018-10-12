@@ -56,7 +56,7 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
 
     ply2vrmeshBin = ply2vrmeshBin.format(ext=ply2vrmeshExt)
 
-    exporterPath = SysUtils.GetExporterPath()
+    exporterPath = SysUtils.GetAppsdkPath()
     if not exporterPath:
         return "Exporter path is not found!"
 
