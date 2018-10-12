@@ -275,7 +275,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		col.prop(SettingsOptions, 'gi_dontRenderImage')
 		col.prop(VRayExporter, 'draft')
 
-		if context.scene.render.engine == 'VRAY_RENDERER':
+		if context.scene.render.engine == 'VRAY_RENDER_RT':
 			col.prop(VRayExporter, 'select_node_preview')
 
 		layout.separator()
@@ -538,7 +538,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 
 		layout.label(text="Options:")
 
-		if context.scene.render.engine == 'VRAY_RENDERER':
+		if context.scene.render.engine == 'VRAY_RENDER_RT':
 			box = layout.box()
 			box.label("Renderer:")
 			box.prop(VRayExporter, 'backend', text="Type")

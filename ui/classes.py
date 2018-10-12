@@ -38,7 +38,7 @@ from vb30     import plugins
 ########  ######## ##       #### ##    ## ########  ######
 
 VRayEngines = {
-    'VRAY_RENDERER'
+    'VRAY_RENDER_RT'
 }
 
 PanelGroups = {

@@ -117,7 +117,7 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
 
-		if context.scene.render.engine in {'VRAY_RENDERER'}:
+		if context.scene.render.engine in {'VRAY_RENDER_RT'}:
 			expandIcon = 'TRIA_DOWN' if VRayExporter.materialListShowPreview else 'TRIA_RIGHT'
 
 			box = self.layout.box()
