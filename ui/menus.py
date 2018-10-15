@@ -191,7 +191,7 @@ class VRayOpAddObjectVRayScene(bpy.types.Operator):
         previewFilepath = os.path.join(os.path.dirname(sceneFilepath), "%s.vrmesh" % sceneFilenameNoExt)
 
         if not os.path.exists(previewFilepath):
-            ProxyUtils.LaunchPly2Vrmesh(sceneFilepath, previewOnly=True, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
+            ProxyUtils.LaunchPly2Vrmesh(sceneFilepath, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
 
         if os.path.exists(previewFilepath):
             ProxyUtils.LoadVRayScenePreviewMesh(sceneFilepath, context.scene, ob)

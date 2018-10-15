@@ -249,7 +249,7 @@ class VRayExporter(bpy.types.PropertyGroup):
 
     currentContextObject = bpy.props.PointerProperty(
         name = "Nodetree context object",
-        description = "This object will be used when exporting object nodetrees for materail and geometry context",
+        description = "This object will be used when exporting object node trees for material and geometry context",
         type = bpy.types.Object,
     )
 

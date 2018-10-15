@@ -44,7 +44,7 @@ from vb30 import export as ExportTools
 import _vray_for_blender_rt
 
 
-def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewOnly=False, previewFaces=10000):
+def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames=None, applyTm=False, useVelocity=False, previewFaces=10000):
     ply2vrmeshBin  = "ply2vrmesh{ext}"
 
     if sys.platform == 'win32':
@@ -73,9 +73,6 @@ def LaunchPly2Vrmesh(vrsceneFilepath, vrmeshFilepath=None, nodeName=None, frames
     if previewFaces:
         cmd.append('-previewFaces')
         cmd.append('%i' % previewFaces)
-
-    if previewOnly:
-        debug.Debug('-previewOnly parameter not supported anymore, will generate full .vrmesh file')
 
     if nodeName:
         cmd.append('-vrsceneNodeName')
@@ -289,7 +286,7 @@ class VRayOpVRayScenePreviewGenerate(bpy.types.Operator):
             self.report({'ERROR'}, "Scene filepath is not set!")
             return {'FINISHED'}
 
-        LaunchPly2Vrmesh(sceneFilepath, previewOnly=True, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
+        LaunchPly2Vrmesh(sceneFilepath, previewFaces=ob.vray.VRayAsset.maxPreviewFaces)
         LoadVRayScenePreviewMesh(sceneFilepath, context.scene, ob)
 
         return {'FINISHED'}
