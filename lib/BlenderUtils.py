@@ -409,7 +409,9 @@ def generateVfbTheme(filepath):
 
     SubElement(elTheme, "style").text = "Standalone"
 
-    SubElement(elTheme, "appWorkspace").text   = header
+    # This is the color under the rendered image, just keep it dark.
+    SubElement(elTheme, "appWorkspace").text   = "#222222"
+
     SubElement(elTheme, 'window').text         = back
     SubElement(elTheme, 'windowText').text     = text
     SubElement(elTheme, 'btnFace').text        = button
