@@ -46,8 +46,15 @@ from vb30 import events
 from vb30 import compat
 from vb30 import utils
 
+def engineExit():
+    import _vray_for_blender_rt
+    _vray_for_blender_rt.exit()
 
 def register():
+    import atexit
+    atexit.unregister(engineExit)
+    atexit.register(engineExit)
+
     engine.init()
 
     plugins.register()

@@ -22,6 +22,8 @@
 # All Rights Reserved. V-Ray(R) is a registered trademark of Chaos Software.
 #
 
+import _vray_for_blender_rt
+
 import inspect
 import os
 import sys
@@ -31,12 +33,18 @@ import datetime
 
 import bpy
 
-
 MsgTypeToColor = {
     'ERROR'  : 'red',
     'INFO'   : 'blue',
     'NORMAL' : 'none',
 }
+
+LogLevelInfo = 0
+LogLevelProgress = 1
+LogLevelWarning = 2
+LogLevelError = 3
+LogLevelDebug = 4
+
 
 def Color(text, color=None):
     if not color or sys.platform == 'win32':
@@ -65,22 +73,15 @@ def IsDebugMode():
 # Log message
 #
 def PrintMsg(message):
-    sys.stdout.write("%s: %s\n" % (
-        Color("V-Ray For Blender", 'green'), message),
-    )
-    sys.stdout.flush()
+    _vray_for_blender_rt.log(message)
 
 
 def PrintInfo(message, msgType='INFO'):
-    sys.stdout.write("%s: %s\n" % (
-        Color("V-Ray For Blender", 'green'),
-        Color(message, MsgTypeToColor[msgType]),
-    ))
-    sys.stdout.flush()
+    _vray_for_blender_rt.log(message)
 
 
 def PrintError(message):
-    Debug(message, msgType='ERROR')
+    _vray_for_blender_rt.log(message, level=LogLevelError)
 
 
 def Debug(message, msgType='INFO'):
