@@ -29,7 +29,7 @@ from vb30.lib import LibUtils
 from vb30.plugins import PLUGINS
 
 
-class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
+class VRAY_PT_MiscTools(classes.VRayRenderLayersPanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -67,14 +67,14 @@ class VRayPanelMiscTools(classes.VRayRenderLayersPanel):
 		box_row.operator("vray.gen_random_mtl_ids")
 
 
-class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
+class VRAY_PT_NodeTrees(classes.VRayRenderLayersPanel):
 	bl_label   = "Node Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 
 	def draw(self, context):
 		VRayExporter = context.scene.vray.Exporter
 
-		self.layout.template_list("VRayListNodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows=10)
+		self.layout.template_list("VRAY_UL_NodeTrees", "", bpy.data, 'node_groups', VRayExporter, 'ntreeListIndex', rows=10)
 		self.layout.operator("vray.del_nodetree", text="Delete Selected Nodetree", icon="ZOOMOUT")
 
 		box = self.layout.box()
@@ -96,7 +96,7 @@ class VRayPanelNodeTrees(classes.VRayRenderLayersPanel):
 		box_row.operator("vray.convert_static_sockets", text="Update Sockets with correct ranges", icon='FILE_REFRESH')
 
 
-class VRayPanelMaterials(classes.VRayRenderLayersPanel):
+class VRAY_PT_Materials(classes.VRayRenderLayersPanel):
 	bl_label   = "Scene Materials"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -131,7 +131,7 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 
 		self.layout.operator('vray.new_material', text="New Material", icon='MATERIAL')
 
-		self.layout.template_list("VRayListMaterials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
+		self.layout.template_list("VRAY_UL_Materials", "", bpy.data, 'materials', VRayExporter, 'materialListIndex', rows=15)
 		self.layout.separator()
 
 		material = self.getMaterial(context)
@@ -150,7 +150,7 @@ class VRayPanelMaterials(classes.VRayRenderLayersPanel):
 			row.prop(material.vray, 'ntree', text="", icon='NODETREE')
 
 
-class VRayPanelLightLister(classes.VRayRenderLayersPanel):
+class VRAY_PT_LightLister(classes.VRayRenderLayersPanel):
 	bl_label   = "Lights"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -202,7 +202,7 @@ class VRayPanelLightLister(classes.VRayRenderLayersPanel):
 			col.label(text="Nothing in bpy.data.lamps...")
 
 
-class VRayPanelIncluder(classes.VRayRenderLayersPanel):
+class VRAY_PT_Includer(classes.VRayRenderLayersPanel):
 	bl_label   = "Include *.vrscene"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -223,7 +223,7 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 
 		layout.active= module.use
 
-		row.template_list("VRayListUse", "", module, 'nodes', module, 'nodes_selected', rows=5)
+		row.template_list("VRAY_UL_Use", "", module, 'nodes', module, 'nodes_selected', rows=5)
 
 		col= row.column()
 		sub= col.row()
@@ -244,7 +244,7 @@ class VRayPanelIncluder(classes.VRayRenderLayersPanel):
 			layout.prop(render_node, 'scene')
 
 
-class VRayPanelExportSets(classes.VRayRenderLayersPanel):
+class VRAY_PT_ExportSets(classes.VRayRenderLayersPanel):
 	bl_label   = "Export Sets"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -270,7 +270,7 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 				row.prop(item, 'frame_end')
 			layout.separator()
 
-		classes.DrawListWidget(layout, context.scene, 'vray.ExportSets', 'VRayListUse',
+		classes.DrawListWidget(layout, context.scene, 'vray.ExportSets', 'VRAY_UL_Use',
 			"Export Set", itemRenderFunc=renderExportSetItem)
 
 		layout.separator()
@@ -287,12 +287,12 @@ class VRayPanelExportSets(classes.VRayRenderLayersPanel):
 
 def GetRegClasses():
 	return (
-		VRayPanelMaterials,
-		VRayPanelMiscTools,
-		VRayPanelNodeTrees,
-		VRayPanelLightLister,
-		VRayPanelIncluder,
-		VRayPanelExportSets,
+		VRAY_PT_Materials,
+		VRAY_PT_MiscTools,
+		VRAY_PT_NodeTrees,
+		VRAY_PT_LightLister,
+		VRAY_PT_Includer,
+		VRAY_PT_ExportSets,
 	)
 
 

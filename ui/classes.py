@@ -46,36 +46,36 @@ VRayEngines = {
 
 PanelGroups = {
     '0' : (
-        'VRAY_RP_render',
-        'VRAY_RP_cloud',
-        'VRAY_RP_Device',
-        'VRayPanelBake',
-        'VRAY_RP_SettingsCaustics',
-        'VRAY_RP_VRayStereoscopicSettings',
-        'VRAY_RP_dimensions',
-        'VRAY_RP_output',
+        'VRAY_PT_render',
+        'VRAY_PT_cloud',
+        'VRAY_PT_Device',
+        'VRAY_PT_Bake',
+        'VRAY_PT_SettingsCaustics',
+        'VRAY_PT_VRayStereoscopicSettings',
+        'VRAY_PT_dimensions',
+        'VRAY_PT_output',
     ),
     '1' : (
-        'VRAY_RP_Globals',
-        'VRAY_RP_displace',
-        'VRAY_RP_cm',
+        'VRAY_PT_Globals',
+        'VRAY_PT_displace',
+        'VRAY_PT_cm',
     ),
     '2' : (
-        'VRAY_RP_gi',
-        'VRAY_RP_GI_sh',
-        'VRAY_RP_GI_im',
-        'VRAY_RP_GI_bf',
-        'VRAY_RP_GI_lc',
+        'VRAY_PT_gi',
+        'VRAY_PT_GI_sh',
+        'VRAY_PT_GI_im',
+        'VRAY_PT_GI_bf',
+        'VRAY_PT_GI_lc',
     ),
     '3' : (
-        'VRAY_RP_aa',
-        'VRAY_RP_dmc',
+        'VRAY_PT_aa',
+        'VRAY_PT_dmc',
     ),
     '4' : (
-        'VRAY_RP_exporter',
-        'VRAY_RP_dr',
-        'VRAY_RP_SettingsSystem',
-        'VRAY_RP_SettingsVFB',
+        'VRAY_PT_exporter',
+        'VRAY_PT_dr',
+        'VRAY_PT_SettingsSystem',
+        'VRAY_PT_SettingsVFB',
     ),
 }
 
@@ -487,18 +487,18 @@ class VRayOpListItemDown(VRayOpListBase, bpy.types.Operator):
 #   active_propname is the name of the active property (use 'getattr(active_data, active_propname)').
 #   index is index of the current item in the collection.
 
-class VRayListUse(bpy.types.UIList):
+class VRAY_UL_Use(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(item.name)
         layout.prop(item, 'use', text="")
 
 
-class VRayList(bpy.types.UIList):
+class VRAY_UL_ListBase(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(item.name)
 
 
-class VRayListDR(bpy.types.UIList):
+class VRAY_UL_DR(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         port_override = ":%s" % item.port if item.port_override else ""
 
@@ -506,7 +506,7 @@ class VRayListDR(bpy.types.UIList):
         layout.prop(item, 'use', text="")
 
 
-class VRayListMaterialSlots(bpy.types.UIList):
+class VRAY_UL_MaterialSlots(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         ob   = data
         slot = item
@@ -521,13 +521,13 @@ class VRayListMaterialSlots(bpy.types.UIList):
             split.label(text="")
 
 
-class VRayListNodeTrees(bpy.types.UIList):
+class VRAY_UL_NodeTrees(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         layout.label(text="", icon=item.bl_icon)
         layout.label(text=item.name, translate=False)
 
 
-class VRayListMaterials(bpy.types.UIList):
+class VRAY_UL_Materials(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         split = layout.split(percentage=0.1)
 
@@ -548,12 +548,12 @@ class VRayListMaterials(bpy.types.UIList):
 
 def GetRegClasses():
     return (
-        VRayListNodeTrees,
-        VRayListMaterialSlots,
-        VRayListUse,
-        VRayListDR,
-        VRayList,
-        VRayListMaterials,
+        VRAY_UL_NodeTrees,
+        VRAY_UL_MaterialSlots,
+        VRAY_UL_Use,
+        VRAY_UL_DR,
+        VRAY_UL_ListBase,
+        VRAY_UL_Materials,
 
         VRayOpListItemNew,
         VRayOpListItemDel,

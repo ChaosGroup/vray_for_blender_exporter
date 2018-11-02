@@ -141,7 +141,7 @@ def ShowNtreeItems(layout):
 
 class VRayMenuShowNtree(bpy.types.Menu):
     bl_label = "Show Node Tree In Editor"
-    bl_idname = "vray.show_ntree_menu"
+    bl_idname = "VRAY_MT_ShowNtreeMenu"
 
     def draw(self, context):
         ShowNtreeItems(self.layout)
@@ -149,7 +149,7 @@ class VRayMenuShowNtree(bpy.types.Menu):
 
 class VRayPieShowNtree(bpy.types.Menu):
     bl_label = "Show Node Tree In Editor"
-    bl_idname = "vray.show_ntree_pie"
+    bl_idname = "VRAY_MT_ShowNtreePie"
 
     @classmethod
     def poll(cls, context):
@@ -161,7 +161,7 @@ class VRayPieShowNtree(bpy.types.Menu):
 
 class VRayPieAddNtree(bpy.types.Menu):
     bl_label = "Add Node Tree"
-    bl_idname = "vray.add_ntree_pie"
+    bl_idname = "VRAY_MT_AddNtreePie"
 
     @classmethod
     def poll(cls, context):

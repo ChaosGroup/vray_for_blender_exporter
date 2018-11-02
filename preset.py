@@ -358,7 +358,7 @@ class VRayPresetAddBase:
 ##     ## ##       ##   ### ##     ##
 ##     ## ######## ##    ##  #######
 
-class VRayPresetMenuGlobal(VRayPresetMenuBase):
+class VRAY_MT_PresetGlobal(VRayPresetMenuBase):
     bl_label      = "Global Presets"
     preset_subdir = "global"
     preset_operator = "vray.preset_apply"
@@ -369,10 +369,10 @@ class VRayPresetAddGlobal(VRayPresetAddBase, bpy.types.Operator):
     bl_description = "Save global preset"
 
     def __init__(self):
-        self.preset_menu = 'VRayPresetMenuGlobal'
+        self.preset_menu = 'VRAY_MT_PresetGlobal'
 
 
-class VRayPresetMenuGI(VRayPresetMenuBase):
+class VRAY_MT_GI(VRayPresetMenuBase):
     bl_label      = "GI Presets"
     preset_subdir = "gi"
     preset_operator = "vray.preset_apply"
@@ -384,10 +384,10 @@ class VRayPresetAddGI(VRayPresetAddBase, bpy.types.Operator):
     bl_description = "Save GI preset"
 
     def __init__(self):
-        self.preset_menu = 'VRayPresetMenuGI'
+        self.preset_menu = 'VRAY_MT_GI'
 
 
-class VRayPresetMenuIM(VRayPresetMenuBase):
+class VRAY_MT_GI_IM(VRayPresetMenuBase):
     bl_label        = "Irradiance Map Presets"
     preset_subdir   = "im"
     preset_operator = "vray.preset_apply"
@@ -397,25 +397,25 @@ class VRayPresetMenuNodeBase(VRayPresetMenuBase):
     preset_operator = "vray.preset_node_apply"
 
 
-class VRayPresetMenuNodeTexture(VRayPresetMenuNodeBase):
+class VRAY_MT_NodeTexture(VRayPresetMenuNodeBase):
     bl_label        = "Texture"
     preset_subdir   = "texture"
     menu_item_save  = True
 
 
-class VRayPresetMenuNodeMaterial(VRayPresetMenuNodeBase):
+class VRAY_MT_NodeMaterial(VRayPresetMenuNodeBase):
     bl_label        = "Material"
     preset_subdir   = "material"
     menu_item_save  = True
 
 
-class VRayPresetMenuNodeRenderChannel(VRayPresetMenuNodeBase):
+class VRAY_MT_RenderChannel(VRayPresetMenuNodeBase):
     bl_label        = "Render Channel"
     preset_subdir   = "channel"
     menu_item_save  = True
 
 
-class VRayPresetMenuNodeEffects(VRayPresetMenuNodeBase):
+class VRAY_MT_NodeEffects(VRayPresetMenuNodeBase):
     bl_label        = "Effects"
     preset_subdir   = "effects"
     menu_item_save  = True
@@ -440,27 +440,27 @@ def PresetBase(layout, menuName, menuOperator):
 
 
 def WidgetPresetGlobal(layout):
-    PresetBase(layout, 'VRayPresetMenuGlobal', "vray.preset_add_global")
+    PresetBase(layout, 'VRAY_MT_PresetGlobal', "vray.preset_add_global")
 
 
 def WidgetPresetGI(layout):
-    PresetBase(layout, 'VRayPresetMenuGI', "vray.preset_add_gi")
+    PresetBase(layout, 'VRAY_MT_GI', "vray.preset_add_gi")
 
 
-class VRayNodeTemplatesSubMenus(bpy.types.Menu):
-    bl_idname = "VRayNodeTemplatesSubMenus"
+class VRAY_MT_TemplatesSubMenus(bpy.types.Menu):
+    bl_idname = "VRAY_MT_TemplatesSubMenus"
     bl_label  = "Templates"
 
     def draw(self, context):
-        self.layout.menu("VRayPresetMenuNodeMaterial", icon='MATERIAL')
-        self.layout.menu("VRayPresetMenuNodeTexture",  icon='TEXTURE')
-        self.layout.menu("VRayPresetMenuNodeRenderChannel", icon='SCENE_DATA')
-        self.layout.menu("VRayPresetMenuNodeEffects", icon='GHOST_ENABLED')
+        self.layout.menu("VRAY_MT_NodeMaterial", icon='MATERIAL')
+        self.layout.menu("VRAY_MT_NodeTexture",  icon='TEXTURE')
+        self.layout.menu("VRAY_MT_RenderChannel", icon='SCENE_DATA')
+        self.layout.menu("VRAY_MT_NodeEffects", icon='GHOST_ENABLED')
 
 
 def VRayNodeTemplatesMenu(self, context):
     if classes.PollTreeType(None, context):
-        self.layout.menu("VRayNodeTemplatesSubMenus", icon='NODETREE')
+        self.layout.menu("VRAY_MT_TemplatesSubMenus", icon='NODETREE')
 
 
    ###     ######   ######  ######## ########
@@ -584,21 +584,21 @@ class VRayNodeExportAsset(bpy.types.Operator):
 def GetRegClasses():
     return (
         VRayPresetAddGlobal,
-        VRayPresetMenuGlobal,
+        VRAY_MT_PresetGlobal,
 
         VRayPresetAddGI,
-        VRayPresetMenuGI,
+        VRAY_MT_GI,
 
-        VRayPresetMenuIM,
+        VRAY_MT_GI_IM,
 
         VRayPresetApply,
         VRayPresetApplyNode,
 
-        VRayPresetMenuNodeEffects,
-        VRayPresetMenuNodeRenderChannel,
-        VRayPresetMenuNodeTexture,
-        VRayPresetMenuNodeMaterial,
-        VRayNodeTemplatesSubMenus,
+        VRAY_MT_NodeEffects,
+        VRAY_MT_RenderChannel,
+        VRAY_MT_NodeTexture,
+        VRAY_MT_NodeMaterial,
+        VRAY_MT_TemplatesSubMenus,
 
         VRayNodeExportAsset,
     )

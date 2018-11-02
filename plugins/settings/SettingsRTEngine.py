@@ -33,7 +33,6 @@ def writeDatablock(bus, pluginModule, pluginName, propGroup, overrideParams):
     scene = bus['scene']
 
     overrideParams.update({
-        'enabled' : True,
         'noise_threshold' : 0.0 if scene.render.engine == 'VRAY_RENDER_RT' else propGroup.noise_threshold,
     })
 

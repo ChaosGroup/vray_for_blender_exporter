@@ -51,7 +51,7 @@ def RenderMaterialPanel(mat, context, layout):
     classes.DrawNodePanel(context, layout, activeNode, PLUGINS)
 
 
-class VRAY_MP_context_material(classes.VRayMaterialPanel):
+class VRAY_PT_context_material(classes.VRayMaterialPanel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
 
@@ -71,7 +71,7 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
         if ob:
             row = layout.row()
 
-            row.template_list("VRayListMaterialSlots", "", ob, "material_slots", ob, "active_material_index", rows=4)
+            row.template_list("VRAY_UL_MaterialSlots", "", ob, "material_slots", ob, "active_material_index", rows=4)
 
             col = row.column(align=True)
             col.operator("object.material_slot_add", icon='ZOOMIN', text="")
@@ -91,7 +91,7 @@ class VRAY_MP_context_material(classes.VRayMaterialPanel):
             layout.template_ID(space, "pin_id")
 
 
-class VRAY_MP_preview(classes.VRayMaterialPanel):
+class VRAY_PT_preview(classes.VRayMaterialPanel):
     bl_label = "Preview"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -99,7 +99,7 @@ class VRAY_MP_preview(classes.VRayMaterialPanel):
         self.layout.template_preview(context.material, show_buttons=True)
 
 
-class VRAY_MP_preview_material(classes.VRayMaterialPanel):
+class VRAY_PT_preview_material(classes.VRayMaterialPanel):
     bl_label = "Material"
 
     @classmethod
@@ -118,9 +118,9 @@ class VRAY_MP_preview_material(classes.VRayMaterialPanel):
 
 def GetRegClasses():
     return (
-        VRAY_MP_preview,
-        VRAY_MP_context_material,
-        VRAY_MP_preview_material,
+        VRAY_PT_preview,
+        VRAY_PT_context_material,
+        VRAY_PT_preview_material,
     )
 
 

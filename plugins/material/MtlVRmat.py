@@ -42,9 +42,9 @@ from vb30.lib import PluginUtils
 PluginUtils.loadPluginOnModule(globals(), __name__)
 
 
-class VRayMaterialNameMenu(bpy.types.Menu):
+class VRAY_MT_MaterialName(bpy.types.Menu):
     bl_label = "Select Material Name"
-    bl_idname = "VRayMaterialNameMenu"
+    bl_idname = "VRAY_MT_MaterialName"
 
     ma_list = []
 
@@ -105,11 +105,11 @@ class VRayGetMaterialName(bpy.types.Operator):
             return {'CANCELLED'}
 
         if filePath.endswith(".vrscene"):
-            VRayMaterialNameMenu.ma_list = GetMaterialsNames(filePath)
+            VRAY_MT_MaterialName.ma_list = GetMaterialsNames(filePath)
         else:
-            VRayMaterialNameMenu.ma_list = GetXMLMaterialsNames(filePath)
+            VRAY_MT_MaterialName.ma_list = GetXMLMaterialsNames(filePath)
 
-        bpy.ops.wm.call_menu(name=VRayMaterialNameMenu.bl_idname)
+        bpy.ops.wm.call_menu(name=VRAY_MT_MaterialName.bl_idname)
 
         return {'FINISHED'}
 
@@ -219,7 +219,7 @@ def GetRegClasses():
     return (
         VRayMaterialCollapse,
         VRayMaterialExpand,
-        VRayMaterialNameMenu,
+        VRAY_MT_MaterialName,
         VRayGetMaterialName,
         VRaySetMaterialName,
     )

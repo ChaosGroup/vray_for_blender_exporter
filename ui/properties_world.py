@@ -30,7 +30,7 @@ from vb30.plugins import PLUGINS
 
 
 
-class VRayPanelWorldPreview(classes.VRayWorldPanel):
+class VRAY_PT_WorldPreview(classes.VRayWorldPanel):
     bl_label = "Preview"
     bl_options = {'HIDE_HEADER'}
 
@@ -40,7 +40,7 @@ class VRayPanelWorldPreview(classes.VRayWorldPanel):
         self.layout.template_preview(context.world)
 
 
-class VRAY_WP_context_world(classes.VRayPanel):
+class VRAY_PT_ContextWorld(classes.VRayPanel):
     bl_space_type  = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context     = 'world'
@@ -78,8 +78,8 @@ class VRAY_WP_context_world(classes.VRayPanel):
 
 def GetRegClasses():
     return (
-        VRayPanelWorldPreview,
-        VRAY_WP_context_world,
+        VRAY_PT_WorldPreview,
+        VRAY_PT_ContextWorld,
     )
 
 

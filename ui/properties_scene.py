@@ -29,7 +29,7 @@ from vb30.ui import classes
 
 # Based on SCENE_PT_scene
 #
-class VRayPanelScene(classes.VRayScenePanel):
+class VRAY_PT_Scene(classes.VRayScenePanel):
 	bl_label = "Scene"
 
 	def draw(self, context):
@@ -47,7 +47,7 @@ class VRayPanelScene(classes.VRayScenePanel):
 
 def GetRegClasses():
 	return (
-		VRayPanelScene,
+		VRAY_PT_Scene,
 	)
 
 

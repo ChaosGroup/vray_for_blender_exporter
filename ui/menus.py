@@ -76,7 +76,7 @@ class VRayOpLockUnlockView(bpy.types.Operator):
 
 
 class VRayMenuActiveCamera(bpy.types.Menu):
-    bl_idname = "vray.active_camera"
+    bl_idname = "VRAY_MT_CameraActive"
     bl_label = "Camera Tools"
 
     def draw(self, context):
@@ -239,8 +239,8 @@ class VRayOpAddObjectPlane(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRayMenuMesh(bpy.types.Menu):
-    bl_idname = "VRayMenuMesh"
+class VRAY_MT_Mesh(bpy.types.Menu):
+    bl_idname = "VRAY_MT_Mesh"
     bl_label = "V-Ray"
 
     def draw(self, context):
@@ -249,8 +249,8 @@ class VRayMenuMesh(bpy.types.Menu):
         self.layout.operator(VRayOpAddObjectPlane.bl_idname, text="V-Ray Infinite Plane", icon='VRAY_OBJECT')
 
 
-def VRayMenuMeshAdd(self, context):
-    self.layout.menu(VRayMenuMesh.bl_idname, icon='VRAY_LOGO_MONO')
+def VRAY_MT_MeshAdd(self, context):
+    self.layout.menu(VRAY_MT_Mesh.bl_idname, icon='VRAY_LOGO_MONO')
 
 
 ########  ########  ######   ####  ######  ######## ########     ###    ######## ####  #######  ##    ##
@@ -270,7 +270,7 @@ def GetRegClasses():
         VRayOpAddObjectPlane,
         VRayOpSelectCamera,
         VRayOpLockUnlockView,
-        VRayMenuMesh,
+        VRAY_MT_Mesh,
         VRayMenuActiveCamera,
     )
 
@@ -279,10 +279,10 @@ def register():
     for regClass in GetRegClasses():
         bpy.utils.register_class(regClass)
 
-    bpy.types.INFO_MT_mesh_add.append(VRayMenuMeshAdd)
+    bpy.types.INFO_MT_mesh_add.append(VRAY_MT_MeshAdd)
 
 def unregister():
     for regClass in GetRegClasses():
         bpy.utils.unregister_class(regClass)
 
-    bpy.types.INFO_MT_mesh_add.remove(VRayMenuMeshAdd)
+    bpy.types.INFO_MT_mesh_add.remove(VRAY_MT_MeshAdd)

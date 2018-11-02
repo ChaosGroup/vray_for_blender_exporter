@@ -34,7 +34,7 @@ for compatEngine in classes.VRayEngines:
 del properties_data_camera
 
 
-class VRAY_DP_camera(classes.VRayCameraPanel):
+class VRAY_PT_camera(classes.VRayCameraPanel):
 	bl_label = "Parameters"
 
 	def draw(self, context):
@@ -154,7 +154,7 @@ class VRAY_DP_camera(classes.VRayCameraPanel):
 		col.prop(VRayCamera, 'use_camera_loop')
 
 
-class VRAY_DP_physical_camera(classes.VRayCameraPanel):
+class VRAY_PT_physical_camera(classes.VRayCameraPanel):
 	bl_label   = "Physical"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -253,7 +253,7 @@ class VRAY_DP_physical_camera(classes.VRayCameraPanel):
 				colR.prop(CameraPhysical, 'anisotropy')
 
 
-class VRAY_DP_camera_stereoscopic(classes.VRayCameraPanel):
+class VRAY_PT_camera_stereoscopic(classes.VRayCameraPanel):
 	bl_label   = "Stereoscopic"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -294,7 +294,7 @@ class VRAY_DP_camera_stereoscopic(classes.VRayCameraPanel):
 			col.prop(CameraStereoscopic, 'show_limits', text="Show Limits")
 
 
-class VRAY_DP_hide_from_view(classes.VRayCameraPanel):
+class VRAY_PT_hide_from_view(classes.VRayCameraPanel):
 	bl_label   = "Hide objects"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -397,10 +397,10 @@ class VRAY_DP_hide_from_view(classes.VRayCameraPanel):
 
 def GetRegClasses():
 	return (
-	VRAY_DP_camera,
-	VRAY_DP_physical_camera,
-	VRAY_DP_camera_stereoscopic,
-	VRAY_DP_hide_from_view,
+	VRAY_PT_camera,
+	VRAY_PT_physical_camera,
+	VRAY_PT_camera_stereoscopic,
+	VRAY_PT_hide_from_view,
 	)
 
 

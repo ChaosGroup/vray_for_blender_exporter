@@ -29,7 +29,7 @@ from vb30.plugins import PLUGINS_ID
 from vb30.lib import BlenderUtils
 
 
-class VRAY_OBP_context_node(classes.VRayObjectPanel):
+class VRAY_PT_context_node(classes.VRayObjectPanel):
 	bl_label = ""
 	bl_options = {'HIDE_HEADER'}
 
@@ -43,7 +43,7 @@ class VRAY_OBP_context_node(classes.VRayObjectPanel):
 		classes.NtreeWidget(self.layout, VRayObject, "Object Tree", "vray.add_nodetree_object", 'OBJECT')
 
 
-class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
+class VRAY_PT_VRayPattern(classes.VRayObjectPanel):
 	bl_label   = "VRayPattern"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -124,7 +124,7 @@ class VRAY_OBP_VRayPattern(classes.VRayObjectPanel):
 		col.prop(GeomVRayPattern, 'render_pattern_object')
 
 
-class VRayObjectPanelWrapper(classes.VRayObjectPanel, bpy.types.Panel):
+class VRAY_PT_Wrapper(classes.VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Wrapper"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -195,7 +195,7 @@ class VRayObjectPanelWrapper(classes.VRayObjectPanel, bpy.types.Panel):
 		layout.prop(plugin, 'generate_render_elements')
 
 
-class VRayObjectPanelRenderStats(classes.VRayObjectPanel, bpy.types.Panel):
+class VRAY_PT_RenderStats(classes.VRayObjectPanel, bpy.types.Panel):
 	bl_label = "Render"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -236,7 +236,7 @@ class VRayObjectPanelRenderStats(classes.VRayObjectPanel, bpy.types.Panel):
 		sub.prop(plugin, 'refractions_visibility', text="Refractions")
 
 
-class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
+class VRAY_PT_VRayClipper(classes.VRayObjectPanel):
 	bl_label = "Clipper"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -274,7 +274,7 @@ class VRayObjectPanelVRayClipper(classes.VRayObjectPanel):
 		col.prop(VRayClipper, 'material_id')
 
 
-class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
+class VRAY_PT_VRayScene(classes.VRayObjectPanel):
 	bl_label   = "V-Ray Scene"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -336,7 +336,7 @@ class VRayObjectPanelVRayScene(classes.VRayObjectPanel):
 		row.operator('vray.rotate_to_flip',             icon='FILE_REFRESH',     text="Rotate")
 
 
-class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
+class VRAY_PT_UserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 	bl_label = "User Attributes"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -350,7 +350,7 @@ class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 		Node = ob.vray.Node
 
 		row = layout.row()
-		row.template_list('VRayListUserAttributes',
+		row.template_list('VRAY_UL_UserAttributes',
 			"",
 			Node, 'user_attributes',
 			Node, 'user_attributes_selected',
@@ -388,7 +388,7 @@ class VRayObjectPanelUserAttributes(classes.VRayObjectPanel, bpy.types.Panel):
 			box.operator('vray.user_attribute_promote')
 
 
-class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
+class VRAY_PT_Advanced(classes.VRayObjectPanel):
 	bl_label   = "Advanced"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -410,17 +410,17 @@ class VRayObjectPanelAdvanced(classes.VRayObjectPanel):
 
 def GetRegClasses():
 	return (
-		VRAY_OBP_context_node,
-		VRAY_OBP_VRayPattern,
+		VRAY_PT_context_node,
+		VRAY_PT_VRayPattern,
 
-		VRayObjectPanelVRayScene,
-		VRayObjectPanelVRayClipper,
+		VRAY_PT_VRayScene,
+		VRAY_PT_VRayClipper,
 
-		VRayObjectPanelWrapper,
-		VRayObjectPanelRenderStats,
+		VRAY_PT_Wrapper,
+		VRAY_PT_RenderStats,
 
-		VRayObjectPanelUserAttributes,
-		VRayObjectPanelAdvanced,
+		VRAY_PT_UserAttributes,
+		VRAY_PT_Advanced,
 	)
 
 

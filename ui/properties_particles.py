@@ -27,7 +27,7 @@ import bpy
 from vb30.ui import classes
 
 
-class VRAY_PP_hair(classes.VRayParticlePanel):
+class VRAY_PT_hair(classes.VRayParticlePanel):
 	bl_label   = "Fur"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -55,7 +55,7 @@ class VRAY_PP_hair(classes.VRayParticlePanel):
 
 def GetRegClasses():
 	return (
-		VRAY_PP_hair,
+		VRAY_PT_hair,
 	)
 
 

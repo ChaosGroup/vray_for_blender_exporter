@@ -61,7 +61,7 @@ class VRayBatchBakeItem(bpy.types.PropertyGroup):
     )
 
 
-class VRayBatchBakeRenderListItem(bpy.types.UIList):
+class VRAY_UL_BakeRenderItem(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row()
         row.prop(item, 'use', text="")
@@ -201,7 +201,7 @@ class VRayOpBatchBakeAddItems(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VRayPanelBake(classes.VRayRenderPanel):
+class VRAY_PT_Bake(classes.VRayRenderPanel):
     bl_label = "Bake"
     bl_panel_groups = classes.PanelGroups
 
@@ -228,7 +228,7 @@ class VRayPanelBake(classes.VRayRenderPanel):
 
         if BatchBake.work_mode == 'LIST':
             layout.label("Objects To Bake:")
-            classes.DrawListWidget(layout, context.scene, 'vray.BatchBake', 'VRayBatchBakeRenderListItem',
+            classes.DrawListWidget(layout, context.scene, 'vray.BatchBake', 'VRAY_UL_BakeRenderItem',
                 "Bake Object",
                 itemAddOp='vray.batch_bake_add_selection')
         else:
@@ -441,11 +441,11 @@ def GetRegClasses():
         VRayPropGroupMultiBakeSmartUVProject,
         VRayPropGroupMultiBakeLightmapPackProject,
         VRayBatchBakeItem,
-        VRayBatchBakeRenderListItem,
+        VRAY_UL_BakeRenderItem,
         VRayOpBatchBakeAddItems,
         VRayPropGroupMultiBake,
         VRayOpBatchBake,
-        VRayPanelBake,
+        VRAY_PT_Bake,
     )
 
 

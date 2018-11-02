@@ -33,7 +33,7 @@ def GetContextData(context):
 	return context.curve
 
 
-class VRAY_DP_tools(classes.VRayGeomPanel):
+class VRAY_PT_tools(classes.VRayGeomPanel):
 	bl_label   = "Tools"
 	bl_options = {'DEFAULT_CLOSED'}
 
@@ -74,7 +74,7 @@ class VRAY_DP_tools(classes.VRayGeomPanel):
 
 def GetRegClasses():
 	return (
-		VRAY_DP_tools,
+		VRAY_PT_tools,
 	)
 
 

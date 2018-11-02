@@ -141,7 +141,7 @@ class VRayUserAttributeItem(bpy.types.PropertyGroup):
     )
 
 
-class VRayListUserAttributes(bpy.types.UIList):
+class VRAY_UL_UserAttributes(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
         row.label(item.name)
@@ -211,7 +211,7 @@ def GetRegClasses():
         VRayUserAttributeItem,
         VRayUserAttributeAdd,
         VRayUserAttributeDel,
-        VRayListUserAttributes,
+        VRAY_UL_UserAttributes,
         VRayNode,
         VRayUserAttributeOpPromote,
     )

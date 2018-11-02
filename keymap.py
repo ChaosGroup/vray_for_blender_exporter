@@ -35,18 +35,18 @@ def register():
         kmi = km.keymap_items.new("vray.show_node_image", 'LEFTMOUSE', 'DOUBLE_CLICK')
 
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
-        kmi.properties.name = "vray.show_ntree_pie"
+        kmi.properties.name = "VRAY_MT_ShowNtreePie"
 
         kmi = km.keymap_items.new("vray.ntree_node_mute", 'M', 'PRESS')
 
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', shift=True)
-        kmi.properties.name = "vray.add_ntree_pie"
+        kmi.properties.name = "VRAY_MT_AddNtreePie"
 
         addon_keymaps.append(km)
 
         km = kc.keymaps.new(name='3D View', space_type='VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu', 'F3', 'PRESS')
-        kmi.properties.name = "vray.active_camera"
+        kmi.properties.name = "VRAY_MT_CameraActive"
 
         addon_keymaps.append(km)
 

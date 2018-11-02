@@ -64,7 +64,7 @@ def LightIsAmbient(lamp):
 ##    ## ##     ## ##   ###    ##    ##        ##   ##     ##
  ######   #######  ##    ##    ##    ######## ##     ##    ##
 
-class VRAY_DP_context_lamp(classes.VRayLampPanel):
+class VRAY_PT_context_lamp(classes.VRayLampPanel):
     bl_label   = ""
     bl_options = {'HIDE_HEADER'}
 
@@ -134,7 +134,7 @@ class VRAY_DP_context_lamp(classes.VRayLampPanel):
 ##        ##   ##  ##    ## ##       ##     ## ##     ## ##
 ######## ##     ##  ######  ########  #######  ########  ########
 
-class VRAY_DP_include_exclude(classes.VRayLampPanel):
+class VRAY_PT_include_exclude(classes.VRayLampPanel):
     bl_label   = "Include / Exclude"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -164,8 +164,8 @@ class VRAY_DP_include_exclude(classes.VRayLampPanel):
 
 def GetRegClasses():
     return (
-        VRAY_DP_context_lamp,
-        VRAY_DP_include_exclude,
+        VRAY_PT_context_lamp,
+        VRAY_PT_include_exclude,
     )
 
 

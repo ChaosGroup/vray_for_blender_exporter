@@ -47,7 +47,7 @@ def GetRenderIcon(vrayExporter):
 	return renderIcon
 
 
-class VRayRenderPanelContext(classes.VRayRenderPanel):
+class VRAY_PT_Context(classes.VRayRenderPanel):
 	bl_label   = ""
 	bl_options = {'HIDE_HEADER'}
 	bl_panel_groups = PanelGroups
@@ -91,7 +91,7 @@ class VRayRenderPanelContext(classes.VRayRenderPanel):
 ##     ##  ##  ##     ## ##       ##   ### ##    ##  ##  ##     ## ##   ### ##    ##
 ########  #### ##     ## ######## ##    ##  ######  ####  #######  ##    ##  ######
 
-class VRAY_RP_dimensions(classes.VRayRenderPanel):
+class VRAY_PT_dimensions(classes.VRayRenderPanel):
 	bl_label = "Dimensions"
 	bl_panel_groups = PanelGroups
 
@@ -162,7 +162,7 @@ class VRAY_RP_dimensions(classes.VRayRenderPanel):
 ##     ## ##     ##    ##    ##        ##     ##    ##
  #######   #######     ##    ##         #######     ##
 
-class VRAY_RP_output(classes.VRayRenderPanel):
+class VRAY_PT_output(classes.VRayRenderPanel):
 	bl_label = "Output"
 	bl_panel_groups = PanelGroups
 
@@ -235,7 +235,7 @@ class VRAY_RP_output(classes.VRayRenderPanel):
 ##    ##  ##       ##   ### ##     ## ##       ##    ##
 ##     ## ######## ##    ## ########  ######## ##     ##
 
-class VRAY_RP_render(classes.VRayRenderPanel):
+class VRAY_PT_render(classes.VRayRenderPanel):
 	bl_label = "Render"
 	bl_panel_groups = PanelGroups
 
@@ -295,7 +295,7 @@ class VRAY_RP_render(classes.VRayRenderPanel):
 		layout.prop(VRayExporter, 'device_type', expand=True)
 
 
-class VRAY_RP_cloud(classes.VRayRenderPanel):
+class VRAY_PT_cloud(classes.VRayRenderPanel):
 	bl_label = "V-Ray Cloud"
 	bl_panel_groups = PanelGroups
 	
@@ -321,7 +321,7 @@ class VRAY_RP_cloud(classes.VRayRenderPanel):
 ##    ##  ##       ##     ## ##          ##     ##  ##     ## ##
 ##     ## ######## ##     ## ########    ##    #### ##     ## ########
 
-class VRAY_RP_Device(classes.VRayRenderPanel):
+class VRAY_PT_Device(classes.VRayRenderPanel):
 	bl_label = "GPU"
 	bl_panel_groups = PanelGroups
 
@@ -384,7 +384,7 @@ class VRAY_RP_Device(classes.VRayRenderPanel):
 ##    ##    ##    ##       ##    ##  ##       ##     ## ##    ## ##    ## ##     ## ##         ##  ##    ##
  ######     ##    ######## ##     ## ########  #######   ######   ######   #######  ##        ####  ######
 
-class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
+class VRAY_PT_VRayStereoscopicSettings(classes.VRayRenderPanel):
 	bl_label = "Stereoscopic"
 	bl_panel_groups = PanelGroups
 
@@ -437,7 +437,7 @@ class VRAY_RP_VRayStereoscopicSettings(classes.VRayRenderPanel):
 ##    ##  ##       ##     ## ##     ## ##     ## ##       ##    ##
  ######   ########  #######  ########  ##     ## ########  ######
 
-class VRAY_RP_Globals(classes.VRayRenderPanel):
+class VRAY_PT_Globals(classes.VRayRenderPanel):
 	bl_label   = "Globals"
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
@@ -524,7 +524,7 @@ class VRAY_RP_Globals(classes.VRayRenderPanel):
 ##        ##   ##  ##        ##     ## ##    ##     ##    ##       ##    ##
 ######## ##     ## ##         #######  ##     ##    ##    ######## ##     ##
 
-class VRAY_RP_exporter(classes.VRayRenderPanel):
+class VRAY_PT_exporter(classes.VRayRenderPanel):
 	bl_label   = "Exporter"
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
@@ -663,7 +663,7 @@ class VRAY_RP_exporter(classes.VRayRenderPanel):
 ##    ## ##     ## ##       ##     ## ##    ##     ##     ## ##     ## ##        ##         ##  ##   ### ##    ##
  ######   #######  ########  #######  ##     ##    ##     ## ##     ## ##        ##        #### ##    ##  ######
 
-class VRAY_RP_cm(classes.VRayRenderPanel):
+class VRAY_PT_cm(classes.VRayRenderPanel):
 	bl_label = "Color Mapping"
 	bl_panel_groups = PanelGroups
 
@@ -719,7 +719,7 @@ class VRAY_RP_cm(classes.VRayRenderPanel):
  ##  ##     ## ##     ## ##    ##  ##          ##    ## ##     ## ##     ## ##        ##       ##       ##    ##
 #### ##     ## ##     ##  ######   ########     ######  ##     ## ##     ## ##        ######## ######## ##     ##
 
-class VRAY_RP_aa(classes.VRayRenderPanel):
+class VRAY_PT_aa(classes.VRayRenderPanel):
 	bl_label = "Image Sampler"
 	bl_panel_groups = PanelGroups
 
@@ -747,7 +747,7 @@ class VRAY_RP_aa(classes.VRayRenderPanel):
 ##     ## ##     ## ##    ##
 ########  ##     ##  ######
 
-class VRAY_RP_dmc(classes.VRayRenderPanel):
+class VRAY_PT_dmc(classes.VRayRenderPanel):
 	bl_label = "Global DMC"
 	bl_panel_groups = PanelGroups
 
@@ -766,7 +766,7 @@ class VRAY_RP_dmc(classes.VRayRenderPanel):
 ##    ##   ##
  ######   ####
 
-class VRAY_RP_gi(classes.VRayRenderPanel):
+class VRAY_PT_gi(classes.VRayRenderPanel):
 	bl_label = "Global Illumination"
 	bl_panel_groups = PanelGroups
 
@@ -854,7 +854,7 @@ class VRAY_RP_gi(classes.VRayRenderPanel):
 ##    ## ##        ##     ## ###    ##     ## ##     ## ##    ##  ##     ## ##     ## ##   ###  ##  ##    ## ##    ##
  ######  ##        ##     ## ###    ##     ## ##     ## ##     ## ##     ##  #######  ##    ## ####  ######   ######
 
-class VRAY_RP_GI_sh(classes.VRayRenderPanel):
+class VRAY_PT_GI_sh(classes.VRayRenderPanel):
 	bl_label = "Spherical Harmonics"
 	bl_panel_groups = PanelGroups
 
@@ -936,7 +936,7 @@ class VRAY_RP_GI_sh(classes.VRayRenderPanel):
  ##  ##    ##  ##    ##  ###    ##     ## ##     ## ##
 #### ##     ## ##     ## ###    ##     ## ##     ## ##
 
-class VRAY_RP_GI_im(classes.VRayRenderPanel):
+class VRAY_PT_GI_im(classes.VRayRenderPanel):
 	bl_label = "Irradiance Map"
 	bl_panel_groups = PanelGroups
 
@@ -957,7 +957,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 		layout.separator()
 
 		if module.mode not in {'2', '7'}:
-			layout.menu('VRayPresetMenuIM', text=bpy.types.VRayPresetMenuIM.bl_label)
+			layout.menu('VRAY_MT_GI_IM', text=bpy.types.VRAY_MT_GI_IM.bl_label)
 
 			split= layout.split()
 			split.label(text="Basic parameters:")
@@ -1075,7 +1075,7 @@ class VRAY_RP_GI_im(classes.VRayRenderPanel):
 ##     ## ##    ##  ##     ##    ##    ##          ##       ##     ## ##    ##  ##    ## ##
 ########  ##     ##  #######     ##    ########    ##        #######  ##     ##  ######  ########
 
-class VRAY_RP_GI_bf(classes.VRayRenderPanel):
+class VRAY_PT_GI_bf(classes.VRayRenderPanel):
 	bl_label = "Brute Force"
 	bl_panel_groups = PanelGroups
 
@@ -1110,7 +1110,7 @@ class VRAY_RP_GI_bf(classes.VRayRenderPanel):
 ##        ##  ##    ##  ##     ##    ##       ##    ## ##     ## ##    ## ##     ## ##
 ######## ####  ######   ##     ##    ##        ######  ##     ##  ######  ##     ## ########
 
-class VRAY_RP_GI_lc(classes.VRayRenderPanel):
+class VRAY_PT_GI_lc(classes.VRayRenderPanel):
 	bl_label = "Light Cache"
 	bl_panel_groups = PanelGroups
 
@@ -1206,7 +1206,7 @@ class VRAY_RP_GI_lc(classes.VRayRenderPanel):
 ##     ##  ##  ##    ## ##        ##       ##     ## ##    ## ##
 ########  ####  ######  ##        ######## ##     ##  ######  ########
 
-class VRAY_RP_displace(classes.VRayRenderPanel):
+class VRAY_PT_displace(classes.VRayRenderPanel):
 	bl_label = "Displace / Subdivision"
 	bl_panel_groups = PanelGroups
 
@@ -1243,7 +1243,7 @@ class VRAY_RP_displace(classes.VRayRenderPanel):
 ##     ## ##    ##
 ########  ##     ##
 
-class VRAY_RP_dr(classes.VRayRenderPanel):
+class VRAY_PT_dr(classes.VRayRenderPanel):
 	bl_label = "Distributed Rendering"
 	bl_panel_groups = PanelGroups
 
@@ -1294,7 +1294,7 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 
 		split= layout.split()
 		row= split.row()
-		row.template_list("VRayListDR", "", VRayDR, 'nodes', VRayDR, 'nodes_selected', rows= 3)
+		row.template_list("VRAY_UL_DR", "", VRayDR, 'nodes', VRayDR, 'nodes_selected', rows= 3)
 		col= row.column(align=True)
 		col.operator('vray.render_nodes_add',    text="", icon="ZOOMIN")
 		col.operator('vray.render_nodes_remove', text="", icon="ZOOMOUT")
@@ -1327,7 +1327,7 @@ class VRAY_RP_dr(classes.VRayRenderPanel):
 ##     ## ##     ## ##   ##  ##
 ########  ##     ## ##    ## ########
 
-class VRAY_RP_bake(classes.VRayRenderPanel):
+class VRAY_PT_bake(classes.VRayRenderPanel):
 	bl_label   = "Bake"
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
@@ -1361,7 +1361,7 @@ class VRAY_RP_bake(classes.VRayRenderPanel):
 ##    ## ##     ## ##     ## ##    ##    ##     ##  ##    ## ##    ##
  ######  ##     ##  #######   ######     ##    ####  ######   ######
 
-class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
+class VRAY_PT_SettingsCaustics(classes.VRayRenderPanel):
 	bl_label = "Caustics"
 	bl_panel_groups = PanelGroups
 
@@ -1385,7 +1385,7 @@ class VRAY_RP_SettingsCaustics(classes.VRayRenderPanel):
 ##    ##    ##    ##    ##    ##    ##       ##     ##
  ######     ##     ######     ##    ######## ##     ##
 
-class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
+class VRAY_PT_SettingsSystem(classes.VRayRenderPanel):
 	bl_label   = "System"
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
@@ -1468,7 +1468,7 @@ class VRAY_RP_SettingsSystem(classes.VRayRenderPanel):
 
 
 
-class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
+class VRAY_PT_SettingsVFB(classes.VRayRenderPanel):
 	bl_label = "Lens Effects"
 	bl_options = {'DEFAULT_CLOSED'}
 	bl_panel_groups = PanelGroups
@@ -1551,30 +1551,30 @@ class VRAY_RP_SettingsVFB(classes.VRayRenderPanel):
 
 def GetRegClasses():
 	return (
-		VRayRenderPanelContext,
+		VRAY_PT_Context,
 
-		VRAY_RP_render,
-		VRAY_RP_cloud,
-		VRAY_RP_Device,
-		VRAY_RP_dimensions,
-		VRAY_RP_output,
+		VRAY_PT_render,
+		VRAY_PT_cloud,
+		VRAY_PT_Device,
+		VRAY_PT_dimensions,
+		VRAY_PT_output,
 
-		VRAY_RP_Globals,
-		VRAY_RP_SettingsCaustics,
-		VRAY_RP_exporter,
-		VRAY_RP_cm,
-		VRAY_RP_aa,
-		VRAY_RP_dmc,
-		VRAY_RP_gi,
-		VRAY_RP_GI_sh,
-		VRAY_RP_GI_im,
-		VRAY_RP_GI_bf,
-		VRAY_RP_GI_lc,
-		VRAY_RP_displace,
-		VRAY_RP_dr,
-		VRAY_RP_SettingsVFB,
-		VRAY_RP_SettingsSystem,
-		VRAY_RP_VRayStereoscopicSettings,
+		VRAY_PT_Globals,
+		VRAY_PT_SettingsCaustics,
+		VRAY_PT_exporter,
+		VRAY_PT_cm,
+		VRAY_PT_aa,
+		VRAY_PT_dmc,
+		VRAY_PT_gi,
+		VRAY_PT_GI_sh,
+		VRAY_PT_GI_im,
+		VRAY_PT_GI_bf,
+		VRAY_PT_GI_lc,
+		VRAY_PT_displace,
+		VRAY_PT_dr,
+		VRAY_PT_SettingsVFB,
+		VRAY_PT_SettingsSystem,
+		VRAY_PT_VRayStereoscopicSettings,
 	)
 
 
