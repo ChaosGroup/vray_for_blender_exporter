@@ -170,6 +170,10 @@ def BuildItemsList(nodeType, subType=None):
             'TexParticleId',
             'RawBitmapBuffer',
 
+            # Houdini specific
+            'TexExtMaterialID',
+            'TexExtMapChannels',
+
             # Not yet implemented
             'BRDFScanned',
             'TexRamp',
