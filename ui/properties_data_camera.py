@@ -84,7 +84,10 @@ class VRAY_PT_camera(classes.VRayCameraPanel):
 			col = split.column()
 			col.prop(SettingsCamera, 'type', text="")
 			layout.separator()
-
+		
+		layout.prop(SettingsCamera, 'auto_exposure')
+		layout.prop(SettingsCamera, 'auto_white_balance')
+		layout.prop(SettingsCamera, "auto_exposure_compensation")
 		layout.label(text="Clipping:")
 		split = layout.split()
 		col = split.column()
