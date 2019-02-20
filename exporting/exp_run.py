@@ -141,7 +141,7 @@ def Run(bus):
         job = VCloudJob(bus)
         cloudExitStatus = job.submitToCloud()
         if cloudExitStatus == -404:
-            print("V-Ray Cloud binary is not detected on your system!")
+            print("Chaos Cloud binary is not detected on your system!")
             webbrowser.open("https://www.chaosgroup.com/cloud")
 
     if imageToBlender or engine.is_preview:

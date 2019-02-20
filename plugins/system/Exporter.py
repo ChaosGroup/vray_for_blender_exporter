@@ -66,7 +66,7 @@ class VRayExporterSetBinary(bpy.types.Operator):
 
 def getVRayCloudPath():
     """
-    If V-Ray Cloud is installed on the system returns the path to it, else - None.
+    If Chaos Cloud is installed on the system returns the path to it, else - None.
     """
 
     # check whether vcloud JSON file exists
@@ -133,9 +133,9 @@ class VRayExporterPreferences(bpy.types.AddonPreferences):
             split.column().prop(self, "vray_binary", text="")
         
         if self.detect_vray_cloud:
-            layout.label(text="V-Ray Cloud binary: {0}".format(self.vray_cloud_binary))
+            layout.label(text="Chaos Cloud binary: {0}".format(self.vray_cloud_binary))
         else:
-            layout.label(text="V-Ray Cloud binary is not detected on your system!")
+            layout.label(text="Chaos Cloud binary is not detected on your system!")
 
 
 class VRayExporter(bpy.types.PropertyGroup):
@@ -609,20 +609,20 @@ class VRayExporter(bpy.types.PropertyGroup):
     )
 
     submit_to_vray_cloud = bpy.props.BoolProperty(
-        name = "Submit to V-Ray Cloud",
-        description = "Submits current scene as a render job to the V-Ray Cloud",
+        name = "Submit to Chaos Cloud",
+        description = "Submits current scene as a render job to the Chaos Cloud",
         default = False
     )
 
     vray_cloud_project_name = bpy.props.StringProperty(
         name = "Project",
-        description = "V-Ray Cloud Project Name",
+        description = "Chaos Cloud Project Name",
         default = "Blender for V-Ray"
     )
 
     vray_cloud_job_name = bpy.props.StringProperty(
         name = "Job",
-        description = "V-Ray Cloud Job Name",
+        description = "Chaos Cloud Job Name",
         default = "$F"
     )
 

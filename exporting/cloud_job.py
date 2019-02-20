@@ -120,9 +120,9 @@ class VCloudJob:
     
     def submitToCloud(self):
         """
-        Submits this job to V-Ray Cloud. Tries to create a project before submitting.
+        Submits this job to Chaos Cloud. Tries to create a project before submitting.
         Exit code:
-            -404: V-Ray Cloud binary is not detected on the system, done nothing
+            -404: Chaos Cloud binary is not detected on the system, done nothing
             -2:   created project, failed to submit job
             -1:   failed to create project, failed to submit job
             0 :   job submitted successfully 

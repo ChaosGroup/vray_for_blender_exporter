@@ -296,7 +296,7 @@ class VRAY_PT_render(classes.VRayRenderPanel):
 
 
 class VRAY_PT_cloud(classes.VRayRenderPanel):
-	bl_label = "V-Ray Cloud"
+	bl_label = "Chaos Cloud"
 	bl_panel_groups = PanelGroups
 	
 	def draw_header(self, context):
