@@ -23,7 +23,7 @@
 #
 
 bl_info = {
-    "name"        : "V-Ray For Blender 3.0",
+    "name"        : "V-Ray For Blender 3.5",
     "author"      : "Andrei Izrantcev <andrei.izrantcev@chaosgroup.com>",
     "blender"     : (2, 70, 0),
     "location"    : "Info header, render engine menu",
